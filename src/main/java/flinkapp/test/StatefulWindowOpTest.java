@@ -23,7 +23,7 @@ import java.util.Map;
 
 public class StatefulWindowOpTest {
 
-    private static String logPath = "/home/hya/prog/flink-nus/build-target/log/flink-hya-standalonesession-0-hya-HP-ProBook-455R-G6.log";
+    private static String logPath = "build-target/log/flink-hya-standalonesession-0-hya-HP-ProBook-455R-G6.log";
 
     public static void main(String[] args) throws Exception {
         // Checking input parameters

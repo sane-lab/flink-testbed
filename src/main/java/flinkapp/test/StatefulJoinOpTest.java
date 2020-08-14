@@ -22,6 +22,8 @@ package flinkapp.test;
 import Nexmark.sinks.DummySink;
 import Nexmark.sources.AuctionSourceFunction;
 import Nexmark.sources.PersonSourceFunction;
+import flinkapp.test.utils.RescaleActionDescriptor;
+import flinkapp.test.utils.ResultCheckingThread;
 import org.apache.beam.sdk.nexmark.model.Auction;
 import org.apache.beam.sdk.nexmark.model.Person;
 import org.apache.flink.api.common.functions.FlatJoinFunction;
@@ -29,7 +31,6 @@ import org.apache.flink.api.java.functions.KeySelector;
 import org.apache.flink.api.java.tuple.Tuple3;
 import org.apache.flink.api.java.typeutils.GenericTypeInfo;
 import org.apache.flink.api.java.utils.ParameterTool;
-import org.apache.flink.runtime.state.memory.MemoryStateBackend;
 import org.apache.flink.streaming.api.CheckpointingMode;
 import org.apache.flink.streaming.api.TimeCharacteristic;
 import org.apache.flink.streaming.api.datastream.DataStream;
@@ -39,7 +40,6 @@ import org.apache.flink.streaming.api.functions.AssignerWithPeriodicWatermarks;
 import org.apache.flink.streaming.api.watermark.Watermark;
 import org.apache.flink.streaming.api.windowing.assigners.TumblingEventTimeWindows;
 import org.apache.flink.streaming.api.windowing.time.Time;
-import org.apache.flink.util.Collector;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -47,7 +47,9 @@ import javax.annotation.Nullable;
 
 public class StatefulJoinOpTest {
 
-    private static final Logger logger  = LoggerFactory.getLogger(StatefulJoinOpTest.class);
+    private static final Logger logger = LoggerFactory.getLogger(StatefulJoinOpTest.class);
+
+    private static String logPath = "build-target/log/flink-hya-standalonesession-0-hya-HP-ProBook-455R-G6.log";
 
     public static void main(String[] args) throws Exception {
 
@@ -56,12 +58,7 @@ public class StatefulJoinOpTest {
 
         // set up the execution environment
         final StreamExecutionEnvironment env = StreamExecutionEnvironment.getExecutionEnvironment();
-        env.setStateBackend(new MemoryStateBackend(100000000));
-//        new MemoryStateBackend(1024 * 1024 * 1024, false);
-//        env.setStateBackend(new FsStateBackend("file:///home/myc/workspace/flink-related/states"));
-//        env.setStateBackend(new FsStateBackend("hdfs://camel:9000/flink/checkpoints"));
 
-//        env.setStreamTimeCharacteristic(TimeCharacteristic.EventTime);
         env.setStreamTimeCharacteristic(TimeCharacteristic.IngestionTime);
 
         env.getConfig().setAutoWatermarkInterval(1000);
@@ -93,36 +90,24 @@ public class StatefulJoinOpTest {
 //                .assignTimestampsAndWatermarks(new PersonTimestampAssigner());
 
 
-
         // SELECT Rstream(P.id, P.name, A.reserve)
         // FROM Person [RANGE 1 HOUR] P, Auction [RANGE 1 HOUR] A
         // WHERE P.id = A.seller;
-        DataStream<Tuple3<Long, String, Long>> joined =
-                persons.join(auctions)
-                        .where(new KeySelector<Person, Long>() {
-                            @Override
-                            public Long getKey(Person p) {
-                                return p.id;
-                            }
-                        }).equalTo(new KeySelector<Auction, Long>() {
-                    @Override
-                    public Long getKey(Auction a) {
-                        return a.seller;
-                    }
-                })
-                        .window(TumblingEventTimeWindows.of(Time.milliseconds(1)))
-                        .apply(new FlatJoinFunction<Person, Auction, Tuple3<Long, String, Long>>() {
-                            @Override
-                            public void join(Person p, Auction a, Collector<Tuple3<Long, String, Long>> out) {
-                                out.collect(new Tuple3<>(p.id, p.name, a.reserve));
-                            }
-                        });
+        DataStream<Tuple3<Long, String, Long>> joined = persons
+                .join(auctions)
+                .where((KeySelector<Person, Long>) p -> p.id)
+                .equalTo((KeySelector<Auction, Long>) a -> a.seller)
+                .window(TumblingEventTimeWindows.of(Time.milliseconds(1)))
+                .apply((FlatJoinFunction<Person, Auction, Tuple3<Long, String, Long>>) (p, a, out) -> out.collect(new Tuple3<>(p.id, p.name, a.reserve)));
 
-        joined = ((SingleOutputStreamOperator<Tuple3<Long, String, Long>>) joined).disableChaining();
-
-        ((SingleOutputStreamOperator<Tuple3<Long, String, Long>>) joined).setMaxParallelism(params.getInt("mp2", 64));
-        ((SingleOutputStreamOperator<Tuple3<Long, String, Long>>) joined).setParallelism(params.getInt("p2",  1));
-        ((SingleOutputStreamOperator<Tuple3<Long, String, Long>>) joined).name("join");
+        SingleOutputStreamOperator<Tuple3<Long, String, Long>> joinedStream = (SingleOutputStreamOperator<Tuple3<Long, String, Long>>) joined;
+        joinedStream
+                .disableChaining()
+                .setMaxParallelism(params.getInt("mp2", 128))
+                .setParallelism(params.getInt("p2", 3))
+                .name(new RescaleActionDescriptor()
+                        .thenScaleOut(4)
+                        .toString());
 
         GenericTypeInfo<Object> objectTypeInfo = new GenericTypeInfo<>(Object.class);
         joined.transform("DummySink", objectTypeInfo, new DummySink<>())
@@ -130,7 +115,9 @@ public class StatefulJoinOpTest {
                 .setParallelism(params.getInt("p-window", 1));
 
         // execute program
-        env.execute("Nexmark Query8");
+        ResultCheckingThread.create(10, true)
+                .addChecking(() -> ResultCheckingThread.checkLogFileException(logPath))
+                .startWith(() -> env.execute("Nexmark Query8"));
     }
 
     private static final class PersonTimestampAssigner implements AssignerWithPeriodicWatermarks<Person> {
