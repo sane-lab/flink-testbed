@@ -1,4 +1,4 @@
-package flinkapp.test;
+package flinkapp.test.utils;
 
 import java.util.ArrayList;
 import java.util.List;

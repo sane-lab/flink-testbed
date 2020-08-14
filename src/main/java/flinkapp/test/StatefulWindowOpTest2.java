@@ -2,8 +2,6 @@ package flinkapp.test;
 
 import Nexmark.sinks.DummySink;
 import flinkapp.test.utils.RescaleActionDescriptor;
-import flinkapp.test.utils.ResultCheckingThread;
-import org.apache.flink.api.common.functions.ReduceFunction;
 import org.apache.flink.api.common.state.ListState;
 import org.apache.flink.api.common.state.ListStateDescriptor;
 import org.apache.flink.api.java.tuple.Tuple2;
@@ -21,9 +19,7 @@ import org.apache.flink.streaming.api.windowing.time.Time;
 import java.util.HashMap;
 import java.util.Map;
 
-public class StatefulWindowOpTest {
-
-    private static String logPath = "/home/hya/prog/flink-nus/build-target/log/flink-hya-standalonesession-0-hya-HP-ProBook-455R-G6.log";
+public class StatefulWindowOpTest2 {
 
     public static void main(String[] args) throws Exception {
         // Checking input parameters
@@ -39,12 +35,8 @@ public class StatefulWindowOpTest {
         DataStream<Tuple2<String, Integer>> counts = source
                 .keyBy(0)
                 .timeWindow(Time.seconds(1))
-                .reduce((ReduceFunction<Tuple2<String, Integer>>) (stringStringTuple1, stringStringTuple2) -> {
-                    assert stringStringTuple1.f0.equals(stringStringTuple2.f0);
-                    return new Tuple2<>(stringStringTuple1.f0, stringStringTuple1.f1 + stringStringTuple2.f1);
-                })
-                .disableChaining()
-                .name(new RescaleActionDescriptor()
+                .max(0)
+                .name("map" + new RescaleActionDescriptor()
                         .thenScaleOut(4)
                         .toString())
                 .uid("window")
@@ -56,9 +48,7 @@ public class StatefulWindowOpTest {
                 .uid("dummy-sink")
                 .setParallelism(params.getInt("p3", 1));
 
-        ResultCheckingThread.create(10, true)
-                .addChecking(() -> ResultCheckingThread.checkLogFileException(logPath))
-                .startWith(() -> env.execute("window scale out 3 to 4"));
+        env.execute("window scale out 3 to 4");
     }
 
     private static class WordSource implements SourceFunction<Tuple2<String, Integer>>, CheckpointedFunction {
