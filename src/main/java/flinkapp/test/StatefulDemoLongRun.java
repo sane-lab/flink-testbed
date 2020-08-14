@@ -78,6 +78,7 @@ public class StatefulDemoLongRun {
         @Override
         public String map(Tuple2<String, String> input) throws Exception {
             long start = System.nanoTime();
+            // loop 0.01 ms
             while(System.nanoTime() - start < 10000) {}
 
             String s = input.f0;
@@ -120,9 +121,9 @@ public class StatefulDemoLongRun {
             this.nKeys = nKeys;
             this.rate = nTuples / runtime;
             System.out.println("runtime: " + runtime
-                    + " nTuples: " + nTuples
-                    + " nKeys: " + nKeys
-                    + " rate: " + rate);
+                    + ", nTuples: " + nTuples
+                    + ", nKeys: " + nKeys
+                    + ", rate: " + rate);
         }
 
         @Override
