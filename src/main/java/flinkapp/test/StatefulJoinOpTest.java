@@ -40,6 +40,7 @@ import org.apache.flink.streaming.api.functions.AssignerWithPeriodicWatermarks;
 import org.apache.flink.streaming.api.watermark.Watermark;
 import org.apache.flink.streaming.api.windowing.assigners.TumblingEventTimeWindows;
 import org.apache.flink.streaming.api.windowing.time.Time;
+import org.apache.flink.util.Collector;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -98,7 +99,14 @@ public class StatefulJoinOpTest {
                 .where((KeySelector<Person, Long>) p -> p.id)
                 .equalTo((KeySelector<Auction, Long>) a -> a.seller)
                 .window(TumblingEventTimeWindows.of(Time.milliseconds(1)))
-                .apply((FlatJoinFunction<Person, Auction, Tuple3<Long, String, Long>>) (p, a, out) -> out.collect(new Tuple3<>(p.id, p.name, a.reserve)));
+                .apply(
+                        new FlatJoinFunction<Person, Auction, Tuple3<Long, String, Long>>() {
+                            @Override
+                            public void join(Person person, Auction auction, Collector<Tuple3<Long, String, Long>> collector) throws Exception {
+                                collector.collect(new Tuple3<>(person.id, person.name, auction.reserve));
+                            }
+                        }
+                );
 
         SingleOutputStreamOperator<Tuple3<Long, String, Long>> joinedStream = (SingleOutputStreamOperator<Tuple3<Long, String, Long>>) joined;
         joinedStream
