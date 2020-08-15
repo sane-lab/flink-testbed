@@ -17,7 +17,7 @@ public class ResultCheckingThread extends Thread {
 
     public static void checkLogFileException(String logFilePath) throws Exception {
         File file = new File(logFilePath);
-        InputStreamReader read = new InputStreamReader(new FileInputStream(file), StandardCharsets.UTF_8);//考虑到编码格式
+        InputStreamReader read = new InputStreamReader(new FileInputStream(file), StandardCharsets.UTF_8);
         try (BufferedReader bufferedReader = new BufferedReader(read)) {
             String line = null;
             int lineNumber = 0;
@@ -27,8 +27,8 @@ public class ResultCheckingThread extends Thread {
 //                continue;
 //            }
                 if (line.contains("Exception")) {
-                    throw new CheckFailException("Exception record found in line " +
-                            lineNumber + " in file:\n" + file.getAbsolutePath());
+                    throw new CheckFailException("Exception record found in file:" +
+                            line + "\n" + file.getAbsolutePath() + ":"+ lineNumber);
                 }
             }
         }
