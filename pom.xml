@@ -172,7 +172,7 @@ under the License.
                                     <!--<mainClass>stock.StockExchange</mainClass>-->
                                     <!--<mainClass>stock.InAppStatefulStockExchange</mainClass>-->
 									<!--<mainClass>stock.InAppStockExchange</mainClass>-->
-									<mainClass>flinkapp.test.StatefulJoinOpTest</mainClass>
+									<mainClass>flinkapp.test.TestingWorkload</mainClass>
 								</transformer>
 							</transformers>
 						</configuration>
