@@ -56,6 +56,7 @@ public class TestingWorkload {
                 params.getInt("nKeys", 1000)
         ));
         DataStream<Tuple2<String, Long>> mapStream = source
+                .name("source")
                 .disableChaining()
                 .keyBy(0)
                 .map(new MapFunction<Tuple2<String, Long>, Tuple2<String, Long>>() {
@@ -64,7 +65,7 @@ public class TestingWorkload {
                         return stringLongTuple2;
                     }
                 })
-                .name("source")
+                .name("fake source")
                 .setParallelism(2)
                 .keyBy(0)
                 .map(new MyStatefulMap("fake source"))
@@ -85,12 +86,24 @@ public class TestingWorkload {
                 "Count Sink", new GenericTypeInfo<>(Object.class), new DummyNameSink<>("count sink"))
                 .uid("dummy-count-sink")
                 .setParallelism(params.getInt("p3", 1));
-
+        // second stream
         source.disableChaining()
                 .keyBy(0)
                 .map(new MyStatefulMap("real source"))
                 .name("near source Flatmap")
                 .setParallelism(2);
+        // third stream
+        source.disableChaining()
+                .keyBy(0)
+                .filter(input -> {
+                    System.out.println("source filter:" + input);
+                    return true;
+                })
+                .name("source filter")
+                .setParallelism(params.getInt("p2", 2))
+                .keyBy(0)
+                .transform("Filter Sink", new GenericTypeInfo<>(Object.class), new DummyNameSink<>("count sink"))
+                .setParallelism(params.getInt("p3", 1));
         System.out.println(env.getExecutionPlan());
         env.execute();
     }
