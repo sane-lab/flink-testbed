@@ -1,25 +1,42 @@
 package flinkapp.test;
 
-import org.apache.flink.api.common.functions.MapFunction;
-import org.apache.flink.api.common.functions.RichMapFunction;
+import Nexmark.queries.Query8;
+import Nexmark.sinks.DummySink;
+import Nexmark.sources.AuctionSourceFunction;
+import Nexmark.sources.PersonSourceFunction;
+import flinkapp.test.utils.RescaleActionDescriptor;
+import flinkapp.test.utils.ResultCheckingThread;
+import org.apache.beam.sdk.nexmark.model.Auction;
+import org.apache.beam.sdk.nexmark.model.Person;
+import org.apache.flink.api.common.functions.*;
 import org.apache.flink.api.common.state.ListState;
 import org.apache.flink.api.common.state.ListStateDescriptor;
 import org.apache.flink.api.common.state.MapState;
 import org.apache.flink.api.common.state.MapStateDescriptor;
+import org.apache.flink.api.java.functions.KeySelector;
 import org.apache.flink.api.java.tuple.Tuple2;
+import org.apache.flink.api.java.tuple.Tuple3;
 import org.apache.flink.api.java.typeutils.GenericTypeInfo;
 import org.apache.flink.api.java.utils.ParameterTool;
 import org.apache.flink.configuration.Configuration;
 import org.apache.flink.runtime.state.FunctionInitializationContext;
 import org.apache.flink.runtime.state.FunctionSnapshotContext;
 import org.apache.flink.streaming.api.CheckpointingMode;
+import org.apache.flink.streaming.api.TimeCharacteristic;
 import org.apache.flink.streaming.api.checkpoint.CheckpointedFunction;
 import org.apache.flink.streaming.api.datastream.DataStream;
 import org.apache.flink.streaming.api.datastream.DataStreamSource;
+import org.apache.flink.streaming.api.datastream.SingleOutputStreamOperator;
 import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
+import org.apache.flink.streaming.api.functions.co.CoFlatMapFunction;
+import org.apache.flink.streaming.api.functions.co.CoMapFunction;
 import org.apache.flink.streaming.api.functions.sink.SinkFunction;
 import org.apache.flink.streaming.api.functions.source.SourceFunction;
 import org.apache.flink.streaming.api.operators.StreamSink;
+import org.apache.flink.streaming.api.windowing.assigners.TumblingEventTimeWindows;
+import org.apache.flink.streaming.api.windowing.assigners.WindowAssigner;
+import org.apache.flink.streaming.api.windowing.time.Time;
+import org.apache.flink.util.Collector;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -41,14 +58,12 @@ public class TestingWorkload {
     //    private static final int MAX = 1000;
     private static final int NUM_LETTERS = 26;
 
-    public static void main(String[] args) throws Exception {
-        // Checking input parameters
-        final ParameterTool params = ParameterTool.fromArgs(args);
-
+    private static void simpleTest(ParameterTool params) throws Exception {
         StreamExecutionEnvironment env = StreamExecutionEnvironment.getExecutionEnvironment();
 
         env.enableCheckpointing(1000);
         env.getCheckpointConfig().setCheckpointingMode(CheckpointingMode.EXACTLY_ONCE);
+        env.disableOperatorChaining();
 
         DataStreamSource<Tuple2<String, Long>> source = env.addSource(new MySource(
                 params.getInt("runtime", 10),
@@ -95,17 +110,96 @@ public class TestingWorkload {
         // third stream
         source.disableChaining()
                 .keyBy(0)
-                .filter(input -> {
-                    System.out.println("source filter:" + input);
-                    return true;
+                .map(new MapFunction<Tuple2<String, Long>, Tuple2<String, Integer>>() {
+                    @Override
+                    public Tuple2<String, Integer> map(Tuple2<String, Long> stringLongTuple2) throws Exception {
+                        return Tuple2.of(stringLongTuple2.f0, 1);
+                    }
                 })
-                .name("source filter")
+                .name("source stateless map")
                 .setParallelism(params.getInt("p2", 2))
                 .keyBy(0)
-                .transform("Filter Sink", new GenericTypeInfo<>(Object.class), new DummyNameSink<>("count sink"))
+                .countWindow(10)
+                .reduce(new ReduceFunction<Tuple2<String, Integer>>() {
+                    @Override
+                    public Tuple2<String, Integer> reduce(Tuple2<String, Integer> stringIntegerTuple2, Tuple2<String, Integer> t1) throws Exception {
+                        return Tuple2.of(stringIntegerTuple2.f0 + " " + t1.f0, stringIntegerTuple2.f1 + t1.f1);
+                    }
+                })
+                .setParallelism(2)
+                .name("counting window reduce")
+                .transform("Filter Sink", new GenericTypeInfo<>(Object.class), new DummyNameSink<>("Filter sink"))
                 .setParallelism(params.getInt("p3", 1));
+
         System.out.println(env.getExecutionPlan());
         env.execute();
+    }
+
+
+    private static void windowJoinTest(ParameterTool params) throws Exception {
+        StreamExecutionEnvironment env = StreamExecutionEnvironment.getExecutionEnvironment();
+        env.setStreamTimeCharacteristic(TimeCharacteristic.IngestionTime);
+        env.getConfig().setAutoWatermarkInterval(1000);
+//        env.enableCheckpointing(1000);
+        env.getCheckpointConfig().setCheckpointingMode(CheckpointingMode.EXACTLY_ONCE);
+        env.disableOperatorChaining();
+        env.setParallelism(params.getInt("p-window", 1));
+
+        final int auctionSrcRate = params.getInt("auction-srcRate", 1000);
+        final int auctionSrcCycle = params.getInt("auction-srcCycle", 10);
+        final int auctionSrcBase = params.getInt("auction-srcBase", 0);
+
+        final int personSrcRate = params.getInt("person-srcRate", 1000);
+        final int personSrcCycle = params.getInt("person-srcCycle", 10);
+        final int personSrcBase = params.getInt("person-srcBase", 0);
+
+
+        DataStream<Auction> auctions = env.addSource(new AuctionSourceFunction(auctionSrcRate, auctionSrcCycle, auctionSrcBase))
+                .name("Custom Source: Auctions")
+                .setParallelism(params.getInt("p-auction-source", 1));
+
+        DataStream<Person> persons = env.addSource(new PersonSourceFunction(personSrcRate, personSrcCycle, personSrcBase))
+                .name("Custom Source: Persons")
+                .setParallelism(params.getInt("p-person-source", 1));
+
+        // SELECT Rstream(P.id, P.name, A.reserve)
+        // FROM Person [RANGE 1 HOUR] P, Auction [RANGE 1 HOUR] A
+        // WHERE P.id = A.seller;
+        DataStream<Tuple3<Long, String, Long>> joined = persons
+                .join(auctions)
+                .where((KeySelector<Person, Long>) p -> p.id)
+                .equalTo((KeySelector<Auction, Long>) a -> a.seller)
+                .window(TumblingEventTimeWindows.of(Time.milliseconds(1)))
+                .apply(
+                        new FlatJoinFunction<Person, Auction, Tuple3<Long, String, Long>>() {
+                            @Override
+                            public void join(Person person, Auction auction, Collector<Tuple3<Long, String, Long>> collector) throws Exception {
+                                collector.collect(new Tuple3<>(person.id, person.name, auction.reserve));
+                            }
+                        }
+                );
+
+        SingleOutputStreamOperator<Tuple3<Long, String, Long>> joinedStream = (SingleOutputStreamOperator<Tuple3<Long, String, Long>>) joined;
+        joinedStream
+                .disableChaining()
+                .setMaxParallelism(params.getInt("mp2", 128))
+                .setParallelism(params.getInt("p2", 2));
+
+        GenericTypeInfo<Object> objectTypeInfo = new GenericTypeInfo<>(Object.class);
+        joined.transform("DummySink", objectTypeInfo, new DummyNameSink<>("join sink"))
+                .uid("dummy-sink")
+                .setParallelism(params.getInt("p-window", 1));
+
+        System.out.println(env.getExecutionPlan());
+        env.execute();
+    }
+
+    public static void main(String[] args) throws Exception {
+        // Checking input parameters
+        final ParameterTool params = ParameterTool.fromArgs(args);
+
+        simpleTest(params);
+//        windowJoinTest(params);
     }
 
     private static class MyStatefulMap extends RichMapFunction<Tuple2<String, Long>, Tuple2<String, Long>> {
