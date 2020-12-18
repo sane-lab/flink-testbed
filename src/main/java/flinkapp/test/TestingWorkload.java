@@ -1,11 +1,7 @@
 package flinkapp.test;
 
-import Nexmark.queries.Query8;
-import Nexmark.sinks.DummySink;
 import Nexmark.sources.AuctionSourceFunction;
 import Nexmark.sources.PersonSourceFunction;
-import flinkapp.test.utils.RescaleActionDescriptor;
-import flinkapp.test.utils.ResultCheckingThread;
 import org.apache.beam.sdk.nexmark.model.Auction;
 import org.apache.beam.sdk.nexmark.model.Person;
 import org.apache.flink.api.common.functions.*;
@@ -28,13 +24,10 @@ import org.apache.flink.streaming.api.datastream.DataStream;
 import org.apache.flink.streaming.api.datastream.DataStreamSource;
 import org.apache.flink.streaming.api.datastream.SingleOutputStreamOperator;
 import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
-import org.apache.flink.streaming.api.functions.co.CoFlatMapFunction;
-import org.apache.flink.streaming.api.functions.co.CoMapFunction;
 import org.apache.flink.streaming.api.functions.sink.SinkFunction;
 import org.apache.flink.streaming.api.functions.source.SourceFunction;
 import org.apache.flink.streaming.api.operators.StreamSink;
 import org.apache.flink.streaming.api.windowing.assigners.TumblingEventTimeWindows;
-import org.apache.flink.streaming.api.windowing.assigners.WindowAssigner;
 import org.apache.flink.streaming.api.windowing.time.Time;
 import org.apache.flink.util.Collector;
 
@@ -58,12 +51,7 @@ public class TestingWorkload {
     //    private static final int MAX = 1000;
     private static final int NUM_LETTERS = 26;
 
-    private static void simpleTest(ParameterTool params) throws Exception {
-        StreamExecutionEnvironment env = StreamExecutionEnvironment.getExecutionEnvironment();
-
-        env.enableCheckpointing(1000);
-        env.getCheckpointConfig().setCheckpointingMode(CheckpointingMode.EXACTLY_ONCE);
-        env.disableOperatorChaining();
+    private static void simpleTest(StreamExecutionEnvironment env, ParameterTool params) {
 
         DataStreamSource<Tuple2<String, Long>> source = env.addSource(new MySource(
                 params.getInt("runtime", 10),
@@ -130,20 +118,10 @@ public class TestingWorkload {
                 .name("counting window reduce")
                 .transform("Filter Sink", new GenericTypeInfo<>(Object.class), new DummyNameSink<>("Filter sink"))
                 .setParallelism(params.getInt("p3", 1));
-
-        System.out.println(env.getExecutionPlan());
-        env.execute();
     }
 
 
-    private static void windowJoinTest(ParameterTool params) throws Exception {
-        StreamExecutionEnvironment env = StreamExecutionEnvironment.getExecutionEnvironment();
-        env.setStreamTimeCharacteristic(TimeCharacteristic.IngestionTime);
-        env.getConfig().setAutoWatermarkInterval(1000);
-//        env.enableCheckpointing(1000);
-        env.getCheckpointConfig().setCheckpointingMode(CheckpointingMode.EXACTLY_ONCE);
-        env.disableOperatorChaining();
-        env.setParallelism(params.getInt("p-window", 1));
+    private static void windowJoinTest(StreamExecutionEnvironment env, ParameterTool params) throws Exception {
 
         final int auctionSrcRate = params.getInt("auction-srcRate", 1000);
         final int auctionSrcCycle = params.getInt("auction-srcCycle", 10);
@@ -178,28 +156,34 @@ public class TestingWorkload {
                             }
                         }
                 );
-
-        SingleOutputStreamOperator<Tuple3<Long, String, Long>> joinedStream = (SingleOutputStreamOperator<Tuple3<Long, String, Long>>) joined;
-        joinedStream
+        ((SingleOutputStreamOperator<Tuple3<Long, String, Long>>) joined)
                 .disableChaining()
+                .name("join1")
                 .setMaxParallelism(params.getInt("mp2", 128))
                 .setParallelism(params.getInt("p2", 2));
 
         GenericTypeInfo<Object> objectTypeInfo = new GenericTypeInfo<>(Object.class);
         joined.transform("DummySink", objectTypeInfo, new DummyNameSink<>("join sink"))
-                .uid("dummy-sink")
+                .uid("dummy-sink-join1")
                 .setParallelism(params.getInt("p-window", 1));
-
-        System.out.println(env.getExecutionPlan());
-        env.execute();
     }
 
     public static void main(String[] args) throws Exception {
         // Checking input parameters
         final ParameterTool params = ParameterTool.fromArgs(args);
+        StreamExecutionEnvironment env = StreamExecutionEnvironment.getExecutionEnvironment();
+        env.setStreamTimeCharacteristic(TimeCharacteristic.IngestionTime);
+        env.getConfig().setAutoWatermarkInterval(1000);
+        env.enableCheckpointing(1000);
+        env.getCheckpointConfig().setCheckpointingMode(CheckpointingMode.EXACTLY_ONCE);
+        env.disableOperatorChaining();
+        env.setParallelism(params.getInt("p-window", 1));
 
-        simpleTest(params);
-//        windowJoinTest(params);
+        simpleTest(env, params);
+        windowJoinTest(env, params);
+
+        System.out.println(env.getExecutionPlan());
+        env.execute();
     }
 
     private static class MyStatefulMap extends RichMapFunction<Tuple2<String, Long>, Tuple2<String, Long>> {
