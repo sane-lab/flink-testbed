@@ -20,13 +20,13 @@ import org.apache.flink.streaming.connectors.kafka.FlinkKafkaProducer011;
 public class StatefulDemo {
 
 //    private static final int MAX = 1000000 * 10;
-    private static final int MAX = 1000;
+    private static final int MAX = 1000000 * 4;
     private static final int NUM_LETTERS = 26;
 
     public static void main(String[] args) throws Exception {
         StreamExecutionEnvironment env = StreamExecutionEnvironment.getExecutionEnvironment();
 
-        env.enableCheckpointing(1000);
+//        env.enableCheckpointing(1000);
         env.getCheckpointConfig().setCheckpointingMode(CheckpointingMode.EXACTLY_ONCE);
 
         FlinkKafkaProducer011<String> kafkaProducer = new FlinkKafkaProducer011<String>(
@@ -38,14 +38,13 @@ public class StatefulDemo {
             .keyBy(0)
             .map(new MyStatefulMap())
             .disableChaining()
-//            .filter(input -> {
-//                return Integer.parseInt(input.split(" ")[1]) >= MAX;
-//            })
             .name("Splitter FlatMap")
             .uid("flatmap")
             .setParallelism(2)
+            .filter(input -> {
+                return Integer.parseInt(input.split(" ")[1]) >= MAX;
+            })
             .addSink(kafkaProducer);
-
         env.execute();
     }
 
