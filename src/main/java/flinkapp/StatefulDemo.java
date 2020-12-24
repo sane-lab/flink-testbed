@@ -29,9 +29,9 @@ public class StatefulDemo {
 //        env.enableCheckpointing(1000);
         env.getCheckpointConfig().setCheckpointingMode(CheckpointingMode.EXACTLY_ONCE);
 
-        FlinkKafkaProducer011<String> kafkaProducer = new FlinkKafkaProducer011<String>(
-                "localhost:9092", "my-flink-demo-topic0", new SimpleStringSchema());
-        kafkaProducer.setWriteTimestampToKafka(true);
+//        FlinkKafkaProducer011<String> kafkaProducer = new FlinkKafkaProducer011<String>(
+//                "localhost:9092", "my-flink-demo-topic0", new SimpleStringSchema());
+//        kafkaProducer.setWriteTimestampToKafka(true);
 
         DataStreamSource<Tuple2<String, String>> source = env.addSource(new MySource());
         source
@@ -44,7 +44,8 @@ public class StatefulDemo {
             .filter(input -> {
                 return Integer.parseInt(input.split(" ")[1]) >= MAX;
             })
-            .addSink(kafkaProducer);
+            .print();
+//            .addSink(kafkaProducer);
         env.execute();
     }
 
