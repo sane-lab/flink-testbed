@@ -54,7 +54,7 @@ public class TestingWorkload {
     private static void simpleTest(StreamExecutionEnvironment env, ParameterTool params) {
 
         DataStreamSource<Tuple2<String, Long>> source = env.addSource(new MySource(
-                params.getInt("runtime", 10),
+                params.getInt("runtime", 50),
                 params.getInt("nTuples", 10000),
                 params.getInt("nKeys", 1000)
         ));
@@ -72,7 +72,7 @@ public class TestingWorkload {
                 .setParallelism(2)
                 .keyBy(0)
                 .map(new MyStatefulMap("fake source"))
-                .name("Splitter Flatmap")
+                .name("Splitter FlatMap")
                 .setParallelism(2);
 
         DataStream<Tuple2<String, Long>> counts = mapStream
@@ -211,7 +211,7 @@ public class TestingWorkload {
             count++;
             System.out.println(name + " counted: " + s + " : " + cur);
             if (!input.f1.equals(cur)) {
-                System.out.println("why are this not equal with input oracle:" + input);
+                System.err.println("why are this not equal with input oracle:" + input);
             }
             return Tuple2.of(input.f0, cur);
         }
