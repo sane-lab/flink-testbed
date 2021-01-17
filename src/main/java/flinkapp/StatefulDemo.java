@@ -80,7 +80,11 @@ public class StatefulDemo {
             MapStateDescriptor<String, Long> descriptor =
                     new MapStateDescriptor<>("word-count", String.class, Long.class);
             try {
-                outputStream = new FileOutputStream("/home/hya/prog/latency.out");
+                if(outputStream == null) {
+                    outputStream = new FileOutputStream("/home/hya/prog/latency.out");
+                }else {
+                    System.out.println("already have an ouput stream during last open");
+                }
             } catch (FileNotFoundException e) {
                 e.printStackTrace();
             }
