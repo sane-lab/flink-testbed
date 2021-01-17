@@ -88,7 +88,7 @@ public class StatefulDemoLongRun {
             countMap.put(s, cur);
 
             count++;
-            System.out.println("counted: " + s + " : " + cur);
+//            System.out.println("counted: " + s + " : " + cur);
 
             return String.format("%s %d", s, cur);
         }

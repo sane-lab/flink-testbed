@@ -8,6 +8,7 @@ import org.apache.flink.api.common.state.ListStateDescriptor;
 import org.apache.flink.api.common.state.MapState;
 import org.apache.flink.api.common.state.MapStateDescriptor;
 import org.apache.flink.api.java.tuple.Tuple2;
+import org.apache.flink.api.java.tuple.Tuple3;
 import org.apache.flink.api.java.typeutils.GenericTypeInfo;
 import org.apache.flink.api.java.utils.ParameterTool;
 import org.apache.flink.configuration.Configuration;
@@ -39,7 +40,7 @@ public class StatefulDemoLongRun {
 //        env.enableCheckpointing(1000);
 //        env.getCheckpointConfig().setCheckpointingMode(CheckpointingMode.EXACTLY_ONCE);
 
-        DataStreamSource<Tuple2<String, String>> source = env.addSource(new MySource(
+        DataStreamSource<Tuple3<String, String, Long>> source = env.addSource(new MySource(
                 params.getInt("runtime", 10),
                 params.getInt("nTuples", 10000),
                 params.getInt("nKeys", 1000)
@@ -65,16 +66,16 @@ public class StatefulDemoLongRun {
 //        System.out.println(env.getExecutionPlan());
     }
 
-    private static class MyStatefulMap extends RichMapFunction<Tuple2<String, String>, String> {
+    private static class MyStatefulMap extends RichMapFunction<Tuple3<String, String, Long>, String> {
 
         private transient MapState<String, Long> countMap;
 
         private int count = 0;
 
         @Override
-        public String map(Tuple2<String, String> input) throws Exception {
-            long start = System.nanoTime();
-            while(System.nanoTime() - start < 10000) {}
+        public String map(Tuple3<String, String, Long> input) throws Exception {
+//            long start = System.nanoTime();
+//            while(System.nanoTime() - start < 10000) {}
 
             String s = input.f0;
 
@@ -83,7 +84,7 @@ public class StatefulDemoLongRun {
             countMap.put(s, cur);
 
             count++;
-            System.out.println("counted: " + s + " : " + cur);
+//            System.out.println("latency: " + (System.currentTimeMillis() - input.f2));
 
             return String.format("%s %d", s, cur);
         }
@@ -97,7 +98,7 @@ public class StatefulDemoLongRun {
         }
     }
 
-    private static class MySource implements SourceFunction<Tuple2<String, String>>, CheckpointedFunction {
+    private static class MySource implements SourceFunction<Tuple3<String, String, Long>>, CheckpointedFunction {
 
         private int count = 0;
         private volatile boolean isRunning = true;
@@ -141,18 +142,13 @@ public class StatefulDemoLongRun {
         }
 
         @Override
-        public void run(SourceContext<Tuple2<String, String>> ctx) throws Exception {
+        public void run(SourceContext<Tuple3<String, String, Long>> ctx) throws Exception {
             while (isRunning && count < nTuples) {
                 if (count % rate  == 0) {
                     Thread.sleep(1000);
                 }
                 synchronized (ctx.getCheckpointLock()) {
-                    String key = getChar(count);
-                    int curCount = keyCount.getOrDefault(key, 0)+1;
-                    keyCount.put(key, curCount);
-                    System.out.println("sent: " + key + " : " + curCount + " total: " + count);
-                    ctx.collect(Tuple2.of(key, key));
-
+                    ctx.collect(Tuple3.of(getChar(count), getChar(count), System.currentTimeMillis()));
                     count++;
                 }
             }
