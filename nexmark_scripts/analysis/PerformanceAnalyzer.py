@@ -11,27 +11,38 @@ def averageLatency(lines, expName):
             count += 1
 
     if count > 0:
-        print(expName + " avg latency", ": ", totalLatency / count)
+        print("avg latency", ": ", totalLatency / count)
     else:
-        print(expName + " avg latency", ": ", 0)
+        print("avg latency", ": ", 0)
 
 # the average reconfig time
 def averageCompletionTime(lines, expName):
-    totalCompletionTime = 0
-    count = 0
+    timers = {}
+    counts = {}
     for line in lines:
-        if line.split(" : ")[0] == "++++++endToEndTimer":
-            totalCompletionTime += int(line.split(" : ")[1][:-3])
-            count += 1
-    if count > 0:
-        print(expName + " avg completion time", ": ", totalCompletionTime/count)
-    else:
-        print(expName + " avg completion time", ": ", 0)
+        key = line.split(" : ")[0]
+        if key[0:6] == "++++++":
+            if line.split(" : ")[0] not in timers:
+                timers[key] = 0
+                counts[key] = 0
+            timers[key] += int(line.split(" : ")[1][:-3])
+            counts[key] += 1
+
+    stats = []
+    for key in timers:
+        totalTime = timers[key]
+        count = counts[key]
+        if count > 0:
+            stats.append("{}: {}".format(key, totalTime/count))
+        else:
+            stats.append("{}: {}".format(key, 0))
 # reconfig time breakdown
+    print(stats)
 
 root = "/data"
 
 for expName in os.listdir(root):
+    print("---{}---".format(expName))
     for file in os.listdir(os.path.join(root, expName)):
         file_path = os.path.join(root, expName, file)
         if file == "timer.output":

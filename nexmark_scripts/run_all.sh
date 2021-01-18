@@ -26,11 +26,11 @@ function stopFlink() {
 # configure parameters in flink bin
 function configFlink() {
     # set user requirement
-    sed 's/^\(\s*trisk.reconfig.operator.name\s*:\s*\).*/\1'"$operator"'/' ${FLINK_DIR}/conf/flink-conf.yaml > tmp
-    sed 's/^\(\s*trisk.reconfig.frequency\s*:\s*\).*/\1'"$frequency"'/' tmp > tmp2
+    sed 's/^\(\s*trisk.reconfig.operator.name\s*:\s*\).*/\1'"$operator"'/' ${FLINK_DIR}/conf/flink-conf.yaml > tmp1
+    sed 's/^\(\s*trisk.reconfig.frequency\s*:\s*\).*/\1'"$frequency"'/' tmp1 > tmp2
     sed 's/^\(\s*trisk.reconfig.affected_task\s*:\s*\).*/\1'"$affected_tasks"'/' tmp2 > tmp3
-    sed 's/^\(\s*trisk.reconfig.type\s*:\s*\).*/\1'"$type"'/' tmp2 > ${FLINK_DIR}/conf/flink-conf.yaml
-    rm tmp tmp2
+    sed 's/^\(\s*trisk.reconfig.type\s*:\s*\).*/\1'"$type"'/' tmp3 > ${FLINK_DIR}/conf/flink-conf.yaml
+    rm tmp1 tmp2 tmp3
 }
 
 # clean kafka related data
@@ -54,7 +54,7 @@ function analyze() {
     cp -r /data/trisk /data/trisk-${type}-${frequency}
 }
 
-run_all() {
+run_one_exp() {
   configFlink
   runFlink
   runApp
@@ -67,16 +67,31 @@ run_all() {
   stopFlink
 }
 
-# app level
-JAR="${FLINK_APP_DIR}/target/testbed-1.0-SNAPSHOT.jar"
-n_tuples=10000000
-runtime=100
-parallelism=10
+run_all() {
+  # app level
+  JAR="${FLINK_APP_DIR}/target/testbed-1.0-SNAPSHOT.jar"
+  n_tuples=10000000
+  runtime=100
+  parallelism=10
 
-# system level
-operator="Splitter FlatMap"
-frequency=1
-affected_tasks=2
-type="noop"
+  # system level
+  operator="Splitter FlatMap"
+  frequency=5
+  affected_tasks=2
+  type="noop"
+
+  for frequency in 5; do # 0 1 5 10 100
+    for n_tuples in 1000000 10000000 100000000; do
+      for type in "noop" "remap"; do # "noop" "remap" "rescale"
+        run_one_exp
+      done
+    done
+  done
+}
+
 
 run_all
+
+# dump the statistics when all exp are finished
+# in the future, we will draw the intuitive figures
+python ./analysis/PerformanceAnalyzer.py
