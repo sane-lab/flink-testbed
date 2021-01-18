@@ -1,7 +1,7 @@
 #!/bin/bash
 
 FLINK_DIR="/home/myc/workspace/flink-related/flink/build-target"
-FLINK_APP_DIR="/home/myc/workspace/flink-related/flink-testbed"
+FLINK_APP_DIR="/home/myc/workspace/flink-related/flink-testbed-org"
 
 # run flink clsuter
 function runFlink() {
@@ -16,7 +16,10 @@ function runFlink() {
 # clsoe flink clsuter
 function stopFlink() {
     echo "experiment finished, stopping the cluster"
-    ${FLINK_DIR}/bin/stop-cluster.sh
+    PID=`jps | grep CliFrontend | awk '{print $1}'`
+    if [[ ! -z $PID ]]; then
+          ${FLINK_DIR}/bin/stop-cluster.sh
+    fi
     echo "close finished"
 }
 
@@ -47,23 +50,9 @@ function runApp() {
 # draw figures
 function analyze() {
     #python2 ${FLINK_APP_DIR}/nexmark_scripts/draw/RateAndWindowDelay.py ${EXP_NAME} ${WARMUP} ${RUNTIME}
-    cp -r trisk trisk-${type}-${frequency}
-    echo "others to be integrated"
+    echo "dump to /data/trisk-${type}-${frequency}"
+    cp -r /data/trisk /data/trisk-${type}-${frequency}
 }
-
-# app level
-JAR="${FLINK_APP_DIR}/target/testbed-1.0-SNAPSHOT.jar"
-n_tuples=10000000
-runtime=100
-parallelism=10
-
-# system level
-operator="Splitter FlatMap"
-frequency=1
-affected_tasks=2
-type="noop"
-
-# scripts config
 
 run_all() {
   configFlink
@@ -77,5 +66,17 @@ run_all() {
 
   stopFlink
 }
+
+# app level
+JAR="${FLINK_APP_DIR}/target/testbed-1.0-SNAPSHOT.jar"
+n_tuples=10000000
+runtime=100
+parallelism=10
+
+# system level
+operator="Splitter FlatMap"
+frequency=1
+affected_tasks=2
+type="noop"
 
 run_all
