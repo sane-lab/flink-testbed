@@ -5,7 +5,7 @@ FLINK_APP_DIR="/home/myc/workspace/flink-related/flink-testbed-org"
 
 # run flink clsuter
 function runFlink() {
-    echo "starting the cluster"
+    echo "INFO: starting the cluster"
     if [[ -d ${FLINK_DIR}/log ]]; then
         rm -rf ${FLINK_DIR}/log
     fi
@@ -15,11 +15,13 @@ function runFlink() {
 
 # clsoe flink clsuter
 function stopFlink() {
-    echo "experiment finished, stopping the cluster"
+    echo "INFO: experiment finished, stopping the cluster"
     PID=`jps | grep CliFrontend | awk '{print $1}'`
     if [[ ! -z $PID ]]; then
-          ${FLINK_DIR}/bin/stop-cluster.sh
+      kill -9 ${PID}
     fi
+    ${FLINK_DIR}/bin/stop-cluster.sh
+    mv ${FLINK_DIR}/log /data/trisk/
     echo "close finished"
 }
 
@@ -42,7 +44,7 @@ function cleanEnv() {
 
 # run applications
 function runApp() {
-  echo "run app in ${JAR}"
+  echo "INFO: run app ${JAR} -runtime ${runtime} -nTuples ${n_tuples} -p2 ${parallelism}"
   ${FLINK_DIR}/bin/flink run -c flinkapp.StatefulDemoLongRun ${JAR} -runtime ${runtime} -nTuples ${n_tuples} -p2 ${parallelism} &
 }
 
@@ -50,21 +52,27 @@ function runApp() {
 # draw figures
 function analyze() {
     #python2 ${FLINK_APP_DIR}/nexmark_scripts/draw/RateAndWindowDelay.py ${EXP_NAME} ${WARMUP} ${RUNTIME}
-    echo "dump to /data/trisk-${type}-${frequency}"
-    cp -r /data/trisk /data/trisk-${type}-${frequency}
+    echo "INFO: dump to /data/trisk-${type}-${frequency}"
+    if [[ -d /data/trisk-${type}-${frequency} ]]; then
+        rm -rf /data/trisk-${type}-${frequency}
+    fi
+    mv /data/trisk /data/trisk-${type}-${frequency}
+    mkdir /data/trisk
 }
 
 run_one_exp() {
+  echo "INFO: run exp ${type} ${frequency} ${n_tuples} ${affected_tasks}"
   configFlink
   runFlink
   runApp
 
   SCRIPTS_RUNTIME=`expr ${runtime} + 10`
   python -c 'import time; time.sleep('"${SCRIPTS_RUNTIME}"')'
+  stopFlink
 
   analyze
 
-  stopFlink
+  python -c 'import time; time.sleep(10)'
 }
 
 run_all() {
@@ -81,10 +89,10 @@ run_all() {
   type="noop"
 
   for frequency in 5; do # 0 1 5 10 100
-    for n_tuples in 1000000 10000000 100000000; do
-      for type in "noop" "remap"; do # "noop" "remap" "rescale"
+    for n_tuples in 10000000; do # 1000000 10000000 100000000
+      for type in "remap"; do # "noop" "remap" "rescale"
         if [[ $type == "remap" ]]; then
-          for affected_tasks in 2 4; do # 2 4 6 8 10
+          for affected_tasks in 2; do # 2 4 6 8 10
             run_one_exp
           done
         else
