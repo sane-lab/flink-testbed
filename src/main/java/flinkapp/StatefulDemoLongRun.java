@@ -14,6 +14,7 @@ import org.apache.flink.api.java.utils.ParameterTool;
 import org.apache.flink.configuration.Configuration;
 import org.apache.flink.runtime.state.FunctionInitializationContext;
 import org.apache.flink.runtime.state.FunctionSnapshotContext;
+import org.apache.flink.runtime.state.memory.MemoryStateBackend;
 import org.apache.flink.streaming.api.CheckpointingMode;
 import org.apache.flink.streaming.api.checkpoint.CheckpointedFunction;
 import org.apache.flink.streaming.api.datastream.DataStream;
@@ -35,10 +36,12 @@ public class StatefulDemoLongRun {
         // Checking input parameters
         final ParameterTool params = ParameterTool.fromArgs(args);
 
+
         StreamExecutionEnvironment env = StreamExecutionEnvironment.getExecutionEnvironment();
 
 //        env.enableCheckpointing(1000);
 //        env.getCheckpointConfig().setCheckpointingMode(CheckpointingMode.EXACTLY_ONCE);
+        env.setStateBackend(new MemoryStateBackend(100000000));
 
         DataStreamSource<Tuple3<String, String, Long>> source = env.addSource(new MySource(
                 params.getInt("runtime", 10),

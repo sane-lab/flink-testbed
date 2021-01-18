@@ -68,10 +68,10 @@ public class StatefulDemo {
             cur = (cur == null) ? 1 : cur + 1;
             countMap.put(s, cur);
             long currTime = System.currentTimeMillis();
-            outputStream.write(
-                    String.format("current time in ms: %d, queueing delay + processing delay in ms: %d\n",
-                            currTime, currTime - input.f2).getBytes()
-            );
+//            outputStream.write(
+//                    String.format("current time in ms: %d, queueing delay + processing delay in ms: %d\n",
+//                            currTime, currTime - input.f2).getBytes()
+//            );
             return String.format("%s %d", s, cur);
         }
 
@@ -79,15 +79,15 @@ public class StatefulDemo {
         public void open(Configuration config) {
             MapStateDescriptor<String, Long> descriptor =
                     new MapStateDescriptor<>("word-count", String.class, Long.class);
-            try {
-                if(outputStream == null) {
-                    outputStream = new FileOutputStream("/home/hya/prog/latency.out");
-                }else {
-                    System.out.println("already have an ouput stream during last open");
-                }
-            } catch (FileNotFoundException e) {
-                e.printStackTrace();
-            }
+//            try {
+//                if(outputStream == null) {
+//                    outputStream = new FileOutputStream("/home/hya/prog/latency.out");
+//                }else {
+//                    System.out.println("already have an ouput stream during last open");
+//                }
+//            } catch (FileNotFoundException e) {
+//                e.printStackTrace();
+//            }
             countMap = getRuntimeContext().getMapState(descriptor);
         }
     }
