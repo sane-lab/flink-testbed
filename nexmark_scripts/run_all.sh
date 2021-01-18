@@ -83,7 +83,13 @@ run_all() {
   for frequency in 5; do # 0 1 5 10 100
     for n_tuples in 1000000 10000000 100000000; do
       for type in "noop" "remap"; do # "noop" "remap" "rescale"
-        run_one_exp
+        if [[ $type == "remap" ]]; then
+          for affected_tasks in 2 4; do # 2 4 6 8 10
+            run_one_exp
+          done
+        else
+          run_one_exp
+        fi
       done
     done
   done
