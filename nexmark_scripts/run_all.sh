@@ -30,7 +30,7 @@ function configFlink() {
     # set user requirement
     sed 's/^\(\s*trisk.reconfig.operator.name\s*:\s*\).*/\1'"$operator"'/' ${FLINK_DIR}/conf/flink-conf.yaml > tmp1
     sed 's/^\(\s*trisk.reconfig.frequency\s*:\s*\).*/\1'"$frequency"'/' tmp1 > tmp2
-    sed 's/^\(\s*trisk.reconfig.affected_task\s*:\s*\).*/\1'"$affected_tasks"'/' tmp2 > tmp3
+    sed 's/^\(\s*trisk.reconfig.affected_tasks\s*:\s*\).*/\1'"$affected_tasks"'/' tmp2 > tmp3
     sed 's/^\(\s*trisk.reconfig.type\s*:\s*\).*/\1'"$type"'/' tmp3 > ${FLINK_DIR}/conf/flink-conf.yaml
     rm tmp1 tmp2 tmp3
 }
@@ -54,9 +54,9 @@ function analyze() {
     #python2 ${FLINK_APP_DIR}/nexmark_scripts/draw/RateAndWindowDelay.py ${EXP_NAME} ${WARMUP} ${RUNTIME}
     echo "INFO: dump to /data/trisk-${type}-${frequency}"
     if [[ -d /data/trisk-${type}-${frequency} ]]; then
-        rm -rf /data/trisk-${type}-${frequency}
+        rm -rf /data/trisk-${type}-N${n_tuples}-F${frequency}-T${affected_tasks}
     fi
-    mv /data/trisk /data/trisk-${type}-${frequency}
+    mv /data/trisk /data/trisk-${type}-N${n_tuples}-F${frequency}-T${affected_tasks}
     mkdir /data/trisk
 }
 
@@ -88,16 +88,12 @@ run_all() {
   affected_tasks=2
   type="noop"
 
-  for frequency in 5; do # 0 1 5 10 100
-    for n_tuples in 10000000; do # 1000000 10000000 100000000
-      for type in "remap"; do # "noop" "remap" "rescale"
-        if [[ $type == "remap" ]]; then
-          for affected_tasks in 2; do # 2 4 6 8 10
-            run_one_exp
-          done
-        else
+  for frequency in 1 5 10 20; do # 0 1 5 10 100
+    for n_tuples in 1000000 10000000 100000000; do # 1000000 10000000 100000000
+      for type in "noop" "remap"; do # "noop" "remap" "rescale"
+        for affected_tasks in 2 4; do # 2 4 6 8 10
           run_one_exp
-        fi
+        done
       done
     done
   done
