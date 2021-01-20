@@ -3,6 +3,8 @@
 FLINK_DIR="/home/myc/workspace/flink-related/flink/build-target"
 FLINK_APP_DIR="/home/myc/workspace/flink-related/flink-testbed-org"
 
+EXP_DIR="/data"
+
 # run flink clsuter
 function runFlink() {
     echo "INFO: starting the cluster"
@@ -21,7 +23,7 @@ function stopFlink() {
       kill -9 ${PID}
     fi
     ${FLINK_DIR}/bin/stop-cluster.sh
-    mv ${FLINK_DIR}/log /data/trisk/
+    mv ${FLINK_DIR}/log ${EXP_DIR}/trisk/
     echo "close finished"
 }
 
@@ -53,10 +55,10 @@ function runApp() {
 function analyze() {
     #python2 ${FLINK_APP_DIR}/nexmark_scripts/draw/RateAndWindowDelay.py ${EXP_NAME} ${WARMUP} ${RUNTIME}
     echo "INFO: dump to /data/trisk-${type}-${frequency}"
-    if [[ -d /data/trisk-${type}-${frequency} ]]; then
-        rm -rf /data/trisk-${type}-N${n_tuples}-F${frequency}-T${affected_tasks}
+    if [[ -d ${EXP_DIR}/raw/trisk-${type}-${frequency} ]]; then
+        rm -rf ${EXP_DIR}/raw/trisk-${type}-N${n_tuples}-F${frequency}-T${affected_tasks}
     fi
-    mv /data/trisk /data/trisk-${type}-N${n_tuples}-F${frequency}-T${affected_tasks}
+    mv /data/trisk ${EXP_DIR}/raw/trisk-${type}-N${n_tuples}-F${frequency}-T${affected_tasks}
     mkdir /data/trisk
 }
 

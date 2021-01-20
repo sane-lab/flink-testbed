@@ -1,6 +1,8 @@
 package flinkapp.test;
 
 import Nexmark.sinks.DummySink;
+import Nexmark.sources.Util;
+import org.apache.beam.sdk.nexmark.sources.generator.model.BidGenerator;
 import org.apache.flink.api.common.functions.RichMapFunction;
 import org.apache.flink.api.common.state.ListState;
 import org.apache.flink.api.common.state.ListStateDescriptor;
@@ -20,6 +22,7 @@ import org.apache.flink.streaming.api.functions.source.SourceFunction;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Random;
 
 /**
  * Test Job for the most fundemental functionalities,
@@ -147,19 +150,37 @@ public class StatefulDemoLongRun {
 
         @Override
         public void run(SourceContext<Tuple2<String, String>> ctx) throws Exception {
-            while (isRunning && count < nTuples) {
-                if (count % rate  == 0) {
-                    Thread.sleep(1000);
-                }
-                synchronized (ctx.getCheckpointLock()) {
-                    String key = getChar(count);
-                    int curCount = keyCount.getOrDefault(key, 0)+1;
-                    keyCount.put(key, curCount);
-                    System.out.println("sent: " + key + " : " + curCount + " total: " + count);
-                    ctx.collect(Tuple2.of(key, key));
+//            while (isRunning && count < nTuples) {
+//                if (count % rate  == 0) {
+//                    Thread.sleep(1000);
+//                }
+//                synchronized (ctx.getCheckpointLock()) {
+//                    String key = getChar(count);
+//                    int curCount = keyCount.getOrDefault(key, 0)+1;
+//                    keyCount.put(key, curCount);
+//                    System.out.println("sent: " + key + " : " + curCount + " total: " + count);
+//                    ctx.collect(Tuple2.of(key, key));
+//
+//                    count++;
+//                }
+//            }
 
-                    count++;
+            while (isRunning && count < nTuples) {
+                long emitStartTime = System.currentTimeMillis();
+                for (int i = 0; i < rate / 20; i++) {
+                    synchronized (ctx.getCheckpointLock()) {
+                        String key = getChar(count);
+                        int curCount = keyCount.getOrDefault(key, 0)+1;
+                        keyCount.put(key, curCount);
+                        System.out.println("sent: " + key + " : " + curCount + " total: " + count);
+                        ctx.collect(Tuple2.of(key, key));
+
+                        count++;
+                    }
                 }
+
+                // Sleep for the rest of timeslice if needed
+                Util.pause(emitStartTime);
             }
         }
 

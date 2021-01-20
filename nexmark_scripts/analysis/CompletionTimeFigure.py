@@ -43,7 +43,7 @@ def ConvertEpsToPdf(dir_filename):
 
 
 # draw a bar chart
-def DrawFigure(x_values, y_values, legend_labels, x_label, y_label, y_min, y_max, filename, allow_legend):
+def DrawFigure(x_values, y_values, legend_labels, x_label, y_label, filename, allow_legend):
     # you may change the figure size on your own.
     fig = plt.figure(figsize=(10, 3))
     figure = fig.add_subplot(111)
@@ -183,5 +183,4 @@ if __name__ == '__main__':
     legend_labels = ['1', '5', '10', '20']
 
     DrawFigure(x_values, y_values, legend_labels,
-               'arrival_rate', 'completion_time (ms)', 0,
-               400, type+'_completion_time', True)
+               'arrival_rate', 'completion_time (ms)', type + '_completion_time', True)
