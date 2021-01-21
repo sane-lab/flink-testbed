@@ -39,7 +39,7 @@ def averageCompletionTime(lines, expName):
 # reconfig time breakdown
     print(stats)
 
-root = "/data"
+root = "/data/raw"
 
 for expName in os.listdir(root):
     print("---{}---".format(expName))

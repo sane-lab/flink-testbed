@@ -34,7 +34,7 @@ matplotlib.rcParams['ytick.labelsize'] = TICK_FONT_SIZE
 matplotlib.rcParams['font.family'] = OPT_FONT_NAME
 
 FIGURE_FOLDER = '/data/results'
-FILE_FOLER = '/data'
+FILE_FOLER = '/data/raw'
 
 
 def ConvertEpsToPdf(dir_filename):
@@ -85,7 +85,7 @@ def DrawFigure(x_values, y_values, legend_labels, x_label, y_label, y_min, y_max
                    )
 
     # you may need to tune the xticks position to get the best figure.
-    plt.xticks(index + 5 * width, x_values)
+    plt.xticks(index + 2.5 * width, x_values)
     # plt.ticklabel_format(axis="y", style="sci", scilimits=(0, 0))
     # plt.grid(axis='y', color='gray')
     # figure.get_xaxis().set_major_formatter(matplotlib.ticker.ScalarFormatter())
@@ -177,7 +177,7 @@ def ReadFile(type):
 if __name__ == '__main__':
     type = 'remap'
 
-    x_values = ['10^3', '10^4', '10^5']
+    x_values = ['$10^3$', '$10^4$', '$10^5$']
     y_values = ReadFile(type)
 
     legend_labels = ['1', '5', '10', '20']

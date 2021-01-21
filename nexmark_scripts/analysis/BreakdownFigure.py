@@ -34,7 +34,7 @@ matplotlib.rcParams['ytick.labelsize'] = TICK_FONT_SIZE
 matplotlib.rcParams['font.family'] = OPT_FONT_NAME
 
 FIGURE_FOLDER = '/data/results'
-FILE_FOLER = '/data'
+FILE_FOLER = '/data/raw'
 
 timers = ["++++++prepare timer", "++++++synchronize timer", "++++++updateKeyMapping timer", "++++++updateState timer"]
 
