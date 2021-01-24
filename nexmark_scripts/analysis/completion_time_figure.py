@@ -1,4 +1,6 @@
+import getopt
 import os
+import sys
 
 import matplotlib
 import matplotlib.pyplot as plt
@@ -175,7 +177,20 @@ def ReadFile(type):
     return y
 
 if __name__ == '__main__':
-    type = 'remap'
+    type = 'scale'
+
+    try:
+        opts, args = getopt.getopt(sys.argv[1:], '-t:h', ['reconfig type', 'help'])
+    except getopt.GetoptError:
+        print('breakdown_figure.py -t type')
+        sys.exit(2)
+    for opt, opt_value in opts:
+        if opt in ('-h', '--help'):
+            print("[*] Help info")
+            exit()
+        elif opt == '-t':
+            print('Reconfig Type:', opt_value)
+            type = str(opt_value)
 
     x_values = ['$10^3$', '$10^4$', '$10^5$']
     y_values = ReadFile(type)
