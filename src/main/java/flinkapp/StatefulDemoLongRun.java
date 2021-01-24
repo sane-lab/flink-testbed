@@ -77,8 +77,8 @@ public class StatefulDemoLongRun {
 
         @Override
         public String map(Tuple3<String, String, Long> input) throws Exception {
-//            long start = System.nanoTime();
-//            while(System.nanoTime() - start < 10000) {}
+            long start = System.nanoTime();
+            while(System.nanoTime() - start < 100000) {}
 
             String s = input.f0;
 
