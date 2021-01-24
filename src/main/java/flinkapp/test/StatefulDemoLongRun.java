@@ -165,18 +165,21 @@ public class StatefulDemoLongRun {
 //                }
 //            }
 
-            while (isRunning && count < nTuples) {
-                long emitStartTime = System.currentTimeMillis();
-                for (int i = 0; i < rate / 20; i++) {
-                    synchronized (ctx.getCheckpointLock()) {
-                        String key = getChar(count);
-                        int curCount = keyCount.getOrDefault(key, 0)+1;
-                        keyCount.put(key, curCount);
-                        System.out.println("sent: " + key + " : " + curCount + " total: " + count);
-                        ctx.collect(Tuple2.of(key, key));
+            long emitStartTime = System.currentTimeMillis();
 
-                        count++;
-                    }
+            while (isRunning && count < nTuples) {
+                System.out.println("++++++interval: " + (System.currentTimeMillis() - emitStartTime));
+                emitStartTime = System.currentTimeMillis();
+                for (int i = 0; i < rate / 20; i++) {
+//                    synchronized (ctx.getCheckpointLock()) {
+                    String key = getChar(count);
+                    int curCount = keyCount.getOrDefault(key, 0)+1;
+                    keyCount.put(key, curCount);
+                    System.out.println("sent: " + key + " : " + curCount + " total: " + count);
+                    ctx.collect(Tuple2.of(key, key));
+
+                    count++;
+//                    }
                 }
 
                 // Sleep for the rest of timeslice if needed

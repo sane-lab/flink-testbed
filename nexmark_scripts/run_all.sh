@@ -94,10 +94,10 @@ run_all() {
   reconfig_type="noop"
 
 
-  for frequency in 1 5 10 20; do # 0 1 5 10 100
-    for n_tuples in 1000000 10000000 100000000; do # 1000000 10000000 100000000
-      for reconfig_type in "remap"; do # "noop" "remap" "rescale"
-        for affected_tasks in 2 4; do # 2 4 6 8 10
+  for frequency in 1 2 4 8; do # 0 1 5 10 100
+    for n_tuples in 10000000 15000000 20000000; do # 1000000 10000000 100000000
+      for reconfig_type in "rescale"; do # "noop" "remap" "rescale"
+        for affectedw_tasks in 2; do # 2 4 6 8 10
           run_one_exp
         done
       done

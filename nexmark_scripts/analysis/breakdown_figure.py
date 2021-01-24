@@ -198,9 +198,9 @@ def ReadFile(type, n_tuples):
     w, h = 4, 4
     y = [[0 for x in range(w)] for y in range(h)]
 
-    affected_tasks = 4
+    affected_tasks = 2
     i = 0
-    for frequency in [1, 5, 10, 20]:
+    for frequency in [1, 2, 4, 8]:
         exp = FILE_FOLER + '/trisk-{}-N{}-F{}-T{}'.format(type, n_tuples, frequency, affected_tasks)
         file_path = os.path.join(exp, "timer.output")
         if os.path.isfile(file_path):
@@ -220,7 +220,7 @@ def ReadFile(type, n_tuples):
 
 
 if __name__ == '__main__':
-    type = 'remap'
+    type = 'rescale'
 
     try:
         opts, args = getopt.getopt(sys.argv[1:], '-t::h', ['reconfig type', 'help'])
@@ -235,9 +235,9 @@ if __name__ == '__main__':
             print('Reconfig Type:', opt_value)
             type = str(opt_value)
 
-    for n_tuples in [1000000, 10000000, 100000000, 1000000000]: # [1000000, 10000000, 100000000]
+    for n_tuples in [10000000, 15000000, 20000000]: # [1000000, 10000000, 100000000]
 
-        x_values = ['1', '5', '10', '20']
+        x_values = ['1', '2', '4', '8']
         y_values = ReadFile(type, n_tuples)
 
         print(y_values)
