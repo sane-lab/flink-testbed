@@ -114,7 +114,7 @@ public class StatefulDemoLongRun {
         }
 
         @Override
-        public String map(Tuple3<String, String, Long> input) throws Exception {
+        public String map(Tuple2<String, String> input) throws Exception {
             String result = super.map(input);
             StringBuilder sb = new StringBuilder();
             for(int i=0;i<numRepeat;i++){
@@ -133,14 +133,13 @@ public class StatefulDemoLongRun {
         }
 
         @Override
-        public String map(Tuple3<String, String, Long> input) throws Exception {
+        public String map(Tuple2<String, String> input) throws Exception {
             long start = System.nanoTime();
             while(System.nanoTime() - start < 1000*timeToWait);
             return super.map(input);
         }
     }
 
-    private static class MySource implements SourceFunction<Tuple3<String, String, Long>>, CheckpointedFunction {
     private static class MySource implements SourceFunction<Tuple2<String, String>>, CheckpointedFunction {
 
         private int count = 0;
