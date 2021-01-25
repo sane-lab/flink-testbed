@@ -59,12 +59,12 @@ public class StatefulDemoLongRun {
             .uid("flatmap")
             .setParallelism(params.getInt("p2", 3));
 
-        GenericTypeInfo<Object> objectTypeInfo = new GenericTypeInfo<>(Object.class);
-        counts.transform("Sink", objectTypeInfo,
-                new DummySink<>())
-                .uid("dummy-sink")
-                .setParallelism(params.getInt("p3", 1));
-
+//        GenericTypeInfo<Object> objectTypeInfo = new GenericTypeInfo<>(Object.class);
+//        counts.transform("Sink", objectTypeInfo,
+//                new DummySink<>())
+//                .uid("dummy-sink")
+//                .setParallelism(params.getInt("p3", 1));
+        counts.print();
         env.execute();
 //        System.out.println(env.getExecutionPlan());
     }
@@ -98,6 +98,41 @@ public class StatefulDemoLongRun {
                     new MapStateDescriptor<>("word-count", String.class, Long.class);
 
             countMap = getRuntimeContext().getMapState(descriptor);
+        }
+    }
+
+    public static class IncreaseCommunicationOverheadMap extends MyStatefulMap{
+
+        private final int numRepeat;
+
+        public IncreaseCommunicationOverheadMap(int numRepeat){
+            this.numRepeat = numRepeat;
+        }
+
+        @Override
+        public String map(Tuple3<String, String, Long> input) throws Exception {
+            String result = super.map(input);
+            StringBuilder sb = new StringBuilder();
+            for(int i=0;i<numRepeat;i++){
+                sb.append(result);
+            }
+            return sb.toString();
+        }
+    }
+
+    public static class IncreaseComputationOverheadMap extends MyStatefulMap{
+        // in ms
+        private final int timeToWait;
+
+        public IncreaseComputationOverheadMap(int timeToWait){
+            this.timeToWait = timeToWait;
+        }
+
+        @Override
+        public String map(Tuple3<String, String, Long> input) throws Exception {
+            long start = System.nanoTime();
+            while(System.nanoTime() - start < 1000*timeToWait);
+            return super.map(input);
         }
     }
 
