@@ -116,9 +116,9 @@ public class StatefulDemoLongRun {
         @Override
         public String map(Tuple2<String, String> input) throws Exception {
             String result = super.map(input);
-            StringBuilder sb = new StringBuilder();
+            StringBuilder sb = new StringBuilder("Just to Increase Communication Overhead:");
             for(int i=0;i<numRepeat;i++){
-                sb.append(result);
+                sb.append(result).append(' ');
             }
             return sb.toString();
         }
