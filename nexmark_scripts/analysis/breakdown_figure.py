@@ -1,4 +1,6 @@
+import getopt
 import os
+import sys
 
 import matplotlib
 import matplotlib.pyplot as plt
@@ -34,7 +36,7 @@ matplotlib.rcParams['ytick.labelsize'] = TICK_FONT_SIZE
 matplotlib.rcParams['font.family'] = OPT_FONT_NAME
 
 FIGURE_FOLDER = '/data/results'
-FILE_FOLER = '/data'
+FILE_FOLER = '/data/raw'
 
 timers = ["++++++prepare timer", "++++++synchronize timer", "++++++updateKeyMapping timer", "++++++updateState timer"]
 
@@ -192,42 +194,56 @@ def breakdown(lines):
     return stats
 
 
-def ReadFile(type):
+def ReadFile(type, n_tuples):
     w, h = 4, 4
     y = [[0 for x in range(w)] for y in range(h)]
 
     affected_tasks = 2
     i = 0
-    for frequency in [1, 5, 10, 20]:
-        for n_tuples in [1000000, 10000000, 100000000]:
-            exp = FILE_FOLER + '/trisk-{}-N{}-F{}-T{}'.format(type, n_tuples, frequency, affected_tasks)
+    for frequency in [1, 2, 4, 8]:
+        exp = FILE_FOLER + '/trisk-{}-N{}-F{}-T{}'.format(type, n_tuples, frequency, affected_tasks)
+        file_path = os.path.join(exp, "timer.output")
+        if os.path.isfile(file_path):
+            stats = breakdown(open(file_path).readlines())
+        else:
+            exp = FILE_FOLER + '/trisk-{}-N{}-F{}-T{}'.format(type, n_tuples, frequency, 4)
             file_path = os.path.join(exp, "timer.output")
-            if os.path.isfile(file_path):
-                stats = breakdown(open(file_path).readlines())
+            stats = breakdown(open(file_path).readlines())
+        for j in range(4):
+            if timers[j] not in stats:
+                y[j][i] = 0
             else:
-                exp = FILE_FOLER + '/trisk-{}-N{}-F{}-T{}'.format(type, n_tuples, frequency, 4)
-                file_path = os.path.join(exp, "timer.output")
-                stats = breakdown(open(file_path).readlines())
-            for j in range(4):
-                if timers[j] not in stats:
-                    y[j][i] = 0
-                else:
-                    y[j][i] = stats[timers[j]]
+                y[j][i] = stats[timers[j]]
         i += 1
 
     return y
 
 
 if __name__ == '__main__':
-    type = 'noop'
+    type = 'rescale'
 
-    x_values = ['1', '5', '10', '20']
-    y_values = ReadFile(type)
+    try:
+        opts, args = getopt.getopt(sys.argv[1:], '-t::h', ['reconfig type', 'help'])
+    except getopt.GetoptError:
+        print('breakdown_figure.py -t type')
+        sys.exit(2)
+    for opt, opt_value in opts:
+        if opt in ('-h', '--help'):
+            print("[*] Help info")
+            exit()
+        elif opt == '-t':
+            print('Reconfig Type:', opt_value)
+            type = str(opt_value)
 
-    print(y_values)
+    for n_tuples in [10000000, 15000000, 20000000]: # [1000000, 10000000, 100000000]
 
-    legend_labels = ['pre', 'sync', 'updstat', 'updkey']
+        x_values = ['1', '2', '4', '8']
+        y_values = ReadFile(type, n_tuples)
 
-    DrawFigure(x_values, y_values, legend_labels,
-               'frequency', 'breakdown (ms)',
-               type + '_breakdown', True)
+        print(y_values)
+
+        legend_labels = ['pre', 'sync', 'updstat', 'updkey']
+
+        DrawFigure(x_values, y_values, legend_labels,
+                   'frequency', 'breakdown (ms)',
+                    'breakdown_{}_{}'.format(type, n_tuples), True)

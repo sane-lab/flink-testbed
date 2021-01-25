@@ -1,4 +1,6 @@
+import getopt
 import os
+import sys
 
 import matplotlib
 import matplotlib.pyplot as plt
@@ -34,7 +36,7 @@ matplotlib.rcParams['ytick.labelsize'] = TICK_FONT_SIZE
 matplotlib.rcParams['font.family'] = OPT_FONT_NAME
 
 FIGURE_FOLDER = '/data/results'
-FILE_FOLER = '/data'
+FILE_FOLER = '/data/raw'
 
 
 def ConvertEpsToPdf(dir_filename):
@@ -43,7 +45,7 @@ def ConvertEpsToPdf(dir_filename):
 
 
 # draw a bar chart
-def DrawFigure(x_values, y_values, legend_labels, x_label, y_label, filename, allow_legend):
+def DrawFigure(x_values, y_values, legend_labels, x_label, y_label, y_min, y_max, filename, allow_legend):
     # you may change the figure size on your own.
     fig = plt.figure(figsize=(10, 3))
     figure = fig.add_subplot(111)
@@ -85,13 +87,13 @@ def DrawFigure(x_values, y_values, legend_labels, x_label, y_label, filename, al
                    )
 
     # you may need to tune the xticks position to get the best figure.
-    plt.xticks(index + 5 * width, x_values)
+    plt.xticks(index + 2.5 * width, x_values)
     # plt.ticklabel_format(axis="y", style="sci", scilimits=(0, 0))
     # plt.grid(axis='y', color='gray')
     # figure.get_xaxis().set_major_formatter(matplotlib.ticker.ScalarFormatter())
 
     # you may need to tune the xticks position to get the best figure.
-    # plt.yscale('log')
+    plt.yscale('log')
     #
     # plt.grid(axis='y', color='gray')
     # figure.yaxis.set_major_locator(LogLocator(base=10))
@@ -111,9 +113,10 @@ def averageLatency(lines):
     totalLatency = 0
     count = 0
     for line in lines:
-        if line.split(": ")[-1][:-1] != "NaN":
-            totalLatency += float(line.split(": ")[-1][:-1])
-            count += 1
+        if line.startswith('keygroup: '):
+            if line.split(": ")[-1][:-1] != "NaN":
+                totalLatency += float(line.split(": ")[-1][:-1])
+                count += 1
 
     if count > 0:
         return totalLatency / count
@@ -160,27 +163,41 @@ def ReadFile(type):
 
     affected_tasks = 2
     i = 0
-    for frequency in [1, 5, 10, 20]:
-        for n_tuples in [1000000, 10000000, 100000000]:
+    for frequency in [1, 2, 4, 8]:
+        for n_tuples in [10000000, 15000000, 20000000]: # 1000000, 10000000, 100000000
             exp = FILE_FOLER + '/trisk-{}-N{}-F{}-T{}'.format(type, n_tuples, frequency, affected_tasks)
-            file_path = os.path.join(exp, "timer.output")
+            file_path = os.path.join(exp, "Splitter FlatMap-0.output")
             if os.path.isfile(file_path):
-                y[i].append(averageCompletionTime(open(file_path).readlines()))
+                y[i].append(averageLatency(open(file_path).readlines()))
             else:
                 exp = FILE_FOLER + '/trisk-{}-N{}-F{}-T{}'.format(type, n_tuples, frequency, 4)
-                file_path = os.path.join(exp, "timer.output")
-                y[i].append(averageCompletionTime(open(file_path).readlines()))
+                file_path = os.path.join(exp, "Splitter FlatMap-0.output")
+                y[i].append(averageLatency(open(file_path).readlines()))
         i += 1
 
     return y
 
 if __name__ == '__main__':
-    type = 'remap'
+    type = 'rescale'
 
-    x_values = ['10^3', '10^4', '10^5']
+    try:
+        opts, args = getopt.getopt(sys.argv[1:], '-t:h', ['reconfig type', 'help'])
+    except getopt.GetoptError:
+        print('breakdown_figure.py -t type')
+        sys.exit(2)
+    for opt, opt_value in opts:
+        if opt in ('-h', '--help'):
+            print("[*] Help info")
+            exit()
+        elif opt == '-t':
+            print('Reconfig Type:', opt_value)
+            type = str(opt_value)
+
+    x_values = ['$10000$', '$15000$', '$20000$']
     y_values = ReadFile(type)
 
-    legend_labels = ['1', '5', '10', '20']
+    legend_labels = ['1', '2', '4', '8']
 
     DrawFigure(x_values, y_values, legend_labels,
-               'arrival_rate', 'completion_time (ms)', type + '_completion_time', True)
+               'arrival_rate', 'latency (ms)', 0,
+               400, type+'_latency', True)

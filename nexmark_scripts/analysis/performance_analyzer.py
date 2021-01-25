@@ -1,5 +1,6 @@
 import os
 
+
 # the average latency
 def averageLatency(lines, expName):
     # get all latency of all files, calculate the average
@@ -14,6 +15,7 @@ def averageLatency(lines, expName):
         print("avg latency", ": ", totalLatency / count)
     else:
         print("avg latency", ": ", 0)
+
 
 # the average reconfig time
 def averageCompletionTime(lines, expName):
@@ -33,13 +35,14 @@ def averageCompletionTime(lines, expName):
         totalTime = timers[key]
         count = counts[key]
         if count > 0:
-            stats.append("{}: {}".format(key, totalTime/count))
+            stats.append("{}: {}".format(key, totalTime / count))
         else:
             stats.append("{}: {}".format(key, 0))
-# reconfig time breakdown
+    # reconfig time breakdown
     print(stats)
 
-root = "/data"
+
+root = "/data/raw"
 
 for expName in os.listdir(root):
     print("---{}---".format(expName))
@@ -49,5 +52,3 @@ for expName in os.listdir(root):
             averageCompletionTime(open(file_path).readlines(), expName)
         elif file == "Splitter FlatMap-0.output":
             averageLatency(open(file_path).readlines(), expName)
-
-
