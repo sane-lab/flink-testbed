@@ -1,7 +1,7 @@
 package flinkapp;
 
+import org.apache.flink.api.common.functions.MapFunction;
 import org.apache.flink.api.common.functions.RichMapFunction;
-import org.apache.flink.api.common.serialization.SimpleStringSchema;
 import org.apache.flink.api.common.state.ListState;
 import org.apache.flink.api.common.state.ListStateDescriptor;
 import org.apache.flink.api.common.state.MapState;
@@ -14,19 +14,16 @@ import org.apache.flink.runtime.state.FunctionInitializationContext;
 import org.apache.flink.runtime.state.FunctionSnapshotContext;
 import org.apache.flink.streaming.api.CheckpointingMode;
 import org.apache.flink.streaming.api.checkpoint.CheckpointedFunction;
-import org.apache.flink.streaming.api.datastream.DataStreamSource;
 import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
 import org.apache.flink.streaming.api.functions.source.SourceFunction;
-import org.apache.flink.streaming.connectors.kafka.FlinkKafkaProducer011;
 
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 
 public class StatefulDemo {
 
     //    private static final int MAX = 1000000 * 10;
-    private static final int MAX = 1000000 * 4;
-    private static final int NUM_LETTERS = 26;
+    private static final int MAX = 100000;
+    private static final int NUM_LETTERS = 1000;
 
     public static void main(String[] args) throws Exception {
         StreamExecutionEnvironment env = StreamExecutionEnvironment.getExecutionEnvironment();
@@ -44,12 +41,13 @@ public class StatefulDemo {
                 .disableChaining()
                 .name("Splitter FlatMap")
                 .uid("flatmap")
-                .setParallelism(2)
+                .setParallelism(8)
                 .keyBy((KeySelector<String, Object>) s -> s)
-                .filter(input -> {
-                    return Integer.parseInt(input.split(" ")[1]) >= MAX;
-                })
+                .filter(input -> Integer.parseInt(input.split(" ")[1]) >= MAX)
                 .name("filter")
+//                .map(new Tokenizer())
+//                .keyBy(0)
+//                .sum(1)
                 .print();
 //            .addSink(kafkaProducer);
         env.execute();
@@ -92,6 +90,13 @@ public class StatefulDemo {
         }
     }
 
+    private static class Tokenizer implements MapFunction<String, Tuple2<Long, Long>> {
+        @Override
+        public Tuple2<Long, Long> map(String input) throws Exception {
+            return new Tuple2<Long, Long>(1L, 1L);
+        }
+    }
+
     private static class MySource implements SourceFunction<Tuple3<String, String, Long>>, CheckpointedFunction {
 
         private int count = 0;
@@ -130,7 +135,8 @@ public class StatefulDemo {
         }
 
         private static String getChar(int cur) {
-            return String.valueOf((char) ('A' + (cur % NUM_LETTERS)));
+//            return String.valueOf((char) ('A' + (cur % NUM_LETTERS)));
+            return "A" + (cur % NUM_LETTERS);
         }
 
         @Override
