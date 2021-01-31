@@ -129,17 +129,20 @@ def averageCompletionTime(lines):
     counts = {}
     for line in lines:
         key = line.split(" : ")[0]
-        if key[0:6] == "++++++":
+        if key.startswith("++++++"):
             if line.split(" : ")[0] not in timers:
                 timers[key] = 0
                 counts[key] = 0
-            timers[key] += int(line.split(" : ")[1][:-3])
-            counts[key] += 1
+            if counts[key] < 10:
+                timers[key] += int(line.split(" : ")[1][:-3])
+                counts[key] += 1
 
     stats = []
     for key in timers:
         totalTime = timers[key]
         count = counts[key]
+        if count < 10:
+            print("Unfair Comparison, reconfigurations < 10")
         if count > 0:
             stats.append(totalTime / count)
         else:
@@ -162,22 +165,27 @@ def ReadFile(type):
 
     affected_tasks = 2
     i = 0
-    for frequency in [1, 2, 4, 8]:
-        for n_tuples in [10000000, 15000000, 20000000]:
-            exp = FILE_FOLER + '/trisk-{}-N{}-F{}-T{}'.format(type, n_tuples, frequency, affected_tasks)
+    interval = 10000
+    runtime = 150
+    for rate in [10000, 20000, 40000, 80000]:
+        for parallelism in [5, 10, 20]:
+            n_tuples = rate * parallelism * runtime
+            # ${reconfig_type}-${reconfig_interval}-${parallelism}-${runtime}-${n_tuples}-${affected_tasks}
+            exp = FILE_FOLER + '/trisk-{}-{}-{}-{}-{}-{}'.format(type, interval, parallelism, runtime,n_tuples, affected_tasks)
             file_path = os.path.join(exp, "timer.output")
             if os.path.isfile(file_path):
                 y[i].append(averageCompletionTime(open(file_path).readlines()))
             else:
-                exp = FILE_FOLER + '/trisk-{}-N{}-F{}-T{}'.format(type, n_tuples, frequency, 4)
+                exp = FILE_FOLER + '/trisk-{}-{}-{}-{}-{}-{}'.format(type, interval, parallelism, runtime,n_tuples, 2)
                 file_path = os.path.join(exp, "timer.output")
                 y[i].append(averageCompletionTime(open(file_path).readlines()))
         i += 1
 
+    print(y)
     return y
 
 if __name__ == '__main__':
-    type = 'rescale'
+    type = 'remap'
 
     try:
         opts, args = getopt.getopt(sys.argv[1:], '-t:h', ['reconfig type', 'help'])
@@ -192,10 +200,10 @@ if __name__ == '__main__':
             print('Reconfig Type:', opt_value)
             type = str(opt_value)
 
-    x_values = ['$10000$', '$15000$', '$20000$']
+    x_values = ['$5$', '$10$', '$20$']
     y_values = ReadFile(type)
 
-    legend_labels = ['1', '2', '4', '8']
+    legend_labels = ['10k', '20k', '40k', '80k']
 
     DrawFigure(x_values, y_values, legend_labels,
-               'arrival_rate', 'completion_time (ms)', type + '_completion_time', True)
+               'parallelism', 'completion_time (ms)', 'completion_time_{}_sync'.format(type), True)

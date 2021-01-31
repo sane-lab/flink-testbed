@@ -194,19 +194,21 @@ def breakdown(lines):
     return stats
 
 
-def ReadFile(type, n_tuples):
-    w, h = 4, 4
+def ReadFile(type, parallelism):
+    w, h = 3, 4
     y = [[0 for x in range(w)] for y in range(h)]
 
     affected_tasks = 2
     i = 0
-    for frequency in [1, 2, 4, 8]:
-        exp = FILE_FOLER + '/trisk-{}-N{}-F{}-T{}'.format(type, n_tuples, frequency, affected_tasks)
+    interval = 10000
+    runtime = 150
+    for n_tuples in [15000000,30000000,45000000]:
+        exp = FILE_FOLER + '/trisk-{}-{}-{}-{}-{}-{}'.format(type, interval, parallelism, runtime, n_tuples, affected_tasks)
         file_path = os.path.join(exp, "timer.output")
         if os.path.isfile(file_path):
             stats = breakdown(open(file_path).readlines())
         else:
-            exp = FILE_FOLER + '/trisk-{}-N{}-F{}-T{}'.format(type, n_tuples, frequency, 4)
+            exp = FILE_FOLER + '/trisk-{}-{}-{}-{}-{}-{}'.format(type, interval, parallelism, runtime, n_tuples, affected_tasks)
             file_path = os.path.join(exp, "timer.output")
             stats = breakdown(open(file_path).readlines())
         for j in range(4):
@@ -220,7 +222,7 @@ def ReadFile(type, n_tuples):
 
 
 if __name__ == '__main__':
-    type = 'rescale'
+    type = 'remap'
 
     try:
         opts, args = getopt.getopt(sys.argv[1:], '-t::h', ['reconfig type', 'help'])
@@ -235,15 +237,15 @@ if __name__ == '__main__':
             print('Reconfig Type:', opt_value)
             type = str(opt_value)
 
-    for n_tuples in [10000000, 15000000, 20000000]: # [1000000, 10000000, 100000000]
+    for parallelism in [20]: # [1000000, 10000000, 100000000]
 
-        x_values = ['1', '2', '4', '8']
-        y_values = ReadFile(type, n_tuples)
+        x_values = ['10k', '20k', '30k']
+        y_values = ReadFile(type, parallelism)
 
         print(y_values)
 
         legend_labels = ['pre', 'sync', 'updstat', 'updkey']
 
         DrawFigure(x_values, y_values, legend_labels,
-                   'frequency', 'breakdown (ms)',
-                    'breakdown_{}_{}'.format(type, n_tuples), True)
+                   'arrival_rate(e/s)', 'breakdown (ms)',
+                    'breakdown_{}_{}_sync'.format(type, parallelism), True)

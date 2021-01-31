@@ -154,7 +154,7 @@ def averageCompletionTime(lines):
     return sum/2
 
 def ReadFile(type):
-    w, h = 3, 4
+    w, h = 3, 3
     y = [[] for _ in range(h)]
     col1 = []  # each col has 3 elements
     col2 = []
@@ -163,14 +163,17 @@ def ReadFile(type):
 
     affected_tasks = 2
     i = 0
-    for frequency in [1, 2, 4, 8]:
-        for n_tuples in [10000000, 15000000, 20000000]: # 1000000, 10000000, 100000000
-            exp = FILE_FOLER + '/trisk-{}-N{}-F{}-T{}'.format(type, n_tuples, frequency, affected_tasks)
+    interval = 10000
+    runtime = 150
+    for parallelism in [5, 10, 20]:
+        for n_tuples in [15000000,30000000,45000000]: # 1000000, 10000000, 100000000
+            # ${reconfig_type}-${reconfig_interval}-${parallelism}-${runtime}-${n_tuples}-${affected_tasks}
+            exp = FILE_FOLER + '/trisk-{}-{}-{}-{}-{}-{}'.format(type, interval, parallelism, runtime, n_tuples, affected_tasks)
             file_path = os.path.join(exp, "Splitter FlatMap-0.output")
             if os.path.isfile(file_path):
                 y[i].append(averageLatency(open(file_path).readlines()))
             else:
-                exp = FILE_FOLER + '/trisk-{}-N{}-F{}-T{}'.format(type, n_tuples, frequency, 4)
+                exp = FILE_FOLER + '/trisk-{}-{}-{}-{}-{}-{}'.format(type, interval, parallelism, runtime, n_tuples, 4)
                 file_path = os.path.join(exp, "Splitter FlatMap-0.output")
                 y[i].append(averageLatency(open(file_path).readlines()))
         i += 1

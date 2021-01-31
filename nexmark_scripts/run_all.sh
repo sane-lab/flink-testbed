@@ -31,7 +31,7 @@ function stopFlink() {
 function configFlink() {
     # set user requirement
     sed 's/^\(\s*trisk.reconfig.operator.name\s*:\s*\).*/\1'"$operator"'/' ${FLINK_DIR}/conf/flink-conf.yaml > tmp1
-    sed 's/^\(\s*trisk.reconfig.frequency\s*:\s*\).*/\1'"$frequency"'/' tmp1 > tmp2
+    sed 's/^\(\s*trisk.reconfig.interval\s*:\s*\).*/\1'"$reconfig_interval"'/' tmp1 > tmp2
     sed 's/^\(\s*trisk.reconfig.affected_tasks\s*:\s*\).*/\1'"$affected_tasks"'/' tmp2 > tmp3
     sed 's/^\(\s*trisk.reconfig.type\s*:\s*\).*/\1'"$reconfig_type"'/' tmp3 > ${FLINK_DIR}/conf/flink-conf.yaml
     rm tmp1 tmp2 tmp3
@@ -54,16 +54,19 @@ function runApp() {
 # draw figures
 function analyze() {
     #python2 ${FLINK_APP_DIR}/nexmark_scripts/draw/RateAndWindowDelay.py ${EXP_NAME} ${WARMUP} ${RUNTIME}
-    echo "INFO: dump to ${EXP_DIR}/raw/trisk-${reconfig_type}-N${n_tuples}-F${frequency}-T${affected_tasks}"
-    if [[ -d ${EXP_DIR}/raw/trisk-${reconfig_type}-N${n_tuples}-F${frequency}-T${affected_tasks} ]]; then
-        rm -rf ${EXP_DIR}/raw/trisk-${reconfig_type}-N${n_tuples}-F${frequency}-T${affected_tasks}
+    echo "INFO: dump to ${EXP_DIR}/raw/trisk-${reconfig_type}-${reconfig_interval}-${parallelism}-${runtime}-${n_tuples}-${affected_tasks}"
+    if [[ -d ${EXP_DIR}/raw/trisk-${reconfig_type}-${reconfig_interval}-${parallelism}-${runtime}-${n_tuples}-${affected_tasks} ]]; then
+        rm -rf ${EXP_DIR}/raw/trisk-${reconfig_type}-${reconfig_interval}-${parallelism}-${runtime}-${n_tuples}-${affected_tasks}
     fi
-    mv /data/trisk ${EXP_DIR}/raw/trisk-${reconfig_type}-N${n_tuples}-F${frequency}-T${affected_tasks}
+    mv /data/trisk ${EXP_DIR}/raw/trisk-${reconfig_type}-${reconfig_interval}-${parallelism}-${runtime}-${n_tuples}-${affected_tasks}
     mkdir /data/trisk
 }
 
 run_one_exp() {
-  echo "INFO: run exp ${reconfig_type} ${frequency} ${runtime} ${n_tuples} ${affected_tasks}"
+  # compute n_tuples from per task rates and parallelism
+  n_tuples=`expr ${runtime} \* ${per_task_rate} \* ${parallelism}`
+
+  echo "INFO: run exp ${reconfig_type} ${reconfig_interval} ${parallelism} ${runtime} ${n_tuples} ${affected_tasks}"
   configFlink
   runFlink
 
@@ -80,29 +83,36 @@ run_one_exp() {
   python -c 'import time; time.sleep(5)'
 }
 
-run_all() {
+init() {
   # app level
   JAR="${FLINK_APP_DIR}/target/testbed-1.0-SNAPSHOT.jar"
-  n_tuples=10000000
-  runtime=100
+  n_tuples=15000000
+  runtime=150
   parallelism=10
 
   # system level
   operator="Splitter FlatMap"
-  frequency=5
+#  frequency=1 # deprecated
+  reconfig_interval=10000
   affected_tasks=2
   reconfig_type="noop"
+}
 
+run_all() {
+  init
 
-  for frequency in 1 2 4 8; do # 0 1 5 10 100
-    for n_tuples in 10000000 15000000 20000000; do # 1000000 10000000 100000000
-      for reconfig_type in "rescale"; do # "noop" "remap" "rescale"
-        for affectedw_tasks in 2; do # 2 4 6 8 10
-          run_one_exp
+#  for frequency in 1 2 4 8; do # 0 1 5 10 100
+#  for reconfig_interval in 10000; do # 0 1 5 10 100
+    for parallelism in 5 10 20; do
+      for per_task_rate in 10000 20000 40000 80000; do # 1000000 10000000 100000000
+        for reconfig_type in "remap"; do # "noop" "remap" "rescale"
+          for affected_tasks in 2; do # 2 4 6 8 10
+            run_one_exp
+          done
         done
       done
     done
-  done
+#  done
 }
 
 
