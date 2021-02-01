@@ -195,14 +195,15 @@ def breakdown(lines):
 
 
 def ReadFile(type, parallelism):
-    w, h = 3, 4
+    w, h = 4, 4
     y = [[0 for x in range(w)] for y in range(h)]
 
     affected_tasks = 2
     i = 0
     interval = 10000
     runtime = 150
-    for n_tuples in [15000000,30000000,45000000]:
+    for rates in [10000, 20000, 40000, 80000]:
+        n_tuples = rates * parallelism * runtime
         exp = FILE_FOLER + '/trisk-{}-{}-{}-{}-{}-{}'.format(type, interval, parallelism, runtime, n_tuples, affected_tasks)
         file_path = os.path.join(exp, "timer.output")
         if os.path.isfile(file_path):
@@ -239,7 +240,7 @@ if __name__ == '__main__':
 
     for parallelism in [20]: # [1000000, 10000000, 100000000]
 
-        x_values = ['10k', '20k', '30k']
+        x_values = ['10k', '20k', '40k', '80k']
         y_values = ReadFile(type, parallelism)
 
         print(y_values)
