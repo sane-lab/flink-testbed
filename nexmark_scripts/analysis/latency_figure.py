@@ -204,4 +204,4 @@ if __name__ == '__main__':
 
     DrawFigure(x_values, y_values, legend_labels,
                'parallelism', 'latency (ms)', 0,
-               400, 'completion_time_{}_sync'.format(type), True)
+               400, 'latency_{}_sync'.format(type), True)
