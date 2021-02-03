@@ -105,7 +105,7 @@ run_all() {
 #  for reconfig_interval in 10000; do # 0 1 5 10 100
     for parallelism in 5 10 20; do
       for per_task_rate in 10000 20000 40000 80000; do # 1000000 10000000 100000000
-        for reconfig_type in "remap"; do # "noop" "remap" "rescale"
+        for reconfig_type in "noop"; do # "noop" "remap" "rescale"
           for affected_tasks in 2; do # 2 4 6 8 10
             run_one_exp
           done

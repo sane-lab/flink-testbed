@@ -154,7 +154,7 @@ def averageCompletionTime(lines):
     return sum/2
 
 def ReadFile(type):
-    w, h = 3, 3
+    w, h = 3, 4
     y = [[] for _ in range(h)]
     col1 = []  # each col has 3 elements
     col2 = []
@@ -165,15 +165,16 @@ def ReadFile(type):
     i = 0
     interval = 10000
     runtime = 150
-    for parallelism in [5, 10, 20]:
-        for n_tuples in [15000000,30000000,45000000]: # 1000000, 10000000, 100000000
+    for rate in [10000, 20000, 40000, 80000]:
+        for parallelism in [5, 10, 20]:
+            n_tuples = rate * parallelism * runtime
             # ${reconfig_type}-${reconfig_interval}-${parallelism}-${runtime}-${n_tuples}-${affected_tasks}
-            exp = FILE_FOLER + '/trisk-{}-{}-{}-{}-{}-{}'.format(type, interval, parallelism, runtime, n_tuples, affected_tasks)
+            exp = FILE_FOLER + '/trisk-{}-{}-{}-{}-{}-{}'.format(type, interval, parallelism, runtime,n_tuples, affected_tasks)
             file_path = os.path.join(exp, "Splitter FlatMap-0.output")
             if os.path.isfile(file_path):
                 y[i].append(averageLatency(open(file_path).readlines()))
             else:
-                exp = FILE_FOLER + '/trisk-{}-{}-{}-{}-{}-{}'.format(type, interval, parallelism, runtime, n_tuples, 4)
+                exp = FILE_FOLER + '/trisk-{}-{}-{}-{}-{}-{}'.format(type, interval, parallelism, runtime,n_tuples, 4)
                 file_path = os.path.join(exp, "Splitter FlatMap-0.output")
                 y[i].append(averageLatency(open(file_path).readlines()))
         i += 1
@@ -181,7 +182,7 @@ def ReadFile(type):
     return y
 
 if __name__ == '__main__':
-    type = 'rescale'
+    type = 'noop'
 
     try:
         opts, args = getopt.getopt(sys.argv[1:], '-t:h', ['reconfig type', 'help'])
@@ -196,11 +197,11 @@ if __name__ == '__main__':
             print('Reconfig Type:', opt_value)
             type = str(opt_value)
 
-    x_values = ['$10000$', '$15000$', '$20000$']
+    x_values = ['5', '10', '20']
     y_values = ReadFile(type)
 
-    legend_labels = ['1', '2', '4', '8']
+    legend_labels = ['10k', '20k', '40k', '80k']
 
     DrawFigure(x_values, y_values, legend_labels,
-               'arrival_rate', 'latency (ms)', 0,
-               400, type+'_latency', True)
+               'parallelism', 'latency (ms)', 0,
+               400, 'completion_time_{}_sync'.format(type), True)

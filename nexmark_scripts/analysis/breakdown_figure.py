@@ -223,7 +223,7 @@ def ReadFile(type, parallelism):
 
 
 if __name__ == '__main__':
-    type = 'remap'
+    type = 'noop'
 
     try:
         opts, args = getopt.getopt(sys.argv[1:], '-t::h', ['reconfig type', 'help'])
