@@ -163,11 +163,13 @@ def ReadFile(type):
 
     affected_tasks = 2
     i = 0
-    interval = 10000
+    interval = 0
     runtime = 150
-    for rate in [10000, 20000, 40000, 80000]:
+    source_p = 5
+    for rate in [10000, 20000, 40000, 60000]:
         for parallelism in [5, 10, 20]:
-            n_tuples = rate * parallelism * runtime
+            n_tuples = int(rate * parallelism * runtime / source_p)
+            print('trisk-{}-{}-{}-{}-{}-{}'.format(type, interval, parallelism, runtime,n_tuples, affected_tasks))
             # ${reconfig_type}-${reconfig_interval}-${parallelism}-${runtime}-${n_tuples}-${affected_tasks}
             exp = FILE_FOLER + '/trisk-{}-{}-{}-{}-{}-{}'.format(type, interval, parallelism, runtime,n_tuples, affected_tasks)
             file_path = os.path.join(exp, "Splitter FlatMap-0.output")
@@ -200,7 +202,7 @@ if __name__ == '__main__':
     x_values = ['5', '10', '20']
     y_values = ReadFile(type)
 
-    legend_labels = ['10k', '20k', '40k', '80k']
+    legend_labels = ['10k', '20k', '40k', '60k']
 
     DrawFigure(x_values, y_values, legend_labels,
                'parallelism', 'latency (ms)', 0,
