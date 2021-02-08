@@ -46,8 +46,8 @@ function cleanEnv() {
 
 # run applications
 function runApp() {
-  echo "INFO: ${FLINK_DIR}/bin/flink run -c flinkapp.StatefulDemoLongRun ${JAR} -runtime ${runtime} -nTuples ${n_tuples} -p2 ${parallelism}"
-  ${FLINK_DIR}/bin/flink run -c flinkapp.StatefulDemoLongRun ${JAR} -runtime ${runtime} -nTuples ${n_tuples} -p2 ${parallelism} &
+  echo "INFO: ${FLINK_DIR}/bin/flink run -c flinkapp.StatefulDemoLongRun ${JAR} -runtime ${runtime} -nTuples ${n_tuples} -p1 ${source_p} -p2 ${parallelism}"
+  ${FLINK_DIR}/bin/flink run -c flinkapp.StatefulDemoLongRun ${JAR} -runtime ${runtime} -nTuples ${n_tuples}  -p1 ${source_p} -p2 ${parallelism} &
 }
 
 
@@ -64,7 +64,7 @@ function analyze() {
 
 run_one_exp() {
   # compute n_tuples from per task rates and parallelism
-  n_tuples=`expr ${runtime} \* ${per_task_rate} \* ${parallelism}`
+  n_tuples=`expr ${runtime} \* ${per_task_rate} \* ${parallelism} \/ ${source_p}`
 
   echo "INFO: run exp ${reconfig_type} ${reconfig_interval} ${parallelism} ${runtime} ${n_tuples} ${affected_tasks}"
   configFlink
@@ -86,6 +86,7 @@ run_one_exp() {
 init() {
   # app level
   JAR="${FLINK_APP_DIR}/target/testbed-1.0-SNAPSHOT.jar"
+  source_p=5
   n_tuples=15000000
   runtime=150
   parallelism=10
@@ -101,10 +102,12 @@ init() {
 run_all() {
   init
 
+  reconfig_interval=10000
+
 #  for frequency in 1 2 4 8; do # 0 1 5 10 100
 #  for reconfig_interval in 10000; do # 0 1 5 10 100
     for parallelism in 5 10 20; do
-      for per_task_rate in 10000 20000 40000 80000; do # 1000000 10000000 100000000
+      for per_task_rate in 1000 2000 4000 8000 9000 10000; do # 1000000 10000000 100000000
         for reconfig_type in "noop"; do # "noop" "remap" "rescale"
           for affected_tasks in 2; do # 2 4 6 8 10
             run_one_exp

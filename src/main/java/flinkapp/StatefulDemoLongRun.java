@@ -18,6 +18,7 @@ import org.apache.flink.streaming.api.checkpoint.CheckpointedFunction;
 import org.apache.flink.streaming.api.datastream.DataStream;
 import org.apache.flink.streaming.api.datastream.DataStreamSource;
 import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
+import org.apache.flink.streaming.api.functions.source.RichParallelSourceFunction;
 import org.apache.flink.streaming.api.functions.source.SourceFunction;
 
 import java.util.HashMap;
@@ -50,7 +51,7 @@ public class StatefulDemoLongRun {
                 params.getInt("runtime", 10),
                 params.getInt("nTuples", 10000),
                 params.getInt("nKeys", 1000)
-        ));
+        )).setParallelism(params.getInt("p1", 1));
         DataStream<String> counts = source
                 .keyBy(0)
                 .map(new MyStatefulMap())
@@ -82,7 +83,7 @@ public class StatefulDemoLongRun {
         public String map(Tuple2<String, String> input) throws Exception {
             long start = System.nanoTime();
             // loop 0.01 ms
-            while(System.nanoTime() - start < 10000) {}
+            while(System.nanoTime() - start < 100000) {}
 
             String s = input.f0;
 
@@ -140,7 +141,7 @@ public class StatefulDemoLongRun {
         }
     }
 
-    private static class MySource implements SourceFunction<Tuple2<String, String>>, CheckpointedFunction {
+    private static class MySource extends RichParallelSourceFunction<Tuple2<String, String>> implements CheckpointedFunction {
 
         private int count = 0;
         private volatile boolean isRunning = true;
