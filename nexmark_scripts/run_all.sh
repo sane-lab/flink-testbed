@@ -58,8 +58,8 @@ function analyze() {
     if [[ -d ${EXP_DIR}/raw/trisk-${reconfig_type}-${reconfig_interval}-${parallelism}-${runtime}-${n_tuples}-${affected_tasks} ]]; then
         rm -rf ${EXP_DIR}/raw/trisk-${reconfig_type}-${reconfig_interval}-${parallelism}-${runtime}-${n_tuples}-${affected_tasks}
     fi
-    mv /data/trisk ${EXP_DIR}/raw/trisk-${reconfig_type}-${reconfig_interval}-${parallelism}-${runtime}-${n_tuples}-${affected_tasks}
-    mkdir /data/trisk
+    mv ${EXP_DIR}/trisk/ ${EXP_DIR}/raw/trisk-${reconfig_type}-${reconfig_interval}-${parallelism}-${runtime}-${n_tuples}-${affected_tasks}
+    mkdir ${EXP_DIR}/trisk/
 }
 
 run_one_exp() {

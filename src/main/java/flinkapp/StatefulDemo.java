@@ -22,7 +22,7 @@ import java.io.FileOutputStream;
 public class StatefulDemo {
 
     //    private static final int MAX = 1000000 * 10;
-    private static final int MAX = 100000;
+    private static final int MAX = 10000;
     private static final int NUM_LETTERS = 1000;
 
     public static void main(String[] args) throws Exception {
@@ -45,9 +45,9 @@ public class StatefulDemo {
                 .keyBy((KeySelector<String, Object>) s -> s)
                 .filter(input -> Integer.parseInt(input.split(" ")[1]) >= MAX)
                 .name("filter")
-//                .map(new Tokenizer())
-//                .keyBy(0)
-//                .sum(1)
+                .map(new Tokenizer())
+                .keyBy(0)
+                .sum(1)
                 .print();
 //            .addSink(kafkaProducer);
         env.execute();
