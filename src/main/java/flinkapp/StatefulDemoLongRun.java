@@ -3,6 +3,7 @@ package flinkapp;
 import Nexmark.sinks.DummySink;
 import Nexmark.sources.Util;
 import org.apache.beam.sdk.nexmark.sources.generator.model.BidGenerator;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.flink.api.common.functions.RichMapFunction;
 import org.apache.flink.api.common.state.ListState;
 import org.apache.flink.api.common.state.ListStateDescriptor;
@@ -14,6 +15,7 @@ import org.apache.flink.api.java.utils.ParameterTool;
 import org.apache.flink.configuration.Configuration;
 import org.apache.flink.runtime.state.FunctionInitializationContext;
 import org.apache.flink.runtime.state.FunctionSnapshotContext;
+import org.apache.flink.runtime.state.memory.MemoryStateBackend;
 import org.apache.flink.streaming.api.checkpoint.CheckpointedFunction;
 import org.apache.flink.streaming.api.datastream.DataStream;
 import org.apache.flink.streaming.api.datastream.DataStreamSource;
@@ -47,6 +49,11 @@ public class StatefulDemoLongRun {
 //        env.enableCheckpointing(1000);
 //        env.getCheckpointConfig().setCheckpointingMode(CheckpointingMode.EXACTLY_ONCE);
 
+        // set up the execution environment
+        env.setStateBackend(new MemoryStateBackend(1073741824));
+
+        int perKeyStateSize = params.getInt("perKeySize", 1024);
+
         DataStreamSource<Tuple2<String, String>> source = env.addSource(new MySource(
                 params.getInt("runtime", 10),
                 params.getInt("nTuples", 10000),
@@ -54,7 +61,7 @@ public class StatefulDemoLongRun {
         )).setParallelism(params.getInt("p1", 1));
         DataStream<String> counts = source
                 .keyBy(0)
-                .map(new MyStatefulMap())
+                .map(new MyStatefulMap(perKeyStateSize))
                 .disableChaining()
 //            .filter(input -> {
 //                return Integer.parseInt(input.split(" ")[1]) >= MAX;
@@ -75,9 +82,15 @@ public class StatefulDemoLongRun {
 
     private static class MyStatefulMap extends RichMapFunction<Tuple2<String, String>, String> {
 
-        private transient MapState<String, Long> countMap;
+        private transient MapState<String, String> countMap;
 
         private int count = 0;
+
+        private int perKeyStateSize;
+
+        public MyStatefulMap(int perKeyStateSize) {
+            this.perKeyStateSize = perKeyStateSize;
+        }
 
         @Override
         public String map(Tuple2<String, String> input) throws Exception {
@@ -87,9 +100,13 @@ public class StatefulDemoLongRun {
 
             String s = input.f0;
 
-            Long cur = countMap.get(s);
-            cur = (cur == null) ? 1 : cur + 1;
-            countMap.put(s, cur);
+            Long cur = 1L;
+            String payload = StringUtils.repeat("A", perKeyStateSize);
+            countMap.put(s, payload);
+
+//            Long cur = countMap.get(s);
+//            cur = (cur == null) ? 1 : cur + 1;
+//            countMap.put(s, cur);
 
             count++;
 //            System.out.println("counted: " + s + " : " + cur);
@@ -99,8 +116,8 @@ public class StatefulDemoLongRun {
 
         @Override
         public void open(Configuration config) {
-            MapStateDescriptor<String, Long> descriptor =
-                    new MapStateDescriptor<>("word-count", String.class, Long.class);
+            MapStateDescriptor<String, String> descriptor =
+                    new MapStateDescriptor<>("word-count", String.class, String.class);
 
             countMap = getRuntimeContext().getMapState(descriptor);
         }
@@ -111,6 +128,7 @@ public class StatefulDemoLongRun {
         private final int numRepeat;
 
         public IncreaseCommunicationOverheadMap(int numRepeat){
+            super(1024);
             this.numRepeat = numRepeat;
         }
 
@@ -130,6 +148,7 @@ public class StatefulDemoLongRun {
         private final int timeToWait;
 
         public IncreaseComputationOverheadMap(int timeToWait){
+            super(1024);
             this.timeToWait = timeToWait;
         }
 

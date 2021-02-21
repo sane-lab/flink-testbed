@@ -46,19 +46,23 @@ function cleanEnv() {
 
 # run applications
 function runApp() {
-  echo "INFO: ${FLINK_DIR}/bin/flink run -c flinkapp.StatefulDemoLongRun ${JAR} -runtime ${runtime} -nTuples ${n_tuples} -p1 ${source_p} -p2 ${parallelism}"
-  ${FLINK_DIR}/bin/flink run -c flinkapp.StatefulDemoLongRun ${JAR} -runtime ${runtime} -nTuples ${n_tuples}  -p1 ${source_p} -p2 ${parallelism} &
+  echo "INFO: ${FLINK_DIR}/bin/flink run -c flinkapp.StatefulDemoLongRun ${JAR} \
+    -runtime ${runtime} -nTuples ${n_tuples}  \-p1 ${source_p} -p2 ${parallelism} \
+    -nKeys ${key_set} -perKeySize ${per_key_state_size} &"
+  ${FLINK_DIR}/bin/flink run -c flinkapp.StatefulDemoLongRun ${JAR} \
+    -runtime ${runtime} -nTuples ${n_tuples}  \-p1 ${source_p} -p2 ${parallelism} \
+    -nKeys ${key_set} -perKeySize ${per_key_state_size} &
 }
 
 
 # draw figures
 function analyze() {
     #python2 ${FLINK_APP_DIR}/nexmark_scripts/draw/RateAndWindowDelay.py ${EXP_NAME} ${WARMUP} ${RUNTIME}
-    echo "INFO: dump to ${EXP_DIR}/raw/trisk-${reconfig_type}-${reconfig_interval}-${parallelism}-${runtime}-${n_tuples}-${affected_tasks}"
-    if [[ -d ${EXP_DIR}/raw/trisk-${reconfig_type}-${reconfig_interval}-${parallelism}-${runtime}-${n_tuples}-${affected_tasks} ]]; then
-        rm -rf ${EXP_DIR}/raw/trisk-${reconfig_type}-${reconfig_interval}-${parallelism}-${runtime}-${n_tuples}-${affected_tasks}
+    echo "INFO: dump to ${EXP_DIR}/raw/trisk-${reconfig_type}-${reconfig_interval}-${runtime}-${parallelism}-${per_task_rate}-${key_set}-${per_key_state_size}-${affected_tasks}"
+    if [[ -d ${EXP_DIR}/raw/trisk-${reconfig_type}-${reconfig_interval}-${runtime}-${parallelism}-${per_task_rate}-${key_set}-${per_key_state_size}-${affected_tasks} ]]; then
+        rm -rf ${EXP_DIR}/raw/trisk-${reconfig_type}-${reconfig_interval}-${runtime}-${parallelism}-${per_task_rate}-${key_set}-${per_key_state_size}-${affected_tasks}
     fi
-    mv ${EXP_DIR}/trisk/ ${EXP_DIR}/raw/trisk-${reconfig_type}-${reconfig_interval}-${parallelism}-${runtime}-${n_tuples}-${affected_tasks}
+    mv ${EXP_DIR}/trisk/ ${EXP_DIR}/raw/trisk-${reconfig_type}-${reconfig_interval}-${runtime}-${parallelism}-${per_task_rate}-${key_set}-${per_key_state_size}-${affected_tasks}
     mkdir ${EXP_DIR}/trisk/
 }
 
@@ -66,7 +70,7 @@ run_one_exp() {
   # compute n_tuples from per task rates and parallelism
   n_tuples=`expr ${runtime} \* ${per_task_rate} \* ${parallelism} \/ ${source_p}`
 
-  echo "INFO: run exp ${reconfig_type} ${reconfig_interval} ${parallelism} ${runtime} ${n_tuples} ${affected_tasks}"
+  echo "INFO: run exp ${reconfig_type}-${reconfig_interval}-${runtime}-${parallelism}-${per_task_rate}-${key_set}-${per_key_state_size}-${affected_tasks}"
   configFlink
   runFlink
 
@@ -86,40 +90,54 @@ run_one_exp() {
 init() {
   # app level
   JAR="${FLINK_APP_DIR}/target/testbed-1.0-SNAPSHOT.jar"
-  source_p=5
-  n_tuples=15000000
   runtime=150
+  source_p=5
+#  n_tuples=15000000
+  per_task_rate=6000
   parallelism=10
+  key_set=1000
+  per_key_state_size=1024 # byte
 
   # system level
   operator="Splitter FlatMap"
-#  frequency=1 # deprecated
   reconfig_interval=10000
-  affected_tasks=2
   reconfig_type="noop"
+#  frequency=1 # deprecated
+  affected_tasks=2
 }
 
-run_all() {
+run_micro() {
   init
+  reconfig_type="remap"
 
-  reconfig_interval=10000
+  for parallelism in 5 10 20; do
+    run_one_exp
+  done
 
-#  for frequency in 1 2 4 8; do # 0 1 5 10 100
-#  for reconfig_interval in 10000; do # 0 1 5 10 100
-    for parallelism in 5 10 20; do
-      for per_task_rate in 1000 2000 4000 8000 9000 10000; do # 1000000 10000000 100000000
-        for reconfig_type in "noop"; do # "noop" "remap" "rescale"
-          for affected_tasks in 2; do # 2 4 6 8 10
-            run_one_exp
-          done
-        done
-      done
-    done
-#  done
+  init
+  reconfig_type="remap"
+
+  for per_task_rate in 1000 2000 4000 6000 8000; do
+    run_one_exp
+  done
+
+  init
+  reconfig_type="remap"
+
+  for affected_tasks in 2 4 6 8 10; do # 2 4 6 8 10
+    run_one_exp
+  done
+
+  init
+  reconfig_type="remap"
+
+  for per_key_state_size in 1024 10240 102400; do
+    run_one_exp
+  done
 }
 
 
-run_all
+run_micro
 
 # dump the statistics when all exp are finished
 # in the future, we will draw the intuitive figures

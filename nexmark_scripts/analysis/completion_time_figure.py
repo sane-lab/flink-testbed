@@ -191,7 +191,7 @@ if __name__ == '__main__':
     try:
         opts, args = getopt.getopt(sys.argv[1:], '-t:h', ['reconfig type', 'help'])
     except getopt.GetoptError:
-        print('breakdown_figure.py -t type')
+        print('breakdown_parallelism.py -t type')
         sys.exit(2)
     for opt, opt_value in opts:
         if opt in ('-h', '--help'):
