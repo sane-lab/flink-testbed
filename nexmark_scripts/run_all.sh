@@ -108,28 +108,24 @@ init() {
 
 run_micro() {
   init
-  reconfig_type="remap"
 
   for parallelism in 5 10 20; do
     run_one_exp
   done
 
   init
-  reconfig_type="remap"
 
   for per_task_rate in 1000 2000 4000 6000 8000; do
     run_one_exp
   done
 
   init
-  reconfig_type="remap"
 
   for affected_tasks in 2 4 6 8 10; do # 2 4 6 8 10
     run_one_exp
   done
 
   init
-  reconfig_type="remap"
 
   for per_key_state_size in 1024 10240 102400; do
     run_one_exp

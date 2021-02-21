@@ -39,7 +39,7 @@ FIGURE_FOLDER = '/data/results'
 FILE_FOLER = '/data/raw'
 
 timers = ["++++++prepare timer", "++++++synchronize timer", "++++++updateKeyMapping timer", "++++++updateState timer"]
-
+legend_labels = ['pre', 'sync', 'updkey', 'updstat']
 
 def ConvertEpsToPdf(dir_filename):
     os.system("epstopdf --outfile " + dir_filename + ".pdf " + dir_filename + ".eps")

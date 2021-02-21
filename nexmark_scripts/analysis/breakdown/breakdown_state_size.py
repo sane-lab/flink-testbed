@@ -37,9 +37,11 @@ def draw(val):
     x_values = [1024, 10240, 102400]
     y_values = ReadFile(runtime, per_task_rate, parallelism, key_set, per_key_state_size, reconfig_interval,
                         reconfig_type, affected_tasks)
-    legend_labels = ['pre', 'sync', 'updstat', 'updkey']
+
+    legend_labels = utilities.legend_labels
+
     utilities.DrawFigure(x_values, y_values, legend_labels,
-                         'parallelism', 'breakdown (ms)',
+                         'state_size(bytes/key)', 'breakdown (ms)',
                          'breakdown_{}_{}'.format(reconfig_type, "state"), True)
 
 
