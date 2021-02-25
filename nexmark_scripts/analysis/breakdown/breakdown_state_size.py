@@ -6,11 +6,11 @@ import utilities
 
 def ReadFile(runtime, per_task_rate, parallelism, key_set, per_key_state_size, reconfig_interval, reconfig_type,
              affected_tasks):
-    w, h = 3, 4
+    w, h = 4, 4
     y = [[0 for x in range(w)] for y in range(h)]
 
     i = 0
-    for per_key_state_size in [1024, 10240, 102400]:
+    for per_key_state_size in [1024, 10240, 20480, 40960]:
         # ${reconfig_type}-${reconfig_interval}-${runtime}-${parallelism}-${per_task_rate}-${key_set}-${per_key_state_size}-${affected_tasks}
         exp = utilities.FILE_FOLER + '/trisk-{}-{}-{}-{}-{}-{}-{}-{}'.format(reconfig_type, reconfig_interval, runtime,
                                                                    parallelism, per_task_rate, key_set,
@@ -34,7 +34,7 @@ def draw(val):
     runtime, per_task_rate, parallelism, key_set, per_key_state_size, reconfig_interval, reconfig_type, affected_tasks = val
 
     # parallelism
-    x_values = [1024, 10240, 102400]
+    x_values = [1024, 10240, 20480, 40960]
     y_values = ReadFile(runtime, per_task_rate, parallelism, key_set, per_key_state_size, reconfig_interval,
                         reconfig_type, affected_tasks)
 

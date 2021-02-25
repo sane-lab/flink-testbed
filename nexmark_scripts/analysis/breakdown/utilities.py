@@ -103,6 +103,9 @@ def DrawFigure(x_values, y_values, legend_labels, x_label, y_label, filename, al
 
     # plt.ylim(0, 100)
 
+    # # you may need to tune the xticks position to get the best figure.
+    # plt.yscale('log')
+
     # you may need to tune the xticks position to get the best figure.
     plt.xticks(index + 0.5 * width, x_values)
     plt.xticks(rotation=30)

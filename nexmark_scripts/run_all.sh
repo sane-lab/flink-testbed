@@ -25,7 +25,15 @@ function stopFlink() {
     ${FLINK_DIR}/bin/stop-cluster.sh
     mv ${FLINK_DIR}/log ${EXP_DIR}/trisk/
     echo "close finished"
+    cleanEnv
 }
+
+# clean app specific related data
+function cleanEnv() {
+    rm -rf /tmp/flink*
+    rm ${FLINK_DIR}/log/*
+}
+
 
 # configure parameters in flink bin
 function configFlink() {
@@ -36,13 +44,6 @@ function configFlink() {
     sed 's/^\(\s*trisk.reconfig.type\s*:\s*\).*/\1'"$reconfig_type"'/' tmp3 > ${FLINK_DIR}/conf/flink-conf.yaml
     rm tmp1 tmp2 tmp3
 }
-
-# clean kafka related data
-function cleanEnv() {
-    rm -rf /tmp/flink*
-#    rm ${FLINK_DIR}/log/*
-}
-
 
 # run applications
 function runApp() {
@@ -101,37 +102,36 @@ init() {
   # system level
   operator="Splitter FlatMap"
   reconfig_interval=10000
-  reconfig_type="noop"
+  reconfig_type="remap"
 #  frequency=1 # deprecated
   affected_tasks=2
 }
 
 run_micro() {
-  init
-
-  for parallelism in 5 10 20; do
-    run_one_exp
-  done
-
-  init
-
-  for per_task_rate in 1000 2000 4000 6000 8000; do
-    run_one_exp
-  done
-
+#  init
+#
+#  for parallelism in 5 10 20; do
+#    run_one_exp
+#  done
+#
+#  init
+#
+#  for per_task_rate in 1000 2000 4000 6000 8000; do
+#    run_one_exp
+#  done
+#
   init
 
   for affected_tasks in 2 4 6 8 10; do # 2 4 6 8 10
     run_one_exp
   done
 
-  init
-
-  for per_key_state_size in 1024 10240 102400; do
-    run_one_exp
-  done
+#  init
+#
+#  for per_key_state_size in 1024 10240 20480 40960; do
+#    run_one_exp
+#  done
 }
-
 
 run_micro
 
