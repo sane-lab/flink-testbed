@@ -64,7 +64,9 @@ public class Query2 {
                             out.collect(new Tuple2<>(bid.auction, bid.price));
                         }
                     }
-                }).setParallelism(params.getInt("p-flatMap", 1));
+                })
+                .name("Splitter FlatMap")
+                .setParallelism(params.getInt("p-flatMap", 1));
 
         GenericTypeInfo<Object> objectTypeInfo = new GenericTypeInfo<>(Object.class);
         converted.transform("DummyLatencySink", objectTypeInfo, new DummyLatencyCountingSink<>(logger))

@@ -47,10 +47,10 @@ function configFlink() {
 
 # run applications
 function runApp() {
-  echo "INFO: ${FLINK_DIR}/bin/flink run -c flinkapp.StatefulDemoLongRun ${JAR} \
+  echo "INFO: ${FLINK_DIR}/bin/flink run -c ${job} ${JAR} \
     -runtime ${runtime} -nTuples ${n_tuples}  \-p1 ${source_p} -p2 ${parallelism} \
     -nKeys ${key_set} -perKeySize ${per_key_state_size} &"
-  ${FLINK_DIR}/bin/flink run -c flinkapp.StatefulDemoLongRun ${JAR} \
+  ${FLINK_DIR}/bin/flink run -c ${job} ${JAR} \
     -runtime ${runtime} -nTuples ${n_tuples}  \-p1 ${source_p} -p2 ${parallelism} \
     -nKeys ${key_set} -perKeySize ${per_key_state_size} &
 }
@@ -59,19 +59,21 @@ function runApp() {
 # draw figures
 function analyze() {
     #python2 ${FLINK_APP_DIR}/nexmark_scripts/draw/RateAndWindowDelay.py ${EXP_NAME} ${WARMUP} ${RUNTIME}
-    echo "INFO: dump to ${EXP_DIR}/raw/trisk-${reconfig_type}-${reconfig_interval}-${runtime}-${parallelism}-${per_task_rate}-${key_set}-${per_key_state_size}-${affected_tasks}"
-    if [[ -d ${EXP_DIR}/raw/trisk-${reconfig_type}-${reconfig_interval}-${runtime}-${parallelism}-${per_task_rate}-${key_set}-${per_key_state_size}-${affected_tasks} ]]; then
-        rm -rf ${EXP_DIR}/raw/trisk-${reconfig_type}-${reconfig_interval}-${runtime}-${parallelism}-${per_task_rate}-${key_set}-${per_key_state_size}-${affected_tasks}
+    echo "INFO: dump to ${EXP_DIR}/raw/${EXP_NAME}"
+    if [[ -d ${EXP_DIR}/raw/${EXP_NAME} ]]; then
+        rm -rf ${EXP_DIR}/raw/${EXP_NAME}
     fi
-    mv ${EXP_DIR}/trisk/ ${EXP_DIR}/raw/trisk-${reconfig_type}-${reconfig_interval}-${runtime}-${parallelism}-${per_task_rate}-${key_set}-${per_key_state_size}-${affected_tasks}
+    mv ${EXP_DIR}/trisk/ ${EXP_DIR}/raw/${EXP_NAME}
     mkdir ${EXP_DIR}/trisk/
 }
 
+# run one flink demo exp, which is a word count job
 run_one_exp() {
   # compute n_tuples from per task rates and parallelism
   n_tuples=`expr ${runtime} \* ${per_task_rate} \* ${parallelism} \/ ${source_p}`
+  EXP_NAME=trisk-${reconfig_type}-${reconfig_interval}-${runtime}-${parallelism}-${per_task_rate}-${key_set}-${per_key_state_size}-${affected_tasks}-${repeat}
 
-  echo "INFO: run exp ${reconfig_type}-${reconfig_interval}-${runtime}-${parallelism}-${per_task_rate}-${key_set}-${per_key_state_size}-${affected_tasks}"
+  echo "INFO: run exp ${EXP_NAME}"
   configFlink
   runFlink
 
@@ -88,10 +90,12 @@ run_one_exp() {
   python -c 'import time; time.sleep(5)'
 }
 
+# initialization of the parameters
 init() {
   # app level
   JAR="${FLINK_APP_DIR}/target/testbed-1.0-SNAPSHOT.jar"
-  runtime=150
+  job="flinkapp.StatefulDemoLongRun"
+  runtime=100
   source_p=5
 #  n_tuples=15000000
   per_task_rate=6000
@@ -105,33 +109,116 @@ init() {
   reconfig_type="remap"
 #  frequency=1 # deprecated
   affected_tasks=2
+  repeat=1
 }
 
+# run the micro benchmarks
 run_micro() {
-#  init
-#
-#  for parallelism in 5 10 20; do
-#    run_one_exp
-#  done
-#
-#  init
-#
-#  for per_task_rate in 1000 2000 4000 6000 8000; do
-#    run_one_exp
-#  done
-#
   init
-
-  for affected_tasks in 2 4 6 8 10; do # 2 4 6 8 10
-    run_one_exp
-  done
-
-#  init
+  for repeat in 1 2 3 4 5; do
+    for reconfig_type in "remap"; do
+      # parallelism
+#      for parallelism in 5 10 20; do
+#        run_one_exp
+#      done
 #
-#  for per_key_state_size in 1024 10240 20480 40960; do
-#    run_one_exp
-#  done
+#      parallelism=10
+#
+#      # arrival rate
+#      for per_task_rate in 1000 2000 4000 6000 8000; do # 1000 2000 4000 6000 8000 10000
+#        run_one_exp
+#      done
+#
+#      per_task_rate=6000
+#      # number of affected tasks
+#      for affected_tasks in 2 4 6 8 10; do # 2 4 6 8 10
+#        run_one_exp
+#      done
+
+      affected_tasks=2
+      # state size
+      for per_key_state_size in 1024 10240 20480 40960; do
+        run_one_exp
+      done
+
+      per_key_state_size=1024
+    done
+  done
 }
+
+## initialization for nexmark
+#init_nexmark() {
+#  # app level
+#  JAR="${FLINK_APP_DIR}/target/testbed-1.0-SNAPSHOT.jar"
+#  job="Nexmark.queries.Query2"
+#  key_set=1000
+#  runtime=100
+#  source_p=5
+#  per_task_rate=6000
+#  parallelism=10
+#  per_key_state_size=1024 # byte
+#
+#  # system level
+#  operator="Splitter FlatMap"
+#  reconfig_interval=10000
+#  reconfig_type="remap"
+##  frequency=1 # deprecated
+#  affected_tasks=2
+#  repeat=1
+#}
+
+## run one nexmark exp
+#run_one_nexmark_exp() {
+#  # compute n_tuples from per task rates and parallelism
+#  n_tuples=`expr ${runtime} \* ${per_task_rate} \* ${parallelism} \/ ${source_p}`
+#  EXP_NAME=trisk-${reconfig_type}-${reconfig_interval}-${runtime}-${parallelism}-${per_task_rate}-${key_set}-${per_key_state_size}-${affected_tasks}-${repeat}
+#
+#  echo "INFO: run exp ${EXP_NAME}"
+#  configFlink
+#  runFlink
+#
+#  python -c 'import time; time.sleep(5)'
+#
+#  runApp
+#
+#  SCRIPTS_RUNTIME=`expr ${runtime} + 10`
+#  python -c 'import time; time.sleep('"${SCRIPTS_RUNTIME}"')'
+#
+#  analyze
+#  stopFlink
+#
+#  python -c 'import time; time.sleep(5)'
+#}
+#
+## run nexmark
+#run_nexmark() {
+#  init_nexmark
+#
+#  for reconfig_type in "remap" "noop"; do
+#    # parallelism Q2 Q5 Q8
+#    for parallelism in 5 10 20; do
+#      run_one_nexmark_exp
+#    done
+#
+#    parallelism=10
+#    # arrival rate Q2 Q5 Q8
+#    for per_task_rate in 1000 2000 4000 6000 8000; do
+#      run_one_nexmark_exp
+#    done
+#
+#    per_task_rate=6000
+#    # affected tasks Q2 Q5 Q8
+#    for affected_tasks in 2 4 6 8 10; do # 2 4 6 8 10
+#      run_one_nexmark_exp
+#    done
+#
+#    affected_tasks=2
+#    # state size/ window size Q8
+#    for per_key_state_size in 1024 10240 20480 40960; do
+#      run_one_nexmark_exp
+#    done
+#  done
+#}
 
 run_micro
 

@@ -84,7 +84,7 @@ public class BidSourceFunction extends RichParallelSourceFunction<Bid> {
             long emitStartTime = System.currentTimeMillis();
 
             if (System.currentTimeMillis() - startTs < warmUpInterval) {
-                for (int i = 0; i < Integer.valueOf(curRate / 20); i++) {
+                for (int i = 0; i < curRate / 20; i++) {
 
                     long nextId = nextId();
                     Random rnd = new Random(nextId);
@@ -109,7 +109,7 @@ public class BidSourceFunction extends RichParallelSourceFunction<Bid> {
                     count = 0;
                 }
 
-                for (int i = 0; i < Integer.valueOf(curRate / 20); i++) {
+                for (int i = 0; i < curRate / 20; i++) {
 
                     long nextId = nextId();
                     Random rnd = new Random(nextId);
@@ -135,7 +135,7 @@ public class BidSourceFunction extends RichParallelSourceFunction<Bid> {
         long startTs = System.currentTimeMillis();
         while (System.currentTimeMillis() - startTs < warmUpInterval) {
             long emitStartTime = System.currentTimeMillis();
-            for (int i = 0; i < Integer.valueOf(curRate/20); i++) {
+            for (int i = 0; i < curRate / 20; i++) {
 
                 long nextId = nextId();
                 Random rnd = new Random(nextId);

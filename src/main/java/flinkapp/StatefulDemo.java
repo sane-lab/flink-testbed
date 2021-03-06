@@ -22,8 +22,8 @@ import java.io.FileOutputStream;
 public class StatefulDemo {
 
     //    private static final int MAX = 1000000 * 10;
-    private static final int MAX = 10000;
-    private static final int NUM_LETTERS = 1000;
+    private static final int MAX = 50000;
+    private static final int NUM_LETTERS = 100;
 
     public static void main(String[] args) throws Exception {
         StreamExecutionEnvironment env = StreamExecutionEnvironment.getExecutionEnvironment();
@@ -41,7 +41,7 @@ public class StatefulDemo {
                 .disableChaining()
                 .name("Splitter FlatMap")
                 .uid("flatmap")
-                .setParallelism(8)
+                .setParallelism(2)
                 .keyBy((KeySelector<String, Object>) s -> s)
                 .filter(input -> Integer.parseInt(input.split(" ")[1]) >= MAX)
                 .name("filter")
@@ -75,6 +75,7 @@ public class StatefulDemo {
 
         @Override
         public void open(Configuration config) {
+            System.out.println(config);
             MapStateDescriptor<String, Long> descriptor =
                     new MapStateDescriptor<>("word-count", String.class, Long.class);
 //            try {

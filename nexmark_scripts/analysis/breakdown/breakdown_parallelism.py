@@ -9,23 +9,30 @@ def ReadFile(runtime, per_task_rate, parallelism, key_set, per_key_state_size, r
     w, h = 3, 4
     y = [[0 for x in range(w)] for y in range(h)]
 
-    i = 0
-    for parallelism in [5, 10, 20]:
-        # ${reconfig_type}-${reconfig_interval}-${runtime}-${parallelism}-${per_task_rate}-${key_set}-${per_key_state_size}-${affected_tasks}
-        exp = utilities.FILE_FOLER + '/trisk-{}-{}-{}-{}-{}-{}-{}-{}'.format(reconfig_type, reconfig_interval, runtime,
-                                                                             parallelism, per_task_rate, key_set,
-                                                                             per_key_state_size, affected_tasks)
-        file_path = os.path.join(exp, "timer.output")
-        try:
-            stats = utilities.breakdown(open(file_path).readlines())
-            for j in range(4):
-                if utilities.timers[j] not in stats:
-                    y[j][i] = 0
-                else:
-                    y[j][i] = stats[utilities.timers[j]]
-            i += 1
-        except:
-            print("Error while processing the file {}".format(exp))
+    for repeat in range(1, 6):
+        i = 0
+        for parallelism in [5, 10, 20]:
+            # ${reconfig_type}-${reconfig_interval}-${runtime}-${parallelism}-${per_task_rate}-${key_set}-${per_key_state_size}-${affected_tasks}
+            exp = utilities.FILE_FOLER + '/trisk-{}-{}-{}-{}-{}-{}-{}-{}-{}'.format(reconfig_type, reconfig_interval,
+                                                                                    runtime,
+                                                                                    parallelism, per_task_rate, key_set,
+                                                                                    per_key_state_size, affected_tasks,
+                                                                                    repeat)
+            file_path = os.path.join(exp, "timer.output")
+            try:
+                stats = utilities.breakdown(open(file_path).readlines())
+                for j in range(4):
+                    if utilities.timers[j] not in stats:
+                        y[j][i] = 0
+                    else:
+                        y[j][i] += stats[utilities.timers[j]]
+                i += 1
+            except:
+                print("Error while processing the file {}".format(exp))
+
+    for j in range(h):
+        for i in range(w):
+            y[j][i] = y[j][i] / 5
 
     return y
 

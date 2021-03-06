@@ -201,7 +201,7 @@ def breakdown(lines):
 
 
 def init():
-    runtime = 150
+    runtime = 100
     per_task_rate = 6000
     parallelism = 10
     key_set = 1000

@@ -23,7 +23,7 @@ if __name__ == '__main__':
             print('Reconfig Type:', opt_value)
             val[6] = str(opt_value)
 
-    breakdown_parallelism.draw(val)
+    # breakdown_parallelism.draw(val)
     breakdown_state_size.draw(val)
-    breakdown_arrival_rate.draw(val)
-    breakdown_affected_tasks.draw(val)
+    # breakdown_arrival_rate.draw(val)
+    # breakdown_affected_tasks.draw(val)

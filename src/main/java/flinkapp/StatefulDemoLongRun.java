@@ -86,7 +86,7 @@ public class StatefulDemoLongRun {
 
         private int count = 0;
 
-        private int perKeyStateSize;
+        private final int perKeyStateSize;
 
         public MyStatefulMap(int perKeyStateSize) {
             this.perKeyStateSize = perKeyStateSize;

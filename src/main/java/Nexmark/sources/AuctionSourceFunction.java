@@ -84,7 +84,7 @@ public class AuctionSourceFunction extends RichParallelSourceFunction<Auction> {
                 count = 0;
             }
 
-            for (int i = 0; i < Integer.valueOf(curRate/20); i++) {
+            for (int i = 0; i < curRate / 20; i++) {
                 long nextId = nextId();
                 Random rnd = new Random(nextId);
 
@@ -108,7 +108,7 @@ public class AuctionSourceFunction extends RichParallelSourceFunction<Auction> {
         long startTs = System.currentTimeMillis();
         while (System.currentTimeMillis() - startTs < warmUpInterval) {
             long emitStartTime = System.currentTimeMillis();
-            for (int i = 0; i < Integer.valueOf(curRate/20); i++) {
+            for (int i = 0; i < curRate / 20; i++) {
                 long nextId = nextId();
                 Random rnd = new Random(nextId);
 
