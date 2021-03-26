@@ -33,7 +33,7 @@
 //    private static final String OUTPUT_STREAM_ID = "stock_average";
 //    private static final String KAFKA_BROKERS = "localhost:9092";
 //
-//    public static void main(String[] args) throws Exception {
+//    public static void Main(String[] args) throws Exception {
 //
 //        // Checking input parameters
 //        final ParameterTool params = ParameterTool.fromArgs(args);

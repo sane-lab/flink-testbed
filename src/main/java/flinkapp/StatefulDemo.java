@@ -23,7 +23,7 @@ public class StatefulDemo {
 
     //    private static final int MAX = 1000000 * 10;
     private static final int MAX = 50000;
-    private static final int NUM_LETTERS = 100;
+    private static final int NUM_LETTERS = 1000;
 
     public static void main(String[] args) throws Exception {
         StreamExecutionEnvironment env = StreamExecutionEnvironment.getExecutionEnvironment();

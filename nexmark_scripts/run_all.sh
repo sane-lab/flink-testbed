@@ -23,7 +23,6 @@ function stopFlink() {
       kill -9 ${PID}
     fi
     ${FLINK_DIR}/bin/stop-cluster.sh
-    mv ${FLINK_DIR}/log ${EXP_DIR}/trisk/
     echo "close finished"
     cleanEnv
 }
@@ -63,6 +62,7 @@ function analyze() {
     if [[ -d ${EXP_DIR}/raw/${EXP_NAME} ]]; then
         rm -rf ${EXP_DIR}/raw/${EXP_NAME}
     fi
+    mv ${FLINK_DIR}/log ${EXP_DIR}/trisk/
     mv ${EXP_DIR}/trisk/ ${EXP_DIR}/raw/${EXP_NAME}
     mkdir ${EXP_DIR}/trisk/
 }
@@ -115,15 +115,15 @@ init() {
 # run the micro benchmarks
 run_micro() {
   init
-  for repeat in 1 2 3 4 5; do
-    for reconfig_type in "remap"; do
+  for repeat in 1 2 3 4 5; do # 1 2 3 4 5
+    for reconfig_type in "rescale"; do
       # parallelism
-#      for parallelism in 5 10 20; do
-#        run_one_exp
-#      done
-#
-#      parallelism=10
-#
+      for parallelism in 5 10 20; do # 5 10 20
+        run_one_exp
+      done
+
+      parallelism=10
+
 #      # arrival rate
 #      for per_task_rate in 1000 2000 4000 6000 8000; do # 1000 2000 4000 6000 8000 10000
 #        run_one_exp
@@ -134,14 +134,14 @@ run_micro() {
 #      for affected_tasks in 2 4 6 8 10; do # 2 4 6 8 10
 #        run_one_exp
 #      done
-
-      affected_tasks=2
-      # state size
-      for per_key_state_size in 1024 10240 20480 40960; do
-        run_one_exp
-      done
-
-      per_key_state_size=1024
+#
+#      affected_tasks=2
+#      # state size
+#      for per_key_state_size in 1024 10240 20480 40960; do
+#        run_one_exp
+#      done
+#
+#      per_key_state_size=1024
     done
   done
 }

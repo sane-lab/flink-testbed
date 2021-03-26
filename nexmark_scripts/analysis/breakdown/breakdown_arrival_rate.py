@@ -18,9 +18,11 @@ def ReadFile(runtime, per_task_rate, parallelism, key_set, per_key_state_size, r
                                                                                     parallelism, per_task_rate, key_set,
                                                                                     per_key_state_size, affected_tasks,
                                                                                     repeat)
+            # print(exp)
             file_path = os.path.join(exp, "timer.output")
             try:
                 stats = utilities.breakdown(open(file_path).readlines())
+                print(stats)
                 for j in range(4):
                     if utilities.timers[j] not in stats:
                         y[j][i] = 0

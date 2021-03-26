@@ -175,7 +175,8 @@ def averageCompletionTime(lines):
 
 # the average reconfig time
 def breakdown(lines):
-    counter_limit = 1
+    counter_limit = 6
+    start_from = 2
     timers = {}
     counts = {}
     for line in lines:
@@ -185,7 +186,8 @@ def breakdown(lines):
                 timers[key] = 0
                 counts[key] = 0
             if counts[key] < counter_limit:
-                timers[key] += int(line.split(" : ")[1][:-3])
+                if counts[key] >= start_from:
+                    timers[key] += int(line.split(" : ")[1][:-3])
                 counts[key] += 1
 
     stats = {}
@@ -193,7 +195,7 @@ def breakdown(lines):
         totalTime = timers[key]
         count = counts[key]
         if count > 0:
-            stats[key] = totalTime / count
+            stats[key] = totalTime / (count-start_from)
         else:
             stats[key] = 0
 
@@ -208,6 +210,6 @@ def init():
     per_key_state_size = 1024  # byte
     # system level
     reconfig_interval = 10000
-    reconfig_type = "remap"
+    reconfig_type = "rescale"
     affected_tasks = 2
     return runtime, per_task_rate, parallelism, key_set, per_key_state_size, reconfig_interval, reconfig_type, affected_tasks

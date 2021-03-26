@@ -19,7 +19,7 @@ package Nexmark.sources.generator.model;
 
 import java.util.Random;
 
-/** Generates strings which are used for different field in other model objects. */
+/** Generates strings which are used for different com.ververica.field in other model objects. */
 public class StringsGenerator {
 
   /** Smallest random string size. */

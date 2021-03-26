@@ -67,7 +67,7 @@ public class WordCount {
                 // split up the lines in pairs (2-tuples) containing: (word,1)
                 text.flatMap(new Tokenizer())
 //                        .setParallelism(2)
-                        // group by the tuple field "0" and sum up tuple field "1"
+                        // group by the tuple com.ververica.field "0" and sum up tuple com.ververica.field "1"
                         .keyBy(0)
                         .sum(1);
 
