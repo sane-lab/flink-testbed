@@ -27,7 +27,7 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 public class Alert<Event, Value> {
   private Integer ruleId;
-  private String violatedControlMessage;
+//  private String violatedControlMessage;
   private String key;
 
   private Event triggeringEvent;

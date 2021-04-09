@@ -18,70 +18,98 @@
 
 package megaphone.dynamicrules.functions;
 
-import megaphone.dynamicrules.*;
 import lombok.extern.slf4j.Slf4j;
+import megaphone.dynamicrules.Alert;
+import megaphone.dynamicrules.Keyed;
+import megaphone.dynamicrules.MegaphoneEvaluator;
 import org.apache.flink.api.common.state.BroadcastState;
-import org.apache.flink.api.common.state.MapState;
-import org.apache.flink.api.common.state.MapStateDescriptor;
-import org.apache.flink.api.common.typeinfo.BasicTypeInfo;
-import org.apache.flink.api.common.typeinfo.TypeHint;
-import org.apache.flink.api.common.typeinfo.TypeInformation;
+import org.apache.flink.api.java.tuple.Tuple2;
 import org.apache.flink.configuration.Configuration;
 import org.apache.flink.metrics.Meter;
 import org.apache.flink.metrics.MeterView;
 import org.apache.flink.streaming.api.functions.co.KeyedBroadcastProcessFunction;
 import org.apache.flink.util.Collector;
+import org.apache.kafka.clients.producer.KafkaProducer;
+import org.apache.kafka.clients.producer.ProducerRecord;
 
-import java.util.Iterator;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
 
 /** Implements main rule evaluation and alerting logic. */
 @Slf4j
 public class ProcessorFunction
     extends KeyedBroadcastProcessFunction<
-        String, Keyed<Transaction, String, Integer>, String, Alert> {
+        String, Keyed<Tuple2<String, String>, String, Integer>, String, Alert> {
+
+  private final Set<Integer> observedKeys = new HashSet<>();
+  private final Map<Integer, String> localState = new HashMap<>();
+
+  String keyGroupToKeyMapStr = "0=A12, 1=A28, 2=A14, 3=A19, 4=A42, 5=A133, 6=A214, 7=A364, 8=A20, 9=A23, " +
+          "10=A9, 11=A203, 12=A145, 13=A163, 14=A234, 15=A7, 16=A33, 17=A175, 18=A40, 19=A164, " +
+          "20=A24, 21=A41, 22=A72, 23=A60, 24=A36, 25=A293, 26=A105, 27=A57, 28=A281, 29=A11, " +
+          "30=A137, 31=A5, 32=A442, 33=A197, 34=A77, 35=A382, 36=A46, 37=A170, 38=A169, 39=A26, " +
+          "40=A168, 41=A139, 42=A108, 43=A179, 44=A62, 45=A4, 46=A249, 47=A48, 48=A147, 49=A64, " +
+          "50=A327, 51=A125, 52=A208, 53=A2, 54=A8, 55=A6, 56=A3, 57=A50, 58=A86, 59=A78, " +
+          "60=A103, 61=A245, 62=A63, 63=A101, 64=A419, 65=A83, 66=A221, 67=A17, 68=A136, 69=A397, " +
+          "70=A226, 71=A0, 72=A94, 73=A354, 74=A44, 75=A156, 76=A10, 77=A148, 78=A55, 79=A106, " +
+          "80=A45, 81=A32, 82=A52, 83=A142, 84=A153, 85=A263, 86=A87, 87=A49, 88=A135, 89=A209, " +
+          "90=A31, 91=A222, 92=A195, 93=A25, 94=A93, 95=A117, 96=A61, 97=A151, 98=A286, 99=A279, " +
+          "100=A67, 101=A18, 102=A1, 103=A251, 104=A229, 105=A227, 106=A21, 107=A357, 108=A91, 109=A76, " +
+          "110=A291, 111=A358, 112=A99, 113=A15, 114=A692, 115=A51, 116=A73, 117=A29, 118=A111, 119=A38, " +
+          "120=A56, 121=A39, 122=A150, 123=A636, 124=A230, 125=A22, 126=A233, 127=A66";
+  Map<String, Integer> KeyToKeyGroupMap = new HashMap<>();
+
+
+  private final String TOPIC = "megaphone_state";	// status topic, used to do recovery.
+  private final String servers = "localhost:9092";
+  private KafkaProducer<Integer, String> producer;
+  private final String uniqueID = UUID.randomUUID().toString();
+
+  public ProcessorFunction() {
+    initKakfaProducer();
+  }
+
+  private void initKakfaProducer() {
+    Properties props = new Properties();
+    props.put("bootstrap.servers", servers);
+    props.put("client.id", uniqueID);
+    props.put("key.serializer", "org.apache.kafka.common.serialization.StringSerializer");
+    props.put("value.serializer", "org.apache.kafka.common.serialization.StringSerializer");
+    producer = new KafkaProducer<>(props);
+  }
 
   @Override
   public void open(Configuration parameters) {
-
     Meter alertMeter = new MeterView(60);
     getRuntimeContext().getMetricGroup().meter("alertsPerSecond", alertMeter);
+    for (String kvStr : keyGroupToKeyMapStr.split(", ")) {
+      String[] kv = kvStr.split("=");
+      KeyToKeyGroupMap.put(kv[1], Integer.parseInt(kv[0]));
+    }
   }
 
   @Override
   public void processElement(
-      Keyed<Transaction, String, Integer> value, ReadOnlyContext ctx, Collector<Alert> out)
-      throws Exception {
-
-    String controlMessage = ctx.getBroadcastState(MegaphoneEvaluator.Descriptors.rulesDescriptor).get(value.getKey());
-
-    out.collect(
-            new Alert<>(
-                    0, controlMessage, value.getKey(), value.getWrapped(), 0));
+      Keyed<Tuple2<String, String>, String, Integer> tuple, ReadOnlyContext ctx, Collector<Alert> out) {
+    observedKeys.add(KeyToKeyGroupMap.get(tuple.getKey()));
+    System.out.println(observedKeys);
+    int key = KeyToKeyGroupMap.get(tuple.getKey());
+    String value = tuple.getWrapped().f1;
+    localState.put(key, value);
+    ProducerRecord<Integer, String> newRecord = new ProducerRecord<>(TOPIC, key, key, value);
+    producer.send(newRecord);
+    out.collect(new Alert<>(0, tuple.getKey(), tuple.getWrapped(), 0));
   }
 
   @Override
   public void processBroadcastElement(String controlMessage, Context ctx, Collector<Alert> out)
       throws Exception {
     log.info("{}", controlMessage);
-    BroadcastState<String, String> broadcastState =
+    BroadcastState<String, Integer> broadcastState =
         ctx.getBroadcastState(MegaphoneEvaluator.Descriptors.rulesDescriptor);
-    broadcastState.put(controlMessage, controlMessage);
+    for (String kvStr : controlMessage.split(", ")) {
+      String[] kv = kvStr.split("=");
+      broadcastState.put(kv[0], Integer.parseInt(kv[1]));
+    }
+    observedKeys.clear();
   }
-
-//  @Override
-//  public void onTimer(final long timestamp, final OnTimerContext ctx, final Collector<Alert> out)
-//      throws Exception {
-//
-//    ControlMessage widestWindowControlMessage = ctx.getBroadcastState(MegaphoneEvaluator.Descriptors.rulesDescriptor).get(WIDEST_RULE_KEY);
-//
-//    Optional<Long> cleanupEventTimeWindow =
-//        Optional.ofNullable(widestWindowControlMessage).map(ControlMessage::getWindowMillis);
-//    Optional<Long> cleanupEventTimeThreshold =
-//        cleanupEventTimeWindow.map(window -> timestamp - window);
-//
-//    cleanupEventTimeThreshold.ifPresent(this::evictAgedElementsFromWindow);
-//  }
-
 }

@@ -119,51 +119,86 @@ public class ControlMessageSource {
 //              "\"limit\": 500, " +
 //              "\"windowMinutes\": 20}";
 
-      String payload1 =
-              "{\"ruleId\":\"1\","
-                      + "\"aggregateFieldName\":\"paymentAmount\","
-                      + "\"aggregatorFunctionType\":\"SUM\","
-                      + "\"groupingKeyNames\":[\"payeeId\", \"beneficiaryId\"],"
-                      + "\"limit\":\"20000000\","
-                      + "\"limitOperatorType\":\"GREATER\","
-                      + "\"ruleState\":\"ACTIVE\","
-                      + "\"windowMinutes\":\"43200\"}";
+//      String payload1 =
+//              "{\"ruleId\":\"1\","
+//                      + "\"aggregateFieldName\":\"paymentAmount\","
+//                      + "\"aggregatorFunctionType\":\"SUM\","
+//                      + "\"groupingKeyNames\":[\"payeeId\", \"beneficiaryId\"],"
+//                      + "\"limit\":\"20000000\","
+//                      + "\"limitOperatorType\":\"GREATER\","
+//                      + "\"ruleState\":\"ACTIVE\","
+//                      + "\"windowMinutes\":\"43200\"}";
+//
+//      String payload2 =
+//              "{\"ruleId\":\"2\","
+//                      + "\"aggregateFieldName\":\"COUNT_FLINK\","
+//                      + "\"aggregatorFunctionType\":\"SUM\","
+//                      + "\"groupingKeyNames\":[\"paymentType\"],"
+//                      + "\"limit\":\"300\","
+//                      + "\"limitOperatorType\":\"LESS\","
+//                      + "\"ruleState\":\"PAUSE\","
+//                      + "\"windowMinutes\":\"1440\"}";
+//
+//      String payload3 =
+//              "{\"ruleId\":\"3\","
+//                      + "\"aggregateFieldName\":\"paymentAmount\","
+//                      + "\"aggregatorFunctionType\":\"SUM\","
+//                      + "\"groupingKeyNames\":[\"beneficiaryId\"],"
+//                      + "\"limit\":\"10000000\","
+//                      + "\"limitOperatorType\":\"GREATER_EQUAL\","
+//                      + "\"ruleState\":\"ACTIVE\","
+//                      + "\"windowMinutes\":\"1440\"}";
+//
+//
+//      String payload4 =
+//              "{\"ruleId\":\"4\","
+//                      + "\"aggregateFieldName\":\"COUNT_WITH_RESET_FLINK\","
+//                      + "\"aggregatorFunctionType\":\"SUM\","
+//                      + "\"groupingKeyNames\":[\"paymentType\"],"
+//                      + "\"limit\":\"100\","
+//                      + "\"limitOperatorType\":\"GREATER_EQUAL\","
+//                      + "\"ruleState\":\"ACTIVE\","
+//                      + "\"windowMinutes\":\"1440\"}";
+//
+//      ctx.collect(payload1);
+//      ctx.collect(payload2);
+//      ctx.collect(payload3);
+//      ctx.collect(payload4);
 
-      String payload2 =
-              "{\"ruleId\":\"2\","
-                      + "\"aggregateFieldName\":\"COUNT_FLINK\","
-                      + "\"aggregatorFunctionType\":\"SUM\","
-                      + "\"groupingKeyNames\":[\"paymentType\"],"
-                      + "\"limit\":\"300\","
-                      + "\"limitOperatorType\":\"LESS\","
-                      + "\"ruleState\":\"PAUSE\","
-                      + "\"windowMinutes\":\"1440\"}";
+//    String keyToKeyGroupMapStr = "A87=87, A88=88, A89=89, A108=108, A109=109, A106=106, A107=107, A104=104, A105=105, A102=102, " +
+//            "A103=103, A100=100, A0=0, A101=101, A1=1, A2=2, A3=3, A4=4, A5=5, A6=6, A7=7, A8=8, A9=9, A90=90, A91=91, A92=92, " +
+//            "A93=93, A94=94, A95=95, A96=96, A97=97, A10=10, A98=98, A11=11, A99=99, A12=12, A13=13, A14=14, A15=15, A16=16, " +
+//            "A119=119, A17=17, A18=18, A117=117, A19=19, A118=118, A115=115, A116=116, A113=113, A114=114, A111=111, A112=112, " +
+//            "A110=110, A20=20, A21=21, A22=22, A23=23, A24=24, A25=25, A26=26, A27=27, A28=28, A29=29, A126=126, A127=127, " +
+//            "A124=124, A125=125, A122=122, A123=123, A120=120, A121=121, A30=30, A31=31, A32=32, A33=33, A34=34, A35=35, A36=36, " +
+//            "A37=37, A38=38, A39=39, A40=40, A41=41, A42=42, A43=43, A44=44, A45=45, A46=46, A47=47, A48=48, A49=49, A50=50, A51=51, " +
+//            "A52=52, A53=53, A54=54, A55=55, A56=56, A57=57, A58=58, A59=59, A60=60, A61=61, A62=62, A63=63, A64=64, A65=65, A66=66, " +
+//            "A67=67, A68=68, A69=69, A70=70, A71=71, A72=72, A73=73, A74=74, A75=75, A76=76, A77=77, A78=78, A79=79, A80=80, A81=81, " +
+//            "A82=82, A83=83, A84=84, A85=85, A86=86";
 
-      String payload3 =
-              "{\"ruleId\":\"3\","
-                      + "\"aggregateFieldName\":\"paymentAmount\","
-                      + "\"aggregatorFunctionType\":\"SUM\","
-                      + "\"groupingKeyNames\":[\"beneficiaryId\"],"
-                      + "\"limit\":\"10000000\","
-                      + "\"limitOperatorType\":\"GREATER_EQUAL\","
-                      + "\"ruleState\":\"ACTIVE\","
-                      + "\"windowMinutes\":\"1440\"}";
+      StringBuilder keyToKeyGroupMapStr = new StringBuilder();
+      for (int i=0; i<128; i++) {
+        String key = "A" + i;
+        keyToKeyGroupMapStr.append(String.format("%s=%d, ", key, i));
+      }
+      System.out.println("++++++ new key mapping1");
+      ctx.collect(keyToKeyGroupMapStr.substring(0, keyToKeyGroupMapStr.length()-2));
 
+      try {
+        Thread.sleep(10000);
+      } catch (InterruptedException e) {
+        e.printStackTrace();
+      }
 
-      String payload4 =
-              "{\"ruleId\":\"4\","
-                      + "\"aggregateFieldName\":\"COUNT_WITH_RESET_FLINK\","
-                      + "\"aggregatorFunctionType\":\"SUM\","
-                      + "\"groupingKeyNames\":[\"paymentType\"],"
-                      + "\"limit\":\"100\","
-                      + "\"limitOperatorType\":\"GREATER_EQUAL\","
-                      + "\"ruleState\":\"ACTIVE\","
-                      + "\"windowMinutes\":\"1440\"}";
+      keyToKeyGroupMapStr = new StringBuilder();
+      for (int i=0; i<128; i++) {
+        String key = "A" + i;
+        int keyGroup = 0;
+        keyToKeyGroupMapStr.append(String.format("%s=%d, ", key, keyGroup));
+      }
+      System.out.println("++++++ new key mapping2");
+      ctx.collect(keyToKeyGroupMapStr.substring(0, keyToKeyGroupMapStr.length()-2));
 
-      ctx.collect(payload1);
-      ctx.collect(payload2);
-      ctx.collect(payload3);
-      ctx.collect(payload4);
     }
 
     @Override

@@ -24,7 +24,6 @@ import megaphone.dynamicrules.functions.ProcessorFunction;
 import megaphone.dynamicrules.functions.RouterFunction;
 import megaphone.dynamicrules.sinks.AlertsSink;
 import megaphone.dynamicrules.sources.ControlMessageSource;
-import megaphone.dynamicrules.sources.TransactionsSource;
 import lombok.extern.slf4j.Slf4j;
 import megaphone.config.Parameters;
 import org.apache.flink.api.common.restartstrategy.RestartStrategies;
@@ -45,7 +44,6 @@ import org.apache.flink.streaming.api.functions.source.RichParallelSourceFunctio
 import org.apache.flink.streaming.api.functions.source.SourceFunction;
 import org.apache.flink.streaming.api.functions.timestamps.BoundedOutOfOrdernessTimestampExtractor;
 import org.apache.flink.streaming.api.windowing.time.Time;
-import org.apache.flink.util.OutputTag;
 
 import java.io.IOException;
 import java.util.HashMap;
@@ -80,47 +78,44 @@ public class MegaphoneEvaluator {
 
     // Streams setup
     DataStream<String> controlMessageUpdateStream = getControlMessageUpdateStream(env);
-    DataStream<Transaction> transactions = getTransactionsStream(env);
+    DataStream<Tuple2<String, String>> words = getWordsStream(env);
 
     BroadcastStream<String> rulesStream = controlMessageUpdateStream.broadcast(Descriptors.rulesDescriptor);
 
     // Processing pipeline setup
     DataStream<Alert> alerts =
-        transactions
+        words
             .connect(rulesStream)
             .process(new RouterFunction())
+            .setParallelism(1)
             .uid("RouterFunction")
             .name("Dynamic Partitioning Function")
             .keyBy((keyed) -> keyed.getKey())
             .connect(rulesStream)
             .process(new ProcessorFunction())
+            .setParallelism(2)
             .uid("ProcessorFunction")
             .name("Dynamic ControlMessage Evaluation Function");
 
-    alerts.print().name("Alert STDOUT Sink");
+//    alerts.print().name("Alert STDOUT Sink");
 
     DataStream<String> alertsJson = AlertsSink.alertsStreamToJson(alerts);
 
-    alertsJson
-        .addSink(AlertsSink.createAlertsSink(config))
-        .setParallelism(1)
-        .name("Alerts JSON Sink");
+//    alertsJson
+//        .addSink(AlertsSink.createAlertsSink(config))
+//        .setParallelism(1)
+//        .name("Alerts JSON Sink");
 
     env.execute("Fraud Detection Engine");
   }
 
-  private DataStream<Transaction> getTransactionsStream(StreamExecutionEnvironment env) {
+  private DataStream<Tuple2<String, String>> getWordsStream(StreamExecutionEnvironment env) {
     // Data stream setup
-    SourceFunction<String> transactionSource = TransactionsSource.createTransactionsSource(config);
+    SourceFunction<Tuple2<String, String>> wordsSource = new MySource(100, 2000, 128);
     int sourceParallelism = config.get(Parameters.SOURCE_PARALLELISM);
-    DataStream<String> transactionsStringsStream =
-        env.addSource(transactionSource)
-            .name("Transactions Source")
-            .setParallelism(sourceParallelism);
-    DataStream<Transaction> transactionsStream =
-        TransactionsSource.stringsStreamToTransactions(transactionsStringsStream);
-    return transactionsStream.assignTimestampsAndWatermarks(
-        new SimpleBoundedOutOfOrdernessTimestampExtractor<>(config.get(Parameters.OUT_OF_ORDERNESS)));
+    return env.addSource(wordsSource)
+        .name("Transactions Source")
+        .setParallelism(sourceParallelism);
   }
 
   private DataStream<String> getControlMessageUpdateStream(StreamExecutionEnvironment env) throws IOException {
@@ -183,15 +178,8 @@ public class MegaphoneEvaluator {
   }
 
   public static class Descriptors {
-    public static final MapStateDescriptor<String, String> rulesDescriptor =
-//        new MapStateDescriptor<>(
-//            "rules", BasicTypeInfo.INT_TYPE_INFO, TypeInformation.of(ControlMessage.class));
-            new MapStateDescriptor<>("rules", String.class, String.class);
-
-    public static final OutputTag<String> demoSinkTag = new OutputTag<String>("demo-sink") {};
-    public static final OutputTag<Long> latencySinkTag = new OutputTag<Long>("latency-sink") {};
-    public static final OutputTag<ControlMessage> currentRulesSinkTag =
-        new OutputTag<ControlMessage>("current-controlmessage-sink") {};
+    public static final MapStateDescriptor<String, Integer> rulesDescriptor =
+            new MapStateDescriptor<>("rules", String.class, Integer.class);
   }
 
   private static class MySource extends RichParallelSourceFunction<Tuple2<String, String>> implements CheckpointedFunction {
@@ -239,38 +227,17 @@ public class MegaphoneEvaluator {
 
     @Override
     public void run(SourceContext<Tuple2<String, String>> ctx) throws Exception {
-//            while (isRunning && count < nTuples) {
-//                if (count % rate  == 0) {
-//                    Thread.sleep(1000);
-//                }
-//                synchronized (ctx.getCheckpointLock()) {
-//                    String key = getChar(count);
-//                    int curCount = keyCount.getOrDefault(key, 0)+1;
-//                    keyCount.put(key, curCount);
-//                    System.out.println("sent: " + key + " : " + curCount + " total: " + count);
-//                    ctx.collect(Tuple2.of(key, key));
-//
-//                    count++;
-//                }
-//            }
-
-      long emitStartTime = System.currentTimeMillis();
+      long emitStartTime;
 
       while (isRunning && count < nTuples) {
-//                System.out.println("++++++interval: " + (System.currentTimeMillis() - emitStartTime));
         emitStartTime = System.currentTimeMillis();
         for (int i = 0; i < rate / 20; i++) {
-//                    synchronized (ctx.getCheckpointLock()) {
           String key = getChar(count);
           int curCount = keyCount.getOrDefault(key, 0)+1;
           keyCount.put(key, curCount);
-//                    System.out.println("sent: " + key + " : " + curCount + " total: " + count);
           ctx.collect(Tuple2.of(key, key));
-
           count++;
-//                    }
         }
-
         // Sleep for the rest of timeslice if needed
         Util.pause(emitStartTime);
       }

@@ -26,23 +26,26 @@ import lombok.extern.slf4j.Slf4j;
 import megaphone.dynamicrules.MegaphoneEvaluator;
 import org.apache.flink.api.common.state.BroadcastState;
 import org.apache.flink.api.common.state.ReadOnlyBroadcastState;
+import org.apache.flink.api.java.tuple.Tuple2;
 import org.apache.flink.configuration.Configuration;
 import org.apache.flink.metrics.Gauge;
 import org.apache.flink.streaming.api.functions.co.BroadcastProcessFunction;
 import org.apache.flink.util.Collector;
+import org.apache.kafka.clients.consumer.ConsumerConfig;
+import org.apache.kafka.clients.consumer.ConsumerRecord;
+import org.apache.kafka.clients.consumer.ConsumerRecords;
+import org.apache.kafka.clients.consumer.KafkaConsumer;
+import org.apache.kafka.common.TopicPartition;
 
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.Map;
+import java.util.*;
 import java.util.Map.Entry;
-import java.util.Random;
 
 /** Implements dynamic data partitioning based on a set of broadcasted rules. */
 @Slf4j
 public class RouterFunction
-    extends BroadcastProcessFunction<Transaction, String, Keyed<Transaction, String, Integer>> {
+    extends BroadcastProcessFunction<Tuple2<String, String>, String, Keyed<Tuple2<String, String>, String, Integer>> {
 
-  private ControlMessageCounterGauge controlMessageCounterGauge;
+  private final Map<Integer, String> globalState = new HashMap<>();
 
   String keyGroupToKeyMapStr = "0=A12, 1=A28, 2=A14, 3=A19, 4=A42, 5=A133, 6=A214, 7=A364, 8=A20, 9=A23, " +
           "10=A9, 11=A203, 12=A145, 13=A163, 14=A234, 15=A7, 16=A33, 17=A175, 18=A40, 19=A164, " +
@@ -60,11 +63,35 @@ public class RouterFunction
 
   Map<Integer, String> keyGroupToKeyMap = new HashMap<>();
 
-  Random random = new Random();
+  private String TOPIC;
+  private KafkaConsumer<Integer, String> consumer;
+  private String servers;
+  private final String uniqueID = UUID.randomUUID().toString();
+
+  public RouterFunction() {
+    initConsumer();
+  }
+
+  public void initConsumer(){
+    final Properties props = new Properties();
+    props.put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, servers);
+    props.put(ConsumerConfig.GROUP_ID_CONFIG, uniqueID);
+    props.put(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG, "org.apache.kafka.common.serialization.StringDeserializer");
+    props.put(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, "org.apache.kafka.common.serialization.StringDeserializer");
+    consumer = new KafkaConsumer(props);
+    consumer.subscribe(Arrays.asList(TOPIC));
+
+    ConsumerRecords<Integer, String> records = consumer.poll(100);
+    Set<TopicPartition> assignedPartitions = consumer.assignment();
+    for (TopicPartition partition : assignedPartitions) {
+      consumer.seek(partition, 0);
+      long endPosition = consumer.position(partition);
+    }
+  }
 
   @Override
   public void open(Configuration parameters) {
-    controlMessageCounterGauge = new ControlMessageCounterGauge();
+    ControlMessageCounterGauge controlMessageCounterGauge = new ControlMessageCounterGauge();
     getRuntimeContext().getMetricGroup().gauge("numberOfActiveRules", controlMessageCounterGauge);
     for (String kvStr : keyGroupToKeyMapStr.split(", ")) {
       String[] kv = kvStr.split("=");
@@ -74,37 +101,45 @@ public class RouterFunction
 
   @Override
   public void processElement(
-      Transaction event, ReadOnlyContext ctx, Collector<Keyed<Transaction, String, Integer>> out)
+      Tuple2<String, String> event, ReadOnlyContext ctx, Collector<Keyed<Tuple2<String, String>, String, Integer>> out)
       throws Exception {
-    ReadOnlyBroadcastState<String, String> rulesState =
+    ReadOnlyBroadcastState<String, Integer> rulesState =
         ctx.getBroadcastState(MegaphoneEvaluator.Descriptors.rulesDescriptor);
     forkEventForEachGroupingKey(event, rulesState, out);
   }
 
   private void forkEventForEachGroupingKey(
-      Transaction event,
-      ReadOnlyBroadcastState<String, String> rulesState,
-      Collector<Keyed<Transaction, String, Integer>> out)
+      Tuple2<String, String> event,
+      ReadOnlyBroadcastState<String, Integer> rulesState,
+      Collector<Keyed<Tuple2<String, String>, String, Integer>> out)
       throws Exception {
-    int ruleCounter = 0;
     // construct a key to keygroup map from string
-//    final String controlMessage = entry.getValue();
-      // TODO: mapping tuples to output by usingo the information in control message.
+      // TODO: mapping tuples to output by using the information in control message.
+    int assignedKeyGroup = rulesState.contains(event.f0) ? rulesState.get(event.f0) : -1;
+    String assignedKey = assignedKeyGroup == -1 ? event.f0 : keyGroupToKeyMap.get(assignedKeyGroup);
     out.collect(
-        new Keyed<>(
-            event, KeysExtractor.getKey(keyGroupToKeyMap.get(random.nextInt(127)), event), 0));
-    ruleCounter++;
-    controlMessageCounterGauge.setValue(ruleCounter);
+        new Keyed<>(event, KeysExtractor.getKey(assignedKey, event), 0));
   }
 
   @Override
   public void processBroadcastElement(
-          String controlMessage, Context ctx, Collector<Keyed<Transaction, String, Integer>> out) throws Exception {
+          String controlMessage, Context ctx, Collector<Keyed<Tuple2<String, String>, String, Integer>> out) throws Exception {
     log.info("{}", controlMessage);
-    BroadcastState<String, String> broadcastState =
+    BroadcastState<String, Integer> broadcastState =
         ctx.getBroadcastState(MegaphoneEvaluator.Descriptors.rulesDescriptor);
-//    ProcessingUtils.handleRuleBroadcast(controlMessage, broadcastState);
-    broadcastState.put(controlMessage, controlMessage);
+    for (String kvStr : controlMessage.split(", ")) {
+      String[] kv = kvStr.split("=");
+      broadcastState.put(kv[0], Integer.parseInt(kv[1]));
+    }
+    // get the current global state.
+    synchronized (consumer) {
+      ConsumerRecords<Integer, String> records = consumer.poll(128);
+      if (!records.isEmpty()) {
+        for (ConsumerRecord<Integer, String> record : records) {
+          globalState.put(record.key(), record.value());
+        }
+      }
+    }
   }
 
   private static class ControlMessageCounterGauge implements Gauge<Integer> {
