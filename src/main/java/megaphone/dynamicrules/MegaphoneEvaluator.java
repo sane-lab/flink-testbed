@@ -83,6 +83,7 @@ public class MegaphoneEvaluator {
     BroadcastStream<String> rulesStream = controlMessageUpdateStream.broadcast(Descriptors.rulesDescriptor);
 
     // Processing pipeline setup
+    // TODO: use view number to control the version of the config, such that to keep consistency and correctness.
     DataStream<Alert> alerts =
         words
             .connect(rulesStream)

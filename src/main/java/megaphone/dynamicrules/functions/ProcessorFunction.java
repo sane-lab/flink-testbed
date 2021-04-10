@@ -38,10 +38,12 @@ import java.util.*;
 @Slf4j
 public class ProcessorFunction
     extends KeyedBroadcastProcessFunction<
-        String, Keyed<Tuple2<String, String>, String, Integer>, String, Alert> {
+        String, Keyed<Tuple2<String, String>, String, String>, String, Alert> {
 
-  private final Set<Integer> observedKeys = new HashSet<>();
-  private final Map<Integer, String> localState = new HashMap<>();
+  private final Set<String> observedKeys = new HashSet<>();
+  // local State is stored in the granularity of per key group.
+//  private final Map<Integer, String> localState = new HashMap<>();
+  private final Map<String, Integer> localState = new HashMap<>();
 
   String keyGroupToKeyMapStr = "0=A12, 1=A28, 2=A14, 3=A19, 4=A42, 5=A133, 6=A214, 7=A364, 8=A20, 9=A23, " +
           "10=A9, 11=A203, 12=A145, 13=A163, 14=A234, 15=A7, 16=A33, 17=A175, 18=A40, 19=A164, " +
@@ -61,17 +63,14 @@ public class ProcessorFunction
 
   private final String TOPIC = "megaphone_state";	// status topic, used to do recovery.
   private final String servers = "localhost:9092";
-  private KafkaProducer<Integer, String> producer;
+  private KafkaProducer<String, String> producer;
   private final String uniqueID = UUID.randomUUID().toString();
-
-  public ProcessorFunction() {
-    initKakfaProducer();
-  }
 
   private void initKakfaProducer() {
     Properties props = new Properties();
     props.put("bootstrap.servers", servers);
     props.put("client.id", uniqueID);
+    // serializer is very important, which might result in expcetions if incorrect type was set.
     props.put("key.serializer", "org.apache.kafka.common.serialization.StringSerializer");
     props.put("value.serializer", "org.apache.kafka.common.serialization.StringSerializer");
     producer = new KafkaProducer<>(props);
@@ -85,17 +84,26 @@ public class ProcessorFunction
       String[] kv = kvStr.split("=");
       KeyToKeyGroupMap.put(kv[1], Integer.parseInt(kv[0]));
     }
+    initKakfaProducer();
   }
 
   @Override
   public void processElement(
-      Keyed<Tuple2<String, String>, String, Integer> tuple, ReadOnlyContext ctx, Collector<Alert> out) {
-    observedKeys.add(KeyToKeyGroupMap.get(tuple.getKey()));
-    System.out.println(observedKeys);
-    int key = KeyToKeyGroupMap.get(tuple.getKey());
-    String value = tuple.getWrapped().f1;
-    localState.put(key, value);
-    ProducerRecord<Integer, String> newRecord = new ProducerRecord<>(TOPIC, key, key, value);
+      Keyed<Tuple2<String, String>, String, String> tuple, ReadOnlyContext ctx, Collector<Alert> out) {
+//    observedKeys.add(KeyToKeyGroupMap.get(tuple.getKey()));
+    observedKeys.add(tuple.getWrapped().f0);
+//    int keyGroup = KeyToKeyGroupMap.get(tuple.getKey());
+    String tupleKey = tuple.getWrapped().f0;
+    String tupleValue = tuple.getWrapped().f1;
+
+    if (tuple.getState() != null) {
+      // new reconfig key received
+      localState.put(tupleKey, Integer.parseInt(tuple.getState()+1));
+    } else {
+      localState.put(tupleKey, localState.getOrDefault(tupleKey, 0)+1);
+    }
+//    System.out.println(localState.keySet());
+    ProducerRecord<String, String> newRecord = new ProducerRecord<>(TOPIC, tupleKey, String.valueOf(localState.get(tupleKey)));
     producer.send(newRecord);
     out.collect(new Alert<>(0, tuple.getKey(), tuple.getWrapped(), 0));
   }
@@ -111,5 +119,6 @@ public class ProcessorFunction
       broadcastState.put(kv[0], Integer.parseInt(kv[1]));
     }
     observedKeys.clear();
+    localState.clear();
   }
 }

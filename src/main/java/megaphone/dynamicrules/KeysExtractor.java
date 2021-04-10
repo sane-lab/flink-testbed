@@ -18,9 +18,6 @@
 
 package megaphone.dynamicrules;
 
-import java.util.Iterator;
-import java.util.List;
-
 /** Utilities for dynamic keys extraction by com.ververica.field name. */
 public class KeysExtractor {
 
@@ -28,9 +25,8 @@ public class KeysExtractor {
    * Extracts and concatenates com.ververica.field values by names.
    *
    * @param keyNames list of com.ververica.field names
-   * @param object target for values extraction
    */
-  public static String getKey(String keyNames, Object object)
+  public static String getKey(String keyNames)
       throws NoSuchFieldException, IllegalAccessException {
     StringBuilder sb = new StringBuilder();
 //    sb.append("{");
