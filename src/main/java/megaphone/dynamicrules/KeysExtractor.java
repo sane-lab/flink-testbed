@@ -28,20 +28,7 @@ public class KeysExtractor {
    */
   public static String getKey(String keyNames)
       throws NoSuchFieldException, IllegalAccessException {
-    StringBuilder sb = new StringBuilder();
-//    sb.append("{");
-//    if (keyNames.size() > 0) {
-//      Iterator<String> it = keyNames.iterator();
-//      appendKeyValue(sb, object, it.next());
-//
-//      while (it.hasNext()) {
-//        sb.append(";");
-//        appendKeyValue(sb, object, it.next());
-//      }
-//    }
-//    sb.append("}");
-    sb.append(keyNames);
-    return sb.toString();
+    return keyNames;
   }
 
   private static void appendKeyValue(StringBuilder sb, Object object, String fieldName)

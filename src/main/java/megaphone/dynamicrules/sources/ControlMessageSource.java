@@ -176,6 +176,12 @@ public class ControlMessageSource {
 //            "A67=67, A68=68, A69=69, A70=70, A71=71, A72=72, A73=73, A74=74, A75=75, A76=76, A77=77, A78=78, A79=79, A80=80, A81=81, " +
 //            "A82=82, A83=83, A84=84, A85=85, A86=86";
 
+      try {
+        Thread.sleep(10000);
+      } catch (InterruptedException e) {
+        e.printStackTrace();
+      }
+
       StringBuilder keyToKeyGroupMapStr = new StringBuilder();
       for (int i=0; i<128; i++) {
         String key = "A" + i;
@@ -198,7 +204,6 @@ public class ControlMessageSource {
       }
       System.out.println("++++++ new key mapping2");
       ctx.collect(keyToKeyGroupMapStr.substring(0, keyToKeyGroupMapStr.length()-2));
-
     }
 
     @Override

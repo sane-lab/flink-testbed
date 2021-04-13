@@ -112,7 +112,7 @@ public class MegaphoneEvaluator {
 
   private DataStream<Tuple2<String, String>> getWordsStream(StreamExecutionEnvironment env) {
     // Data stream setup
-    SourceFunction<Tuple2<String, String>> wordsSource = new MySource(100, 2000, 128);
+    SourceFunction<Tuple2<String, String>> wordsSource = new MySource(50, 12800, 128);
     int sourceParallelism = config.get(Parameters.SOURCE_PARALLELISM);
     return env.addSource(wordsSource)
         .name("Transactions Source")

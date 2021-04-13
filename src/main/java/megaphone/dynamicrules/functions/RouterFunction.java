@@ -20,10 +20,12 @@ package megaphone.dynamicrules.functions;
 
 import megaphone.dynamicrules.Keyed;
 import lombok.extern.slf4j.Slf4j;
+import megaphone.dynamicrules.KeysExtractor;
 import megaphone.dynamicrules.MegaphoneEvaluator;
 import org.apache.flink.api.common.state.BroadcastState;
 import org.apache.flink.api.common.state.ReadOnlyBroadcastState;
 import org.apache.flink.api.java.tuple.Tuple2;
+import org.apache.flink.api.java.tuple.Tuple3;
 import org.apache.flink.configuration.Configuration;
 import org.apache.flink.metrics.Gauge;
 import org.apache.flink.streaming.api.functions.co.BroadcastProcessFunction;
@@ -39,10 +41,13 @@ import java.util.*;
 /** Implements dynamic data partitioning based on a set of broadcasted rules. */
 @Slf4j
 public class RouterFunction
-    extends BroadcastProcessFunction<Tuple2<String, String>, String, Keyed<Tuple2<String, String>, String, String>> {
+    extends BroadcastProcessFunction<Tuple2<String, String>, String, Keyed<Tuple3<String, String, Long>, String, String>> {
 
-//  private final Map<Integer, String> globalState = new HashMap<>();
+  Object lock;
+  //  private final Map<Integer, String> globalState = new HashMap<>();
+  // key -> stateValue|ts
   private final Map<String, String> globalState = new HashMap<>();
+  private final Map<String, Integer> myGlobalState = new HashMap<>();
 
   String keyGroupToKeyMapStr = "0=A12, 1=A28, 2=A14, 3=A19, 4=A42, 5=A133, 6=A214, 7=A364, 8=A20, 9=A23, " +
           "10=A9, 11=A203, 12=A145, 13=A163, 14=A234, 15=A7, 16=A33, 17=A175, 18=A40, 19=A164, " +
@@ -66,6 +71,8 @@ public class RouterFunction
   private final String uniqueID = UUID.randomUUID().toString();
   // by default all keygroups has false value, set keygroups need to be migrated to true on receiving a new reconfiguration
   private final Map<String, Boolean> affectedKeys = new HashMap<>(128);
+  private final Map<String, Long> frontier = new HashMap<>(128);
+  private final Map<String, List<Tuple2<String, String>>> bufferedTuples = new HashMap<>(128);
 
   public void initConsumer() {
     final Properties props = new Properties();
@@ -74,13 +81,12 @@ public class RouterFunction
     props.put(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG, "org.apache.kafka.common.serialization.StringDeserializer");
     props.put(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, "org.apache.kafka.common.serialization.StringDeserializer");
     consumer = new KafkaConsumer(props);
-    consumer.subscribe(Arrays.asList(TOPIC));
+    consumer.subscribe(Collections.singletonList(TOPIC));
 
     ConsumerRecords<String, String> records = consumer.poll(100);
     Set<TopicPartition> assignedPartitions = consumer.assignment();
     for (TopicPartition partition : assignedPartitions) {
       consumer.seek(partition, 0);
-      long endPosition = consumer.position(partition);
     }
   }
 
@@ -97,65 +103,125 @@ public class RouterFunction
     for (int i=0; i<128; i++) {
       String key = "A" + i;
       affectedKeys.put(key, false);
+      frontier.put(key, 0L);
+      bufferedTuples.put(key, new ArrayList<>());
     }
     initConsumer();
+    lock = new Object();
   }
 
   @Override
   public void processElement(
-      Tuple2<String, String> event, ReadOnlyContext ctx, Collector<Keyed<Tuple2<String, String>, String, String>> out)
+      Tuple2<String, String> event, ReadOnlyContext ctx, Collector<Keyed<Tuple3<String, String, Long>, String, String>> out)
       throws Exception {
     ReadOnlyBroadcastState<String, Integer> rulesState =
         ctx.getBroadcastState(MegaphoneEvaluator.Descriptors.rulesDescriptor);
-    forkEventForEachGroupingKey(event, rulesState, out);
+    // affected keys and rulestate should be updated at the same time
+    synchronized (lock) {
+      if (affectedKeys.get(event.f0)) {
+        // try to sync state
+        syncGlobalState();
+        // try to delete buffer
+        bufferOrRelease(rulesState, out, event);
+      } else {
+//      System.out.println("++++++forwarded " + event);
+        forwardKeysToKeygroups(event, rulesState, out);
+      }
+    }
   }
 
-  private void forkEventForEachGroupingKey(
-      Tuple2<String, String> event,
-      ReadOnlyBroadcastState<String, Integer> rulesState,
-      Collector<Keyed<Tuple2<String, String>, String, String>> out)
-      throws Exception {
-    int assignedKeyGroup = rulesState.contains(event.f0) ? rulesState.get(event.f0) : -1;
-    String assignedKey = assignedKeyGroup == -1 ? event.f0 : keyGroupToKeyMap.get(assignedKeyGroup);
-    if(affectedKeys.get(event.f0)) {
-      // if a new version control message is received, the tuple of each keygroup should be attached with the corresponding key state.
-      affectedKeys.put(event.f0, false);
-      out.collect(new Keyed<>(event, assignedKey, globalState.get(event.f0)));
-    } else {
-      out.collect(new Keyed<>(event, assignedKey, null));
+  private void syncGlobalState() {
+    // monitor the global state from the downstream oeprators
+    synchronized (consumer) {
+      ConsumerRecords<String, String> records = consumer.poll(100);
+      if (records.isEmpty())
+//          break;
+        return;
+      for (ConsumerRecord<String, String> record : records) {
+        String key = record.key();
+        String value = record.value();
+        globalState.put(key, value);
+      }
     }
+  }
 
+  private void bufferOrRelease(ReadOnlyBroadcastState<String, Integer> rulesState,
+                               Collector<Keyed<Tuple3<String, String, Long>, String, String>> out,
+                               Tuple2<String, String> event) throws Exception {
+    // in general, buffer the tuple if the state is not the latest, otherwise process the buffered tuples with the state
+    String key = event.f0;
+    if (affectedKeys.get(key)) {
+      long stateTs =  globalState.containsKey(key) ?
+              Long.parseLong(globalState.get(key).split("\\|")[1]) : 0L;
+      // if the key reconfig is in progress, check whether the progress of the downstream has reached
+      if (stateTs >= frontier.get(key)) {
+        System.out.println("++++++key " + key + " stateTs " + stateTs + " : frontier " + frontier.get(key));
+        if (Integer.parseInt(globalState.get(key).split("\\|")[0]) != myGlobalState.get(key)) {
+          System.out.println("++++++mismatched: " + "key: " + key + " " + globalState.get(key).split("\\|")[0] + " " + myGlobalState.get(key));
+        }
+        // output the buffered tuples during the reconfig
+        List<Tuple2<String, String>> pendingTuplesOfKey = bufferedTuples.get(key);
+        for (Tuple2<String, String> tuple : pendingTuplesOfKey) {
+          forwardKeysToKeygroups(tuple, rulesState, out);
+        }
+        // clean the blocked tuples that has been output
+        bufferedTuples.get(key).clear();
+
+        forwardKeysToKeygroups(event, rulesState, out);
+      } else {
+        // if a new version control message is received, the tuple of each keygroup should be attached with the corresponding key state.
+        // receive the new reconfig, store the tuple to the buffer and consume the state of the key until receive the ts in the frontier.
+        System.out.println("++++++buffered " + event);
+        bufferedTuples.get(event.f0).add(event);
+      }
+    }
+  }
+
+  private void forwardKeysToKeygroups(
+          Tuple2<String, String> event,
+          ReadOnlyBroadcastState<String, Integer> rulesState,
+          Collector<Keyed<Tuple3<String, String, Long>, String, String>> out)
+          throws Exception {
+    myGlobalState.put(event.f0, myGlobalState.getOrDefault(event.f0, 0)+1);
+    System.out.println("expected: " + event.f0 + " : " + myGlobalState.get(event.f0));
+    // inject a timestamp for the tuple to keep track of the progress similar as [Timely]
+    long curTs = System.nanoTime();
+    Tuple3<String, String, Long> eventWithTs = Tuple3.of(event.f0, event.f1, curTs);
+    // get the assigned keygroup from the control message
+    int assignedKeyGroup = rulesState.contains(event.f0) ? rulesState.get(event.f0) : -1;
+    // assign a key that exactly mapped to the assigned keygroup.
+    String assignedKey = assignedKeyGroup == -1 ? event.f0 : keyGroupToKeyMap.get(assignedKeyGroup);
+    // record timestamp of each key for the fluid migration
+    frontier.put(event.f0, curTs);
+    // attach the state to the tuple when calling forwarding, make sure do not call forwarding before synchronization
+    if (affectedKeys.get(event.f0)) {
+      System.out.println("++++++ forward with state " + event + " : " + globalState.get(event.f0).split("\\|")[0]);
+      out.collect(new Keyed<>(eventWithTs, KeysExtractor.getKey(assignedKey),
+              globalState.get(event.f0).split("\\|")[0]));
+      affectedKeys.put(event.f0, false);
+    } else {
+      out.collect(new Keyed<>(eventWithTs, KeysExtractor.getKey(assignedKey), null));
+    }
   }
 
   @Override
   public void processBroadcastElement(
-          String controlMessage, Context ctx, Collector<Keyed<Tuple2<String, String>, String, String>> out) throws Exception {
+          String controlMessage, Context ctx, Collector<Keyed<Tuple3<String, String, Long>, String, String>> out) throws Exception {
     log.info("{}", controlMessage);
-    BroadcastState<String, Integer> broadcastState =
+    // TODO: update of the rulestate should be synchronized to avoid the inconsistency.
+    synchronized (lock) {
+      BroadcastState<String, Integer> broadcastState =
         ctx.getBroadcastState(MegaphoneEvaluator.Descriptors.rulesDescriptor);
-    for (String kvStr : controlMessage.split(", ")) {
-      String[] kv = kvStr.split("=");
-      broadcastState.put(kv[0], Integer.parseInt(kv[1]));
-    }
-    // a new reconfiguration is in progress
-    for (int i=0; i<128; i++) {
-      String key = "A" + i;
-      affectedKeys.put(key, true);
-    }
-    // get the current global state
-    long duration = 1000;
-    long start = System.currentTimeMillis();
-    while (System.currentTimeMillis() - start < duration) {
-      synchronized (consumer) {
-        ConsumerRecords<String, String> records = consumer.poll(100);
-        if (!records.isEmpty()) {
-          for (ConsumerRecord<String, String> record : records) {
-            globalState.put(record.key(), record.value());
-          }
+      for (String kvStr : controlMessage.split(", ")) {
+        String[] kv = kvStr.split("=");
+        broadcastState.put(kv[0], Integer.parseInt(kv[1]));
+        // a new reconfiguration is in progress
+        if (frontier.get(kv[0]) != 0L) {
+          affectedKeys.put(kv[0], true);
         }
       }
     }
-    System.out.println(globalState);
+    System.out.println(affectedKeys);
   }
 
   private static class ControlMessageCounterGauge implements Gauge<Integer> {

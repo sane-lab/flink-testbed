@@ -24,6 +24,7 @@ import megaphone.dynamicrules.Keyed;
 import megaphone.dynamicrules.MegaphoneEvaluator;
 import org.apache.flink.api.common.state.BroadcastState;
 import org.apache.flink.api.java.tuple.Tuple2;
+import org.apache.flink.api.java.tuple.Tuple3;
 import org.apache.flink.configuration.Configuration;
 import org.apache.flink.metrics.Meter;
 import org.apache.flink.metrics.MeterView;
@@ -38,7 +39,7 @@ import java.util.*;
 @Slf4j
 public class ProcessorFunction
     extends KeyedBroadcastProcessFunction<
-        String, Keyed<Tuple2<String, String>, String, String>, String, Alert> {
+        String, Keyed<Tuple3<String, String, Long>, String, String>, String, Alert> {
 
   private final Set<String> observedKeys = new HashSet<>();
   // local State is stored in the granularity of per key group.
@@ -89,22 +90,25 @@ public class ProcessorFunction
 
   @Override
   public void processElement(
-      Keyed<Tuple2<String, String>, String, String> tuple, ReadOnlyContext ctx, Collector<Alert> out) {
+      Keyed<Tuple3<String, String, Long>, String, String> tuple, ReadOnlyContext ctx, Collector<Alert> out) {
 //    observedKeys.add(KeyToKeyGroupMap.get(tuple.getKey()));
     observedKeys.add(tuple.getWrapped().f0);
 //    int keyGroup = KeyToKeyGroupMap.get(tuple.getKey());
     String tupleKey = tuple.getWrapped().f0;
     String tupleValue = tuple.getWrapped().f1;
+    long tupleTs = tuple.getWrapped().f2;
 
     if (tuple.getState() != null) {
       // new reconfig key received
-      localState.put(tupleKey, Integer.parseInt(tuple.getState()+1));
+      System.out.println("++++++ received state: " + tuple.getState());
+      localState.put(tupleKey, Integer.parseInt(tuple.getState())+1);
     } else {
       localState.put(tupleKey, localState.getOrDefault(tupleKey, 0)+1);
     }
-//    System.out.println(localState.keySet());
-    ProducerRecord<String, String> newRecord = new ProducerRecord<>(TOPIC, tupleKey, String.valueOf(localState.get(tupleKey)));
+    ProducerRecord<String, String> newRecord = new ProducerRecord<>(TOPIC, tupleKey, String.format("%d|%d", localState.get(tupleKey), tupleTs));
     producer.send(newRecord);
+    producer.flush();
+    System.out.println(tupleKey + " : " + localState.get(tupleKey));
     out.collect(new Alert<>(0, tuple.getKey(), tuple.getWrapped(), 0));
   }
 
