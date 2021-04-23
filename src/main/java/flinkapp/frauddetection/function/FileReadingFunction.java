@@ -82,6 +82,8 @@ public class FileReadingFunction extends RichParallelSourceFunction<Transaction>
     @Override
     public void run(SourceContext<Transaction> ctx) throws Exception {
 
+        Thread.sleep(10000);
+        System.out.println("start to read data");
         try (BufferedReader br = new BufferedReader(new FileReader(filePath))) {
 
             long start = System.currentTimeMillis();
@@ -91,14 +93,10 @@ public class FileReadingFunction extends RichParallelSourceFunction<Transaction>
 
                 String msg = sCurrentLine;
                 // todo, some problem here to read csv file
-                List<String> stockArr = Arrays.asList(msg.split(","));
-                if(stockArr.size() > 23){
-                    continue;
-                }
-
+                List<String> stockArr = Arrays.asList(msg.split(",(?=([^\"]*\"[^\"]*\")*[^\"]*$)"));
                 ctx.collect(new Transaction(stockArr));
                 count++;
-                Thread.sleep(100);
+//                Thread.sleep(100);
             }
         } catch (IOException e) {
             e.printStackTrace();

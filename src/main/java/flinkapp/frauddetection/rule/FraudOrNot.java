@@ -11,7 +11,7 @@ public class FraudOrNot implements Serializable {
 
     @Override
     public String toString() {
-        boolean GT = Boolean.getBoolean(transc.getFeature("is_fraud"));
+        boolean GT = transc.getFeature("is_fraud").equals("1");
         return "FraudOrNot{" +
                 "judge isFraud=" + isFraud +
                 " for transaction " + Arrays.toString(transc.getAttribute().subList(0, 5).toArray()) +
