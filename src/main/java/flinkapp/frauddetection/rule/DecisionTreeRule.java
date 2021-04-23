@@ -1,7 +1,6 @@
 package flinkapp.frauddetection.rule;
 
 import flinkapp.frauddetection.transaction.PrecessedTransaction;
-import flinkapp.frauddetection.transaction.Transaction;
 
 public class DecisionTreeRule extends Rule{
 
@@ -36,7 +35,7 @@ public class DecisionTreeRule extends Rule{
         int currNode = 0;
         while (feature[currNode] >= 0){
             float featureValue = transaction.getFeature(feature[currNode]);
-            if(featureValue >= thresholds[currNode]){
+            if(featureValue <= thresholds[currNode]){
                 currNode = leftChildren[currNode];
             }else {
                 currNode = rightChildren[currNode];

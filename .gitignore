@@ -24,5 +24,6 @@ figures/
 *.log
 *.png
 *.out
+*.csv
 
 dependency-reduced-pom.xml

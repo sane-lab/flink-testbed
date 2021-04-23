@@ -79,7 +79,7 @@ public class RuleEvaluatorV2 {
         return env.addSource(
                 new FileReadingFunction(
 //                        RuleEvaluatorV2.class.getClassLoader().getResource("fraudTest.csv").getPath()))
-                        "/home/hya/prog/flink-testbed/src/main/resources/fraudTest2.csv"))
+                        "/home/hya/prog/flink-testbed/src/main/resources/fraudTest.csv"))
                 .uid("sentence-source")
                 .setParallelism(1);
     }
