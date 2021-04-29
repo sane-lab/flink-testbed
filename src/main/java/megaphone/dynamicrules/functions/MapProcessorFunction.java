@@ -22,8 +22,8 @@ import lombok.extern.slf4j.Slf4j;
 import megaphone.dynamicrules.Alert;
 import megaphone.dynamicrules.Keyed;
 import megaphone.dynamicrules.MegaphoneEvaluator;
+import org.apache.flink.api.common.functions.RichMapFunction;
 import org.apache.flink.api.common.state.BroadcastState;
-import org.apache.flink.api.java.tuple.Tuple2;
 import org.apache.flink.api.java.tuple.Tuple3;
 import org.apache.flink.configuration.Configuration;
 import org.apache.flink.metrics.Meter;
@@ -39,9 +39,8 @@ import static common.Util.delay;
 
 /** Implements main rule evaluation and alerting logic. */
 @Slf4j
-public class ProcessorFunction
-    extends KeyedBroadcastProcessFunction<
-        String, Keyed<Tuple3<String, String, Long>, String, String>, String, Alert> {
+public class MapProcessorFunction
+    extends RichMapFunction<Keyed<Tuple3<String, String, Long>, String, String>, Alert> {
 
   private final Set<String> observedKeys = new HashSet<>();
   // local State is stored in the granularity of per key group.
@@ -91,49 +90,32 @@ public class ProcessorFunction
   }
 
   @Override
-  public void processElement(
-      Keyed<Tuple3<String, String, Long>, String, String> tuple, ReadOnlyContext ctx, Collector<Alert> out) {
+  public Alert map(Keyed<Tuple3<String, String, Long>, String, String> tuple) throws Exception {
 //    observedKeys.add(KeyToKeyGroupMap.get(tuple.getKey()));
-    observedKeys.add(tuple.getWrapped().f0);
+      observedKeys.add(tuple.getWrapped().f0);
 //    int keyGroup = KeyToKeyGroupMap.get(tuple.getKey());
-    String tupleKey = tuple.getWrapped().f0;
-    String tupleValue = tuple.getWrapped().f1;
-    long tupleTs = tuple.getWrapped().f2;
+      String tupleKey = tuple.getWrapped().f0;
+      String tupleValue = tuple.getWrapped().f1;
+      long tupleTs = tuple.getWrapped().f2;
 
-    if (tuple.getState() != null) {
-      // new reconfig key received
-      System.out.println("++++++ received state: " + tuple.getState());
-      localState.put(tupleKey, Integer.parseInt(tuple.getState())+1);
-    } else {
-      localState.put(tupleKey, localState.getOrDefault(tupleKey, 0)+1);
-    }
+      if (tuple.getState() != null) {
+        // new reconfig key received
+        System.out.println("++++++ received state: " + tuple.getState());
+        localState.put(tupleKey, Integer.parseInt(tuple.getState())+1);
+      } else {
+        localState.put(tupleKey, localState.getOrDefault(tupleKey, 0)+1);
+      }
 
-    ProducerRecord<String, String> newRecord = new ProducerRecord<>(TOPIC, tupleKey, String.format("%d|%d", localState.get(tupleKey), tupleTs));
-    producer.send(newRecord);
-    producer.flush();
+      ProducerRecord<String, String> newRecord = new ProducerRecord<>(TOPIC, tupleKey, String.format("%d|%d", localState.get(tupleKey), tupleTs));
+      producer.send(newRecord);
+//      producer.flush();
 
-//    delay();
-
-    long threadId = Thread.currentThread().getId();
-//    System.out.println("job: " + threadId + " - " + tupleKey + " : " + localState.get(tupleKey));
-    System.out.println("thread: " + threadId
-            + " routing latency: " + (tupleTs - Long.parseLong(tupleValue))
-            + " processing time: " + (System.currentTimeMillis() - tupleTs)
-            + " endToEnd latency: " + (System.currentTimeMillis() - Long.parseLong(tupleValue)));
-    out.collect(new Alert<>(0, tuple.getKey(), tuple.getWrapped(), 0));
-  }
-
-  @Override
-  public void processBroadcastElement(String controlMessage, Context ctx, Collector<Alert> out)
-      throws Exception {
-    log.info("{}", controlMessage);
-    BroadcastState<String, Integer> broadcastState =
-        ctx.getBroadcastState(MegaphoneEvaluator.Descriptors.rulesDescriptor);
-    for (String kvStr : controlMessage.split(", ")) {
-      String[] kv = kvStr.split("=");
-      broadcastState.put(kv[0], Integer.parseInt(kv[1]));
-    }
-    observedKeys.clear();
-//    localState.clear();
+//      long threadId = Thread.currentThread().getId();
+//        System.out.println("job: " + threadId + " - " + tupleKey + " : " + localState.get(tupleKey));
+      System.out.println("ts: " + tupleValue
+//              + " routing latency: " + (tupleTs - Long.parseLong(tupleValue))
+//              + " processing time: " + (System.currentTimeMillis() - tupleTs)
+              + " endToEnd latency: " + (System.currentTimeMillis() - Long.parseLong(tupleValue)));
+      return new Alert<>(0, tuple.getKey(), tuple.getWrapped(), 0);
   }
 }

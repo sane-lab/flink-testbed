@@ -18,8 +18,8 @@
 
 package megaphone.dynamicrules.functions;
 
-import megaphone.dynamicrules.Keyed;
 import lombok.extern.slf4j.Slf4j;
+import megaphone.dynamicrules.Keyed;
 import megaphone.dynamicrules.KeysExtractor;
 import megaphone.dynamicrules.MegaphoneEvaluator;
 import org.apache.flink.api.common.state.BroadcastState;
@@ -40,7 +40,7 @@ import java.util.*;
 
 /** Implements dynamic data partitioning based on a set of broadcasted rules. */
 @Slf4j
-public class RouterFunction
+public class RouterFunctionBak
     extends KeyedBroadcastProcessFunction<String, Tuple2<String, String>, String, Keyed<Tuple3<String, String, Long>, String, String>> {
 
   Object lock;
@@ -126,12 +126,13 @@ public class RouterFunction
         ctx.getBroadcastState(MegaphoneEvaluator.Descriptors.rulesDescriptor);
     // affected keys and rulestate should be updated at the same time
     synchronized (lock) {
-      if (affectedKeys.get(event.f0) && migratingKey.equals("")) {
-        // add a lock to ensure only one migration in progress
-        migratingKey = event.f0;
-        System.out.printf("++++++ key start to migrate: %s%n", migratingKey);
-      }
-      if (affectedKeys.get(event.f0) && migratingKey.equals(event.f0)) {
+//      if (affectedKeys.get(event.f0) && migratingKey.equals("")) {
+//        // add a lock to ensure only one migration in progress
+//        migratingKey = event.f0;
+//        System.out.printf("++++++ key start to migrate: %s%n", migratingKey);
+//      }
+//      if (affectedKeys.get(event.f0) && migratingKey.equals(event.f0)) {
+      if (affectedKeys.get(event.f0)) {
         // try to delete buffer
         bufferOrRelease(rulesState, out, event);
       } else if (affectedKeys.get(event.f0) && !migratingKey.equals(event.f0)) {
@@ -245,7 +246,8 @@ public class RouterFunction
     // record the history mapping
     oldBroadcastState.put(event.f0, assignedKeyGroup);
     // attach the state to the tuple when calling forwarding, make sure do not call forwarding before synchronization
-    if (affectedKeys.get(event.f0) && migratingKey.equals(event.f0)) {
+//    if (affectedKeys.get(event.f0) && migratingKey.equals(event.f0)) {
+    if (affectedKeys.get(event.f0)) {
       System.out.println("++++++ forward with state " + event + " : " + globalState.get(event.f0).split("\\|")[0]);
       out.collect(new Keyed<>(eventWithTs, KeysExtractor.getKey(assignedKey),
               globalState.get(event.f0).split("\\|")[0]));

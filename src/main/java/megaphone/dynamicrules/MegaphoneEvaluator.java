@@ -20,6 +20,7 @@ package megaphone.dynamicrules;
 
 import Nexmark.sources.Util;
 import megaphone.config.Config;
+import megaphone.dynamicrules.functions.MapProcessorFunction;
 import megaphone.dynamicrules.functions.ProcessorFunction;
 import megaphone.dynamicrules.functions.RouterFunction;
 import megaphone.dynamicrules.sinks.AlertsSink;
@@ -39,6 +40,7 @@ import org.apache.flink.streaming.api.TimeCharacteristic;
 import org.apache.flink.streaming.api.checkpoint.CheckpointedFunction;
 import org.apache.flink.streaming.api.datastream.BroadcastStream;
 import org.apache.flink.streaming.api.datastream.DataStream;
+import org.apache.flink.streaming.api.datastream.KeyedStream;
 import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
 import org.apache.flink.streaming.api.functions.source.RichParallelSourceFunction;
 import org.apache.flink.streaming.api.functions.source.SourceFunction;
@@ -88,13 +90,14 @@ public class MegaphoneEvaluator {
         words
             .connect(rulesStream)
             .process(new RouterFunction())
-            .setParallelism(1)
+            .setParallelism(10)
             .uid("RouterFunction")
             .name("Dynamic Partitioning Function")
             .keyBy((keyed) -> keyed.getKey())
-            .connect(rulesStream)
-            .process(new ProcessorFunction())
-            .setParallelism(2)
+//            .connect(rulesStream)
+//            .process(new ProcessorFunction())
+              .map(new MapProcessorFunction())
+            .setParallelism(10)
             .uid("ProcessorFunction")
             .name("Dynamic ControlMessage Evaluation Function");
 
@@ -112,11 +115,13 @@ public class MegaphoneEvaluator {
 
   private DataStream<Tuple2<String, String>> getWordsStream(StreamExecutionEnvironment env) {
     // Data stream setup
-    SourceFunction<Tuple2<String, String>> wordsSource = new MySource(50, 12800, 128);
+//    SourceFunction<Tuple2<String, String>> wordsSource = new MySource(50, 12800000, 128);
+    SourceFunction<Tuple2<String, String>> wordsSource = new MySource(20, 200000, 128);
     int sourceParallelism = config.get(Parameters.SOURCE_PARALLELISM);
     return env.addSource(wordsSource)
         .name("Transactions Source")
-        .setParallelism(sourceParallelism);
+        .setParallelism(sourceParallelism)
+        .keyBy(0);
   }
 
   private DataStream<String> getControlMessageUpdateStream(StreamExecutionEnvironment env) throws IOException {
@@ -236,7 +241,7 @@ public class MegaphoneEvaluator {
           String key = getChar(count);
           int curCount = keyCount.getOrDefault(key, 0)+1;
           keyCount.put(key, curCount);
-          ctx.collect(Tuple2.of(key, key));
+          ctx.collect(Tuple2.of(key, String.valueOf(System.currentTimeMillis())));
           count++;
         }
         // Sleep for the rest of timeslice if needed

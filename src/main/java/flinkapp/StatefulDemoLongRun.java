@@ -1,8 +1,6 @@
 package flinkapp;
 
-import Nexmark.sinks.DummySink;
 import Nexmark.sources.Util;
-import org.apache.beam.sdk.nexmark.sources.generator.model.BidGenerator;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.flink.api.common.functions.RichMapFunction;
 import org.apache.flink.api.common.state.ListState;
@@ -10,7 +8,6 @@ import org.apache.flink.api.common.state.ListStateDescriptor;
 import org.apache.flink.api.common.state.MapState;
 import org.apache.flink.api.common.state.MapStateDescriptor;
 import org.apache.flink.api.java.tuple.Tuple2;
-import org.apache.flink.api.java.typeutils.GenericTypeInfo;
 import org.apache.flink.api.java.utils.ParameterTool;
 import org.apache.flink.configuration.Configuration;
 import org.apache.flink.runtime.state.FunctionInitializationContext;
@@ -21,11 +18,11 @@ import org.apache.flink.streaming.api.datastream.DataStream;
 import org.apache.flink.streaming.api.datastream.DataStreamSource;
 import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
 import org.apache.flink.streaming.api.functions.source.RichParallelSourceFunction;
-import org.apache.flink.streaming.api.functions.source.SourceFunction;
 
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Random;
+
+import static common.Util.delay;
 
 /**
  * Test Job for the most fundemental functionalities,
@@ -94,9 +91,7 @@ public class StatefulDemoLongRun {
 
         @Override
         public String map(Tuple2<String, String> input) throws Exception {
-            long start = System.nanoTime();
-            // loop 0.01 ms
-            while(System.nanoTime() - start < 100000) {}
+            delay();
 
             String s = input.f0;
 
@@ -108,8 +103,10 @@ public class StatefulDemoLongRun {
 //            cur = (cur == null) ? 1 : cur + 1;
 //            countMap.put(s, cur);
 
-            count++;
+//            count++;
 //            System.out.println("counted: " + s + " : " + cur);
+
+            System.out.println("endToEnd latency: " + (System.currentTimeMillis() - Long.parseLong(input.f1)));
 
             return String.format("%s %d", s, cur);
         }
@@ -231,7 +228,8 @@ public class StatefulDemoLongRun {
                     int curCount = keyCount.getOrDefault(key, 0)+1;
                     keyCount.put(key, curCount);
 //                    System.out.println("sent: " + key + " : " + curCount + " total: " + count);
-                    ctx.collect(Tuple2.of(key, key));
+//                    ctx.collect(Tuple2.of(key, key));
+                    ctx.collect(Tuple2.of(key, String.valueOf(System.currentTimeMillis())));
 
                     count++;
 //                    }
