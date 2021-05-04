@@ -22,6 +22,7 @@ import lombok.extern.slf4j.Slf4j;
 import megaphone.dynamicrules.Alert;
 import megaphone.dynamicrules.Keyed;
 import megaphone.dynamicrules.MegaphoneEvaluator;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.flink.api.common.functions.RichMapFunction;
 import org.apache.flink.api.common.state.BroadcastState;
 import org.apache.flink.api.java.tuple.Tuple3;
@@ -45,7 +46,9 @@ public class MapProcessorFunction
   private final Set<String> observedKeys = new HashSet<>();
   // local State is stored in the granularity of per key group.
 //  private final Map<Integer, String> localState = new HashMap<>();
-  private final Map<String, Integer> localState = new HashMap<>();
+//  private final Map<String, Integer> localState = new HashMap<>();
+  private final Map<String, String> localState = new HashMap<>();
+//    private final Map<String, String> localState;
 
   String keyGroupToKeyMapStr = "0=A12, 1=A28, 2=A14, 3=A19, 4=A42, 5=A133, 6=A214, 7=A364, 8=A20, 9=A23, " +
           "10=A9, 11=A203, 12=A145, 13=A163, 14=A234, 15=A7, 16=A33, 17=A175, 18=A40, 19=A164, " +
@@ -68,7 +71,7 @@ public class MapProcessorFunction
   private KafkaProducer<String, String> producer;
   private final String uniqueID = UUID.randomUUID().toString();
 
-  private void initKakfaProducer() {
+    private void initKakfaProducer() {
     Properties props = new Properties();
     props.put("bootstrap.servers", servers);
     props.put("client.id", uniqueID);
@@ -98,21 +101,31 @@ public class MapProcessorFunction
       String tupleValue = tuple.getWrapped().f1;
       long tupleTs = tuple.getWrapped().f2;
 
+      String payload = StringUtils.repeat("A", 40960);
       if (tuple.getState() != null) {
         // new reconfig key received
-        System.out.println("++++++ received state: " + tuple.getState());
-        localState.put(tupleKey, Integer.parseInt(tuple.getState())+1);
+//        delay(100_000_000);
+//        System.out.println("++++++ received state: " + tuple.getState());
+//          localState.put(tupleKey, Integer.parseInt(tuple.getState())+1);
+          localState.put(tupleKey, payload);
+//          localState.put(tupleKey, String.format("%s|%d", payload, tupleTs));
       } else {
-        localState.put(tupleKey, localState.getOrDefault(tupleKey, 0)+1);
+//          localState.put(tupleKey, localState.getOrDefault(tupleKey, 0)+1);
+        localState.put(tupleKey, payload);
+//          localState.put(tupleKey, String.format("%s|%d", payload, tupleTs));
       }
 
-      ProducerRecord<String, String> newRecord = new ProducerRecord<>(TOPIC, tupleKey, String.format("%d|%d", localState.get(tupleKey), tupleTs));
+//      ProducerRecord<String, String> newRecord = new ProducerRecord<>(TOPIC, tupleKey, String.format("%d|%d", localState.get(tupleKey), tupleTs));
+//      ProducerRecord<String, String> newRecord = new ProducerRecord<>(TOPIC, tupleKey, String.format("%s|%d", localState.get(tupleKey), tupleTs));
+      ProducerRecord<String, String> newRecord = new ProducerRecord<>(TOPIC, tupleKey, String.format("%s|%d", " ", tupleTs));
       producer.send(newRecord);
 //      producer.flush();
 
+      delay();
+
 //      long threadId = Thread.currentThread().getId();
 //        System.out.println("job: " + threadId + " - " + tupleKey + " : " + localState.get(tupleKey));
-      System.out.println("ts: " + tupleValue
+      System.out.println("key: " + tupleKey + " tupleTs: " + tupleTs + " ts: " + tupleValue
 //              + " routing latency: " + (tupleTs - Long.parseLong(tupleValue))
 //              + " processing time: " + (System.currentTimeMillis() - tupleTs)
               + " endToEnd latency: " + (System.currentTimeMillis() - Long.parseLong(tupleValue)));

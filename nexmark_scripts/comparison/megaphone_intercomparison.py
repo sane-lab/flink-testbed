@@ -64,8 +64,8 @@ def ReadFile():
     for r in read:
         if r.find("endToEnd latency: ") != -1:
             if start_ts == 0:
-                start_ts = int(int(r.split("ts: ")[1][:13]) / 100)
-            ts = int(int(r.split("ts: ")[1][:13]) / 100) - start_ts
+                start_ts = int(int(r.split("ts: ")[1][:13]) / 1000)
+            ts = int(int(r.split("ts: ")[1][:13]) / 1000) - start_ts
             latency = int(r.split("endToEnd latency: ")[1])
             if ts not in temp_dict:
                 temp_dict[ts] = []
@@ -74,21 +74,21 @@ def ReadFile():
     for ts in temp_dict:
         coly.append(sum(temp_dict[ts]) / len(temp_dict[ts]))
         col.append(ts)
-    x_axis.append([x * 10 for x in col])
-    # x_axis.append(col)
-    y_axis.append(coly)
+    # x_axis.append([x -10 for x in col][10:])
+    x_axis.append(col[10:])
+    y_axis.append(coly[10:])
 
     col = []
     coly = []
     temp_dict = {}
     start_ts = 0
-    f = open("/home/myc/samza-hello-samza/test-40000")
+    f = open("/home/myc/samza-hello-samza/test_trisk")
     read = f.readlines()
     for r in read:
         if r.find("endToEnd latency: ") != -1:
             if start_ts == 0:
-                start_ts = int(int(r.split("ts: ")[1][:13])/100)
-            ts = int(int(r.split("ts: ")[1][:13])/100) - start_ts
+                start_ts = int(int(r.split("ts: ")[1][:13])/1000)
+            ts = int(int(r.split("ts: ")[1][:13])/1000) - start_ts
             latency = int(r.split("endToEnd latency: ")[1])
             if ts not in temp_dict:
                 temp_dict[ts] = []
@@ -97,9 +97,9 @@ def ReadFile():
     for ts in temp_dict:
         coly.append(sum(temp_dict[ts]) / len(temp_dict[ts]))
         col.append(ts)
-    x_axis.append([x * 10 for x in col])
-    # x_axis.append(col)
-    y_axis.append(coly)
+    # x_axis.append([x -10 for x in col][10:])
+    x_axis.append(col[10:])
+    y_axis.append(coly[10:])
     #
     #
     # col = []
@@ -175,7 +175,7 @@ def ReadFile():
 # draw a line chart
 def DrawFigure(xvalues, yvalues, legend_labels, x_label, y_label, filename, allow_legend):
     # you may change the figure size on your own.
-    fig = plt.figure(figsize=(10, 3))
+    fig = plt.figure(figsize=(10, 5))
     figure = fig.add_subplot(111)
 
     FIGURE_LABEL = legend_labels
@@ -188,9 +188,8 @@ def DrawFigure(xvalues, yvalues, legend_labels, x_label, y_label, filename, allo
                                linewidth=LINE_WIDTH, marker=MARKERS[i], \
                                markersize=MARKER_SIZE, label=FIGURE_LABEL[i],
                                 markeredgewidth=2, markeredgecolor='k',
-                                markevery=5
-                               )
-
+                                markevery=5)
+    plt.axvline(x = 50, color = 'b', label = 'axvline - full height')
     # sometimes you may not want to draw legends.
     if allow_legend == True:
         plt.legend(lines,
@@ -199,21 +198,21 @@ def DrawFigure(xvalues, yvalues, legend_labels, x_label, y_label, filename, allo
                    loc='upper center',
                    ncol=4,
                    #                     mode='expand',
-                   bbox_to_anchor=(0.5, 1.4), shadow=False,
+                   bbox_to_anchor=(0.5, 1.2), shadow=False,
                    columnspacing=0.1,
                    frameon=True, borderaxespad=0.0, handlelength=1.5,
                    handletextpad=0.1,
                    labelspacing=0.1)
 
-    # plt.yscale('log')
+    plt.yscale('log')
     plt.xlabel(x_label, fontproperties=LABEL_FP)
     plt.ylabel(y_label, fontproperties=LABEL_FP)
-    plt.ylim(0, 200)
+    plt.ylim(10, 10000)
 
     plt.savefig(FIGURE_FOLDER + "/" + filename + ".pdf", bbox_inches='tight')
 
 if __name__ == "__main__":
     x_axis, y_axis = ReadFile()
-    legend_labels = ["10000", "40000"]
+    legend_labels = ["Megaphone", "Trisk"]
     legend = True
-    DrawFigure(x_axis, y_axis, legend_labels, "time(ms)", "latency(ms)", "comparison", legend)
+    DrawFigure(x_axis, y_axis, legend_labels, "time(s)", "latency(ms)", "comparison", legend)

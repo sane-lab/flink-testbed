@@ -21,6 +21,7 @@ package megaphone.dynamicrules;
 import Nexmark.sources.Util;
 import megaphone.config.Config;
 import megaphone.dynamicrules.functions.MapProcessorFunction;
+import megaphone.dynamicrules.functions.MapRouterFunction;
 import megaphone.dynamicrules.functions.ProcessorFunction;
 import megaphone.dynamicrules.functions.RouterFunction;
 import megaphone.dynamicrules.sinks.AlertsSink;
@@ -50,12 +51,16 @@ import org.apache.flink.streaming.api.windowing.time.Time;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Random;
 import java.util.concurrent.TimeUnit;
 
 @Slf4j
 public class MegaphoneEvaluator {
 
   private Config config;
+
+  private final Map<String, String> globalState = new HashMap<>();
+
 
   MegaphoneEvaluator(Config config) {
     this.config = config;
@@ -88,15 +93,16 @@ public class MegaphoneEvaluator {
     // TODO: use view number to control the version of the config, such that to keep consistency and correctness.
     DataStream<Alert> alerts =
         words
-            .connect(rulesStream)
-            .process(new RouterFunction())
-            .setParallelism(10)
+//            .connect(rulesStream)
+//            .process(new RouterFunction())
+            .flatMap(new MapRouterFunction())
+            .setParallelism(1)
             .uid("RouterFunction")
             .name("Dynamic Partitioning Function")
             .keyBy((keyed) -> keyed.getKey())
 //            .connect(rulesStream)
 //            .process(new ProcessorFunction())
-              .map(new MapProcessorFunction())
+            .map(new MapProcessorFunction())
             .setParallelism(10)
             .uid("ProcessorFunction")
             .name("Dynamic ControlMessage Evaluation Function");
@@ -116,11 +122,11 @@ public class MegaphoneEvaluator {
   private DataStream<Tuple2<String, String>> getWordsStream(StreamExecutionEnvironment env) {
     // Data stream setup
 //    SourceFunction<Tuple2<String, String>> wordsSource = new MySource(50, 12800000, 128);
-    SourceFunction<Tuple2<String, String>> wordsSource = new MySource(20, 200000, 128);
+    SourceFunction<Tuple2<String, String>> wordsSource = new MySource(200, 10000000, 1000);
     int sourceParallelism = config.get(Parameters.SOURCE_PARALLELISM);
     return env.addSource(wordsSource)
         .name("Transactions Source")
-        .setParallelism(sourceParallelism)
+        .setParallelism(1)
         .keyBy(0);
   }
 
@@ -200,6 +206,7 @@ public class MegaphoneEvaluator {
     private int nKeys;
     private int rate;
     private Map<String, Integer> keyCount = new HashMap<>();
+    private Random r =	new Random();
 
     MySource(int runtime, int nTuples, int nKeys) {
       this.runtime = runtime;
@@ -239,6 +246,7 @@ public class MegaphoneEvaluator {
         emitStartTime = System.currentTimeMillis();
         for (int i = 0; i < rate / 20; i++) {
           String key = getChar(count);
+//          String key = getKey();
           int curCount = keyCount.getOrDefault(key, 0)+1;
           keyCount.put(key, curCount);
           ctx.collect(Tuple2.of(key, String.valueOf(System.currentTimeMillis())));
@@ -251,6 +259,15 @@ public class MegaphoneEvaluator {
 
     private String getChar(int cur) {
       return "A" + (cur % nKeys);
+//      return "A" + (r.nextInt(nKeys-1)%nKeys);
+    }
+
+    private static String getKey() {
+      return String.valueOf(Math.random());
+    }
+
+    public int getRandomNumber(int min, int max) {
+      return (int) ((Math.random() * (max - min)) + min);
     }
 
     @Override

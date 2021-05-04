@@ -72,7 +72,7 @@ public class StatefulDemoLongRun {
 //                new DummySink<>())
 //                .uid("dummy-sink")
 //                .setParallelism(params.getInt("p3", 1));
-        counts.print();
+//        counts.print();
         env.execute();
 //        System.out.println(env.getExecutionPlan());
     }
@@ -106,7 +106,7 @@ public class StatefulDemoLongRun {
 //            count++;
 //            System.out.println("counted: " + s + " : " + cur);
 
-            System.out.println("endToEnd latency: " + (System.currentTimeMillis() - Long.parseLong(input.f1)));
+            System.out.println("ts: " + Long.parseLong(input.f1) + " endToEnd latency: " + (System.currentTimeMillis() - Long.parseLong(input.f1)));
 
             return String.format("%s %d", s, cur);
         }
