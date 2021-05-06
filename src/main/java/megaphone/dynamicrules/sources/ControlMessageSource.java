@@ -28,7 +28,7 @@ import org.apache.flink.streaming.api.functions.source.SocketTextStreamFunction;
 import org.apache.flink.streaming.api.functions.source.SourceFunction;
 import org.apache.flink.streaming.api.functions.timestamps.BoundedOutOfOrdernessTimestampExtractor;
 import org.apache.flink.streaming.api.windowing.time.Time;
-import org.apache.flink.streaming.connectors.gcp.pubsub.PubSubSource;
+//import org.apache.flink.streaming.connectors.gcp.pubsub.PubSubSource;
 import org.apache.flink.streaming.connectors.kafka.FlinkKafkaConsumer011;
 
 import java.io.IOException;
@@ -54,12 +54,12 @@ public class ControlMessageSource {
             new FlinkKafkaConsumer011<>(rulesTopic, new SimpleStringSchema(), kafkaProps);
         kafkaConsumer.setStartFromLatest();
         return kafkaConsumer;
-      case PUBSUB:
-        return PubSubSource.<String>newBuilder()
-            .withDeserializationSchema(new SimpleStringSchema())
-            .withProjectName(config.get(GCP_PROJECT_NAME))
-            .withSubscriptionName(config.get(GCP_PUBSUB_RULES_SUBSCRIPTION))
-            .build();
+//      case PUBSUB:
+//        return PubSubSource.<String>newBuilder()
+//            .withDeserializationSchema(new SimpleStringSchema())
+//            .withProjectName(config.get(GCP_PROJECT_NAME))
+//            .withSubscriptionName(config.get(GCP_PUBSUB_RULES_SUBSCRIPTION))
+//            .build();
       case SOCKET:
         return new SocketTextStreamFunction("localhost", config.get(SOCKET_PORT), "\n", -1);
       case CUSTOM:
