@@ -15,6 +15,13 @@ function runFlink() {
     ${FLINK_DIR}/bin/start-cluster.sh
 }
 
+# clean app specific related data
+function cleanEnv() {
+    rm -rf /tmp/flink*
+    rm ${FLINK_DIR}/log/*
+}
+
+
 # clsoe flink clsuter
 function stopFlink() {
     echo "INFO: experiment finished, stopping the cluster"
@@ -26,13 +33,6 @@ function stopFlink() {
     echo "close finished"
     cleanEnv
 }
-
-# clean app specific related data
-function cleanEnv() {
-    rm -rf /tmp/flink*
-    rm ${FLINK_DIR}/log/*
-}
-
 
 # configure parameters in flink bin
 function configFlink() {
