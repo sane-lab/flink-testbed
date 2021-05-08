@@ -87,8 +87,8 @@ def ReadFile():
     for r in read:
         if r.find("endToEnd latency: ") != -1:
             if start_ts == 0:
-                start_ts = int(int(r.split("ts: ")[1][:13])/1000)
-            ts = int(int(r.split("ts: ")[1][:13])/1000) - start_ts
+                start_ts = int(int(r.split("ts: ")[1][:13]) / 1000)
+            ts = int(int(r.split("ts: ")[1][:13]) / 1000) - start_ts
             latency = int(r.split("endToEnd latency: ")[1])
             if ts not in temp_dict:
                 temp_dict[ts] = []
@@ -100,51 +100,29 @@ def ReadFile():
     # x_axis.append([x -10 for x in col][10:])
     x_axis.append(col[10:])
     y_axis.append(coly[10:])
-    #
-    #
-    # col = []
-    # coly = []
-    # temp_dict = {}
-    # start_ts = 0
-    # f = open("/home/myc/samza-hello-samza/test-10000")
-    # read = f.readlines()
-    # for r in read:
-    #     if r.find("endToEnd latency: ") != -1:
-    #         if start_ts == 0:
-    #             start_ts = int(int(r.split("ts: ")[1][:13]) / 100)
-    #         ts = int(int(r.split("ts: ")[1][:13]) / 100) - start_ts
-    #         latency = int(r.split("endToEnd latency: ")[1])
-    #         if ts not in temp_dict:
-    #             temp_dict[ts] = []
-    #         temp_dict[ts].append(latency)
-    #
-    # for ts in temp_dict:
-    #     coly.append(sum(temp_dict[ts]) / len(temp_dict[ts]))
-    #     col.append(ts)
-    # x_axis.append([x * 10 for x in col])
-    # y_axis.append(coly)
-    #
-    # col = []
-    # coly = []
-    # temp_dict = {}
-    # start_ts = 0
-    # f = open("/home/myc/samza-hello-samza/test-1000")
-    # read = f.readlines()
-    # for r in read:
-    #     if r.find("endToEnd latency: ") != -1:
-    #         if start_ts == 0:
-    #             start_ts = int(int(r.split("ts: ")[1][:13]) / 100)
-    #         ts = int(int(r.split("ts: ")[1][:13]) / 100) - start_ts
-    #         latency = int(r.split("endToEnd latency: ")[1])
-    #         if ts not in temp_dict:
-    #             temp_dict[ts] = []
-    #         temp_dict[ts].append(latency)
-    #
-    # for ts in temp_dict:
-    #     coly.append(sum(temp_dict[ts]) / len(temp_dict[ts]))
-    #     col.append(ts)
-    # x_axis.append([x * 10 for x in col])
-    # y_axis.append(coly)
+
+    col = []
+    coly = []
+    temp_dict = {}
+    start_ts = 0
+    f = open("/home/myc/workspace/flink-related/flink-1.11/build-target/trisk-remap-10000-200-10-5000-1000-40960-2-1/flink-myc-taskexecutor-0-myc-amd.out")
+    read = f.readlines()
+    for r in read:
+        if r.find("endToEnd latency: ") != -1:
+            if start_ts == 0:
+                start_ts = int(int(r.split("ts: ")[1][:13]) / 1000)
+            ts = int(int(r.split("ts: ")[1][:13]) / 1000) - start_ts
+            latency = int(r.split("endToEnd latency: ")[1])
+            if ts not in temp_dict:
+                temp_dict[ts] = []
+            temp_dict[ts].append(latency)
+
+    for ts in temp_dict:
+        coly.append(sum(temp_dict[ts]) / len(temp_dict[ts]))
+        col.append(ts)
+    # x_axis.append([x -10 for x in col][10:])
+    x_axis.append(col[10:])
+    y_axis.append(coly[10:])
 
     # col = []
     # coly = []
@@ -213,6 +191,7 @@ def DrawFigure(xvalues, yvalues, legend_labels, x_label, y_label, filename, allo
 
 if __name__ == "__main__":
     x_axis, y_axis = ReadFile()
-    legend_labels = ["Megaphone", "Trisk"]
+    legend_labels = ["Megaphone", "Trisk", "Flink"]
+    # legend_labels = ["Flink"]
     legend = True
     DrawFigure(x_axis, y_axis, legend_labels, "time(s)", "latency(ms)", "comparison", legend)

@@ -10,16 +10,20 @@
 init() {
   # app level
   FLINK_DIR="/home/myc/workspace/flink-related/flink-1.11/build-target/"
-  FLINK_APP_DIR="/home/myc/workspace/flink-related/flink-testbed/"
+  FLINK_APP_DIR="/home/myc/workspace/flink-related/flink-testbed-org/"
   JAR=${FLINK_APP_DIR}$"target/testbed-1.0-SNAPSHOT.jar"
-  job="flinkapp.StatefulDemoLongRun"
-  runtime=100
-  source_p=5
+  ### paths configuration ###
+  FLINK=$FLINK_DIR$"bin/flink"
+  readonly SAVEPOINT_PATH="/home/myc/workspace/flink-related/flink-testbed-org/exp_scripts/flink_reconfig/savepoints/"
+  JOB="flinkapp.KafkaStatefulDemoLongRun"
+
+  runtime=200
+  source_p=1
 #  n_tuples=15000000
-  per_task_rate=6000
+  per_task_rate=5000
   parallelism=10
   key_set=1000
-  per_key_state_size=1024 # byte
+  per_key_state_size=40960 # byte
 
   # system level
   operator="Splitter FlatMap"
@@ -28,29 +32,26 @@ init() {
 #  frequency=1 # deprecated
   affected_tasks=2
   repeat=1
-
-  ### paths configuration ###
-  FLINK=$FLINK_DIR$"bin/flink"
-  JAR_PATH="/home/myc/workspace/flink-related/flink-testbed/target/testbed-1.0-SNAPSHOT.jar"
-  readonly SAVEPOINT_PATH="/home/myc/workspace/flink-related/flink-testbed-org/exp_scripts/flink_reconfig/savepoints/"
-
-  QUERY_CLASS="flinkapp.StatefulDemoLongRun"
 }
 
 # run flink clsuter
 function runFlink() {
     echo "INFO: starting the cluster"
-    if [[ -d ${FLINK_DIR}/log ]]; then
-        rm -rf ${FLINK_DIR}/log
+    if [[ -d ${FLINK_DIR}log ]]; then
+        rm -rf ${FLINK_DIR}log
     fi
-    mkdir ${FLINK_DIR}/log
+    mkdir ${FLINK_DIR}log
     ${FLINK_DIR}/bin/start-cluster.sh
 }
 
 # clean app specific related data
 function cleanEnv() {
-    rm -rf /tmp/flink*
-    rm ${FLINK_DIR}/log/*
+  if [[ -d ${FLINK_DIR}${EXP_NAME} ]]; then
+      rm -rf ${FLINK_DIR}${EXP_NAME}
+  fi
+  mv ${FLINK_DIR}log ${FLINK_DIR}${EXP_NAME}
+  rm -rf /tmp/flink*
+  rm ${FLINK_DIR}log/*
 }
 
 # clsoe flink clsuter
@@ -60,7 +61,7 @@ function stopFlink() {
     if [[ ! -z $PID ]]; then
       kill -9 ${PID}
     fi
-    ${FLINK_DIR}/bin/stop-cluster.sh
+    ${FLINK_DIR}bin/stop-cluster.sh
     echo "close finished"
     cleanEnv
 }
@@ -68,32 +69,38 @@ function stopFlink() {
 
 # run applications
 function runApp() {
-  echo "INFO: ${FLINK_DIR}/bin/flink run -c ${job} ${JAR} \
+  echo "INFO: $FLINK run -c ${JOB} ${JAR} \
     -runtime ${runtime} -nTuples ${n_tuples}  \-p1 ${source_p} -p2 ${parallelism} \
     -nKeys ${key_set} -perKeySize ${per_key_state_size} &"
   rm nohup.out
-  nohup ${FLINK_DIR}/bin/flink run -c ${job} ${JAR} \
+  nohup $FLINK run -c ${JOB} ${JAR} \
     -runtime ${runtime} -nTuples ${n_tuples}  \-p1 ${source_p} -p2 ${parallelism} \
     -nKeys ${key_set} -perKeySize ${per_key_state_size} &
+}
 
-  python -c 'import time; time.sleep(5)'
+function runGenerator() {
+  echo "INFO: java -cp ${FLINK_APP_DIR}target/testbed-1.0-SNAPSHOT-jar-with-dependencies.jar kafkagenerator.WCGenerator \
+    -runtime ${runtime} -nTuples ${n_tuples} -nKeys ${key_set} > /dev/null 2>&1 &"
 
-  JOB_ID=$(cat nohup.out | sed -n '2p' | rev | cut -d' ' -f 1 | rev)
-  JOB_ID=$(echo $JOB_ID |tr -d '\n')
-  echo "INFO: running job: $JOB_ID"
+  java -cp ${FLINK_APP_DIR}target/testbed-1.0-SNAPSHOT-jar-with-dependencies.jar kafkagenerator.WCGenerator \
+    -runtime ${runtime} -nTuples ${n_tuples} -nKeys ${key_set} > /dev/null 2>&1 &
 }
 
 # run applications
 function reconfigApp() {
+  JOB_ID=$(cat nohup.out | sed -n '1p' | rev | cut -d' ' -f 1 | rev)
+  JOB_ID=$(echo $JOB_ID |tr -d '\n')
+  echo "INFO: running job: $JOB_ID"
+
   savepointPathStr=$($FLINK cancel -s $SAVEPOINT_PATH $JOB_ID)
   savepointFile=$(echo $savepointPathStr| rev | cut -d'/' -f 1 | rev)
   x=$(echo $savepointFile |tr -d '.')
   x=$(echo $x |tr -d '\n')
 
-  echo "INFO: RECOVER ${FLINK_DIR}/bin/flink run -d -s $SAVEPOINT_PATH$x -c ${job} ${JAR} \
+  echo "INFO: RECOVER $FLINK run -d -s $SAVEPOINT_PATH$x -c ${JOB} ${JAR} \
       -runtime ${runtime} -nTuples ${n_tuples}  \-p1 ${source_p} -p2 ${parallelism} \
       -nKeys ${key_set} -perKeySize ${per_key_state_size} &"
-  nohup $FLINK run -d -s $SAVEPOINT_PATH$x --class $QUERY_CLASS $JAR_PATH \
+  nohup $FLINK run -d -s $SAVEPOINT_PATH$x --class $JOB $JAR \
       -runtime ${runtime} -nTuples ${n_tuples}  \
       -p1 ${source_p} -p2 ${parallelism} \
       -nKeys ${key_set} -perKeySize ${per_key_state_size} &
@@ -108,19 +115,20 @@ run_one_exp() {
   echo "INFO: run exp ${EXP_NAME}"
 #  configFlink
   runFlink
-
   python -c 'import time; time.sleep(5)'
 
+  runGenerator
   runApp
 
-  python -c 'import time; time.sleep(10)'
+  python -c 'import time; time.sleep(50)'
 
   reconfigApp
 
-  SCRIPTS_RUNTIME=`expr ${runtime} + 10`
+  SCRIPTS_RUNTIME=`expr ${runtime} - 50 + 10`
   python -c 'import time; time.sleep('"${SCRIPTS_RUNTIME}"')'
   stopFlink
 }
 
 init
+per_key_state_size=40960
 run_one_exp
