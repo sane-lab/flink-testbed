@@ -79,7 +79,7 @@ function runApp() {
 }
 
 function runGenerator() {
-  echo "INFO: java -cp ${FLINK_APP_DIR}target/testbed-1.0-SNAPSHOT-jar-with-dependencies.jar kafkagenerator.WCGenerator \
+  echo "INFO: java -cp ${FLINK_APP_DIR}target/testbed-1.0-SNAPSHOT.jar kafkagenerator.WCGenerator \
     -runtime ${runtime} -nTuples ${n_tuples} -nKeys ${key_set} > /dev/null 2>&1 &"
 
   java -cp ${FLINK_APP_DIR}target/testbed-1.0-SNAPSHOT-jar-with-dependencies.jar kafkagenerator.WCGenerator \
