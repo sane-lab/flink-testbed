@@ -1,6 +1,5 @@
 package stock;
 
-import org.apache.flink.api.common.serialization.DeserializationSchema;
 import org.apache.flink.api.common.serialization.SerializationSchema;
 import org.apache.flink.api.common.typeinfo.BasicTypeInfo;
 import org.apache.flink.api.common.typeinfo.TypeInformation;
@@ -15,18 +14,19 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.nio.charset.Charset;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
 public class KafkaWithTsMsgSchema implements KafkaDeserializationSchema<Tuple3<String, String, Long>>, SerializationSchema<Tuple2<String, String>> {
     private static final int Order_No = 0;
     private static final int Tran_Maint_Code = 1;
-    private static final int Order_Price = 8;
-    private static final int Order_Exec_Vol = 9;
-    private static final int Order_Vol = 10;
-    private static final int Sec_Code = 11;
-    private static final int Trade_Dir = 22;
+    private static final int Last_Upd_Time = 2;
+    private static final int Order_Price = 3;
+    private static final int Order_Exec_Vol = 4;
+    private static final int Order_Vol = 5;
+    private static final int Sec_Code = 6;
+    private static final int Trade_Dir = 7;
+
 
     private static final long serialVersionUID = 1L;
     private transient Charset charset;

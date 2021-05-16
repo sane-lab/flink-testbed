@@ -82,8 +82,8 @@ function runGenerator() {
   echo "INFO: java -cp ${FLINK_APP_DIR}target/testbed-1.0-SNAPSHOT.jar kafkagenerator.WCGenerator \
     -runtime ${runtime} -nTuples ${n_tuples} -nKeys ${key_set} > /dev/null 2>&1 &"
 
-  java -cp ${FLINK_APP_DIR}target/testbed-1.0-SNAPSHOT-jar-with-dependencies.jar kafkagenerator.WCGenerator \
-    -runtime ${runtime} -nTuples ${n_tuples} -nKeys ${key_set} > /dev/null 2>&1 &
+  java -cp ${FLINK_APP_DIR}target/testbed-1.0-SNAPSHOT.jar kafkagenerator.WCGenerator \
+    -runtime ${runtime} -n                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                     Tuples ${n_tuples} -nKeys ${key_set} > /dev/null 2>&1 &
 }
 
 # run applications
@@ -97,6 +97,7 @@ function reconfigApp() {
   x=$(echo $savepointFile |tr -d '.')
   x=$(echo $x |tr -d '\n')
 
+  rm nohup.out
   echo "INFO: RECOVER $FLINK run -d -s $SAVEPOINT_PATH$x -c ${JOB} ${JAR} \
       -runtime ${runtime} -nTuples ${n_tuples}  \-p1 ${source_p} -p2 ${parallelism} \
       -nKeys ${key_set} -perKeySize ${per_key_state_size} &"
@@ -117,14 +118,14 @@ run_one_exp() {
   runFlink
   python -c 'import time; time.sleep(5)'
 
-  runGenerator
   runApp
+  runGenerator
 
-  python -c 'import time; time.sleep(50)'
+  python -c 'import time; time.sleep(55)'
 
   reconfigApp
 
-  SCRIPTS_RUNTIME=`expr ${runtime} - 50 + 10`
+  SCRIPTS_RUNTIME=`expr ${runtime} - 55 + 10`
   python -c 'import time; time.sleep('"${SCRIPTS_RUNTIME}"')'
   stopFlink
 }

@@ -14,12 +14,15 @@ import org.apache.flink.configuration.Configuration;
 import org.apache.flink.runtime.state.memory.MemoryStateBackend;
 import org.apache.flink.streaming.api.datastream.DataStream;
 import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
+import org.apache.flink.streaming.connectors.kafka.FlinkKafkaConsumer011;
 import org.apache.flink.streaming.connectors.kafka.FlinkKafkaProducer011;
 import org.apache.flink.util.Collector;
 import stock.sources.SSERealRateSourceFunctionKV;
 
-import java.io.Serializable;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Properties;
 
 import static stock.utils.sortMapBykeyAsc;
 import static stock.utils.sortMapBykeyDesc;
@@ -57,31 +60,32 @@ public class InAppStatefulStockExchange {
 
         env.getConfig().registerKryoType(Order.class);
 
-        FlinkKafkaProducer011<Tuple2<String, String>> kafkaProducer = new FlinkKafkaProducer011<Tuple2<String, String>>(
-                KAFKA_BROKERS, OUTPUT_STREAM_ID, new KafkaWithTsMsgSchema());
-        kafkaProducer.setWriteTimestampToKafka(true);
+
+//        final DataStream<Tuple3<String, String, Long>> text = env.addSource(
+//                inputConsumer).setMaxParallelism(params.getInt("mp2", 64));
 
         final DataStream<Tuple3<String, String, Long>> text = env.addSource(
                 new SSERealRateSourceFunctionKV(
-                        params.get("source-file", "/home/samza/SSE_data/sb-50ms.txt")))
+                        params.get("source-file", "/home/myc/workspace/datasets/SSE/sb-5min.txt")))
                 .uid("sentence-source")
                 .setParallelism(params.getInt("p1", 1))
-                .setMaxParallelism(params.getInt("mp2", 64));
+                .setMaxParallelism(params.getInt("mp2", 128));
 
 
         // split up the lines in pairs (2-tuples) containing:
-        DataStream<Tuple2<String, String>> counts = text.keyBy(0)
+        DataStream<Tuple2<String, String>> txns = text.keyBy(tuple -> tuple.f0)
                 .flatMap(new MatchMaker())
                 .name("MatchMaker FlatMap")
                 .uid("flatmap")
-                .setMaxParallelism(params.getInt("mp2", 64))
+                .setMaxParallelism(params.getInt("mp2", 128))
                 .setParallelism(params.getInt("p2", 3))
                 .keyBy(0);
 
-        counts.addSink(kafkaProducer)
-                .name("Sink")
-                .uid("sink")
-                .setParallelism(params.getInt("p3", 1));
+//        txns.print();
+//        txns.addSink(kafkaProducer)
+//                .name("Sink")
+//                .uid("sink")
+//                .setParallelism(params.getInt("p3", 1));
 
         GenericTypeInfo<Object> objectTypeInfo = new GenericTypeInfo<>(Object.class);
         // execute program
@@ -124,16 +128,16 @@ public class InAppStatefulStockExchange {
             String stockOrder = value.f1;
             String[] orderArr = stockOrder.split("\\|");
 
-            if (stockOrder.equals("CALLAUCTIONEND") && callAuctionAllowed) {
-                // start to do call auction
-                callAuction();
-                callAuctionAllowed = false;
-                return;
-            }
-
-            if (stockOrder.equals("CALLAUCTIONEND")) {
-                return;
-            }
+//            if (stockOrder.equals("CALLAUCTIONEND") && callAuctionAllowed) {
+//                // start to do call auction
+//                callAuction();
+//                callAuctionAllowed = false;
+//                return;
+//            }
+//
+//            if (stockOrder.equals("CALLAUCTIONEND")) {
+//                return;
+//            }
 
             //filter
             if (orderArr[Tran_Maint_Code].equals(FILTER_KEY2) || orderArr[Tran_Maint_Code].equals(FILTER_KEY3)) {
@@ -150,9 +154,11 @@ public class InAppStatefulStockExchange {
                     insertPool(curOrder, orderArr[Sec_Code], orderArr[Trade_Dir]);
                 }
             } else {
-                delay(5);
+                delay(8);
                 Map<String, String> matchedResult = continuousStockExchange(orderArr, orderArr[Trade_Dir]);
             }
+
+            System.out.println("ts: " + value.f2 + " endToEnd latency: " + (System.currentTimeMillis() - value.f2));
 
             out.collect(new Tuple2<>(value.f0, value.f1));
         }
