@@ -41,9 +41,8 @@ function configFlink() {
     sed 's/^\(\s*trisk.reconfig.interval\s*:\s*\).*/\1'"$reconfig_interval"'/' tmp1 > tmp2
     sed 's/^\(\s*trisk.reconfig.affected_tasks\s*:\s*\).*/\1'"$affected_tasks"'/' tmp2 > tmp3
     sed 's/^\(\s*trisk.controller\s*:\s*\).*/\1'"$controller"'/' tmp3 > tmp4
-    sed 's/^\(\s*trisk.exp.dir\s*:\s*\).*/\1'"$EXP_DIR"'/' tmp4 > tmp5
-    sed 's/^\(\s*trisk.reconfig.type\s*:\s*\).*/\1'"$reconfig_type"'/' tmp5 > ${FLINK_DIR}/conf/flink-conf.yaml
-    rm tmp1 tmp2 tmp3 tmp4 tmp5
+    sed 's/^\(\s*trisk.reconfig.type\s*:\s*\).*/\1'"$reconfig_type"'/' tmp4 > ${FLINK_DIR}/conf/flink-conf.yaml
+    rm tmp1 tmp2 tmp3 tmp4
 }
 
 # run applications
