@@ -1,9 +1,9 @@
 #!/bin/bash
 
-FLINK_DIR="/home/myc/workspace/flink-related/flink/build-target"
-FLINK_APP_DIR="/home/myc/workspace/flink-related/flink-testbed-org"
+FLINK_DIR="/home/flink/build-target"
+FLINK_APP_DIR="/home/flink/workspace/flink-testbed"
 
-EXP_DIR="/data"
+EXP_DIR="/data/flink"
 
 # run flink clsuter
 function runFlink() {
@@ -97,12 +97,11 @@ init() {
   # app level
   JAR="${FLINK_APP_DIR}/target/testbed-1.0-SNAPSHOT.jar"
   job="flinkapp.StatefulDemoLongRun"
-  controller="PerformanceEvaluator"
   runtime=100
   source_p=5
 #  n_tuples=15000000
-  per_task_rate=6000
-  parallelism=10
+  per_task_rate=5000
+  parallelism=20
   key_set=1000
   per_key_state_size=1024 # byte
 
@@ -121,30 +120,30 @@ run_micro() {
   for repeat in 1 2 3 4 5; do # 1 2 3 4 5
     for reconfig_type in "rescale"; do
       # parallelism
-      for parallelism in 5 10 20; do # 5 10 20
+      for parallelism in 5 10 20 30; do # 5 10 20
         run_one_exp
       done
 
-      parallelism=10
+      parallelism=20
 
-#      # arrival rate
-#      for per_task_rate in 1000 2000 4000 8000; do # 1000 2000 4000 6000 8000 10000
-#        run_one_exp
-#      done
-#
-#      per_task_rate=6000
-#      # number of affected tasks
-#      for affected_tasks in 2 4 6 8 10; do # 2 4 6 8 10
-#        run_one_exp
-#      done
-#
-#      affected_tasks=2
-#      # state size
-#      for per_key_state_size in 1024 10240 20480 40960; do
-#        run_one_exp
-#      done
-#
-#      per_key_state_size=1024
+     # arrival rate
+     for per_task_rate in 1000 2000 4000 5000; do # 1000 2000 4000 6000 8000 10000
+       run_one_exp
+     done
+
+     per_task_rate=5000
+     # number of affected tasks
+     for affected_tasks in 2 4 8 16; do # 2 4 6 8 10
+       run_one_exp
+     done
+
+     affected_tasks=2
+     # state size
+     for per_key_state_size in 1024 10240 20480 40960; do
+       run_one_exp
+     done
+
+     per_key_state_size=1024
     done
   done
 }
