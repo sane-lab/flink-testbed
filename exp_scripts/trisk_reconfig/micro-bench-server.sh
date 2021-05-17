@@ -97,6 +97,7 @@ init() {
   # app level
   JAR="${FLINK_APP_DIR}/target/testbed-1.0-SNAPSHOT.jar"
   job="flinkapp.StatefulDemoLongRun"
+  controller="PerformanceEvaluator"
   runtime=100
   source_p=5
 #  n_tuples=15000000
