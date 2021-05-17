@@ -26,12 +26,13 @@ TICK_FP = FontProperties(style='normal', size=TICK_FONT_SIZE)
 MARKERS = (['o', 's', 'v', "^", "h", "v", ">", "x", "d", "<", "|", "", "+", "_"])
 # you may want to change the color map for different figures
 COLOR_MAP = ('#B03A2E', '#2874A6', '#239B56', '#7D3C98', '#F1C40F', '#F5CBA7', '#82E0AA', '#AEB6BF', '#AA4499')
+# COLOR_MAP = ('tab:blue', 'tab:orange', 'tab:green', 'tab:pink', 'tab:purple', 'tab:cyan', 'tab:gray', 'tab:brown', 'tab:olive')
 # you may want to change the patterns for different figures
 PATTERNS = (["", "////", "\\\\", "//", "o", "", "||", "-", "//", "\\", "o", "O", "////", ".", "|||", "o", "---", "+", "\\\\", "*"])
 LABEL_WEIGHT = 'bold'
 LINE_COLORS = COLOR_MAP
 LINE_WIDTH = 3.0
-MARKER_SIZE = 4.0
+MARKER_SIZE = 10.0
 MARKER_FREQUENCY = 1000
 
 mpl.rcParams['ps.useafm'] = True
@@ -54,52 +55,6 @@ def ConvertEpsToPdf(dir_filename):
 def ReadFile():
     x_axis = []
     y_axis = []
-
-    # col = []
-    # coly = []
-    # temp_dict = {}
-    # start_ts = 0
-    # f = open("/home/myc/samza-hello-samza/test")
-    # read = f.readlines()
-    # for r in read:
-    #     if r.find("endToEnd latency: ") != -1:
-    #         if start_ts == 0:
-    #             start_ts = int(int(r.split("ts: ")[1][:13]) / 1000)
-    #         ts = int(int(r.split("ts: ")[1][:13]) / 1000) - start_ts
-    #         latency = int(r.split("endToEnd latency: ")[1])
-    #         if ts not in temp_dict:
-    #             temp_dict[ts] = []
-    #         temp_dict[ts].append(latency)
-    #
-    # for ts in temp_dict:
-    #     coly.append(sum(temp_dict[ts]) / len(temp_dict[ts]))
-    #     col.append(ts)
-    # # x_axis.append([x -10 for x in col][10:])
-    # x_axis.append(col[10:])
-    # y_axis.append(coly[10:])
-
-    # col = []
-    # coly = []
-    # temp_dict = {}
-    # start_ts = 0
-    # f = open("/home/myc/samza-hello-samza/test_trisk_10")
-    # read = f.readlines()
-    # for r in read:
-    #     if r.find("endToEnd latency: ") != -1:
-    #         if start_ts == 0:
-    #             start_ts = int(int(r.split("ts: ")[1][:13]) / 1000)
-    #         ts = int(int(r.split("ts: ")[1][:13]) / 1000) - start_ts
-    #         latency = int(r.split("endToEnd latency: ")[1])
-    #         if ts not in temp_dict:
-    #             temp_dict[ts] = []
-    #         temp_dict[ts].append(latency)
-    #
-    # for ts in temp_dict:
-    #     coly.append(sum(temp_dict[ts]) / len(temp_dict[ts]))
-    #     col.append(ts)
-    # # x_axis.append([x -10 for x in col][10:])
-    # x_axis.append(col[10:])
-    # y_axis.append(coly[10:])
 
     col = []
     coly = []
@@ -128,7 +83,7 @@ def ReadFile():
     coly = []
     temp_dict = {}
     start_ts = 0
-    f = open("/home/myc/samza-hello-samza/test_trisk")
+    f = open("/home/myc/samza-hello-samza/test_trisk_scenarios")
     read = f.readlines()
     for r in read:
         if r.find("endToEnd latency: ") != -1:
@@ -167,55 +122,10 @@ def ReadFile():
     for ts in temp_dict:
         coly.append(sum(temp_dict[ts]) / len(temp_dict[ts]))
         col.append(ts)
-    # x_axis.append([x -10 for x in col][10:])
-    x_axis.append(col[10:])
-    y_axis.append(coly[10:])
-
-    # col = []
-    # coly = []
-    # temp_dict = {}
-    # start_ts = 0
-    # f = open("/home/myc/workspace/flink-related/flink-1.11/build-target/trisk-remap-10000-200-10-5000-1000-40960-2-1/flink-myc-taskexecutor-0-myc-amd.out")
-    # read = f.readlines()
-    # for r in read:
-    #     if r.find("endToEnd latency: ") != -1:
-    #         if start_ts == 0:
-    #             start_ts = int(int(r.split("ts: ")[1][:13]) / 1000)
-    #         ts = int(int(r.split("ts: ")[1][:13]) / 1000) - start_ts
-    #         latency = int(r.split("endToEnd latency: ")[1])
-    #         if ts not in temp_dict:
-    #             temp_dict[ts] = []
-    #         temp_dict[ts].append(latency)
-    #
-    # for ts in temp_dict:
-    #     coly.append(sum(temp_dict[ts]) / len(temp_dict[ts]))
-    #     col.append(ts)
-    # # x_axis.append([x+5 for x in col][10:])
+    x_axis.append([x + 10 for x in col])
+    y_axis.append(coly)
     # x_axis.append(col[10:])
     # y_axis.append(coly[10:])
-
-    # col = []
-    # coly = []
-    # temp_dict = {}
-    # for i in range(0,10):
-    #     ts = 0
-    #     f = open("/data/trisk/Splitter FlatMap-{}.output".format(i))
-    #     read = f.readlines()
-    #     for r in read:
-    #         if r.find("endToEndLantecy: ") != -1:
-    #             latency = int(r.split("endToEndLantecy: ")[1][:2])
-    #             # col.append(ts)
-    #             # coly.append(latency)
-    #             if ts not in temp_dict:
-    #                 temp_dict[ts] = []
-    #             temp_dict[ts].append(latency)
-    #             ts += 1
-    #
-    # for ts in temp_dict:
-    #     coly.append(sum(temp_dict[ts]) / len(temp_dict[ts]))
-    #     col.append(ts)
-    # x_axis.append(col)
-    # y_axis.append(coly)
 
     return x_axis, y_axis
 
@@ -235,12 +145,12 @@ def DrawFigure(xvalues, yvalues, legend_labels, x_label, y_label, filename, allo
         lines[i], = figure.plot(x_values[i], y_values[i], color=LINE_COLORS[i], \
                                linewidth=LINE_WIDTH, marker=MARKERS[i], \
                                markersize=MARKER_SIZE, label=FIGURE_LABEL[i],
-                                markeredgewidth=2, markeredgecolor='k',
-                                markevery=10)
-    plt.axvline(x = 10, color = 'b', label = 'axvline - full height')
-    plt.axvline(x = 100, color = 'b', label = 'axvline - full height')
-    plt.axvline(x = 200, color = 'b', label = 'axvline - full height')
-    plt.axvline(x = 400, color = 'b', label = 'axvline - full height')
+                                markeredgewidth=1, markeredgecolor='k',
+                                markevery=11)
+    plt.axvline(x = 10, color = 'tab:gray', label = 'axvline - full height')
+    plt.axvline(x = 100, color = 'tab:gray', label = 'axvline - full height')
+    plt.axvline(x = 200, color = 'tab:gray', label = 'axvline - full height')
+    plt.axvline(x = 400, color = 'tab:gray', label = 'axvline - full height')
     # sometimes you may not want to draw legends.
     if allow_legend == True:
         plt.legend(lines,
@@ -264,7 +174,7 @@ def DrawFigure(xvalues, yvalues, legend_labels, x_label, y_label, filename, allo
 
 if __name__ == "__main__":
     x_axis, y_axis = ReadFile()
-    legend_labels = ["Flink-base", "Trisk", "Flink-reconfig"]
+    legend_labels = ["Baseline", "Trisk", "Flink-reconfig"]
     # legend_labels = ["Flink"]
     legend = True
-    DrawFigure(x_axis, y_axis, legend_labels, "time(s)", "latency(ms)", "comparison", legend)
+    DrawFigure(x_axis, y_axis, legend_labels, "time(s)", "latency(ms)", "latency_comparison", legend)

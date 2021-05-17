@@ -31,7 +31,7 @@ PATTERNS = (["", "////", "\\\\", "//", "o", "", "||", "-", "//", "\\", "o", "O",
 LABEL_WEIGHT = 'bold'
 LINE_COLORS = COLOR_MAP
 LINE_WIDTH = 3.0
-MARKER_SIZE = 4.0
+MARKER_SIZE = 10.0
 MARKER_FREQUENCY = 1000
 
 mpl.rcParams['ps.useafm'] = True
@@ -59,7 +59,7 @@ def ReadFile():
     coly = []
     temp_dict = {}
     start_ts = 0
-    f = open("/home/myc/samza-hello-samza/test-megaphone_reconfig-40960")
+    f = open("/home/myc/samza-hello-samza/test-megaphone-40960")
     read = f.readlines()
     for r in read:
         if r.find("endToEnd latency: ") != -1:
@@ -82,7 +82,7 @@ def ReadFile():
     coly = []
     temp_dict = {}
     start_ts = 0
-    f = open("/home/myc/samza-hello-samza/test_trisk")
+    f = open("/home/myc/samza-hello-samza/test_trisk_comparison")
     read = f.readlines()
     for r in read:
         if r.find("endToEnd latency: ") != -1:
@@ -105,7 +105,7 @@ def ReadFile():
     coly = []
     temp_dict = {}
     start_ts = 0
-    f = open("/home/myc/workspace/flink-related/flink-1.11/build-target/trisk-remap-10000-200-10-5000-1000-40960-2-1/flink-myc-taskexecutor-0-myc-amd.out")
+    f = open("/home/myc/workspace/flink-related/flink-1.11/build-target/trisk-remap-10000-200-10-5000-1000-40960-2-1-stable/flink-myc-taskexecutor-0-myc-amd.out")
     read = f.readlines()
     for r in read:
         if r.find("endToEnd latency: ") != -1:
@@ -120,9 +120,9 @@ def ReadFile():
     for ts in temp_dict:
         coly.append(sum(temp_dict[ts]) / len(temp_dict[ts]))
         col.append(ts)
-    # x_axis.append([x+3 for x in col][10:120])
-    x_axis.append(col[10:120])
-    y_axis.append(coly[10:120])
+    x_axis.append([x+3 for x in col][7:117])
+    y_axis.append(coly[7:117])
+    # x_axis.append(col[10:120])
     # y_axis.append(coly[10:120])
 
     # col = []
@@ -166,8 +166,8 @@ def DrawFigure(xvalues, yvalues, legend_labels, x_label, y_label, filename, allo
         lines[i], = figure.plot(x_values[i], y_values[i], color=LINE_COLORS[i], \
                                linewidth=LINE_WIDTH, marker=MARKERS[i], \
                                markersize=MARKER_SIZE, label=FIGURE_LABEL[i],
-                                markeredgewidth=2, markeredgecolor='k',
-                                markevery=2)
+                                markeredgewidth=1, markeredgecolor='k',
+                                markevery=3)
     plt.axvline(x = 50, color = 'b', label = 'axvline - full height')
     # sometimes you may not want to draw legends.
     if allow_legend == True:
