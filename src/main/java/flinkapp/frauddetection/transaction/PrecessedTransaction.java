@@ -2,7 +2,15 @@ package flinkapp.frauddetection.transaction;
 
 public class PrecessedTransaction {
 
-    static String[] numericFeatureName = {"amt", "gender", "zip", "lat", "long", "city_pop", "unix_time", "merch_lat", "merch_long"};
+    static String[] numericFeatureName = {
+            "amt", "zip", "lat", "long", "city_pop", "unix_time", "merch_lat", "merch_long",
+            "category_food_dining", "category_gas_transport",
+            "category_grocery_net", "category_grocery_pos",
+            "category_health_fitness", "category_home", "category_kids_pets",
+            "category_misc_net", "category_misc_pos", "category_personal_care",
+            "category_shopping_net", "category_shopping_pos", "category_travel",
+            "gender_M", "age", "dist"
+    };
 
     float[] features;
 
@@ -14,18 +22,7 @@ public class PrecessedTransaction {
         features = new float[numericFeatureName.length];
         for (int i = 0; i < numericFeatureName.length; i++) {
             String value = originalTransaction.getFeature(numericFeatureName[i]);
-            if (numericFeatureName[i].equals("gender")) {
-                switch (value) {
-                    case "F":
-                        features[i] = 1;
-                        break;
-                    case "M":
-                        features[i] = 0;
-                        break;
-                }
-            } else {
-                features[i] = Float.parseFloat(value);
-            }
+            features[i] = Float.parseFloat(value);
         }
         if (center == null || scale == null) {
             return;

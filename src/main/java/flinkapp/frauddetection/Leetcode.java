@@ -4,33 +4,38 @@ import java.util.*;
 
 public class Leetcode {
 
-    static class Solution {
-        public List<Integer> largestDivisibleSubset(int[] nums) {
-            Arrays.sort(nums);
-            List<Integer> ans = new LinkedList<>();
-            for(int i=0;i<nums.length;i++){
-                LinkedList<Integer> curr = new LinkedList<>();
-                if(ans.contains(nums[i])){
-                    continue;
-                }
-                curr.add(nums[i]);
-                for(int j=i+1;j<nums.length;j++){
-                    if(nums[j] % curr.getLast()==0){
-                        curr.add(nums[j]);
-                    }
+    private static Leetcode LEETCODE = new Leetcode();
 
-                }
-                if(curr.size() > ans.size()){
-                    ans = curr;
-                }
+    class Solution {
+
+        private int[] dp = new int[10001];
+
+        public int deleteAndEarn(int[] nums) {
+            Map<Integer, Integer> map = new HashMap<>();
+            for(int num: nums){
+                int exist = map.getOrDefault(num, 0);
+                map.put(num, exist + 1);
             }
-            return ans;
+            List<Integer> keys = new ArrayList<>(map.keySet());
+            Collections.sort(keys);
+            int res = 0;
+            for(int k: keys){
+                int kres = Math.max(
+                        map.get(k) * k + map.getOrDefault(k-2, 0),
+                        map.getOrDefault(k-1, 0)
+                );
+                map.put(k, kres);
+                res = kres;
+            }
+            return res;
         }
+
     }
 
+
     public static void main(String[] args) {
-        Solution s = new Solution();
-        int[] in = {5,9,18,54,108,540,90,180,360,720};
-        System.out.println(s.largestDivisibleSubset(in));
+        Solution s = LEETCODE.new Solution();
+        int[] in = {1,1,1,2,4,5,5,5,6};
+        System.out.println(s.deleteAndEarn(in));
     }
 }

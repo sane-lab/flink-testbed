@@ -1,6 +1,7 @@
 package flinkapp.frauddetection;
 
 import flinkapp.frauddetection.function.FileReadingFunction;
+import flinkapp.frauddetection.function.FileWritingFunction;
 import flinkapp.frauddetection.function.PreprocessingFunction;
 import flinkapp.frauddetection.function.ProcessingFunction;
 import flinkapp.frauddetection.rule.DecisionTreeRule;
@@ -36,15 +37,19 @@ public class RuleEvaluatorV2 {
         // get transaction
         final DataStream<Transaction> transactionDataStream = getSourceStream(env);
         // some preprocessing needed
-        final DataStream<PrecessedTransaction> preprocessedStream = transactionDataStream.map(new PreprocessingFunction())
+        final DataStream<PrecessedTransaction> preprocessedStream = transactionDataStream
+                .keyBy((KeySelector<Transaction, String>) Transaction::getCcNum)
+                .map(new PreprocessingFunction())
                 .name("preprocess")
-                .setParallelism(1);
+                .setParallelism(4);
         // start processing data
-        DataStream<FraudOrNot> resultStream = preprocessedStream.process(new ProcessingFunction(new DecisionTreeRule()))
+        DataStream<FraudOrNot> isFraudStream = preprocessedStream
+                .keyBy((KeySelector<PrecessedTransaction, String>) transaction -> transaction.originalTransaction.getCcNum())
+                .process(new ProcessingFunction(new DecisionTreeRule()))
                 .name("dtree")
-                .setParallelism(1);
+                .setParallelism(8);
         // just print here
-        resultStream.map(
+        DataStream<Tuple2<String, Integer>> resultStream = isFraudStream.map(
                 new MapFunction<FraudOrNot, Tuple2<String, Integer>>() {
                     @Override
                     public Tuple2<String, Integer> map(FraudOrNot fraudOrNot) throws Exception {
@@ -67,19 +72,20 @@ public class RuleEvaluatorV2 {
                 .keyBy(0)
                 .timeWindow(Time.seconds(1))
                 .sum(1)
-                .print();
+                .setParallelism(3);
+
+        resultStream
+                .addSink(new FileWritingFunction("/home/flink/workspace/fraud_detector/confusion_matrix.csv"))
+                .setParallelism(1);
         System.out.println(env.getExecutionPlan());
         env.execute();
-        RuleEvaluatorV2 v2 = new RuleEvaluatorV2();
-        byte[] classData = v2.javaCompilerTest();
-        v2.loadClass(classData);
     }
 
     private static DataStream<Transaction> getSourceStream(StreamExecutionEnvironment env) {
         return env.addSource(
                 new FileReadingFunction(
 //                        RuleEvaluatorV2.class.getClassLoader().getResource("fraudTest.csv").getPath()))
-                        "/home/hya/prog/flink-testbed/src/main/resources/fraudTest.csv"))
+                        "/home/flink/workspace/fraud_detector/arrange.csv"))
                 .uid("sentence-source")
                 .setParallelism(1);
     }

@@ -89,14 +89,34 @@ public class FileReadingFunction extends RichParallelSourceFunction<Transaction>
             long start = System.currentTimeMillis();
             attrName = br.readLine().split(",");
             String sCurrentLine;
-            while ((sCurrentLine = br.readLine()) != null) {
 
+            int timeIndex = Transaction.featureToIndex.get("unix_time");
+            long preEventTime = -1;
+            long preSystemTime = System.currentTimeMillis();
+
+            int secondCount = 0;
+            while ((sCurrentLine = br.readLine()) != null) {
                 String msg = sCurrentLine;
-                // todo, some problem here to read csv file
                 List<String> stockArr = Arrays.asList(msg.split(",(?=([^\"]*\"[^\"]*\")*[^\"]*$)"));
+                long currEventTime = Long.parseLong(stockArr.get(timeIndex));
+
+                if (currEventTime != preEventTime) {
+                    if (preEventTime != -1) {
+                        long sleepTime = 1000 * (currEventTime - preEventTime) - (System.currentTimeMillis() - preSystemTime);
+                        if (sleepTime > 0) {
+                            System.out.printf("sleep (ms): %d, after receiving %d records\n", sleepTime, secondCount);
+                            Thread.sleep(sleepTime);
+                            secondCount = 0;
+                        } else {
+                            System.err.println("too many data!");
+                        }
+                    }
+                    preSystemTime = System.currentTimeMillis();
+                    preEventTime = currEventTime;
+                }
                 ctx.collect(new Transaction(stockArr));
                 count++;
-//                Thread.sleep(100);
+                secondCount ++;
             }
         } catch (IOException e) {
             e.printStackTrace();
