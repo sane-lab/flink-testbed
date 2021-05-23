@@ -38,8 +38,11 @@ matplotlib.rcParams['font.family'] = OPT_FONT_NAME
 FIGURE_FOLDER = '/data/results'
 FILE_FOLER = '/data/raw'
 
-timers = ["++++++prepare timer", "++++++synchronize timer", "++++++updateKeyMapping timer", "++++++updateState timer"]
-legend_labels = ['pre', 'sync', 'updkey', 'updstat']
+# timers = ["++++++prepare timer", "++++++synchronize timer", "++++++updateKeyMapping timer", "++++++updateState timer"]
+timers = ["++++++prepare timer", "++++++synchronize timer", "++++++updateKeyMapping timer", "++++++updateState timer", "++++++updateFunction timer"]
+timers_plot = ["++++++prepare timer", "++++++synchronize timer", "++++++update timer"]
+# legend_labels = ['pre', 'sync', 'updkey', 'updstat']
+legend_labels = ['pre', 'sync', 'upd']
 
 def ConvertEpsToPdf(dir_filename):
     os.system("epstopdf --outfile " + dir_filename + ".pdf " + dir_filename + ".eps")
@@ -175,8 +178,8 @@ def averageCompletionTime(lines):
 
 # the average reconfig time
 def breakdown(lines):
-    counter_limit = 6
-    start_from = 2
+    counter_limit = 1
+    start_from = 0
     timers = {}
     counts = {}
     for line in lines:
@@ -185,9 +188,25 @@ def breakdown(lines):
             if line.split(" : ")[0] not in timers:
                 timers[key] = 0
                 counts[key] = 0
+            if (key == "++++++updateKeyMapping timer"
+                or key == "++++++updateState timer"
+                or key == "++++++updateFunction timer") and "++++++update timer" not in timers:
+                timers["++++++update timer"] = 0
+                counts["++++++update timer"] = 0
+            # if counts[key] < counter_limit:
+            #     if counts[key] >= start_from:
+            #         timers[key] += int(line.split(" : ")[1][:-3])
+            #     counts[key] += 1
             if counts[key] < counter_limit:
                 if counts[key] >= start_from:
-                    timers[key] += int(line.split(" : ")[1][:-3])
+                    if key == "++++++updateKeyMapping timer" or key == "++++++updateState timer":
+                        timers["++++++update timer"] += int(line.split(" : ")[1][:-3])
+                        counts["++++++update timer"] += 0.5
+                    if key == "++++++updateFunction timer":
+                        timers["++++++update timer"] += int(line.split(" : ")[1][:-3])
+                        counts["++++++update timer"] += 1
+                    else:
+                        timers[key] += int(line.split(" : ")[1][:-3])
                 counts[key] += 1
 
     stats = {}
@@ -210,6 +229,7 @@ def init():
     per_key_state_size = 1024  # byte
     # system level
     reconfig_interval = 10000
-    reconfig_type = "rescale"
+    reconfig_type = "logic"
     affected_tasks = 2
-    return runtime, per_task_rate, parallelism, key_set, per_key_state_size, reconfig_interval, reconfig_type, affected_tasks
+    repeat_num = 1
+    return runtime, per_task_rate, parallelism, key_set, per_key_state_size, reconfig_interval, reconfig_type, affected_tasks, repeat_num

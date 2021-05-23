@@ -5,11 +5,11 @@ import utilities
 
 
 def ReadFile(runtime, per_task_rate, parallelism, key_set, per_key_state_size, reconfig_interval, reconfig_type,
-             affected_tasks):
-    w, h = 4, 4
+             affected_tasks, repeat_num):
+    w, h = 4, 3
     y = [[0 for x in range(w)] for y in range(h)]
 
-    for repeat in range(1, 6):
+    for repeat in range(1, repeat_num+1):
         i = 0
         for per_key_state_size in [1024, 10240, 20480, 40960]:
             # ${reconfig_type}-${reconfig_interval}-${runtime}-${parallelism}-${per_task_rate}-${key_set}-${per_key_state_size}-${affected_tasks}
@@ -21,29 +21,29 @@ def ReadFile(runtime, per_task_rate, parallelism, key_set, per_key_state_size, r
             file_path = os.path.join(exp, "timer.output")
             try:
                 stats = utilities.breakdown(open(file_path).readlines())
-                for j in range(4):
-                    if utilities.timers[j] not in stats:
+                for j in range(3):
+                    if utilities.timers_plot[j] not in stats:
                         y[j][i] = 0
                     else:
-                        y[j][i] += stats[utilities.timers[j]]
+                        y[j][i] += stats[utilities.timers_plot[j]]
                 i += 1
             except:
                 print("Error while processing the file {}".format(exp))
 
     for j in range(h):
         for i in range(w):
-            y[j][i] = y[j][i] / 5
+            y[j][i] = y[j][i] / repeat_num
 
     return y
 
 
 def draw(val):
-    runtime, per_task_rate, parallelism, key_set, per_key_state_size, reconfig_interval, reconfig_type, affected_tasks = val
+    runtime, per_task_rate, parallelism, key_set, per_key_state_size, reconfig_interval, reconfig_type, affected_tasks, repeat_num = val
 
     # parallelism
     x_values = [1024, 10240, 20480, 40960]
     y_values = ReadFile(runtime, per_task_rate, parallelism, key_set, per_key_state_size, reconfig_interval,
-                        reconfig_type, affected_tasks)
+                        reconfig_type, affected_tasks, repeat_num)
 
     legend_labels = utilities.legend_labels
 

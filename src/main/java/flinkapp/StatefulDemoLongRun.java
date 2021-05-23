@@ -106,7 +106,7 @@ public class StatefulDemoLongRun {
 //            count++;
 //            System.out.println("counted: " + s + " : " + cur);
 
-            System.out.println("ts: " + Long.parseLong(input.f1) + " endToEnd latency: " + (System.currentTimeMillis() - Long.parseLong(input.f1)));
+//            System.out.println("ts: " + Long.parseLong(input.f1) + " endToEnd latency: " + (System.currentTimeMillis() - Long.parseLong(input.f1)));
 
             return String.format("%s %d", s, cur);
         }

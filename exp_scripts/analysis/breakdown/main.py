@@ -23,7 +23,26 @@ if __name__ == '__main__':
             print('Reconfig Type:', opt_value)
             val[6] = str(opt_value)
 
+    val_list = list(val)
+    val_list[-3] = "remap"
+    val = tuple(val_list)
     breakdown_parallelism.draw(val)
     breakdown_state_size.draw(val)
     breakdown_arrival_rate.draw(val)
     breakdown_affected_tasks.draw(val)
+
+    val_list = list(val)
+    val_list[-3] = "rescale"
+    val = tuple(val_list)
+    breakdown_parallelism.draw(val)
+    breakdown_state_size.draw(val)
+    breakdown_arrival_rate.draw(val)
+    breakdown_affected_tasks.draw(val)
+
+    val_list = list(val)
+    val_list[-3] = "logic"
+    val = tuple(val_list)
+    breakdown_parallelism.draw(val)
+    breakdown_state_size.draw(val)
+    breakdown_arrival_rate.draw(val)
+    # breakdown_affected_tasks.draw(val)

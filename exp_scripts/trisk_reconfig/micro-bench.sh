@@ -117,35 +117,40 @@ init() {
 # run the micro benchmarks
 run_micro() {
   init
-  for repeat in 1 2 3 4 5; do # 1 2 3 4 5
-    for reconfig_type in "rescale"; do
+  # for repeat in 1 2 3 4 5; do # 1 2 3 4 5
+  for repeat in 1; do # 1 2 3 4 5
+    for reconfig_type in "logic" "remap" "rescale"; do
       # parallelism
       for parallelism in 5 10 20; do # 5 10 20
         run_one_exp
       done
+      parallelism=20
 
-      parallelism=10
+     # arrival rate
+     for per_task_rate in 1000 2000 4000 6000 7000 8000; do # 1000 2000 4000 6000 8000 10000
+       run_one_exp
+     done
+     per_task_rate=6000
 
-#      # arrival rate
-#      for per_task_rate in 1000 2000 4000 8000; do # 1000 2000 4000 6000 8000 10000
-#        run_one_exp
-#      done
-#
-#      per_task_rate=6000
-#      # number of affected tasks
-#      for affected_tasks in 2 4 6 8 10; do # 2 4 6 8 10
-#        run_one_exp
-#      done
-#
-#      affected_tasks=2
-#      # state size
-#      for per_key_state_size in 1024 10240 20480 40960; do
-#        run_one_exp
-#      done
-#
-#      per_key_state_size=1024
+     # state size
+     for per_key_state_size in 1024 10240 20480 40960; do
+       run_one_exp
+     done
+     per_key_state_size=1024
     done
   done
+
+   # for repeat in 1 2 3 4 5; do # 1 2 3 4 5
+   for repeat in 1; do # 1 2 3 4 5
+     for reconfig_type in "remap" "rescale"; do
+      # number of affected tasks
+      for affected_tasks in 2 4 8 10; do # 2 4 8 10 12 14 16
+        run_one_exp
+      done
+
+      affected_tasks=2
+     done
+   done
 }
 
 ## initialization for nexmark
