@@ -3,15 +3,21 @@ package flinkapp.frauddetection.function;
 import flinkapp.frauddetection.rule.FraudOrNot;
 import flinkapp.frauddetection.rule.Rule;
 import flinkapp.frauddetection.transaction.PrecessedTransaction;
+import flinkapp.frauddetection.transaction.Transaction;
 import org.apache.flink.streaming.api.functions.KeyedProcessFunction;
 import org.apache.flink.util.Collector;
 
-public class ProcessingFunction extends KeyedProcessFunction<String, PrecessedTransaction, FraudOrNot> {
+public class ProcessingFunction extends KeyedProcessFunction<String, Transaction, FraudOrNot> {
 
     private final Rule rule;
 
-    public ProcessingFunction(Rule rule) {
+    float[] center;
+    float[] scale;
+
+    public ProcessingFunction(Rule rule, float[] center, float[] scale) {
         this.rule = rule;
+        this.center = center;
+        this.scale = scale;
     }
 
     /**
@@ -29,8 +35,9 @@ public class ProcessingFunction extends KeyedProcessFunction<String, PrecessedTr
      *                   to fail and may trigger recovery.
      */
     @Override
-    public void processElement(PrecessedTransaction value, Context ctx, Collector<FraudOrNot> out) throws Exception {
-        out.collect(rule.isFraud(value));
+    public void processElement(Transaction value, Context ctx, Collector<FraudOrNot> out) throws Exception {
+        PrecessedTransaction precessedTransaction = new PrecessedTransaction(value, center, scale);
+        out.collect(rule.isFraud(precessedTransaction));
     }
 
 }
