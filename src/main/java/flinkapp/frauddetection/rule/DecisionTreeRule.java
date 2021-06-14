@@ -31,7 +31,6 @@ public class DecisionTreeRule extends Rule{
         if(feature == null){
             return NoRule.getINSTANCE().isFraud(transaction);
         }
-        FraudOrNot fraudOrNot = new FraudOrNot();
         int currNode = 0;
         while (feature[currNode] >= 0){
             float featureValue = transaction.getFeature(feature[currNode]);
@@ -42,8 +41,6 @@ public class DecisionTreeRule extends Rule{
             }
         }
         float[] possibility = value[currNode];
-        fraudOrNot.isFraud = possibility[0] < possibility[1];
-        fraudOrNot.transc = transaction.originalTransaction;
-        return fraudOrNot;
+        return new FraudOrNot(possibility[0] < possibility[1], transaction.originalTransaction);
     }
 }

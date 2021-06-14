@@ -5,7 +5,7 @@ import flinkapp.frauddetection.transaction.Transaction;
 
 import java.io.Serializable;
 
-public class NoRule extends Rule{
+public class NoRule extends Rule {
 
     private static final NoRule INSTANCE = new NoRule();
 
@@ -18,9 +18,6 @@ public class NoRule extends Rule{
 
     @Override
     public FraudOrNot isFraud(PrecessedTransaction transaction) {
-        FraudOrNot res = new FraudOrNot();
-        res.isFraud = true;
-        res.transc = transaction.originalTransaction;
-        return res;
+        return new FraudOrNot(true, transaction.originalTransaction);
     }
 }

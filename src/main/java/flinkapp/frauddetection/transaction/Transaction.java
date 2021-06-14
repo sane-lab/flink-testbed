@@ -48,15 +48,22 @@ public class Transaction implements Serializable {
     private final String ccNum;
     private final String transNum;
 
+    private long createTime;
+
     public Transaction(List<String> stockArr) {
         this.attribute = stockArr;
         ccNum = getFeature("cc_num");
         transNum = getFeature("trans_num");
+        createTime = System.currentTimeMillis();
     }
 
     public Transaction() {
         ccNum = "";
         transNum = "";
+    }
+
+    public long getCreateTime() {
+        return createTime;
     }
 
     public String getCcNum() {

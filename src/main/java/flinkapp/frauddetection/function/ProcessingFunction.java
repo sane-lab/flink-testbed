@@ -6,6 +6,8 @@ import flinkapp.frauddetection.transaction.PrecessedTransaction;
 import org.apache.flink.streaming.api.functions.KeyedProcessFunction;
 import org.apache.flink.util.Collector;
 
+import java.util.Date;
+
 public class ProcessingFunction extends KeyedProcessFunction<String, PrecessedTransaction, FraudOrNot> {
 
     private final Rule rule;
@@ -30,6 +32,21 @@ public class ProcessingFunction extends KeyedProcessFunction<String, PrecessedTr
      */
     @Override
     public void processElement(PrecessedTransaction value, Context ctx, Collector<FraudOrNot> out) throws Exception {
+        long start = new Date().getTime();
+        long shift = start % 10 < 6 ? 2 : 1;
+        // long shift = 2;
+        try {
+            long now = new Date().getTime();
+            StringBuilder sb = new StringBuilder("Just to Increase Communication Overhead:");
+            while (now - start < 2 + shift) {
+                double tmp = (double) now / 97.0;
+                // sb.append(Long.toString(now)).append(' ');
+                // System.out.println(sb.toString());
+                now = new Date().getTime();
+            }
+        } catch (Exception e) {
+            // swallow interruption unless source is canceled
+        }
         out.collect(rule.isFraud(value));
     }
 

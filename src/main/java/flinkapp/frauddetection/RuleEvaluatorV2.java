@@ -15,19 +15,12 @@ import org.apache.flink.streaming.api.CheckpointingMode;
 import org.apache.flink.streaming.api.datastream.DataStream;
 import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
 import org.apache.flink.streaming.api.windowing.time.Time;
-import sun.misc.IOUtils;
-
-import javax.tools.JavaCompiler;
-import javax.tools.StandardJavaFileManager;
-import javax.tools.ToolProvider;
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.lang.reflect.InvocationTargetException;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
 
 public class RuleEvaluatorV2 {
+
+//    private static String expDir = "/home/flink/workspace/fraud_detector/";
+    private static String expDir = "/home/hya/prog/flink-exp/";
+
 
     public static void main(String[] args) throws Exception {
         StreamExecutionEnvironment env = StreamExecutionEnvironment.getExecutionEnvironment();
@@ -47,7 +40,7 @@ public class RuleEvaluatorV2 {
                 .keyBy((KeySelector<PrecessedTransaction, String>) transaction -> transaction.originalTransaction.getCcNum())
                 .process(new ProcessingFunction(new DecisionTreeRule()))
                 .name("dtree")
-                .setParallelism(8);
+                .setParallelism(7);
         // just print here
         DataStream<Tuple2<String, Integer>> resultStream = isFraudStream.map(
                 new MapFunction<FraudOrNot, Tuple2<String, Integer>>() {
@@ -72,10 +65,10 @@ public class RuleEvaluatorV2 {
                 .keyBy(0)
                 .timeWindow(Time.seconds(1))
                 .sum(1)
-                .setParallelism(3);
+                .setParallelism(2);
 
         resultStream
-                .addSink(new FileWritingFunction("/home/flink/workspace/fraud_detector/confusion_matrix.csv"))
+                .addSink(new FileWritingFunction(expDir + "confusion_matrix.csv"))
                 .setParallelism(1);
         System.out.println(env.getExecutionPlan());
         env.execute();
@@ -85,73 +78,9 @@ public class RuleEvaluatorV2 {
         return env.addSource(
                 new FileReadingFunction(
 //                        RuleEvaluatorV2.class.getClassLoader().getResource("fraudTest.csv").getPath()))
-                        "/home/flink/workspace/fraud_detector/arrange.csv"))
+                        expDir + "arrange.csv"))
                 .uid("sentence-source")
                 .setParallelism(1);
     }
 
-    private byte[] javaCompilerTest() throws IOException {
-        String className = getClass().getPackage().getName() + ".Foo";
-        String sourceCode = "package flinkapp.frauddetection;\n" +
-                "\n" +
-                "public class Foo {\n" +
-                "    public static void Hello(){\n" +
-                "        System.out.println(\"hello world!\");\n" +
-                "    }\n" +
-                "}\n";
-
-        JavaCompiler compiler = ToolProvider.getSystemJavaCompiler();
-
-        List<JavaSourceFromString> unitsToCompile = new ArrayList<JavaSourceFromString>() {{
-            add(new JavaSourceFromString(className, sourceCode));
-        }};
-
-        StandardJavaFileManager fileManager = compiler.getStandardFileManager(null, null, null);
-        compiler.getTask(null, fileManager, null, null, null, unitsToCompile)
-                .call();
-        fileManager.close();
-
-        // My question is: is it possible to compile straight to a byte[] array, and avoid the messiness of dealing with File I/O altogether?
-        // see https://stackoverflow.com/questions/2130039/javacompiler-from-jdk-1-6-how-to-write-class-bytes-directly-to-byte-array
-        FileInputStream fis = new FileInputStream("Foo.class");
-
-        return IOUtils.readAllBytes(fis);
-    }
-
-    //Define Custom ClassLoader
-    public static class ByteClassLoader extends ClassLoader {
-        private final HashMap<String, byte[]> byteDataMap = new HashMap<>();
-
-        public ByteClassLoader(ClassLoader parent) {
-            super(parent);
-        }
-
-        public void loadDataInBytes(byte[] byteData, String resourcesName) {
-            byteDataMap.put(resourcesName, byteData);
-        }
-
-        @Override
-        protected Class<?> findClass(String className) throws ClassNotFoundException {
-            if (byteDataMap.isEmpty())
-                throw new ClassNotFoundException("byte data is empty");
-
-            String filePath = className.replaceAll("\\.", "/").concat(".class");
-            byte[] extractedBytes = byteDataMap.get(className);
-            if (extractedBytes == null)
-                throw new ClassNotFoundException("Cannot find " + filePath + " in bytes");
-
-            return defineClass(className, extractedBytes, 0, extractedBytes.length);
-        }
-    }
-
-    //Example Usage
-    public void loadClass(byte[] byteData) throws IOException, ClassNotFoundException, InvocationTargetException, IllegalAccessException {
-
-        ByteClassLoader byteClassLoader = new ByteClassLoader(this.getClass().getClassLoader());
-        //Load bytes into hashmap
-        byteClassLoader.loadDataInBytes(byteData, getClass().getPackage().getName() + ".Foo");
-
-        Class<?> helloWorldClass = byteClassLoader.loadClass(getClass().getPackage().getName() + ".Foo");
-        helloWorldClass.getMethods()[0].invoke(null);
-    }
 }

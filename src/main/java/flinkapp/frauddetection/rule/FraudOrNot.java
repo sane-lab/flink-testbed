@@ -8,6 +8,14 @@ import java.util.Arrays;
 public class FraudOrNot implements Serializable {
     public boolean isFraud;
     public Transaction transc;
+    public final long finishTime;
+
+    public FraudOrNot(boolean isFraud, Transaction transc) {
+        this.isFraud = isFraud;
+        this.transc = transc;
+        finishTime = System.currentTimeMillis();
+        System.out.printf("end to end latency: %d\n", (finishTime - transc.getCreateTime()));
+    }
 
     @Override
     public String toString() {
