@@ -14,7 +14,10 @@ public class FraudOrNot implements Serializable {
         this.isFraud = isFraud;
         this.transc = transc;
         finishTime = System.currentTimeMillis();
-        System.out.printf("end to end latency: %d\n", (finishTime - transc.getCreateTime()));
+    }
+
+    public String recordLatency(){
+        return String.format("ts: %d endToEnd latency: %d\n", finishTime, (finishTime - transc.getCreateTime()));
     }
 
     @Override

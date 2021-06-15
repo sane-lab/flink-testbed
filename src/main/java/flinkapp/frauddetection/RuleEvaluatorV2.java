@@ -1,9 +1,6 @@
 package flinkapp.frauddetection;
 
-import flinkapp.frauddetection.function.FileReadingFunction;
-import flinkapp.frauddetection.function.FileWritingFunction;
-import flinkapp.frauddetection.function.PreprocessingFunction;
-import flinkapp.frauddetection.function.ProcessingFunction;
+import flinkapp.frauddetection.function.*;
 import flinkapp.frauddetection.rule.DecisionTreeRule;
 import flinkapp.frauddetection.rule.FraudOrNot;
 import flinkapp.frauddetection.transaction.PrecessedTransaction;
@@ -16,10 +13,11 @@ import org.apache.flink.streaming.api.datastream.DataStream;
 import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
 import org.apache.flink.streaming.api.windowing.time.Time;
 
+
 public class RuleEvaluatorV2 {
 
 //    private static String expDir = "/home/flink/workspace/fraud_detector/";
-    private static String expDir = "/home/hya/prog/flink-exp/";
+    private static String expDir = "/home/hya/prog/flink-exp";
 
 
     public static void main(String[] args) throws Exception {
@@ -41,6 +39,8 @@ public class RuleEvaluatorV2 {
                 .process(new ProcessingFunction(new DecisionTreeRule()))
                 .name("dtree")
                 .setParallelism(7);
+
+        isFraudStream.addSink(new LatencyWriter(expDir + "/end2end.out"));
         // just print here
         DataStream<Tuple2<String, Integer>> resultStream = isFraudStream.map(
                 new MapFunction<FraudOrNot, Tuple2<String, Integer>>() {
@@ -68,7 +68,7 @@ public class RuleEvaluatorV2 {
                 .setParallelism(2);
 
         resultStream
-                .addSink(new FileWritingFunction(expDir + "confusion_matrix.csv"))
+                .addSink(new FileWritingFunction(expDir + "/confusion_matrix.csv"))
                 .setParallelism(1);
         System.out.println(env.getExecutionPlan());
         env.execute();
@@ -76,9 +76,7 @@ public class RuleEvaluatorV2 {
 
     private static DataStream<Transaction> getSourceStream(StreamExecutionEnvironment env) {
         return env.addSource(
-                new FileReadingFunction(
-//                        RuleEvaluatorV2.class.getClassLoader().getResource("fraudTest.csv").getPath()))
-                        expDir + "arrange.csv"))
+                new FileReadingFunction(expDir + "/arrange.csv"))
                 .uid("sentence-source")
                 .setParallelism(1);
     }
