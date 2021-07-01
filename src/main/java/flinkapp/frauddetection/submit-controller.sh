@@ -14,6 +14,6 @@ SOURCE_CODE_URL=/home/hya/prog/flink-nus/flink-streaming-java/src/main/java/org/
 JSON='{"className"':\"$ClASS_NAME\",'"classFile"':\"$CLASS_FILE\",'"controllerID"':\"$CONTROLLER_ID\"'}'
 echo "request=$JSON\n"
 
-curl --form "fileupload=@$SOURCE_CODE_URL" http://127.0.0.1:8520/jobs/$JOB_ID/smcontroller -F "request=$JSON"
+curl --form "fileupload=@$SOURCE_CODE_URL" http://127.0.0.1:8520/jobs/$JOB_ID/smcontroller -F "request=$JSON" || exit 1
 
 echo "\ncontroller submitted"

@@ -7,10 +7,13 @@ import org.apache.flink.streaming.api.functions.KeyedProcessFunction;
 import org.apache.flink.util.Collector;
 
 import java.util.Date;
+import java.util.Random;
 
 public class ProcessingFunction extends KeyedProcessFunction<String, PrecessedTransaction, FraudOrNot> {
 
     private final Rule rule;
+    private Random r = new Random();
+    private double res;
 
     public ProcessingFunction(Rule rule) {
         this.rule = rule;
@@ -32,21 +35,12 @@ public class ProcessingFunction extends KeyedProcessFunction<String, PrecessedTr
      */
     @Override
     public void processElement(PrecessedTransaction value, Context ctx, Collector<FraudOrNot> out) throws Exception {
-//        long start = new Date().getTime();
-//        long shift = start % 10 < 6 ? 2 : 1;
-//        // long shift = 2;
-//        try {
-//            long now = new Date().getTime();
-//            StringBuilder sb = new StringBuilder("Just to Increase Communication Overhead:");
-//            while (now - start < 2 + shift) {
-//                double tmp = (double) now / 97.0;
-//                // sb.append(Long.toString(now)).append(' ');
-//                // System.out.println(sb.toString());
-//                now = new Date().getTime();
-//            }
-//        } catch (Exception e) {
-//            // swallow interruption unless source is canceled
-//        }
+        double res = 0;
+        for (int i = 0; i < 100000; i++) {
+            double tmp = (double) i / (r.nextInt(100) + 1.0);
+            res += tmp;
+        }
+        this.res = res;
         out.collect(rule.isFraud(value));
     }
 

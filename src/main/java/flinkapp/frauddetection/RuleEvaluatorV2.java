@@ -8,6 +8,7 @@ import flinkapp.frauddetection.transaction.Transaction;
 import org.apache.flink.api.common.functions.MapFunction;
 import org.apache.flink.api.java.functions.KeySelector;
 import org.apache.flink.api.java.tuple.Tuple2;
+import org.apache.flink.api.java.utils.ParameterTool;
 import org.apache.flink.streaming.api.CheckpointingMode;
 import org.apache.flink.streaming.api.datastream.DataStream;
 import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
@@ -21,6 +22,9 @@ public class RuleEvaluatorV2 {
 
 
     public static void main(String[] args) throws Exception {
+        final ParameterTool params = ParameterTool.fromArgs(args);
+        expDir = params.get("expdir", "/home/hya/prog/flink-exp");
+
         StreamExecutionEnvironment env = StreamExecutionEnvironment.getExecutionEnvironment();
 //        env.enableCheckpointing(1000);
         env.getCheckpointConfig().setCheckpointingMode(CheckpointingMode.EXACTLY_ONCE);
@@ -38,7 +42,7 @@ public class RuleEvaluatorV2 {
                 .keyBy((KeySelector<PrecessedTransaction, String>) transaction -> transaction.originalTransaction.getCcNum())
                 .process(new ProcessingFunction(new DecisionTreeRule()))
                 .name("dtree")
-                .setParallelism(7);
+                .setParallelism(8);
 
         isFraudStream.addSink(new LatencyWriter(expDir + "/end2end.out"));
         // just print here
@@ -76,7 +80,7 @@ public class RuleEvaluatorV2 {
 
     private static DataStream<Transaction> getSourceStream(StreamExecutionEnvironment env) {
         return env.addSource(
-                new FileReadingFunction(expDir + "/arrange.csv"))
+                new FileReadingFunction(expDir + "/credit_card_trans.csv"))
                 .uid("sentence-source")
                 .setParallelism(1);
     }
