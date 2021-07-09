@@ -17,8 +17,8 @@ import org.apache.flink.streaming.api.windowing.time.Time;
 
 public class RuleEvaluatorV2 {
 
-//    private static String expDir = "/home/flink/workspace/fraud_detector/";
-    private static String expDir = "/home/hya/prog/flink-exp";
+    private static String expDir = "/home/flink/workspace/fraud_detector/";
+//    private static String expDir = "/home/hya/prog/flink-exp";
 
 
     public static void main(String[] args) throws Exception {
@@ -80,7 +80,7 @@ public class RuleEvaluatorV2 {
 
     private static DataStream<Transaction> getSourceStream(StreamExecutionEnvironment env) {
         return env.addSource(
-                new FileReadingFunction(expDir + "/credit_card_trans.csv"))
+                new FileReadingFunction(expDir + "/arrange.csv"))
                 .uid("sentence-source")
                 .setParallelism(1);
     }

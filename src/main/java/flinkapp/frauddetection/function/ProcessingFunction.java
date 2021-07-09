@@ -6,7 +6,6 @@ import flinkapp.frauddetection.transaction.PrecessedTransaction;
 import org.apache.flink.streaming.api.functions.KeyedProcessFunction;
 import org.apache.flink.util.Collector;
 
-import java.util.Date;
 import java.util.Random;
 
 public class ProcessingFunction extends KeyedProcessFunction<String, PrecessedTransaction, FraudOrNot> {
