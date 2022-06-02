@@ -133,7 +133,9 @@ public class MultiStageLatency {
                     ctx.collect(Tuple3.of(getChar(count), getChar(count), System.currentTimeMillis()));
                     count++;
                 }
-//                Thread.sleep(1000);
+                if (count % 10000 == 0){
+                    Thread.sleep(200);
+                }
             }
         }
 
