@@ -50,6 +50,8 @@ public class MultiStageLatency {
                 .setParallelism(6)
                 .keyBy(0)
                 .map(new DumbMap())
+                .keyBy(0)
+                .sum(1)
                 .print();
 //
 //            .addSink(kafkaProducer);
@@ -94,17 +96,17 @@ public class MultiStageLatency {
         }
     }
 
-    private static class Tokenizer implements MapFunction<Tuple2<String, Long>, Tuple3<Long, Long, Long>> {
+    private static class Tokenizer implements MapFunction<Tuple2<String, Long>, Tuple2<String, Long>> {
         @Override
-        public Tuple3<Long, Long, Long> map(Tuple2<String, Long> input) throws Exception {
-            return new Tuple3<Long, Long, Long>(1L, 1L, System.currentTimeMillis() - input.f1);
+        public Tuple2<String, Long> map(Tuple2<String, Long> input) throws Exception {
+            return new Tuple2<String, Long>(input.f0, System.currentTimeMillis() - input.f1);
         }
     }
 
-    private static class DumbMap implements MapFunction<Tuple3<Long, Long, Long>, Tuple3<Long, Long, Long>> {
+    private static class DumbMap implements MapFunction<Tuple2<String, Long>, Tuple3<Long, Long, Long>> {
         @Override
-        public Tuple3<Long, Long, Long> map(Tuple3<Long, Long, Long> input) throws Exception {
-            return new Tuple3<Long, Long, Long>(input.f0, input.f1, input.f2);
+        public Tuple3<Long, Long, Long> map(Tuple2<String, Long> input) throws Exception {
+            return new Tuple3<Long, Long, Long>(1l, 1l, input.f1);
         }
     }
 
