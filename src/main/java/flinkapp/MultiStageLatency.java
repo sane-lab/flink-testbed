@@ -44,9 +44,10 @@ public class MultiStageLatency {
                 .name("Splitter FlatMap")
                 .uid("flatmap")
                 .setParallelism(8)
-                .keyBy((KeySelector<Tuple2<String, Long>, Object>) s -> s)
+                .keyBy(0)
                 .map(new Tokenizer())
                 .name("Time counter")
+                .setParallelism(6)
                 .keyBy(0)
                 .map(new DumbMap())
                 .print();
