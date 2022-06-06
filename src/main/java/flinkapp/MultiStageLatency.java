@@ -45,8 +45,6 @@ public class MultiStageLatency {
                 .uid("flatmap")
                 .setParallelism(8)
                 .keyBy((KeySelector<Tuple2<String, Long>, Object>) s -> s)
-                .filter(input -> Integer.parseInt(input.f0.split(" ")[1]) >= MAX)
-                .name("filter")
                 .map(new Tokenizer())
                 .name("Time counter")
                 .keyBy(0)
