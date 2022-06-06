@@ -48,10 +48,11 @@ public class MultiStageLatency {
                 .filter(input -> Integer.parseInt(input.f0.split(" ")[1]) >= MAX)
                 .name("filter")
                 .map(new Tokenizer())
+                .name("Time counter")
+                .keyBy(0)
+                .map(new DumbMap())
                 .print();
-//                .keyBy(0)
-//                .sum(1)
-//                .print();
+//
 //            .addSink(kafkaProducer);
         env.execute();
     }
@@ -97,6 +98,13 @@ public class MultiStageLatency {
         @Override
         public Tuple3<Long, Long, Long> map(Tuple2<String, Long> input) throws Exception {
             return new Tuple3<Long, Long, Long>(1L, 1L, System.currentTimeMillis() - input.f1);
+        }
+    }
+
+    private static class DumbMap implements MapFunction<Tuple3<Long, Long, Long>, Tuple3<Long, Long, Long>> {
+        @Override
+        public Tuple3<Long, Long, Long> map(Tuple3<Long, Long, Long> input) throws Exception {
+            return new Tuple3<Long, Long, Long>(input.f0, input.f1, input.f2);
         }
     }
 
