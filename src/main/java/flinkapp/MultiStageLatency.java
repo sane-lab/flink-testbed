@@ -68,11 +68,12 @@ public class MultiStageLatency {
             Long cur = countMap.get(s);
             cur = (cur == null) ? 1 : cur + 1;
             countMap.put(s, cur);
-            long currTime = System.currentTimeMillis();
+            // long currTime = System.currentTimeMillis();
 //            outputStream.write(
 //                    String.format("current time in ms: %d, queueing delay + processing delay in ms: %d\n",
 //                            currTime, currTime - input.f2).getBytes()
 //            );
+            System.out.println("Mapping result: " + String.format("%s %d", s, cur) + " ");
             return new Tuple2<String, Long>(String.format("%s %d", s, cur), t);
         }
 
