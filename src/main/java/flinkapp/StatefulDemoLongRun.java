@@ -43,7 +43,7 @@ public class StatefulDemoLongRun {
 
         StreamExecutionEnvironment env = StreamExecutionEnvironment.getExecutionEnvironment();
 
-//        env.enableCheckpointing(1000);
+        env.enableCheckpointing(1000);
 //        env.getCheckpointConfig().setCheckpointingMode(CheckpointingMode.EXACTLY_ONCE);
 
         // set up the execution environment
@@ -85,8 +85,11 @@ public class StatefulDemoLongRun {
 
         private final int perKeyStateSize;
 
+        private final String payload;
+
         public MyStatefulMap(int perKeyStateSize) {
             this.perKeyStateSize = perKeyStateSize;
+            this.payload = StringUtils.repeat("A", perKeyStateSize);
         }
 
         @Override
@@ -96,7 +99,6 @@ public class StatefulDemoLongRun {
             String s = input.f0;
 
             Long cur = 1L;
-            String payload = StringUtils.repeat("A", perKeyStateSize);
             countMap.put(s, payload);
 
 //            Long cur = countMap.get(s);

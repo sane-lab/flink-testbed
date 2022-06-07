@@ -91,12 +91,14 @@ def draw(confusion_matrix_update, confusion_matrix_raw):
     y_axis = []
     legend_labels = []
 
-    x_axis.append([x-125 for x in confusion_matrix[125:, 0]])
-    y_axis.append(f1score_fraud_update[125:])
+    x_axis.append([x-25 for x in confusion_matrix[125:525, 0]])
+    # x_axis.append(confusion_matrix[125:, 0])
+    y_axis.append(f1score_fraud_update[125:525])
     legend_labels.append("Trisk")
 
-    x_axis.append([x-125 for x in confusion_matrix_raw[125:, 0]])
-    y_axis.append(f1score_fraud_raw[125:])
+    x_axis.append([x-25 for x in confusion_matrix_raw[125:525, 0]])
+    # x_axis.append(confusion_matrix_raw[125:, 0])
+    y_axis.append(f1score_fraud_raw[125:525])
     legend_labels.append("Baseline")
 
     legend = True
@@ -177,7 +179,7 @@ def DrawFigure(xvalues, yvalues, legend_labels, x_label, y_label, filename, allo
                    labelspacing=0.1)
 
     for i in decisions:
-        plt.axvline(x=i-125, color='tab:gray', label='axvline - full height')
+        plt.axvline(x=i-25, color='tab:gray', label='axvline - full height')
 
     plt.xlabel(x_label, fontproperties=LABEL_FP)
     plt.ylabel(y_label, fontproperties=LABEL_FP)

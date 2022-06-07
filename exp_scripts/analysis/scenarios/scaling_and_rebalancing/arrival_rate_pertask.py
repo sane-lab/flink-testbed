@@ -8,6 +8,8 @@ import matplotlib as mpl
 from matplotlib.ticker import PercentFormatter, LogLocator
 from numpy import double
 from numpy.ma import arange
+from scipy.stats import skew
+import pandas as pd
 
 mpl.use('Agg')
 
@@ -68,6 +70,8 @@ def ReadFile():
     x_axis = []
     y_axis = []
 
+    keys = []
+
     start = 0
     end = 500
 
@@ -95,6 +99,8 @@ def ReadFile():
         #     fw.write(line)
         # if len(text_arr) > 10:
         if len(text_arr) > 7:
+            key = text_arr[Sec_Code]
+            keys.append(int(key))
             key = hash(text_arr[Sec_Code]) % task_num
             if key not in ts_count_pertask:
                 ts_count_pertask[key] = 0
@@ -138,28 +144,35 @@ def ReadFile():
     sorted_datafreq = sorted(datafreq.items(), key=lambda x: x[1], reverse=True)
     print(sorted_datafreq)
     legend_labels = []
+
     for i in range(0, task_num):
+        col = []
+        coly = []
         k, v = sorted_datafreq[i]
-        sample_ratio = 1
-        # for x in range(0, len(temp_dict_2[k])):
-        #     if x % sample_ratio == 0:
-        #         col.append(x)
-        #         coly.append(temp_dict_2[k][x])
-        col = temp_dict_2[k][0]
-        coly = temp_dict_2[k][1]
-        # legend_labels.append(k)
-        # x_axis.append(col)
-        # y_axis.append(coly)
+        tmp_col = temp_dict_2[k][0]
+        tmp_coly = temp_dict_2[k][1]
+        sample_ratio = 2
+        for x in range(0, len(tmp_col)):
+            if x % sample_ratio == 0:
+                col.append(tmp_col[x])
+                coly.append(tmp_coly[x])
+        legend_labels.append(k)
+        x_axis.append(col)
+        y_axis.append(coly)
 
     col = []
     coly = []
-    for ts in temp_dict:
-        if start <= ts < end:
-            col.append(ts)
-            coly.append(temp_dict[ts])
-    x_axis.append(col)
-    y_axis.append(coly)
-    legend_labels.append("overall")
+    # for ts in temp_dict:
+    #     if start <= ts < end:
+    #         col.append(ts)
+    #         coly.append(temp_dict[ts])
+    # x_axis.append(col)
+    # y_axis.append(coly)
+    # legend_labels.append("overall")
+
+    print(skew(keys))
+    test = pd.DataFrame(keys)
+    print(test.skew())
 
     return legend_labels, x_axis, y_axis
 
@@ -167,7 +180,7 @@ def ReadFile():
 # draw a line chart
 def DrawFigure(xvalues, yvalues, legend_labels, x_label, y_label, filename, allow_legend):
     # you may change the figure size on your own.
-    fig = plt.figure(figsize=(10, 3))
+    fig = plt.figure(figsize=(10, 5))
     figure = fig.add_subplot(111)
 
     FIGURE_LABEL = legend_labels
@@ -211,4 +224,4 @@ if __name__ == "__main__":
     legend_labels, x_axis, y_axis = ReadFile()
     # legend_labels = ["1", "2", "3", "4", "5"]
     legend = False
-    DrawFigure(x_axis, y_axis, legend_labels, "time(s)", "arrival rate(e/s)", "test", legend)
+    DrawFigure(x_axis, y_axis, legend_labels, "time(s)", "arrival rate(e/s)", "arrival_curve", legend)

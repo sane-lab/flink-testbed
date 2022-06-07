@@ -25,6 +25,8 @@ if __name__ == '__main__':
 
     val_list = list(val)
     val_list[-3] = "remap"
+    val_list[1] = 5000
+    val_list[3] = 10000
     val = tuple(val_list)
     breakdown_parallelism.draw(val)
     breakdown_state_size.draw(val)

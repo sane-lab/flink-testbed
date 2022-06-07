@@ -47,7 +47,7 @@ def draw(val):
 
     legend_labels = utilities.legend_labels
 
-    utilities.DrawFigure(x_values, y_values, legend_labels,
+    utilities.DrawFigureV2(x_values, y_values, legend_labels,
                          'affected_tasks', 'breakdown (ms)',
                          'breakdown_{}_{}'.format(reconfig_type, "affected_tasks"), True)
 

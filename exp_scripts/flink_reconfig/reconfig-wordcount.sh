@@ -88,6 +88,8 @@ function runGenerator() {
 
 # run applications
 function reconfigApp() {
+  echo "update start"
+  start=$SECONDS
   JOB_ID=$(cat nohup.out | sed -n '1p' | rev | cut -d' ' -f 1 | rev)
   JOB_ID=$(echo $JOB_ID |tr -d '\n')
   echo "INFO: running job: $JOB_ID"
@@ -105,6 +107,9 @@ function reconfigApp() {
       -runtime ${runtime} -nTuples ${n_tuples}  \
       -p1 ${source_p} -p2 ${parallelism} \
       -nKeys ${key_set} -perKeySize ${per_key_state_size} &
+
+  duration=$(( SECONDS - start ))
+  echo "++++++ completion time: $duation"
 }
 
 # run one flink demo exp, which is a word count job

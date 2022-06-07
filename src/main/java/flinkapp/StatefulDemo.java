@@ -12,6 +12,7 @@ import org.apache.flink.api.java.tuple.Tuple3;
 import org.apache.flink.configuration.Configuration;
 import org.apache.flink.runtime.state.FunctionInitializationContext;
 import org.apache.flink.runtime.state.FunctionSnapshotContext;
+import org.apache.flink.runtime.state.memory.MemoryStateBackend;
 import org.apache.flink.streaming.api.CheckpointingMode;
 import org.apache.flink.streaming.api.checkpoint.CheckpointedFunction;
 import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
@@ -21,15 +22,17 @@ import java.io.FileOutputStream;
 
 public class StatefulDemo {
 
-    //    private static final int MAX = 1000000 * 10;
-    private static final int MAX = 50000;
-    private static final int NUM_LETTERS = 1000;
+//    private static final int MAX = 1000000 * 10;
+//    private static final int MAX = 1000000;
+    private static final int MAX = 1000;
+    private static final int NUM_LETTERS = 20;
 
     public static void main(String[] args) throws Exception {
         StreamExecutionEnvironment env = StreamExecutionEnvironment.getExecutionEnvironment();
 
-//        env.enableCheckpointing(1000);
-        env.getCheckpointConfig().setCheckpointingMode(CheckpointingMode.EXACTLY_ONCE);
+        env.enableCheckpointing(1000);
+//        env.setStateBackend(new MemoryStateBackend(1073741824));
+//        env.getCheckpointConfig().setCheckpointingMode(CheckpointingMode.EXACTLY_ONCE);
 
 //        FlinkKafkaProducer011<String> kafkaProducer = new FlinkKafkaProducer011<String>(
 //                "localhost:9092", "my-flink-demo-topic0", new SimpleStringSchema());
@@ -42,12 +45,15 @@ public class StatefulDemo {
                 .name("Splitter FlatMap")
                 .uid("flatmap")
                 .setParallelism(2)
-                .keyBy((KeySelector<String, Object>) s -> s)
-                .filter(input -> Integer.parseInt(input.split(" ")[1]) >= MAX)
-                .name("filter")
-                .map(new Tokenizer())
-                .keyBy(0)
-                .sum(1)
+                .disableChaining()
+//                .keyBy((KeySelector<String, Object>) s -> s)
+//                .filter(input -> Integer.parseInt(input.split(" ")[1]) >= MAX)
+//                .name("filter")
+//                .disableChaining()
+//                .map(new Tokenizer())
+//                .keyBy(0)
+//                .sum(1)
+//                .disableChaining()
                 .print();
 //            .addSink(kafkaProducer);
         env.execute();
@@ -127,11 +133,12 @@ public class StatefulDemo {
         @Override
         public void run(SourceContext<Tuple3<String, String, Long>> ctx) throws Exception {
             while (isRunning && count < NUM_LETTERS * MAX) {
-                synchronized (ctx.getCheckpointLock()) {
+//                synchronized (ctx.getCheckpointLock()) {
                     ctx.collect(Tuple3.of(getChar(count), getChar(count), System.currentTimeMillis()));
                     count++;
-                }
-//                Thread.sleep(1000);
+//                }
+                if (count % 1000 == 0) Thread.sleep(1000);
+//                System.out.println(count);
             }
         }
 

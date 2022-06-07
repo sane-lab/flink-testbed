@@ -66,14 +66,12 @@ public class KafkaStatefulDemoLongRun {
 
         DataStreamSource<Tuple2<String, String>> source = env
                 .addSource(inputConsumer)
+//                .uid("sentence-source")
                 .setParallelism(params.getInt("p1", 1));
         DataStream<String> counts = source
                 .keyBy(0)
                 .map(new MyStatefulMap(perKeyStateSize))
                 .disableChaining()
-//            .filter(input -> {
-//                return Integer.parseInt(input.split(" ")[1]) >= MAX;
-//            })
                 .name("Splitter FlatMap")
                 .uid("flatmap")
                 .setParallelism(params.getInt("p2", 3));
@@ -95,8 +93,11 @@ public class KafkaStatefulDemoLongRun {
 
         private final int perKeyStateSize;
 
+        private final String payload;
+
         public MyStatefulMap(int perKeyStateSize) {
             this.perKeyStateSize = perKeyStateSize;
+            this.payload = StringUtils.repeat("A", perKeyStateSize);
         }
 
         @Override
@@ -106,15 +107,8 @@ public class KafkaStatefulDemoLongRun {
             String s = input.f0;
 
             Long cur = 1L;
-            String payload = StringUtils.repeat("A", perKeyStateSize);
             countMap.put(s, payload);
 
-//            Long cur = countMap.get(s);
-//            cur = (cur == null) ? 1 : cur + 1;
-//            countMap.put(s, cur);
-
-//            count++;
-//            System.out.println("counted: " + s + " : " + cur);
 
             System.out.println("ts: " + Long.parseLong(input.f1) + " endToEnd latency: " + (System.currentTimeMillis() - Long.parseLong(input.f1)));
 
