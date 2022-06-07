@@ -1,5 +1,6 @@
 package flinkapp;
 
+import org.apache.commons.math3.random.RandomDataGenerator;
 import org.apache.flink.api.common.functions.FlatMapFunction;
 import org.apache.flink.api.common.functions.MapFunction;
 import org.apache.flink.api.common.functions.RichMapFunction;
@@ -21,11 +22,13 @@ import org.apache.flink.streaming.api.functions.source.SourceFunction;
 import org.apache.flink.util.Collector;
 
 import java.io.FileOutputStream;
+import java.util.Random;
 
 public class MultiStageLatency {
     //    private static final int MAX = 1000000 * 10;
     private static final int MAX = 10000;
     private static final int NUM_LETTERS = 1000;
+    private static final long TOTAL = 10000;
 
     public static void main(String[] args) throws Exception {
         StreamExecutionEnvironment env = StreamExecutionEnvironment.getExecutionEnvironment();
@@ -43,11 +46,11 @@ public class MultiStageLatency {
                 .disableChaining()
                 .name("Splitter FlatMap")
                 .uid("flatmap")
-                .setParallelism(8)
+                .setParallelism(1)
                 .keyBy(0)
                 .map(new Tokenizer())
                 .name("Time counter")
-                .setParallelism(6)
+                .setParallelism(1)
                 .keyBy(0)
                 .map(new DumbMap())
                 .keyBy(0)
@@ -62,6 +65,7 @@ public class MultiStageLatency {
 
         private transient MapState<String, Long> countMap;
         private transient FileOutputStream outputStream;
+        private RandomDataGenerator randomGen = new RandomDataGenerator();
 
         @Override
         public Tuple2<String, Long> map(Tuple3<String, String, Long> input) throws Exception {
@@ -75,8 +79,17 @@ public class MultiStageLatency {
 //                    String.format("current time in ms: %d, queueing delay + processing delay in ms: %d\n",
 //                            currTime, currTime - input.f2).getBytes()
 //            );
-            System.out.println("Mapping result: " + String.format("%s %d", s, cur) + " ");
+            delay(2);
             return new Tuple2<String, Long>(String.format("%s %d", s, cur), t);
+        }
+
+        private void delay(int interval) {
+            Double ranN = randomGen.nextGaussian(interval, 1);
+            ranN = ranN*1000000;
+            long delay = ranN.intValue();
+            if (delay < 0) delay = 6000000;
+            Long start = System.nanoTime();
+            while (System.nanoTime() - start < delay) {}
         }
 
         @Override
@@ -97,9 +110,21 @@ public class MultiStageLatency {
     }
 
     private static class Tokenizer implements MapFunction<Tuple2<String, Long>, Tuple2<String, Long>> {
+        private RandomDataGenerator randomGen = new RandomDataGenerator();
         @Override
         public Tuple2<String, Long> map(Tuple2<String, Long> input) throws Exception {
-            return new Tuple2<String, Long>(input.f0, System.currentTimeMillis() - input.f1);
+            delay(2);
+            long currentTime = System.currentTimeMillis();
+            System.out.println("Arrived time: " + input.f1 + " delay: " + (currentTime - input.f1));
+            return new Tuple2<String, Long>(input.f0, currentTime - input.f1);
+        }
+        private void delay(int interval) {
+            Double ranN = randomGen.nextGaussian(interval, 1);
+            ranN = ranN*1000000;
+            long delay = ranN.intValue();
+            if (delay < 0) delay = 6000000;
+            Long start = System.nanoTime();
+            while (System.nanoTime() - start < delay) {}
         }
     }
 
@@ -138,14 +163,21 @@ public class MultiStageLatency {
 
         @Override
         public void run(SourceContext<Tuple3<String, String, Long>> ctx) throws Exception {
-            while (isRunning && count < NUM_LETTERS * MAX) {
+            while (isRunning && count < TOTAL) {
                 synchronized (ctx.getCheckpointLock()) {
                     ctx.collect(Tuple3.of(getChar(count), getChar(count), System.currentTimeMillis()));
                     count++;
                 }
-                if (count % 10000 == 0){
-                    Thread.sleep(200);
+                // Rectangle curve
+                if (count % 250 == 0){
+                    Thread.sleep(1000);
                 }
+
+                // Singular curve
+                //if (count % 10000 == 0){
+                //    Thread.sleep(200);
+                //}
+
             }
         }
 
