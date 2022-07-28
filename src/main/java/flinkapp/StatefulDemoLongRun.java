@@ -43,7 +43,7 @@ public class StatefulDemoLongRun {
 
         StreamExecutionEnvironment env = StreamExecutionEnvironment.getExecutionEnvironment();
 
-        env.enableCheckpointing(1000);
+        env.enableCheckpointing(params.getInt("interval", 1000));
 //        env.getCheckpointConfig().setCheckpointingMode(CheckpointingMode.EXACTLY_ONCE);
 
         // set up the execution environment
@@ -57,15 +57,18 @@ public class StatefulDemoLongRun {
                 params.getInt("nKeys", 1000)
         )).setParallelism(params.getInt("p1", 1));
         DataStream<String> counts = source
+                .slotSharingGroup("g1")
                 .keyBy(0)
                 .map(new MyStatefulMap(perKeyStateSize))
                 .disableChaining()
+                .slotSharingGroup("g2")
 //            .filter(input -> {
 //                return Integer.parseInt(input.split(" ")[1]) >= MAX;
 //            })
                 .name("Splitter FlatMap")
                 .uid("flatmap")
-                .setParallelism(params.getInt("p2", 3));
+                .setParallelism(params.getInt("p2", 3))
+                .setMaxParallelism(params.getInt("mp2", 128));
 
 //        GenericTypeInfo<Object> objectTypeInfo = new GenericTypeInfo<>(Object.class);
 //        counts.transform("Sink", objectTypeInfo,
@@ -94,7 +97,7 @@ public class StatefulDemoLongRun {
 
         @Override
         public String map(Tuple2<String, String> input) throws Exception {
-            delay();
+//            delay();
 
             String s = input.f0;
 

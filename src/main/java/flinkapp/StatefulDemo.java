@@ -24,13 +24,13 @@ public class StatefulDemo {
 
 //    private static final int MAX = 1000000 * 10;
 //    private static final int MAX = 1000000;
-    private static final int MAX = 1000;
-    private static final int NUM_LETTERS = 20;
+    private static final int MAX = 2000;
+    private static final int NUM_LETTERS = 100;
 
     public static void main(String[] args) throws Exception {
         StreamExecutionEnvironment env = StreamExecutionEnvironment.getExecutionEnvironment();
 
-        env.enableCheckpointing(1000);
+//        env.enableCheckpointing(1000);
 //        env.setStateBackend(new MemoryStateBackend(1073741824));
 //        env.getCheckpointConfig().setCheckpointingMode(CheckpointingMode.EXACTLY_ONCE);
 
@@ -137,7 +137,7 @@ public class StatefulDemo {
                     ctx.collect(Tuple3.of(getChar(count), getChar(count), System.currentTimeMillis()));
                     count++;
 //                }
-                if (count % 1000 == 0) Thread.sleep(1000);
+                if (count % 10000 == 0) Thread.sleep(1000);
 //                System.out.println(count);
             }
         }
