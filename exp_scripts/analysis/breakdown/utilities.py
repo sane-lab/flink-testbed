@@ -39,11 +39,10 @@ matplotlib.rcParams['font.family'] = OPT_FONT_NAME
 FIGURE_FOLDER = '/data/results'
 FILE_FOLER = '/data/raw'
 
-# timers = ["++++++prepare timer", "++++++synchronize timer", "++++++updateKeyMapping timer", "++++++updateState timer"]
-timers = ["++++++prepare timer", "++++++synchronize timer", "++++++updateKeyMapping timer", "++++++updateState timer", "++++++updateFunction timer"]
-timers_plot = ["++++++prepare timer", "++++++synchronize timer", "++++++update timer"]
+timers = ["++++++syncTimer", "++++++replicationTimer", "++++++updateTimer"]
+timers_plot = ["++++++syncTimer", "++++++replicationTimer", "++++++updateTimer"]
 # legend_labels = ['pre', 'sync', 'updkey', 'updstat']
-legend_labels = ['pre', 'sync', 'upd']
+legend_labels = ['sync', 'replicate', 'update']
 
 def ConvertEpsToPdf(dir_filename):
     os.system("epstopdf --outfile " + dir_filename + ".pdf " + dir_filename + ".eps")
@@ -53,7 +52,7 @@ def ConvertEpsToPdf(dir_filename):
 # draw a line chart
 def DrawFigure(x_values, y_values, legend_labels, x_label, y_label, filename, allow_legend):
     # you may change the figure size on your own.
-    fig = plt.figure(figsize=(9, 6))
+    fig = plt.figure(figsize=(11, 6))
     figure = fig.add_subplot(111)
 
     FIGURE_LABEL = legend_labels
@@ -370,28 +369,12 @@ def breakdown(lines):
     counts = {}
     for line in lines:
         key = line.split(" : ")[0]
-        if key[0:6] == "++++++":
+        if key in timers_plot:
             if line.split(" : ")[0] not in timers:
                 timers[key] = 0
                 counts[key] = 0
-            if (key == "++++++updateKeyMapping timer"
-                or key == "++++++updateState timer"
-                or key == "++++++updateFunction timer") and "++++++update timer" not in timers:
-                timers["++++++update timer"] = 0
-                counts["++++++update timer"] = 0
-            # if counts[key] < counter_limit:
-            #     if counts[key] >= start_from:
-            #         timers[key] += int(line.split(" : ")[1][:-3])
-            #     counts[key] += 1
             if counts[key] < counter_limit:
                 if counts[key] >= start_from:
-                    if key == "++++++updateKeyMapping timer" or key == "++++++updateState timer":
-                        timers["++++++update timer"] += int(line.split(" : ")[1][:-3])
-                        counts["++++++update timer"] += 0.5
-                    if key == "++++++updateFunction timer":
-                        timers["++++++update timer"] += int(line.split(" : ")[1][:-3])
-                        counts["++++++update timer"] += 1
-                    else:
                         timers[key] += int(line.split(" : ")[1][:-3])
                 counts[key] += 1
 

@@ -24,7 +24,7 @@ public class StatefulDemo {
 
 //    private static final int MAX = 1000000 * 10;
 //    private static final int MAX = 1000000;
-    private static final int MAX = 2000;
+    private static final int MAX = 1000;
     private static final int NUM_LETTERS = 100;
 
     public static void main(String[] args) throws Exception {

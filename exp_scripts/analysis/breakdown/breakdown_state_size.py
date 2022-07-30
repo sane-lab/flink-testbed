@@ -4,32 +4,26 @@ import sys
 import utilities
 
 
-def ReadFile(runtime, per_task_rate, parallelism, key_set, per_key_state_size, reconfig_interval, reconfig_type,
-             affected_tasks, repeat_num):
-    w, h = 3, 3
+def ReadFile(repeat_num = 1):
+    w, h = 4, 3
     y = [[0 for x in range(w)] for y in range(h)]
 
     for repeat in range(1, repeat_num+1):
         i = 0
-        # for per_key_state_size in [1024, 10240, 20480, 40960]:
-        for per_key_state_size in [1024, 10240, 102400]:
-            # ${reconfig_type}-${reconfig_interval}-${runtime}-${parallelism}-${per_task_rate}-${key_set}-${per_key_state_size}-${affected_tasks}
-            exp = utilities.FILE_FOLER + '/trisk-{}-{}-{}-{}-{}-{}-{}-{}-{}'.format(reconfig_type, reconfig_interval,
-                                                                                    runtime,
-                                                                                    parallelism, per_task_rate, key_set,
-                                                                                    per_key_state_size, affected_tasks,
-                                                                                    repeat)
+        for per_key_state_size in [1024, 4096, 8192, 16384]:
+            exp = utilities.FILE_FOLER + '/spector-{}'.format(per_key_state_size)
             file_path = os.path.join(exp, "timer.output")
-            try:
-                stats = utilities.breakdown(open(file_path).readlines())
-                for j in range(3):
-                    if utilities.timers_plot[j] not in stats:
-                        y[j][i] = 0
-                    else:
-                        y[j][i] += stats[utilities.timers_plot[j]]
-                i += 1
-            except:
-                print("Error while processing the file {}".format(exp))
+            # try:
+            stats = utilities.breakdown(open(file_path).readlines())
+            print(stats)
+            for j in range(3):
+                if utilities.timers_plot[j] not in stats:
+                    y[j][i] = 0
+                else:
+                    y[j][i] += stats[utilities.timers_plot[j]]
+            i += 1
+            # except Exception as e:
+            #     print("Error while processing the file {}: {}".format(exp, e))
 
     for j in range(h):
         for i in range(w):
@@ -39,34 +33,17 @@ def ReadFile(runtime, per_task_rate, parallelism, key_set, per_key_state_size, r
 
 
 def draw(val):
-    runtime, per_task_rate, parallelism, key_set, per_key_state_size, reconfig_interval, reconfig_type, affected_tasks, repeat_num = val
+    # runtime, per_task_rate, parallelism, key_set, per_key_state_size, reconfig_interval, reconfig_type, affected_tasks, repeat_num = val
 
     # parallelism
     # x_values = [1024, 10240, 20480, 40960]
-    x_values = [1024, 10240, 102400]
-    y_values = ReadFile(runtime, per_task_rate, parallelism, key_set, per_key_state_size, reconfig_interval,
-                        reconfig_type, affected_tasks, repeat_num)
+    x_values = [1024 /16, 4096 / 16, 8192 / 16, 16384 / 16]
+    y_values = ReadFile(repeat_num = 1)
 
     legend_labels = utilities.legend_labels
 
-    utilities.DrawFigureV3(x_values, y_values, legend_labels,
-                         'state_size(bytes/key)', 'breakdown (ms)',
-                         'breakdown_{}_{}'.format(reconfig_type, "state"), False)
+    print(y_values)
 
-# if __name__ == '__main__':
-#     runtime, per_task_rate, parallelism, key_set, per_key_state_size, reconfig_interval, reconfig_type, affected_tasks = utilities.init()
-#
-#     try:
-#         opts, args = getopt.getopt(sys.argv[1:], '-t::h', ['reconfig type', 'help'])
-#     except getopt.GetoptError:
-#         print('breakdown_parallelism.py -t type')
-#         sys.exit(2)
-#     for opt, opt_value in opts:
-#         if opt in ('-h', '--help'):
-#             print("[*] Help info")
-#             exit()
-#         elif opt == '-t':
-#             print('Reconfig Type:', opt_value)
-#             reconfig_type = str(opt_value)
-#
-#     draw()
+    utilities.DrawFigure(x_values, y_values, legend_labels,
+                         'State Size(mb)', 'Breakdown (ms)',
+                         'breakdown', True)
