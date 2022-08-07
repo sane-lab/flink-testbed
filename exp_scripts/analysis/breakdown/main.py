@@ -2,10 +2,8 @@ import getopt
 import os
 import sys
 import utilities
-import breakdown_parallelism
 import breakdown_state_size
-import breakdown_arrival_rate
-import breakdown_affected_tasks
+from analysis.breakdown import breakdown_sync_keys, breakdown_replicate_keys
 
 if __name__ == '__main__':
     val = utilities.init()
@@ -29,6 +27,8 @@ if __name__ == '__main__':
     # val_list[3] = 10000
     # val = tuple(val_list)
     # breakdown_parallelism.draw(val)
-    breakdown_state_size.draw(val)
+    # breakdown_state_size.draw(val)
+    # breakdown_sync_keys.draw(val)
+    breakdown_replicate_keys.draw(val)
     # breakdown_arrival_rate.draw(val)
     # breakdown_affected_tasks.draw(val)

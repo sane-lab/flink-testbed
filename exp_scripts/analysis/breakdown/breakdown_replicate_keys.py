@@ -6,12 +6,15 @@ import utilities
 
 def ReadFile(repeat_num = 1):
     w, h = 4, 3
-    y = [[0 for x in range(w)] for y in range(h)]
+    y = [[0 for _ in range(w)] for _ in range(h)]
 
-    for repeat in range(1, repeat_num+1):
+    per_key_state_size = 16384
+
+    for repeat in range(1, repeat_num + 1):
         i = 0
-        for per_key_state_size in [1024, 4096, 8192, 16384]:
-            exp = utilities.FILE_FOLER + '/spector-{}'.format(per_key_state_size)
+        sync_keys = 0
+        for replicate_keys_filter in [1, 2, 4, 8]:
+            exp = utilities.FILE_FOLER + '/spector-{}-{}-{}'.format(per_key_state_size, sync_keys, replicate_keys_filter)
             file_path = os.path.join(exp, "timer.output")
             # try:
             stats = utilities.breakdown(open(file_path).readlines())
@@ -37,7 +40,7 @@ def draw(val):
 
     # parallelism
     # x_values = [1024, 10240, 20480, 40960]
-    x_values = [1024 /16, 4096 / 16, 8192 / 16, 16384 / 16]
+    x_values = ["100%", "50%", "25%", "12.5%"]
     y_values = ReadFile(repeat_num = 1)
 
     legend_labels = utilities.legend_labels
@@ -45,5 +48,5 @@ def draw(val):
     print(y_values)
 
     utilities.DrawFigure(x_values, y_values, legend_labels,
-                         'State Size(mb)', 'Breakdown (ms)',
-                         'breakdown_state_size', True)
+                         'Replicate Keys', 'Breakdown (ms)',
+                         'breakdown_replicate_keys', True)

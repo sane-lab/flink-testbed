@@ -16,7 +16,7 @@ def ReadFile(repeat_num = 1):
             exp = utilities.FILE_FOLER + '/spector-{}-{}'.format(per_key_state_size, sync_keys)
             file_path = os.path.join(exp, "timer.output")
             # try:
-            stats = utilities.breakdown(open(file_path).readlines())
+            stats = utilities.breakdown_total(open(file_path).readlines())
             print(stats)
             for j in range(3):
                 if utilities.timers_plot[j] not in stats:
@@ -47,5 +47,5 @@ def draw(val):
     print(y_values)
 
     utilities.DrawFigure(x_values, y_values, legend_labels,
-                         'State Size(mb)', 'Breakdown (ms)',
-                         'breakdown', True)
+                         'Sync Keys', 'Breakdown (ms)',
+                         'breakdown_sync_keys', True)

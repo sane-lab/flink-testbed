@@ -40,8 +40,9 @@ function configFlink() {
     sed 's/^\(\s*spector.reconfig.affected_keys\s*:\s*\).*/\1'"$affected_keys"'/' ${FLINK_DIR}/conf/flink-conf.yaml > tmp1
     sed 's/^\(\s*spector.reconfig.start\s*:\s*\).*/\1'"$reconfig_start"'/' tmp1 > tmp2
     sed 's/^\(\s*spector.reconfig.sync_keys\s*:\s*\).*/\1'"$sync_keys"'/' tmp2 > tmp3
-    sed 's/^\(\s*spector.reconfig.affected_tasks\s*:\s*\).*/\1'"$affected_tasks"'/' tmp3 > ${FLINK_DIR}/conf/flink-conf.yaml
-    rm tmp1 tmp2 tmp3
+    sed 's/^\(\s*spector.replicate_keys_filter\s*:\s*\).*/\1'"$replicate_keys_filter"'/' tmp3 > tmp4
+    sed 's/^\(\s*spector.reconfig.affected_tasks\s*:\s*\).*/\1'"$affected_tasks"'/' tmp4 > ${FLINK_DIR}/conf/flink-conf.yaml
+    rm tmp1 tmp2 tmp3 tmp4
 }
 
 # run applications
@@ -71,7 +72,7 @@ function analyze() {
 run_one_exp() {
   # compute n_tuples from per task rates and parallelism
   n_tuples=`expr ${runtime} \* ${per_task_rate} \* ${parallelism} \/ ${source_p}`
-  EXP_NAME=spector-${per_key_state_size}-${sync_keys}
+  EXP_NAME=spector-${per_key_state_size}-${sync_keys}-${replicate_keys_filter}
 
   echo "INFO: run exp ${EXP_NAME}"
   configFlink
@@ -109,26 +110,34 @@ init() {
   # system level
   operator="Splitter FlatMap"
   reconfig_start=10000
-  reconfig_interval=10000
+  reconfig_interval=1000
 #  frequency=1 # deprecated
   affected_tasks=2
   affected_keys=32
   sync_keys=0 # disable fluid state migration
+  replicate_keys_filter=1
   repeat=1
 }
 
 # run the micro benchmarks
 run_micro() {
-  init
-  for repeat in 1; do # 1 2 3 4 5
-    for per_key_state_size in 1024 4096 8192 16384; do # state size
-       run_one_exp
-     done
-  done
+#  init
+#  for repeat in 1; do # 1 2 3 4 5
+#    for per_key_state_size in 1024 4096 8192 16384; do # state size
+#       run_one_exp
+#     done
+#  done
+
+#  init
+#  for repeat in 1; do # 1 2 3 4 5
+#    for sync_keys in 1 2 4 8 16 32; do # state size
+#       run_one_exp
+#     done
+#  done
 
   init
   for repeat in 1; do # 1 2 3 4 5
-    for sync_keys in 1 2 4 8 16 32; do # state size
+    for replicate_keys_filter in 1 2 4 8; do # state size
        run_one_exp
      done
   done

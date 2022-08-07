@@ -383,12 +383,37 @@ def breakdown(lines):
         totalTime = timers[key]
         count = counts[key]
         if count > 0:
-            stats[key] = totalTime / (count-start_from)
+            stats[key] = totalTime / (count - start_from)
         else:
             stats[key] = 0
 
     return stats
 
+def breakdown_total(lines):
+    start_from = 0
+    timers = {}
+    counts = {}
+    for line in lines:
+        key = line.split(" : ")[0]
+        if key in timers_plot:
+            if line.split(" : ")[0] not in timers:
+                timers[key] = 0
+                counts[key] = 0
+            if counts[key] >= start_from:
+                    timers[key] += int(line.split(" : ")[1][:-3])
+            counts[key] += 1
+
+    stats = {}
+    for key in timers:
+        totalTime = timers[key]
+        count = counts[key]
+        if count > 0:
+            stats[key] = totalTime
+        else:
+            stats[key] = 0
+
+    print(counts)
+    return stats
 
 def init():
     runtime = 100
