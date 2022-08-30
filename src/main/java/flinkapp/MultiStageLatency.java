@@ -59,7 +59,7 @@ public class MultiStageLatency {
         final long PERIOD = params.getLong("srcPeriod", 20000);
         final long AMPLITUDE = params.getLong("srcAmplitude", 300);
         final long INTERVAL = params.getLong("srcInterval", 50);
-
+        final int initialParallelism = params.getInt("initParallelism", 1);
 
         env.addSource(new MySource(TOTAL, WARMUP_TIME, WARMUP_RATE, RATE, PERIOD, AMPLITUDE, INTERVAL))
                 .keyBy(0)
@@ -67,13 +67,13 @@ public class MultiStageLatency {
                 .disableChaining()
                 .name("Splitter FlatMap")
                 .uid("flatmap")
-                .setParallelism(1)
+                .setParallelism(initialParallelism)
                 .slotSharingGroup("a")
                 .keyBy(0)
                 .map(new Tokenizer())
                 .disableChaining()
                 .name("Time counter")
-                .setParallelism(2)
+                .setParallelism(initialParallelism + 1)
                 .slotSharingGroup("b");
                 //.keyBy(0)
                 //.map(new DumbMap())

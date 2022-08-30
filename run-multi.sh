@@ -1,1 +1,2 @@
-/Users/zhaochen/Workspace/flink-extended/build-target/bin/flink run -c flinkapp.MultiStageLatency target/testbed-1.0-SNAPSHOT.jar
+/home/samza/workspace/flink-related/flink-extended-ete/build-target/bin/flink run -c flinkapp.MultiStageLatency target/testbed-1.0-SNAPSHOT.jar \
+ -srcWarmUp 30000 -srcWarmupRate 1200 -srcRate 1200 -srcPeriod 30000 -srcAmplitude 1000 -srcInterval 50 -totalTuples 150000 -initParallelism 4
