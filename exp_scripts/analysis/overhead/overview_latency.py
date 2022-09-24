@@ -58,9 +58,12 @@ def ReadFile():
     y_axis = []
 
     per_key_state_size = 16384
-    replicate_keys_filter = 1
 
-    for sync_keys in [1, 8, 32]:
+    reading_files = [[0, 0], [0, 8], [1, 0]]
+
+    for pair in reading_files:
+        sync_keys = pair[1]
+        replicate_keys_filter = pair[0]
         col = []
         coly = []
         start_ts = float('inf')
@@ -87,7 +90,7 @@ def ReadFile():
         x_axis.append(col)
         y_axis.append(coly)
 
-    print(x_axis)
+    print(x_axis, y_axis)
 
     return x_axis, y_axis
 
@@ -133,6 +136,6 @@ def DrawFigure(xvalues, yvalues, legend_labels, x_label, y_label, filename, allo
 
 if __name__ == "__main__":
     x_axis, y_axis = ReadFile()
-    legend_labels = ["Sync-1", "Sync-8", "Sync-32"]
+    legend_labels = ["Once", "Fluid", "Replication"]
     legend = True
-    DrawFigure(x_axis, y_axis, legend_labels, "Time(ms)", "Latency(ms)", "latency_curve", legend)
+    DrawFigure(x_axis, y_axis, legend_labels, "Time(ms)", "Latency(ms)", "state_migration_overview", legend)

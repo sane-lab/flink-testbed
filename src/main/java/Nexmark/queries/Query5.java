@@ -71,7 +71,7 @@ public class Query5 {
         DataStream<Bid> bids = env.addSource(new BidSourceFunction(srcRate, srcCycle, srcBase, srcWarmUp*1000))
                 .setParallelism(params.getInt("p-bid-source", 1))
                 .assignTimestampsAndWatermarks(new TimestampAssigner())
-                .setMaxParallelism(params.getInt("mp1", 64));
+                .setMaxParallelism(params.getInt("mp1", 128));
 
         // SELECT B1.auction, count(*) AS num
         // FROM Bid [RANGE 60 MINUTE SLIDE 1 MINUTE] B1

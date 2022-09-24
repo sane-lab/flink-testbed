@@ -51,8 +51,10 @@ public class Query5Keyed {
         // set up the execution environment
         final StreamExecutionEnvironment env = StreamExecutionEnvironment.getExecutionEnvironment();
 
-        env.setStateBackend(new MemoryStateBackend(100000000));
+        env.enableCheckpointing(params.getInt("interval", 1000));
 
+        // set up the execution environment
+        env.setStateBackend(new MemoryStateBackend(1073741824));
 
         env.setStreamTimeCharacteristic(TimeCharacteristic.EventTime);
         env.getConfig().setAutoWatermarkInterval(1000);

@@ -48,10 +48,10 @@ function configFlink() {
 # run applications
 function runApp() {
   echo "INFO: ${FLINK_DIR}/bin/flink run -c ${job} ${JAR} \
-    -runtime ${runtime} -nTuples ${n_tuples}  \-p1 ${source_p} -p2 ${parallelism} \
-    -nKeys ${key_set} -perKeySize ${per_key_state_size} &"
+    -runtime ${runtime} -nTuples ${n_tuples}  \-p1 ${source_p} -p2 ${parallelism} -mp2 ${max_parallelism} \
+    -nKeys ${key_set} -perKeySize ${per_key_state_size} -interval ${checkpoint_interval} &"
   ${FLINK_DIR}/bin/flink run -c ${job} ${JAR} \
-    -runtime ${runtime} -nTuples ${n_tuples}  \-p1 ${source_p} -p2 ${parallelism} \
+    -runtime ${runtime} -nTuples ${n_tuples}  \-p1 ${source_p} -p2 ${parallelism} -mp2 ${max_parallelism} \
     -nKeys ${key_set} -perKeySize ${per_key_state_size} -interval ${checkpoint_interval} &
 }
 
@@ -71,7 +71,6 @@ function analyze() {
 # run one flink demo exp, which is a word count job
 run_one_exp() {
   # compute n_tuples from per task rates and parallelism
-  n_tuples=`expr ${runtime} \* ${per_task_rate} \* ${parallelism} \/ ${source_p}`
   EXP_NAME=spector-${per_key_state_size}-${sync_keys}-${replicate_keys_filter}
 
   echo "INFO: run exp ${EXP_NAME}"
@@ -96,16 +95,17 @@ init() {
   # app level
   JAR="${FLINK_APP_DIR}/target/testbed-1.0-SNAPSHOT.jar"
   job="flinkapp.StatefulDemoLongRun"
-  controller="PerformanceEvaluator"
-  runtime=20
+  runtime=30
   source_p=1
-#  n_tuples=15000000
   per_task_rate=10000
   parallelism=8
-  max_parallelism=128
+  max_parallelism=1024
   key_set=65536
   per_key_state_size=16384 # byte
-  checkpoint_interval=1000000
+  checkpoint_interval=100000 # by default checkpoint in frequent, trigger only when necessary
+
+  n_tuples=`expr ${runtime} \* ${per_task_rate} \* ${parallelism} \/ ${source_p}`
+
 
   # system level
   operator="Splitter FlatMap"
@@ -113,9 +113,9 @@ init() {
   reconfig_interval=1000
 #  frequency=1 # deprecated
   affected_tasks=2
-  affected_keys=32
+  affected_keys=`expr ${max_parallelism} \/ 4`
   sync_keys=0 # disable fluid state migration
-  replicate_keys_filter=1
+  replicate_keys_filter=1 # replicate those key%filter = 0, 1 means replicate all keys
   repeat=1
 }
 
@@ -128,24 +128,46 @@ run_micro() {
 #     done
 #  done
 
-#  init
-#  for repeat in 1; do # 1 2 3 4 5
-#    for sync_keys in 1 2 4 8 16 32; do # state size
-#       run_one_exp
-#     done
-#  done
-
+  # Fluid State Migration Batching keys
   init
   for repeat in 1; do # 1 2 3 4 5
-    for replicate_keys_filter in 1 2 4 8; do # state size
+    for sync_keys in 1 2 4 8 16 32; do # state size
        run_one_exp
      done
   done
+
+#  # State Replication Evaluation
+#  init
+#  for repeat in 1; do # 1 2 3 4 5
+#    for replicate_keys_filter in 1 2 4 8 0; do # state size 1 2 4 8 0
+#       run_one_exp
+#     done
+#  done
+}
+
+
+run_overview() {
+  # Migrate at once
+  init
+  replicate_keys_filter=0
+  sync_keys=0
+  run_one_exp
+  # Fluid Migration
+  init
+  replicate_keys_filter=0
+  sync_keys=8
+  run_one_exp
+  # Proactive State replication
+  init
+  replicate_keys_filter=1
+  sync_keys=0
+  run_one_exp
 }
 
 
 run_micro
+#run_overview
 
 # dump the statistics when all exp are finished
 # in the future, we will draw the intuitive figures
-python ./analysis/performance_analyzer.py
+#python ./analysis/performance_analyzer.py

@@ -11,6 +11,8 @@ from matplotlib.ticker import LinearLocator, LogLocator, MaxNLocator
 from numpy import double
 from matplotlib import gridspec
 
+matplotlib.use('TkAgg')
+
 OPT_FONT_NAME = 'Helvetica'
 TICK_FONT_SIZE = 20
 LABEL_FONT_SIZE = 24
@@ -52,6 +54,8 @@ def ConvertEpsToPdf(dir_filename):
 # draw a line chart
 def DrawFigure(x_values, y_values, legend_labels, x_label, y_label, filename, allow_legend):
     # you may change the figure size on your own.
+    plt.gcf().canvas.get_renderer()
+
     fig = plt.figure(figsize=(11, 6))
     figure = fig.add_subplot(111)
 
