@@ -57,7 +57,7 @@ def ReadFile():
     x_axis = []
     y_axis = []
 
-    per_key_state_size = 16384
+    per_key_state_size = 2048
     replicate_keys_filter = 1
 
     for sync_keys in [1, 8, 32]:

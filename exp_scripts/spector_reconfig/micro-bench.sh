@@ -98,10 +98,10 @@ init() {
   runtime=30
   source_p=1
   per_task_rate=10000
-  parallelism=8
+  parallelism=2
   max_parallelism=1024
   key_set=65536
-  per_key_state_size=16384 # byte
+  per_key_state_size=4096 # byte
   checkpoint_interval=100000 # by default checkpoint in frequent, trigger only when necessary
 
   n_tuples=`expr ${runtime} \* ${per_task_rate} \* ${parallelism} \/ ${source_p}`
