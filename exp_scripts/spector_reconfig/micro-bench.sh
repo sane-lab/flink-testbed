@@ -97,10 +97,10 @@ init() {
   job="flinkapp.StatefulDemoLongRun"
   runtime=30
   source_p=1
-  per_task_rate=10000
+  per_task_rate=9000
   parallelism=2
-  max_parallelism=1024
-  key_set=65536
+  max_parallelism=512
+  key_set=131072
   per_key_state_size=4096 # byte
   checkpoint_interval=100000 # by default checkpoint in frequent, trigger only when necessary
 
@@ -113,14 +113,15 @@ init() {
   reconfig_interval=1000
 #  frequency=1 # deprecated
   affected_tasks=2
-  affected_keys=`expr ${max_parallelism} \/ 4`
+  affected_keys=`expr ${max_parallelism} \/ 4` # `expr ${max_parallelism} \/ 4`
   sync_keys=0 # disable fluid state migration
-  replicate_keys_filter=1 # replicate those key%filter = 0, 1 means replicate all keys
+  replicate_keys_filter=0 # replicate those key%filter = 0, 1 means replicate all keys
   repeat=1
 }
 
 # run the micro benchmarks
 run_micro() {
+#  # State size
 #  init
 #  for repeat in 1; do # 1 2 3 4 5
 #    for per_key_state_size in 1024 4096 8192 16384; do # state size
@@ -131,7 +132,7 @@ run_micro() {
   # Fluid State Migration Batching keys
   init
   for repeat in 1; do # 1 2 3 4 5
-    for sync_keys in 1 2 4 8 16 32; do # state size
+    for sync_keys in 1 4 8 16 32; do # state size 1 4 8 16 32
        run_one_exp
      done
   done
@@ -140,6 +141,14 @@ run_micro() {
 #  init
 #  for repeat in 1; do # 1 2 3 4 5
 #    for replicate_keys_filter in 1 2 4 8 0; do # state size 1 2 4 8 0
+#       run_one_exp
+#     done
+#  done
+
+  # Fluid State Migration Batching keys
+#  init
+#  for repeat in 1; do # 1 2 3 4 5
+#    for per_task_rate in 10000 12000 14000 16000; do # state size 1 4 8 16 32
 #       run_one_exp
 #     done
 #  done

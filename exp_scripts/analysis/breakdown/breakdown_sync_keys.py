@@ -8,8 +8,8 @@ def ReadFile(repeat_num = 1):
     w, h = 6, 3
     y = [[0 for x in range(w)] for y in range(h)]
 
-    per_key_state_size = 2048
-    replicate_keys_filter = 1
+    per_key_state_size = 4096
+    replicate_keys_filter = 0
 
     for repeat in range(1, repeat_num + 1):
         i = 0

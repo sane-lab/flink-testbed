@@ -97,7 +97,7 @@ public class StatefulDemoLongRun {
 
         @Override
         public String map(Tuple2<String, String> input) throws Exception {
-//            delay();
+            delay();
 
             String s = input.f0;
 

@@ -8,7 +8,7 @@ def ReadFile(repeat_num = 1):
     w, h = 5, 3
     y = [[0 for _ in range(w)] for _ in range(h)]
 
-    per_key_state_size = 16384
+    per_key_state_size = 1024
 
     for repeat in range(1, repeat_num + 1):
         i = 0

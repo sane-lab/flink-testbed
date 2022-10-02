@@ -58,17 +58,15 @@ def ReadFile():
     y_axis = []
 
     per_key_state_size = 4096
+    replicate_keys_filter = 0
+    sync_keys = 0
 
-    reading_files = [[0, 0], [0, 8], [1, 0]]
-
-    for pair in reading_files:
-        sync_keys = pair[1]
-        replicate_keys_filter = pair[0]
+    for per_task_rate in [10000, 12000, 14000, 16000]:
         col = []
         coly = []
         start_ts = float('inf')
         temp_dict = {}
-        for tid in range(0, 2):
+        for tid in range(0, 1):
             f = open(utilities.FILE_FOLER + "/spector-{}-{}-{}/Splitter FlatMap-{}.output"
                      .format(per_key_state_size, sync_keys, replicate_keys_filter, tid))
             read = f.readlines()
@@ -83,14 +81,16 @@ def ReadFile():
                     temp_dict[ts].append(latency)
 
         for ts in temp_dict:
-            coly.append(sum(temp_dict[ts]) / len(temp_dict[ts]))
+            # coly.append(sum(temp_dict[ts]) / len(temp_dict[ts]))
+            temp_dict[ts].sort()
+            coly.append(temp_dict[ts][ceil((len(temp_dict[ts]))*0.95)])
             col.append(ts - start_ts)
 
 
         x_axis.append(col)
         y_axis.append(coly)
 
-    print(x_axis, y_axis)
+    print(x_axis)
 
     return x_axis, y_axis
 
@@ -136,6 +136,6 @@ def DrawFigure(xvalues, yvalues, legend_labels, x_label, y_label, filename, allo
 
 if __name__ == "__main__":
     x_axis, y_axis = ReadFile()
-    legend_labels = ["Once", "Fluid", "Replication"]
+    legend_labels = ["10k", "12k", "14k", "16k"]
     legend = True
-    DrawFigure(x_axis, y_axis, legend_labels, "Time(ms)", "Latency(ms)", "state_migration_overview", legend)
+    DrawFigure(x_axis, y_axis, legend_labels, "Time(ms)", "Latency(ms)", "latency_curve", legend)
