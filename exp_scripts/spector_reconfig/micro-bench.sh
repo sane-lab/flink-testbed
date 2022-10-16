@@ -95,14 +95,14 @@ init() {
   # app level
   JAR="${FLINK_APP_DIR}/target/testbed-1.0-SNAPSHOT.jar"
   job="flinkapp.StatefulDemoLongRun"
-  runtime=30
+  runtime=100
   source_p=1
-  per_task_rate=9000
+  per_task_rate=800
   parallelism=2
   max_parallelism=512
   key_set=131072
   per_key_state_size=4096 # byte
-  checkpoint_interval=100000 # by default checkpoint in frequent, trigger only when necessary
+  checkpoint_interval=3000 # by default checkpoint in frequent, trigger only when necessary
 
   n_tuples=`expr ${runtime} \* ${per_task_rate} \* ${parallelism} \/ ${source_p}`
 
@@ -129,21 +129,21 @@ run_micro() {
 #     done
 #  done
 
-  # Fluid State Migration Batching keys
-  init
-  for repeat in 1; do # 1 2 3 4 5
-    for sync_keys in 1 4 8 16 32; do # state size 1 4 8 16 32
-       run_one_exp
-     done
-  done
-
-#  # State Replication Evaluation
+#  # Fluid State Migration Batching keys
 #  init
 #  for repeat in 1; do # 1 2 3 4 5
-#    for replicate_keys_filter in 1 2 4 8 0; do # state size 1 2 4 8 0
+#    for sync_keys in 1 4 8 16 32; do # state size 1 4 8 16 32
 #       run_one_exp
 #     done
 #  done
+
+  # State Replication Evaluation
+  init
+  for repeat in 1; do # 1 2 3 4 5
+    for replicate_keys_filter in 1 2 4 8 0; do # state size 1 2 4 8 0
+       run_one_exp
+     done
+  done
 
   # Fluid State Migration Batching keys
 #  init
