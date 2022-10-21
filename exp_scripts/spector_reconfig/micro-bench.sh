@@ -49,12 +49,11 @@ function configFlink() {
 function runApp() {
   echo "INFO: ${FLINK_DIR}/bin/flink run -c ${job} ${JAR} \
     -runtime ${runtime} -nTuples ${n_tuples}  \-p1 ${source_p} -p2 ${parallelism} -mp2 ${max_parallelism} \
-    -nKeys ${key_set} -perKeySize ${per_key_state_size} -interval ${checkpoint_interval} &"
+    -nKeys ${key_set} -perKeySize ${per_key_state_size} -interval ${checkpoint_interval} -stateAccessRatio ${state_access_ratio} &"
   ${FLINK_DIR}/bin/flink run -c ${job} ${JAR} \
     -runtime ${runtime} -nTuples ${n_tuples}  \-p1 ${source_p} -p2 ${parallelism} -mp2 ${max_parallelism} \
-    -nKeys ${key_set} -perKeySize ${per_key_state_size} -interval ${checkpoint_interval} &
+    -nKeys ${key_set} -perKeySize ${per_key_state_size} -interval ${checkpoint_interval} -stateAccessRatio ${state_access_ratio} &
 }
-
 
 # draw figures
 function analyze() {
@@ -94,26 +93,27 @@ run_one_exp() {
 init() {
   # app level
   JAR="${FLINK_APP_DIR}/target/testbed-1.0-SNAPSHOT.jar"
-  job="flinkapp.StatefulDemoLongRun"
+  job="flinkapp.StatefulDemoLongRunStateControlled"
   runtime=100
   source_p=1
-  per_task_rate=800
+  per_task_rate=5000
   parallelism=2
   max_parallelism=512
-  key_set=131072
-  per_key_state_size=4096 # byte
-  checkpoint_interval=3000 # by default checkpoint in frequent, trigger only when necessary
+  key_set=16384
+  per_key_state_size=32768 # byte
+  checkpoint_interval=1000 # by default checkpoint in frequent, trigger only when necessary
+  state_access_ratio=5
 
   n_tuples=`expr ${runtime} \* ${per_task_rate} \* ${parallelism} \/ ${source_p}`
 
 
   # system level
   operator="Splitter FlatMap"
-  reconfig_start=10000
-  reconfig_interval=1000
+  reconfig_start=50000
+  reconfig_interval=10000000
 #  frequency=1 # deprecated
   affected_tasks=2
-  affected_keys=`expr ${max_parallelism} \/ 4` # `expr ${max_parallelism} \/ 4`
+  affected_keys=`expr ${max_parallelism} \/ 2` # `expr ${max_parallelism} \/ 4`
   sync_keys=0 # disable fluid state migration
   replicate_keys_filter=0 # replicate those key%filter = 0, 1 means replicate all keys
   repeat=1
@@ -154,6 +154,15 @@ run_micro() {
 #  done
 }
 
+run_test() {
+  init
+  for repeat in 1; do # 1 2 3 4 5
+    for per_key_state_size in 4096 8192 16384 32768; do # state size 1 2 4 8 0
+       run_one_exp
+     done
+  done
+}
+
 
 run_overview() {
   # Migrate at once
@@ -164,6 +173,7 @@ run_overview() {
   # Fluid Migration
   init
   replicate_keys_filter=0
+  checkpoint_interval=10000000
   sync_keys=8
   run_one_exp
   # Proactive State replication
@@ -174,8 +184,9 @@ run_overview() {
 }
 
 
-run_micro
-#run_overview
+#run_micro
+run_overview
+#run_test
 
 # dump the statistics when all exp are finished
 # in the future, we will draw the intuitive figures
