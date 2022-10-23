@@ -59,7 +59,7 @@ def ReadFile():
 
     per_key_state_size = 32768
 
-    reading_files = [[0, 0], [0, 8], [1, 0]]
+    reading_files = [[0, 0], [1, 0]]
 
     for pair in reading_files:
         sync_keys = pair[1]
@@ -128,7 +128,7 @@ def DrawFigure(xvalues, yvalues, legend_labels, x_label, y_label, filename, allo
                    handletextpad=0.1,
                    labelspacing=0.1)
 
-    plt.yscale('log')
+    # plt.yscale('log')
     plt.xlabel(x_label, fontproperties=LABEL_FP)
     plt.ylabel(y_label, fontproperties=LABEL_FP)
 
@@ -136,6 +136,6 @@ def DrawFigure(xvalues, yvalues, legend_labels, x_label, y_label, filename, allo
 
 if __name__ == "__main__":
     x_axis, y_axis = ReadFile()
-    legend_labels = ["Once", "Fluid", "Replication"]
+    legend_labels = ["Non-Replication", "Replication"]
     legend = True
-    DrawFigure(x_axis, y_axis, legend_labels, "Time(ms)", "Latency(ms)", "state_migration_overview", legend)
+    DrawFigure(x_axis, y_axis, legend_labels, "Time(ms)", "Latency(ms)", "state_migration_replication_overhead", legend)

@@ -102,7 +102,7 @@ init() {
   key_set=16384
   per_key_state_size=32768 # byte
   checkpoint_interval=1000 # by default checkpoint in frequent, trigger only when necessary
-  state_access_ratio=5
+  state_access_ratio=2
 
   n_tuples=`expr ${runtime} \* ${per_task_rate} \* ${parallelism} \/ ${source_p}`
 
@@ -163,18 +163,35 @@ run_test() {
   done
 }
 
+run_replication_overhead() {
+  # Migrate at once
+  init
+  replicate_keys_filter=0
+  sync_keys=0
+  reconfig_start=10000000
+  run_one_exp
+
+  # Proactive State replication
+  init
+  replicate_keys_filter=1
+  sync_keys=0
+  reconfig_start=10000000
+  run_one_exp
+}
+
 
 run_overview() {
   # Migrate at once
   init
   replicate_keys_filter=0
   sync_keys=0
+  checkpoint_interval=10000000
   run_one_exp
   # Fluid Migration
   init
   replicate_keys_filter=0
-  checkpoint_interval=10000000
   sync_keys=8
+  checkpoint_interval=10000000
   run_one_exp
   # Proactive State replication
   init
@@ -187,6 +204,7 @@ run_overview() {
 #run_micro
 run_overview
 #run_test
+#run_replication_overhead
 
 # dump the statistics when all exp are finished
 # in the future, we will draw the intuitive figures
