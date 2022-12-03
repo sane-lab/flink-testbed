@@ -88,8 +88,8 @@ def ReadFile():
             col.append(ts - start_ts)
 
 
-        x_axis.append(col)
-        y_axis.append(coly)
+        x_axis.append(col[40:70])
+        y_axis.append(coly[40:70])
 
     print(x_axis, y_axis)
 
@@ -219,4 +219,4 @@ if __name__ == "__main__":
     x_axis, y_axis = ReadFile()
     legend_labels = ["Once", "Fluid", "Replication"]
     legend = True
-    DrawFigure2(x_axis, y_axis, legend_labels, "Time (s)", "Latency (ms)", "state_migration_overview", legend)
+    DrawFigure(x_axis, y_axis, legend_labels, "Time (s)", "Latency (ms)", "state_migration_overview", legend)
