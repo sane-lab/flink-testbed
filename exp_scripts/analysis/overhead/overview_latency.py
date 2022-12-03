@@ -5,6 +5,7 @@ from math import ceil
 
 import matplotlib
 import matplotlib as mpl
+from matplotlib import gridspec
 from matplotlib.ticker import PercentFormatter, LogLocator
 from numpy import double
 from numpy.ma import arange
@@ -134,8 +135,88 @@ def DrawFigure(xvalues, yvalues, legend_labels, x_label, y_label, filename, allo
 
     plt.savefig(FIGURE_FOLDER + "/" + filename + ".pdf", bbox_inches='tight')
 
+
+# draw a line chart
+def DrawFigure2(xvalues, yvalues, legend_labels, x_label, y_label, filename, allow_legend):
+    # you may change the figure size on your own.
+    fig = plt.figure(figsize=(10, 5))
+    # figure = fig.add_subplot(111)
+
+    gs = gridspec.GridSpec(2, 1, height_ratios=[1, 1])
+    ax1 = plt.subplot(gs[0])
+    ax2 = plt.subplot(gs[1])
+
+    FIGURE_LABEL = legend_labels
+
+    x_values = xvalues
+    y_values = yvalues
+    lines = [None] * (len(FIGURE_LABEL))
+    for i in range(len(y_values)):
+        lines[i], = ax1.plot(x_values[i], y_values[i], color=LINE_COLORS[i], \
+                               linewidth=LINE_WIDTH, marker=MARKERS[i], \
+                               markersize=MARKER_SIZE, label=FIGURE_LABEL[i],
+                                markeredgewidth=3, markeredgecolor='k',
+                                markevery=1
+                               )
+        ax2.plot(x_values[i], y_values[i], color=LINE_COLORS[i], \
+                               linewidth=LINE_WIDTH, marker=MARKERS[i], \
+                               markersize=MARKER_SIZE, label=FIGURE_LABEL[i],
+                                markeredgewidth=3, markeredgecolor='k',
+                                markevery=1
+                               )
+
+    # sometimes you may not want to draw legends.
+    if allow_legend == True:
+        ax1.legend(lines,
+                   FIGURE_LABEL,
+                   prop=LEGEND_FP,
+                   loc='upper center',
+                   ncol=3,
+                   #                     mode='expand',
+                   bbox_to_anchor=(0.5, 1.5), shadow=False,
+                   columnspacing=0.1,
+                   frameon=True, borderaxespad=0.0, handlelength=1.5,
+                   handletextpad=0.1,
+                   labelspacing=0.1)
+
+
+    # zoom-in / limit the view to different portions of the data
+    ax1.set_ylim(300, 3000)  # most of the data
+    ax2.set_ylim(0, 100)  # waiting only
+
+    # hide the spines between ax and ax2
+    ax1.spines['bottom'].set_visible(False)
+    ax2.spines['top'].set_visible(False)
+    ax1.xaxis.tick_top()
+    ax1.tick_params(labeltop=False)  # don't put tick labels at the top
+    ax2.xaxis.tick_bottom()
+    # This looks pretty good, and was fairly painless, but you can get that
+    # cut-out diagonal lines look with just a bit more work. The important
+    # thing to know here is that in axes coordinates, which are always
+    # between 0-1, spine endpoints are at these locations (0,0), (0,1),
+    # (1,0), and (1,1).  Thus, we just need to put the diagonals in the
+    # appropriate corners of each of our axes, and so long as we use the
+    # right transform and disable clipping.
+
+    d = .015  # how big to make the diagonal lines in axes coordinates
+    # arguments to pass to plot, just so we don't keep repeating them
+    kwargs = dict(transform=ax1.transAxes, color='k', clip_on=False)
+    ax1.plot((-d, +d), (-d, +d), **kwargs)  # top-left diagonal
+    ax1.plot((1 - d, 1 + d), (-d, +d), **kwargs)  # top-right diagonal
+
+    kwargs.update(transform=ax2.transAxes)  # switch to the bottom axes
+    ax2.plot((-d, +d), (1 - d, 1 + d), **kwargs)  # bottom-left diagonal
+    ax2.plot((1 - d, 1 + d), (1 - d, 1 + d), **kwargs)  # bottom-right diagonal
+
+
+    # ax1.yscale('log')
+    fig.text(0.5, -0.025, x_label, ha='center', fontproperties=LABEL_FP)
+    fig.text(0.01, 0.5, y_label, va='center', rotation='vertical', fontproperties=LABEL_FP)
+
+    plt.savefig(FIGURE_FOLDER + "/" + filename + ".pdf", bbox_inches='tight')
+
 if __name__ == "__main__":
     x_axis, y_axis = ReadFile()
     legend_labels = ["Once", "Fluid", "Replication"]
     legend = True
-    DrawFigure(x_axis, y_axis, legend_labels, "Time(ms)", "Latency(ms)", "state_migration_overview", legend)
+    DrawFigure2(x_axis, y_axis, legend_labels, "Time (s)", "Latency (ms)", "state_migration_overview", legend)
