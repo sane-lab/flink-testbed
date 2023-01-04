@@ -49,11 +49,11 @@ function configFlink() {
 # run applications
 function runApp() {
   echo "INFO: ${FLINK_DIR}/bin/flink run -c ${job} ${JAR} \
-    -runtime ${runtime} -nTuples ${n_tuples}  \-p1 ${source_p} -p2 ${parallelism} -mp2 ${max_parallelism} \
-    -nKeys ${key_set} -perKeySize ${per_key_state_size} -interval ${checkpoint_interval} -stateAccessRatio ${state_access_ratio} &"
+    -runtime ${runtime} \-p1 ${source_p} -p2 ${parallelism} -mp2 ${max_parallelism} \
+    -interval ${checkpoint_interval} &"
   ${FLINK_DIR}/bin/flink run -c ${job} ${JAR} \
-    -runtime ${runtime} -nTuples ${n_tuples}  \-p1 ${source_p} -p2 ${parallelism} -mp2 ${max_parallelism} \
-    -nKeys ${key_set} -perKeySize ${per_key_state_size} -interval ${checkpoint_interval} -stateAccessRatio ${state_access_ratio} &
+    -runtime ${runtime} \-p1 ${source_p} -p2 ${parallelism} -mp2 ${max_parallelism} \
+    -interval ${checkpoint_interval} &
 }
 
 # draw figures
@@ -71,7 +71,7 @@ function analyze() {
 # run one flink demo exp, which is a word count job
 run_one_exp() {
   # compute n_tuples from per task rates and parallelism
-  EXP_NAME=spector-${per_key_state_size}-${sync_keys}-${replicate_keys_filter}
+  EXP_NAME=spector-nexmark-${sync_keys}-${replicate_keys_filter}
 
   echo "INFO: run exp ${EXP_NAME}"
   configFlink
@@ -97,19 +97,12 @@ init() {
   job="flinkapp.StatefulDemoLongRunStateControlled"
   runtime=100
   source_p=1
-  per_task_rate=5000
   parallelism=2
   max_parallelism=512
-  key_set=16384
-  per_key_state_size=32768 # byte
   checkpoint_interval=1000 # by default checkpoint in frequent, trigger only when necessary
-  state_access_ratio=2
-
-  n_tuples=`expr ${runtime} \* ${per_task_rate} \* ${parallelism} \/ ${source_p}`
-
 
   # system level
-  operator="Splitter FlatMap"
+  operator="map"
   reconfig_start=50000
   reconfig_interval=10000000
 #  frequency=1 # deprecated
@@ -120,93 +113,33 @@ init() {
   repeat=1
 }
 
-# run the micro benchmarks
-run_micro() {
-#  # State size
-#  init
-#  for repeat in 1; do # 1 2 3 4 5
-#    for per_key_state_size in 1024 4096 8192 16384; do # state size
-#       run_one_exp
-#     done
-#  done
 
-#  # Fluid State Migration Batching keys
-#  init
-#  for repeat in 1; do # 1 2 3 4 5
-#    for sync_keys in 1 4 8 16 32; do # state size 1 4 8 16 32
-#       run_one_exp
-#     done
-#  done
-
-  # State Replication Evaluation
+run_query1() {
   init
-  for repeat in 1; do # 1 2 3 4 5
-    for replicate_keys_filter in 1 2 4 8 0; do # state size 1 2 4 8 0
-       run_one_exp
-     done
-  done
-
-  # Fluid State Migration Batching keys
-#  init
-#  for repeat in 1; do # 1 2 3 4 5
-#    for per_task_rate in 10000 12000 14000 16000; do # state size 1 4 8 16 32
-#       run_one_exp
-#     done
-#  done
-}
-
-run_test() {
-  init
-  for repeat in 1; do # 1 2 3 4 5
-    for per_key_state_size in 4096 8192 16384 32768; do # state size 1 2 4 8 0
-       run_one_exp
-     done
-  done
-}
-
-run_replication_overhead() {
-  # Migrate at once
-  init
-  replicate_keys_filter=0
-  sync_keys=0
-  reconfig_start=10000000
+  job="Nexmark.queries.Query1"
   run_one_exp
+}
 
-  # Proactive State replication
+run_query1() {
   init
-  replicate_keys_filter=1
-  sync_keys=0
-  reconfig_start=10000000
+  job="Nexmark.queries.Query2"
+  operator="flatmap"
+  run_one_exp
+}
+
+run_query5() {
+  init
+  job="Nexmark.queries.Query5"
+  operator="window"
+  run_one_exp
+}
+
+run_query8() {
+  init
+  job="Nexmark.queries.Query8"
+  operator="join"
   run_one_exp
 }
 
 
-run_overview() {
-  # Migrate at once
-  init
-  replicate_keys_filter=0
-  sync_keys=0
-  checkpoint_interval=10000000
-  run_one_exp
-  # Fluid Migration
-  init
-  replicate_keys_filter=0
-  sync_keys=8
-  checkpoint_interval=10000000
-  run_one_exp
-  # Proactive State replication
-  init
-  replicate_keys_filter=1
-  sync_keys=0
-  run_one_exp
-}
-
-
-#run_micro
-run_overview
-#run_test
-#run_replication_overhead
-
-# dump the statistics when all exp are finished
-# in the future, we will draw the intuitive figures
-#python ./analysis/performance_analyzer.py
+run_query5

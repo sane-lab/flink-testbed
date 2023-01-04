@@ -72,7 +72,7 @@ public class PersonSourceFunction extends RichParallelSourceFunction<Person> {
         int curRate = rate;
 
         // warm up
-        Thread.sleep(60000);
+//        Thread.sleep(60000);
         warmup(ctx);
 
         while (running) {

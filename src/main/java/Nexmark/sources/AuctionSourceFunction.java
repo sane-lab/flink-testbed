@@ -70,7 +70,7 @@ public class AuctionSourceFunction extends RichParallelSourceFunction<Auction> {
         int curRate = rate;
 
         // warm up
-        Thread.sleep(60000);
+//        Thread.sleep(60000);
         warmup(ctx);
 
         while (running) {
