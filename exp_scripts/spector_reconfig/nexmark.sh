@@ -117,29 +117,61 @@ init() {
 run_query1() {
   init
   job="Nexmark.queries.Query1"
+  operator="map"
   run_one_exp
 }
 
 run_query1() {
-  init
+#  init
   job="Nexmark.queries.Query2"
   operator="flatmap"
   run_one_exp
 }
 
 run_query5() {
-  init
+#  init
   job="Nexmark.queries.Query5"
   operator="window"
   run_one_exp
 }
 
 run_query8() {
-  init
+#  init
   job="Nexmark.queries.Query8"
   operator="join"
   run_one_exp
 }
 
 
-run_query5
+
+nexmark_overview() {
+
+  for query_id in 1 2 5 8; do # 1 2 3 4 5
+    # Migrate at once
+    init
+    replicate_keys_filter=0
+    sync_keys=0
+    checkpoint_interval=10000000
+
+    run_query${query_id}
+
+    # Fluid Migration
+    init
+    replicate_keys_filter=0
+    sync_keys=8
+    checkpoint_interval=10000000
+
+    run_query${query_id}
+
+    # Proactive State replication
+    init
+    replicate_keys_filter=1
+    sync_keys=0
+
+    run_query${query_id}
+
+  done
+}
+
+
+nexmark_overview
