@@ -16,10 +16,10 @@
  * limitations under the License.
  */
 
-package Nexmark.queries;
+package NexmarkDS2.queries;
 
-import Nexmark.sinks.DummyLatencyCountingSink;
-import Nexmark.sources.BidSourceFunction;
+import NexmarkDS2.sinks.DummyLatencyCountingSink;
+import NexmarkDS2.sources.BidSourceFunction;
 import org.apache.beam.sdk.nexmark.model.Bid;
 import org.apache.flink.api.common.functions.MapFunction;
 import org.apache.flink.api.java.tuple.Tuple4;
@@ -41,24 +41,18 @@ public class Query1 {
 
         final float exchangeRate = params.getFloat("exchange-rate", 0.82F);
 
+        final int srcRate = params.getInt("srcRate", 100000);
+
         // set up the execution environment
         final StreamExecutionEnvironment env = StreamExecutionEnvironment.getExecutionEnvironment();
-
-        env.enableCheckpointing(params.getInt("interval", 1000));
 
         env.disableOperatorChaining();
 
         // enable latency tracking
         env.getConfig().setLatencyTrackingInterval(5000);
 
-        final int srcRate = params.getInt("srcRate", 100000);
-        final int srcCycle = params.getInt("srcCycle", 60);
-        final int srcBase = params.getInt("srcBase", 0);
-        final int srcWarmUp = params.getInt("srcWarmUp", 100);
-
-        DataStream<Bid> bids = env.addSource(new BidSourceFunction(srcRate, srcCycle, srcBase, srcWarmUp*1000))
-                .setParallelism(params.getInt("p1", 1))
-                .setMaxParallelism(params.getInt("mp2", 128))
+        DataStream<Bid> bids = env.addSource(new BidSourceFunction(srcRate))
+                .setParallelism(params.getInt("p-source", 1))
                 .name("Bids Source")
                 .uid("Bids-Source");
         // SELECT auction, DOLTOEUR(price), bidder, datetime
@@ -67,8 +61,7 @@ public class Query1 {
             public Tuple4<Long, Long, Long, Long> map(Bid bid) throws Exception {
                 return new Tuple4<>(bid.auction, dollarToEuro(bid.price, exchangeRate), bid.bidder, bid.dateTime);
             }
-        }).setMaxParallelism(params.getInt("mp2", 128))
-                .setParallelism(params.getInt("p2",  1))
+        }).setParallelism(params.getInt("p-map", 1))
                 .name("Mapper")
                 .uid("Mapper");
 

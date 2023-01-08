@@ -16,11 +16,11 @@
  * limitations under the License.
  */
 
-package Nexmark.queries;
+package NexmarkDS2.queries;
 
-import Nexmark.sinks.DummySink;
-import Nexmark.sources.AuctionSourceFunction;
-import Nexmark.sources.PersonSourceFunction;
+import NexmarkDS2.sinks.DummyLatencyCountingSink;
+import NexmarkDS2.sources.AuctionSourceFunction;
+import NexmarkDS2.sources.PersonSourceFunction;
 import org.apache.beam.sdk.nexmark.model.Auction;
 import org.apache.beam.sdk.nexmark.model.Person;
 import org.apache.flink.api.common.functions.FlatJoinFunction;
@@ -28,10 +28,8 @@ import org.apache.flink.api.java.functions.KeySelector;
 import org.apache.flink.api.java.tuple.Tuple3;
 import org.apache.flink.api.java.typeutils.GenericTypeInfo;
 import org.apache.flink.api.java.utils.ParameterTool;
-import org.apache.flink.runtime.state.memory.MemoryStateBackend;
 import org.apache.flink.streaming.api.TimeCharacteristic;
 import org.apache.flink.streaming.api.datastream.DataStream;
-import org.apache.flink.streaming.api.datastream.SingleOutputStreamOperator;
 import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
 import org.apache.flink.streaming.api.functions.AssignerWithPeriodicWatermarks;
 import org.apache.flink.streaming.api.watermark.Watermark;
@@ -55,81 +53,55 @@ public class Query8 {
         // set up the execution environment
         final StreamExecutionEnvironment env = StreamExecutionEnvironment.getExecutionEnvironment();
 
-        env.enableCheckpointing(params.getInt("interval", 1000));
-
-        env.setStateBackend(new MemoryStateBackend(100000000));
-//        new MemoryStateBackend(1024 * 1024 * 1024, false);
-//        env.setStateBackend(new FsStateBackend("file:///home/myc/workspace/flink-related/states"));
-//        env.setStateBackend(new FsStateBackend("hdfs://camel:9000/flink/checkpoints"));
-
-//        env.setStreamTimeCharacteristic(TimeCharacteristic.EventTime);
-        env.setStreamTimeCharacteristic(TimeCharacteristic.IngestionTime);
-
+        env.setStreamTimeCharacteristic(TimeCharacteristic.EventTime);
         env.getConfig().setAutoWatermarkInterval(1000);
-
-//        env.enableCheckpointing(1000);
-//        env.getCheckpointConfig().setCheckpointingMode(CheckpointingMode.EXACTLY_ONCE);
 
         // enable latency tracking
         //env.getConfig().setLatencyTrackingInterval(5000);
 
-        final int auctionSrcRate = params.getInt("auction-srcRate", 100000);
-        final int auctionSrcCycle = params.getInt("auction-srcCycle", 60);
-        final int auctionSrcBase = params.getInt("auction-srcBase", 0);
+        final int auctionSrcRate = params.getInt("auction-srcRate", 50000);
 
-        final int personSrcRate = params.getInt("person-srcRate", 100000);
-        final int personSrcCycle = params.getInt("person-srcCycle", 60);
-        final int personSrcBase = params.getInt("person-srcBase", 0);
+        final int personSrcRate = params.getInt("person-srcRate", 30000);
 
         env.setParallelism(params.getInt("p-window", 1));
 
-        DataStream<Auction> auctions = env.addSource(new AuctionSourceFunction(auctionSrcRate, auctionSrcCycle, auctionSrcBase))
-                .name("Custom Source: Auctions")
-                .setParallelism(params.getInt("p-auction-source", 1))
-                .setMaxParallelism(params.getInt("mp2", 128));
-//                .assignTimestampsAndWatermarks(new AuctionTimestampAssigner());
-
-        DataStream<Person> persons = env.addSource(new PersonSourceFunction(personSrcRate, personSrcCycle, personSrcBase))
+        DataStream<Person> persons = env.addSource(new PersonSourceFunction(personSrcRate))
                 .name("Custom Source: Persons")
                 .setParallelism(params.getInt("p-person-source", 1))
-                .setMaxParallelism(params.getInt("mp2", 128));
-//                .assignTimestampsAndWatermarks(new PersonTimestampAssigner());
+                .assignTimestampsAndWatermarks(new PersonTimestampAssigner());
 
-
+        DataStream<Auction> auctions = env.addSource(new AuctionSourceFunction(auctionSrcRate))
+                .name("Custom Source: Auctions")
+                .setParallelism(params.getInt("p-auction-source", 1))
+                .assignTimestampsAndWatermarks(new AuctionTimestampAssigner());
 
         // SELECT Rstream(P.id, P.name, A.reserve)
         // FROM Person [RANGE 1 HOUR] P, Auction [RANGE 1 HOUR] A
         // WHERE P.id = A.seller;
         DataStream<Tuple3<Long, String, Long>> joined =
                 persons.join(auctions)
-                        .where(new KeySelector<Person, Long>() {
-                            @Override
-                            public Long getKey(Person p) {
-                                return p.id;
-                            }
-                        }).equalTo(new KeySelector<Auction, Long>() {
+                .where(new KeySelector<Person, Long>() {
                     @Override
-                    public Long getKey(Auction a) {
-                        return a.seller;
+                    public Long getKey(Person p) {
+                        return p.id;
                     }
-                })
-                        .window(TumblingEventTimeWindows.of(Time.milliseconds(1)))
-                        .apply(new FlatJoinFunction<Person, Auction, Tuple3<Long, String, Long>>() {
+                }).equalTo(new KeySelector<Auction, Long>() {
                             @Override
-                            public void join(Person p, Auction a, Collector<Tuple3<Long, String, Long>> out) {
-                                out.collect(new Tuple3<>(p.id, p.name, a.reserve));
+                            public Long getKey(Auction a) {
+                                return a.seller;
                             }
-                        });
+                        })
+                .window(TumblingEventTimeWindows.of(Time.seconds(10)))
+                .apply(new FlatJoinFunction<Person, Auction, Tuple3<Long, String, Long>>() {
+                    @Override
+                    public void join(Person p, Auction a, Collector<Tuple3<Long, String, Long>> out) {
+                        out.collect(new Tuple3<>(p.id, p.name, a.reserve));
+                    }
+                });
 
-        joined = ((SingleOutputStreamOperator<Tuple3<Long, String, Long>>) joined).disableChaining();
-
-        ((SingleOutputStreamOperator<Tuple3<Long, String, Long>>) joined).setMaxParallelism(params.getInt("mp2", 128));
-        ((SingleOutputStreamOperator<Tuple3<Long, String, Long>>) joined).setParallelism(params.getInt("p2",  1));
-        ((SingleOutputStreamOperator<Tuple3<Long, String, Long>>) joined).name("join");
 
         GenericTypeInfo<Object> objectTypeInfo = new GenericTypeInfo<>(Object.class);
-        joined.transform("DummySink", objectTypeInfo, new DummySink<>())
-				.uid("dummy-sink")
+        joined.transform("DummyLatencySink", objectTypeInfo, new DummyLatencyCountingSink<>(logger))
                 .setParallelism(params.getInt("p-window", 1));
 
         // execute program

@@ -1,7 +1,7 @@
 #!/bin/bash
 
-FLINK_DIR="/home/myc/workspace/flink-related/spector/build-target"
-FLINK_APP_DIR="/home/myc/workspace/flink-related/flink-testbed-org"
+FLINK_DIR="/home/myc/workspace/Spector/build-target"
+FLINK_APP_DIR="/home/myc/workspace/flink-testbed"
 
 EXP_DIR="/data"
 
@@ -71,7 +71,7 @@ function analyze() {
 # run one flink demo exp, which is a word count job
 run_one_exp() {
   # compute n_tuples from per task rates and parallelism
-  EXP_NAME=spector-nexmark-${sync_keys}-${replicate_keys_filter}
+  EXP_NAME=spector-nexmark-query${query_id}-${sync_keys}-${replicate_keys_filter}
 
   echo "INFO: run exp ${EXP_NAME}"
   configFlink
@@ -102,7 +102,7 @@ init() {
   checkpoint_interval=1000 # by default checkpoint in frequent, trigger only when necessary
 
   # system level
-  operator="map"
+  operator="Mapper"
   reconfig_start=50000
   reconfig_interval=10000000
 #  frequency=1 # deprecated
@@ -115,16 +115,16 @@ init() {
 
 
 run_query1() {
-  init
+#  init
   job="Nexmark.queries.Query1"
-  operator="map"
+  operator="Mapper"
   run_one_exp
 }
 
-run_query1() {
+run_query2() {
 #  init
   job="Nexmark.queries.Query2"
-  operator="flatmap"
+  operator="Splitter FlatMap"
   run_one_exp
 }
 

@@ -16,17 +16,16 @@
  * limitations under the License.
  */
 
-package Nexmark.queries;
+package NexmarkDS2.queries;
 
-import Nexmark.sinks.DummySink;
-import Nexmark.sources.BidSourceFunction;
+import NexmarkDS2.sinks.DummyLatencyCountingSink;
+import NexmarkDS2.sources.BidSourceFunction;
 import org.apache.beam.sdk.nexmark.model.Bid;
 import org.apache.flink.api.common.functions.AggregateFunction;
 import org.apache.flink.api.java.functions.KeySelector;
 import org.apache.flink.api.java.tuple.Tuple2;
 import org.apache.flink.api.java.typeutils.GenericTypeInfo;
 import org.apache.flink.api.java.utils.ParameterTool;
-import org.apache.flink.runtime.state.memory.MemoryStateBackend;
 import org.apache.flink.streaming.api.TimeCharacteristic;
 import org.apache.flink.streaming.api.datastream.DataStream;
 import org.apache.flink.streaming.api.datastream.SingleOutputStreamOperator;
@@ -51,11 +50,6 @@ public class Query5 {
         // set up the execution environment
         final StreamExecutionEnvironment env = StreamExecutionEnvironment.getExecutionEnvironment();
 
-        env.enableCheckpointing(params.getInt("interval", 1000));
-
-        env.setStateBackend(new MemoryStateBackend(100000000));
-
-
         env.setStreamTimeCharacteristic(TimeCharacteristic.EventTime);
         env.getConfig().setAutoWatermarkInterval(1000);
 
@@ -63,14 +57,10 @@ public class Query5 {
         env.getConfig().setLatencyTrackingInterval(5000);
 
         final int srcRate = params.getInt("srcRate", 100000);
-        final int srcCycle = params.getInt("srcCycle", 60);
-        final int srcBase = params.getInt("srcBase", 0);
-        final int srcWarmUp = params.getInt("srcWarmUp", 100);
 
-        DataStream<Bid> bids = env.addSource(new BidSourceFunction(srcRate, srcCycle, srcBase, srcWarmUp*1000))
-                .assignTimestampsAndWatermarks(new TimestampAssigner())
+        DataStream<Bid> bids = env.addSource(new BidSourceFunction(srcRate))
                 .setParallelism(params.getInt("p-bid-source", 1))
-                .setMaxParallelism(params.getInt("mp2", 128));
+                .assignTimestampsAndWatermarks(new TimestampAssigner());
 
         // SELECT B1.auction, count(*) AS num
         // FROM Bid [RANGE 60 MINUTE SLIDE 1 MINUTE] B1
@@ -80,19 +70,18 @@ public class Query5 {
             public Long getKey(Bid bid) throws Exception {
                 return bid.auction;
             }
-        }).timeWindow(Time.seconds(params.getInt("window-size", 2)), Time.seconds(1))
+        }).timeWindow(Time.minutes(60), Time.minutes(1))
                 .aggregate(new CountBids())
-                .name("Sliding Window");
-//                .setParallelism(params.getInt("p-window", 1));
-
+                .name("Sliding Window")
+                .setParallelism(params.getInt("p-window", 1));
 
         ((SingleOutputStreamOperator<Tuple2<Long, Long>>) windowed).disableChaining();
-        ((SingleOutputStreamOperator<Tuple2<Long, Long>>) windowed).setMaxParallelism(params.getInt("mp2", 128));
-        ((SingleOutputStreamOperator<Tuple2<Long, Long>>) windowed).setParallelism(params.getInt("p2",  1));
-        ((SingleOutputStreamOperator<Tuple2<Long, Long>>) windowed).name("window");
+//        ((SingleOutputStreamOperator<Tuple2<Long, Long>>) windowed).setMaxParallelism(params.getInt("mp2", 64));
+//        ((SingleOutputStreamOperator<Tuple2<Long, Long>>) windowed).setParallelism(params.getInt("p2",  1));
+//        ((SingleOutputStreamOperator<Tuple2<Long, Long>>) windowed).name("window");
 
         GenericTypeInfo<Object> objectTypeInfo = new GenericTypeInfo<>(Object.class);
-        windowed.transform("DummyLatencySink", objectTypeInfo, new DummySink<>())
+        windowed.transform("DummyLatencySink", objectTypeInfo, new DummyLatencyCountingSink<>(logger))
                 .setParallelism(params.getInt("p-window", 1));
 
         // execute program

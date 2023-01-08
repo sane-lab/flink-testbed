@@ -16,10 +16,10 @@
  * limitations under the License.
  */
 
-package Nexmark.queries;
+package NexmarkDS2.queries;
 
-import Nexmark.sinks.DummyLatencyCountingSink;
-import Nexmark.sources.BidSourceFunction;
+import NexmarkDS2.sinks.DummyLatencyCountingSink;
+import NexmarkDS2.sources.BidSourceFunction;
 import org.apache.beam.sdk.nexmark.model.Bid;
 import org.apache.flink.api.common.functions.FlatMapFunction;
 import org.apache.flink.api.java.tuple.Tuple2;
@@ -43,23 +43,14 @@ public class Query2 {
         // set up the execution environment
         final StreamExecutionEnvironment env = StreamExecutionEnvironment.getExecutionEnvironment();
 
-        env.enableCheckpointing(params.getInt("interval", 1000));
-
         env.disableOperatorChaining();
 
         // enable latency tracking
         env.getConfig().setLatencyTrackingInterval(5000);
 
         final int srcRate = params.getInt("srcRate", 100000);
-        final int srcCycle = params.getInt("srcCycle", 60);
-        final int srcBase = params.getInt("srcBase", 0);
-        final int srcWarmUp = params.getInt("srcWarmUp", 100);
 
-        DataStream<Bid> bids = env.addSource(new BidSourceFunction(srcRate, srcCycle, srcBase, srcWarmUp*1000))
-                .setParallelism(params.getInt("p1", 1))
-                .setMaxParallelism(params.getInt("mp2", 128))
-                .name("Bids Source")
-                .uid("Bids-Source");
+        DataStream<Bid> bids = env.addSource(new BidSourceFunction(srcRate)).setParallelism(params.getInt("p-source", 1));
 
         // SELECT Rstream(auction, price)
         // FROM Bid [NOW]
@@ -73,10 +64,7 @@ public class Query2 {
                             out.collect(new Tuple2<>(bid.auction, bid.price));
                         }
                     }
-                })
-                .name("Splitter FlatMap")
-                .setMaxParallelism(params.getInt("mp2", 128))
-                .setParallelism(params.getInt("p2",  1));
+                }).setParallelism(params.getInt("p-flatMap", 1));
 
         GenericTypeInfo<Object> objectTypeInfo = new GenericTypeInfo<>(Object.class);
         converted.transform("DummyLatencySink", objectTypeInfo, new DummyLatencyCountingSink<>(logger))
