@@ -53,7 +53,20 @@ function runApp() {
     -interval ${checkpoint_interval} &"
   ${FLINK_DIR}/bin/flink run -c ${job} ${JAR} \
     -runtime ${runtime} \-p1 ${source_p} -p2 ${parallelism} -mp2 ${max_parallelism} \
-    -interval ${checkpoint_interval} &
+    -interval ${checkpoint_interval} -srcBase ${srcBase} -srcRate 0 &
+}
+
+# run applications
+function runQ8() {
+  srcBase=`expr ${per_task_rate} \* ${parallelism} \/ ${source_p} \/ 2`
+
+  echo "INFO: ${FLINK_DIR}/bin/flink run -c ${job} ${JAR} \
+    -runtime ${runtime} \-p1 ${source_p} -p2 ${parallelism} -mp2 ${max_parallelism} \
+    -interval ${checkpoint_interval} &"
+  ${FLINK_DIR}/bin/flink run -c ${job} ${JAR} \
+    -runtime ${runtime} \-p1 ${source_p} -p2 ${parallelism} -mp2 ${max_parallelism} \
+    -interval ${checkpoint_interval} -auction-srcBase ${srcBase} -auction-srcRate 0 \
+    -person-srcBase ${srcBase} -person-srcRate 0 &
 }
 
 # draw figures
@@ -79,7 +92,13 @@ run_one_exp() {
 
   python -c 'import time; time.sleep(5)'
 
-  runApp
+  if [ ${query_id} == 8 ]
+  then
+     runQ8
+  else
+     runApp
+  fi
+
 
   SCRIPTS_RUNTIME=`expr ${runtime} + 10`
   python -c 'import time; time.sleep('"${SCRIPTS_RUNTIME}"')'
@@ -99,7 +118,11 @@ init() {
   source_p=1
   parallelism=2
   max_parallelism=512
+  per_task_rate=6000
   checkpoint_interval=1000 # by default checkpoint in frequent, trigger only when necessary
+
+  srcBase=`expr ${per_task_rate} \* ${parallelism} \/ ${source_p}`
+
 
   # system level
   operator="Mapper"
