@@ -58,7 +58,7 @@ public class Query5 {
 
 
         env.setStreamTimeCharacteristic(TimeCharacteristic.EventTime);
-        // env.getConfig().setAutoWatermarkInterval(1000);
+        env.getConfig().setAutoWatermarkInterval(1000);
 
         // enable latency tracking
         env.getConfig().setLatencyTrackingInterval(5000);
