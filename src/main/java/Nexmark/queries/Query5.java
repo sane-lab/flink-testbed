@@ -80,7 +80,7 @@ public class Query5 {
             public Long getKey(Bid bid) throws Exception {
                 return bid.auction;
             }
-        }).timeWindow(Time.seconds(params.getInt("window-size", 2)), Time.seconds(1))
+        }).timeWindow(Time.seconds(params.getInt("window-size", 2)), Time.seconds(10))
                 .aggregate(new CountBids())
                 .name("Sliding Window");
 //                .setParallelism(params.getInt("p-window", 1));

@@ -118,7 +118,7 @@ init() {
   source_p=1
   parallelism=2
   max_parallelism=512
-  per_task_rate=6000
+  per_task_rate=8000
   checkpoint_interval=1000 # by default checkpoint in frequent, trigger only when necessary
 
   srcBase=`expr ${per_task_rate} \* ${parallelism} \/ ${source_p}`

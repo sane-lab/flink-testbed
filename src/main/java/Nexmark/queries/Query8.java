@@ -113,7 +113,7 @@ public class Query8 {
                         return a.seller;
                     }
                 })
-                        .window(TumblingEventTimeWindows.of(Time.milliseconds(1)))
+                        .window(TumblingEventTimeWindows.of(Time.seconds(10)))
                         .apply(new FlatJoinFunction<Person, Auction, Tuple3<Long, String, Long>>() {
                             @Override
                             public void join(Person p, Auction a, Collector<Tuple3<Long, String, Long>> out) {
