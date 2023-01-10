@@ -70,15 +70,15 @@ public class MultiStageLatency {
                 .disableChaining()
                 .name("Splitter FlatMap")
                 .uid("flatmap")
-                .setParallelism(p1)
                 .setMaxParallelism(mp1)
+                .setParallelism(p1)
                 .slotSharingGroup("a")
                 .keyBy(0)
                 .map(new Tokenizer())
                 .disableChaining()
                 .name("Time counter")
-                .setParallelism(p2)
                 .setMaxParallelism(mp2)
+                .setParallelism(p2)
                 .slotSharingGroup("b");
                 //.keyBy(0)
                 //.map(new DumbMap())
@@ -231,6 +231,7 @@ public class MultiStageLatency {
                 synchronized (ctx.getCheckpointLock()) {
                     ctx.collect(Tuple3.of(getChar(count), getChar(count), System.currentTimeMillis()));
                     remainedNumber --;
+                    count++;
                 }
 
             }
