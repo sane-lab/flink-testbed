@@ -52,28 +52,33 @@ public class MultiStageLatency {
 //        FlinkKafkaProducer011<String> kafkaProducer = new FlinkKafkaProducer011<String>(
 //                "localhost:9092", "my-flink-demo-topic0", new SimpleStringSchema());
 //        kafkaProducer.setWriteTimestampToKafka(true);
-        final long TOTAL = params.getLong("totalTuples", 50000);
+        final long RUN_TIME = params.getLong("runTime", 720000);
         final long WARMUP_TIME = params.getLong("srcWarmUp", 30000);
         final long WARMUP_RATE = params.getLong("srcWarmupRate", 300);
-        final long RATE = params.getLong("srcRate", 400);
-        final long PERIOD = params.getLong("srcPeriod", 20000);
+        final long RATE = params.getLong("srcRate", 500);
+        final long PERIOD = params.getLong("srcPeriod", 60000);
         final long AMPLITUDE = params.getLong("srcAmplitude", 300);
         final long INTERVAL = params.getLong("srcInterval", 50);
-        final int initialParallelism = params.getInt("initParallelism", 1);
+        final int p1 = params.getInt("p1", 1);
+        final int p2 = params.getInt("p2", 2);
+        final int mp1 = params.getInt("mp1", 64);
+        final int mp2 = params.getInt("mp2", 64);
 
-        env.addSource(new MySource(TOTAL, WARMUP_TIME, WARMUP_RATE, RATE, PERIOD, AMPLITUDE, INTERVAL))
+        env.addSource(new MySource(RUN_TIME, WARMUP_TIME, WARMUP_RATE, RATE, PERIOD, AMPLITUDE, INTERVAL))
                 .keyBy(0)
                 .map(new MyStatefulMap())
                 .disableChaining()
                 .name("Splitter FlatMap")
                 .uid("flatmap")
-                .setParallelism(initialParallelism)
+                .setParallelism(p1)
+                .setMaxParallelism(mp1)
                 .slotSharingGroup("a")
                 .keyBy(0)
                 .map(new Tokenizer())
                 .disableChaining()
                 .name("Time counter")
-                .setParallelism(initialParallelism + 1)
+                .setParallelism(p2)
+                .setMaxParallelism(mp2)
                 .slotSharingGroup("b");
                 //.keyBy(0)
                 //.map(new DumbMap())
@@ -111,7 +116,7 @@ public class MultiStageLatency {
             Double ranN = randomGen.nextGaussian(interval, 1);
             ranN = ranN*1000000;
             long delay = ranN.intValue();
-            if (delay < 0) delay = 6000000;
+            if (delay < 0) delay = interval * 1000000;
             Long start = System.nanoTime();
             while (System.nanoTime() - start < delay) {}
         }
@@ -137,16 +142,16 @@ public class MultiStageLatency {
         private RandomDataGenerator randomGen = new RandomDataGenerator();
         @Override
         public Tuple3<String, Long, Long> map(Tuple2<String, Long> input) throws Exception {
-            delay(1);
+            delay(2);
             long currentTime = System.currentTimeMillis();
             System.out.println("GT: " + input.f0 + ", " + currentTime + ", " + (currentTime - input.f1));
             return new Tuple3<String, Long, Long>(input.f0, currentTime, currentTime - input.f1);
         }
         private void delay(int interval) {
             Double ranN = randomGen.nextGaussian(interval, 1);
-            ranN = ranN*500000;
+            ranN = ranN*1000000;
             long delay = ranN.intValue();
-            if (delay < 0) delay = 3000000;
+            if (delay < 0) delay = interval * 1000000;
             Long start = System.nanoTime();
             while (System.nanoTime() - start < delay) {}
         }
@@ -160,15 +165,15 @@ public class MultiStageLatency {
     }
 
     private static class MySource implements SourceFunction<Tuple3<String, String, Long>>, CheckpointedFunction {
-        private long TOTAL, WARMUP_TIME, WARMUP_RATE, RATE, PERIOD, AMPLITUDE, INTERVAL;
+        private long RUN_TIME, WARMUP_TIME, WARMUP_RATE, RATE, PERIOD, AMPLITUDE, INTERVAL;
 
-        private int count = 0, warmupCount = 0;
+        private int count = 0;
         private volatile boolean isRunning = true;
 
         private transient ListState<Integer> checkpointedCount;
 
-        public MySource(long TOTAL, long WARMUP_TIME, long WARMUP_RATE, long RATE, long PERIOD, long AMPLITUDE, long INTERVAL){
-            this.TOTAL = TOTAL;
+        public MySource(long RUN_TIME, long WARMUP_TIME, long WARMUP_RATE, long RATE, long PERIOD, long AMPLITUDE, long INTERVAL){
+            this.RUN_TIME = RUN_TIME;
             this.WARMUP_TIME = WARMUP_TIME;
             this.WARMUP_RATE = WARMUP_RATE;
             this.RATE = RATE;
@@ -197,50 +202,36 @@ public class MultiStageLatency {
 
         @Override
         public void run(SourceContext<Tuple3<String, String, Long>> ctx) throws Exception {
-            long stime = System.currentTimeMillis();
-            long warmupEndTime = -1;
             long remainedNumber = 0;
-            while (isRunning && count < TOTAL) {
+            long startTime = System.currentTimeMillis();
+            while (isRunning && System.currentTimeMillis() - startTime < WARMUP_TIME) {
                 synchronized (ctx.getCheckpointLock()) {
                     ctx.collect(Tuple3.of(getChar(count), getChar(count), System.currentTimeMillis()));
                     count++;
                 }
-                // Singular curve
-                if (System.currentTimeMillis() - stime < WARMUP_TIME) {
-                    if (count % WARMUP_RATE == 0) {
-                        Thread.sleep(1000);
-                    }
-                } else {
-                    if (remainedNumber == 0){
-                        if (warmupEndTime == -1){
-                            warmupEndTime = System.currentTimeMillis();
-                        }
-                        long ctime = System.currentTimeMillis();
-                        long ntime = ((ctime - warmupEndTime)/INTERVAL + 1) * INTERVAL + warmupEndTime;
-                        double theta = (ntime - warmupEndTime) / ((double)PERIOD) * 2 * Math.PI;
-                        remainedNumber = (long)Math.floor((RATE + Math.sin(theta) * AMPLITUDE) / 1000 * INTERVAL);
-                        Thread.sleep(ntime - System.currentTimeMillis());
-                    }else{
-                        remainedNumber --;
-                    }
-
+                if (count % (WARMUP_RATE * INTERVAL / 1000) == 0) {
+                    long nextTime = ((System.currentTimeMillis() - startTime) / INTERVAL + 1) * INTERVAL + startTime;
+                    Thread.sleep(nextTime - System.currentTimeMillis());
                 }
+            }
 
-                // Rectangle curve
-                /*if (System.currentTimeMillis() - stime > WARMUP_TIME) {
-                    if (count % (RATE / 2) == 0) {
-                        Thread.sleep(500);
-                    }
-                } else {
-                    if (count % 400 == 0) {
-                        Thread.sleep(1000);
-                    }
-                }*/
-
-                // Singular curve
-                //if (count % 10000 == 0){
-                //    Thread.sleep(200);
-                //}
+            if (!isRunning) {
+                return ;
+            }
+            startTime = System.currentTimeMillis();
+            System.out.println("Warmup end at: " + startTime);
+            remainedNumber = 0;
+            while (isRunning && System.currentTimeMillis() - startTime < RUN_TIME) {
+                if(remainedNumber == 0){
+                    long ntime = ((System.currentTimeMillis() - startTime)/INTERVAL + 1) * INTERVAL + startTime;
+                    double theta = (ntime - startTime) / ((double)PERIOD) * 2 * Math.PI;
+                    remainedNumber = (long)Math.floor((RATE + Math.sin(theta) * AMPLITUDE) / 1000 * INTERVAL);
+                    Thread.sleep(ntime - System.currentTimeMillis());
+                }
+                synchronized (ctx.getCheckpointLock()) {
+                    ctx.collect(Tuple3.of(getChar(count), getChar(count), System.currentTimeMillis()));
+                    remainedNumber --;
+                }
 
             }
         }
