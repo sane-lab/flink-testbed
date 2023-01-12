@@ -27,7 +27,7 @@ TICK_FP = FontProperties(style='normal', size=TICK_FONT_SIZE)
 
 MARKERS = (['o', 's', 'v', "^", "h", "v", ">", "x", "d", "<", "|", "", "+", "_"])
 # you may want to change the color map for different figures
-COLOR_MAP = ('#000000', '#B03A2E', '#2874A6', '#239B56', '#7D3C98', '#000000', '#F1C40F', '#F5CBA7', '#82E0AA', '#AEB6BF', '#AA4499')
+COLOR_MAP = ('#B03A2E', '#2874A6', '#239B56', '#7D3C98', '#F1C40F', '#F5CBA7', '#82E0AA', '#AEB6BF', '#AA4499')
 # you may want to change the patterns for different figures
 PATTERNS = (["", "////", "\\\\", "//", "o", "", "||", "-", "//", "\\", "o", "O", "////", ".", "|||", "o", "---", "+", "\\\\", "*"])
 LABEL_WEIGHT = 'bold'
@@ -57,10 +57,10 @@ def ReadFile():
     x_axis = []
     y_axis = []
 
-    per_key_state_size = 4096
+    per_key_state_size = 32768
     replicate_keys_filter = 0
 
-    for sync_keys in [1, 8, 16, 32]:
+    for sync_keys in [4, 8, 16, 32, 64, 128]:
         col = []
         coly = []
         start_ts = float('inf')
@@ -85,9 +85,11 @@ def ReadFile():
             coly.append(temp_dict[ts][ceil((len(temp_dict[ts]))*0.95)])
             col.append(ts - start_ts)
 
+        x_axis.append(col[40:70])
+        y_axis.append(coly[40:70])
 
-        x_axis.append(col)
-        y_axis.append(coly)
+        # x_axis.append(col)
+        # y_axis.append(coly)
 
     print(x_axis)
 
@@ -135,6 +137,6 @@ def DrawFigure(xvalues, yvalues, legend_labels, x_label, y_label, filename, allo
 
 if __name__ == "__main__":
     x_axis, y_axis = ReadFile()
-    legend_labels = ["Sync-1", "Sync-8", "Sync-16", "Sync-32"]
+    legend_labels = ["Sync-4", "Sync-8", "Sync-16", "Sync-32", "Sync-64", "Sync-128"]
     legend = True
-    DrawFigure(x_axis, y_axis, legend_labels, "Time(ms)", "Latency(ms)", "latency_curve", legend)
+    DrawFigure(x_axis, y_axis, legend_labels, "Time(ms)", "Latency(ms)", "fluid_latency_curve", legend)

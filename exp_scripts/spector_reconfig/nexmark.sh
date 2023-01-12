@@ -169,7 +169,7 @@ run_query8() {
 
 nexmark_overview() {
 
-  for query_id in 1 2 5 8; do # 1 2 3 4 5
+  for query_id in 5 8; do # 1 2 3 4 5
     # Migrate at once
     init
     replicate_keys_filter=0

@@ -8,12 +8,12 @@ def ReadFile(repeat_num = 1):
     w, h = 6, 3
     y = [[0 for x in range(w)] for y in range(h)]
 
-    per_key_state_size = 4096
+    per_key_state_size = 32768
     replicate_keys_filter = 0
 
     for repeat in range(1, repeat_num + 1):
         i = 0
-        for sync_keys in [1, 2, 4, 8, 16, 32]:
+        for sync_keys in [4, 8, 16, 32, 64, 128]:
             exp = utilities.FILE_FOLER + '/spector-{}-{}-{}'.format(per_key_state_size, sync_keys, replicate_keys_filter)
             file_path = os.path.join(exp, "timer.output")
             # try:
@@ -40,7 +40,7 @@ def draw(val):
 
     # parallelism
     # x_values = [1024, 10240, 20480, 40960]
-    x_values = [1, 2, 4, 8, 16, 32]
+    x_values = [4, 8, 16, 32, 64, 128]
     y_values = ReadFile(repeat_num = 1)
 
     legend_labels = utilities.legend_labels

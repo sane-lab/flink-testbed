@@ -22,6 +22,20 @@ function cleanEnv() {
 }
 
 
+function startKafka() {
+#    export JAVA_HOME=/home/samza/kit/jdk
+    ~/samza-hello-samza/bin/grid start zookeeper
+    ~/samza-hello-samza/bin/grid start kafka
+}
+
+function stopKafka() {
+    ~/samza-hello-samza/bin/grid stop kafka
+    ~/samza-hello-samza/bin/grid stop zookeeper
+    kill -9 $(jps | grep Kafka | awk '{print $1}')
+    rm -rf /tmp/kafka-logs/
+    rm -rf /tmp/zookeeper/
+}
+
 # clsoe flink clsuter
 function stopFlink() {
     echo "INFO: experiment finished, stopping the cluster"
@@ -48,12 +62,17 @@ function configFlink() {
 
 # run applications
 function runApp() {
-  echo "INFO: ${FLINK_DIR}/bin/flink run -c ${job} ${JAR} \
-    -runtime ${runtime} -nTuples ${n_tuples}  \-p1 ${source_p} -p2 ${parallelism} -mp2 ${max_parallelism} \
-    -nKeys ${key_set} -perKeySize ${per_key_state_size} -interval ${checkpoint_interval} -stateAccessRatio ${state_access_ratio} &"
-  ${FLINK_DIR}/bin/flink run -c ${job} ${JAR} \
-    -runtime ${runtime} -nTuples ${n_tuples}  \-p1 ${source_p} -p2 ${parallelism} -mp2 ${max_parallelism} \
-    -nKeys ${key_set} -perKeySize ${per_key_state_size} -interval ${checkpoint_interval} -stateAccessRatio ${state_access_ratio} &
+    echo "INFO: ${FLINK_DIR}/bin/flink run -c ${job} ${JAR} \
+      -runtime ${runtime} -nTuples ${n_tuples}  \-p1 ${source_p} -p2 ${parallelism} -mp2 ${max_parallelism} \
+      -nKeys ${key_set} -perKeySize ${per_key_state_size} -interval ${checkpoint_interval} -stateAccessRatio ${state_access_ratio} &"
+    ${FLINK_DIR}/bin/flink run -c ${job} ${JAR} \
+      -runtime ${runtime} -nTuples ${n_tuples}  \-p1 ${source_p} -p2 ${parallelism} -mp2 ${max_parallelism} \
+      -nKeys ${key_set} -perKeySize ${per_key_state_size} -interval ${checkpoint_interval} -stateAccessRatio ${state_access_ratio} &
+}
+
+function runGenerator() {
+    echo "INFO: run kafka generator."
+    ${FLINK_DIR}/bin
 }
 
 # draw figures
@@ -74,6 +93,8 @@ run_one_exp() {
   EXP_NAME=spector-${per_key_state_size}-${sync_keys}-${replicate_keys_filter}
 
   echo "INFO: run exp ${EXP_NAME}"
+
+  startKafka
   configFlink
   runFlink
 
@@ -86,6 +107,7 @@ run_one_exp() {
 
   analyze
   stopFlink
+  stopKafka
 
   python -c 'import time; time.sleep(5)'
 }
