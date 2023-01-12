@@ -17,6 +17,7 @@ import org.apache.flink.runtime.state.FunctionInitializationContext;
 import org.apache.flink.runtime.state.FunctionSnapshotContext;
 import org.apache.flink.runtime.state.memory.MemoryStateBackend;
 import org.apache.flink.streaming.api.CheckpointingMode;
+import org.apache.flink.streaming.api.TimeCharacteristic;
 import org.apache.flink.streaming.api.checkpoint.CheckpointedFunction;
 import org.apache.flink.streaming.api.datastream.DataStream;
 import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
@@ -45,18 +46,18 @@ public class MultiStageLatency {
         env.getConfig().setGlobalJobParameters(params);
 
         env.setStateBackend(new MemoryStateBackend(100000000));
-
+        env.setStreamTimeCharacteristic(TimeCharacteristic.EventTime);
 //        env.enableCheckpointing(1000);
         env.getCheckpointConfig().setCheckpointingMode(CheckpointingMode.EXACTLY_ONCE);
 
 //        FlinkKafkaProducer011<String> kafkaProducer = new FlinkKafkaProducer011<String>(
 //                "localhost:9092", "my-flink-demo-topic0", new SimpleStringSchema());
 //        kafkaProducer.setWriteTimestampToKafka(true);
-        final long RUN_TIME = params.getLong("runTime", 720000);
-        final long WARMUP_TIME = params.getLong("srcWarmUp", 30000);
+        final long RUN_TIME = params.getLong("runTime", 720) * 1000;
+        final long WARMUP_TIME = params.getLong("srcWarmUp", 30) * 1000;
         final long WARMUP_RATE = params.getLong("srcWarmupRate", 300);
         final long RATE = params.getLong("srcRate", 500);
-        final long PERIOD = params.getLong("srcPeriod", 60000);
+        final long PERIOD = params.getLong("srcPeriod", 60) * 1000;
         final long AMPLITUDE = params.getLong("srcAmplitude", 300);
         final long INTERVAL = params.getLong("srcInterval", 50);
         final int p1 = params.getInt("p1", 1);
@@ -210,8 +211,9 @@ public class MultiStageLatency {
                     count++;
                 }
                 if (count % (WARMUP_RATE * INTERVAL / 1000) == 0) {
-                    long nextTime = ((System.currentTimeMillis() - startTime) / INTERVAL + 1) * INTERVAL + startTime;
-                    Thread.sleep(nextTime - System.currentTimeMillis());
+                    long ctime = System.currentTimeMillis();
+                    long nextTime = ((ctime- startTime) / INTERVAL + 1) * INTERVAL + startTime;
+                    Thread.sleep(nextTime - ctime);
                 }
             }
 
@@ -220,12 +222,14 @@ public class MultiStageLatency {
             }
             startTime = System.currentTimeMillis();
             System.out.println("Warmup end at: " + startTime);
-            remainedNumber = 0;
+            remainedNumber = (long)Math.floor(RATE * INTERVAL / 1000.0);
+            long index = 0;
             while (isRunning && System.currentTimeMillis() - startTime < RUN_TIME) {
                 if(remainedNumber == 0){
-                    long ntime = ((System.currentTimeMillis() - startTime)/INTERVAL + 1) * INTERVAL + startTime;
-                    double theta = (ntime - startTime) / ((double)PERIOD) * 2 * Math.PI;
-                    remainedNumber = (long)Math.floor((RATE + Math.sin(theta) * AMPLITUDE) / 1000 * INTERVAL);
+                    index++;
+                    long ntime = index * INTERVAL + startTime;
+                    double theta = Math.sin(Math.toRadians(index * INTERVAL * 360 / ((double)PERIOD)));
+                    remainedNumber = (long)Math.floor((RATE + theta * AMPLITUDE) / 1000 * INTERVAL);
                     Thread.sleep(ntime - System.currentTimeMillis());
                 }
                 synchronized (ctx.getCheckpointLock()) {
