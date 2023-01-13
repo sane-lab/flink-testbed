@@ -53,7 +53,7 @@ public class MultiStageLatency {
 //        FlinkKafkaProducer011<String> kafkaProducer = new FlinkKafkaProducer011<String>(
 //                "localhost:9092", "my-flink-demo-topic0", new SimpleStringSchema());
 //        kafkaProducer.setWriteTimestampToKafka(true);
-        final long total = 100000;
+        final long total = params.getLong("total", -1);
         final long RUN_TIME = params.getLong("runTime", 720) * 1000;
         final long WARMUP_TIME = params.getLong("srcWarmUp", 30) * 1000;
         final long WARMUP_RATE = params.getLong("srcWarmupRate", 300);
@@ -227,7 +227,10 @@ public class MultiStageLatency {
             startTime = System.currentTimeMillis();
             System.out.println("Warmup end at: " + startTime);
             remainedNumber = (long)Math.floor(RATE * INTERVAL / 1000.0);
-            while (isRunning && System.currentTimeMillis() - startTime < RUN_TIME && count <= total) {
+            while (isRunning && System.currentTimeMillis() - startTime < RUN_TIME) {
+                if (total > 0 && count > total){
+                    return ;
+                }
                 long index = (System.currentTimeMillis() - startTime) / INTERVAL;
                 if(remainedNumber <= 0){
                     long ntime = (index + 1) * INTERVAL + startTime;
