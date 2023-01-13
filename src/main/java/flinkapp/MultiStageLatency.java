@@ -48,11 +48,12 @@ public class MultiStageLatency {
         env.setStateBackend(new MemoryStateBackend(100000000));
         env.setStreamTimeCharacteristic(TimeCharacteristic.EventTime);
 //        env.enableCheckpointing(1000);
-        env.getCheckpointConfig().setCheckpointingMode(CheckpointingMode.EXACTLY_ONCE);
+//        env.getCheckpointConfig().setCheckpointingMode(CheckpointingMode.EXACTLY_ONCE);
 
 //        FlinkKafkaProducer011<String> kafkaProducer = new FlinkKafkaProducer011<String>(
 //                "localhost:9092", "my-flink-demo-topic0", new SimpleStringSchema());
 //        kafkaProducer.setWriteTimestampToKafka(true);
+        final long total = 100000;
         final long RUN_TIME = params.getLong("runTime", 720) * 1000;
         final long WARMUP_TIME = params.getLong("srcWarmUp", 30) * 1000;
         final long WARMUP_RATE = params.getLong("srcWarmupRate", 300);
@@ -167,13 +168,13 @@ public class MultiStageLatency {
 
     private static class MySource implements SourceFunction<Tuple3<String, String, Long>>, CheckpointedFunction {
         private long RUN_TIME, WARMUP_TIME, WARMUP_RATE, RATE, PERIOD, AMPLITUDE, INTERVAL;
-
+        private long total;
         private int count = 0;
         private volatile boolean isRunning = true;
 
         private transient ListState<Integer> checkpointedCount;
 
-        public MySource(long RUN_TIME, long WARMUP_TIME, long WARMUP_RATE, long RATE, long PERIOD, long AMPLITUDE, long INTERVAL){
+        public MySource(long RUN_TIME, long WARMUP_TIME, long WARMUP_RATE, long RATE, long PERIOD, long AMPLITUDE, long INTERVAL, long total){
             this.RUN_TIME = RUN_TIME;
             this.WARMUP_TIME = WARMUP_TIME;
             this.WARMUP_RATE = WARMUP_RATE;
@@ -181,6 +182,7 @@ public class MultiStageLatency {
             this.PERIOD = PERIOD;
             this.AMPLITUDE = AMPLITUDE;
             this.INTERVAL = INTERVAL;
+            this.total = total;
         }
         @Override
         public void snapshotState(FunctionSnapshotContext functionSnapshotContext) throws Exception {
@@ -225,7 +227,7 @@ public class MultiStageLatency {
             startTime = System.currentTimeMillis();
             System.out.println("Warmup end at: " + startTime);
             remainedNumber = (long)Math.floor(RATE * INTERVAL / 1000.0);
-            while (isRunning && System.currentTimeMillis() - startTime < RUN_TIME) {
+            while (isRunning && System.currentTimeMillis() - startTime < RUN_TIME && count <= total) {
                 long index = (System.currentTimeMillis() - startTime) / INTERVAL;
                 if(remainedNumber <= 0){
                     long ntime = (index + 1) * INTERVAL + startTime;
@@ -241,7 +243,6 @@ public class MultiStageLatency {
                     remainedNumber --;
                     count++;
                 }
-
             }
         }
 
