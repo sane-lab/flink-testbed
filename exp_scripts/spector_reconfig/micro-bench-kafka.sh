@@ -71,8 +71,11 @@ function runApp() {
 }
 
 function runGenerator() {
-    echo "INFO: run kafka generator."
-    ${FLINK_DIR}/bin
+  echo "INFO: java -cp ${FLINK_APP_DIR}/target/testbed-1.0-SNAPSHOT.jar kafkagenerator.WCGenerator \
+    -runtime ${runtime} -nTuples ${n_tuples} -nKeys ${key_set} > /dev/null 2>&1 &"
+
+  java -cp ${FLINK_APP_DIR}/target/testbed-1.0-SNAPSHOT.jar kafkagenerator.WCGeneratorStateControlled \
+    -runtime ${runtime} -nTuples ${n_tuples} -mp2 ${max_parallelism} -nKeys ${key_set} -stateAccessRatio ${state_access_ratio} &                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                  Tuples ${n_tuples} -nKeys ${key_set} > /dev/null 2>&1 &
 }
 
 # draw figures
@@ -94,6 +97,9 @@ run_one_exp() {
 
   echo "INFO: run exp ${EXP_NAME}"
 
+  stopFlink
+  stopKafka
+
   startKafka
   configFlink
   runFlink
@@ -101,6 +107,7 @@ run_one_exp() {
   python -c 'import time; time.sleep(5)'
 
   runApp
+  runGenerator
 
   SCRIPTS_RUNTIME=`expr ${runtime} + 10`
   python -c 'import time; time.sleep('"${SCRIPTS_RUNTIME}"')'
@@ -116,7 +123,7 @@ run_one_exp() {
 init() {
   # app level
   JAR="${FLINK_APP_DIR}/target/testbed-1.0-SNAPSHOT.jar"
-  job="flinkapp.StatefulDemoLongRunStateControlled"
+  job="flinkapp.KafkaStatefulDemoLongRunStateControlled"
   runtime=100
   source_p=1
   per_task_rate=5000
@@ -125,7 +132,7 @@ init() {
   key_set=16384
   per_key_state_size=32768 # byte
   checkpoint_interval=1000 # by default checkpoint in frequent, trigger only when necessary
-  state_access_ratio=20
+  state_access_ratio=100
 
   n_tuples=`expr ${runtime} \* ${per_task_rate} \* ${parallelism} \/ ${source_p}`
 
@@ -229,7 +236,8 @@ run_fluid_study() {
   init
   replicate_keys_filter=0
   checkpoint_interval=10000000
-  for sync_keys in 4 8 16 32 64 128; do
+  key_set=32768
+  for sync_keys in 4 8 16 32 64 128; do # 4 8 16 32 64 128
     run_one_exp
   done
 }
