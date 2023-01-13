@@ -227,6 +227,7 @@ public class MultiStageLatency {
             while (isRunning && System.currentTimeMillis() - startTime < RUN_TIME) {
                 if(remainedNumber == 0){
                     index++;
+                    if (index >= PERIOD / INTERVAL) index -= PERIOD / INTERVAL;
                     long ntime = index * INTERVAL + startTime;
                     double theta = Math.sin(Math.toRadians(index * INTERVAL * 360 / ((double)PERIOD)));
                     remainedNumber = (long)Math.floor((RATE + theta * AMPLITUDE) / 1000 * INTERVAL);
