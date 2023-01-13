@@ -225,10 +225,10 @@ public class MultiStageLatency {
             startTime = System.currentTimeMillis();
             System.out.println("Warmup end at: " + startTime);
             remainedNumber = (long)Math.floor(RATE * INTERVAL / 1000.0);
-            long index = 0;
             while (isRunning && System.currentTimeMillis() - startTime < RUN_TIME) {
+                long index = (System.currentTimeMillis() - startTime) / INTERVAL;
                 if(remainedNumber <= 0){
-                    long ntime = index * INTERVAL + startTime;
+                    long ntime = (index + 1) * INTERVAL + startTime;
                     double theta = Math.sin(Math.toRadians(index * INTERVAL * 360 / ((double)PERIOD)));
                     remainedNumber = (long)Math.floor((RATE + theta * AMPLITUDE) / 1000 * INTERVAL);
                     long ctime = System.currentTimeMillis();
