@@ -66,7 +66,7 @@ public class MultiStageLatency {
         final int mp1 = params.getInt("mp1", 64);
         final int mp2 = params.getInt("mp2", 64);
 
-        env.addSource(new MySource(RUN_TIME, WARMUP_TIME, WARMUP_RATE, RATE, PERIOD, AMPLITUDE, INTERVAL))
+        env.addSource(new MySource(RUN_TIME, WARMUP_TIME, WARMUP_RATE, RATE, PERIOD, AMPLITUDE, INTERVAL, total))
                 .keyBy(0)
                 .map(new MyStatefulMap())
                 .disableChaining()
