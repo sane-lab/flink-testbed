@@ -213,7 +213,9 @@ public class MultiStageLatency {
                 if (count % (WARMUP_RATE * INTERVAL / 1000) == 0) {
                     long ctime = System.currentTimeMillis();
                     long nextTime = ((ctime - startTime) / INTERVAL + 1) * INTERVAL + startTime;
-                    Thread.sleep(nextTime - ctime);
+                    if(nextTime >= ctime){
+                        Thread.sleep(nextTime - ctime);
+                    }
                 }
             }
 
@@ -226,12 +228,13 @@ public class MultiStageLatency {
             long index = 0;
             while (isRunning && System.currentTimeMillis() - startTime < RUN_TIME) {
                 if(remainedNumber <= 0){
-                    index++;
-                    if (index >= PERIOD / INTERVAL) index -= PERIOD / INTERVAL;
                     long ntime = index * INTERVAL + startTime;
                     double theta = Math.sin(Math.toRadians(index * INTERVAL * 360 / ((double)PERIOD)));
                     remainedNumber = (long)Math.floor((RATE + theta * AMPLITUDE) / 1000 * INTERVAL);
-                    Thread.sleep(ntime - System.currentTimeMillis());
+                    long ctime = System.currentTimeMillis();
+                    if(ntime >= ctime) {
+                        Thread.sleep(ntime - ctime);
+                    }
                 }
                 synchronized (ctx.getCheckpointLock()) {
                     ctx.collect(Tuple3.of(getChar(count), getChar(count), System.currentTimeMillis()));
