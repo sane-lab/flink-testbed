@@ -212,7 +212,7 @@ public class MultiStageLatency {
                 }
                 if (count % (WARMUP_RATE * INTERVAL / 1000) == 0) {
                     long ctime = System.currentTimeMillis();
-                    long nextTime = ((ctime- startTime) / INTERVAL + 1) * INTERVAL + startTime;
+                    long nextTime = ((ctime - startTime) / INTERVAL + 1) * INTERVAL + startTime;
                     Thread.sleep(nextTime - ctime);
                 }
             }
@@ -225,7 +225,7 @@ public class MultiStageLatency {
             remainedNumber = (long)Math.floor(RATE * INTERVAL / 1000.0);
             long index = 0;
             while (isRunning && System.currentTimeMillis() - startTime < RUN_TIME) {
-                if(remainedNumber == 0){
+                if(remainedNumber <= 0){
                     index++;
                     if (index >= PERIOD / INTERVAL) index -= PERIOD / INTERVAL;
                     long ntime = index * INTERVAL + startTime;
