@@ -1,5 +1,6 @@
 package flinkapp;
 
+import kafkagenerator.KafkaWithTsMsgSchema3;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.flink.api.common.functions.RichMapFunction;
 import org.apache.flink.api.common.state.MapState;
@@ -12,7 +13,6 @@ import org.apache.flink.streaming.api.datastream.DataStream;
 import org.apache.flink.streaming.api.datastream.DataStreamSource;
 import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
 import org.apache.flink.streaming.connectors.kafka.FlinkKafkaConsumer011;
-import stock.KafkaWithTsMsgSchema2;
 
 import java.util.Properties;
 
@@ -49,7 +49,7 @@ public class KafkaStatefulDemoLongRunStateControlled {
         Properties kafkaProps = new Properties();
         kafkaProps.setProperty("bootstrap.servers", params.get("kafka", KAFKA_BROKERS));
         FlinkKafkaConsumer011<Tuple2<String, String>> inputConsumer = new FlinkKafkaConsumer011<>(
-                INPUT_STREAM_ID, new KafkaWithTsMsgSchema2(), kafkaProps);
+                INPUT_STREAM_ID, new KafkaWithTsMsgSchema3(), kafkaProps);
 
         DataStreamSource<Tuple2<String, String>> source = env
                 .addSource(inputConsumer)

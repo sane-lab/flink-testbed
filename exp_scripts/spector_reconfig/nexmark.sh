@@ -62,7 +62,8 @@ function runQ8() {
 
   echo "INFO: ${FLINK_DIR}/bin/flink run -c ${job} ${JAR} \
     -runtime ${runtime} \-p1 ${source_p} -p2 ${parallelism} -mp2 ${max_parallelism} \
-    -interval ${checkpoint_interval} &"
+    -interval ${checkpoint_interval} -auction-srcBase ${srcBase} -auction-srcRate 0 \
+    -person-srcBase ${srcBase} -person-srcRate 0"
   ${FLINK_DIR}/bin/flink run -c ${job} ${JAR} \
     -runtime ${runtime} \-p1 ${source_p} -p2 ${parallelism} -mp2 ${max_parallelism} \
     -interval ${checkpoint_interval} -auction-srcBase ${srcBase} -auction-srcRate 0 \
@@ -169,22 +170,22 @@ run_query8() {
 
 nexmark_overview() {
 
-  for query_id in 5 8; do # 1 2 3 4 5
-    # Migrate at once
-    init
-    replicate_keys_filter=0
-    sync_keys=0
-    checkpoint_interval=10000000
-
-    run_query${query_id}
-
-    # Fluid Migration
-    init
-    replicate_keys_filter=0
-    sync_keys=8
-    checkpoint_interval=10000000
-
-    run_query${query_id}
+  for query_id in 8; do # 1 2 3 4 5
+#    # Migrate at once
+#    init
+#    replicate_keys_filter=0
+#    sync_keys=0
+#    checkpoint_interval=10000000
+#
+#    run_query${query_id}
+#
+#    # Fluid Migration
+#    init
+#    replicate_keys_filter=0
+#    sync_keys=8
+#    checkpoint_interval=10000000
+#
+#    run_query${query_id}
 
     # Proactive State replication
     init

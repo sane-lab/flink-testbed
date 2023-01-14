@@ -69,7 +69,9 @@ public class Query2 {
                 .flatMap(new FlatMapFunction<Bid, Tuple2<Long, Long>>() {
                     @Override
                     public void flatMap(Bid bid, Collector<Tuple2<Long, Long>> out) throws Exception {
-                        if(bid.auction % 1007 == 0 || bid.auction % 1020 == 0 || bid.auction % 2001 == 0 || bid.auction % 2019 == 0 || bid.auction % 2087 == 0) {
+                        long delayStart = System.nanoTime(); // if window, delay 0.1ms
+                        while (System.nanoTime() - delayStart < 100_000) {}
+                        if (bid.auction % 1007 == 0 || bid.auction % 1020 == 0 || bid.auction % 2001 == 0 || bid.auction % 2019 == 0 || bid.auction % 2087 == 0) {
                             out.collect(new Tuple2<>(bid.auction, bid.price));
                         }
                     }

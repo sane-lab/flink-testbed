@@ -65,6 +65,8 @@ public class Query1 {
         DataStream<Tuple4<Long, Long, Long, Long>> mapped  = bids.map(new MapFunction<Bid, Tuple4<Long, Long, Long, Long>>() {
             @Override
             public Tuple4<Long, Long, Long, Long> map(Bid bid) throws Exception {
+                long delayStart = System.nanoTime(); // if window, delay 0.1ms
+                while (System.nanoTime() - delayStart < 100_000) {}
                 return new Tuple4<>(bid.auction, dollarToEuro(bid.price, exchangeRate), bid.bidder, bid.dateTime);
             }
         }).setMaxParallelism(params.getInt("mp2", 128))

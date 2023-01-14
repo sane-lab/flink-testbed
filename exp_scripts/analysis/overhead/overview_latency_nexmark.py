@@ -128,6 +128,7 @@ def DrawFigure(xvalues, yvalues, legend_labels, x_label, y_label, filename, allo
                    labelspacing=0.1)
 
     plt.yscale('log')
+    plt.ylim(1, )
     plt.xlabel(x_label, fontproperties=LABEL_FP)
     plt.ylabel(y_label, fontproperties=LABEL_FP)
 

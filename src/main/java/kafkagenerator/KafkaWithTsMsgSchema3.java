@@ -58,8 +58,10 @@ public class KafkaWithTsMsgSchema3 implements KafkaDeserializationSchema<Tuple2<
 
     @Override
     public Tuple2<String, String> deserialize(ConsumerRecord<byte[], byte[]> consumerRecord) {
-        Long ts = consumerRecord.timestamp();
-        String msg = new String(consumerRecord.value(), charset);
+        String rawdata = new String(consumerRecord.value(), charset);
+        long ts = Long.parseLong(rawdata.split(":")[0]);
+//        Long ts = consumerRecord.timestamp();
+        String msg = rawdata.split(":")[1];
         return new Tuple2<>(msg, String.valueOf(ts));
     }
 

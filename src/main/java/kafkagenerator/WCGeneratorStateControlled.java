@@ -1,13 +1,13 @@
 package kafkagenerator;
 
 import Nexmark.sources.Util;
-import org.apache.commons.math3.random.RandomDataGenerator;
+import flinkapp.MathUtils;
 import org.apache.flink.api.common.state.ListState;
 import org.apache.flink.api.java.utils.ParameterTool;
 import org.apache.kafka.clients.producer.KafkaProducer;
 import org.apache.kafka.clients.producer.ProducerRecord;
 
-import java.util.Properties;
+import java.util.*;
 
 /**
  * SSE generaor
@@ -32,11 +32,25 @@ public class WCGeneratorStateControlled {
     private int nKeys;
     private int rate;
 
-    public WCGeneratorStateControlled(int runtime, int nTuples, int nKeys) {
+    private final int subKeyGroupSize;
+
+    private final Map<Integer, List<String>> keyGroupMapping = new HashMap<>();
+
+    public WCGeneratorStateControlled(int runtime, int nTuples, int nKeys, int maxParallelism, int stateAccessRatio) {
         this.runtime = runtime;
         this.nTuples = nTuples;
         this.nKeys = nKeys;
         this.rate = nTuples / runtime;
+        this.subKeyGroupSize = maxParallelism * stateAccessRatio / 100;
+
+        // Another functionality test
+        for (int i = 0; i < nKeys; i++) {
+            String key = "A" + i;
+            int keygroup = MathUtils.murmurHash(key.hashCode()) % maxParallelism;
+            List<String> keys = keyGroupMapping.computeIfAbsent(keygroup, t -> new ArrayList<>());
+            keys.add(key);
+        }
+
         System.out.println("runtime: " + runtime
                 + ", nTuples: " + nTuples
                 + ", nKeys: " + nKeys
@@ -50,63 +64,48 @@ public class WCGeneratorStateControlled {
         props.put("client.id", "ProducerExample");
         props.put("key.serializer", "org.apache.kafka.common.serialization.StringSerializer");
         props.put("value.serializer", "org.apache.kafka.common.serialization.StringSerializer");
+
+        props.put("acks", "all");
+        props.put("retries", 0);
+        props.put("batch.size", 16384);
+        props.put("linger.ms", 1);
+        props.put("buffer.memory", 33554432);
+
         producer = new KafkaProducer<>(props);
     }
 
-    public void generate(int speed) throws InterruptedException {
-        RandomDataGenerator messageGenerator = new RandomDataGenerator();
-        long time = System.currentTimeMillis();
-        long interval = 1000000000/5000;
-        long cur = 0;
-
-        long start = System.nanoTime();
-        int counter = 0;
-        // for loop to generate message
-        for (long sent_sentences = 0; sent_sentences < SENTENCE_NUM; ++sent_sentences) {
-            cur = System.nanoTime();
-
-            double sentence_length = messageGenerator.nextGaussian(mu, sigma);
-            StringBuilder messageBuilder = new StringBuilder();
-            for (int l = 0; l < sentence_length; ++l) {
-                int number = messageGenerator.nextInt(1, uniformSize);
-                messageBuilder.append(String.valueOf(number)).append(" ");
-            }
-
-            ProducerRecord<String, String> newRecord = new ProducerRecord<>(TOPIC, messageBuilder.toString());
-            producer.send(newRecord);
-
-            counter++;
-            // control data generate speed
-            while ((System.nanoTime() - cur) < interval) {}
-            if (System.nanoTime() - start >= 1000000000) {
-                System.out.println("output rate: " + counter);
-                counter = 0;
-                start = System.nanoTime();
-            }
-        }
-        producer.close();
-    }
-
     public void generate() throws InterruptedException {
+        List<String> subKeySet = Util.selectKeyGroups(subKeyGroupSize, keyGroupMapping);
+
         long emitStartTime;
 
         while (count < nTuples) {
             emitStartTime = System.currentTimeMillis();
             for (int i = 0; i < rate / 20; i++) {
-                String key = getChar(count);
-                ProducerRecord<String, String> newRecord = new ProducerRecord<>(TOPIC, key);
+                String key = getSubKeySetChar(count, subKeySet);
+                ProducerRecord<String, String> newRecord = new ProducerRecord<>(TOPIC, System.currentTimeMillis() + ":" + key);
                 producer.send(newRecord);
                 count++;
             }
 
             // Sleep for the rest of timeslice if needed
             Util.pause(emitStartTime);
+
+            if (count % rate == 0) {
+                // update the keyset
+                subKeySet = Util.selectKeyGroups(subKeyGroupSize, keyGroupMapping);
+            }
         }
+
         producer.close();
     }
 
     private String getChar(int cur) {
         return "A" + (cur % nKeys);
+    }
+
+    private String getSubKeySetChar(int cur, List<String> subKeySet) {
+        return subKeySet.get(cur % subKeySet.size());
     }
 
     public static void main(String[] args) throws InterruptedException {
@@ -115,7 +114,9 @@ public class WCGeneratorStateControlled {
         new WCGeneratorStateControlled(
                 params.getInt("runtime", 10),
                 params.getInt("nTuples", 10000),
-                params.getInt("nKeys", 1000))
+                params.getInt("nKeys", 1000),
+                params.getInt("mp2", 128),
+                params.getInt("stateAccessRatio", 25))
                 .generate();
     }
 }

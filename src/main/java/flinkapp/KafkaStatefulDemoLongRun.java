@@ -1,31 +1,19 @@
 package flinkapp;
 
-import Nexmark.sources.Util;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.flink.api.common.functions.RichMapFunction;
-import org.apache.flink.api.common.state.ListState;
-import org.apache.flink.api.common.state.ListStateDescriptor;
 import org.apache.flink.api.common.state.MapState;
 import org.apache.flink.api.common.state.MapStateDescriptor;
 import org.apache.flink.api.java.tuple.Tuple2;
-import org.apache.flink.api.java.tuple.Tuple3;
 import org.apache.flink.api.java.utils.ParameterTool;
 import org.apache.flink.configuration.Configuration;
-import org.apache.flink.runtime.state.FunctionInitializationContext;
-import org.apache.flink.runtime.state.FunctionSnapshotContext;
 import org.apache.flink.runtime.state.memory.MemoryStateBackend;
-import org.apache.flink.streaming.api.CheckpointingMode;
-import org.apache.flink.streaming.api.checkpoint.CheckpointedFunction;
 import org.apache.flink.streaming.api.datastream.DataStream;
 import org.apache.flink.streaming.api.datastream.DataStreamSource;
 import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
-import org.apache.flink.streaming.api.functions.source.RichParallelSourceFunction;
 import org.apache.flink.streaming.connectors.kafka.FlinkKafkaConsumer011;
-import stock.KafkaWithTsMsgSchema;
 import stock.KafkaWithTsMsgSchema2;
 
-import java.util.HashMap;
-import java.util.Map;
 import java.util.Properties;
 
 import static common.Util.delay;
@@ -51,8 +39,7 @@ public class KafkaStatefulDemoLongRun {
 
         StreamExecutionEnvironment env = StreamExecutionEnvironment.getExecutionEnvironment();
 
-        env.enableCheckpointing(1000);
-        env.getCheckpointConfig().setCheckpointingMode(CheckpointingMode.EXACTLY_ONCE);
+        env.enableCheckpointing(params.getInt("interval", 1000));
 
         // set up the execution environment
         env.setStateBackend(new MemoryStateBackend(1073741824));
@@ -69,12 +56,15 @@ public class KafkaStatefulDemoLongRun {
 //                .uid("sentence-source")
                 .setParallelism(params.getInt("p1", 1));
         DataStream<String> counts = source
+                .slotSharingGroup("g1")
                 .keyBy(0)
                 .map(new MyStatefulMap(perKeyStateSize))
                 .disableChaining()
+                .slotSharingGroup("g2")
                 .name("Splitter FlatMap")
                 .uid("flatmap")
-                .setParallelism(params.getInt("p2", 3));
+                .setParallelism(params.getInt("p2", 3))
+                .setMaxParallelism(params.getInt("mp2", 128));
 
 //        GenericTypeInfo<Object> objectTypeInfo = new GenericTypeInfo<>(Object.class);
 //        counts.transform("Sink", objectTypeInfo,
@@ -110,7 +100,7 @@ public class KafkaStatefulDemoLongRun {
             countMap.put(s, payload);
 
 
-            System.out.println("ts: " + Long.parseLong(input.f1) + " endToEnd latency: " + (System.currentTimeMillis() - Long.parseLong(input.f1)));
+            System.out.println("ts: " + Long.parseLong(input.f1) + " endToEnd latency2: " + (System.currentTimeMillis() - Long.parseLong(input.f1)));
 
             return String.format("%s %d", s, cur);
         }
