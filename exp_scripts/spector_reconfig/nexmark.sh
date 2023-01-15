@@ -119,7 +119,7 @@ init() {
   source_p=1
   parallelism=2
   max_parallelism=512
-  per_task_rate=8000
+  per_task_rate=5000
   checkpoint_interval=1000 # by default checkpoint in frequent, trigger only when necessary
 
   srcBase=`expr ${per_task_rate} \* ${parallelism} \/ ${source_p}`
@@ -170,27 +170,30 @@ run_query8() {
 
 nexmark_overview() {
 
-  for query_id in 8; do # 1 2 3 4 5
-#    # Migrate at once
-#    init
-#    replicate_keys_filter=0
-#    sync_keys=0
-#    checkpoint_interval=10000000
-#
-#    run_query${query_id}
-#
-#    # Fluid Migration
-#    init
-#    replicate_keys_filter=0
-#    sync_keys=8
-#    checkpoint_interval=10000000
-#
-#    run_query${query_id}
+  for query_id in 8; do # 1 2 5 8
+    # Migrate at once
+    init
+    replicate_keys_filter=0
+    sync_keys=0
+    per_task_rate=50000
+    checkpoint_interval=10000000
+
+    run_query${query_id}
+
+    # Fluid Migration
+    init
+    replicate_keys_filter=0
+    sync_keys=8
+    per_task_rate=20000
+    checkpoint_interval=10000000
+
+    run_query${query_id}
 
     # Proactive State replication
     init
     replicate_keys_filter=1
     sync_keys=0
+    per_task_rate=20000
 
     run_query${query_id}
 
