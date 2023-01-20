@@ -103,7 +103,7 @@ init() {
   key_set=16384
   per_key_state_size=32768 # byte
   checkpoint_interval=1000 # by default checkpoint in frequent, trigger only when necessary
-  state_access_ratio=20
+  state_access_ratio=2
 
   n_tuples=`expr ${runtime} \* ${per_task_rate} \* ${parallelism} \/ ${source_p}`
 
@@ -207,16 +207,28 @@ run_fluid_study() {
   init
   replicate_keys_filter=0
   checkpoint_interval=10000000
+  state_access_ratio=20
   for sync_keys in 4 8 16 32 64 128; do
     run_one_exp
   done
 }
 
+run_replication_study() {
+  # Proactive State replication
+  init
+  sync_keys=0
+  for replicate_keys_filter in 1 2 4 8; do
+    run_one_exp
+  done
+}
+
+
 #run_micro
 #run_overview
 #run_test
 #run_replication_overhead
-run_fluid_study
+#run_fluid_study
+run_replication_study
 
 # dump the statistics when all exp are finished
 # in the future, we will draw the intuitive figures

@@ -27,7 +27,7 @@ TICK_FP = FontProperties(style='normal', size=TICK_FONT_SIZE)
 
 MARKERS = (['o', 's', 'v', "^", "h", "v", ">", "x", "d", "<", "|", "", "+", "_"])
 # you may want to change the color map for different figures
-COLOR_MAP = ('#000000', '#B03A2E', '#2874A6', '#239B56', '#7D3C98', '#000000', '#F1C40F', '#F5CBA7', '#82E0AA', '#AEB6BF', '#AA4499')
+COLOR_MAP = ('#B03A2E', '#2874A6', '#239B56', '#7D3C98', '#F1C40F', '#F5CBA7', '#82E0AA', '#AEB6BF', '#AA4499')
 # you may want to change the patterns for different figures
 PATTERNS = (["", "////", "\\\\", "//", "o", "", "||", "-", "//", "\\", "o", "O", "////", ".", "|||", "o", "---", "+", "\\\\", "*"])
 LABEL_WEIGHT = 'bold'
@@ -57,13 +57,17 @@ def ReadFile():
     x_axis = []
     y_axis = []
 
-    for sync_keys in [1, 8, 32]:
+    per_key_state_size = 32768
+    sync_keys = 0
+
+    for replicate_keys_filter in [1, 2, 4, 8]:
         col = []
         coly = []
         start_ts = float('inf')
         temp_dict = {}
-        for tid in range(0, 8):
-            f = open(utilities.FILE_FOLER + "/spector-{}-{}/Splitter FlatMap-{}.output".format(16384, sync_keys, tid))
+        for tid in range(0, 1):
+            f = open(utilities.FILE_FOLER + "/spector-{}-{}-{}/Splitter FlatMap-{}.output"
+                     .format(per_key_state_size, sync_keys, replicate_keys_filter, tid))
             read = f.readlines()
             for r in read:
                 if r.find("endToEnd latency: ") != -1:
@@ -76,12 +80,16 @@ def ReadFile():
                     temp_dict[ts].append(latency)
 
         for ts in temp_dict:
-            coly.append(sum(temp_dict[ts]) / len(temp_dict[ts]))
+            # coly.append(sum(temp_dict[ts]) / len(temp_dict[ts]))
+            temp_dict[ts].sort()
+            coly.append(temp_dict[ts][ceil((len(temp_dict[ts])) * 0.95)])
             col.append(ts - start_ts)
 
+        x_axis.append(col[40:70])
+        y_axis.append(coly[40:70])
 
-        x_axis.append(col)
-        y_axis.append(coly)
+        # x_axis.append(col)
+        # y_axis.append(coly)
 
     print(x_axis)
 
@@ -113,7 +121,7 @@ def DrawFigure(xvalues, yvalues, legend_labels, x_label, y_label, filename, allo
                    FIGURE_LABEL,
                    prop=LEGEND_FP,
                    loc='upper center',
-                   ncol=3,
+                   ncol=4,
                    #                     mode='expand',
                    bbox_to_anchor=(0.5, 1.2), shadow=False,
                    columnspacing=0.1,
@@ -129,6 +137,6 @@ def DrawFigure(xvalues, yvalues, legend_labels, x_label, y_label, filename, allo
 
 if __name__ == "__main__":
     x_axis, y_axis = ReadFile()
-    legend_labels = ["Sync-1", "Sync-8", "Sync-32"]
+    legend_labels = ["Repl-1", "Repl-2", "Repl-4", "Repl-8"]
     legend = True
-    DrawFigure(x_axis, y_axis, legend_labels, "Time(ms)", "Latency(ms)", "latency_curve", legend)
+    DrawFigure(x_axis, y_axis, legend_labels, "Time(ms)", "Latency(ms)", "latency_curve_replication", legend)
