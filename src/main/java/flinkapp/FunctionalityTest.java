@@ -1,7 +1,11 @@
 package flinkapp;
 
+import Nexmark.sources.Util;
+import org.apache.flink.api.java.tuple.Tuple2;
+
 import java.util.*;
 import java.util.concurrent.ExecutionException;
+import java.util.stream.IntStream;
 
 import static java.lang.Thread.sleep;
 import static java.util.concurrent.CompletableFuture.runAsync;
@@ -58,6 +62,82 @@ public class FunctionalityTest {
 //            System.out.println("start: " + start + ", end: " + end + ", nNumbers: " + (end - start + 1));
 //        }
 
+//        testKeyGroupMapping();
+
+        int[] keyProportion;
+        int iterationSize;
+        int nKeys = 16384;
+        int maxParallelism = 8;
+        final Map<Integer, List<String>> keyGroupMapping = new HashMap<>();
+
+
+        // Fix this key rate config
+        int[] rateConfig = new int[]{6, 8, 2, 8, 1, 1, 1, 1};
+
+
+        iterationSize = IntStream.of(rateConfig).sum();
+        keyProportion = new int[iterationSize];
+
+        int index = 0;
+        for (int i = 0; i < rateConfig.length; i++) {
+            int ratio = rateConfig[i];
+            for (int j = 0; j < ratio; j++) {
+                keyProportion[index] = i;
+                index++;
+            }
+        }
+
+        // Another functionality test
+        for (int i = 0; i < nKeys; i++) {
+            String key = "A" + i;
+            int keygroup = MathUtils.murmurHash(key.hashCode()) % maxParallelism;
+            List<String> keys = keyGroupMapping.computeIfAbsent(keygroup, t -> new ArrayList<>());
+            keys.add(key);
+        }
+
+        List<String> subKeySet;
+
+        Map<Integer, Integer> stats = new HashMap<>();
+
+
+        long emitStartTime = System.currentTimeMillis();
+
+        int count = 0;
+        int nTuples = 10000;
+        int rate = 10000;
+
+        while (count < nTuples) {
+
+            emitStartTime = System.currentTimeMillis();
+            for (int i = 0; i < rate / 20; i++) {
+                subKeySet = keyGroupMapping.get(keyProportion[count % keyProportion.length]);
+
+                String key = getSubKeySetChar(count, subKeySet);
+
+                int keygroup = MathUtils.murmurHash(key.hashCode()) % maxParallelism;
+
+                count++;
+
+                int statsByKey = stats.computeIfAbsent(keygroup, t -> 0);
+                statsByKey++;
+                stats.put(keygroup, statsByKey);
+            }
+
+            if (count % rate == 0) {
+                // update the keyset
+                System.out.println("++++++new Key Stats: " + stats);
+            }
+
+            // Sleep for the rest of timeslice if needed
+            Util.pause(emitStartTime);
+        }
+    }
+
+    private static String getSubKeySetChar(int cur, List<String> subKeySet) {
+        return subKeySet.get(cur % subKeySet.size());
+    }
+
+    private static void testKeyGroupMapping() {
         int maxParallelism = 512;
 
         Map<Integer, List<String>> cardinality = new HashMap<>();
@@ -72,12 +152,8 @@ public class FunctionalityTest {
             keys.add(key);
         }
 
-//        System.out.println(cardinality);
-
-
         int stateAccessRatio = 10;
         int rate = 10000;
-
 
         int subKeyGroupSize = maxParallelism * stateAccessRatio / 100;
 

@@ -201,8 +201,9 @@ public class StatefulDemoLongRunrKeyRateControlled {
         @Override
         public void run(SourceContext<Tuple2<String, String>> ctx) throws Exception {
 
-            List<String> subKeySet = Util.selectKeyGroups(subKeyGroupSize, keyGroupMapping);
-            Map<Integer, Integer> keyGroupCount = new HashMap<>();
+            List<String> subKeySet;
+
+            Map<Integer, Integer> stats = new HashMap<>();
 
 
             long emitStartTime = System.currentTimeMillis();
@@ -211,20 +212,23 @@ public class StatefulDemoLongRunrKeyRateControlled {
 
                 emitStartTime = System.currentTimeMillis();
                 for (int i = 0; i < rate / 20; i++) {
+                    subKeySet = keyGroupMapping.get(keyProportion[count % keyProportion.length]);
+
                     String key = getSubKeySetChar(count, subKeySet);
 
                     int keygroup = MathUtils.murmurHash(key.hashCode()) % maxParallelism;
                     ctx.collect(Tuple2.of(key, String.valueOf(System.currentTimeMillis())));
 
                     count++;
+
+                    int statsByKey = stats.computeIfAbsent(keygroup, t -> 0);
+                    statsByKey++;
+                    stats.put(keygroup, statsByKey);
                 }
 
                 if (count % rate == 0) {
                     // update the keyset
-//                    System.out.println("++++++Actual Keygroups accessed: " + keyGroupCount.size());
-//                    keyGroupCount.clear();
-//                    System.out.println("++++++new Key Set: " + subKeySet.size());
-                    subKeySet = Util.selectKeyGroups(subKeyGroupSize, keyGroupMapping);
+                    System.out.println("++++++new Key Stats: " + stats);
                 }
 
                 // Sleep for the rest of timeslice if needed
