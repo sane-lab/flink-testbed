@@ -72,7 +72,7 @@ function analyze() {
 run_one_exp() {
   n_tuples=`expr ${runtime} \* ${per_task_rate} \* ${parallelism} \/ ${source_p}`
   # compute n_tuples from per task rates and parallelism
-  EXP_NAME=spector-${per_key_state_size}-${sync_keys}-${replicate_keys_filter}
+  EXP_NAME=spector-$per_task_rate-${per_key_state_size}-${sync_keys}-${replicate_keys_filter}
 
   echo "INFO: run exp ${EXP_NAME}"
   configFlink
@@ -165,6 +165,7 @@ run_test() {
 
   init
   state_access_ratio=100
+  checkpoint_interval=10000000
   for repeat in 1; do # 1 2 3 4 5
     for per_task_rate in 7000 8000 9000; do # state size 1 2 4 8 0
        run_one_exp

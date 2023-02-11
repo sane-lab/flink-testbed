@@ -139,4 +139,4 @@ if __name__ == "__main__":
     x_axis, y_axis = ReadFile()
     legend_labels = ["Sync-4", "Sync-8", "Sync-16", "Sync-32", "Sync-64", "Sync-128"]
     legend = True
-    DrawFigure(x_axis, y_axis, legend_labels, "Time(ms)", "Latency(ms)", "fluid_latency_curve", legend)
+    DrawFigure(x_axis, y_axis, legend_labels, "Time(ms)", "Latency(ms)", "latency_curve_sync", legend)
