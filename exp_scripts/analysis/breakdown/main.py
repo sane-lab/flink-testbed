@@ -3,7 +3,7 @@ import os
 import sys
 import utilities
 import breakdown_state_size
-from analysis.breakdown import breakdown_sync_keys, breakdown_replicate_keys
+from analysis.breakdown import breakdown_sync_keys, breakdown_replicate_keys, breakdown_order_keys
 
 if __name__ == '__main__':
     val = utilities.init()
@@ -29,6 +29,7 @@ if __name__ == '__main__':
     # breakdown_parallelism.draw(val)
     # breakdown_state_size.draw(val)
     # breakdown_sync_keys.draw(val)
-    breakdown_replicate_keys.draw(val)
+    # breakdown_replicate_keys.draw(val)
+    breakdown_order_keys.draw(val)
     # breakdown_arrival_rate.draw(val)
     # breakdown_affected_tasks.draw(val)

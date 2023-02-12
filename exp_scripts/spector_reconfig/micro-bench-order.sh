@@ -42,8 +42,10 @@ function configFlink() {
     sed 's/^\(\s*spector.reconfig.sync_keys\s*:\s*\).*/\1'"$sync_keys"'/' tmp2 > tmp3
     sed 's/^\(\s*spector.replicate_keys_filter\s*:\s*\).*/\1'"$replicate_keys_filter"'/' tmp3 > tmp4
     sed 's/^\(\s*controller.target.operators\s*:\s*\).*/\1'"$operator"'/' tmp4 > tmp5
-    sed 's/^\(\s*spector.reconfig.affected_tasks\s*:\s*\).*/\1'"$affected_tasks"'/' tmp5 > ${FLINK_DIR}/conf/flink-conf.yaml
-    rm tmp1 tmp2 tmp3 tmp4 tmp5
+    sed 's/^\(\s*spector.reconfig.order_function\s*:\s*\).*/\1'"$order_function"'/' tmp5 > tmp6
+    sed 's/^\(\s*spector.reconfig.scenario\s*:\s*\).*/\1'"$reconfig_scenario"'/' tmp6 > tmp7
+    sed 's/^\(\s*spector.reconfig.affected_tasks\s*:\s*\).*/\1'"$affected_tasks"'/' tmp7 > ${FLINK_DIR}/conf/flink-conf.yaml
+    rm tmp1 tmp2 tmp3 tmp4 tmp5 tmp6 tmp7
 }
 
 # run applications
@@ -72,7 +74,7 @@ function analyze() {
 run_one_exp() {
   n_tuples=`expr ${runtime} \* ${per_task_rate} \* ${parallelism} \/ ${source_p}`
   # compute n_tuples from per task rates and parallelism
-  EXP_NAME=spector-$per_task_rate-${per_key_state_size}-${sync_keys}-${replicate_keys_filter}
+  EXP_NAME=spector-$per_task_rate-${per_key_state_size}-${sync_keys}-${replicate_keys_filter}-${order_function}
 
   echo "INFO: run exp ${EXP_NAME}"
   configFlink
@@ -93,6 +95,9 @@ run_one_exp() {
 
 # initialization of the parameters
 init() {
+  # exp scenario
+  reconfig_scenario="load_balance"
+
   # app level
   JAR="${FLINK_APP_DIR}/target/testbed-1.0-SNAPSHOT.jar"
   job="flinkapp.StatefulDemoLongRunrKeyRateControlled"
@@ -105,6 +110,7 @@ init() {
   per_key_state_size=32768 # byte
   checkpoint_interval=1000 # by default checkpoint in frequent, trigger only when necessary
   state_access_ratio=2
+  order_function="default"
 
 
 
@@ -182,9 +188,9 @@ run_no_migration() {
 #  done
 
   init
-  state_access_ratio=100
+#  state_access_ratio=100
   checkpoint_interval=10000000
-  reconfig_start=10000000
+#  reconfig_start=10000000
   for repeat in 1; do # 1 2 3 4 5
     for per_task_rate in 6000 7000 8000 9000 10000 12000 15000; do # state size 1 2 4 8 0
        run_one_exp
@@ -251,13 +257,27 @@ run_replication_study() {
 }
 
 
+run_order_study() {
+  # Fluid Migration with prioritized rules
+  init
+  per_task_rate=6000
+  replicate_keys_filter=0
+  checkpoint_interval=10000000
+  sync_keys=1
+  for order_function in default reverse; do
+    run_one_exp
+  done
+}
+
+
 #run_micro
 #run_overview
 #run_test
 #run_replication_overhead
 #run_fluid_study
 #run_replication_study
-run_no_migration
+#run_no_migration
+run_order_study
 
 # dump the statistics when all exp are finished
 # in the future, we will draw the intuitive figures

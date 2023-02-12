@@ -65,7 +65,7 @@ function analyze() {
         rm -rf ${EXP_DIR}/raw/${EXP_NAME}
     fi
     mv ${FLINK_DIR}/log ${EXP_DIR}/spector/
-    mv ${EXP_DIR}/spector/ ${EXP_DIR}/raw/${EXP_NAME}
+    mv ${EXP_DIR}/spector/ ${EXP_DIR}/raw/workloads/${EXP_NAME}
     mkdir ${EXP_DIR}/spector/
 }
 
@@ -73,7 +73,7 @@ function analyze() {
 run_one_exp() {
   n_tuples=`expr ${runtime} \* ${per_task_rate} \* ${parallelism} \/ ${source_p}`
   # compute n_tuples from per task rates and parallelism
-  EXP_NAME=spector-${per_key_state_size}-${sync_keys}-${replicate_keys_filter}
+  EXP_NAME=spector-${per_key_state_size}-${sync_keys}-${replicate_keys_filter}-${parallelism}-${state_access_ratio}
 
   echo "INFO: run exp ${EXP_NAME}"
   configFlink
