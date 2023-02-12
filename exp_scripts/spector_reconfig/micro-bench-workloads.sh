@@ -60,9 +60,9 @@ function runApp() {
 # draw figures
 function analyze() {
     #python2 ${FLINK_APP_DIR}/nexmark_scripts/draw/RateAndWindowDelay.py ${EXP_NAME} ${WARMUP} ${RUNTIME}
-    echo "INFO: dump to ${EXP_DIR}/raw/${EXP_NAME}"
-    if [[ -d ${EXP_DIR}/raw/${EXP_NAME} ]]; then
-        rm -rf ${EXP_DIR}/raw/${EXP_NAME}
+    echo "INFO: dump to ${EXP_DIR}/raw/workloads/${EXP_NAME}"
+    if [[ -d ${EXP_DIR}/raw/workloads/${EXP_NAME} ]]; then
+        rm -rf ${EXP_DIR}/raw/workloads/${EXP_NAME}
     fi
     mv ${FLINK_DIR}/log ${EXP_DIR}/spector/
     mv ${EXP_DIR}/spector/ ${EXP_DIR}/raw/workloads/${EXP_NAME}
@@ -261,9 +261,10 @@ run_access_ratio() {
 
 run_parallelism() {
   init
+  checkpoint_interval=10000000 # by default checkpoint in frequent, trigger only when necessary
   replicate_keys_filter=0
   sync_keys=0
-  for parallelism in 2 4 8 16; do
+  for parallelism in 2 4 8; do
     affected_tasks=$parallelism
     run_one_exp
   done
