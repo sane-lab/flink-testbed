@@ -103,8 +103,8 @@ public class FunctionalityTest {
         long emitStartTime = System.currentTimeMillis();
 
         int count = 0;
-        int nTuples = 10000;
-        int rate = 10000;
+        int nTuples = 14000;
+        int rate = 14000;
 
         while (count < nTuples) {
 

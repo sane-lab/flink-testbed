@@ -95,12 +95,12 @@ run_one_exp() {
 init() {
   # app level
   JAR="${FLINK_APP_DIR}/target/testbed-1.0-SNAPSHOT.jar"
-  job="flinkapp.StatefulDemoLongRunStateControlled"
+  job="flinkapp.StatefulDemoLongRunrKeyRateControlled"
   runtime=100
   source_p=1
   per_task_rate=5000
   parallelism=2
-  max_parallelism=512
+  max_parallelism=8
   key_set=16384
   per_key_state_size=32768 # byte
   checkpoint_interval=1000 # by default checkpoint in frequent, trigger only when necessary
@@ -173,6 +173,25 @@ run_test() {
   done
 }
 
+run_no_migration() {
+#  init
+#  for repeat in 1; do # 1 2 3 4 5
+#    for per_key_state_size in 4096 8192 16384 32768; do # state size 1 2 4 8 0
+#       run_one_exp
+#     done
+#  done
+
+  init
+  state_access_ratio=100
+  checkpoint_interval=10000000
+  reconfig_start=10000000
+  for repeat in 1; do # 1 2 3 4 5
+    for per_task_rate in 6000 7000 8000 9000 10000 12000 15000; do # state size 1 2 4 8 0
+       run_one_exp
+     done
+  done
+}
+
 run_replication_overhead() {
   # Migrate at once
   init
@@ -234,10 +253,11 @@ run_replication_study() {
 
 #run_micro
 #run_overview
-run_test
+#run_test
 #run_replication_overhead
 #run_fluid_study
 #run_replication_study
+run_no_migration
 
 # dump the statistics when all exp are finished
 # in the future, we will draw the intuitive figures

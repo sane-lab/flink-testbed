@@ -53,13 +53,11 @@ public class StatefulDemoLongRunrKeyRateControlled {
         env.setStateBackend(new MemoryStateBackend(1073741824));
 
         int perKeyStateSize = params.getInt("perKeySize", 1024);
-        int stateAccessRatio = params.getInt("stateAccessRatio", 25); // default 25%
 
         DataStreamSource<Tuple2<String, String>> source = env.addSource(new MySource(
                 params.getInt("runtime", 10),
                 params.getInt("nTuples", 10000),
-                params.getInt("nKeys", 1000),
-                params.getInt("mp2", 8)
+                params.getInt("nKeys", 1000)
         )).setParallelism(params.getInt("p1", 1));
         DataStream<String> counts = source
                 .slotSharingGroup("g1")
@@ -73,7 +71,7 @@ public class StatefulDemoLongRunrKeyRateControlled {
                 .name("Splitter FlatMap")
                 .uid("flatmap")
                 .setParallelism(params.getInt("p2", 1))
-                .setMaxParallelism(params.getInt("mp2", 128));
+                .setMaxParallelism(params.getInt("mp2", 8));
 
         env.execute();
     }
@@ -142,15 +140,16 @@ public class StatefulDemoLongRunrKeyRateControlled {
 
         private final Map<Integer, List<String>> keyGroupMapping = new HashMap<>();
 
-        MySource(int runtime, int nTuples, int nKeys, int maxParallelism) {
+        MySource(int runtime, int nTuples, int nKeys) {
             this.runtime = runtime;
             this.nTuples = nTuples;
             this.nKeys = nKeys;
             this.rate = nTuples / runtime;
-            this.maxParallelism = maxParallelism;
 
             // Fix this key rate config
             int[] rateConfig = new int[]{6, 8, 2, 8, 1, 1, 1, 1};
+
+            this.maxParallelism = rateConfig.length;
 
 
             iterationSize = IntStream.of(rateConfig).sum();
@@ -205,8 +204,7 @@ public class StatefulDemoLongRunrKeyRateControlled {
 
             Map<Integer, Integer> stats = new HashMap<>();
 
-
-            long emitStartTime = System.currentTimeMillis();
+            long emitStartTime;
 
             while (isRunning && count < nTuples) {
 
