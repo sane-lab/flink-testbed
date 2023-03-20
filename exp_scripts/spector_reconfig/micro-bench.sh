@@ -59,6 +59,9 @@ function runApp() {
 
 # draw figures
 function analyze() {
+    mkdir -p ${EXP_DIR}/raw/
+    mkdir -p ${EXP_DIR}/results/
+
     #python2 ${FLINK_APP_DIR}/nexmark_scripts/draw/RateAndWindowDelay.py ${EXP_NAME} ${WARMUP} ${RUNTIME}
     echo "INFO: dump to ${EXP_DIR}/raw/${EXP_NAME}"
     if [[ -d ${EXP_DIR}/raw/${EXP_NAME} ]]; then
@@ -180,6 +183,8 @@ run_replication_overhead() {
   replicate_keys_filter=0
   sync_keys=0
   reconfig_start=10000000
+  state_access_ratio=2
+  checkpoint_interval=5000
   run_one_exp
 
   # Proactive State replication
@@ -187,6 +192,8 @@ run_replication_overhead() {
   replicate_keys_filter=1
   sync_keys=0
   reconfig_start=10000000
+  state_access_ratio=2
+  checkpoint_interval=5000
   run_one_exp
 }
 
@@ -217,8 +224,9 @@ run_fluid_study() {
   init
   replicate_keys_filter=0
   checkpoint_interval=10000000
-  state_access_ratio=20
-  for sync_keys in 4 8 16 32 64 128; do
+  state_access_ratio=100
+#  for sync_keys in 1 2 4 8 16 32 64 128 256; do
+  for sync_keys in 4 128 256; do
     run_one_exp
   done
 }
@@ -273,10 +281,10 @@ run_parallelism() {
 #run_micro
 #run_overview
 #run_test
-#run_replication_overhead
+run_replication_overhead
 #run_fluid_study
 #run_replication_study
-run_parallelism
+#run_parallelism
 
 # dump the statistics when all exp are finished
 # in the future, we will draw the intuitive figures

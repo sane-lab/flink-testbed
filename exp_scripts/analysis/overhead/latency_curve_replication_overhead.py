@@ -83,9 +83,14 @@ def ReadFile():
                     temp_dict[ts].append(latency)
 
         for ts in temp_dict:
-            coly.append(sum(temp_dict[ts]) / len(temp_dict[ts]))
+            # coly.append(sum(temp_dict[ts]) / len(temp_dict[ts]))
+            temp_dict[ts].sort()
+            coly.append(temp_dict[ts][ceil((len(temp_dict[ts])) * 0.99)])
             col.append(ts - start_ts)
 
+
+        # x_axis.append(col[40:70])
+        # y_axis.append(coly[40:70])
 
         x_axis.append(col)
         y_axis.append(coly)
@@ -128,7 +133,8 @@ def DrawFigure(xvalues, yvalues, legend_labels, x_label, y_label, filename, allo
                    handletextpad=0.1,
                    labelspacing=0.1)
 
-    # plt.yscale('log')
+    plt.yscale('log')
+    plt.ylim(1)
     plt.xlabel(x_label, fontproperties=LABEL_FP)
     plt.ylabel(y_label, fontproperties=LABEL_FP)
 

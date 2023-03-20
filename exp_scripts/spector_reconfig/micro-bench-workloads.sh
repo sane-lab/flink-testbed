@@ -73,7 +73,7 @@ function analyze() {
 run_one_exp() {
   n_tuples=`expr ${runtime} \* ${per_task_rate} \* ${parallelism} \/ ${source_p}`
   # compute n_tuples from per task rates and parallelism
-  EXP_NAME=spector-${per_key_state_size}-${sync_keys}-${replicate_keys_filter}-${parallelism}-${state_access_ratio}
+  EXP_NAME=spector-${per_task_rate}-${per_key_state_size}-${sync_keys}-${replicate_keys_filter}-${parallelism}-${state_access_ratio}
 
   echo "INFO: run exp ${EXP_NAME}"
   configFlink
@@ -243,6 +243,7 @@ run_state_size() {
 
 run_rate() {
   init
+  checkpoint_interval=10000000 # by default checkpoint in frequent, trigger only when necessary
   replicate_keys_filter=0
   sync_keys=0
   for per_task_rate in 5000 6000 7000 8000 9000 10000; do
@@ -252,6 +253,7 @@ run_rate() {
 
 run_access_ratio() {
   init
+  checkpoint_interval=10000000 # by default checkpoint in frequent, trigger only when necessary
   replicate_keys_filter=0
   sync_keys=0
   for state_access_ratio in 2 10 25 50 100; do
@@ -277,7 +279,8 @@ run_parallelism() {
 #run_replication_overhead
 #run_fluid_study
 #run_replication_study
-run_parallelism
+#run_parallelism
+run_rate
 
 # dump the statistics when all exp are finished
 # in the future, we will draw the intuitive figures

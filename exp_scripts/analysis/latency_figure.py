@@ -184,21 +184,6 @@ def ReadFile(type):
     return y
 
 if __name__ == '__main__':
-    type = 'noop'
-
-    try:
-        opts, args = getopt.getopt(sys.argv[1:], '-t:h', ['reconfig type', 'help'])
-    except getopt.GetoptError:
-        print('breakdown_parallelism.py -t type')
-        sys.exit(2)
-    for opt, opt_value in opts:
-        if opt in ('-h', '--help'):
-            print("[*] Help info")
-            exit()
-        elif opt == '-t':
-            print('Reconfig Type:', opt_value)
-            type = str(opt_value)
-
     x_values = ['5', '10', '20']
     y_values = ReadFile(type)
 

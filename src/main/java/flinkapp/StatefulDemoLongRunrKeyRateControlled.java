@@ -147,7 +147,10 @@ public class StatefulDemoLongRunrKeyRateControlled {
             this.rate = nTuples / runtime;
 
             // Fix this key rate config
-            int[] rateConfig = new int[]{6, 8, 2, 8, 1, 1, 1, 1};
+            int[] rateConfig = new int[]{
+                    14, 14, 1, 1, 2, 4, 4, 8,
+                    1, 1, 1, 1, 1, 1, 1, 1
+            };
 
             this.maxParallelism = rateConfig.length;
 

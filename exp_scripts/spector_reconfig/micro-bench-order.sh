@@ -74,7 +74,7 @@ function analyze() {
 run_one_exp() {
   n_tuples=`expr ${runtime} \* ${per_task_rate} \* ${parallelism} \/ ${source_p}`
   # compute n_tuples from per task rates and parallelism
-  EXP_NAME=spector-$per_task_rate-${per_key_state_size}-${sync_keys}-${replicate_keys_filter}-${order_function}
+  EXP_NAME=spector-${per_task_rate}-${per_key_state_size}-${sync_keys}-${replicate_keys_filter}-${order_function}
 
   echo "INFO: run exp ${EXP_NAME}"
   configFlink
@@ -105,7 +105,7 @@ init() {
   source_p=1
   per_task_rate=5000
   parallelism=2
-  max_parallelism=8
+  max_parallelism=16
   key_set=16384
   per_key_state_size=32768 # byte
   checkpoint_interval=1000 # by default checkpoint in frequent, trigger only when necessary
@@ -260,11 +260,12 @@ run_replication_study() {
 run_order_study() {
   # Fluid Migration with prioritized rules
   init
-  per_task_rate=6000
+#  per_task_rate=6000
+  per_task_rate=4000
   replicate_keys_filter=0
   checkpoint_interval=10000000
   sync_keys=1
-  for order_function in default reverse; do
+  for order_function in default reverse random; do # default reverse
     run_one_exp
   done
 }

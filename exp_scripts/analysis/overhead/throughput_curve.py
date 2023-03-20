@@ -147,4 +147,4 @@ if __name__ == "__main__":
     x_axis, y_axis = ReadFile()
     legend_labels = ["1", "8", "32"]
     legend = True
-    DrawFigure(x_axis, y_axis, legend_labels, "time(ms)", "latency(ms)", "comparison", legend)
+    DrawFigure(x_axis, y_axis, legend_labels, "time(ms)", "latency(ms)", "scheduling_decisions", legend)

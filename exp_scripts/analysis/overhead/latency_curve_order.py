@@ -1,7 +1,7 @@
 import getopt
 import os
 import sys
-from math import ceil
+from math import ceil, floor
 
 import matplotlib
 import matplotlib.pyplot as plt
@@ -140,9 +140,9 @@ def ReadFile():
     per_key_state_size = 32768
     replicate_keys_filter = 0
     sync_keys = 1
-    per_task_rate = 6000
+    per_task_rate = 4000
 
-    for order_function in ["default", "reverse"]:
+    for order_function in ["random", "default", "reverse"]:
         col = []
         coly = []
         start_ts = float('inf')
@@ -164,7 +164,7 @@ def ReadFile():
         for ts in temp_dict:
             # coly.append(sum(temp_dict[ts]) / len(temp_dict[ts]))
             temp_dict[ts].sort()
-            coly.append(temp_dict[ts][ceil((len(temp_dict[ts]))*0.95)])
+            coly.append(temp_dict[ts][floor((len(temp_dict[ts]))*0.95)])
             col.append(ts - start_ts)
 
         x_axis.append(col)
@@ -179,6 +179,6 @@ def ReadFile():
 
 if __name__ == '__main__':
     x_axis, y_axis = ReadFile()
-    legend_labels = ["default", "reverse"]
+    legend_labels = ["random", "coldkey-first", "hotkey-first"]
     legend = True
     DrawFigure(x_axis, y_axis, legend_labels, "Time(ms)", "Latency(ms)", "latency_curve_order", legend)
