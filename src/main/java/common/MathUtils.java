@@ -16,7 +16,7 @@
  * limitations under the License.
  */
 
-package flinkapp;
+package common;
 
 /**
  * Collection of simple mathematical routines.

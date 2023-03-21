@@ -140,7 +140,7 @@ def ReadFile():
     per_key_state_size = 32768
     replicate_keys_filter = 0
     sync_keys = 1
-    per_task_rate = 4000
+    per_task_rate = 5000
 
     for order_function in ["random", "default", "reverse"]:
         col = []

@@ -1,7 +1,7 @@
 package kafkagenerator;
 
 import Nexmark.sources.Util;
-import flinkapp.MathUtils;
+import common.MathUtils;
 import org.apache.flink.api.common.state.ListState;
 import org.apache.flink.api.java.utils.ParameterTool;
 import org.apache.kafka.clients.producer.KafkaProducer;

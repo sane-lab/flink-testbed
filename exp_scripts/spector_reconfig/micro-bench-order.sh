@@ -261,7 +261,7 @@ run_order_study() {
   # Fluid Migration with prioritized rules
   init
 #  per_task_rate=6000
-  per_task_rate=4000
+  per_task_rate=5000
   replicate_keys_filter=0
   checkpoint_interval=10000000
   sync_keys=1

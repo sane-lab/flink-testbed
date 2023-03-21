@@ -1,7 +1,7 @@
 //package stock;
 //
 //import Nexmark.sinks.DummySink;
-//import flinkapp.WordCount;
+//import flinkapp.wordcount.WordCount;
 //import flinkapp.wordcount.StatefulWordCount;
 //import flinkapp.wordcount.sources.RateControlledSourceFunctionKV;
 //import org.apache.flink.api.common.functions.FlatMapFunction;

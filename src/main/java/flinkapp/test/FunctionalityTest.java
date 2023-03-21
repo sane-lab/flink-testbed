@@ -1,7 +1,8 @@
-package flinkapp;
+package flinkapp.test;
 
 import Nexmark.sources.Util;
-import org.apache.flink.api.java.tuple.Tuple2;
+import common.FastZipfGenerator;
+import common.MathUtils;
 
 import java.util.*;
 import java.util.concurrent.ExecutionException;
@@ -64,6 +65,68 @@ public class FunctionalityTest {
 
 //        testKeyGroupMapping();
 
+//        testKeyRateControlled();
+
+
+        int nKeys = 16384;
+        int maxParallelism = 256;
+        final Map<Integer, List<String>> keyGroupMapping = new HashMap<>();
+
+        FastZipfGenerator fastZipfGenerator = new FastZipfGenerator(maxParallelism, 1.5, 0, 12345678);
+        fastZipfGenerator.get
+
+        // Another functionality test
+        for (int i = 0; i < nKeys; i++) {
+            String key = "A" + i;
+            int keygroup = MathUtils.murmurHash(key.hashCode()) % maxParallelism;
+            List<String> keys = keyGroupMapping.computeIfAbsent(keygroup, t -> new ArrayList<>());
+            keys.add(key);
+        }
+
+        List<String> subKeySet;
+
+        Map<Integer, Integer> stats = new HashMap<>();
+
+
+        long emitStartTime = System.currentTimeMillis();
+
+        int count = 0;
+        int nTuples = 14000;
+        int rate = 14000;
+
+        while (count < nTuples) {
+
+            emitStartTime = System.currentTimeMillis();
+            for (int i = 0; i < rate / 20; i++) {
+                subKeySet = keyGroupMapping.get(fastZipfGenerator.next());
+
+                String key = getSubKeySetChar(count, subKeySet);
+
+                int keygroup = MathUtils.murmurHash(key.hashCode()) % maxParallelism;
+
+                count++;
+
+                int statsByKey = stats.computeIfAbsent(keygroup, t -> 0);
+                statsByKey++;
+                stats.put(keygroup, statsByKey);
+            }
+
+            if (count % rate == 0) {
+                // update the keyset
+                System.out.println("++++++new Key Stats: " + stats);
+                int sum = 0;
+                for (int i = 1; i < stats.size(); i++) {
+                    sum += stats.get(i);
+                }
+                System.out.println(sum);
+            }
+
+            // Sleep for the rest of timeslice if needed
+            Util.pause(emitStartTime);
+        }
+    }
+
+    private static void testKeyRateControlled() throws InterruptedException {
         int[] keyProportion;
         int iterationSize;
         int nKeys = 16384;

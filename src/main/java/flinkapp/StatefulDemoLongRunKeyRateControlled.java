@@ -1,6 +1,7 @@
 package flinkapp;
 
 import Nexmark.sources.Util;
+import common.MathUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.flink.api.common.functions.RichMapFunction;
 import org.apache.flink.api.common.state.ListState;

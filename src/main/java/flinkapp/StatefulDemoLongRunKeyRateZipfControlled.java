@@ -1,6 +1,8 @@
 package flinkapp;
 
 import Nexmark.sources.Util;
+import common.FastZipfGenerator;
+import common.MathUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.flink.api.common.functions.RichMapFunction;
 import org.apache.flink.api.common.state.ListState;
@@ -23,7 +25,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.IntStream;
 
 import static common.Util.delay;
 
@@ -57,7 +58,8 @@ public class StatefulDemoLongRunKeyRateZipfControlled {
         DataStreamSource<Tuple2<String, String>> source = env.addSource(new MySource(
                 params.getInt("runtime", 10),
                 params.getInt("nTuples", 10000),
-                params.getInt("nKeys", 1000)
+                params.getInt("nKeys", 1000),
+                params.getInt("mp2", 128)
         )).setParallelism(params.getInt("p1", 1));
         DataStream<String> counts = source
                 .slotSharingGroup("g1")
@@ -135,37 +137,17 @@ public class StatefulDemoLongRunKeyRateZipfControlled {
 
         private final int maxParallelism;
 
-        private final int[] keyProportion;
-        private final int iterationSize;
+        private final FastZipfGenerator fastZipfGenerator;
 
         private final Map<Integer, List<String>> keyGroupMapping = new HashMap<>();
 
-        MySource(int runtime, int nTuples, int nKeys) {
+        MySource(int runtime, int nTuples, int nKeys, int maxParallelism) {
             this.runtime = runtime;
             this.nTuples = nTuples;
             this.nKeys = nKeys;
             this.rate = nTuples / runtime;
-
-            // Fix this key rate config
-            int[] rateConfig = new int[]{
-                    14, 14, 1, 1, 2, 4, 4, 8,
-                    1, 1, 1, 1, 1, 1, 1, 1
-            };
-
-            this.maxParallelism = rateConfig.length;
-
-
-            iterationSize = IntStream.of(rateConfig).sum();
-            this.keyProportion = new int[iterationSize];
-
-            int index = 0;
-            for (int i = 0; i < rateConfig.length; i++) {
-                int ratio = rateConfig[i];
-                for (int j = 0; j < ratio; j++) {
-                    keyProportion[index] = i;
-                    index++;
-                }
-            }
+            this.maxParallelism = maxParallelism;
+            this.fastZipfGenerator = new FastZipfGenerator(maxParallelism, 1.5, 0, 12345678);
 
             // Another functionality test
             for (int i = 0; i < nKeys; i++) {
@@ -213,7 +195,7 @@ public class StatefulDemoLongRunKeyRateZipfControlled {
 
                 emitStartTime = System.currentTimeMillis();
                 for (int i = 0; i < rate / 20; i++) {
-                    subKeySet = keyGroupMapping.get(keyProportion[count % keyProportion.length]);
+                    subKeySet = keyGroupMapping.get(fastZipfGenerator.next());
 
                     String key = getSubKeySetChar(count, subKeySet);
 

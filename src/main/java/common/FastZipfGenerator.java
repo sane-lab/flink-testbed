@@ -1,8 +1,7 @@
 package common;
 
-import java.util.NavigableMap;
-import java.util.Random;
-import java.util.TreeMap;
+import javax.naming.ldap.HasControls;
+import java.util.*;
 
 public class FastZipfGenerator {
     private final Random random;
@@ -16,6 +15,7 @@ public class FastZipfGenerator {
     public FastZipfGenerator(int size, double skew, int offset, int seed) {
         random = new Random(seed);
         computeMap(size, skew, offset);
+        System.out.println(map);
     }
 
     private void computeMap(
@@ -37,9 +37,25 @@ public class FastZipfGenerator {
         return map.ceilingEntry(value).getValue();
     }
 
+
     public void show_sample() {
         for (int i = 0; i < 100; i++) {
             System.out.println(this.next());
         }
+    }
+
+    public static void main(String[] args) {
+        FastZipfGenerator fastZipfGenerator = new FastZipfGenerator(16, 1.5, 0, 12345678);
+//        fastZipfGenerator.show_sample();
+        Map<Integer, Integer> stats = new HashMap<>();
+        for (int i = 0; i < 16; i++) {
+            stats.put(i, 0);
+        }
+        for (int i = 0; i < 10000; i++) {
+            int key = fastZipfGenerator.next();
+            stats.put(key, stats.get(key) + 1);
+        }
+
+        System.out.println(stats);
     }
 }
