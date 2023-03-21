@@ -34,7 +34,7 @@ import static common.Util.delay;
  * 3. different key distributions, whether the final key count is consistent.
  */
 
-public class StatefulDemoLongRunrKeyRateControlled {
+public class StatefulDemoLongRunKeyRateZipfControlled {
 
     private static final int MAX = 1000000 * 10;
     //    private static final int MAX = 1000;

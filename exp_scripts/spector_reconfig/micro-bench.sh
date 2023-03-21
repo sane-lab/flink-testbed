@@ -281,9 +281,9 @@ run_parallelism() {
 #run_micro
 #run_overview
 #run_test
-run_replication_overhead
+#run_replication_overhead
 #run_fluid_study
-#run_replication_study
+run_replication_study
 #run_parallelism
 
 # dump the statistics when all exp are finished
