@@ -11,11 +11,11 @@ def ReadFile(repeat_num = 1):
     per_key_state_size = 32768
     replicate_keys_filter = 0
     sync_keys = 1
-    per_task_rate = 4000
+    per_task_rate = 5000
 
     for repeat in range(1, repeat_num + 1):
         i = 0
-        for order_function in ["random", "default", "reverse"]:
+        for order_function in ["default", "random", "reverse"]:
             exp = utilities.FILE_FOLER + '/spector-{}-{}-{}-{}-{}'.format(per_task_rate, per_key_state_size, sync_keys, replicate_keys_filter, order_function)
             file_path = os.path.join(exp, "timer.output")
             # try:
@@ -42,7 +42,7 @@ def draw(val):
 
     # parallelism
     # x_values = [1024, 10240, 20480, 40960]
-    x_values = ["random", "coldkey-first", "hotkey-first"]
+    x_values = ["hotkey-first", "random", "coldkey-first"]
     y_values = ReadFile(repeat_num = 1)
 
     legend_labels = utilities.legend_labels

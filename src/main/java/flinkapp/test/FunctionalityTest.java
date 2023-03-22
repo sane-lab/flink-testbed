@@ -66,14 +66,18 @@ public class FunctionalityTest {
 //        testKeyGroupMapping();
 
 //        testKeyRateControlled();
+        testLoadBalanceZipf(16);
 
 
+//        testZipfKeyRateControlled();
+    }
+
+    private static void testZipfKeyRateControlled() throws InterruptedException {
         int nKeys = 16384;
-        int maxParallelism = 256;
+        int maxParallelism = 512;
         final Map<Integer, List<String>> keyGroupMapping = new HashMap<>();
 
         FastZipfGenerator fastZipfGenerator = new FastZipfGenerator(maxParallelism, 1.5, 0, 12345678);
-        fastZipfGenerator.get
 
         // Another functionality test
         for (int i = 0; i < nKeys; i++) {
@@ -114,16 +118,41 @@ public class FunctionalityTest {
             if (count % rate == 0) {
                 // update the keyset
                 System.out.println("++++++new Key Stats: " + stats);
-                int sum = 0;
-                for (int i = 1; i < stats.size(); i++) {
-                    sum += stats.get(i);
-                }
-                System.out.println(sum);
+//                int sum = 0;
+//                for (int i = 1; i < stats.size(); i++) {
+//                    sum += stats.get(i);
+//                }
+//                System.out.println(sum);
             }
 
             // Sleep for the rest of timeslice if needed
             Util.pause(emitStartTime);
         }
+    }
+
+    private static void testLoadBalanceZipf(int maxParallelism) {
+        for (int skew = 0; skew < 15; skew++) {
+            FastZipfGenerator fastZipfGenerator = new FastZipfGenerator(maxParallelism, skew / (double) 10, 0, 12345678);
+            loadBalanceZipf(fastZipfGenerator);
+        }
+    }
+
+    private static void loadBalanceZipf(FastZipfGenerator fastZipfGenerator) {
+        Map<Double, Integer> map = fastZipfGenerator.getMap();
+        double prevKey = 0;
+        ArrayDeque<Integer> nonMigratingKeys = new ArrayDeque<>();
+        for (Double key : map.keySet()) {
+            if (key >= 0.5) {
+                if (0.5 - prevKey > key - 0.5) {
+                    nonMigratingKeys.add(map.get(key));
+                }
+                break;
+            }
+            nonMigratingKeys.add(map.get(key));
+            prevKey = key;
+        }
+
+        System.out.println(nonMigratingKeys);
     }
 
     private static void testKeyRateControlled() throws InterruptedException {

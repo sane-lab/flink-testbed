@@ -1,9 +1,10 @@
 package common;
 
 import javax.naming.ldap.HasControls;
+import java.io.Serializable;
 import java.util.*;
 
-public class FastZipfGenerator {
+public class FastZipfGenerator implements Serializable {
     private final Random random;
     private final NavigableMap<Double, Integer> map = new TreeMap<>();
 
@@ -36,7 +37,9 @@ public class FastZipfGenerator {
         double value = random.nextDouble();
         return map.ceilingEntry(value).getValue();
     }
-
+    public Map<Double, Integer> getMap() {
+        return map;
+    }
 
     public void show_sample() {
         for (int i = 0; i < 100; i++) {

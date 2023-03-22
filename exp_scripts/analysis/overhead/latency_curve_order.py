@@ -142,7 +142,7 @@ def ReadFile():
     sync_keys = 1
     per_task_rate = 5000
 
-    for order_function in ["random", "default", "reverse"]:
+    for order_function in ["default", "random", "reverse"]:
         col = []
         coly = []
         start_ts = float('inf')
@@ -179,6 +179,6 @@ def ReadFile():
 
 if __name__ == '__main__':
     x_axis, y_axis = ReadFile()
-    legend_labels = ["random", "coldkey-first", "hotkey-first"]
+    legend_labels = ["hotkey-first", "random", "coldkey-first"]
     legend = True
     DrawFigure(x_axis, y_axis, legend_labels, "Time(ms)", "Latency(ms)", "latency_curve_order", legend)

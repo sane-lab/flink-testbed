@@ -100,7 +100,7 @@ init() {
 
   # app level
   JAR="${FLINK_APP_DIR}/target/testbed-1.0-SNAPSHOT.jar"
-  job="flinkapp.StatefulDemoLongRunrKeyRateControlled"
+  job="flinkapp.StatefulDemoLongRunKeyRateControlled"
   runtime=100
   source_p=1
   per_task_rate=5000
@@ -270,15 +270,24 @@ run_order_study() {
   done
 }
 
+run_order_zipf_study() {
+  # Fluid Migration with prioritized rules
+  init
+  job="flinkapp.StatefulDemoLongRunKeyRateZipfControlled"
+  reconfig_scenario="load_balance_zipf"
+#  per_task_rate=6000
+  per_task_rate=5000
+  replicate_keys_filter=0
+  checkpoint_interval=10000000
+  sync_keys=1
+  for order_function in default reverse random; do # default reverse
+    run_one_exp
+  done
+}
 
-#run_micro
-#run_overview
-#run_test
-#run_replication_overhead
-#run_fluid_study
-#run_replication_study
-#run_no_migration
-run_order_study
+
+#run_order_study
+run_order_zipf_study
 
 # dump the statistics when all exp are finished
 # in the future, we will draw the intuitive figures
