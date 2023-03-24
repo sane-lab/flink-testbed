@@ -226,7 +226,7 @@ run_fluid_study() {
   checkpoint_interval=10000000
   state_access_ratio=100
 #  for sync_keys in 1 2 4 8 16 32 64 128 256; do
-  for sync_keys in 4 128 256; do
+  for sync_keys in 1 2 4 8 16 32 64 128 256; do
     run_one_exp
   done
 }
@@ -267,24 +267,23 @@ run_access_ratio() {
   done
 }
 
-run_parallelism() {
-  init
-  replicate_keys_filter=0
-  sync_keys=0
-  for parallelism in 2 4 8 16; do
-    affected_tasks=$parallelism
-    run_one_exp
-  done
-}
+#run_parallelism() {
+#  init
+#  replicate_keys_filter=0
+#  sync_keys=0
+#  for parallelism in 2 4 8 16; do
+#    affected_tasks=$parallelism
+#    run_one_exp
+#  done
+#}
 
 
 #run_micro
 #run_overview
 #run_test
 #run_replication_overhead
-#run_fluid_study
-run_replication_study
-#run_parallelism
+run_fluid_study
+#run_replication_study
 
 # dump the statistics when all exp are finished
 # in the future, we will draw the intuitive figures

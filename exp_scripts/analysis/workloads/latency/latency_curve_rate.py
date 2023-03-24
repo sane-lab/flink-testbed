@@ -51,26 +51,21 @@ def ReadFile():
     x_axis = []
     y_axis = []
 
-    w, h = 9, 3
-    y = [[0 for x in range(w)] for y in range(h)]
-
-    repeat_num = 1
-    completion_time_dict = {}
-    keys = [1, 2, 4, 8, 16, 32, 64, 128, 256]
-
     per_key_state_size = 32768
     replicate_keys_filter = 0
+    sync_keys = 0
+    state_access_ratio = 2
+    per_task_rate = 5000
+    parallelism = 2
 
-    latency_dict = {}
-
-    for sync_keys in [1, 2, 4, 8, 16, 32, 64, 128, 256]:
+    for per_task_rate in [5000, 6000, 7000, 8000, 9000, 10000]:
         col = []
         coly = []
         start_ts = float('inf')
         temp_dict = {}
         for tid in range(0, 1):
-            f = open(utilities.FILE_FOLER + "/spector-{}-{}-{}/Splitter FlatMap-{}.output"
-                     .format(per_key_state_size, sync_keys, replicate_keys_filter, tid))
+            f = open(utilities.FILE_FOLER + "/workloads/spector-{}-{}-{}-{}-{}-{}/Splitter FlatMap-{}.output"
+                     .format(per_task_rate, per_key_state_size, sync_keys, replicate_keys_filter, parallelism, state_access_ratio, tid))
             read = f.readlines()
             for r in read:
                 if r.find("endToEnd latency: ") != -1:
@@ -85,53 +80,16 @@ def ReadFile():
         for ts in temp_dict:
             # coly.append(sum(temp_dict[ts]) / len(temp_dict[ts]))
             temp_dict[ts].sort()
-            coly.append(temp_dict[ts][ceil((len(temp_dict[ts]))*0.99)])
+            coly.append(temp_dict[ts][ceil((len(temp_dict[ts]))*0.95)])
             col.append(ts - start_ts)
 
-        # x_axis.append(col[40:70])
-        # y_axis.append(coly[40:70])
+        x_axis.append(col[40:70])
+        y_axis.append(coly[40:70])
 
         # x_axis.append(col)
         # y_axis.append(coly)
 
-        # Get P95 latency
-        coly.sort()
-        latency_dict[sync_keys] = coly[ceil(len(coly)*0.95)]
-
-    for repeat in range(1, repeat_num + 1):
-        i = 0
-        for sync_keys in [1, 2, 4, 8, 16, 32, 64, 128, 256]:
-            exp = utilities.FILE_FOLER + '/spector-{}-{}-{}'.format(per_key_state_size, sync_keys,
-                                                                    replicate_keys_filter)
-            file_path = os.path.join(exp, "timer.output")
-            # try:
-            stats = utilities.breakdown_total(open(file_path).readlines())
-            for j in range(3):
-                if utilities.timers_plot[j] not in stats:
-                    y[j][i] = 0
-                else:
-                    y[j][i] += stats[utilities.timers_plot[j]]
-            i += 1
-            # except Exception as e:
-            #     print("Error while processing the file {}: {}".format(exp, e))
-
-    for j in range(h):
-        for i in range(w):
-            y[j][i] = y[j][i] / repeat_num
-
-    for i in range(w):
-        completion_time = 0
-        for j in range(h):
-            completion_time += y[j][i]
-        completion_time_dict[keys[i]] = completion_time
-
-    # curve = {}
-    #
-    # for key in latency_dict:
-    #     curve[completion_time_dict[key]] = latency_dict[key]
-
-    x_axis.append(completion_time_dict.values())
-    y_axis.append(latency_dict.values())
+    print(x_axis)
 
     return x_axis, y_axis
 
@@ -170,7 +128,6 @@ def DrawFigure(xvalues, yvalues, legend_labels, x_label, y_label, filename, allo
                    labelspacing=0.1)
 
     plt.yscale('log')
-    plt.ylim(100)
     plt.xlabel(x_label, fontproperties=LABEL_FP)
     plt.ylabel(y_label, fontproperties=LABEL_FP)
 
@@ -178,8 +135,6 @@ def DrawFigure(xvalues, yvalues, legend_labels, x_label, y_label, filename, allo
 
 if __name__ == "__main__":
     x_axis, y_axis = ReadFile()
-
-    print(x_axis, y_axis)
-    legend_labels = ["Pareto Curve"]
+    legend_labels = [5000, 6000, 7000, 8000, 9000, 10000]
     legend = True
-    DrawFigure(x_axis, y_axis, legend_labels, "Completion Time (ms)", "Latency (ms)", "pareto_curve_batching", legend)
+    DrawFigure(x_axis, y_axis, legend_labels, "Time(ms)", "Latency(ms)", "latency_curve_rate", legend)

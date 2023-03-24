@@ -1,9 +1,11 @@
 import os
-from math import ceil
+from math import floor
 
 import matplotlib
 import matplotlib.pyplot as plt
 from matplotlib.font_manager import FontProperties
+
+from analysis.overhead.breakdown import utilities
 
 OPT_FONT_NAME = 'Helvetica'
 TICK_FONT_SIZE = 20
@@ -71,7 +73,7 @@ def DrawFigure(xvalues, yvalues, legend_labels, x_label, y_label, filename, allo
                    handletextpad=0.1,
                    labelspacing=0.1)
 
-    # plt.yscale('log')
+    plt.yscale('log')
     plt.ylim(1)
     plt.xlabel(x_label, fontproperties=LABEL_FP)
     plt.ylabel(y_label, fontproperties=LABEL_FP)
@@ -129,61 +131,41 @@ def ReadFile():
     x_axis = []
     y_axis = []
 
-    col_avg = []
-    coly_avg = []
+    per_key_state_size = 32768
+    replicate_keys_filter = 0
+    sync_keys = 1
+    per_task_rate = 5000
 
-    col_median = []
-    coly_median = []
-
-    col_p95 = []
-    coly_p95 = []
-
-    col_p99 = []
-    coly_p99 = []
-    start_ts = float('inf')
-    temp_dict = {}
-    for tid in range(0, 1):
-        f = open("/data/spector" + "/Splitter FlatMap-{}.output".format(tid))
-        read = f.readlines()
-        for r in read:
-            if r.find("endToEnd latency: ") != -1:
-                ts = int(int(r.split("ts: ")[1][:13])/100)
-                if ts < start_ts: # find the starting point from parallel tasks
-                    start_ts = ts
-                latency = int(r.split("endToEnd latency: ")[1])
-                if ts not in temp_dict:
-                    temp_dict[ts] = []
-                temp_dict[ts].append(latency)
+    for order_function in ["default", "random", "reverse"]:
+        col = []
+        coly = []
+        start_ts = float('inf')
+        temp_dict = {}
+        for tid in range(0, 1):
+            f = open(utilities.FILE_FOLER + "/spector-{}-{}-{}-{}-{}/Splitter FlatMap-{}.output"
+                     .format(per_task_rate, per_key_state_size, sync_keys, replicate_keys_filter, order_function, tid))
+            read = f.readlines()
+            for r in read:
+                if r.find("endToEnd latency: ") != -1:
+                    ts = int(int(r.split("ts: ")[1][:13])/1000)
+                    if ts < start_ts: # find the starting point from parallel tasks
+                        start_ts = ts
+                    latency = int(r.split("endToEnd latency: ")[1])
+                    if ts not in temp_dict:
+                        temp_dict[ts] = []
+                    temp_dict[ts].append(latency)
 
         for ts in temp_dict:
+            # coly.append(sum(temp_dict[ts]) / len(temp_dict[ts]))
             temp_dict[ts].sort()
+            coly.append(temp_dict[ts][floor((len(temp_dict[ts]))*0.95)])
+            col.append(ts - start_ts)
 
-            # coly_avg.append(sum(temp_dict[ts]) / len(temp_dict[ts]))
-            coly_avg.append(len(temp_dict[ts]))
-            col_avg.append(ts - start_ts)
+        x_axis.append(col)
+        y_axis.append(coly)
 
-            coly_median.append(temp_dict[ts][ceil((len(temp_dict[ts])) * 0.5)])
-            col_median.append(ts - start_ts)
-
-            coly_p95.append(temp_dict[ts][ceil((len(temp_dict[ts])) * 0.95)])
-            col_p95.append(ts - start_ts)
-
-            coly_p99.append(temp_dict[ts][ceil((len(temp_dict[ts])) * 0.99)])
-            col_p99.append(ts - start_ts)
-
-
-
-        x_axis.append(col_avg)
-        y_axis.append(coly_avg)
-
-        x_axis.append(col_median)
-        y_axis.append(coly_median)
-
-        x_axis.append(col_p95)
-        y_axis.append(coly_p95)
-
-        x_axis.append(col_p99)
-        y_axis.append(coly_p99)
+        # x_axis.append(col)
+        # y_axis.append(coly)
 
     print(x_axis)
 
@@ -191,6 +173,6 @@ def ReadFile():
 
 if __name__ == '__main__':
     x_axis, y_axis = ReadFile()
-    legend_labels = ['avg', 'median', 'p95', 'p99']
+    legend_labels = ["hotkey-first", "random", "coldkey-first"]
     legend = True
-    DrawFigure(x_axis, y_axis, legend_labels, "Time(ms)", "Latency(ms)", "latency_curve_test", legend)
+    DrawFigure(x_axis, y_axis, legend_labels, "Time(ms)", "Latency(ms)", "latency_curve_order", legend)

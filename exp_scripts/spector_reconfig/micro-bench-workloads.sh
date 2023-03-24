@@ -273,14 +273,11 @@ run_parallelism() {
 }
 
 
-#run_micro
-#run_overview
-#run_test
-#run_replication_overhead
 #run_fluid_study
 #run_replication_study
 #run_parallelism
-run_rate
+#run_rate
+run_access_ratio
 
 # dump the statistics when all exp are finished
 # in the future, we will draw the intuitive figures
