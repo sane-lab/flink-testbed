@@ -1,5 +1,5 @@
 import os
-from math import ceil
+from math import ceil, floor
 
 import matplotlib
 import matplotlib as mpl
@@ -54,19 +54,19 @@ def ReadFile():
     x_axis = []
     y_axis = []
 
-    w, h = 8, 3
+    w, h = 4, 3
     y = [[0 for x in range(w)] for y in range(h)]
 
     repeat_num = 1
     completion_time_dict = {}
-    keys = [1, 2, 4, 8, 16, 32, 64, 128]
+    keys = [1, 2, 4, 8]
 
     per_key_state_size = 32768
-    replicate_keys_filter = 0
+    sync_keys = 0
 
     latency_dict = {}
 
-    for sync_keys in keys:
+    for replicate_keys_filter in keys:
         col = []
         coly = []
         start_ts = float('inf')
@@ -99,11 +99,11 @@ def ReadFile():
 
         # Get P95 latency
         coly.sort()
-        latency_dict[sync_keys] = coly[ceil(len(coly)*0.99)]
+        latency_dict[replicate_keys_filter] = coly[floor(len(coly)*0.99)]
 
     for repeat in range(1, repeat_num + 1):
         i = 0
-        for sync_keys in keys:
+        for replicate_keys_filter in keys:
             exp = utilities.FILE_FOLER + '/spector-{}-{}-{}'.format(per_key_state_size, sync_keys,
                                                                     replicate_keys_filter)
             file_path = os.path.join(exp, "timer.output")
@@ -251,7 +251,7 @@ def DrawFigure(xvalues, yvalues, legend_labels, x_label, y_label, y_label_2, fil
 
     # plt.xticks(index + 0.5 * width, x_values[0])
     plt.xscale('log')
-    plt.xticks(x_values[0], [1, 2, 4, 8, 16, 32, 64, 128])
+    plt.xticks(x_values[0], [1, 2, 4, 8])
     # plt.grid()
     ax1.ticklabel_format(axis="y", style="sci", scilimits=(0, 0))
     ax2.ticklabel_format(axis="y", style="sci", scilimits=(0, 0))
@@ -268,4 +268,4 @@ if __name__ == "__main__":
     print(x_axis, y_axis)
     legend_labels = ["Completion Time", "Latency Spike"]
     legend = True
-    DrawFigure(x_axis, y_axis, legend_labels, "Per Batch Size", "Completion Time (ms)", "Latency Spike (ms)", "pareto_curve_batching", legend)
+    DrawFigure(x_axis, y_axis, legend_labels, "Replication Ratio", "Completion Time (ms)", "Latency Spike (ms)", "pareto_curve_replication", legend)
