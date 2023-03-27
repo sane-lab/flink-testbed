@@ -6,7 +6,7 @@ def ReadFile(repeat_num = 1):
     w, h = 4, 3
     y = [[0 for _ in range(w)] for _ in range(h)]
 
-    per_key_state_size = 32768
+    per_key_state_size = 16384
     sync_keys = 0
 
     for repeat in range(1, repeat_num + 1):
@@ -29,6 +29,8 @@ def ReadFile(repeat_num = 1):
     for j in range(h):
         for i in range(w):
             y[j][i] = y[j][i] / repeat_num
+
+    print(y)
 
     return y
 

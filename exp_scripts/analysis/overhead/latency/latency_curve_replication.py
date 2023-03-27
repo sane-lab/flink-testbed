@@ -51,7 +51,7 @@ def ReadFile():
     x_axis = []
     y_axis = []
 
-    per_key_state_size = 32768
+    per_key_state_size = 16384
     sync_keys = 0
 
     for replicate_keys_filter in [1, 2, 4, 8]:
@@ -76,14 +76,15 @@ def ReadFile():
         for ts in temp_dict:
             # coly.append(sum(temp_dict[ts]) / len(temp_dict[ts]))
             temp_dict[ts].sort()
-            coly.append(temp_dict[ts][floor((len(temp_dict[ts])) * 0.95)])
+            # coly.append(temp_dict[ts][floor((len(temp_dict[ts])) * 0.99)])
+            coly.append(temp_dict[ts][floor((len(temp_dict[ts])) * 0.99)])
             col.append(ts - start_ts)
 
-        x_axis.append(col[40:70])
-        y_axis.append(coly[40:70])
+        # x_axis.append(col[40:70])
+        # y_axis.append(coly[40:70])
 
-        # x_axis.append(col)
-        # y_axis.append(coly)
+        x_axis.append(col)
+        y_axis.append(coly)
 
     print(x_axis)
 

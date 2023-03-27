@@ -1,5 +1,5 @@
 import os
-from math import ceil
+from math import ceil, floor
 
 import matplotlib
 import matplotlib as mpl
@@ -54,12 +54,12 @@ def ReadFile():
     x_axis = []
     y_axis = []
 
-    w, h = 8, 3
+    w, h = 9, 3
     y = [[0 for x in range(w)] for y in range(h)]
 
     repeat_num = 1
     completion_time_dict = {}
-    keys = [1, 2, 4, 8, 16, 32, 64, 128]
+    keys = [1, 2, 4, 8, 16, 32, 64, 128, 256]
 
     per_key_state_size = 32768
     replicate_keys_filter = 0
@@ -88,7 +88,7 @@ def ReadFile():
         for ts in temp_dict:
             # coly.append(sum(temp_dict[ts]) / len(temp_dict[ts]))
             temp_dict[ts].sort()
-            coly.append(temp_dict[ts][ceil((len(temp_dict[ts]))*0.99)])
+            coly.append(temp_dict[ts][floor((len(temp_dict[ts]))*0.99)])
             col.append(ts - start_ts)
 
         # x_axis.append(col[40:70])
@@ -251,7 +251,7 @@ def DrawFigure(xvalues, yvalues, legend_labels, x_label, y_label, y_label_2, fil
 
     # plt.xticks(index + 0.5 * width, x_values[0])
     plt.xscale('log')
-    plt.xticks(x_values[0], [1, 2, 4, 8, 16, 32, 64, 128])
+    plt.xticks(x_values[0], [1, 2, 4, 8, 16, 32, 64, 128, 256])
     # plt.grid()
     ax1.ticklabel_format(axis="y", style="sci", scilimits=(0, 0))
     ax2.ticklabel_format(axis="y", style="sci", scilimits=(0, 0))

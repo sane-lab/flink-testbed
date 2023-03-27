@@ -2,6 +2,7 @@
 
 FLINK_DIR="/home/myc/workspace/Spector/build-target"
 FLINK_APP_DIR="/home/myc/workspace/flink-testbed"
+SCRIPTS_DIR="/home/myc/workspace/flink-testbed/exp_scripts"
 
 EXP_DIR="/data"
 
@@ -37,14 +38,15 @@ function stopFlink() {
 # configure parameters in flink bin
 function configFlink() {
     # set user requirement
-    sed 's/^\(\s*spector.reconfig.affected_keys\s*:\s*\).*/\1'"$affected_keys"'/' ${FLINK_DIR}/conf/flink-conf.yaml > tmp1
+    sed 's/^\(\s*spector.reconfig.affected_keys\s*:\s*\).*/\1'"$affected_keys"'/' ${SCRIPTS_DIR}/conf/flink-conf.yaml > tmp1
     sed 's/^\(\s*spector.reconfig.start\s*:\s*\).*/\1'"$reconfig_start"'/' tmp1 > tmp2
     sed 's/^\(\s*spector.reconfig.sync_keys\s*:\s*\).*/\1'"$sync_keys"'/' tmp2 > tmp3
     sed 's/^\(\s*spector.replicate_keys_filter\s*:\s*\).*/\1'"$replicate_keys_filter"'/' tmp3 > tmp4
     sed 's/^\(\s*controller.target.operators\s*:\s*\).*/\1'"$operator"'/' tmp4 > tmp5
     sed 's/^\(\s*spector.reconfig.scenario\s*:\s*\).*/\1'"$reconfig_scenario"'/' tmp5 > tmp6
-    sed 's/^\(\s*spector.reconfig.affected_tasks\s*:\s*\).*/\1'"$affected_tasks"'/' tmp6 > ${FLINK_DIR}/conf/flink-conf.yaml
+    sed 's/^\(\s*spector.reconfig.affected_tasks\s*:\s*\).*/\1'"$affected_tasks"'/' tmp6 > ${SCRIPTS_DIR}/conf/flink-conf.yaml
     rm tmp1 tmp2 tmp3 tmp4 tmp5 tmp6
+    cp -r ${SCRIPTS_DIR}/conf ${FLINK_DIR}
 }
 
 # run applications
@@ -235,7 +237,10 @@ run_replication_study() {
   # Proactive State replication
   init
   sync_keys=0
+  per_key_state_size=16384
+  state_access_ratio=1
   for replicate_keys_filter in 1 2 4 8; do
+#  for replicate_keys_filter in 1; do
     run_one_exp
   done
 }
@@ -282,8 +287,8 @@ run_access_ratio() {
 #run_overview
 #run_test
 #run_replication_overhead
-run_fluid_study
-#run_replication_study
+#run_fluid_study
+run_replication_study
 
 # dump the statistics when all exp are finished
 # in the future, we will draw the intuitive figures

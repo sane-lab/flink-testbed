@@ -1,5 +1,5 @@
 import utilities
-from analysis.overhead.breakdown import breakdown_order_keys, breakdown_sync_keys
+from analysis.overhead.breakdown import breakdown_order_keys, breakdown_sync_keys, breakdown_replicate_keys
 
 if __name__ == '__main__':
     val = utilities.init()
@@ -25,7 +25,7 @@ if __name__ == '__main__':
     # breakdown_parallelism.draw(val)
     # breakdown_state_size.draw(val)
     # breakdown_sync_keys.draw(val)
-    # breakdown_replicate_keys.draw(val)
-    breakdown_order_keys.draw(val)
+    breakdown_replicate_keys.draw(val)
+    # breakdown_order_keys.draw(val)
     # breakdown_arrival_rate.draw(val)
     # breakdown_affected_tasks.draw(val)

@@ -61,7 +61,7 @@ def ReadFile():
     completion_time_dict = {}
     keys = [1, 2, 4, 8]
 
-    per_key_state_size = 32768
+    per_key_state_size = 16384
     sync_keys = 0
 
     latency_dict = {}
@@ -88,7 +88,8 @@ def ReadFile():
         for ts in temp_dict:
             # coly.append(sum(temp_dict[ts]) / len(temp_dict[ts]))
             temp_dict[ts].sort()
-            coly.append(temp_dict[ts][ceil((len(temp_dict[ts]))*0.99)])
+            # coly.append(temp_dict[ts][floor((len(temp_dict[ts]))*0.99)])
+            coly.append(temp_dict[ts][-1])
             col.append(ts - start_ts)
 
         # x_axis.append(col[40:70])
@@ -99,7 +100,9 @@ def ReadFile():
 
         # Get P95 latency
         coly.sort()
-        latency_dict[replicate_keys_filter] = coly[floor(len(coly)*0.99)]
+        print(coly)
+        # latency_dict[replicate_keys_filter] = coly[floor(len(coly)*0.99)]
+        latency_dict[replicate_keys_filter] = coly[-1]
 
     for repeat in range(1, repeat_num + 1):
         i = 0
@@ -108,7 +111,7 @@ def ReadFile():
                                                                     replicate_keys_filter)
             file_path = os.path.join(exp, "timer.output")
             # try:
-            stats = utilities.breakdown_total(open(file_path).readlines())
+            stats = utilities.breakdown(open(file_path).readlines())
             for j in range(3):
                 if utilities.timers_plot[j] not in stats:
                     y[j][i] = 0
@@ -118,9 +121,12 @@ def ReadFile():
             # except Exception as e:
             #     print("Error while processing the file {}: {}".format(exp, e))
 
+
     for j in range(h):
         for i in range(w):
             y[j][i] = y[j][i] / repeat_num
+
+    print(y)
 
     for i in range(w):
         completion_time = 0
