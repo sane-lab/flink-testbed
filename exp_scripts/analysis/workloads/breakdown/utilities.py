@@ -68,14 +68,14 @@ def DrawFigure(x_values, y_values, legend_labels, x_label, y_label, filename, al
     index = np.arange(len(x_values))
     # the bar width.
     # you may need to tune it to get the best figure.
-    width = 0.5
+    width = 0.2
     # draw the bars
     bottom_base = np.zeros(len(y_values[0]))
     bars = [None] * (len(FIGURE_LABEL))
     for i in range(len(y_values)):
-        bars[i] = plt.bar(index + width / 2, y_values[i], width, hatch=PATTERNS[i], color=LINE_COLORS[i],
+        bars[i] = plt.bar(index + i * width + width / 2, y_values[i], width, hatch=PATTERNS[i], color=LINE_COLORS[i],
                           label=FIGURE_LABEL[i], bottom=bottom_base, edgecolor='black', linewidth=3)
-        bottom_base = np.array(y_values[i]) + bottom_base
+        # bottom_base = np.array(y_values[i]) + bottom_base
 
     # sometimes you may not want to draw legends.
     if allow_legend == True:

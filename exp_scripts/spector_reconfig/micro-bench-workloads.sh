@@ -59,6 +59,11 @@ function runApp() {
 
 # draw figures
 function analyze() {
+    mkdir -p ${EXP_DIR}/spector/
+    mkdir -p ${EXP_DIR}/raw/
+    mkdir -p ${EXP_DIR}/raw/workloads/
+    mkdir -p ${EXP_DIR}/results
+
     #python2 ${FLINK_APP_DIR}/nexmark_scripts/draw/RateAndWindowDelay.py ${EXP_NAME} ${WARMUP} ${RUNTIME}
     echo "INFO: dump to ${EXP_DIR}/raw/workloads/${EXP_NAME}"
     if [[ -d ${EXP_DIR}/raw/workloads/${EXP_NAME} ]]; then
@@ -66,7 +71,7 @@ function analyze() {
     fi
     mv ${FLINK_DIR}/log ${EXP_DIR}/spector/
     mv ${EXP_DIR}/spector/ ${EXP_DIR}/raw/workloads/${EXP_NAME}
-    mkdir ${EXP_DIR}/spector/
+    mkdir -p ${EXP_DIR}/spector/
 }
 
 # run one flink demo exp, which is a word count job
@@ -274,19 +279,19 @@ run_parallelism() {
 
 ########### Batch Study ###########
 
-run_key_size_study() {
+run_batch_key_size_study() {
   # Proactive State replication
   init
   checkpoint_interval=10000000 # by default checkpoint in frequent, trigger only when necessary
   for max_parallelism in 128 256 512 1024; do # 256 512 1024
     affected_keys=`expr ${max_parallelism} \/ 2`
-    for sync_keys in 1 ; do # `expr ${affected_keys} \/ 8` ${affected_keys}
+    for sync_keys in 1 `expr ${affected_keys} \/ 8` ${affected_keys} ; do # `expr ${affected_keys} \/ 8` ${affected_keys}
       run_one_exp
     done
   done
 }
 
-run_state_size() {
+run_batch_state_size() {
   init
   checkpoint_interval=10000000 # by default checkpoint in frequent, trigger only when necessary
   for per_key_state_size in 1024 2048 4096 8196 16384 32768; do
@@ -296,7 +301,7 @@ run_state_size() {
   done
 }
 
-run_input_rate() {
+run_batch_input_rate() {
   init
   checkpoint_interval=10000000 # by default checkpoint in frequent, trigger only when necessary
   for per_task_rate in 1000 2000 4000 8000; do
@@ -308,7 +313,7 @@ run_input_rate() {
 
 ########### Replication Study ###########
 
-run_state_access_ratio() {
+run_update_state_access_ratio() {
   init
   per_key_state_size=4096 # use a smaller state size to test the insights
   for state_access_ratio in 1 2 4 8 16; do
@@ -319,7 +324,7 @@ run_state_access_ratio() {
 }
 
 
-run_state_size() {
+run_update_state_size() {
   init
 #  checkpoint_interval=10000000 # by default checkpoint in frequent, trigger only when necessary
   for per_key_state_size in 1024 2048 4096 8196 16384 32768; do
@@ -336,8 +341,8 @@ run_state_size() {
 #run_parallelism
 #run_rate
 #run_access_ratio
-run_key_size_study
-#run_state_size
+#run_key_size_study
+run_batch_state_size
 #run_rate
 
 # dump the statistics when all exp are finished
