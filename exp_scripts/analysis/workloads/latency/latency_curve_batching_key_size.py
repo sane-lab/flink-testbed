@@ -53,19 +53,20 @@ def ReadFile():
 
     per_key_state_size = 32768
     replicate_keys_filter = 0
-    sync_keys = 0
+    sync_keys = 1
     state_access_ratio = 2
     per_task_rate = 5000
     parallelism = 2
+    max_parallelism = 512
 
-    for per_task_rate in [128, 256, 512, 1024]:
+    for max_parallelism in [128, 256, 512, 1024]:
         col = []
         coly = []
         start_ts = float('inf')
         temp_dict = {}
         for tid in range(0, 1):
-            f = open(utilities.FILE_FOLER + "/workloads/spector-{}-{}-{}-{}-{}-{}/Splitter FlatMap-{}.output"
-                     .format(per_task_rate, per_key_state_size, sync_keys, replicate_keys_filter, parallelism, state_access_ratio, tid))
+            f = open(utilities.FILE_FOLER + "/workloads/spector-{}-{}-{}-{}-{}-{}-{}/Splitter FlatMap-{}.output"
+                     .format(per_task_rate, parallelism, max_parallelism, per_key_state_size, sync_keys, replicate_keys_filter, state_access_ratio, tid))
             read = f.readlines()
             for r in read:
                 if r.find("endToEnd latency: ") != -1:
@@ -137,4 +138,4 @@ if __name__ == "__main__":
     x_axis, y_axis = ReadFile()
     legend_labels = [128, 256, 512, 1024]
     legend = True
-    DrawFigure(x_axis, y_axis, legend_labels, "Time(ms)", "Latency(ms)", "latency_curve_rate", legend)
+    DrawFigure(x_axis, y_axis, legend_labels, "Time(ms)", "Latency(ms)", "latency_curve_batching_key_size", legend)
