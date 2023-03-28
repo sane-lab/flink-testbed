@@ -1,7 +1,7 @@
 import os
 
-from analysis.test.completion_time_figure import FILE_FOLER
-from analysis.config.default_config import timers_plot
+from analysis.config.default_config import timers_plot, per_task_rate, parallelism, per_key_state_size, \
+    replicate_keys_filter, state_access_ratio, FILE_FOLER
 from analysis.config.general_utilities import DrawFigureV4, breakdown_total
 
 
@@ -10,13 +10,13 @@ def ReadFile(repeat_num = 1):
     y = [[] for y in range(h)]
     # y = []
 
-    per_key_state_size = 32768
-    replicate_keys_filter = 0
-    sync_keys = 1
-    state_access_ratio = 2
-    per_task_rate = 5000
-    parallelism = 2
-    max_parallelism = 512
+    # per_key_state_size = 32768
+    # replicate_keys_filter = 0
+    # sync_keys = 1
+    # state_access_ratio = 2
+    # per_task_rate = 5000
+    # parallelism = 2
+    # max_parallelism = 512
 
     for repeat in range(1, repeat_num + 1):
         for max_parallelism in [128, 256, 512, 1024]:
@@ -24,7 +24,7 @@ def ReadFile(repeat_num = 1):
             w, h = 3, 3
             col_y = [[0 for x in range(w)] for y in range(h)]
             for sync_keys in [1, int(max_parallelism / 16), int(max_parallelism / 2)]:
-                exp = FILE_FOLER + '/spector-{}-{}-{}-{}-{}-{}-{}'\
+                exp = FILE_FOLER + '/workloads/spector-{}-{}-{}-{}-{}-{}-{}'\
                     .format(per_task_rate, parallelism, max_parallelism, per_key_state_size, sync_keys, replicate_keys_filter, state_access_ratio)
                 file_path = os.path.join(exp, "timer.output")
                 # try:

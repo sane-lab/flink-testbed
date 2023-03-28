@@ -48,7 +48,7 @@ function configFlink() {
     sed 's/^\(\s*spector.reconfig.scenario\s*:\s*\).*/\1'"$reconfig_scenario"'/' tmp5 > tmp6
     sed 's/^\(\s*spector.reconfig.affected_tasks\s*:\s*\).*/\1'"$affected_tasks"'/' tmp6 > ${FLINK_CONF_DIR}/flink-conf.yaml
     rm tmp1 tmp2 tmp3 tmp4 tmp5 tmp6
-    cp -r ${FLINK_CONF_DIR} ${FLINK_DIR}
+    cp ${FLINK_CONF_DIR}/* ${FLINK_DIR}/conf
 }
 
 # initialization of the parameters

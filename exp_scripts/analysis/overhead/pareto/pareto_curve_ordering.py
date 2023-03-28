@@ -13,7 +13,8 @@ import numpy as np
 import pandas as pd
 
 from analysis.config.default_config import LABEL_FONT_SIZE, LEGEND_FONT_SIZE, TICK_FONT_SIZE, OPT_FONT_NAME, \
-    LINE_COLORS, LINE_WIDTH, MARKERS, MARKER_SIZE, FIGURE_FOLDER, FILE_FOLER, PATTERNS, timers_plot
+    LINE_COLORS, LINE_WIDTH, MARKERS, MARKER_SIZE, FIGURE_FOLDER, FILE_FOLER, PATTERNS, timers_plot, per_task_rate, \
+    per_key_state_size, sync_keys, replicate_keys_filter, repeat_num
 from analysis.config.general_utilities import breakdown_total
 
 mpl.use('Agg')
@@ -46,12 +47,6 @@ def ReadFile():
 
     w, h = 3, 3
     y = [[0 for x in range(w)] for y in range(h)]
-
-    repeat_num = 1
-    per_key_state_size = 32768
-    replicate_keys_filter = 0
-    sync_keys = 1
-    per_task_rate = 5000
 
     keys = ["default", "random", "reverse"]
 

@@ -11,7 +11,7 @@ PATTERNS = (["\\", "///", "o", "||", "\\\\", "\\\\", "//////", "//////", ".", "\
 LABEL_WEIGHT = 'bold'
 LINE_COLORS = COLOR_MAP
 LINE_WIDTH = 3.0
-MARKER_SIZE = 0.0
+MARKER_SIZE = 10.0
 MARKER_FREQUENCY = 1000
 
 timers_plot = ["++++++syncTimer", "++++++replicationTimer", "++++++updateTimer"]
@@ -20,6 +20,7 @@ breakdown_legend_labels = ['sync', 'replicate', 'update']
 FIGURE_FOLDER = '/data/results'
 FILE_FOLER = '/data/raw'
 
+repeat_num = 1
 per_key_state_size = 32768
 replicate_keys_filter = 0
 sync_keys = 1
