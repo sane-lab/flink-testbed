@@ -1,34 +1,25 @@
 import os
 from math import ceil
+import sys
+from pathlib import Path
+
+path_root = Path(__file__).parents[3]
+sys.path.append(str(path_root))
 
 import matplotlib
 import matplotlib as mpl
 
-from analysis.overhead.breakdown import utilities
+from analysis.config.default_config import LABEL_FONT_SIZE, LEGEND_FONT_SIZE, TICK_FONT_SIZE, OPT_FONT_NAME, \
+    LINE_COLORS, LINE_WIDTH, MARKERS, MARKER_SIZE, FIGURE_FOLDER, FILE_FOLER
 
 mpl.use('Agg')
 
 import matplotlib.pyplot as plt
 from matplotlib.font_manager import FontProperties
 
-OPT_FONT_NAME = 'Helvetica'
-TICK_FONT_SIZE = 24
-LABEL_FONT_SIZE = 28
-LEGEND_FONT_SIZE = 30
 LABEL_FP = FontProperties(style='normal', size=LABEL_FONT_SIZE)
 LEGEND_FP = FontProperties(style='normal', size=LEGEND_FONT_SIZE)
 TICK_FP = FontProperties(style='normal', size=TICK_FONT_SIZE)
-
-MARKERS = (['o', 's', 'v', "^", "h", "v", ">", "x", "d", "<", "|", "", "+", "_"])
-# you may want to change the color map for different figures
-COLOR_MAP = ('#B03A2E', '#2874A6', '#239B56', '#7D3C98', '#F1C40F', '#F5CBA7', '#82E0AA', '#AEB6BF', '#AA4499')
-# you may want to change the patterns for different figures
-PATTERNS = (["", "////", "\\\\", "//", "o", "", "||", "-", "//", "\\", "o", "O", "////", ".", "|||", "o", "---", "+", "\\\\", "*"])
-LABEL_WEIGHT = 'bold'
-LINE_COLORS = COLOR_MAP
-LINE_WIDTH = 3.0
-MARKER_SIZE = 4.0
-MARKER_FREQUENCY = 1000
 
 mpl.rcParams['ps.useafm'] = True
 mpl.rcParams['pdf.use14corefonts'] = True
@@ -36,8 +27,6 @@ mpl.rcParams['xtick.labelsize'] = TICK_FONT_SIZE
 mpl.rcParams['ytick.labelsize'] = TICK_FONT_SIZE
 mpl.rcParams['font.family'] = OPT_FONT_NAME
 matplotlib.rcParams['pdf.fonttype'] = 42
-
-FIGURE_FOLDER = '/data/results'
 
 # there are some embedding problems if directly exporting the pdf figure using matplotlib.
 # so we generate the eps format first and convert it to pdf.
@@ -65,7 +54,7 @@ def ReadFile():
         start_ts = float('inf')
         temp_dict = {}
         for tid in range(0, 1):
-            f = open(utilities.FILE_FOLER + "/workloads/spector-{}-{}-{}-{}-{}-{}-{}/Splitter FlatMap-{}.output"
+            f = open(FILE_FOLER + "/workloads/spector-{}-{}-{}-{}-{}-{}-{}/Splitter FlatMap-{}.output"
                      .format(per_task_rate, parallelism, max_parallelism, per_key_state_size, sync_keys, replicate_keys_filter, state_access_ratio, tid))
             read = f.readlines()
             for r in read:

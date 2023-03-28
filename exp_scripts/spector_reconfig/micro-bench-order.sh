@@ -1,52 +1,6 @@
 #!/bin/bash
 
-FLINK_DIR="/home/myc/workspace/Spector/build-target"
-FLINK_APP_DIR="/home/myc/workspace/flink-testbed"
-
-EXP_DIR="/data"
-
-# run flink clsuter
-function runFlink() {
-    echo "INFO: starting the cluster"
-    if [[ -d ${FLINK_DIR}/log ]]; then
-        rm -rf ${FLINK_DIR}/log
-    fi
-    mkdir ${FLINK_DIR}/log
-    ${FLINK_DIR}/bin/start-cluster.sh
-}
-
-# clean app specific related data
-function cleanEnv() {
-    rm -rf /tmp/flink*
-    rm ${FLINK_DIR}/log/*
-}
-
-
-# clsoe flink clsuter
-function stopFlink() {
-    echo "INFO: experiment finished, stopping the cluster"
-    PID=`jps | grep CliFrontend | awk '{print $1}'`
-    if [[ ! -z $PID ]]; then
-      kill -9 ${PID}
-    fi
-    ${FLINK_DIR}/bin/stop-cluster.sh
-    echo "close finished"
-    cleanEnv
-}
-
-# configure parameters in flink bin
-function configFlink() {
-    # set user requirement
-    sed 's/^\(\s*spector.reconfig.affected_keys\s*:\s*\).*/\1'"$affected_keys"'/' ${FLINK_DIR}/conf/flink-conf.yaml > tmp1
-    sed 's/^\(\s*spector.reconfig.start\s*:\s*\).*/\1'"$reconfig_start"'/' tmp1 > tmp2
-    sed 's/^\(\s*spector.reconfig.sync_keys\s*:\s*\).*/\1'"$sync_keys"'/' tmp2 > tmp3
-    sed 's/^\(\s*spector.replicate_keys_filter\s*:\s*\).*/\1'"$replicate_keys_filter"'/' tmp3 > tmp4
-    sed 's/^\(\s*controller.target.operators\s*:\s*\).*/\1'"$operator"'/' tmp4 > tmp5
-    sed 's/^\(\s*spector.reconfig.order_function\s*:\s*\).*/\1'"$order_function"'/' tmp5 > tmp6
-    sed 's/^\(\s*spector.reconfig.scenario\s*:\s*\).*/\1'"$reconfig_scenario"'/' tmp6 > tmp7
-    sed 's/^\(\s*spector.reconfig.affected_tasks\s*:\s*\).*/\1'"$affected_tasks"'/' tmp7 > ${FLINK_DIR}/conf/flink-conf.yaml
-    rm tmp1 tmp2 tmp3 tmp4 tmp5 tmp6 tmp7
-}
+source config.sh
 
 # run applications
 function runApp() {
@@ -112,8 +66,6 @@ init() {
   state_access_ratio=2
   order_function="default"
 
-
-
   # system level
   operator="Splitter FlatMap"
   reconfig_start=50000
@@ -124,136 +76,6 @@ init() {
   sync_keys=0 # disable fluid state migration
   replicate_keys_filter=0 # replicate those key%filter = 0, 1 means replicate all keys
   repeat=1
-}
-
-# run the micro benchmarks
-run_micro() {
-#  # State size
-#  init
-#  for repeat in 1; do # 1 2 3 4 5
-#    for per_key_state_size in 1024 4096 8192 16384; do # state size
-#       run_one_exp
-#     done
-#  done
-
-#  # Fluid State Migration Batching keys
-#  init
-#  for repeat in 1; do # 1 2 3 4 5
-#    for sync_keys in 1 4 8 16 32; do # state size 1 4 8 16 32
-#       run_one_exp
-#     done
-#  done
-
-  # State Replication Evaluation
-  init
-  for repeat in 1; do # 1 2 3 4 5
-    for replicate_keys_filter in 1 2 4 8 0; do # state size 1 2 4 8 0
-       run_one_exp
-     done
-  done
-
-  # Fluid State Migration Batching keys
-#  init
-#  for repeat in 1; do # 1 2 3 4 5
-#    for per_task_rate in 10000 12000 14000 16000; do # state size 1 4 8 16 32
-#       run_one_exp
-#     done
-#  done
-}
-
-run_test() {
-#  init
-#  for repeat in 1; do # 1 2 3 4 5
-#    for per_key_state_size in 4096 8192 16384 32768; do # state size 1 2 4 8 0
-#       run_one_exp
-#     done
-#  done
-
-  init
-  state_access_ratio=100
-  checkpoint_interval=10000000
-  for repeat in 1; do # 1 2 3 4 5
-    for per_task_rate in 7000 8000 9000; do # state size 1 2 4 8 0
-       run_one_exp
-     done
-  done
-}
-
-run_no_migration() {
-#  init
-#  for repeat in 1; do # 1 2 3 4 5
-#    for per_key_state_size in 4096 8192 16384 32768; do # state size 1 2 4 8 0
-#       run_one_exp
-#     done
-#  done
-
-  init
-#  state_access_ratio=100
-  checkpoint_interval=10000000
-#  reconfig_start=10000000
-  for repeat in 1; do # 1 2 3 4 5
-    for per_task_rate in 6000 7000 8000 9000 10000 12000 15000; do # state size 1 2 4 8 0
-       run_one_exp
-     done
-  done
-}
-
-run_replication_overhead() {
-  # Migrate at once
-  init
-  replicate_keys_filter=0
-  sync_keys=0
-  reconfig_start=10000000
-  run_one_exp
-
-  # Proactive State replication
-  init
-  replicate_keys_filter=1
-  sync_keys=0
-  reconfig_start=10000000
-  run_one_exp
-}
-
-
-run_overview() {
-  # Migrate at once
-  init
-  replicate_keys_filter=0
-  sync_keys=0
-  checkpoint_interval=10000000
-  run_one_exp
-  # Fluid Migration
-  init
-  replicate_keys_filter=0
-  sync_keys=8
-  checkpoint_interval=10000000
-  run_one_exp
-  # Proactive State replication
-  init
-  replicate_keys_filter=1
-  sync_keys=0
-  run_one_exp
-}
-
-
-run_fluid_study() {
-  # Fluid Migration
-  init
-  replicate_keys_filter=0
-  checkpoint_interval=10000000
-  state_access_ratio=20
-  for sync_keys in 4 8 16 32 64 128; do
-    run_one_exp
-  done
-}
-
-run_replication_study() {
-  # Proactive State replication
-  init
-  sync_keys=0
-  for replicate_keys_filter in 1 2 4 8; do
-    run_one_exp
-  done
 }
 
 

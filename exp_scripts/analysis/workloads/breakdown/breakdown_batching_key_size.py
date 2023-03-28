@@ -1,5 +1,8 @@
 import os
-import utilities
+
+from analysis.test.completion_time_figure import FILE_FOLER
+from analysis.config.default_config import timers_plot
+from analysis.config.general_utilities import DrawFigureV4, breakdown_total
 
 
 def ReadFile(repeat_num = 1):
@@ -20,18 +23,18 @@ def ReadFile(repeat_num = 1):
             i = 0
             w, h = 3, 3
             col_y = [[0 for x in range(w)] for y in range(h)]
-            for sync_keys in [1, int(max_parallelism / 16), int(max_parallelism/2)]:
-                exp = utilities.FILE_FOLER + '/spector-{}-{}-{}-{}-{}-{}-{}'\
+            for sync_keys in [1, int(max_parallelism / 16), int(max_parallelism / 2)]:
+                exp = FILE_FOLER + '/spector-{}-{}-{}-{}-{}-{}-{}'\
                     .format(per_task_rate, parallelism, max_parallelism, per_key_state_size, sync_keys, replicate_keys_filter, state_access_ratio)
                 file_path = os.path.join(exp, "timer.output")
                 # try:
-                stats = utilities.breakdown_total(open(file_path).readlines())
+                stats = breakdown_total(open(file_path).readlines())
                 print(stats)
                 for j in range(3):
-                    if utilities.timers_plot[j] not in stats:
+                    if timers_plot[j] not in stats:
                         col_y[j][i] = 0
                     else:
-                        col_y[j][i] += stats[utilities.timers_plot[j]]
+                        col_y[j][i] += stats[timers_plot[j]]
                 i += 1
                 # except Exception as e:
                 #     print("Error while processing the file {}: {}".format(exp, e))
@@ -55,7 +58,7 @@ def ReadFile(repeat_num = 1):
     return y
 
 
-def draw(val):
+def draw():
     # runtime, per_task_rate, parallelism, key_set, per_key_state_size, reconfig_interval, reconfig_type, affected_tasks, repeat_num = val
 
     # parallelism
@@ -67,6 +70,6 @@ def draw(val):
 
     print(y_values)
 
-    utilities.DrawFigure(x_values, y_values, legend_labels,
+    DrawFigureV4(x_values, y_values, legend_labels,
                          'Sync Keys', 'Breakdown (ms)',
                          'breakdown_batching_key_size', True)
