@@ -1,7 +1,8 @@
 import os
 
-from analysis.config.default_config import per_key_state_size, replicate_keys_filter, FILE_FOLER, timers_plot, per_task_rate, sync_keys
-from analysis.config.general_utilities import breakdown_total
+from analysis.config.default_config import per_key_state_size, replicate_keys_filter, FILE_FOLER, timers_plot, \
+    per_task_rate, sync_keys, breakdown_legend_labels
+from analysis.config.general_utilities import breakdown_total, DrawFigure
 
 
 def ReadFile(repeat_num = 1):
@@ -40,10 +41,10 @@ def draw():
     x_values = ["hotkey-first", "random", "coldkey-first"]
     y_values = ReadFile(repeat_num = 1)
 
-    legend_labels = utilities.legend_labels
+    legend_labels = breakdown_legend_labels
 
     print(y_values)
 
-    utilities.DrawFigure(x_values, y_values, legend_labels,
+    DrawFigure(x_values, y_values, legend_labels,
                          'Sync Keys', 'Breakdown (ms)',
                          'breakdown_order_keys', True)

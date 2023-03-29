@@ -5,11 +5,15 @@ source config.sh
 # run applications
 function runApp() {
   echo "INFO: ${FLINK_DIR}/bin/flink run -c ${job} ${JAR} \
-    -runtime ${runtime} -nTuples ${n_tuples}  \-p1 ${source_p} -p2 ${parallelism} -mp2 ${max_parallelism} \
-    -nKeys ${key_set} -perKeySize ${per_key_state_size} -interval ${checkpoint_interval} -stateAccessRatio ${state_access_ratio} &"
+    -runtime ${runtime} -nTuples ${n_tuples}  \
+    -p1 ${source_p} -p2 ${parallelism} -mp2 ${max_parallelism} \
+    -nKeys ${key_set} -perKeySize ${per_key_state_size} \
+    -interval ${checkpoint_interval} -stateAccessRatio ${state_access_ratio} -zipf_skew ${zipf_skew} &"
   ${FLINK_DIR}/bin/flink run -c ${job} ${JAR} \
-    -runtime ${runtime} -nTuples ${n_tuples}  \-p1 ${source_p} -p2 ${parallelism} -mp2 ${max_parallelism} \
-    -nKeys ${key_set} -perKeySize ${per_key_state_size} -interval ${checkpoint_interval} -stateAccessRatio ${state_access_ratio} &
+    -runtime ${runtime} -nTuples ${n_tuples}  \
+    -p1 ${source_p} -p2 ${parallelism} -mp2 ${max_parallelism} \
+    -nKeys ${key_set} -perKeySize ${per_key_state_size} \
+    -interval ${checkpoint_interval} -stateAccessRatio ${state_access_ratio}  -zipf_skew ${zipf_skew} &
 }
 
 # draw figures
@@ -65,6 +69,7 @@ init() {
   checkpoint_interval=1000 # by default checkpoint in frequent, trigger only when necessary
   state_access_ratio=2
   order_function="default"
+  zipf_skew=1.5
 
   # system level
   operator="Splitter FlatMap"

@@ -13,8 +13,7 @@ import numpy as np
 import pandas as pd
 
 from analysis.config.default_config import LABEL_FONT_SIZE, LEGEND_FONT_SIZE, TICK_FONT_SIZE, OPT_FONT_NAME, \
-    LINE_COLORS, LINE_WIDTH, MARKERS, MARKER_SIZE, FIGURE_FOLDER, FILE_FOLER, PATTERNS, timers_plot, per_task_rate, \
-    per_key_state_size, sync_keys, replicate_keys_filter, repeat_num
+    LINE_COLORS, LINE_WIDTH, MARKERS, MARKER_SIZE, FIGURE_FOLDER, FILE_FOLER, PATTERNS, timers_plot
 from analysis.config.general_utilities import breakdown_total
 
 mpl.use('Agg')
@@ -47,6 +46,12 @@ def ReadFile():
 
     w, h = 3, 3
     y = [[0 for x in range(w)] for y in range(h)]
+
+    repeat_num = 1
+    per_key_state_size = 32768
+    replicate_keys_filter = 0
+    sync_keys = 1
+    per_task_rate = 5500
 
     keys = ["default", "random", "reverse"]
 
@@ -196,7 +201,7 @@ def DrawFigure(xvalues, yvalues, legend_labels, x_label, y_label, y_label_2, fil
 
     # plt.xticks(index + 0.5 * width, x_values[0])
     # plt.xscale('log')
-    plt.xticks(x_values[0], ["default", "random", "reverse"])
+    plt.xticks(x_values[0], ["hotkey-first", "random", "coldkey-first"])
     # plt.grid()
     ax1.ticklabel_format(axis="y", style="sci", scilimits=(0, 0))
     ax2.ticklabel_format(axis="y", style="sci", scilimits=(0, 0))

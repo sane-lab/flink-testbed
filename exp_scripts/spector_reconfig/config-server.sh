@@ -1,4 +1,5 @@
 #!/bin/bash
+# Need to substitute the default_config.py with this one.
 
 FLINK_DIR="/home/myc/workspace/Spector/build-target"
 FLINK_APP_DIR="/home/myc/workspace/flink-testbed"
@@ -44,10 +45,12 @@ function configFlink() {
     sed 's/^\(\s*spector.reconfig.sync_keys\s*:\s*\).*/\1'"$sync_keys"'/' tmp2 > tmp3
     sed 's/^\(\s*spector.replicate_keys_filter\s*:\s*\).*/\1'"$replicate_keys_filter"'/' tmp3 > tmp4
     sed 's/^\(\s*controller.target.operators\s*:\s*\).*/\1'"$operator"'/' tmp4 > tmp5
-    sed 's/^\(\s*spector.reconfig.scenario\s*:\s*\).*/\1'"$reconfig_scenario"'/' tmp5 > tmp6
-    sed 's/^\(\s*spector.reconfig.affected_tasks\s*:\s*\).*/\1'"$affected_tasks"'/' tmp6 > ${FLINK_CONF_DIR}/flink-conf.yaml
-    rm tmp1 tmp2 tmp3 tmp4 tmp5 tmp6
-    cp -r ${FLINK_CONF_DIR} ${FLINK_DIR}
+    sed 's/^\(\s*spector.reconfig.order_function\s*:\s*\).*/\1'"$order_function"'/' tmp5 > tmp6
+    sed 's/^\(\s*spector.reconfig.workload.zipf_skew\s*:\s*\).*/\1'"$zipf_skew"'/' tmp6 > tmp7
+    sed 's/^\(\s*spector.reconfig.scenario\s*:\s*\).*/\1'"$reconfig_scenario"'/' tmp7 > tmp8
+    sed 's/^\(\s*spector.reconfig.affected_tasks\s*:\s*\).*/\1'"$affected_tasks"'/' tmp8 > ${FLINK_CONF_DIR}/flink-conf.yaml
+    rm tmp*
+    cp ${FLINK_CONF_DIR}/* ${FLINK_DIR}/conf
 }
 
 # initialization of the parameters
@@ -64,9 +67,11 @@ init() {
   parallelism=2
   max_parallelism=512
   key_set=16384
-  per_key_state_size=8192 # byte
+  per_key_state_size=8196 # byte
   checkpoint_interval=1000 # by default checkpoint in frequent, trigger only when necessary
   state_access_ratio=2
+  order_function="default"
+  zipf_skew=1.5
 
   # system level
   operator="Splitter FlatMap"

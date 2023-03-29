@@ -59,7 +59,8 @@ public class StatefulDemoLongRunKeyRateZipfControlled {
                 params.getInt("runtime", 10),
                 params.getInt("nTuples", 10000),
                 params.getInt("nKeys", 1000),
-                params.getInt("mp2", 128)
+                params.getInt("mp2", 128),
+                params.getDouble("zipf_skew", 1.5)
         )).setParallelism(params.getInt("p1", 1));
         DataStream<String> counts = source
                 .slotSharingGroup("g1")
@@ -141,13 +142,13 @@ public class StatefulDemoLongRunKeyRateZipfControlled {
 
         private final Map<Integer, List<String>> keyGroupMapping = new HashMap<>();
 
-        MySource(int runtime, int nTuples, int nKeys, int maxParallelism) {
+        MySource(int runtime, int nTuples, int nKeys, int maxParallelism, double zipfSkew) {
             this.runtime = runtime;
             this.nTuples = nTuples;
             this.nKeys = nKeys;
             this.rate = nTuples / runtime;
             this.maxParallelism = maxParallelism;
-            this.fastZipfGenerator = new FastZipfGenerator(maxParallelism, 1.5, 0, 12345678);
+            this.fastZipfGenerator = new FastZipfGenerator(maxParallelism, zipfSkew, 0, 12345678);
 
             // Another functionality test
             for (int i = 0; i < nKeys; i++) {

@@ -17,7 +17,8 @@ import matplotlib.pyplot as plt
 from matplotlib.font_manager import FontProperties
 
 from analysis.config.default_config import LABEL_FONT_SIZE, LEGEND_FONT_SIZE, TICK_FONT_SIZE, OPT_FONT_NAME, \
-    LINE_COLORS, LINE_WIDTH, MARKERS, MARKER_SIZE, FIGURE_FOLDER, FILE_FOLER
+    LINE_COLORS, LINE_WIDTH, MARKERS, MARKER_SIZE, FIGURE_FOLDER, FILE_FOLER, per_task_rate, per_key_state_size, \
+    sync_keys, replicate_keys_filter
 
 LABEL_FP = FontProperties(style='normal', size=LABEL_FONT_SIZE)
 LEGEND_FP = FontProperties(style='normal', size=LEGEND_FONT_SIZE)
@@ -126,10 +127,10 @@ def ReadFile():
     x_axis = []
     y_axis = []
 
-    per_key_state_size = 32768
-    replicate_keys_filter = 0
-    sync_keys = 1
-    per_task_rate = 5000
+    # per_key_state_size = 32768
+    # replicate_keys_filter = 0
+    # sync_keys = 1
+    # per_task_rate = 5000
 
     for order_function in ["default", "random", "reverse"]:
         col = []

@@ -1,7 +1,7 @@
 import os
 
 from analysis.config.default_config import timers_plot, per_task_rate, parallelism, per_key_state_size, \
-    replicate_keys_filter, state_access_ratio, FILE_FOLER
+    replicate_keys_filter, state_access_ratio, max_parallelism, FILE_FOLER
 from analysis.config.general_utilities import DrawFigureV4, breakdown_total
 
 
@@ -19,7 +19,7 @@ def ReadFile(repeat_num = 1):
     # max_parallelism = 512
 
     for repeat in range(1, repeat_num + 1):
-        for max_parallelism in [128, 256, 512, 1024]:
+        for per_task_rate in [1000, 2000, 4000, 8000]:
             i = 0
             w, h = 3, 3
             col_y = [[0 for x in range(w)] for y in range(h)]
@@ -63,7 +63,7 @@ def draw():
 
     # parallelism
     # x_values = [1024, 10240, 20480, 40960]
-    x_values = [128, 256, 512, 1024]
+    x_values = [1000, 2000, 4000, 8000]
     y_values = ReadFile(repeat_num = 1)
 
     legend_labels = ["Fluid", "Batched", "All-At-Once"]
@@ -71,5 +71,5 @@ def draw():
     print(y_values)
 
     DrawFigureV4(x_values, y_values, legend_labels,
-                         'Key Size', 'Breakdown (ms)',
-                         'breakdown_batching_key_size', True)
+                         'Input Rate (e/s)', 'Breakdown (ms)',
+                         'breakdown_batching_input_rate', True)
