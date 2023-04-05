@@ -1,9 +1,10 @@
 package flinkapp;
 
 import Nexmark.sources.Util;
+import com.sun.org.apache.xpath.internal.operations.Bool;
+import common.FastZipfGenerator;
 import common.MathUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.flink.api.common.functions.AggregateFunction;
 import org.apache.flink.api.common.functions.RichMapFunction;
 import org.apache.flink.api.common.state.ListState;
 import org.apache.flink.api.common.state.ListStateDescriptor;
@@ -18,15 +19,10 @@ import org.apache.flink.runtime.state.memory.MemoryStateBackend;
 import org.apache.flink.streaming.api.checkpoint.CheckpointedFunction;
 import org.apache.flink.streaming.api.datastream.DataStream;
 import org.apache.flink.streaming.api.datastream.DataStreamSource;
-import org.apache.flink.streaming.api.datastream.SingleOutputStreamOperator;
 import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
 import org.apache.flink.streaming.api.functions.source.RichParallelSourceFunction;
-import org.apache.flink.streaming.api.windowing.time.Time;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 import static common.Util.delay;
 
@@ -37,7 +33,7 @@ import static common.Util.delay;
  * 3. different key distributions, whether the final key count is consistent.
  */
 
-public class WindowDemoLongRunStateControlled {
+public class MicroBenchmark {
 
     private static final int MAX = 1000000 * 10;
     //    private static final int MAX = 1000;
@@ -63,45 +59,25 @@ public class WindowDemoLongRunStateControlled {
                 params.getInt("nTuples", 10000),
                 params.getInt("nKeys", 1000),
                 params.getInt("mp2", 128),
+                params.getDouble("zipf_skew", 0),
                 stateAccessRatio
         )).setParallelism(params.getInt("p1", 1));
-        DataStream<Long> windowed = source
+        DataStream<String> counts = source
                 .slotSharingGroup("g1")
                 .keyBy(0)
-//                .map(new MyStatefulMap(perKeyStateSize))
-                .timeWindow(Time.seconds(params.getInt("window-size", 2)), Time.seconds(1))
-                .aggregate(new MyAggregateFun());
-
-        ((SingleOutputStreamOperator<Long>) windowed).disableChaining();
-        ((SingleOutputStreamOperator<Long>) windowed).setMaxParallelism(params.getInt("mp2", 64));
-        ((SingleOutputStreamOperator<Long>) windowed).setParallelism(params.getInt("p2",  1));
-        ((SingleOutputStreamOperator<Long>) windowed).name("window");
+                .map(new MyStatefulMap(perKeyStateSize))
+                .disableChaining()
+                .slotSharingGroup("g2")
+//            .filter(input -> {
+//                return Integer.parseInt(input.split(" ")[1]) >= MAX;
+//            })
+                .name("Splitter FlatMap")
+                .uid("flatmap")
+                .setParallelism(params.getInt("p2", 1))
+                .setMaxParallelism(params.getInt("mp2", 8));
 
         env.execute();
     }
-
-    private static final class MyAggregateFun implements AggregateFunction<Tuple2<String, String>, Long, Long> {
-
-        public Long createAccumulator() {
-            return 0L;
-        }
-
-        @Override
-        public Long add(Tuple2<String, String> value, Long accumulator) {
-            return accumulator + 1;
-        }
-
-        @Override
-        public Long getResult(Long accumulator) {
-            return accumulator;
-        }
-
-        @Override
-        public Long merge(Long a, Long b) {
-            return a + b;
-        }
-    }
-
 
     private static class MyStatefulMap extends RichMapFunction<Tuple2<String, String>, String> {
 
@@ -123,9 +99,13 @@ public class WindowDemoLongRunStateControlled {
             delay(100_000);
 
             String s = input.f0;
+            boolean isAccessState = Boolean.parseBoolean(input.f1);
 
             Long cur = 1L;
-            countMap.put(s, payload);
+
+            if (isAccessState) {
+                countMap.put(s, payload);
+            }
 
 //            Long cur = countMap.get(s);
 //            cur = (cur == null) ? 1 : cur + 1;
@@ -162,17 +142,19 @@ public class WindowDemoLongRunStateControlled {
 
         private final int maxParallelism;
 
+        private final FastZipfGenerator fastZipfGenerator;
+        private final Map<Integer, List<String>> keyGroupMapping = new HashMap<>();
         private final int subKeyGroupSize;
 
-        private final Map<Integer, List<String>> keyGroupMapping = new HashMap<>();
-
-        MySource(int runtime, int nTuples, int nKeys, int maxParallelism, int stateAccessRatio) {
+        MySource(int runtime, int nTuples, int nKeys, int maxParallelism, double zipfSkew, int stateAccessRatio) {
             this.runtime = runtime;
             this.nTuples = nTuples;
             this.nKeys = nKeys;
             this.rate = nTuples / runtime;
             this.maxParallelism = maxParallelism;
+            this.fastZipfGenerator = new FastZipfGenerator(maxParallelism, zipfSkew, 0, 12345678);
             this.subKeyGroupSize = maxParallelism * stateAccessRatio / 100;
+
 
             // Another functionality test
             for (int i = 0; i < nKeys; i++) {
@@ -210,34 +192,40 @@ public class WindowDemoLongRunStateControlled {
         @Override
         public void run(SourceContext<Tuple2<String, String>> ctx) throws Exception {
 
-            List<String> subKeySet = Util.selectKeys(subKeyGroupSize, keyGroupMapping);
-            Map<Integer, Integer> keyGroupCount = new HashMap<>();
+            List<String> subKeySet;
 
+            Map<Integer, Integer> stats = new HashMap<>();
 
-            long emitStartTime = System.currentTimeMillis();
+            long emitStartTime;
+
+            Set<Integer> stateAccessKeySet = Util.selectKeyGroups(subKeyGroupSize, keyGroupMapping);
 
             while (isRunning && count < nTuples) {
 
                 emitStartTime = System.currentTimeMillis();
                 for (int i = 0; i < rate / 20; i++) {
+                    int selectedKeygroup = fastZipfGenerator.next();
+                    subKeySet = keyGroupMapping.get(selectedKeygroup);
+
+                    boolean isAccessState = stateAccessKeySet.contains(selectedKeygroup);
+
                     String key = getSubKeySetChar(count, subKeySet);
 
                     int keygroup = MathUtils.murmurHash(key.hashCode()) % maxParallelism;
-//                    int curCount = keyGroupCount.getOrDefault(keygroup, 0) + 1;
-//                    keyGroupCount.put(keygroup, curCount);
-//                    System.out.println("sent: " + key + " : " + curCount + " total: " + count);
-//                    ctx.collect(Tuple2.of(key, key));
-                    ctx.collect(Tuple2.of(key, String.valueOf(System.currentTimeMillis())));
+//                    ctx.collect(Tuple2.of(key, String.valueOf(System.currentTimeMillis())));
+                    ctx.collect(Tuple2.of(key, String.valueOf(isAccessState)));
 
                     count++;
+
+                    int statsByKey = stats.computeIfAbsent(keygroup, t -> 0);
+                    statsByKey++;
+                    stats.put(keygroup, statsByKey);
                 }
 
                 if (count % rate == 0) {
                     // update the keyset
-//                    System.out.println("++++++Actual Keygroups accessed: " + keyGroupCount.size());
-//                    keyGroupCount.clear();
-//                    System.out.println("++++++new Key Set: " + subKeySet.size());
-                    subKeySet = Util.selectKeys(subKeyGroupSize, keyGroupMapping);
+                    System.out.println("++++++new Key Stats: " + stats);
+                    stateAccessKeySet = Util.selectKeyGroups(subKeyGroupSize, keyGroupMapping);
                 }
 
                 // Sleep for the rest of timeslice if needed

@@ -75,7 +75,7 @@ public class WCGeneratorStateControlled {
     }
 
     public void generate() throws InterruptedException {
-        List<String> subKeySet = Util.selectKeyGroups(subKeyGroupSize, keyGroupMapping);
+        List<String> subKeySet = Util.selectKeys(subKeyGroupSize, keyGroupMapping);
 
         long emitStartTime;
 
@@ -93,7 +93,7 @@ public class WCGeneratorStateControlled {
 
             if (count % rate == 0) {
                 // update the keyset
-                subKeySet = Util.selectKeyGroups(subKeyGroupSize, keyGroupMapping);
+                subKeySet = Util.selectKeys(subKeyGroupSize, keyGroupMapping);
             }
         }
 

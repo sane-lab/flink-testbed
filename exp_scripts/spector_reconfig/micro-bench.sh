@@ -163,7 +163,8 @@ run_replication_study() {
   sync_keys=0
   per_key_state_size=16384
   state_access_ratio=1
-  for replicate_keys_filter in 1 2 4 8; do
+  reconfig_start=10000000
+  for replicate_keys_filter in 16; do # 1 2 4 8
 #  for replicate_keys_filter in 1; do
     run_one_exp
   done

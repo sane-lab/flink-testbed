@@ -1,9 +1,6 @@
 package Nexmark.sources;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 public class Util {
     public void changeRate(int rate, Boolean inc, Integer n) {
@@ -39,14 +36,25 @@ public class Util {
         }
     }
 
-    public static List<String> selectKeyGroups(int numAffectedTasks, Map<Integer, List<String>> newExecutorMapping) {
-        numAffectedTasks = Math.min(numAffectedTasks, newExecutorMapping.size());
-        List<String> selectedTasks = new ArrayList<>();
-        List<Integer> allTaskID = new ArrayList<>(newExecutorMapping.keySet());
-        Collections.shuffle(allTaskID);
-        for (int i = 0; i < numAffectedTasks; i++) {
-            selectedTasks.addAll(newExecutorMapping.get(allTaskID.get(i)));
+    public static List<String> selectKeys(int subKeyGroupSize, Map<Integer, List<String>> keyGroupMapping) {
+        subKeyGroupSize = Math.min(subKeyGroupSize, keyGroupMapping.size());
+        List<String> selectedKeys = new ArrayList<>();
+        List<Integer> allKeyGroups = new ArrayList<>(keyGroupMapping.keySet());
+        Collections.shuffle(allKeyGroups);
+        for (int i = 0; i < subKeyGroupSize; i++) {
+            selectedKeys.addAll(keyGroupMapping.get(allKeyGroups.get(i)));
         }
-        return selectedTasks;
+        return selectedKeys;
+    }
+
+    public static Set<Integer> selectKeyGroups(int subKeyGroupSize, Map<Integer, List<String>> keyGroupMapping) {
+        subKeyGroupSize = Math.min(subKeyGroupSize, keyGroupMapping.size());
+        Set<Integer> selectedKeyGroups = new HashSet<>();
+        List<Integer> allKeyGroups = new ArrayList<>(keyGroupMapping.keySet());
+        Collections.shuffle(allKeyGroups);
+        for (int i = 0; i < subKeyGroupSize; i++) {
+            selectedKeyGroups.add(allKeyGroups.get(i));
+        }
+        return selectedKeyGroups;
     }
 }

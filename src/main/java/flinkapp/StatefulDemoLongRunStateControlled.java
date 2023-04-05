@@ -186,7 +186,7 @@ public class StatefulDemoLongRunStateControlled {
         @Override
         public void run(SourceContext<Tuple2<String, String>> ctx) throws Exception {
 
-            List<String> subKeySet = Util.selectKeyGroups(subKeyGroupSize, keyGroupMapping);
+            List<String> subKeySet = Util.selectKeys(subKeyGroupSize, keyGroupMapping);
             Map<Integer, Integer> keyGroupCount = new HashMap<>();
 
 
@@ -213,7 +213,7 @@ public class StatefulDemoLongRunStateControlled {
 //                    System.out.println("++++++Actual Keygroups accessed: " + keyGroupCount.size());
 //                    keyGroupCount.clear();
 //                    System.out.println("++++++new Key Set: " + subKeySet.size());
-                    subKeySet = Util.selectKeyGroups(subKeyGroupSize, keyGroupMapping);
+                    subKeySet = Util.selectKeys(subKeyGroupSize, keyGroupMapping);
                 }
 
                 // Sleep for the rest of timeslice if needed
