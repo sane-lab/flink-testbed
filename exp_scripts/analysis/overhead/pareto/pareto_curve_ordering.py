@@ -1,5 +1,5 @@
 import os
-from math import ceil
+from math import ceil, floor
 import sys
 from pathlib import Path
 
@@ -51,7 +51,7 @@ def ReadFile():
     per_key_state_size = 32768
     replicate_keys_filter = 0
     sync_keys = 1
-    per_task_rate = 5500
+    per_task_rate = 5000
 
     keys = ["default", "random", "reverse"]
 
@@ -80,7 +80,7 @@ def ReadFile():
         for ts in temp_dict:
             # coly.append(sum(temp_dict[ts]) / len(temp_dict[ts]))
             temp_dict[ts].sort()
-            coly.append(temp_dict[ts][ceil((len(temp_dict[ts]))*0.99)])
+            coly.append(temp_dict[ts][floor((len(temp_dict[ts]))*0.99)])
             col.append(ts - start_ts)
 
         # x_axis.append(col[40:70])

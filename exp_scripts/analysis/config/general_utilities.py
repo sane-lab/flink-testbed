@@ -11,7 +11,7 @@ from analysis.config.default_config import LABEL_FONT_SIZE, LEGEND_FONT_SIZE, TI
     LINE_COLORS, FIGURE_FOLDER, PATTERNS
 from analysis.config.default_config import timers_plot
 
-matplotlib.use('TkAgg')
+# matplotlib.use('TkAgg')
 
 LABEL_FP = FontProperties(style='normal', size=LABEL_FONT_SIZE)
 LEGEND_FP = FontProperties(style='normal', size=LEGEND_FONT_SIZE)

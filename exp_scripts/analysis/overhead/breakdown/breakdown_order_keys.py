@@ -9,6 +9,12 @@ def ReadFile(repeat_num = 1):
     w, h = 3, 3
     y = [[0 for x in range(w)] for y in range(h)]
 
+    repeat_num = 1
+    per_key_state_size = 32768
+    replicate_keys_filter = 0
+    sync_keys = 1
+    per_task_rate = 5000
+
     for repeat in range(1, repeat_num + 1):
         i = 0
         for order_function in ["default", "random", "reverse"]:

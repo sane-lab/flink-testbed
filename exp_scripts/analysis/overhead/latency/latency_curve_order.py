@@ -52,7 +52,7 @@ def DrawFigure(xvalues, yvalues, legend_labels, x_label, y_label, filename, allo
                                linewidth=LINE_WIDTH, marker=MARKERS[i], \
                                markersize=MARKER_SIZE, label=FIGURE_LABEL[i],
                                 markeredgewidth=3, markeredgecolor='k',
-                                markevery=1
+                                markevery=5
                                )
 
     # sometimes you may not want to draw legends.
@@ -127,10 +127,10 @@ def ReadFile():
     x_axis = []
     y_axis = []
 
-    # per_key_state_size = 32768
-    # replicate_keys_filter = 0
-    # sync_keys = 1
-    # per_task_rate = 5000
+    per_key_state_size = 32768
+    replicate_keys_filter = 0
+    sync_keys = 16
+    per_task_rate = 5000
 
     for order_function in ["default", "random", "reverse"]:
         col = []
