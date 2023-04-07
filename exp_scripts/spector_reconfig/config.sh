@@ -47,7 +47,8 @@ function configFlink() {
     sed 's/^\(\s*spector.reconfig.order_function\s*:\s*\).*/\1'"$order_function"'/' tmp5 > tmp6
     sed 's/^\(\s*spector.reconfig.workload.zipf_skew\s*:\s*\).*/\1'"$zipf_skew"'/' tmp6 > tmp7
     sed 's/^\(\s*spector.reconfig.scenario\s*:\s*\).*/\1'"$reconfig_scenario"'/' tmp7 > tmp8
-    sed 's/^\(\s*spector.reconfig.affected_tasks\s*:\s*\).*/\1'"$affected_tasks"'/' tmp8 > ${FLINK_CONF_DIR}/flink-conf.yaml
+    sed 's/^\(\s*snapshot.changelog.enabled\s*:\s*\).*/\1'"$changelog_enabled"'/' tmp8 > tmp9
+    sed 's/^\(\s*spector.reconfig.affected_tasks\s*:\s*\).*/\1'"$affected_tasks"'/' tmp9 > ${FLINK_CONF_DIR}/flink-conf.yaml
     rm tmp*
     cp ${FLINK_CONF_DIR}/* ${FLINK_DIR}/conf
 }
@@ -55,7 +56,7 @@ function configFlink() {
 # initialization of the parameters
 init() {
   # exp scenario
-  reconfig_scenario="shuffle"
+  reconfig_scenario="shuffle" # load_balance
 
   # app level
   JAR="${FLINK_APP_DIR}/target/testbed-1.0-SNAPSHOT.jar"
@@ -83,5 +84,6 @@ init() {
   sync_keys=0 # disable fluid state migration
   replicate_keys_filter=0 # replicate those key%filter = 0, 1 means replicate all keys
   repeat=1
+  changelog_enabled=true
 }
 

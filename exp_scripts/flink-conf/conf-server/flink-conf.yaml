@@ -331,3 +331,4 @@ netty.optimized.acknowledgement.enabled: false # do not make it true, not suppor
 netty.optimized.deployment.enabled: false # do not make it true, not supported
 
 state.backend.async: false
+snapshot.changelog.enabled: true

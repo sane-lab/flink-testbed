@@ -3,11 +3,15 @@ package flinkapp.test;
 import Nexmark.sources.Util;
 import common.FastZipfGenerator;
 import common.MathUtils;
+import org.apache.flink.runtime.state.KeyGroupRange;
+import org.apache.flink.runtime.state.KeyGroupRangeAssignment;
+import org.apache.flink.util.Preconditions;
 
 import java.util.*;
 import java.util.concurrent.ExecutionException;
 import java.util.stream.IntStream;
 
+import static java.lang.Math.abs;
 import static java.lang.Thread.sleep;
 import static java.util.concurrent.CompletableFuture.runAsync;
 
@@ -66,26 +70,68 @@ public class FunctionalityTest {
 //        testKeyGroupMapping();
 
 //        testKeyRateControlled();
-        testLoadBalanceZipf(16);
+//        testLoadBalanceZipf(16);
 
 
-//        testZipfKeyRateControlled();
+        testZipfKeyRateControlled();
     }
 
     private static void testZipfKeyRateControlled() throws InterruptedException {
         int nKeys = 16384;
         int maxParallelism = 512;
+        int parallelism = 8;
         final Map<Integer, List<String>> keyGroupMapping = new HashMap<>();
 
-        FastZipfGenerator fastZipfGenerator = new FastZipfGenerator(maxParallelism, 1.5, 0, 12345678);
+        FastZipfGenerator fastZipfGenerator = new FastZipfGenerator(maxParallelism, 0.5, 0, 12345678);
 
-        // Another functionality test
-        for (int i = 0; i < nKeys; i++) {
-            String key = "A" + i;
-            int keygroup = MathUtils.murmurHash(key.hashCode()) % maxParallelism;
-            List<String> keys = keyGroupMapping.computeIfAbsent(keygroup, t -> new ArrayList<>());
-            keys.add(key);
+        Set<Integer> srcKeygroups = computeKeyGroupRangeForOperatorIndex(maxParallelism, parallelism, 0);
+        Set<Integer> dstKeygroups = computeKeyGroupRangeForOperatorIndex(maxParallelism, parallelism, parallelism - 1);
+
+        Map<Integer, Integer> kgToexecutorMapping = new HashMap<>();
+        for (int taskId = 0; taskId < parallelism; taskId++) {
+            Set<Integer> assignedKeygroups = computeKeyGroupRangeForOperatorIndex(maxParallelism, parallelism, taskId);
+            for (int keygroup : assignedKeygroups) {
+                kgToexecutorMapping.put(keygroup, taskId);
+            }
         }
+
+
+        HashMap<Integer, Double> probabilityMap = new HashMap<>();
+        double prevValue = 0;
+        for (Map.Entry<Double, Integer> kv : fastZipfGenerator.getMap().entrySet()) {
+            probabilityMap.put(kv.getValue(), kv.getKey() - prevValue);
+            prevValue = kv.getKey();
+        }
+
+        double x = 0;
+        double y = 0;
+        Set<Integer> migratableKeys = new HashSet<>();
+        for (Map.Entry<Integer, Double> kv : probabilityMap.entrySet()) {
+            if (kgToexecutorMapping.get(kv.getKey()) == 0) {
+                x += kv.getValue();
+                migratableKeys.add(kv.getKey());
+            } else if (kgToexecutorMapping.get(kv.getKey()) == parallelism - 1) {
+                y += kv.getValue();
+            }
+        }
+
+        double optimal = (x + y) / 2;
+        double prevKey = 0;
+        ArrayDeque<Integer> nonMigratingKeys = new ArrayDeque<>();
+        for (Double key : fastZipfGenerator.getMap().keySet()) {
+            if (key >= optimal) {
+                if (optimal - prevKey > key - optimal) {
+                    nonMigratingKeys.add(fastZipfGenerator.getMap().get(key));
+                }
+                break;
+            }
+            nonMigratingKeys.add(fastZipfGenerator.getMap().get(key));
+            prevKey = key;
+        }
+
+        migratableKeys.removeAll(nonMigratingKeys);
+        System.out.println(migratableKeys);
+
 
         List<String> subKeySet;
 
@@ -95,8 +141,20 @@ public class FunctionalityTest {
         long emitStartTime = System.currentTimeMillis();
 
         int count = 0;
-        int nTuples = 14000;
-        int rate = 14000;
+        int nTuples = 32000;
+        int rate = 32000;
+
+
+
+        // Another functionality test
+        for (int i = 0; i < nKeys; i++) {
+            String key = "A" + i;
+            int keygroup = MathUtils.murmurHash(key.hashCode()) % maxParallelism;
+            List<String> keys = keyGroupMapping.computeIfAbsent(keygroup, t -> new ArrayList<>());
+            keys.add(key);
+        }
+
+
 
         while (count < nTuples) {
 
@@ -117,7 +175,22 @@ public class FunctionalityTest {
 
             if (count % rate == 0) {
                 // update the keyset
-                System.out.println("++++++new Key Stats: " + stats);
+                System.out.println("++++++Key Stats: " + stats);
+                Map<Integer, Integer> taskRateMap = new HashMap<>();
+                for (int i = 0; i < parallelism; i++) taskRateMap.put(i, 0);
+                for (int keygroup : stats.keySet()) {
+                    int taskId = kgToexecutorMapping.get(keygroup);
+                    taskRateMap.put(taskId, taskRateMap.get(taskId) + stats.get(keygroup));
+                }
+                System.out.println("++++++Task Stats: " + taskRateMap);
+
+                for (Integer keygroup : migratableKeys) {
+                    taskRateMap.put(0, taskRateMap.get(0) - stats.get(keygroup));
+                    taskRateMap.put(parallelism - 1, taskRateMap.get(parallelism - 1) + stats.get(keygroup));
+                }
+
+                System.out.println("++++++new Task Stats after migration: " + taskRateMap);
+
 //                int sum = 0;
 //                for (int i = 1; i < stats.size(); i++) {
 //                    sum += stats.get(i);
@@ -280,5 +353,25 @@ public class FunctionalityTest {
             selectedTasks.addAll(newExecutorMapping.get(allTaskID.get(i)));
         }
         return selectedTasks;
+    }
+
+    public static Set<Integer> computeKeyGroupRangeForOperatorIndex(
+            int maxParallelism,
+            int parallelism,
+            int operatorIndex) {
+
+
+        Preconditions.checkArgument(maxParallelism >= parallelism,
+                "Maximum parallelism must not be smaller than parallelism.");
+
+        int start = ((operatorIndex * maxParallelism + parallelism - 1) / parallelism);
+        int end = ((operatorIndex + 1) * maxParallelism - 1) / parallelism;
+
+        Set<Integer> assignedKeygroup = new HashSet<>();
+        for (int i = start; i <= end; i++) {
+            assignedKeygroup.add(i);
+        }
+
+        return assignedKeygroup;
     }
 }
