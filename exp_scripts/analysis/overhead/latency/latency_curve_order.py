@@ -127,10 +127,10 @@ def ReadFile():
     x_axis = []
     y_axis = []
 
-    per_key_state_size = 16384
+    per_key_state_size = 32768
     replicate_keys_filter = 0
-    sync_keys = 1
-    per_task_rate = 3500
+    sync_keys = 8
+    per_task_rate = 1600
 
     for order_function in ["default", "random", "reverse"]:
         col = []
@@ -154,7 +154,7 @@ def ReadFile():
         for ts in temp_dict:
             # coly.append(sum(temp_dict[ts]) / len(temp_dict[ts]))
             temp_dict[ts].sort()
-            coly.append(temp_dict[ts][floor((len(temp_dict[ts]))*0.95)])
+            coly.append(temp_dict[ts][floor((len(temp_dict[ts]))*0.99)])
             col.append(ts - start_ts)
 
         x_axis.append(col)

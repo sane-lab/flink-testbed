@@ -261,18 +261,40 @@ run_order_zipf_study() {
   init
   reconfig_scenario="load_balance_zipf"
 #  per_task_rate=6000
-  per_task_rate=3500
+  per_task_rate=1600
+  zipf_skew=1
   parallelism=8
   max_parallelism=512
   replicate_keys_filter=0
   checkpoint_interval=10000000
-  sync_keys=1
-  per_key_state_size=16384
+  sync_keys=8
+  per_key_state_size=32768
   for order_function in default reverse random; do # default reverse
     run_one_exp
   done
 }
 
+run_dynamic() {
+  # Fluid Migration with prioritized rules
+  init
+  reconfig_scenario="multi_config"
+#  per_task_rate=6000
+  per_task_rate=5000
+  zipf_skew=0
+  parallelism=8
+  max_parallelism=512
+  replicate_keys_filter=0
+  checkpoint_interval=1000
+  sync_keys=0
+  per_key_state_size=16384
+  runtime=120
+  state_access_ratio=1
+  affected_keys=`expr ${max_parallelism} \/ 8`
+  reconfig_start=10000
+#  for order_function in default reverse random; do # default reverse
+  run_one_exp
+#  done
+}
 
 
 #run_micro
@@ -281,7 +303,8 @@ run_order_zipf_study() {
 #run_replication_overhead
 #run_fluid_study
 #run_replication_study
-run_order_zipf_study
+#run_order_zipf_study
+run_dynamic
 
 # dump the statistics when all exp are finished
 # in the future, we will draw the intuitive figures

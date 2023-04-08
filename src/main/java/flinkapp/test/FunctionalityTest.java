@@ -80,9 +80,12 @@ public class FunctionalityTest {
         int nKeys = 16384;
         int maxParallelism = 512;
         int parallelism = 8;
+        int count = 0;
+        int nTuples = parallelism * 1500;
+        int rate = parallelism * 1500;
         final Map<Integer, List<String>> keyGroupMapping = new HashMap<>();
 
-        FastZipfGenerator fastZipfGenerator = new FastZipfGenerator(maxParallelism, 0.5, 0, 12345678);
+        FastZipfGenerator fastZipfGenerator = new FastZipfGenerator(maxParallelism, 1, 0, 12345678);
 
         Set<Integer> srcKeygroups = computeKeyGroupRangeForOperatorIndex(maxParallelism, parallelism, 0);
         Set<Integer> dstKeygroups = computeKeyGroupRangeForOperatorIndex(maxParallelism, parallelism, parallelism - 1);
@@ -140,12 +143,6 @@ public class FunctionalityTest {
 
         long emitStartTime = System.currentTimeMillis();
 
-        int count = 0;
-        int nTuples = 32000;
-        int rate = 32000;
-
-
-
         // Another functionality test
         for (int i = 0; i < nKeys; i++) {
             String key = "A" + i;
@@ -185,8 +182,10 @@ public class FunctionalityTest {
                 System.out.println("++++++Task Stats: " + taskRateMap);
 
                 for (Integer keygroup : migratableKeys) {
-                    taskRateMap.put(0, taskRateMap.get(0) - stats.get(keygroup));
-                    taskRateMap.put(parallelism - 1, taskRateMap.get(parallelism - 1) + stats.get(keygroup));
+                    if (stats.containsKey(keygroup)) {
+                        taskRateMap.put(0, taskRateMap.get(0) - stats.get(keygroup));
+                        taskRateMap.put(parallelism - 1, taskRateMap.get(parallelism - 1) + stats.get(keygroup));
+                    }
                 }
 
                 System.out.println("++++++new Task Stats after migration: " + taskRateMap);

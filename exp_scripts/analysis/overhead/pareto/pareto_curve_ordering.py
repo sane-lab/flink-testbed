@@ -10,8 +10,6 @@ import matplotlib
 import matplotlib as mpl
 import numpy as np
 
-import pandas as pd
-
 from analysis.config.default_config import LABEL_FONT_SIZE, LEGEND_FONT_SIZE, TICK_FONT_SIZE, OPT_FONT_NAME, \
     LINE_COLORS, LINE_WIDTH, MARKERS, MARKER_SIZE, FIGURE_FOLDER, FILE_FOLER, PATTERNS, timers_plot
 from analysis.config.general_utilities import breakdown_total
@@ -48,10 +46,10 @@ def ReadFile():
     y = [[0 for x in range(w)] for y in range(h)]
 
     repeat_num = 1
-    per_key_state_size = 16384
+    per_key_state_size = 32768
     replicate_keys_filter = 0
-    sync_keys = 1
-    per_task_rate = 3500
+    sync_keys = 8
+    per_task_rate = 1600
 
     keys = ["default", "random", "reverse"]
 
@@ -80,7 +78,8 @@ def ReadFile():
         for ts in temp_dict:
             # coly.append(sum(temp_dict[ts]) / len(temp_dict[ts]))
             temp_dict[ts].sort()
-            coly.append(temp_dict[ts][floor((len(temp_dict[ts]))*0.99)])
+            # coly.append(temp_dict[ts][floor((len(temp_dict[ts]))*0.99)])
+            coly.append(temp_dict[ts][-1])
             col.append(ts - start_ts)
 
         # x_axis.append(col[40:70])
@@ -91,7 +90,8 @@ def ReadFile():
 
         # Get P95 latency
         coly.sort()
-        latency_dict[order_function] = coly[ceil(len(coly)*0.99)]
+        # latency_dict[order_function] = coly[ceil(len(coly)*0.99)]
+        latency_dict[order_function] = coly[-1]
 
     for repeat in range(1, repeat_num + 1):
         i = 0
