@@ -103,7 +103,9 @@ run_order_zipf_study() {
   job="flinkapp.StatefulDemoLongRunKeyRateZipfControlled"
   reconfig_scenario="load_balance_zipf"
 #  per_task_rate=6000
-  per_task_rate=5000
+  per_task_rate=4000
+  parallelism=4
+  max_parallelism=512
   replicate_keys_filter=0
   checkpoint_interval=10000000
   sync_keys=1

@@ -308,23 +308,23 @@ cluster.evenly-spread-out-slots: true
 #==============================================================================
 #
 
-spector.reconfig.scenario: shuffle
+spector.reconfig.scenario: load_balance_zipf
 
-spector.reconfig.workload.zipf_skew: 1.5
+spector.reconfig.workload.zipf_skew: 0.5
 
 #controller.target.operators: Splitter FlatMap,Count
 #spector.reconfig.start: 5000,10000
 
 controller.target.operators: Splitter FlatMap
-spector.reconfig.start: 10000000
+spector.reconfig.start: 50000
 
 spector.exp.dir: /data/spector
 spector.reconfig.affected_keys: 256
 spector.reconfig.affected_tasks: 2
 spector.reconfig.interval: 1000000
-spector.reconfig.sync_keys: 0
-spector.replicate_keys_filter: 16
-spector.reconfig.order_function: default
+spector.reconfig.sync_keys: 1
+spector.replicate_keys_filter: 0
+spector.reconfig.order_function: random
 
 netty.state.transmission.enabled: true
 netty.optimized.acknowledgement.enabled: false # do not make it true, not supported

@@ -18,6 +18,7 @@ function runFlink() {
     ${FLINK_DIR}/bin/start-cluster.sh
 }
 
+
 # clean app specific related data
 function cleanEnv() {
     rm -rf /tmp/flink*
@@ -60,8 +61,8 @@ init() {
 
   # app level
   JAR="${FLINK_APP_DIR}/target/testbed-1.0-SNAPSHOT.jar"
-#  job="flinkapp.StatefulDemoLongRunStateControlled"
-  job="flinkapp.MicroBenchmark"
+  job="flinkapp.StatefulDemoLongRunStateControlled"
+#  job="flinkapp.MicroBenchmark"
   runtime=100
   source_p=1
   per_task_rate=5000

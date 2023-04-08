@@ -9,6 +9,6 @@ from analysis.overhead.breakdown import breakdown_order_keys, breakdown_sync_key
 
 if __name__ == '__main__':
     # breakdown_state_size.draw()
-    breakdown_sync_keys.draw()
+    # breakdown_sync_keys.draw()
     # breakdown_replicate_keys.draw()
-    # breakdown_order_keys.draw()
+    breakdown_order_keys.draw()

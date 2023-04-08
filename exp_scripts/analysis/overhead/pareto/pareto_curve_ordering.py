@@ -48,10 +48,10 @@ def ReadFile():
     y = [[0 for x in range(w)] for y in range(h)]
 
     repeat_num = 1
-    per_key_state_size = 32768
+    per_key_state_size = 16384
     replicate_keys_filter = 0
     sync_keys = 1
-    per_task_rate = 5000
+    per_task_rate = 3500
 
     keys = ["default", "random", "reverse"]
 
@@ -63,7 +63,7 @@ def ReadFile():
         coly = []
         start_ts = float('inf')
         temp_dict = {}
-        for tid in range(0, 1):
+        for tid in range(0, 8):
             f = open(FILE_FOLER + "/spector-{}-{}-{}-{}-{}/Splitter FlatMap-{}.output"
                      .format(per_task_rate, per_key_state_size, sync_keys, replicate_keys_filter, order_function, tid))
             read = f.readlines()
