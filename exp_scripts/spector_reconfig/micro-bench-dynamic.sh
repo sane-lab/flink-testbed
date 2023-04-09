@@ -71,19 +71,19 @@ init() {
   parallelism=8
   max_parallelism=512
   key_set=16384
-  per_key_state_size=32768 # byte
+  per_key_state_size=16384 # byte
   checkpoint_interval=1000 # by default checkpoint in frequent, trigger only when necessary
   state_access_ratio=2
-  order_function="default"
+  order_function="reverse"
   zipf_skew=1
 
   # system level
   operator="Splitter FlatMap"
-  reconfig_start=50000
+  reconfig_start=10000
   reconfig_interval=10000000
 #  frequency=1 # deprecated
   affected_tasks=2
-  affected_keys=`expr ${max_parallelism} \/ 2` # `expr ${max_parallelism} \/ 4`
+  affected_keys=`expr ${max_parallelism} \/ 4` # `expr ${max_parallelism} \/ 4`
   sync_keys=0 # disable fluid state migration
   replicate_keys_filter=0 # replicate those key%filter = 0, 1 means replicate all keys
   repeat=1
@@ -96,10 +96,6 @@ run_dynamic() {
   reconfig_scenario="dynamic"
   replicate_keys_filter=0
   sync_keys=0
-  per_key_state_size=16384
-  state_access_ratio=2
-  affected_keys=`expr ${max_parallelism} \/ 4`
-  reconfig_start=10000
   run_one_exp
 
   # Static Migrate All-at-once
@@ -107,10 +103,6 @@ run_dynamic() {
   reconfig_scenario="static"
   replicate_keys_filter=0
   sync_keys=0
-  per_key_state_size=16384
-  state_access_ratio=2
-  affected_keys=`expr ${max_parallelism} \/ 4`
-  recofig_start=10000
   run_one_exp
 
   # Static Replication
@@ -118,10 +110,6 @@ run_dynamic() {
   reconfig_scenario="static"
   replicate_keys_filter=1
   sync_keys=0
-  per_key_state_size=16384
-  state_access_ratio=2
-  affected_keys=`expr ${max_parallelism} \/ 4`
-  reconfig_start=10000
   run_one_exp
 
   # Static Fluid
@@ -129,10 +117,6 @@ run_dynamic() {
   reconfig_scenario="static"
   replicate_keys_filter=0
   sync_keys=8
-  per_key_state_size=16384
-  state_access_ratio=2
-  affected_keys=`expr ${max_parallelism} \/ 4`
-  reconfig_start=10000
   run_one_exp
 }
 

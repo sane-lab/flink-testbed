@@ -52,16 +52,17 @@ def ReadFile():
     sync_keys = 0
     per_task_rate = 5000
     zipf_skew = 1
-    state_access_ratio = 1
+    state_access_ratio = 2
+    configScenario = "dynamic"
 
     col = []
     coly = []
     start_ts = float('inf')
     temp_dict = {}
     for tid in range(0, 8):
-        f = open(FILE_FOLER + "/spector-{}-{}-{}-{}-{}-{}-{}-{}/Splitter FlatMap-{}.output"
+        f = open(FILE_FOLER + "/spector-{}-{}-{}-{}-{}-{}-{}-{}-{}/Splitter FlatMap-{}.output"
                  .format(per_task_rate, parallelism, max_parallelism, per_key_state_size, sync_keys,
-                         replicate_keys_filter, state_access_ratio, zipf_skew, tid))
+                         replicate_keys_filter, state_access_ratio, zipf_skew, configScenario, tid))
         read = f.readlines()
         for r in read:
             if r.find("endToEnd latency: ") != -1:
