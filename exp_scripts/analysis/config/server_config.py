@@ -22,11 +22,14 @@ breakdown_legend_labels = ['sync', 'replicate', 'update']
 FIGURE_FOLDER = '/data/myc/spector-proj/results'
 FILE_FOLER = '/data/myc/spector-proj/raw'
 
-repeat_num = 1
-per_key_state_size = 8196
+per_key_state_size = 16384
 replicate_keys_filter = 0
 sync_keys = 0
 per_task_rate = 5000
 state_access_ratio = 2
 parallelism = 2
 max_parallelism = 512
+order_function = "default"
+zipf_skew = 1
+
+repeat_num = 1
