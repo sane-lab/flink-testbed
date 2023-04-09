@@ -281,7 +281,7 @@ run_dynamic() {
   reconfig_scenario="multi_config"
 #  per_task_rate=6000
   per_task_rate=5000
-  zipf_skew=0
+  zipf_skew=1
   parallelism=8
   max_parallelism=512
   replicate_keys_filter=0
