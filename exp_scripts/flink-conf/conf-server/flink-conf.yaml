@@ -318,7 +318,7 @@ spector.reconfig.workload.zipf_skew: 1
 controller.target.operators: Splitter FlatMap
 spector.reconfig.start: 10000
 
-spector.exp.dir: /data/spector
+spector.exp.dir: /data/myc/spector-proj/spector
 spector.reconfig.affected_keys: 128
 spector.reconfig.affected_tasks: 2
 spector.reconfig.interval: 1000000
