@@ -277,6 +277,7 @@ run_order_zipf_study() {
 run_dynamic() {
   # Fluid Migration with prioritized rules
   init
+    job="flinkapp.MicroBenchmarkOverview"
   reconfig_scenario="multi_config"
 #  per_task_rate=6000
   per_task_rate=5000
