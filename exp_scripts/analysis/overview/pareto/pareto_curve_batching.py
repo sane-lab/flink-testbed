@@ -10,8 +10,11 @@ import matplotlib
 import matplotlib as mpl
 import numpy as np
 
+import pandas as pd
+
 from analysis.config.default_config import LABEL_FONT_SIZE, LEGEND_FONT_SIZE, TICK_FONT_SIZE, OPT_FONT_NAME, \
-    LINE_COLORS, LINE_WIDTH, MARKERS, MARKER_SIZE, FIGURE_FOLDER, FILE_FOLER, PATTERNS, timers_plot
+    LINE_COLORS, LINE_WIDTH, MARKERS, MARKER_SIZE, FIGURE_FOLDER, FILE_FOLER, PATTERNS, timers_plot, per_key_state_size, \
+    replicate_keys_filter, repeat_num
 from analysis.config.general_utilities import breakdown_total
 
 mpl.use('Agg')
@@ -42,28 +45,22 @@ def ReadFile():
     x_axis = []
     y_axis = []
 
-    w, h = 3, 3
+    w, h = 9, 3
     y = [[0 for x in range(w)] for y in range(h)]
 
-    repeat_num = 1
-    per_key_state_size = 32768
-    replicate_keys_filter = 0
-    sync_keys = 8
-    per_task_rate = 1600
-
-    keys = ["default", "random", "reverse"]
-
     completion_time_dict = {}
+    keys = [1, 2, 4, 8, 16, 32, 64, 128, 256]
+
     latency_dict = {}
 
-    for order_function in keys:
+    for sync_keys in keys:
         col = []
         coly = []
         start_ts = float('inf')
         temp_dict = {}
-        for tid in range(0, 8):
-            f = open(FILE_FOLER + "/spector-{}-{}-{}-{}-{}/Splitter FlatMap-{}.output"
-                     .format(per_task_rate, per_key_state_size, sync_keys, replicate_keys_filter, order_function, tid))
+        for tid in range(0, 1):
+            f = open(FILE_FOLER + "/spector-{}-{}-{}/Splitter FlatMap-{}.output"
+                     .format(per_key_state_size, sync_keys, replicate_keys_filter, tid))
             read = f.readlines()
             for r in read:
                 if r.find("endToEnd latency: ") != -1:
@@ -79,7 +76,6 @@ def ReadFile():
             # coly.append(sum(temp_dict[ts]) / len(temp_dict[ts]))
             temp_dict[ts].sort()
             coly.append(temp_dict[ts][floor((len(temp_dict[ts]))*0.99)])
-            # coly.append(temp_dict[ts][-1])
             col.append(ts - start_ts)
 
         # x_axis.append(col[40:70])
@@ -90,13 +86,13 @@ def ReadFile():
 
         # Get P95 latency
         coly.sort()
-        # latency_dict[order_function] = coly[ceil(len(coly)*0.99)]
-        latency_dict[order_function] = coly[-1]
+        latency_dict[sync_keys] = coly[ceil(len(coly)*0.99)]
 
     for repeat in range(1, repeat_num + 1):
         i = 0
-        for order_function in keys:
-            exp = FILE_FOLER + '/spector-{}-{}-{}-{}-{}'.format(per_task_rate, per_key_state_size, sync_keys, replicate_keys_filter, order_function)
+        for sync_keys in keys:
+            exp = FILE_FOLER + '/spector-{}-{}-{}'.format(per_key_state_size, sync_keys,
+                                                                    replicate_keys_filter)
             file_path = os.path.join(exp, "timer.output")
             # try:
             stats = breakdown_total(open(file_path).readlines())
@@ -147,13 +143,14 @@ def DrawFigure(xvalues, yvalues, legend_labels, x_label, y_label, y_label_2, fil
 
     # values in the x_xis
     index = np.arange(len(x_values[0]))
+    print(index, y_values[0])
     # the bar width.
     # you may need to tune it to get the best figure.
-    # padded_x = [x_values[0][0] / 2] + x_values[0] + [x_values[0][-1] * 2]
+    padded_x = [x_values[0][0] / 2] + x_values[0] + [x_values[0][-1] * 2]
     width = 0.5
-    # lefts = [x1 ** (1 - width / 2) * x0 ** (width / 2) for x0, x1 in zip(padded_x[:-2], padded_x[1:-1])]
-    # rights = [x0 ** (1 - width / 2) * x1 ** (width / 2) for x0, x1 in zip(padded_x[1:-1], padded_x[2:])]
-    # widths = [r - l for l, r in zip(lefts, rights)]
+    lefts = [x1 ** (1 - width / 2) * x0 ** (width / 2) for x0, x1 in zip(padded_x[:-2], padded_x[1:-1])]
+    rights = [x0 ** (1 - width / 2) * x1 ** (width / 2) for x0, x1 in zip(padded_x[1:-1], padded_x[2:])]
+    widths = [r - l for l, r in zip(lefts, rights)]
     bottom_base = np.zeros(len(y_values[0]))
 
     lines = [None] * (len(FIGURE_LABEL))
@@ -173,7 +170,7 @@ def DrawFigure(xvalues, yvalues, legend_labels, x_label, y_label, y_label_2, fil
     #                             label=FIGURE_LABEL[0],
     #                             markeredgewidth=1, markeredgecolor='k',
     #                             markevery=50)
-    lines[0] = ax1.bar(index - width / 2, y_values[0], width, hatch=PATTERNS[0], color=LINE_COLORS[0],
+    lines[0] = ax1.bar(lefts, y_values[0], widths, hatch=PATTERNS[0], color=LINE_COLORS[0],
                       label=FIGURE_LABEL[0], bottom=bottom_base, edgecolor='black', linewidth=3, align="edge")
     # lines[1] = ax2.bar(index + width / 2, y_values[1], width, hatch=PATTERNS[1], color=LINE_COLORS[1],
     #                    label=FIGURE_LABEL[1], bottom=bottom_base, edgecolor='black', linewidth=3, align="edge")
@@ -200,8 +197,8 @@ def DrawFigure(xvalues, yvalues, legend_labels, x_label, y_label, y_label_2, fil
                    labelspacing=0.1)
 
     # plt.xticks(index + 0.5 * width, x_values[0])
-    # plt.xscale('log')
-    plt.xticks(x_values[0], ["hotkey-first", "random", "coldkey-first"])
+    plt.xscale('log')
+    plt.xticks(x_values[0], [1, 2, 4, 8, 16, 32, 64, 128, 256])
     # plt.grid()
     ax1.ticklabel_format(axis="y", style="sci", scilimits=(0, 0))
     ax2.ticklabel_format(axis="y", style="sci", scilimits=(0, 0))
@@ -218,4 +215,4 @@ if __name__ == "__main__":
     print(x_axis, y_axis)
     legend_labels = ["Completion Time", "Latency Spike"]
     legend = True
-    DrawFigure(x_axis, y_axis, legend_labels, "Order Scheme", "Completion Time (ms)", "Latency Spike (ms)", "pareto_curve_ordering", legend)
+    DrawFigure(x_axis, y_axis, legend_labels, "Per Batch Size", "Completion Time (ms)", "Latency Spike (ms)", "pareto_curve_batching", legend)

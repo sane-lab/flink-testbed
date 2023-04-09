@@ -78,8 +78,8 @@ def ReadFile():
         for ts in temp_dict:
             # coly.append(sum(temp_dict[ts]) / len(temp_dict[ts]))
             temp_dict[ts].sort()
-            coly.append(temp_dict[ts][floor((len(temp_dict[ts]))*0.99)])
-            # coly.append(temp_dict[ts][-1])
+            # coly.append(temp_dict[ts][floor((len(temp_dict[ts]))*0.99)])
+            coly.append(temp_dict[ts][-1])
             col.append(ts - start_ts)
 
         # x_axis.append(col[40:70])

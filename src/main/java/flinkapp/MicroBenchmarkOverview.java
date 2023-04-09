@@ -157,8 +157,8 @@ public class MicroBenchmarkOverview {
             this.rate = nTuples / runtime;
             this.rate2 = 1600 * 8;
             this.maxParallelism = maxParallelism;
-            this.fastZipfGenerator = new FastZipfGenerator(maxParallelism, zipfSkew, 0, 12345678);
-            this.fastZipfGenerator2 = new FastZipfGenerator(maxParallelism, 1, 0, 12345678);
+            this.fastZipfGenerator = new FastZipfGenerator(maxParallelism, 0, 0, 12345678);
+            this.fastZipfGenerator2 = new FastZipfGenerator(maxParallelism, zipfSkew, 0, 12345678);
             this.subKeyGroupSize = maxParallelism * stateAccessRatio / 100;
 
 

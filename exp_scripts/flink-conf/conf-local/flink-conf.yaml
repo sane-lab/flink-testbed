@@ -308,9 +308,9 @@ cluster.evenly-spread-out-slots: true
 #==============================================================================
 #
 
-spector.reconfig.scenario: multi_config
+spector.reconfig.scenario: static
 
-spector.reconfig.workload.zipf_skew: 0
+spector.reconfig.workload.zipf_skew: 1
 
 #controller.target.operators: Splitter FlatMap,Count
 #spector.reconfig.start: 5000,10000
@@ -319,10 +319,10 @@ controller.target.operators: Splitter FlatMap
 spector.reconfig.start: 10000
 
 spector.exp.dir: /data/spector
-spector.reconfig.affected_keys: 64
+spector.reconfig.affected_keys: 128
 spector.reconfig.affected_tasks: 2
 spector.reconfig.interval: 1000000
-spector.reconfig.sync_keys: 0
+spector.reconfig.sync_keys: 8
 spector.replicate_keys_filter: 0
 spector.reconfig.order_function: default
 

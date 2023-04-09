@@ -28,3 +28,4 @@ per_task_rate = 5000
 state_access_ratio = 2
 parallelism = 2
 max_parallelism = 512
+zipf_skew = 0
