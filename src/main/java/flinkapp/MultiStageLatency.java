@@ -8,7 +8,6 @@ import org.apache.flink.api.common.state.ListState;
 import org.apache.flink.api.common.state.ListStateDescriptor;
 import org.apache.flink.api.common.state.MapState;
 import org.apache.flink.api.common.state.MapStateDescriptor;
-import org.apache.flink.api.java.functions.KeySelector;
 import org.apache.flink.api.java.tuple.Tuple2;
 import org.apache.flink.api.java.tuple.Tuple3;
 import org.apache.flink.api.java.utils.ParameterTool;
@@ -16,16 +15,11 @@ import org.apache.flink.configuration.Configuration;
 import org.apache.flink.runtime.state.FunctionInitializationContext;
 import org.apache.flink.runtime.state.FunctionSnapshotContext;
 import org.apache.flink.runtime.state.memory.MemoryStateBackend;
-import org.apache.flink.streaming.api.CheckpointingMode;
 import org.apache.flink.streaming.api.TimeCharacteristic;
 import org.apache.flink.streaming.api.checkpoint.CheckpointedFunction;
-import org.apache.flink.streaming.api.datastream.DataStream;
 import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
 import org.apache.flink.streaming.api.functions.source.SourceFunction;
 import org.apache.flink.util.Collector;
-
-import java.io.FileOutputStream;
-import java.util.Random;
 
 public class MultiStageLatency {
     //    private static final int MAX = 1000000 * 10;
@@ -68,7 +62,7 @@ public class MultiStageLatency {
 
         env.addSource(new MySource(RUN_TIME, WARMUP_TIME, WARMUP_RATE, RATE, PERIOD, AMPLITUDE, INTERVAL, total))
                 .keyBy(0)
-                .map(new MyStatefulMap())
+                .flatMap(new Splitter())
                 .disableChaining()
                 .name("Splitter FlatMap")
                 .uid("flatmap")
@@ -76,7 +70,7 @@ public class MultiStageLatency {
                 .setParallelism(p1)
                 .slotSharingGroup("a")
                 .keyBy(0)
-                .map(new Tokenizer())
+                .map(new Counter(5))
                 .disableChaining()
                 .name("Time counter")
                 .setMaxParallelism(mp2)
@@ -92,26 +86,24 @@ public class MultiStageLatency {
         env.execute();
     }
 
-    private static class MyStatefulMap extends RichMapFunction<Tuple3<String, String, Long>, Tuple2<String, Long>> {
+    private static final class Splitter implements FlatMapFunction<Tuple3<String, String, Long>, Tuple2<String, Long>> {
 
-        private transient MapState<String, Long> countMap;
-        private transient FileOutputStream outputStream;
         private RandomDataGenerator randomGen = new RandomDataGenerator();
 
         @Override
-        public Tuple2<String, Long> map(Tuple3<String, String, Long> input) throws Exception {
-            String s = input.f0;
-            long t = input.f2;
-            Long cur = countMap.get(s);
-            cur = (cur == null) ? 1 : cur + 1;
-            countMap.put(s, cur);
-            // long currTime = System.currentTimeMillis();
+        public void flatMap(Tuple3<String, String, Long> input, Collector<Tuple2<String, Long>> out) throws Exception {
+            String[] tokens = input.f0.toLowerCase().split("\\W+");
+            for(String token: tokens) {
+                long t = input.f2;
+
+                // long currTime = System.currentTimeMillis();
 //            outputStream.write(
 //                    String.format("current time in ms: %d, queueing delay + processing delay in ms: %d\n",
 //                            currTime, currTime - input.f2).getBytes()
 //            );
+                out.collect(new Tuple2<String, Long>(String.format("%s %d", token, 0), t));
+            }
             delay(1);
-            return new Tuple2<String, Long>(String.format("%s %d", s, cur), t);
         }
 
         private void delay(int interval) {
@@ -123,28 +115,24 @@ public class MultiStageLatency {
             while (System.nanoTime() - start < delay) {}
         }
 
-        @Override
-        public void open(Configuration config) {
-            MapStateDescriptor<String, Long> descriptor =
-                    new MapStateDescriptor<>("word-count", String.class, Long.class);
-//            try {
-//                if(outputStream == null) {
-//                    outputStream = new FileOutputStream("/home/hya/prog/latency.out");
-//                }else {
-//                    System.out.println("already have an ouput stream during last open");
-//                }
-//            } catch (FileNotFoundException e) {
-//                e.printStackTrace();
-//            }
-            countMap = getRuntimeContext().getMapState(descriptor);
-        }
     }
 
-    private static class Tokenizer implements MapFunction<Tuple2<String, Long>, Tuple3<String, Long, Long>> {
+    private static class Counter extends RichMapFunction<Tuple2<String, Long>, Tuple3<String, Long, Long>> {
+
+        private final int stateSize;
+        private transient MapState<Integer, Long> countMap;
         private RandomDataGenerator randomGen = new RandomDataGenerator();
+        Counter(int _stateSize){
+            stateSize = _stateSize;
+        }
+
         @Override
         public Tuple3<String, Long, Long> map(Tuple2<String, Long> input) throws Exception {
-            delay(2);
+            int hashValue = (input.f0.hashCode() % stateSize + stateSize) % stateSize;
+            Long cur = countMap.get(hashValue);
+            cur = (cur == null) ? 1 : cur + 1;
+            countMap.put(hashValue, cur);
+            delay(3);
             long currentTime = System.currentTimeMillis();
             System.out.println("GT: " + input.f0 + ", " + currentTime + ", " + (currentTime - input.f1));
             return new Tuple3<String, Long, Long>(input.f0, currentTime, currentTime - input.f1);
@@ -156,6 +144,22 @@ public class MultiStageLatency {
             if (delay < 0) delay = interval * 1000000;
             Long start = System.nanoTime();
             while (System.nanoTime() - start < delay) {}
+        }
+
+        @Override
+        public void open(Configuration config) {
+            MapStateDescriptor<Integer, Long> descriptor =
+                    new MapStateDescriptor<>("word-count", Integer.class, Long.class);
+//            try {
+//                if(outputStream == null) {
+//                    outputStream = new FileOutputStream("/home/hya/prog/latency.out");
+//                }else {
+//                    System.out.println("already have an ouput stream during last open");
+//                }
+//            } catch (FileNotFoundException e) {
+//                e.printStackTrace();
+//            }
+            countMap = getRuntimeContext().getMapState(descriptor);
         }
     }
 
