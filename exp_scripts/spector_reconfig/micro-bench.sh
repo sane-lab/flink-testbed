@@ -5,11 +5,15 @@ source config.sh
 # run applications
 function runApp() {
   echo "INFO: ${FLINK_DIR}/bin/flink run -c ${job} ${JAR} \
-    -runtime ${runtime} -nTuples ${n_tuples}  \-p1 ${source_p} -p2 ${parallelism} -mp2 ${max_parallelism} \
-    -nKeys ${key_set} -perKeySize ${per_key_state_size} -interval ${checkpoint_interval} -stateAccessRatio ${state_access_ratio} &"
+    -runtime ${runtime} -nTuples ${n_tuples}  \
+    -p1 ${source_p} -p2 ${parallelism} -mp2 ${max_parallelism} \
+    -nKeys ${key_set} -perKeySize ${per_key_state_size} \
+    -interval ${checkpoint_interval} -stateAccessRatio ${state_access_ratio} -zipf_skew ${zipf_skew} &"
   ${FLINK_DIR}/bin/flink run -c ${job} ${JAR} \
-    -runtime ${runtime} -nTuples ${n_tuples}  \-p1 ${source_p} -p2 ${parallelism} -mp2 ${max_parallelism} \
-    -nKeys ${key_set} -perKeySize ${per_key_state_size} -interval ${checkpoint_interval} -stateAccessRatio ${state_access_ratio} &
+    -runtime ${runtime} -nTuples ${n_tuples}  \
+    -p1 ${source_p} -p2 ${parallelism} -mp2 ${max_parallelism} \
+    -nKeys ${key_set} -perKeySize ${per_key_state_size} \
+    -interval ${checkpoint_interval} -stateAccessRatio ${state_access_ratio}  -zipf_skew ${zipf_skew} &
 }
 
 # draw figures
@@ -152,7 +156,7 @@ run_fluid_study() {
   checkpoint_interval=10000000
   state_access_ratio=100
 #  for sync_keys in 1 2 4 8 16 32 64 128 256; do
-  for sync_keys in 1 2 4 8 16 32 64 128 256; do
+  for sync_keys in 1 2 4 8 16 32 64 128; do
     run_one_exp
   done
 }
@@ -161,10 +165,9 @@ run_replication_study() {
   # Proactive State replication
   init
   sync_keys=0
-  per_key_state_size=16384
-  state_access_ratio=1
-  reconfig_start=10000000
-  for replicate_keys_filter in 16; do # 1 2 4 8
+  per_key_state_size=32768
+  # state_access_ratio=2
+  for replicate_keys_filter in 1 2 4 8; do # 1 2 4 8
 #  for replicate_keys_filter in 1; do
     run_one_exp
   done
@@ -212,8 +215,8 @@ run_access_ratio() {
 #run_overview
 #run_test
 #run_replication_overhead
-#run_fluid_study
-run_replication_study
+run_fluid_study
+# run_replication_study
 
 # dump the statistics when all exp are finished
 # in the future, we will draw the intuitive figures

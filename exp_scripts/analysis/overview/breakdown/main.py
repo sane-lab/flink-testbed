@@ -4,11 +4,15 @@ from pathlib import Path
 path_root = Path(__file__).parents[3]
 sys.path.append(str(path_root))
 
-from analysis.overhead.breakdown import breakdown_order_keys, breakdown_sync_keys, breakdown_replicate_keys, \
-    breakdown_state_size
-
+from analysis.overview.breakdown import breakdown_latency_overview,\
+      breakdown_completion_time_overview, overview_legend, \
+      nexmark_completion_time_overview, nexmark_replication_time_overview, \
+      nexmark_latency_overview, breakdown_replication_time_overview
 if __name__ == '__main__':
-    # breakdown_state_size.draw()
-    # breakdown_sync_keys.draw()
-    # breakdown_replicate_keys.draw()
-    breakdown_order_keys.draw()
+    # breakdown_latency_overview.draw()
+    # breakdown_completion_time_overview.draw()
+    # breakdown_replication_time_overview.draw()
+    nexmark_completion_time_overview.draw()
+    # nexmark_replication_time_overview.draw()
+    nexmark_latency_overview.draw()
+    # overview_legend.draw()

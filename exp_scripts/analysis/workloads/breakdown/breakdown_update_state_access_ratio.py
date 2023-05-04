@@ -6,11 +6,11 @@ from analysis.config.general_utilities import DrawFigureV4, breakdown
 
 
 def ReadFile(repeat_num = 1):
-    w, h = 4, 4
+    w, h = 6, 3
     y = [[] for y in range(h)]
     # y = []
 
-    per_key_state_size = 4096
+    per_key_state_size = 8192
     # replicate_keys_filter = 0
     # sync_keys = 1
     # state_access_ratio = 2
@@ -19,12 +19,14 @@ def ReadFile(repeat_num = 1):
     # max_parallelism = 512
 
     for repeat in range(1, repeat_num + 1):
-        for state_access_ratio in [1, 2, 4, 8]:
+        # for state_access_ratio in [1, 2, 4, 8, 50]:
+        for state_access_ratio in [1, 10, 100]:
             i = 0
-            w, h = 4, 3
+            w, h = 3, 3
 
             col_y = [[0 for x in range(w)] for y in range(h)]
-            for replicate_keys_filter in [1, 2, 4, 8]:
+            # for replicate_keys_filter in [1, 2, 4]:
+            for replicate_keys_filter in [1, 2, 4]:
                 exp = FILE_FOLER + '/workloads/spector-{}-{}-{}-{}-{}-{}-{}'\
                     .format(per_task_rate, parallelism, max_parallelism, per_key_state_size, sync_keys, replicate_keys_filter, state_access_ratio)
                 file_path = os.path.join(exp, "timer.output")
@@ -46,10 +48,13 @@ def ReadFile(repeat_num = 1):
 
             col = []
 
+            print(col_y)
             for i in range(w):
                 completion_time = 0
                 for j in range(h):
-                    completion_time += col_y[j][i]
+                    # completion_time += col_y[j][i]
+                    if j == 0 or j == 2:
+                        completion_time += col_y[j][i]
                 y[i].append(completion_time)
             #     col.append(completion_time)
             #
@@ -64,13 +69,15 @@ def draw():
 
     # parallelism
     # x_values = [1024, 10240, 20480, 40960]
-    x_values = [1, 2, 4, 8]
+    # x_values = [1, 2, 4, 8, 50]
+    x_values = [1, 10, 100]
     y_values = ReadFile(repeat_num = 1)
 
-    legend_labels = ["Repl-100%", "Repl-50%", "Repl-25%", "Repl-12.5%"]
+    legend_labels = ["Repl-100%", "Repl-50%", "Repl-25%"]
+    # legend_labels = ["Repl-0%", "Repl-50%", "Repl-100%", "Repl-12.5%"]
 
     print(y_values)
 
     DrawFigureV4(x_values, y_values, legend_labels,
-                         'State Access Ratio (%)', 'Breakdown (ms)',
+                         'State Access Ratio (%)', 'Completion Time (ms)',
                          'breakdown_update_state_access_ratio', True)

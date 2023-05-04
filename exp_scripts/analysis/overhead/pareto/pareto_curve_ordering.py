@@ -11,7 +11,7 @@ import matplotlib as mpl
 import numpy as np
 
 from analysis.config.default_config import LABEL_FONT_SIZE, LEGEND_FONT_SIZE, TICK_FONT_SIZE, OPT_FONT_NAME, \
-    LINE_COLORS, LINE_WIDTH, MARKERS, MARKER_SIZE, FIGURE_FOLDER, FILE_FOLER, PATTERNS, timers_plot
+    LINE_COLORS, LINE_WIDTH, MARKERS, MARKER_SIZE, FIGURE_FOLDER, FILE_FOLER, PATTERNS, timers_plot, sync_keys
 from analysis.config.general_utilities import breakdown_total
 
 mpl.use('Agg')
@@ -48,8 +48,9 @@ def ReadFile():
     repeat_num = 1
     per_key_state_size = 32768
     replicate_keys_filter = 0
-    sync_keys = 8
-    per_task_rate = 1600
+    sync_keys = 16
+    per_task_rate = 5000
+    parallelism = 8
 
     keys = ["default", "random", "reverse"]
 
@@ -61,7 +62,7 @@ def ReadFile():
         coly = []
         start_ts = float('inf')
         temp_dict = {}
-        for tid in range(0, 8):
+        for tid in range(0, parallelism):
             f = open(FILE_FOLER + "/spector-{}-{}-{}-{}-{}/Splitter FlatMap-{}.output"
                      .format(per_task_rate, per_key_state_size, sync_keys, replicate_keys_filter, order_function, tid))
             read = f.readlines()
@@ -78,8 +79,8 @@ def ReadFile():
         for ts in temp_dict:
             # coly.append(sum(temp_dict[ts]) / len(temp_dict[ts]))
             temp_dict[ts].sort()
-            coly.append(temp_dict[ts][floor((len(temp_dict[ts]))*0.99)])
-            # coly.append(temp_dict[ts][-1])
+            # coly.append(temp_dict[ts][floor((len(temp_dict[ts]))*0.99)])
+            coly.append(temp_dict[ts][-1])
             col.append(ts - start_ts)
 
         # x_axis.append(col[40:70])
@@ -109,9 +110,19 @@ def ReadFile():
             # except Exception as e:
             #     print("Error while processing the file {}: {}".format(exp, e))
 
+    sync_time = []
+    replication_time = []
+    update_time = []
+
     for j in range(h):
         for i in range(w):
             y[j][i] = y[j][i] / repeat_num
+            if j == 0:
+                sync_time.append(y[j][i])
+            elif j == 1:
+                replication_time.append(y[j][i])
+            elif j == 2:
+                update_time.append(y[j][i])
 
     for i in range(w):
         completion_time = 0
@@ -126,7 +137,9 @@ def ReadFile():
 
     x_axis.append(keys)
     x_axis.append(keys)
-    y_axis.append(completion_time_dict.values())
+    x_axis.append(keys)
+    y_axis.append(sync_time)
+    y_axis.append(update_time)
     y_axis.append(latency_dict.values())
 
     return x_axis, y_axis
@@ -175,13 +188,15 @@ def DrawFigure(xvalues, yvalues, legend_labels, x_label, y_label, y_label_2, fil
     #                             markevery=50)
     lines[0] = ax1.bar(index - width / 2, y_values[0], width, hatch=PATTERNS[0], color=LINE_COLORS[0],
                       label=FIGURE_LABEL[0], bottom=bottom_base, edgecolor='black', linewidth=3, align="edge")
-    # lines[1] = ax2.bar(index + width / 2, y_values[1], width, hatch=PATTERNS[1], color=LINE_COLORS[1],
-    #                    label=FIGURE_LABEL[1], bottom=bottom_base, edgecolor='black', linewidth=3, align="edge")
-    lines[1], = ax2.plot(x_values[1], y_values[1], color=LINE_COLORS[1],
+    print(y_values[0], np.array(list(y_values[0])), bottom_base)
+    bottom_base = np.array(list(y_values[0])) + bottom_base
+    lines[1] = ax1.bar(index - width / 2, y_values[1], width, hatch=PATTERNS[1], color=LINE_COLORS[1],
+                       label=FIGURE_LABEL[1], bottom=bottom_base, edgecolor='black', linewidth=3, align="edge")
+    lines[2], = ax2.plot(x_values[2], y_values[2], color=LINE_COLORS[3],
              linewidth=LINE_WIDTH,
              marker=MARKERS[1],
              markersize=MARKER_SIZE,
-             label=FIGURE_LABEL[1],
+             label=FIGURE_LABEL[2],
              markeredgewidth=1, markeredgecolor='k',
              markevery=1)
 
@@ -193,7 +208,7 @@ def DrawFigure(xvalues, yvalues, legend_labels, x_label, y_label, y_label_2, fil
                    loc='upper center',
                    ncol=4,
                    #                     mode='expand',
-                   bbox_to_anchor=(0.5, 1.2), shadow=False,
+                   bbox_to_anchor=(0.5, 1.25), shadow=False,
                    columnspacing=0.1,
                    frameon=True, borderaxespad=0.0, handlelength=1.5,
                    handletextpad=0.1,
@@ -216,6 +231,6 @@ if __name__ == "__main__":
     x_axis, y_axis = ReadFile()
 
     print(x_axis, y_axis)
-    legend_labels = ["Completion Time", "Latency Spike"]
+    legend_labels = ["Sync Time", "Update Time", "Latency Spike"]
     legend = True
     DrawFigure(x_axis, y_axis, legend_labels, "Order Scheme", "Completion Time (ms)", "Latency Spike (ms)", "pareto_curve_ordering", legend)

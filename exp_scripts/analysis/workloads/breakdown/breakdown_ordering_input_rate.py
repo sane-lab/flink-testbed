@@ -2,24 +2,25 @@ import os
 
 from analysis.config.default_config import timers_plot, per_task_rate, parallelism, per_key_state_size, \
     replicate_keys_filter, state_access_ratio, max_parallelism, FILE_FOLER, order_function, zipf_skew, sync_keys
-from analysis.config.general_utilities import DrawFigureV4, breakdown_total
+from analysis.config.general_utilities import DrawFigureV4, DrawFigureV5, breakdown_total
 
 
 def ReadFile(repeat_num = 1):
-    w, h = 6, 3
+    w, h = 5, 3
     y = [[] for y in range(h)]
     # y = []
 
-    per_key_state_size = 32768
     # replicate_keys_filter = 0
-    sync_keys = 1
-    # state_access_ratio = 2
+    sync_keys = 16
+    zipf_skew = 0.5
+    state_access_ratio = 100
     # per_task_rate = 5000
     # parallelism = 2
-    max_parallelism = 256
+    # max_parallelism = 256
 
     for repeat in range(1, repeat_num + 1):
-        for per_task_rate in [1000, 2000, 4000, 5000, 6000]:
+        for per_task_rate in [1000, 2000, 3000, 4000, 5000, 6000]:
+        # for per_task_rate in [1000, 2000, 3000, 4000]:
             i = 0
             w, h = 3, 3
             col_y = [[0 for x in range(w)] for y in range(h)]
@@ -63,8 +64,8 @@ def draw():
     # runtime, per_task_rate, parallelism, key_set, per_key_state_size, reconfig_interval, reconfig_type, affected_tasks, repeat_num = val
 
     # parallelism
-    # x_values = [1024, 10240, 20480, 40960]
-    x_values = [1000, 2000, 4000, 5000, 6000]
+    x_values = [1000, 2000, 3000, 4000, 5000, 6000]
+    # x_values = [1000, 2000, 3000, 4000]
     y_values = ReadFile(repeat_num = 1)
 
     legend_labels = ["hotkey-first", "random", "coldkey-first"]
@@ -72,5 +73,5 @@ def draw():
     print(y_values)
 
     DrawFigureV4(x_values, y_values, legend_labels,
-                         'Input Rate (e/s)', 'Breakdown (ms)',
+                         'Input Rate (e/s)', 'Completion Time (ms)',
                          'breakdown_ordering_input_rate', True)

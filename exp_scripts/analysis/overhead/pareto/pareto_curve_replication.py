@@ -49,7 +49,7 @@ def ReadFile():
     y = [[0 for x in range(w)] for y in range(h)]
 
     repeat_num = 1
-    per_key_state_size = 16384
+    # per_key_state_size = 16384
 
     keys = [1, 2, 4, 8]
 
@@ -61,7 +61,7 @@ def ReadFile():
         coly = []
         start_ts = float('inf')
         temp_dict = {}
-        for tid in range(0, 1):
+        for tid in range(0, 8):
             f = open(FILE_FOLER + "/spector-{}-{}-{}/Splitter FlatMap-{}.output"
                      .format(per_key_state_size, sync_keys, replicate_keys_filter, tid))
             read = f.readlines()
@@ -112,11 +112,19 @@ def ReadFile():
             #     print("Error while processing the file {}: {}".format(exp, e))
 
 
+    sync_time = []
+    replication_time = []
+    update_time = []
+
     for j in range(h):
         for i in range(w):
             y[j][i] = y[j][i] / repeat_num
-
-    print(y)
+            if j == 0:
+                sync_time.append(y[j][i])
+            elif j == 1:
+                replication_time.append(y[j][i])
+            elif j == 2:
+                update_time.append(y[j][i])
 
     for i in range(w):
         completion_time = 0
@@ -129,9 +137,15 @@ def ReadFile():
     # for key in latency_dict:
     #     curve[completion_time_dict[key]] = latency_dict[key]
 
-    x_axis.append(keys)
-    x_axis.append(keys)
-    y_axis.append(completion_time_dict.values())
+    x_value = ["Repl-100%", "Repl-50%", "Repl-25%", "Repl-12.5%"]
+
+    x_axis.append(x_value)
+    # x_axis.append(x_value)
+    x_axis.append(x_value)
+    x_axis.append(x_value)
+    y_axis.append(sync_time)
+    # y_axis.append(replication_time)
+    y_axis.append(update_time)
     y_axis.append(latency_dict.values())
 
     return x_axis, y_axis
@@ -155,11 +169,11 @@ def DrawFigure(xvalues, yvalues, legend_labels, x_label, y_label, y_label_2, fil
     print(index, y_values[0])
     # the bar width.
     # you may need to tune it to get the best figure.
-    padded_x = [x_values[0][0] / 2] + x_values[0] + [x_values[0][-1] * 2]
+    # padded_x = [x_values[0][0] / 2] + x_values[0] + [x_values[0][-1] * 2]
     width = 0.5
-    lefts = [x1 ** (1 - width / 2) * x0 ** (width / 2) for x0, x1 in zip(padded_x[:-2], padded_x[1:-1])]
-    rights = [x0 ** (1 - width / 2) * x1 ** (width / 2) for x0, x1 in zip(padded_x[1:-1], padded_x[2:])]
-    widths = [r - l for l, r in zip(lefts, rights)]
+    # lefts = [x1 ** (1 - width / 2) * x0 ** (width / 2) for x0, x1 in zip(padded_x[:-2], padded_x[1:-1])]
+    # rights = [x0 ** (1 - width / 2) * x1 ** (width / 2) for x0, x1 in zip(padded_x[1:-1], padded_x[2:])]
+    # widths = [r - l for l, r in zip(lefts, rights)]
     bottom_base = np.zeros(len(y_values[0]))
 
     lines = [None] * (len(FIGURE_LABEL))
@@ -179,18 +193,22 @@ def DrawFigure(xvalues, yvalues, legend_labels, x_label, y_label, y_label_2, fil
     #                             label=FIGURE_LABEL[0],
     #                             markeredgewidth=1, markeredgecolor='k',
     #                             markevery=50)
-    lines[0] = ax1.bar(lefts, y_values[0], widths, hatch=PATTERNS[0], color=LINE_COLORS[0],
+    lines[0] = ax1.bar(index - width / 2, y_values[0], width, hatch=PATTERNS[0], color=LINE_COLORS[0],
                       label=FIGURE_LABEL[0], bottom=bottom_base, edgecolor='black', linewidth=3, align="edge")
-    # lines[1] = ax2.bar(index + width / 2, y_values[1], width, hatch=PATTERNS[1], color=LINE_COLORS[1],
+    bottom_base = np.array(list(y_values[0])) + bottom_base
+    # lines[1] = ax1.bar(index - width / 2, y_values[1], width, hatch=PATTERNS[2], color=LINE_COLORS[2],
     #                    label=FIGURE_LABEL[1], bottom=bottom_base, edgecolor='black', linewidth=3, align="edge")
-    lines[1], = ax2.plot(x_values[1], y_values[1], color=LINE_COLORS[1],
+    # bottom_base = np.array(list(y_values[1])) + bottom_base
+    lines[1] = ax1.bar(index - width / 2, y_values[1], width, hatch=PATTERNS[1], color=LINE_COLORS[1],
+                       label=FIGURE_LABEL[1], bottom=bottom_base, edgecolor='black', linewidth=3, align="edge")
+    lines[2], = ax2.plot(x_values[2], y_values[2], color=LINE_COLORS[3],
              linewidth=LINE_WIDTH,
              marker=MARKERS[1],
              markersize=MARKER_SIZE,
-             label=FIGURE_LABEL[1],
+             label=FIGURE_LABEL[2],
              markeredgewidth=1, markeredgecolor='k',
              markevery=1)
-
+    
     # sometimes you may not want to draw legends.
     if allow_legend == True:
         plt.legend(lines,
@@ -199,15 +217,15 @@ def DrawFigure(xvalues, yvalues, legend_labels, x_label, y_label, y_label_2, fil
                    loc='upper center',
                    ncol=4,
                    #                     mode='expand',
-                   bbox_to_anchor=(0.5, 1.2), shadow=False,
+                   bbox_to_anchor=(0.5, 1.25), shadow=False,
                    columnspacing=0.1,
                    frameon=True, borderaxespad=0.0, handlelength=1.5,
                    handletextpad=0.1,
                    labelspacing=0.1)
 
     # plt.xticks(index + 0.5 * width, x_values[0])
-    plt.xscale('log')
-    plt.xticks(x_values[0], [1, 2, 4, 8])
+    # plt.xscale('log')
+    plt.xticks(x_values[0], ["Repl-100%", "Repl-50%", "Repl-25%", "Repl-12.5%"])
     # plt.grid()
     ax1.ticklabel_format(axis="y", style="sci", scilimits=(0, 0))
     ax2.ticklabel_format(axis="y", style="sci", scilimits=(0, 0))
@@ -222,6 +240,7 @@ if __name__ == "__main__":
     x_axis, y_axis = ReadFile()
 
     print(x_axis, y_axis)
-    legend_labels = ["Completion Time", "Latency Spike"]
+    # legend_labels = ["Sync Time", "Replication Time", "Update Time", "Latency Spike"]
+    legend_labels = ["Sync Time", "Update Time", "Latency Spike"]
     legend = True
     DrawFigure(x_axis, y_axis, legend_labels, "Replication Ratio", "Completion Time (ms)", "Latency Spike (ms)", "pareto_curve_replication", legend)

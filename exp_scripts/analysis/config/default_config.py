@@ -1,7 +1,9 @@
+# Need to substitute the default_config.py with this one.
+
 OPT_FONT_NAME = 'Helvetica'
-TICK_FONT_SIZE = 20
-LABEL_FONT_SIZE = 24
-LEGEND_FONT_SIZE = 26
+TICK_FONT_SIZE = 28
+LABEL_FONT_SIZE = 32
+LEGEND_FONT_SIZE = 34
 
 MARKERS = (['o', 's', 'v', "^", "h", "v", ">", "x", "d", "<", "|", "", "|", "_"])
 # you may want to change the color map for different figures
@@ -17,15 +19,17 @@ MARKER_FREQUENCY = 1000
 timers_plot = ["++++++syncTimer", "++++++replicationTimer", "++++++updateTimer"]
 breakdown_legend_labels = ['sync', 'replicate', 'update']
 
-FIGURE_FOLDER = '/data/results'
-FILE_FOLER = '/data/raw'
+FIGURE_FOLDER = '/data/myc/spector-proj/results'
+FILE_FOLER = '/data/myc/spector-proj/raw'
 
-repeat_num = 1
 per_key_state_size = 32768
 replicate_keys_filter = 0
 sync_keys = 0
 per_task_rate = 5000
 state_access_ratio = 2
-parallelism = 2
-max_parallelism = 512
-zipf_skew = 0
+parallelism = 8
+max_parallelism = 1024
+order_function = "default"
+zipf_skew = 1
+
+repeat_num = 1

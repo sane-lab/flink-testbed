@@ -7,22 +7,23 @@ from analysis.config.general_utilities import DrawFigureV4, breakdown_total
 
 
 def ReadFile(repeat_num = 1):
-    w, h = 4, 4
+    w, h = 5, 3
     y = [[] for y in range(h)]
     # y = []
 
-    per_key_state_size = 4096
+    per_key_state_size = 8192
 
 
     for repeat in range(1, repeat_num + 1):
-        for state_access_ratio in [1, 2, 4, 8]:
+        # for state_access_ratio in [1, 2, 4, 8, 16]:
+        for state_access_ratio in [1, 10, 100]:
             latency_dict = {}
-            for replicate_keys_filter in [1, 2, 4, 8]:
+            for replicate_keys_filter in [1, 2, 4]:
                 col = []
                 coly = []
                 start_ts = float('inf')
                 temp_dict = {}
-                for tid in range(0, 1):
+                for tid in range(0, parallelism):
                     f = open(FILE_FOLER + '/workloads/spector-{}-{}-{}-{}-{}-{}-{}/Splitter FlatMap-{}.output'
                             .format(per_task_rate, parallelism, max_parallelism, per_key_state_size, \
                                     sync_keys, replicate_keys_filter, state_access_ratio, tid))
@@ -45,7 +46,8 @@ def ReadFile(repeat_num = 1):
 
                 # Get P95 latency
                 coly.sort()
-                latency_dict[replicate_keys_filter] = coly[floor(len(coly)*0.99)]
+                # latency_dict[replicate_keys_filter] = coly[floor(len(coly)*0.99)]
+                latency_dict[replicate_keys_filter] = coly[-1]
 
 
             print(latency_dict)
@@ -64,10 +66,10 @@ def draw():
     # parallelism
     # x_values = [1024, 10240, 20480, 40960]
     # x_values = [1000, 2000, 4000, 5000, 6000]
-    x_values = [1, 2, 4, 8]
+    x_values = [1, 10, 100]
     y_values = ReadFile(repeat_num = 1)
 
-    legend_labels = ["Repl-100%", "Repl-50%", "Repl-25%", "Repl-12.5%"]
+    legend_labels = ["Repl-100%", "Repl-50%", "Repl-25%"]
 
     print(y_values)
 

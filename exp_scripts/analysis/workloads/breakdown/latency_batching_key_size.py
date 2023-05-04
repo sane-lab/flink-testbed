@@ -14,12 +14,13 @@ def ReadFile(repeat_num = 1):
     for repeat in range(1, repeat_num + 1):
         for max_parallelism in [128, 256, 512, 1024]:
             latency_dict = {}
-            for sync_keys in [1, int(max_parallelism / 16), int(max_parallelism / 2)]:
+            # for sync_keys in [1, int(max_parallelism / 16), int(max_parallelism / 2)]:
+            for sync_keys in [1, 8, int(max_parallelism / parallelism)]:
                 col = []
                 coly = []
                 start_ts = float('inf')
                 temp_dict = {}
-                for tid in range(0, 1):
+                for tid in range(0, parallelism):
                     f = open(FILE_FOLER + '/workloads/spector-{}-{}-{}-{}-{}-{}-{}/Splitter FlatMap-{}.output'
                             .format(per_task_rate, parallelism, max_parallelism, per_key_state_size, \
                                     sync_keys, replicate_keys_filter, state_access_ratio, tid))
@@ -42,7 +43,8 @@ def ReadFile(repeat_num = 1):
 
                 # Get P95 latency
                 coly.sort()
-                latency_dict[sync_keys] = coly[floor(len(coly)*0.99)]
+                # latency_dict[sync_keys] = coly[floor(len(coly)*0.99)]
+                latency_dict[sync_keys] = coly[-1]
 
 
             print(latency_dict)
@@ -64,10 +66,10 @@ def draw():
     x_values = [128, 256, 512, 1024]
     y_values = ReadFile(repeat_num = 1)
 
-    legend_labels = ["Fluid", "Batched", "All-At-Once"]
+    legend_labels = ["Batch-1", "Batch-8", "Batch-All"]
 
     print(y_values)
 
     DrawFigureV4(x_values, y_values, legend_labels,
-                         'Key Size', 'Latency (ms)',
+                         'Number of Keys', 'Latency (ms)',
                          'latency_batching_key_size', True)

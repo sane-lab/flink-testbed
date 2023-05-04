@@ -6,7 +6,7 @@ from analysis.config.general_utilities import DrawFigureV4, breakdown
 
 
 def ReadFile(repeat_num = 1):
-    w, h = 6, 4
+    w, h = 6, 3
     y = [[] for y in range(h)]
     # y = []
 
@@ -21,10 +21,10 @@ def ReadFile(repeat_num = 1):
     for repeat in range(1, repeat_num + 1):
         for per_key_state_size in [1024, 2048, 4096, 8196, 16384, 32768]:
             i = 0
-            w, h = 4, 3
+            w, h = 3, 3
 
             col_y = [[0 for x in range(w)] for y in range(h)]
-            for replicate_keys_filter in [1, 2, 4, 8]:
+            for replicate_keys_filter in [1, 2, 4]:
                 exp = FILE_FOLER + '/workloads/spector-{}-{}-{}-{}-{}-{}-{}'\
                     .format(per_task_rate, parallelism, max_parallelism, per_key_state_size, sync_keys, replicate_keys_filter, state_access_ratio)
                 file_path = os.path.join(exp, "timer.output")
@@ -49,7 +49,9 @@ def ReadFile(repeat_num = 1):
             for i in range(w):
                 completion_time = 0
                 for j in range(h):
-                    completion_time += col_y[j][i]
+                    # completion_time += col_y[j][i]
+                    if j == 0 or j == 2:
+                        completion_time += col_y[j][i]
                 y[i].append(completion_time)
             #     col.append(completion_time)
             #
@@ -64,13 +66,13 @@ def draw():
 
     # parallelism
     # x_values = [1024, 10240, 20480, 40960]
-    x_values = [1024, 2048, 4096, 8196, 16384, 32768]
+    x_values = ["32K", "64K", "128K", "256K", "512K", "1024K"]
     y_values = ReadFile(repeat_num = 1)
 
-    legend_labels = ["Repl-100%", "Repl-50%", "Repl-25%", "Repl-12.5%"]
+    legend_labels = ["Repl-100%", "Repl-50%", "Repl-25%"]
 
     print(y_values)
 
     DrawFigureV4(x_values, y_values, legend_labels,
-                         'Per Key State Size (Byte)', 'Breakdown (ms)',
+                         'Per Key State Size (Byte)', 'Completion Time (ms)',
                          'breakdown_update_state_size', True)

@@ -1,50 +1,6 @@
 #!/bin/bash
 
-FLINK_DIR="/home/myc/workspace/Spector/build-target"
-FLINK_APP_DIR="/home/myc/workspace/flink-testbed"
-
-EXP_DIR="/data"
-
-# run flink clsuter
-function runFlink() {
-    echo "INFO: starting the cluster"
-    if [[ -d ${FLINK_DIR}/log ]]; then
-        rm -rf ${FLINK_DIR}/log
-    fi
-    mkdir ${FLINK_DIR}/log
-    ${FLINK_DIR}/bin/start-cluster.sh
-}
-
-# clean app specific related data
-function cleanEnv() {
-    rm -rf /tmp/flink*
-    rm ${FLINK_DIR}/log/*
-}
-
-
-# clsoe flink clsuter
-function stopFlink() {
-    echo "INFO: experiment finished, stopping the cluster"
-    PID=`jps | grep CliFrontend | awk '{print $1}'`
-    if [[ ! -z $PID ]]; then
-      kill -9 ${PID}
-    fi
-    ${FLINK_DIR}/bin/stop-cluster.sh
-    echo "close finished"
-    cleanEnv
-}
-
-# configure parameters in flink bin
-function configFlink() {
-    # set user requirement
-    sed 's/^\(\s*spector.reconfig.affected_keys\s*:\s*\).*/\1'"$affected_keys"'/' ${FLINK_DIR}/conf/flink-conf.yaml > tmp1
-    sed 's/^\(\s*spector.reconfig.start\s*:\s*\).*/\1'"$reconfig_start"'/' tmp1 > tmp2
-    sed 's/^\(\s*spector.reconfig.sync_keys\s*:\s*\).*/\1'"$sync_keys"'/' tmp2 > tmp3
-    sed 's/^\(\s*spector.replicate_keys_filter\s*:\s*\).*/\1'"$replicate_keys_filter"'/' tmp3 > tmp4
-    sed 's/^\(\s*controller.target.operators\s*:\s*\).*/\1'"$operator"'/' tmp4 > tmp5
-    sed 's/^\(\s*spector.reconfig.affected_tasks\s*:\s*\).*/\1'"$affected_tasks"'/' tmp5 > ${FLINK_DIR}/conf/flink-conf.yaml
-    rm tmp1 tmp2 tmp3 tmp4 tmp5
-}
+source config.sh
 
 # run applications
 function runApp() {
@@ -112,31 +68,37 @@ run_one_exp() {
 
 # initialization of the parameters
 init() {
+  # exp scenario
+  reconfig_scenario="shuffle"
+
   # app level
   JAR="${FLINK_APP_DIR}/target/testbed-1.0-SNAPSHOT.jar"
   job="flinkapp.StatefulDemoLongRunStateControlled"
-  runtime=100
+  runtime=50
   source_p=1
-  parallelism=2
+  parallelism=8
   max_parallelism=512
-  per_task_rate=5000
-  checkpoint_interval=1000 # by default checkpoint in frequent, trigger only when necessary
+  # per_task_rate=1000
+  per_task_rate=2500
+  checkpoint_interval=10000 # by default checkpoint in frequent, trigger only when necessary
 
   srcBase=`expr ${per_task_rate} \* ${parallelism} \/ ${source_p}`
 
-
   # system level
   operator="Mapper"
-  reconfig_start=50000
+  reconfig_start=25000
   reconfig_interval=10000000
 #  frequency=1 # deprecated
   affected_tasks=2
-  affected_keys=`expr ${max_parallelism} \/ 2` # `expr ${max_parallelism} \/ 4`
+  affected_keys=`expr ${max_parallelism} \/ ${parallelism}` # `expr ${max_parallelism} \/ 4`
   sync_keys=0 # disable fluid state migration
   replicate_keys_filter=0 # replicate those key%filter = 0, 1 means replicate all keys
   repeat=1
+  changelog_enabled=true
+  window_size=1000000000 # for reporting the system overhead instead of the window in operators
+  state_backend_async=false
+  zipf_skew=1
 }
-
 
 run_query1() {
 #  init
@@ -167,38 +129,41 @@ run_query8() {
 }
 
 
-
 nexmark_overview() {
-
   for query_id in 8; do # 1 2 5 8
-    # Migrate at once
-    init
-    replicate_keys_filter=0
-    sync_keys=0
-    per_task_rate=50000
-    checkpoint_interval=10000000
+  
+#    # Migrate at once
+#    init
+#    replicate_keys_filter=0
+#    sync_keys=0
+# #    per_task_rate=5000
+#    checkpoint_interval=10000000
+#    run_query${query_id}
 
-    run_query${query_id}
-
-    # Fluid Migration
-    init
-    replicate_keys_filter=0
-    sync_keys=8
-    per_task_rate=20000
-    checkpoint_interval=10000000
-
-    run_query${query_id}
+#    # Fluid Migration
+#    init
+#    replicate_keys_filter=0
+#    sync_keys=1
+# #    per_task_rate=20000
+#    checkpoint_interval=10000000
+#    run_query${query_id}
 
     # Proactive State replication
     init
     replicate_keys_filter=1
     sync_keys=0
-    per_task_rate=20000
-
+#    per_task_rate=20000
     run_query${query_id}
+
+#     # Spacker
+#    init
+#    replicate_keys_filter=0
+#    sync_keys=0
+# #    per_task_rate=20000
+#    checkpoint_interval=10000000
+#    run_query${query_id}
 
   done
 }
-
 
 nexmark_overview
