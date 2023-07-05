@@ -3,6 +3,10 @@ import matplotlib
 matplotlib.use('Agg')
 import sys
 
+jobIds = ["c21234bcbf1e8eb4c61f1927190efebd", "22359d48bcb33236cf1e31888091e54c"]
+substreamArrivalAndCompletedTimeForVertex = {}
+
+
 userLatency = 2000
 userWindow = 1000
 base = 1000 #timeslot size
@@ -26,6 +30,7 @@ import sys
 startTime = sys.maxint
 totalTime = 0
 totalViolation = 0
+totalMessages = 0
 violationInPeak = []
 totalInPeak = []
 
@@ -56,35 +61,68 @@ for fileName in listdir(inputDir):
                 split = line.rstrip().split(' ')
 
                 counter += 1
-               # if (counter % 5000 == 0):
-                    #print("Processed to line:" + str(counter))
+                if (counter % 5000 == 0):
+                    print("Processed to line:" + str(counter))
                 if(calibrateFlag and split[0] == 'start' and split[1] == 'time:'):
                     t = int(split[2])
                     if(startOETime > t):
                         startOETime = t
 
-                if(split[0] == 'keygroup:'):
-                    if (not calibrateFlag and int(split[3]) < startTime):
-                        startTime = int(split[3])
-                    if(split[1] not in substreamArrivalAndCompletedTime):
-                        substreamArrivalAndCompletedTime[split[1]] = []
+                if(split[0] == 'GT:'):
+                    keygroup = str(int(split[1].lstrip('A')) % 64)
+                    arriveTime = int(split[3].rstrip(","))
+                    latency = int(split[4])
+                    totalMessages += 1
+                    if (latency > userLatency):
+                        totalViolation += 1
+                    if (not calibrateFlag and arriveTime < startTime):
+                        startTime = arriveTime
+                    if(keygroup not in substreamArrivalAndCompletedTime):
+                        substreamArrivalAndCompletedTime[keygroup] = []
                     if (calibrateFlag):
-                        if(startLogicTime > int(split[3])):
-                            startLogicTime = int(split[3])
+                        if(startLogicTime > arriveTime):
+                            startLogicTime = arriveTime
                         if(startTime > startLogicTime):
                             startTime = startLogicTime
-                        completeTime = int(split[5]) - startOETime + startLogicTime
-
-                        arrivalTime = int(split[3])
+                        completeTime = int(split[4]) + arriveTime #int(split[4]) - startOETime + startLogicTime
+                        arrivalTime = arriveTime
                         #skip 11:30 ~ 1:00
-                        if(int(split[3]) > 1284377500000):
+                        if(arriveTime > 1284377500000):
                             arrivalTime -= 5400000
                         if(startLogicTime > 1284377500000):
                             completeTime -= 5400000
                         #print(arrivalTime, completeTime)
-                        substreamArrivalAndCompletedTime[split[1]].append([str(arrivalTime), str(completeTime)])
+                        substreamArrivalAndCompletedTime[keygroup].append([str(arrivalTime), str(completeTime)])
                     else:
-                        substreamArrivalAndCompletedTime[split[1]].append([split[3], split[5]])
+                        substreamArrivalAndCompletedTime[keygroup].append([split[3].rstrip(','), split[4]])
+
+                if (split[0] == 'GroundTruth' and split[2] == 'keygroup:'):
+                    jobId = split[1]
+                    if (jobId in jobIds):
+                        if (jobId not in substreamArrivalAndCompletedTimeForVertex):
+                            substreamArrivalAndCompletedTimeForVertex[jobId] = {}
+                        if (not calibrateFlag and int(split[5]) < startTime):
+                            startTime = int(split[5])
+                        if (split[3] not in substreamArrivalAndCompletedTimeForVertex[jobId]):
+                            substreamArrivalAndCompletedTimeForVertex[jobId][split[3]] = []
+                        if (calibrateFlag):
+                            if (startLogicTime > int(split[5])):
+                                startLogicTime = int(split[5])
+                            if (startTime > startLogicTime):
+                                startTime = startLogicTime
+                            completeTime = int(split[7]) - startOETime + startLogicTime
+
+                            arrivalTime = int(split[5])
+                            # skip 11:30 ~ 1:00
+                            if (int(split[5]) > 1284377500000):
+                                arrivalTime -= 5400000
+                            if (startLogicTime > 1284377500000):
+                                completeTime -= 5400000
+                            # print(arrivalTime, completeTime)
+                            substreamArrivalAndCompletedTimeForVertex[jobId][split[3]].append([str(arrivalTime), str(completeTime)])
+                        else:
+                            substreamArrivalAndCompletedTimeForVertex[jobId][split[3]] .append([split[5], split[7]])
+
                 if(split[0] == 'Entering'):
                     startPoint += [int(split[3])]
                 if(split[0] == 'Shutdown'):
@@ -104,6 +142,9 @@ for fileName in listdir(inputDir):
 
 print(maxMigrationTime, maxMigrationExecutor)
 
+print(totalMessages, totalViolation)
+print("Success rate: " + str(1.0 - float(totalViolation)/totalMessages))
+exit()
 # #Draw migration length histogram
 # if(True):
 #     print("Draw migration length histogram...")

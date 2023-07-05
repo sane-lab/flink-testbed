@@ -1,13 +1,20 @@
 # -*- coding: utf-8 -*-
-
+import os.path
 import sys
 
 jobname = sys.argv[1]
-input_file = '/home/samza/workspace/flink-extended/build-target/log/flink-samza-standalonesession-0-camel-sane.out'
+print(os.getcwd())
+# input_file = '/Volumes/dragon/workspace/flink-related/flink-extended-ete/build-target/log/flink-samza-standalonesession-0-dragon-sane.out'
+input_file = '/Volumes/dragon/workspace/flink-related/flink-extended-ete/build-target/log/flink-samza-standalonesession-0-dragon-sane.out'
 # input_file = '/home/samza/workspace/newGT/log/flink-samza-standalonesession-0-camel-sane.out'
 # input_file = '/home/samza/workspace/build-target/log/flink-samza-standalonesession-0-camel-sane.out'
 # input_file = 'GroundTruth/stdout'
 output_path = 'figures/' + jobname + '/'
+
+jobId = "c21234bcbf1e8eb4c61f1927190efebd"
+initialTime = -1
+
+print("Drawing for job: " + jobId)
 xaxes = [0000, 500]
 
 executorsFigureFlag = True
@@ -23,7 +30,7 @@ containerWindowDelay = {}
 containerRealWindowDelay = {}
 containerResidual = {}
 containerArrivalRateT = {}
-containerServiceRateT = {}  
+containerServiceRateT = {}
 containerLongtermDelay = {}
 containerLongtermDelayT = {}
 containerWindowDelayT = {}
@@ -51,13 +58,13 @@ scalingDecisionTime = {}
 scalingDeployTime = {}
 
 
-initialTime = -1
+
 def parseContainerArrivalRate(split, base):
     global initialTime
     time = split[2]
     if(initialTime == -1):
         initialTime = long(time)
-    info = "".join(split[6:]).replace(' ','')
+    info = "".join(split[9:]).replace(' ','')
     info = info.replace('{','')
     info = info.replace('}','')
     containers = info.split(',')
@@ -82,7 +89,7 @@ def parseContainerServiceRate(split, base):
     time = split[2]
     if(initialTime == -1):
         initialTime = long(time)
-    info = "".join(split[6:]).replace(' ','')
+    info = "".join(split[9:]).replace(' ','')
     info = info.replace('{','')
     info = info.replace('}','')
     containers = info.split(',')
@@ -104,7 +111,7 @@ def parseContainerWindowDelay(split, base):
     time = split[2]
     if(initialTime == -1):
         initialTime = long(time)
-    info = "".join(split[6:]).replace(' ','')
+    info = "".join(split[9:]).replace(' ','')
     info = info.replace('{','')
     info = info.replace('}','')
     containers = info.split(',')
@@ -131,7 +138,7 @@ def parseContainerLongtermDelay(split, base):
     time = split[2]
     if(initialTime == -1):
         initialTime = long(time)
-    info = "".join(split[6:]).replace(' ','')
+    info = "".join(split[9:]).replace(' ','')
     info = info.replace('{','')
     info = info.replace('}','')
     containers = info.split(',')
@@ -156,7 +163,7 @@ def readContainerRealWindowDelay(Id):
     counter = 1
     processed = 0
     size = 0
-    base = 1    
+    base = 1
     queue = []
     total = 0;
     lastTime = -100000000
@@ -176,8 +183,8 @@ def readContainerRealWindowDelay(Id):
                 while(queue[0][0] < time - userWindowSize):
                     total -= queue[0][1]
                     queue = queue[1:]
-            
-                
+
+
                 if(lastTime <= time - 400 and len(queue) > 0):
                     if(Id not in containerRealWindowDelay):
                         containerRealWindowDelayT[Id] = []
@@ -185,7 +192,7 @@ def readContainerRealWindowDelay(Id):
                     containerRealWindowDelayT[Id] += [time]
                     containerRealWindowDelay[Id] += [total/len(queue)]
 
-                    
+
 print("Reading from file:" + input_file)
 counter = 0
 arrived = {}
@@ -200,13 +207,13 @@ with open(input_file) as f:
         if(counter % 100 == 0):
             print("Processed to line:" + str(counter))
 
-        if ((split[0] == 'DelayEstimateModel,' or split[0] == 'Model,') and split[4] == 'Arrival' and split[5] == 'Rate:'):
+        if ((split[0] == 'DelayEstimateModel,' or split[0] == 'Model,') and split[4] == 'jobid:' and split[5] == jobId and split[7] == 'Arrival' and split[8] == 'Rate:'):
             parseContainerArrivalRate(split, base)
-        if ((split[0] == 'DelayEstimateModel,' or split[0] == 'Model,') and split[4] == 'Service' and split[5] == 'Rate:'):
+        if ((split[0] == 'DelayEstimateModel,' or split[0] == 'Model,') and split[4] == 'jobid:' and split[5] == jobId and split[7] == 'Service' and split[8] == 'Rate:'):
             parseContainerServiceRate(split, base)
-        if ((split[0] == 'DelayEstimateModel,' or split[0] == 'Model,') and split[4] == 'Instantaneous' and split[5] == 'Delay:'):
+        if ((split[0] == 'DelayEstimateModel,' or split[0] == 'Model,') and split[4] == 'jobid:' and split[5] == jobId and split[7] == 'Instantaneous' and split[8] == 'Delay:'):
             parseContainerWindowDelay(split, base)
-        if ((split[0] == 'DelayEstimateModel,' or split[0] == 'Model,') and split[4] == 'Longterm' and split[5] == 'Delay:'):
+        if ((split[0] == 'DelayEstimateModel,' or split[0] == 'Model,') and split[4] == 'jobid:' and split[5] == jobId and split[7] == 'Longterm' and split[8] == 'Delay:'):
             parseContainerLongtermDelay(split, base)
 
         #Add migration marker
@@ -311,7 +318,7 @@ def addMigrationLine(Id, ly):
             Y = [0]
             Y += [ly]
             lines += [[X, Y, 'r']]
-          
+
     return lines
 
 import collections
@@ -341,6 +348,7 @@ if(executorsFigureFlag):
         plt.title('Container ' + Id + ' Arrival and Service Rate')
         axes = plt.gca()
         axes.set_xlim([xaxes[0] * 10, xaxes[1] * 10])
+        axes.set_xticks([x for x in range(xaxes[0] * 10, xaxes[1] * 10, 200)])
         axes.set_yscale('log')
         # axes.set_ylim([1, 1000])
         axes.set_yticks([1, 10, 100, 1000, 10000, 100000, 1000000])
@@ -552,9 +560,10 @@ plt.legend(legend, loc='upper left')
 plt.grid(True)
 axes = plt.gca()
 axes.set_xlim(xaxes)
+axes.set_xticks(range(xaxes[0], xaxes[1], 200))
 # axes.set_yscale('log')
 # axes.set_yticks([1, 10000, 100000, 500000])
-axes.set_ylim([0, 500000])
+axes.set_ylim([0, 10000])
 plt.xlabel('Index (s)')
 plt.ylabel('Rate (messages per second)')
 plt.title('Total Arrival Rate')
@@ -572,11 +581,8 @@ plt.xlabel('Index (s)')
 plt.ylabel('Delay (s)')
 axes = plt.gca()
 axes.set_xlim(xaxes)
-#axes.set_ylim([0,200])    
+#axes.set_ylim([0,200])
 plt.title('Overall Window Delay')
 plt.grid(True)
 plt.savefig(output_path + jobname + '_WorstWindowDelay.png')
 plt.close(fig)
-
-
-
