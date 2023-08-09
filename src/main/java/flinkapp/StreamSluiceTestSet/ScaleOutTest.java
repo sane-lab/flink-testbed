@@ -24,10 +24,10 @@ public class ScaleOutTest{
         final long PHASE1_RATE = params.getLong("phase1Rate", 400);
         final long PHASE2_RATE = params.getLong("phase2Rate", 600);
         final long INTERMEDIATE_RATE = params.getLong("interRate", 500);
-        final long PHASE1_TIME = params.getLong("phase1Time", 60 * 1000);
-        final long PHASE2_TIME = params.getLong("phase2Time", 60 * 1000);
-        final long INTERMEDIATE_TIME = params.getLong("interTime", 120 * 1000);
-        final long INTERMEDIATE_PERIOD = params.getLong("interPeriod", 240 * 1000);
+        final long PHASE1_TIME = params.getLong("phase1Time", 60) * 1000;
+        final long PHASE2_TIME = params.getLong("phase2Time", 60) * 1000;
+        final long INTERMEDIATE_TIME = params.getLong("interTime", 120) * 1000;
+        final long INTERMEDIATE_PERIOD = params.getLong("interPeriod", 240) * 1000;
         final long INTERVAL = params.getLong("srcInterval", 50);
         final int p1 = params.getInt("p1", 1);
         final int mp1 = params.getInt("mp1", 64);
