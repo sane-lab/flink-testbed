@@ -1,7 +1,7 @@
 import os.path
 import sys
 
-input_file = '/Volumes/dragon/workspace/flink-related/flink-extended-streamswitch/flink/build-target/log/flink-samza-standalonesession-0-dragon-sane.out'
+input_file = '/Volumes/camel/workspace/flink-related/flink-extended-streamswitch/flink/build-target/log/flink-samza-standalonesession-0-dragon-sane.out'
 
 jobId = "c21234bcbf1e8eb4c61f1927190efebd"
 

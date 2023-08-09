@@ -84,11 +84,11 @@ def draw(streamSluiceOutputPath, groundTruthPath, outputDir, windowSize):
     plt.ylabel('Latency (ms)')
     plt.title('Latency Curves')
     axes = plt.gca()
-    axes.set_xlim(0, averageGroundTruthLatency[0][-1])
-    axes.set_xticks(np.arange(0, averageGroundTruthLatency[0][-1], 10000))
+    axes.set_xlim(0, 360000)#averageGroundTruthLatency[0][-1])
+    axes.set_xticks(np.arange(0, 360000, 10000))# averageGroundTruthLatency[0][-1], 10000))
 
     xlabels = []
-    for x in range(0, averageGroundTruthLatency[0][-1], 10000):
+    for x in range(0, 360000, 10000): #averageGroundTruthLatency[0][-1], 10000):
         xlabels += [str(int(x / 1000))]
     axes.set_xticklabels(xlabels)
     # axes.set_yscale('log')
@@ -102,8 +102,8 @@ def draw(streamSluiceOutputPath, groundTruthPath, outputDir, windowSize):
     plt.close(fig)
 
 
-streamSluiceOutputPath = "/home/swrrt11/Workspace/flinks/flink-extended/build-target/log/flink-swrrt11-standalonesession-0-dl.out"
-groundTruthPath = "/home/swrrt11/Workspace/flinks/flink-extended/build-target/log/flink-swrrt11-taskexecutor-0-dl.out"
-outputDir = "/home/swrrt11/Workspace/StreamSluice/Experiments/test/"
+streamSluiceOutputPath = "/Volumes/camel/workspace/flink-related/flink-extended-ete/build-target/log/flink-samza-standalonesession-0-camel-sane.out"
+groundTruthPath = "/Volumes/camel/workspace/flink-related/flink-extended-ete/build-target/log/flink-samza-taskexecutor-0-camel-sane.out"
+outputDir = "/Users/swrrt/Workplace/BacklogDelayPaper/experiments/test/"
 windowSize = 1
 draw(streamSluiceOutputPath, groundTruthPath, outputDir, windowSize)
