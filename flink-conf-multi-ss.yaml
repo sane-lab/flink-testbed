@@ -276,27 +276,25 @@ controller.type: StreamSluice
 
 model.retrieve.nrecords: 15
 
-model.vertex: 9dd63673dd41ea021b896d5203f3ba7c
+model.vertex: c21234bcbf1e8eb4c61f1927190efebd,22359d48bcb33236cf1e31888091e54c
 
 model.retrieve.interval: 100
 
 model.warmup: 10000
 
-streamswitch.system.migration_interval: 3000
+streamsluice.system.migration_interval: 500
 
-streamswitch.requirement.latency: 2000
-
-streamswitch.requirement.window: 1000
+streamsluice.requirement.latency: 2000
 
 streamsluice.system.migration_overhead: 1000
 
 streamswitch.system.initialservicerate: 0.8
 
-streamswitch.system.is_treat: false
+streamsluice.system.is_treat: true
 
-streamswitch.system.is_scalein: false
+streamsluice.system.is_scalein: true
 
-streamswitch.system.warmup_time: 10000
+streamsluice.system.warmup_time: 10000
 
 streamsluice.system.treat_warmup_time: 10000
 
