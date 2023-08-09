@@ -348,7 +348,7 @@ if(executorsFigureFlag):
         plt.title('Container ' + Id + ' Arrival and Service Rate')
         axes = plt.gca()
         axes.set_xlim([xaxes[0] * 10, xaxes[1] * 10])
-        axes.set_xticks([x for x in range(xaxes[0] * 10, xaxes[1] * 10, 500)])
+        axes.set_xticks([x for x in range(xaxes[0] * 10, xaxes[1] * 10, 200)])
         axes.set_yscale('log')
         # axes.set_ylim([1, 1000])
         axes.set_yticks([1, 10, 100, 1000, 10000, 100000, 1000000])
