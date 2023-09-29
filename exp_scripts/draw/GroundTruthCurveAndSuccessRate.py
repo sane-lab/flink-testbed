@@ -34,8 +34,8 @@ def draw(streamSluiceOutputPath, groundTruthPath, outputDir, windowSize):
             if (counter % 5000 == 0):
                 print("Processed to line:" + str(counter))
             if(split[0] == "GT:"):
-                completedTime = int(split[3].rstrip(","))
-                latency = int(split[4])
+                completedTime = int(split[2].rstrip(","))
+                latency = int(split[3])
                 arrivedTime = completedTime - latency
                 if (initialTime == -1 or initialTime > arrivedTime):
                     initialTime = arrivedTime
@@ -84,16 +84,16 @@ def draw(streamSluiceOutputPath, groundTruthPath, outputDir, windowSize):
     plt.ylabel('Latency (ms)')
     plt.title('Latency Curves')
     axes = plt.gca()
-    axes.set_xlim(0, 360000)#averageGroundTruthLatency[0][-1])
-    axes.set_xticks(np.arange(0, 360000, 10000))# averageGroundTruthLatency[0][-1], 10000))
+    axes.set_xlim(0, 240000)#averageGroundTruthLatency[0][-1])
+    axes.set_xticks(np.arange(0, 240000, 10000))# averageGroundTruthLatency[0][-1], 10000))
 
     xlabels = []
-    for x in range(0, 360000, 10000): #averageGroundTruthLatency[0][-1], 10000):
+    for x in range(0, 240000, 10000): #averageGroundTruthLatency[0][-1], 10000):
         xlabels += [str(int(x / 1000))]
     axes.set_xticklabels(xlabels)
     # axes.set_yscale('log')
-    axes.set_ylim(0, 10000)
-    axes.set_yticks(np.arange(0, 10000, 1000))
+    axes.set_ylim(0, 5000)
+    axes.set_yticks(np.arange(0, 5000, 500))
     plt.grid(True)
     import os
     if not os.path.exists(outputDir):

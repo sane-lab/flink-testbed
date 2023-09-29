@@ -67,15 +67,15 @@ def draw(streamSluiceOutputPath, groundTruthPath, outputDir, windowSize):
             if (counter % 5000 == 0):
                 print("Processed to line:" + str(counter))
             if(split[0] == "GT:"):
-                completedTime = int(split[3].rstrip(","))
-                latency = int(split[4])
+                completedTime = int(split[2].rstrip(","))
+                latency = int(split[3])
                 arrivedTime = completedTime - latency
                 if (initialTime == -1 or initialTime > arrivedTime):
                     initialTime = arrivedTime
                 if (lastTime < completedTime):
                     lastTime = completedTime
     print(lastTime)
-    lastTime = initialTime + 360000
+    lastTime = initialTime + 240000
     print("Reading streamsluice output:" + streamSluiceOutputPath)
     counter = 0
     with open(streamSluiceOutputPath) as f:
@@ -186,8 +186,8 @@ def draw(streamSluiceOutputPath, groundTruthPath, outputDir, windowSize):
             for x in range(0, lastTime-initialTime, 10000):
                 xlabels += [str(int(x / 1000))]
             ax1.set_xticklabels(xlabels)
-            ax1.set_ylim(0, 1000)
-            ax1.set_yticks(np.arange(0, 1000, 200))
+            ax1.set_ylim(0, 200)
+            ax1.set_yticks(np.arange(0, 200, 20))
             plt.grid(True)
 
             print("Draw backlog")
@@ -197,9 +197,10 @@ def draw(streamSluiceOutputPath, groundTruthPath, outputDir, windowSize):
             ax2.legend(lines1 + lines2, labels1 + labels2, loc='upper left')
             ax2.set_xlabel('Time (s)')
             ax2.set_ylabel('# of Tuples')
-            ax2.set_yscale('log')
-            ax2.set_ylim(1, 100000)
-            ax2.set_yticks([1, 100, 1000, 10000, 100000])
+            #ax2.set_yscale('log')
+            # ax2.set_yticks([1, 100, 1000, 10000, 100000])
+            ax2.set_ylim(1, 500)
+            ax2.set_yticks(np.arange(0, 500, 50))
 
         import os
         if not os.path.exists(outputDir):
@@ -261,8 +262,8 @@ def draw(streamSluiceOutputPath, groundTruthPath, outputDir, windowSize):
         for x in range(0, lastTime - initialTime, 20000):
             xlabels += [str(int(x / 1000))]
         axes.set_xticklabels(xlabels)
-        axes.set_ylim(0, 10000)
-        axes.set_yticks(np.arange(0, 10000, 2000))
+        axes.set_ylim(0, 1000)
+        axes.set_yticks(np.arange(0, 1000, 200))
         plt.grid(True)
     import os
     if not os.path.exists(outputDir):

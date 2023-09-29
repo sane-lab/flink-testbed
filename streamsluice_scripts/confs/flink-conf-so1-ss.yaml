@@ -294,11 +294,6 @@ streamsluice.system.is_treat: true
 
 streamsluice.system.is_scalein: true
 
-streamsluice.system.warmup_time: 10000
-
-streamsluice.system.treat_warmup_time: 10000
-
-
 #==============================================================================
 # Backpressure Configuration
 #==============================================================================
