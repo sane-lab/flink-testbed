@@ -43,7 +43,7 @@ def addScalingMarker(plt, scalingMarker):
         y = [0, 10000000]
         plt.plot(x, y, color=color, linewidth=LINEWIDTH)
 
-def draw(streamSluiceOutputPath, groundTruthPath, outputDir, windowSize):
+def draw(rawDir, outputDir, expName):
 
     initialTime = -1
     lastTime = 0
@@ -52,17 +52,20 @@ def draw(streamSluiceOutputPath, groundTruthPath, outputDir, windowSize):
     arrivalRatePerTask = {}
     serviceRatePerTask = {}
     backlogPerTask = {}
+    parallelismsPerOperator = {}
     selectivity = {}
+
 
     scalingMarkerByOperator = {}
 
+    groundTruthPath = rawDir + expName + "/" + "flink-samza-taskexecutor-0-eagle-sane.out"
     print("Reading ground truth file:" + groundTruthPath)
     counter = 0
     with open(groundTruthPath) as f:
         lines = f.readlines()
         for i in range(0, len(lines)):
             line = lines[i]
-            split = line.rstrip().split(' ')
+            split = line.rstrip().split()
             counter += 1
             if (counter % 5000 == 0):
                 print("Processed to line:" + str(counter))
@@ -75,7 +78,9 @@ def draw(streamSluiceOutputPath, groundTruthPath, outputDir, windowSize):
                 if (lastTime < completedTime):
                     lastTime = completedTime
     print(lastTime)
-    lastTime = initialTime + 240000
+    #lastTime = initialTime + 240000
+
+    streamSluiceOutputPath = rawDir + expName + "/" + "flink-samza-standalonesession-0-eagle-sane.out"
     print("Reading streamsluice output:" + streamSluiceOutputPath)
     counter = 0
     with open(streamSluiceOutputPath) as f:
@@ -83,57 +88,63 @@ def draw(streamSluiceOutputPath, groundTruthPath, outputDir, windowSize):
         lastScalingOperators = []
         for i in range(0, len(lines)):
             line = lines[i]
-            split = line.rstrip().split(' ')
+            split = line.rstrip().split()
             counter += 1
             if (counter % 5000 == 0):
                 print("Processed to line:" + str(counter))
-            if(split[0] == "++++++" and split[1] == "Time:" and split[4] == "Model" and split[5] == "decides" and split[7] == "scale" and len(split) > 9 and split[11] == "New"):
-                time = int(split[2])
-                if (time > lastTime):
-                    continue
-                if(split[8] == "in."):
+            if(len(split) >= 10 and split[0] == "+++" and split[1] == "[CONTROL]" and split[6] == "scale" and split[8] == "operator:"):
+                time = int(split[3])
+                #if (time > lastTime):
+                #    continue
+                if(split[7] == "in"):
                     type = 1
-                elif(split[8] == "out."):
+                elif(split[7] == "out"):
                     type = 2
-                lastScalingOperators = [split[10].lstrip('[').rstrip(']')]
+
+                lastScalingOperators = [split[9].lstrip('[').rstrip(']')]
                 for operator in lastScalingOperators:
                     if(operator not in scalingMarkerByOperator):
                         scalingMarkerByOperator[operator] = []
                     scalingMarkerByOperator[operator] += [[time - initialTime, type]]
-            if(split[0] == "++++++" and split[1] == "Time:" and split[3] == "all" and split[5] == "plan" and split[6] == "deployed."):
-                time = int(split[2])
-                if (time > lastTime):
-                    continue
+            if(len(split) >= 8 and split[0] == "+++" and split[1] == "[CONTROL]" and split[4] == "all" and split[5] == "scaling" and split[6] == "plan" and split[7] == "deployed."):
+                time = int(split[3])
+                #if (time > lastTime):
+                #    continue
                 for operator in lastScalingOperators:
                     if(operator not in scalingMarkerByOperator):
                         scalingMarkerByOperator[operator] = []
                     scalingMarkerByOperator[operator] += [[time - initialTime, 3]]
                 lastScalingOperators = []
-            if(split[0] == "++++++" and split[1] == "Time:" and split[3] == "backlog:"):
-                time = int(split[2])
-                if (time > lastTime):
-                    continue
-                backlogs = parsePerTaskValue(split[4:])
+            if(split[0] == "+++" and split[1] == "[METRICS]" and split[4] == "task" and split[5] == "backlog:"):
+                time = int(split[3])
+                #if (time > lastTime):
+                #    continue
+                backlogs = parsePerTaskValue(split[6:])
+                operatorParallisms = {}
                 for task in backlogs:
                     if task not in backlogPerTask:
                         backlogPerTask[task] = [[], []]
                     backlogPerTask[task][0] += [time - initialTime]
                     backlogPerTask[task][1] += [int(backlogs[task])]
-            if(split[0] == "++++++" and split[1] == "Time:" and split[3] == "arrivalRate:"):
-                time = int(split[2])
-                if (time > lastTime):
-                    continue
-                arrivalRates = parsePerTaskValue(split[4:])
+                    operator = task.split('_')[0]
+                    if operator not in operatorParallisms:
+                        operatorParallisms[operator] = 0
+                    operatorParallisms[operator] += 1
+            if(split[0] == "+++" and split[1] == "[METRICS]" and split[4] == "task" and split[5] == "arrivalRate:"):
+                time = int(split[3])
+                #if (time > lastTime):
+                #   continue
+                arrivalRates = parsePerTaskValue(split[6:])
                 for task in arrivalRates:
                     if task not in arrivalRatePerTask:
                         arrivalRatePerTask[task] = [[], []]
                     arrivalRatePerTask[task][0] += [time - initialTime]
                     arrivalRatePerTask[task][1] += [int(arrivalRates[task] * 1000)]
-            if (split[0] == "++++++" and split[1] == "Time:" and split[3] == "serviceRate:"):
-                time = int(split[2])
-                if (time > lastTime):
-                    continue
-                serviceRates = parsePerTaskValue(split[4:])
+            if (split[0] == "+++" and split[1] == "[METRICS]" and split[4] == "task" and split[5] == "serviceRate:"):
+                time = int(split[3])
+                #if (time > lastTime):
+                #    continue
+                serviceRates = parsePerTaskValue(split[6:])
                 for task in serviceRates:
                     if task not in serviceRatePerTask:
                         serviceRatePerTask[task] = [[], []]
@@ -161,6 +172,8 @@ def draw(streamSluiceOutputPath, groundTruthPath, outputDir, windowSize):
             taskPerFig += [[]]
         taskPerFig[-1] += [task]
 
+    print(scalingMarkerByOperator)
+
     for i in range(0, len(taskPerFig)):
         print("Draw " + str(i) + "-th figure...")
         figName = "ratesPerTask_" + str(i) + ".png"
@@ -176,7 +189,8 @@ def draw(streamSluiceOutputPath, groundTruthPath, outputDir, windowSize):
             print("Draw service rates")
             ax1.plot(serviceRatePerTask[task][0], serviceRatePerTask[task][1], '*', color='blue', markersize=MARKERSIZE, label="Service Rate")
             operator = task.split('_')[0]
-            addScalingMarker(plt, scalingMarkerByOperator[operator])
+            if(operator in scalingMarkerByOperator):
+                addScalingMarker(plt, scalingMarkerByOperator[operator])
             ax1.set_xlabel('Time (s)')
             ax1.set_ylabel('Rate (tps)')
             plt.title('Rates and Backlog of ' + task)
@@ -273,8 +287,8 @@ def draw(streamSluiceOutputPath, groundTruthPath, outputDir, windowSize):
 
 
 
-streamSluiceOutputPath = "/Volumes/camel/workspace/flink-related/flink-extended-ete/build-target/log/flink-samza-standalonesession-0-camel-sane.out"
-groundTruthPath = "/Volumes/camel/workspace/flink-related/flink-extended-ete/build-target/log/flink-samza-taskexecutor-0-camel-sane.out"
-outputDir = "/Users/swrrt/Workplace/BacklogDelayPaper/experiments/test/"
-windowSize = 100
-draw(streamSluiceOutputPath, groundTruthPath, outputDir, windowSize)
+rawDir = "/Users/swrrt/Workplace/BacklogDelayPaper/experiments/raw/"
+outputDir = "/Users/swrrt/Workplace/BacklogDelayPaper/experiments/results/"
+#expName = "streamsluice-scaletest-400-600-500-5-2000-1000-100-1"
+expName = "streamsluice-scaletest-400-400-550-5-2000-1000-100-1"
+draw(rawDir, outputDir + expName + "/", expName)

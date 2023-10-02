@@ -17,42 +17,48 @@ plt.rc('ytick', labelsize=SMALL_SIZE)    # fontsize of the tick labels
 plt.rc('legend', fontsize=SMALL_SIZE)    # legend fontsize
 plt.rc('figure', titlesize=BIGGER_SIZE)  # fontsize of the figure title
 MARKERSIZE=4
-def draw(streamSluiceOutputPath, groundTruthPath, outputDir, windowSize):
 
+def addLatencyLimitMarker(plt, limit):
+    x = [0, 10000000]
+    y = [limit, limit]
+    plt.plot(x, y, color='red', linewidth=1.5)
+def readGroundTruthLatency(rawDir, expName, windowSize):
     initialTime = -1
 
     groundTruthLatency = []
 
+    groundTruthPath = rawDir + expName + "/" + "flink-samza-taskexecutor-0-eagle-sane.out"
     print("Reading ground truth file:" + groundTruthPath)
     counter = 0
     with open(groundTruthPath) as f:
         lines = f.readlines()
         for i in range(0, len(lines)):
             line = lines[i]
-            split = line.rstrip().split(' ')
+            split = line.rstrip().split()
             counter += 1
             if (counter % 5000 == 0):
                 print("Processed to line:" + str(counter))
-            if(split[0] == "GT:"):
+            if (split[0] == "GT:"):
                 completedTime = int(split[2].rstrip(","))
                 latency = int(split[3])
                 arrivedTime = completedTime - latency
                 if (initialTime == -1 or initialTime > arrivedTime):
                     initialTime = arrivedTime
-                groundTruthLatency += [[completedTime, latency]]
+                groundTruthLatency += [[arrivedTime, latency]]
 
+    streamSluiceOutputPath = rawDir + expName + "/" + "flink-samza-standalonesession-0-eagle-sane.out"
     print("Reading streamsluice output:" + streamSluiceOutputPath)
     counter = 0
     with open(streamSluiceOutputPath) as f:
         lines = f.readlines()
         for i in range(0, len(lines)):
             line = lines[i]
-            split = line.rstrip().split(' ')
+            split = line.rstrip().split()
             counter += 1
             if (counter % 5000 == 0):
                 print("Processed to line:" + str(counter))
-            if (split[0] == "++++++" and split[1] == "Estimated" and split[2] == "End-to-end" and split[3] == "Latency:"):
-                estimateTime = int(split[8].rstrip('\n'))
+            if (len(split) >= 7 and split[0] == "+++" and split[1] == "[MODEL]" and split[6] == "cur_ete_l:"):
+                estimateTime = int(split[3].rstrip('\n'))
                 if (initialTime == -1 or initialTime > estimateTime):
                     initialTime = estimateTime
 
@@ -71,14 +77,25 @@ def draw(streamSluiceOutputPath, groundTruthPath, outputDir, windowSize):
         y = int(aggregatedGroundTruthLatency[index][0] / float(aggregatedGroundTruthLatency[index][1]))
         averageGroundTruthLatency[0] += [x]
         averageGroundTruthLatency[1] += [y]
+    return [averageGroundTruthLatency, initialTime]
 
+def draw(rawDir, outputDir, expName, baselineName, windowSize):
 
+    result = readGroundTruthLatency(rawDir, expName, windowSize)
+    averageGroundTruthLatency = result[0]
+    if baselineName != "":
+        result = readGroundTruthLatency(rawDir, baselineName, windowSize)
+        baselineLatency = result[0]
     print(averageGroundTruthLatency)
     fig = plt.figure(figsize=(24, 18))
     print("Draw ground truth curve...")
-    legend = ["Ground Truth"]
-    plt.plot(averageGroundTruthLatency[0], averageGroundTruthLatency[1], '*', color='gray', markersize=MARKERSIZE)
-
+    legend = ["StreamSluice Ground Truth Latency"]
+    plt.plot(averageGroundTruthLatency[0], averageGroundTruthLatency[1], '*', color='blue', markersize=MARKERSIZE)
+    if baselineName != "":
+        legend += ["Baseline Ground Truth Latency"]
+        plt.plot(baselineLatency[0], baselineLatency[1], '*', color="gray", markersize=MARKERSIZE)
+    addLatencyLimitMarker(plt, 2000)
+    plt.plot()
     plt.legend(legend, loc='upper left')
     plt.xlabel('Time (s)')
     plt.ylabel('Latency (ms)')
@@ -102,8 +119,10 @@ def draw(streamSluiceOutputPath, groundTruthPath, outputDir, windowSize):
     plt.close(fig)
 
 
-streamSluiceOutputPath = "/Volumes/camel/workspace/flink-related/flink-extended-ete/build-target/log/flink-samza-standalonesession-0-camel-sane.out"
-groundTruthPath = "/Volumes/camel/workspace/flink-related/flink-extended-ete/build-target/log/flink-samza-taskexecutor-0-camel-sane.out"
-outputDir = "/Users/swrrt/Workplace/BacklogDelayPaper/experiments/test/"
+rawDir = "/Users/swrrt/Workplace/BacklogDelayPaper/experiments/raw/"
+outputDir = "/Users/swrrt/Workplace/BacklogDelayPaper/experiments/results/"
+expName = "streamsluice-scaletest-400-600-500-5-2000-1000-100-1"
+#expName = "streamsluice-scaletest-400-400-550-5-2000-1000-100-1"
+baselineName = "streamsluice-scaletest-400-600-500-5-2000-1000-100-false-1"
 windowSize = 1
-draw(streamSluiceOutputPath, groundTruthPath, outputDir, windowSize)
+draw(rawDir, outputDir + expName + "/", expName, baselineName, windowSize)

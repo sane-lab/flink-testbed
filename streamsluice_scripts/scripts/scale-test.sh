@@ -11,13 +11,13 @@ function analyze() {
     if [[ -d ${EXP_DIR}/raw/${EXP_NAME} ]]; then
         rm -rf ${EXP_DIR}/raw/${EXP_NAME}
     fi
-    mv ${FLINK_DIR}/log ${EXP_DIR}/streamsluice/
+    mv ${FLINK_DIR}/log/* ${EXP_DIR}/streamsluice/
     mv ${EXP_DIR}/streamsluice/ ${EXP_DIR}/raw/${EXP_NAME}
     mkdir ${EXP_DIR}/streamsluice/
 }
 
 run_one_exp() {
-  EXP_NAME=streamsluice-scaletest-${RATE1}-${RATE2}-${RATE_I}-${N1}-${L}-${migration_overhead}-${epoch}-${repeat}
+  EXP_NAME=streamsluice-scaletest-${RATE1}-${RATE2}-${RATE_I}-${N1}-${L}-${migration_overhead}-${epoch}-${is_treat}-${repeat}
 
   echo "INFO: run exp ${EXP_NAME}"
   configFlink

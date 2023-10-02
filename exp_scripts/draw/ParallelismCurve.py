@@ -61,63 +61,75 @@ def parseMapping(split):
             key = word.rstrip(",").rstrip("]")
             mapping[job][task] += [key]
     return mapping
-def draw(streamSluiceOutputPath, groundTruthPath, outputDir, windowSize):
+def draw(rawDir, outputDir, expName):
 
     initialTime = -1
     lastTime = 0
     ParallelismPerJob = {}
-    scalingMarker = []
+    scalingMarkerByOperator = {}
 
+    groundTruthPath = rawDir + expName + "/" + "flink-samza-taskexecutor-0-eagle-sane.out"
     print("Reading ground truth file:" + groundTruthPath)
     counter = 0
     with open(groundTruthPath) as f:
         lines = f.readlines()
         for i in range(0, len(lines)):
             line = lines[i]
-            split = line.rstrip().split(' ')
+            split = line.rstrip().split()
             counter += 1
             if (counter % 5000 == 0):
                 print("Processed to line:" + str(counter))
             if(split[0] == "GT:"):
-                completedTime = int(split[3].rstrip(","))
-                latency = int(split[4])
+                completedTime = int(split[2].rstrip(","))
+                latency = int(split[3])
                 arrivedTime = completedTime - latency
                 if (initialTime == -1 or initialTime > arrivedTime):
                     initialTime = arrivedTime
                 if (lastTime < completedTime):
                     lastTime = completedTime
     print(lastTime)
+
+    streamSluiceOutputPath = rawDir + expName + "/" + "flink-samza-standalonesession-0-eagle-sane.out"
     print("Reading streamsluice output:" + streamSluiceOutputPath)
     counter = 0
     with open(streamSluiceOutputPath) as f:
         lines = f.readlines()
         for i in range(0, len(lines)):
             line = lines[i]
-            split = line.rstrip().split(' ')
+            split = line.rstrip().split()
             counter += 1
             if (counter % 5000 == 0):
                 print("Processed to line:" + str(counter))
-            if(split[0] == "++++++" and split[1] == "Time:" and split[4] == "Model" and split[5] == "decides" and split[7] == "scale"):
-                time = int(split[2])
-                if(split[8] == "in."):
+            if(len(split) >= 10 and split[0] == "+++" and split[1] == "[CONTROL]" and split[6] == "scale" and split[8] == "operator:"):
+                time = int(split[3])
+                if(split[7] == "in"):
                     type = 1
-                elif(split[8] == "out."):
+                elif(split[7] == "out"):
                     type = 2
-                scalingMarker += [[time - initialTime, type]]
 
-                if split[9] == "New" and split[10] == "mapping:":
-                    mapping = parseMapping(split[11:])
+                lastScalingOperators = [split[9].lstrip('[').rstrip(']')]
+                for operator in lastScalingOperators:
+                    if (operator not in scalingMarkerByOperator):
+                        scalingMarkerByOperator[operator] = []
+                    scalingMarkerByOperator[operator] += [[time - initialTime, type]]
+                mapping = parseMapping(split[12:])
 
-            if(split[0] == "++++++" and split[1] == "Time:" and split[3] == "all" and split[5] == "plan" and split[6] == "deployed."):
-                time = int(split[2])
-                scalingMarker += [[time - initialTime, 3]]
+            if(len(split) >= 8 and split[0] == "+++" and split[1] == "[CONTROL]" and split[4] == "all" and split[5] == "scaling" and split[6] == "plan" and split[7] == "deployed."):
+                time = int(split[3])
+                # if (time > lastTime):
+                #    continue
+                for operator in lastScalingOperators:
+                    if (operator not in scalingMarkerByOperator):
+                        scalingMarkerByOperator[operator] = []
+                    scalingMarkerByOperator[operator] += [[time - initialTime, 3]]
+                lastScalingOperators = []
                 for job in mapping:
                     ParallelismPerJob[job][0].append(time - initialTime)
                     ParallelismPerJob[job][1].append(len(mapping[job].keys()))
 
-            if(split[0] == "++++++" and split[1] == "Time:" and split[3] == "backlog:"):
-                time = int(split[2])
-                backlogs = parsePerTaskValue(split[4:])
+            if(split[0] == "+++" and split[1] == "[METRICS]" and split[4] == "task" and split[5] == "backlog:"):
+                time = int(split[3])
+                backlogs = parsePerTaskValue(split[6:])
                 parallelism = {}
                 for task in backlogs:
                     job = task.split("_")[0]
@@ -145,8 +157,9 @@ def draw(streamSluiceOutputPath, groundTruthPath, outputDir, windowSize):
     fig = plt.figure(figsize=(24, 18))
     colors = {}
     colors["TOTAL"] = "red"
-    colors["c21234bcbf1e8eb4c61f1927190efebd"] = "blue"
-    colors["22359d48bcb33236cf1e31888091e54c"] = "green"
+    colors["0a448493b4782967b150582570326227"] = "red"
+    #colors["c21234bcbf1e8eb4c61f1927190efebd"] = "blue"
+    #colors["22359d48bcb33236cf1e31888091e54c"] = "green"
     legend = []
     for job in ParallelismPerJob:
         print("Draw Job " + job + " curve...")
@@ -171,7 +184,8 @@ def draw(streamSluiceOutputPath, groundTruthPath, outputDir, windowSize):
             line[1].append(y1)
         plt.plot(line[0], line[1], color=colors[job], linewidth=LINEWIDTH)
     plt.legend(legend, loc='upper left')
-    #addScalingMarker(plt, scalingMarker)
+    for operator in scalingMarkerByOperator:
+        addScalingMarker(plt, scalingMarkerByOperator[operator])
     plt.xlabel('Time (s)')
     plt.ylabel('# of tasks')
     plt.title('Parallelism of ' + job)
@@ -183,8 +197,8 @@ def draw(streamSluiceOutputPath, groundTruthPath, outputDir, windowSize):
     for x in range(0, lastTime-initialTime, 10000):
         xlabels += [str(int(x / 1000))]
     axes.set_xticklabels(xlabels)
-    axes.set_ylim(0, 50)
-    axes.set_yticks(np.arange(0, 32, 4))
+    axes.set_ylim(0, 10)
+    axes.set_yticks(np.arange(0, 10, 1))
     plt.grid(True)
     import os
     if not os.path.exists(outputDir):
@@ -193,8 +207,9 @@ def draw(streamSluiceOutputPath, groundTruthPath, outputDir, windowSize):
     plt.close(fig)
 
 
-streamSluiceOutputPath = "/home/swrrt11/Workspace/flinks/flink-extended/build-target/log/flink-swrrt11-standalonesession-0-dl.out"
-groundTruthPath = "/home/swrrt11/Workspace/flinks/flink-extended/build-target/log/flink-swrrt11-taskexecutor-0-dl.out"
-outputDir = "/home/swrrt11/Workspace/StreamSluice/Experiments/test/"
-windowSize = 100
-draw(streamSluiceOutputPath, groundTruthPath, outputDir, windowSize)
+rawDir = "/Users/swrrt/Workplace/BacklogDelayPaper/experiments/raw/"
+outputDir = "/Users/swrrt/Workplace/BacklogDelayPaper/experiments/results/"
+#expName = "streamsluice-scaletest-400-600-500-5-2000-1000-100-1"
+expName = "streamsluice-scaletest-400-400-550-5-2000-1000-100-1"
+draw(rawDir, outputDir + expName + "/", expName)
+

@@ -53,7 +53,6 @@ function configFlink() {
 function cleanEnv() {
     rm -rf /tmp/flink*
     rm ${FLINK_DIR}/log/*
-    rm -rf /tmp/flink*
     export JAVA_HOME=/home/samza/kit/jdk
     $HELLOSAMZA_DIR/bin/grid stop kafka
     $HELLOSAMZA_DIR/bin/grid stop zookeeper
