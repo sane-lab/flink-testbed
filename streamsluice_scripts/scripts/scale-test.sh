@@ -2,20 +2,6 @@
 
 source config.sh
 
-# run applications
-function runApp() {
-  echo "INFO: ${FLINK_DIR}/bin/flink run -c ${job} ${JAR} \
-    -runtime ${runtime} -nTuples ${n_tuples}  \
-    -p1 ${source_p} -p2 ${parallelism} -mp2 ${max_parallelism} \
-    -nKeys ${key_set} -perKeySize ${per_key_state_size} \
-    -interval ${checkpoint_interval} -stateAccessRatio ${state_access_ratio} -zipf_skew ${zipf_skew} &"
-  ${FLINK_DIR}/bin/flink run -c ${job} ${JAR} \
-    -runtime ${runtime} -nTuples ${n_tuples}  \
-    -p1 ${source_p} -p2 ${parallelism} -mp2 ${max_parallelism} \
-    -nKeys ${key_set} -perKeySize ${per_key_state_size} \
-    -interval ${checkpoint_interval} -stateAccessRatio ${state_access_ratio}  -zipf_skew ${zipf_skew} &
-}
-
 # dump data
 function analyze() {
     mkdir -p ${EXP_DIR}/raw/
@@ -25,13 +11,13 @@ function analyze() {
     if [[ -d ${EXP_DIR}/raw/${EXP_NAME} ]]; then
         rm -rf ${EXP_DIR}/raw/${EXP_NAME}
     fi
-    mv ${FLINK_DIR}/log ${EXP_DIR}/spector/
-    mv ${EXP_DIR}/spector/ ${EXP_DIR}/raw/${EXP_NAME}
-    mkdir ${EXP_DIR}/spector/
+    mv ${FLINK_DIR}/log ${EXP_DIR}/streamsluice/
+    mv ${EXP_DIR}/streamsluice/ ${EXP_DIR}/raw/${EXP_NAME}
+    mkdir ${EXP_DIR}/streamsluice/
 }
 
 run_one_exp() {
-  EXP_NAME=streamsluice-scaletest-${RATE1}-${RATE2}-${RATE_I}-${N1}-${L}-${migration_overhead}-${INTERVAL}-${repeat}
+  EXP_NAME=streamsluice-scaletest-${RATE1}-${RATE2}-${RATE_I}-${N1}-${L}-${migration_overhead}-${epoch}-${repeat}
 
   echo "INFO: run exp ${EXP_NAME}"
   configFlink
@@ -53,16 +39,20 @@ run_one_exp() {
 # initialization of the parameters
 init() {
   # exp scenario
-  is_treat=1
-  is_scalein=1
-  vertex_id="22359d48bcb33236cf1e31888091e54c"
+  controller_type=StreamSluice
+  is_treat=true
+  is_scalein=true
+  vertex_id="0a448493b4782967b150582570326227"
   L=2000
   migration_overhead=1000
+  migration_interval=500
+  epoch=100
+  FLINK_CONF="flink-conf-so1-ss.yaml"
   # app level
   JAR="${FLINK_APP_DIR}/target/testbed-1.0-SNAPSHOT.jar"
   job="flinkapp.MicroBenchmark"
   # only used in script
-  runtime=300
+  runtime=120
   # set in Flink app
   RATE1=400
   TIME1=60
@@ -71,25 +61,24 @@ init() {
   RATE_I=500
   TIME_I=120
   PERIOD_I=240
+  SRC_INTERVAL=50
   N1=5
   MP1=64
-  INTERVAL=100
-  TOTAL=-1
-
   repeat=1
+  warmup=10000
 }
 
 # run applications
 function runApp() {
     echo "INFO: ${FLINK_DIR}/bin/flink run -c ${job} ${JAR} \
     -p1 ${N1} -mp1 ${MP1} -phase1Time ${TIME1} -phase1Rate ${RATE1} -phase2Time ${TIME2} \
-    -phase2Rate ${RATE2} -interTime ${TIME_I} -interRate ${RATE_I} -interPeriod ${PERIOD_I} -srcInterval ${INTERVAL} &"
+    -phase2Rate ${RATE2} -interTime ${TIME_I} -interRate ${RATE_I} -interPeriod ${PERIOD_I} -srcInterval ${SRC_INTERVAL} &"
     ${FLINK_DIR}/bin/flink run -c ${job} ${JAR} \
     -p1 ${N1} -mp1 ${MP1} -phase1Time ${TIME1} -phase1Rate ${RATE1} -phase2Time ${TIME2} \
-    -phase2Rate ${RATE2} -interTime ${TIME_I} -interRate ${RATE_I} -interPeriod ${PERIOD_I} -srcInterval ${INTERVAL} &
+    -phase2Rate ${RATE2} -interTime ${TIME_I} -interRate ${RATE_I} -interPeriod ${PERIOD_I} -srcInterval ${SRC_INTERVAL} &
 }
 
-run_scale-out_test(){
+run_scale_out_test(){
     echo "Run scale-out test..."
     init
     job="flinkapp.StreamSluiceTestSet.ScaleOutTest"
@@ -101,4 +90,6 @@ run_scale-out_test(){
         done
     done
 }
+
+run_scale_out_test
 

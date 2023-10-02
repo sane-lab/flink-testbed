@@ -66,7 +66,7 @@ function runFlink() {
 # run applications
 function runApp() {
     echo "run Multi"
-    ${FLINK_APP_DIR}/submit-so1-ss.sh ${N1} ${MP1} ${TIME1} ${RATE1} ${TIME2} ${RATE2} ${TIME_I} ${RATE_I} ${PERIOD_I} ${INTERVAL} 1
+    ${FLINK_APP_DIR}/submit-so1-ss.sh ${N1} ${MP1} ${TIME1} ${RATE1} ${TIME2} ${RATE2} ${TIME_I} ${RATE_I} ${PERIOD_I} ${INTERVAL} 0
 }
 
 # clsoe flink clsuter

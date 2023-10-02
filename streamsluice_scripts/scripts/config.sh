@@ -2,9 +2,9 @@
 FLINK_DIR="/home/samza/workspace/flink-related/flink-extended-ete/build-target"
 FLINK_APP_DIR="/home/samza/workspace/flink-related/flink-testbed-sane"
 SCRIPT_DIR="/home/samza/workspace/flink-related/flink-testbed-sane/streamsluice_scripts"
-FLINK_CONF_DIR="${SCRIPT_DIR}/flink-conf/confs"
+FLINK_CONF_DIR="${SCRIPT_DIR}/conf-local"
 
-EXP_DIR="/data"
+EXP_DIR="/data/streamsluice"
 
 HELLOSAMZA_DIR="/home/samza/samza-hello-samza"
 
@@ -32,15 +32,21 @@ function stopFlink() {
 # configure parameters in flink bin
 function configFlink() {
     # set user requirement
-    sed 's/^\(\s*streamswitch.requirement.latency\s*:\s*\).*/\1'"$L"'/' ${FLINK_DIR}/conf/flink-conf.yaml > tmp1
+    echo $L
+    sed 's/^\(\s*streamswitch.requirement.latency\s*:\s*\).*/\1'"$L"'/' ${FLINK_CONF_DIR}/flink-conf.yaml > tmp1
+    echo $migration_overhead
     sed 's/^\(\s*streamsluice.system.migration_overhead\s*:\s*\).*/\1'"$migration_overhead"'/' tmp1 > tmp2
+    echo $vertex_id
     sed 's/^\(\s*model.vertex\s*:\s*\).*/\1'"$vertex_id"'/' tmp2 > tmp3
-    sed 's/^\(\s*model.retrieve.interval\s*:\s*\).*/\1'"$epoch"'/' tmp3 > tmp4
+    sed 's/^\(\s*model.retrieve.interval\s*:\ss*\).*/\1'"$epoch"'/' tmp3 > tmp4
     sed 's/^\(\s*model.warmup\s*:\s*\).*/\1'"$warmup"'/' tmp4 > tmp5
     sed 's/^\(\s*streamsluice.system.migration_interval\s*:\s*\).*/\1'"$migration_interval"'/' tmp5 > tmp6
     sed 's/^\(\s*streamsluice.system.is_treat\s*:\s*\).*/\1'"$is_treat"'/' tmp6 > tmp7
-    sed 's/^\(\s*streamsluice.system.is_scalein\s*:\s*\).*/\1'"$is_scalein"'/' tmp7 > ${FLINK_DIR}/conf/flink-conf.yaml
-    rm tmp1 tmp2 tmp3 tmp4 tmp5 tmp6 tmp7
+    sed 's/^\(\s*streamsluice.system.is_scalein\s*:\s*\).*/\1'"$is_scalein"'/' tmp7 > tmp8
+    sed 's/^\(\s*controller.type\s*:\s*\).*/\1'"$controller_type"'/' tmp8 > ${FLINK_CONF_DIR}/flink-conf.yaml
+    rm tmp*
+    echo ${FLINK_CONF_DIR}/flink-conf.yaml
+    cp ${FLINK_CONF_DIR}/* ${FLINK_DIR}/conf
 }
 
 # clean kafka related data
@@ -63,7 +69,7 @@ function cleanEnv() {
 
     KAFKA_PATH="${HELLOSAMZA_DIR}/deploy/kafka/bin"
 
-    $KAFKA_PATH/bin/kafka-topics.sh --delete --zookeeper localhost:2181 --topic flink_metrics
+    $KAFKA_PATH/kafka-topics.sh --delete --zookeeper localhost:2181 --topic flink_metrics
     $KAFKA_PATH/kafka-topics.sh --delete --zookeeper localhost:2181 --topic flink_keygroups_status
     $KAFKA_PATH/kafka-topics.sh --create --zookeeper localhost:2181 --topic flink_metrics --partitions 1 --replication-factor 1
     $KAFKA_PATH/kafka-topics.sh --create --zookeeper localhost:2181 --topic flink_keygroups_status --partitions 1 --replication-factor 1
