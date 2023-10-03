@@ -17,7 +17,7 @@ function analyze() {
 }
 
 run_one_exp() {
-  EXP_NAME=streamsluice-scaletest-${RATE1}-${RATE2}-${RATE_I}-${N1}-${L}-${migration_overhead}-${epoch}-${is_treat}-${repeat}
+  EXP_NAME=streamsluice-scaletest-${runtime}-${RATE1}-${RATE2}-${RATE_I}-${N1}-${L}-${migration_overhead}-${epoch}-${is_treat}-${repeat}
 
   echo "INFO: run exp ${EXP_NAME}"
   configFlink
@@ -40,11 +40,11 @@ run_one_exp() {
 init() {
   # exp scenario
   controller_type=StreamSluice
-  is_treat=true
+  #is_treat=true
   is_scalein=true
   vertex_id="0a448493b4782967b150582570326227"
-  L=2000
-  migration_overhead=1000
+  L=1000
+  migration_overhead=500
   migration_interval=500
   epoch=100
   FLINK_CONF="flink-conf-so1-ss.yaml"
@@ -52,16 +52,16 @@ init() {
   JAR="${FLINK_APP_DIR}/target/testbed-1.0-SNAPSHOT.jar"
   job="flinkapp.MicroBenchmark"
   # only used in script
-  runtime=120
+  runtime=600
   # set in Flink app
   RATE1=400
   TIME1=60
-  RATE2=600
+  RATE2=400
   TIME2=60
-  RATE_I=500
-  TIME_I=120
+  RATE_I=550
+  TIME_I=480
   PERIOD_I=240
-  SRC_INTERVAL=50
+  ZIPF_SKEW=0.25
   N1=5
   MP1=64
   repeat=1
@@ -72,10 +72,10 @@ init() {
 function runApp() {
     echo "INFO: ${FLINK_DIR}/bin/flink run -c ${job} ${JAR} \
     -p1 ${N1} -mp1 ${MP1} -phase1Time ${TIME1} -phase1Rate ${RATE1} -phase2Time ${TIME2} \
-    -phase2Rate ${RATE2} -interTime ${TIME_I} -interRate ${RATE_I} -interPeriod ${PERIOD_I} -srcInterval ${SRC_INTERVAL} &"
+    -phase2Rate ${RATE2} -interTime ${TIME_I} -interRate ${RATE_I} -interPeriod ${PERIOD_I} -zipf_skew ${ZIPF_SKEW} &"
     ${FLINK_DIR}/bin/flink run -c ${job} ${JAR} \
     -p1 ${N1} -mp1 ${MP1} -phase1Time ${TIME1} -phase1Rate ${RATE1} -phase2Time ${TIME2} \
-    -phase2Rate ${RATE2} -interTime ${TIME_I} -interRate ${RATE_I} -interPeriod ${PERIOD_I} -srcInterval ${SRC_INTERVAL} &
+    -phase2Rate ${RATE2} -interTime ${TIME_I} -interRate ${RATE_I} -interPeriod ${PERIOD_I} -zipf_skew ${ZIPF_SKEW} &
 }
 
 run_scale_out_test(){
@@ -83,8 +83,8 @@ run_scale_out_test(){
     init
     job="flinkapp.StreamSluiceTestSet.ScaleOutTest"
     for repeat in 1; do
-        for RATE1 in 400; do
-            for CYCLE in 120; do
+        for is_treat in true false; do
+            for repeat in 1; do
                 run_one_exp
             done
         done

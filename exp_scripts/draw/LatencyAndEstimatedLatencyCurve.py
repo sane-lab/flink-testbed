@@ -85,7 +85,7 @@ def draw(rawDir, outputDir, expName, windowSize):
                 if (initialTime == -1 or initialTime > estimateTime):
                     initialTime = estimateTime
                 cLatency = float(split[7].rstrip('\n'))
-                nLatency = float(split[8].rstrip('\n').split(":")[1])
+                nLatency = float(split[9].rstrip('\n'))
                 currentLatency[0] += [estimateTime - initialTime]
                 currentLatency[1] += [cLatency]
                 #nextEpochLatency[0] += [estimateTime]
@@ -94,8 +94,8 @@ def draw(rawDir, outputDir, expName, windowSize):
                     cSpike = cLatency + 1000
                     nSpike = nLatency + 1000
                 else:
-                    cSpike = float(split[10].rstrip('\n'))
-                    nSpike = float(split[12].rstrip('\n'))
+                    cSpike = float(split[11].rstrip('\n'))
+                    nSpike = float(split[13].rstrip('\n'))
                 currentSpikes[0] += [estimateTime - initialTime]
                 currentSpikes[1] += [cSpike]
                 nextSpikes[0] += [estimateTime - initialTime]
@@ -181,7 +181,7 @@ def draw(rawDir, outputDir, expName, windowSize):
 
 rawDir = "/Users/swrrt/Workplace/BacklogDelayPaper/experiments/raw/"
 outputDir = "/Users/swrrt/Workplace/BacklogDelayPaper/experiments/results/"
-expName = "streamsluice-scaletest-400-600-500-5-2000-1000-100-1"
+expName = "streamsluice-scaletest-600-400-400-550-5-1000-500-100-true-1"
 #expName = "streamsluice-scaletest-400-400-550-5-2000-1000-100-1"
 windowSize = 1
 draw(rawDir, outputDir + expName + "/", expName, windowSize)

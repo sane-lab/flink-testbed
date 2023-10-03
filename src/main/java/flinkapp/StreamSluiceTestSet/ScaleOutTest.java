@@ -28,10 +28,10 @@ public class ScaleOutTest{
         final long PHASE2_TIME = params.getLong("phase2Time", 60) * 1000;
         final long INTERMEDIATE_TIME = params.getLong("interTime", 120) * 1000;
         final long INTERMEDIATE_PERIOD = params.getLong("interPeriod", 240) * 1000;
-        final long INTERVAL = params.getLong("srcInterval", 50);
         final int p1 = params.getInt("p1", 1);
         final int mp1 = params.getInt("mp1", 64);
-        env.addSource(new TwoPhaseSineSource(PHASE1_TIME, PHASE2_TIME, INTERMEDIATE_TIME, PHASE1_RATE, PHASE2_RATE, INTERMEDIATE_RATE, INTERMEDIATE_PERIOD, INTERVAL))
+        final double zipf_skew = params.getDouble("zipf_skew", 0);
+        env.addSource(new TwoPhaseSineSource(PHASE1_TIME, PHASE2_TIME, INTERMEDIATE_TIME, PHASE1_RATE, PHASE2_RATE, INTERMEDIATE_RATE, INTERMEDIATE_PERIOD, mp1, zipf_skew))
                 .keyBy(0)
                 .map(new DumbStatefulMap(5))
                 .disableChaining()

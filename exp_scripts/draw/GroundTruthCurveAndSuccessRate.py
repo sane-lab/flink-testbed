@@ -101,11 +101,11 @@ def draw(rawDir, outputDir, expName, baselineName, windowSize):
     plt.ylabel('Latency (ms)')
     plt.title('Latency Curves')
     axes = plt.gca()
-    axes.set_xlim(0, 240000)#averageGroundTruthLatency[0][-1])
-    axes.set_xticks(np.arange(0, 240000, 10000))# averageGroundTruthLatency[0][-1], 10000))
+    axes.set_xlim(0, 600000)#averageGroundTruthLatency[0][-1])
+    axes.set_xticks(np.arange(0, 600000, 30000))# averageGroundTruthLatency[0][-1], 10000))
 
     xlabels = []
-    for x in range(0, 240000, 10000): #averageGroundTruthLatency[0][-1], 10000):
+    for x in range(0, 600000, 30000): #averageGroundTruthLatency[0][-1], 10000):
         xlabels += [str(int(x / 1000))]
     axes.set_xticklabels(xlabels)
     # axes.set_yscale('log')
@@ -121,8 +121,8 @@ def draw(rawDir, outputDir, expName, baselineName, windowSize):
 
 rawDir = "/Users/swrrt/Workplace/BacklogDelayPaper/experiments/raw/"
 outputDir = "/Users/swrrt/Workplace/BacklogDelayPaper/experiments/results/"
-expName = "streamsluice-scaletest-400-600-500-5-2000-1000-100-1"
+expName = "streamsluice-scaletest-600-400-400-550-5-1000-500-100-true-1"
 #expName = "streamsluice-scaletest-400-400-550-5-2000-1000-100-1"
-baselineName = "streamsluice-scaletest-400-600-500-5-2000-1000-100-false-1"
+baselineName = "streamsluice-scaletest-600-400-400-550-5-1000-500-100-false-1"
 windowSize = 1
 draw(rawDir, outputDir + expName + "/", expName, baselineName, windowSize)
