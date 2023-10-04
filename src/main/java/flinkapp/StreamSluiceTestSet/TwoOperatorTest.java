@@ -266,13 +266,16 @@ public class TwoOperatorTest {
         }
 
         private String getSentence(){
-            Double ranN = randomGen.nextGaussian(0, 1) * AVERAGE_SENTENCE_LENGTH + AVERAGE_SENTENCE_LENGTH + 0.5;
-            long sentenceLength = ranN.intValue();
+            double ranN = AVERAGE_SENTENCE_LENGTH; // randomGen.nextGaussian(0, 1) * AVERAGE_SENTENCE_LENGTH + AVERAGE_SENTENCE_LENGTH + 0.5;
+            long sentenceLength = (long)ranN;
             StringBuilder str = new StringBuilder();
             for(int i = 0; i < sentenceLength; i++) {
                 int selectedKeygroup = fastZipfGenerator.next();
                 String key = getSubKeySetChar(count, keyGroupMapping.get(selectedKeygroup));
-                str.append(" ").append(key);
+                if(i > 0){
+                    str.append(" ");
+                }
+                str.append(key);
             }
             return str.toString();
         }

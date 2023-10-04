@@ -17,7 +17,7 @@ function analyze() {
 }
 
 run_one_exp() {
-  EXP_NAME=streamsluice-scaletest-${runtime}-${RATE1}-${RATE2}-${RATE_I}-${PERIOD_I}-${N1}-${ZIPF_SKEW}-${L}-${migration_overhead}-${STATE_SIZE}-${epoch}-${is_treat}-${repeat}
+  EXP_NAME=streamsluice-oneOp-${runtime}-${RATE1}-${RATE2}-${RATE_I}-${PERIOD_I}-${N1}-${ZIPF_SKEW}-${L}-${migration_overhead}-${STATE_SIZE}-${epoch}-${is_treat}-${repeat}
 
   echo "INFO: run exp ${EXP_NAME}"
   configFlink
@@ -40,8 +40,6 @@ run_one_exp() {
 init() {
   # exp scenario
   controller_type=StreamSluice
-  #is_treat=true
-  is_scalein=true
   vertex_id="0a448493b4782967b150582570326227"
   L=1000
   migration_overhead=500
@@ -50,7 +48,7 @@ init() {
   FLINK_CONF="flink-conf-so1-ss.yaml"
   # app level
   JAR="${FLINK_APP_DIR}/target/testbed-1.0-SNAPSHOT.jar"
-  job="flinkapp.MicroBenchmark"
+  job="flinkapp.StreamSluiceTestSet.ScaleOutTest"
   # only used in script
   runtime=180
   # set in Flink app
@@ -80,9 +78,8 @@ function runApp() {
 }
 
 run_scale_test(){
-    echo "Run scale test..."
+    echo "Run single operator test..."
     init
-    job="flinkapp.StreamSluiceTestSet.ScaleOutTest"
     for is_treat in true; do
         for repeat in 1; do
             run_one_exp

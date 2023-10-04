@@ -292,7 +292,9 @@ streamswitch.system.initialservicerate: 0.8
 
 streamsluice.system.is_treat: true
 
-streamsluice.system.is_scalein: true
+controller.whether.type: streamsluice
+
+controller.how.type: streamsluice
 
 #==============================================================================
 # Backpressure Configuration
