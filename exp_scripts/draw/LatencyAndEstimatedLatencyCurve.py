@@ -4,6 +4,11 @@ import matplotlib
 matplotlib.use('Agg')
 import matplotlib.pyplot as plt
 
+OPERATOR_NAMING = {
+    "0a448493b4782967b150582570326227": "Stateful Map",
+    "c21234bcbf1e8eb4c61f1927190efebd": "Splitter",
+    "22359d48bcb33236cf1e31888091e54c": "Counter"
+}
 
 SMALL_SIZE = 25
 MEDIUM_SIZE = 30
@@ -61,7 +66,7 @@ def draw(rawDir, outputDir, expName, windowSize):
                 print("Processed to line:" + str(counter))
             if(split[0] == "GT:"):
                 completedTime = int(split[2].rstrip(","))
-                latency = int(split[3])
+                latency = int(split[3].rstrip(","))
                 arrivedTime = completedTime - latency
                 if (initialTime == -1 or initialTime > arrivedTime):
                     initialTime = arrivedTime
@@ -181,7 +186,7 @@ def draw(rawDir, outputDir, expName, windowSize):
 
 rawDir = "/Users/swrrt/Workplace/BacklogDelayPaper/experiments/raw/"
 outputDir = "/Users/swrrt/Workplace/BacklogDelayPaper/experiments/results/"
-expName = "streamsluice-scaletest-300-300-300-400-10-5-0.25-1000-500-100-true-1"
+expName = "streamsluice-twoOP-180-60-60-80-120-2-10-10-0.25-1000-500-100-true-1"
 #expName = "streamsluice-scaletest-400-400-550-5-2000-1000-100-1"
 windowSize = 1
 latencyLimit = 1000

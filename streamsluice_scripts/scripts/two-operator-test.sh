@@ -50,7 +50,7 @@ init() {
   FLINK_CONF="flink-conf-so1-ss.yaml"
   # app level
   JAR="${FLINK_APP_DIR}/target/testbed-1.0-SNAPSHOT.jar"
-  job="flinkapp.MicroBenchmark"
+  job="flinkapp.StreamSluiceTestSet.TwoOperatorTest"
   # only used in script
   runtime=180
   # set in Flink app
@@ -58,9 +58,9 @@ init() {
   TIME1=30
   RATE2=60
   TIME2=30
-  RATE_I=80
+  RATE_I=90
   TIME_I=120
-  PERIOD_I=30
+  PERIOD_I=120
   AVERAGE_LENGTH=10
   ZIPF_SKEW=0.25
   N1=2
@@ -84,8 +84,7 @@ function runApp() {
 run_scale_test(){
     echo "Run scale test..."
     init
-    job="flinkapp.StreamSluiceTestSet.TwoOperatorTest"
-    for is_treat in true; do
+    for is_treat in false; do
         for repeat in 1; do
             run_one_exp
         done

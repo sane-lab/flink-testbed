@@ -4,6 +4,12 @@ import matplotlib
 matplotlib.use('Agg')
 import matplotlib.pyplot as plt
 
+OPERATOR_NAMING = {
+    "0a448493b4782967b150582570326227": "Stateful Map",
+    "c21234bcbf1e8eb4c61f1927190efebd": "Splitter",
+    "22359d48bcb33236cf1e31888091e54c": "Counter"
+}
+
 
 SMALL_SIZE = 25
 MEDIUM_SIZE = 30
@@ -200,8 +206,10 @@ def draw(rawDir, outputDir, expName):
             for x in range(0, lastTime-initialTime, 10000):
                 xlabels += [str(int(x / 1000))]
             ax1.set_xticklabels(xlabels)
-            ax1.set_ylim(0, 200)
-            ax1.set_yticks(np.arange(0, 200, 20))
+            job = task.split("_")[0]
+            ylim = rateYMax[OPERATOR_NAMING[job]]
+            ax1.set_ylim(1, ylim)
+            ax1.set_yticks(np.arange(0, ylim, ylim / 10))
             plt.grid(True)
 
             print("Draw backlog")
@@ -213,8 +221,10 @@ def draw(rawDir, outputDir, expName):
             ax2.set_ylabel('# of Tuples')
             #ax2.set_yscale('log')
             # ax2.set_yticks([1, 100, 1000, 10000, 100000])
-            ax2.set_ylim(1, 500)
-            ax2.set_yticks(np.arange(0, 500, 50))
+            job = task.split("_")[0]
+            ylim = backlogYMax[OPERATOR_NAMING[job]]
+            ax2.set_ylim(1, ylim)
+            ax2.set_yticks(np.arange(0, ylim, ylim / 10))
 
         import os
         if not os.path.exists(outputDir):
@@ -267,7 +277,7 @@ def draw(rawDir, outputDir, expName):
             addScalingMarker(plt, scalingMarkerByOperator[operator])
         plt.xlabel('Time (s)')
         plt.ylabel('Rate (tps)')
-        plt.title('Rates and Backlog of ' + job)
+        plt.title('Rates of ' + OPERATOR_NAMING[job])
         axes = plt.gca()
         axes.set_xlim(0, lastTime - initialTime)
         axes.set_xticks(np.arange(0, lastTime - initialTime, 20000))
@@ -276,8 +286,9 @@ def draw(rawDir, outputDir, expName):
         for x in range(0, lastTime - initialTime, 20000):
             xlabels += [str(int(x / 1000))]
         axes.set_xticklabels(xlabels)
-        axes.set_ylim(0, 1000)
-        axes.set_yticks(np.arange(0, 1000, 200))
+        ylim = totalYMax[OPERATOR_NAMING[job]]
+        axes.set_ylim(0, ylim)
+        axes.set_yticks(np.arange(0, ylim, ylim/10))
         plt.grid(True)
     import os
     if not os.path.exists(outputDir):
@@ -287,8 +298,20 @@ def draw(rawDir, outputDir, expName):
 
 
 
+rateYMax = {
+    "Splitter": 100,
+    "Counter": 200
+}
+backlogYMax = {
+    "Splitter": 1000,
+    "Counter": 1000
+}
+totalYMax = {
+    "Splitter": 200,
+    "Counter": 2000
+}
 rawDir = "/Users/swrrt/Workplace/BacklogDelayPaper/experiments/raw/"
 outputDir = "/Users/swrrt/Workplace/BacklogDelayPaper/experiments/results/"
 #expName = "streamsluice-scaletest-400-600-500-5-2000-1000-100-1"
-expName = "streamsluice-twoOP-180-60-60-80-30-2-10-10-0.25-1000-500-100-true-1"
+expName = "streamsluice-twoOP-180-60-60-90-120-2-10-10-0.25-1000-500-100-false-1"
 draw(rawDir, outputDir + expName + "/", expName)

@@ -5,6 +5,13 @@ matplotlib.use('Agg')
 import matplotlib.pyplot as plt
 
 
+OPERATOR_NAMING = {
+    "TOTAL": "TOTAL",
+    "0a448493b4782967b150582570326227": "Stateful Map",
+    "c21234bcbf1e8eb4c61f1927190efebd": "Splitter",
+    "22359d48bcb33236cf1e31888091e54c": "Counter"
+}
+
 SMALL_SIZE = 25
 MEDIUM_SIZE = 30
 BIGGER_SIZE = 35
@@ -43,7 +50,7 @@ def addScalingMarker(plt, scalingMarker):
             color = "gray"
         x = [time, time]
         y = [0, 10000000]
-        plt.plot(x, y, color=color, linewidth=LINEWIDTH)
+        plt.plot(x, y, color=color, linewidth=LINEWIDTH/2.0)
 
 def parseMapping(split):
     mapping = {}
@@ -81,7 +88,7 @@ def draw(rawDir, outputDir, expName):
                 print("Processed to line:" + str(counter))
             if(split[0] == "GT:"):
                 completedTime = int(split[2].rstrip(","))
-                latency = int(split[3])
+                latency = int(split[3].rstrip(","))
                 arrivedTime = completedTime - latency
                 if (initialTime == -1 or initialTime > arrivedTime):
                     initialTime = arrivedTime
@@ -157,13 +164,13 @@ def draw(rawDir, outputDir, expName):
     fig = plt.figure(figsize=(24, 18))
     colors = {}
     colors["TOTAL"] = "red"
-    colors["0a448493b4782967b150582570326227"] = "red"
-    #colors["c21234bcbf1e8eb4c61f1927190efebd"] = "blue"
-    #colors["22359d48bcb33236cf1e31888091e54c"] = "green"
+    colors["Stateful Map"] = "red"
+    colors["Splitter"] = "blue"
+    colors["Counter"] = "green"
     legend = []
     for job in ParallelismPerJob:
         print("Draw Job " + job + " curve...")
-        legend += ["Parallelism of job " + job]
+        legend += ["Parallelism of job " + OPERATOR_NAMING[job]]
         line = [[], []]
         for i in range(0, len(ParallelismPerJob[job][0])):
             x0 = ParallelismPerJob[job][0][i]
@@ -182,13 +189,13 @@ def draw(rawDir, outputDir, expName):
             line[0].append(x1)
             line[1].append(y0)
             line[1].append(y1)
-        plt.plot(line[0], line[1], color=colors[job], linewidth=LINEWIDTH)
+        plt.plot(line[0], line[1], color=colors[OPERATOR_NAMING[job]], linewidth=LINEWIDTH)
     plt.legend(legend, loc='upper left')
     for operator in scalingMarkerByOperator:
         addScalingMarker(plt, scalingMarkerByOperator[operator])
     plt.xlabel('Time (s)')
     plt.ylabel('# of tasks')
-    plt.title('Parallelism of ' + job)
+    plt.title('Parallelism of ' + OPERATOR_NAMING[job])
     axes = plt.gca()
     axes.set_xlim(0, lastTime-initialTime)
     axes.set_xticks(np.arange(0, lastTime-initialTime, 10000))
@@ -197,8 +204,8 @@ def draw(rawDir, outputDir, expName):
     for x in range(0, lastTime-initialTime, 10000):
         xlabels += [str(int(x / 1000))]
     axes.set_xticklabels(xlabels)
-    axes.set_ylim(0, 10)
-    axes.set_yticks(np.arange(0, 10, 1))
+    axes.set_ylim(0, 20)
+    axes.set_yticks(np.arange(0, 20, 2))
     plt.grid(True)
     import os
     if not os.path.exists(outputDir):
@@ -210,6 +217,6 @@ def draw(rawDir, outputDir, expName):
 rawDir = "/Users/swrrt/Workplace/BacklogDelayPaper/experiments/raw/"
 outputDir = "/Users/swrrt/Workplace/BacklogDelayPaper/experiments/results/"
 #expName = "streamsluice-scaletest-400-600-500-5-2000-1000-100-1"
-expName = "streamsluice-scaletest-300-600-600-800-30-10-0.25-1000-500-100-true-1"
+expName = "streamsluice-twoOP-180-60-60-80-120-2-10-10-0.25-1000-500-100-true-1"
 draw(rawDir, outputDir + expName + "/", expName)
 

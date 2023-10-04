@@ -214,14 +214,16 @@ public class TwoOperatorTest {
             long remainedNumber = (long)Math.floor(PHASE1_RATE * INTERVAL / 1000.0);
             long AMPLITUDE = INTERMEDIATE_RATE - PHASE1_RATE;
             while (isRunning && System.currentTimeMillis() - startTime < INTERMEDIATE_TIME) {
-                long index = (System.currentTimeMillis() - startTime) / INTERVAL;
                 if(remainedNumber <= 0){
+                    long index = (System.currentTimeMillis() - startTime) / INTERVAL;
                     long ntime = (index + 1) * INTERVAL + startTime;
                     double theta = Math.sin(Math.toRadians(index * INTERVAL * 360 / ((double)INTERMEDIATE_PERIOD) - 90));
                     remainedNumber = (long)Math.floor((INTERMEDIATE_RATE + theta * AMPLITUDE) / 1000 * INTERVAL);
                     long ctime = System.currentTimeMillis();
                     if(ntime >= ctime) {
                         Thread.sleep(ntime - ctime);
+                    }else{
+                        System.out.println("+++ source err: output time not enough, expected ntime: " + ntime + " : ctime: " + ctime + " index: " + index);
                     }
                 }
                 synchronized (ctx.getCheckpointLock()) {
