@@ -18,9 +18,9 @@ plt.rc('legend', fontsize=SMALL_SIZE)    # legend fontsize
 plt.rc('figure', titlesize=BIGGER_SIZE)  # fontsize of the figure title
 MARKERSIZE=4
 
-def addLatencyLimitMarker(plt, limit):
+def addLatencyLimitMarker(plt):
     x = [0, 10000000]
-    y = [limit, limit]
+    y = [latencyLimit, latencyLimit]
     plt.plot(x, y, color='red', linewidth=1.5)
 def readGroundTruthLatency(rawDir, expName, windowSize):
     initialTime = -1
@@ -94,7 +94,7 @@ def draw(rawDir, outputDir, expName, baselineName, windowSize):
     if baselineName != "":
         legend += ["Baseline Ground Truth Latency"]
         plt.plot(baselineLatency[0], baselineLatency[1], '*', color="gray", markersize=MARKERSIZE)
-    addLatencyLimitMarker(plt, 2000)
+    addLatencyLimitMarker(plt)
     plt.plot()
     plt.legend(legend, loc='upper left')
     plt.xlabel('Time (s)')
@@ -121,8 +121,9 @@ def draw(rawDir, outputDir, expName, baselineName, windowSize):
 
 rawDir = "/Users/swrrt/Workplace/BacklogDelayPaper/experiments/raw/"
 outputDir = "/Users/swrrt/Workplace/BacklogDelayPaper/experiments/results/"
-expName = "streamsluice-scaletest-600-400-400-550-5-1000-500-100-true-1"
+expName = "streamsluice-scaletest-180-600-600-800-60-10-0.25-1000-500-100-true-1"
 #expName = "streamsluice-scaletest-400-400-550-5-2000-1000-100-1"
-baselineName = "streamsluice-scaletest-600-400-400-550-5-1000-500-100-false-1"
+baselineName = "streamsluice-scaletest-180-600-600-800-60-10-0.25-1000-500-100-false-1"
 windowSize = 1
+latencyLimit = 1000
 draw(rawDir, outputDir + expName + "/", expName, baselineName, windowSize)

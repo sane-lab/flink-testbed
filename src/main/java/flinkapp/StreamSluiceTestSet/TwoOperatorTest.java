@@ -3,6 +3,7 @@ package flinkapp.StreamSluiceTestSet;
 import Nexmark.sources.Util;
 import common.FastZipfGenerator;
 import org.apache.commons.math3.random.RandomDataGenerator;
+import org.apache.flink.api.common.functions.FlatMapFunction;
 import org.apache.flink.api.common.functions.RichMapFunction;
 import org.apache.flink.api.common.state.ListState;
 import org.apache.flink.api.common.state.ListStateDescriptor;
@@ -19,6 +20,7 @@ import org.apache.flink.streaming.api.TimeCharacteristic;
 import org.apache.flink.streaming.api.checkpoint.CheckpointedFunction;
 import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
 import org.apache.flink.streaming.api.functions.source.SourceFunction;
+import org.apache.flink.util.Collector;
 import org.apache.flink.util.MathUtils;
 
 import java.util.ArrayList;
@@ -26,7 +28,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public class ScaleOutTest{
+public class TwoOperatorTest {
     public static void main(String[] args) throws Exception {
         // Checking input parameters
         final ParameterTool params = ParameterTool.fromArgs(args);
@@ -62,6 +64,29 @@ public class ScaleOutTest{
                 .slotSharingGroup("a");
 
         env.execute();
+    }
+
+    public static final class DumbSplitter implements FlatMapFunction<Tuple2<String, Long>, Tuple2<String, Long>> {
+
+        private RandomDataGenerator randomGen = new RandomDataGenerator();
+        @Override
+        public void flatMap(Tuple2<String, Long> input, Collector<Tuple2<String, Long>> out) throws Exception {
+            String[] tokens = input.f0.toLowerCase().split("\\W+");
+            for(String token: tokens) {
+                long t = input.f1;
+                out.collect(new Tuple2<String, Long>(token, t));
+            }
+            delay(1);
+        }
+
+        private void delay(int interval) {
+            Double ranN = randomGen.nextGaussian(interval, 1);
+            ranN = ranN*1000000;
+            long delay = ranN.intValue();
+            if (delay < 0) delay = interval * 1000000;
+            Long start = System.nanoTime();
+            while (System.nanoTime() - start < delay) {}
+        }
     }
 
     public static final class DumbStatefulMap extends RichMapFunction<Tuple2<String, Long>, Tuple3<String, Long, Long>> {
