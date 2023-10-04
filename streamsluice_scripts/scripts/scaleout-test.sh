@@ -56,12 +56,12 @@ init() {
   # set in Flink app
   RATE1=600
   TIME1=30
-  RATE2=600
+  RATE2=1000
   TIME2=30
   RATE_I=800
   TIME_I=120
-  PERIOD_I=30
-  ZIPF_SKEW=0.25
+  PERIOD_I=240
+  ZIPF_SKEW=0
   STATE_SIZE=10
   N1=10
   MP1=64
@@ -83,7 +83,7 @@ run_scale_test(){
     echo "Run scale-out test..."
     init
     for is_treat in true; do
-        for whether_type in "streamsluice" "streamsluice_trend_only" "streamsluice_latency_only" "ds2" "dhalion" "drs"; do
+        for whether_type in "streamsluice" "streamsluice_trend_only" "streamsluice_latency_only" "ds2" "dhalion" "drs"; do #
             for repeat in 1; do
                 run_one_exp
             done
