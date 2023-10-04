@@ -42,7 +42,7 @@ init() {
   controller_type=StreamSluice
   #is_treat=true
   is_scalein=true
-  vertex_id="0a448493b4782967b150582570326227"
+  vertex_id="c21234bcbf1e8eb4c61f1927190efebd,22359d48bcb33236cf1e31888091e54c"
   L=1000
   migration_overhead=500
   migration_interval=2000

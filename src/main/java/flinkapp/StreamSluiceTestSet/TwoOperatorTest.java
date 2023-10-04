@@ -88,7 +88,7 @@ public class TwoOperatorTest {
                 long id = input.f2;
                 out.collect(new Tuple3<String, Long, Long>(token, t, id));
             }
-            delay(20);
+            delay(25);
         }
 
         private void delay(int interval) {

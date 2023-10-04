@@ -4,6 +4,11 @@ import matplotlib
 matplotlib.use('Agg')
 import matplotlib.pyplot as plt
 
+OPERATOR_NAMING = {
+    "0a448493b4782967b150582570326227": "Stateful Map",
+    "c21234bcbf1e8eb4c61f1927190efebd": "Splitter",
+    "22359d48bcb33236cf1e31888091e54c": "Counter"
+}
 
 SMALL_SIZE = 25
 MEDIUM_SIZE = 30

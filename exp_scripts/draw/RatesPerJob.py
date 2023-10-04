@@ -71,7 +71,7 @@ def draw(rawDir, outputDir, expName):
                 print("Processed to line:" + str(counter))
             if(split[0] == "GT:"):
                 completedTime = int(split[2].rstrip(","))
-                latency = int(split[3])
+                latency = int(split[3].rstrip(","))
                 arrivedTime = completedTime - latency
                 if (initialTime == -1 or initialTime > arrivedTime):
                     initialTime = arrivedTime
@@ -290,5 +290,5 @@ def draw(rawDir, outputDir, expName):
 rawDir = "/Users/swrrt/Workplace/BacklogDelayPaper/experiments/raw/"
 outputDir = "/Users/swrrt/Workplace/BacklogDelayPaper/experiments/results/"
 #expName = "streamsluice-scaletest-400-600-500-5-2000-1000-100-1"
-expName = "streamsluice-scaletest-180-600-600-800-60-10-0.25-1000-500-100-true-1"
+expName = "streamsluice-twoOP-180-60-60-80-30-2-10-10-0.25-1000-500-100-true-1"
 draw(rawDir, outputDir + expName + "/", expName)
