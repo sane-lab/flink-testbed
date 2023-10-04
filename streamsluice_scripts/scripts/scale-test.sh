@@ -17,7 +17,7 @@ function analyze() {
 }
 
 run_one_exp() {
-  EXP_NAME=streamsluice-scaletest-${runtime}-${RATE1}-${RATE2}-${RATE_I}-${PERIOD_I}-${N1}-${ZIPF_SKEW}-${L}-${migration_overhead}-${epoch}-${is_treat}-${repeat}
+  EXP_NAME=streamsluice-scaletest-${runtime}-${RATE1}-${RATE2}-${RATE_I}-${PERIOD_I}-${N1}-${ZIPF_SKEW}-${L}-${migration_overhead}-${STATE_SIZE}-${epoch}-${is_treat}-${repeat}
 
   echo "INFO: run exp ${EXP_NAME}"
   configFlink
@@ -45,7 +45,7 @@ init() {
   vertex_id="0a448493b4782967b150582570326227"
   L=1000
   migration_overhead=500
-  migration_interval=2000
+  migration_interval=500
   epoch=100
   FLINK_CONF="flink-conf-so1-ss.yaml"
   # app level
@@ -62,6 +62,7 @@ init() {
   TIME_I=120
   PERIOD_I=30
   ZIPF_SKEW=0.25
+  STATE_SIZE=10
   N1=10
   MP1=64
   repeat=1
@@ -72,10 +73,10 @@ init() {
 function runApp() {
     echo "INFO: ${FLINK_DIR}/bin/flink run -c ${job} ${JAR} \
     -p1 ${N1} -mp1 ${MP1} -phase1Time ${TIME1} -phase1Rate ${RATE1} -phase2Time ${TIME2} \
-    -phase2Rate ${RATE2} -interTime ${TIME_I} -interRate ${RATE_I} -interPeriod ${PERIOD_I} -zipf_skew ${ZIPF_SKEW} &"
+    -phase2Rate ${RATE2} -interTime ${TIME_I} -interRate ${RATE_I} -interPeriod ${PERIOD_I} -zipf_skew ${ZIPF_SKEW} -state_size ${STATE_SIZE} &"
     ${FLINK_DIR}/bin/flink run -c ${job} ${JAR} \
     -p1 ${N1} -mp1 ${MP1} -phase1Time ${TIME1} -phase1Rate ${RATE1} -phase2Time ${TIME2} \
-    -phase2Rate ${RATE2} -interTime ${TIME_I} -interRate ${RATE_I} -interPeriod ${PERIOD_I} -zipf_skew ${ZIPF_SKEW} &
+    -phase2Rate ${RATE2} -interTime ${TIME_I} -interRate ${RATE_I} -interPeriod ${PERIOD_I} -zipf_skew ${ZIPF_SKEW} -state_size ${STATE_SIZE} &
 }
 
 run_scale_test(){
@@ -83,7 +84,7 @@ run_scale_test(){
     init
     job="flinkapp.StreamSluiceTestSet.ScaleOutTest"
     for is_treat in true; do
-        for repeat in xxx; do
+        for repeat in 1; do
             run_one_exp
         done
     done

@@ -299,19 +299,22 @@ def draw(rawDir, outputDir, expName):
 
 
 rateYMax = {
+    "Stateful Map": 200,
     "Splitter": 100,
     "Counter": 200
 }
 backlogYMax = {
+    "Stateful Map": 1000,
     "Splitter": 1000,
     "Counter": 1000
 }
 totalYMax = {
+    "Stateful Map": 2000,
     "Splitter": 200,
     "Counter": 2000
 }
 rawDir = "/Users/swrrt/Workplace/BacklogDelayPaper/experiments/raw/"
 outputDir = "/Users/swrrt/Workplace/BacklogDelayPaper/experiments/results/"
 #expName = "streamsluice-scaletest-400-600-500-5-2000-1000-100-1"
-expName = "streamsluice-twoOP-180-60-60-90-120-2-10-10-0.25-1000-500-100-false-1"
+expName = "streamsluice-twoOP-180-60-60-90-60-2-10-10-0.25-1000-500-100-false-1"
 draw(rawDir, outputDir + expName + "/", expName)

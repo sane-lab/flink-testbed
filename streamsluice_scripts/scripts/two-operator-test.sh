@@ -17,7 +17,7 @@ function analyze() {
 }
 
 run_one_exp() {
-  EXP_NAME=streamsluice-twoOP-${runtime}-${RATE1}-${RATE2}-${RATE_I}-${PERIOD_I}-${N1}-${N2}-${AVERAGE_LENGTH}-${ZIPF_SKEW}-${L}-${migration_overhead}-${epoch}-${is_treat}-${repeat}
+  EXP_NAME=streamsluice-twoOP-${runtime}-${RATE1}-${RATE2}-${RATE_I}-${PERIOD_I}-${N1}-${N2}-${AVERAGE_LENGTH}-${ZIPF_SKEW}-${L}-${migration_overhead}-${STATE_SIZE}-${epoch}-${is_treat}-${repeat}
 
   echo "INFO: run exp ${EXP_NAME}"
   configFlink
@@ -45,7 +45,7 @@ init() {
   vertex_id="c21234bcbf1e8eb4c61f1927190efebd,22359d48bcb33236cf1e31888091e54c"
   L=1000
   migration_overhead=500
-  migration_interval=2000
+  migration_interval=500
   epoch=100
   FLINK_CONF="flink-conf-so1-ss.yaml"
   # app level
@@ -54,15 +54,16 @@ init() {
   # only used in script
   runtime=180
   # set in Flink app
-  RATE1=60
+  RATE1=300
   TIME1=30
-  RATE2=60
+  RATE2=300
   TIME2=30
-  RATE_I=90
+  RATE_I=450
   TIME_I=120
-  PERIOD_I=120
-  AVERAGE_LENGTH=10
+  PERIOD_I=60
+  AVERAGE_LENGTH=2
   ZIPF_SKEW=0.25
+  STATE_SIZE=10
   N1=2
   MP1=128
   N2=10
@@ -75,10 +76,10 @@ init() {
 function runApp() {
     echo "INFO: ${FLINK_DIR}/bin/flink run -c ${job} ${JAR} \
     -p1 ${N1} -mp1 ${MP1} -p2 ${N2} -mp2 ${MP2} -phase1Time ${TIME1} -phase1Rate ${RATE1} -phase2Time ${TIME2} \
-    -phase2Rate ${RATE2} -interTime ${TIME_I} -interRate ${RATE_I} -interPeriod ${PERIOD_I} -zipf_skew ${ZIPF_SKEW} -sentence_length ${AVERAGE_LENGTH} &"
+    -phase2Rate ${RATE2} -interTime ${TIME_I} -interRate ${RATE_I} -interPeriod ${PERIOD_I} -zipf_skew ${ZIPF_SKEW} -sentence_length ${AVERAGE_LENGTH} -state_size ${STATE_SIZE} &"
     ${FLINK_DIR}/bin/flink run -c ${job} ${JAR} \
     -p1 ${N1} -mp1 ${MP1} -p2 ${N2} -mp2 ${MP2} -phase1Time ${TIME1} -phase1Rate ${RATE1} -phase2Time ${TIME2} \
-    -phase2Rate ${RATE2} -interTime ${TIME_I} -interRate ${RATE_I} -interPeriod ${PERIOD_I} -zipf_skew ${ZIPF_SKEW} -sentence_length ${AVERAGE_LENGTH} &
+    -phase2Rate ${RATE2} -interTime ${TIME_I} -interRate ${RATE_I} -interPeriod ${PERIOD_I} -zipf_skew ${ZIPF_SKEW} -sentence_length ${AVERAGE_LENGTH} -state_size ${STATE_SIZE} &
 }
 
 run_scale_test(){

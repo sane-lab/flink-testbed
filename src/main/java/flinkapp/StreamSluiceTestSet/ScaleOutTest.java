@@ -52,9 +52,10 @@ public class ScaleOutTest{
         final int p1 = params.getInt("p1", 1);
         final int mp1 = params.getInt("mp1", 64);
         final double zipf_skew = params.getDouble("zipf_skew", 0);
+        final int stateSize = params.getInt("state_size", 10);
         env.addSource(new TwoPhaseSineSource(PHASE1_TIME, PHASE2_TIME, INTERMEDIATE_TIME, PHASE1_RATE, PHASE2_RATE, INTERMEDIATE_RATE, INTERMEDIATE_PERIOD, mp1, zipf_skew))
                 .keyBy(0)
-                .map(new DumbStatefulMap(5))
+                .map(new DumbStatefulMap(stateSize))
                 .disableChaining()
                 .name("Time counter")
                 .setMaxParallelism(mp1)

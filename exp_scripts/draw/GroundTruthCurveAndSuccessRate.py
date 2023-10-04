@@ -47,18 +47,21 @@ def readGroundTruthLatency(rawDir, expName, windowSize):
             if (split[0] == "GT:"):
                 completedTime = int(split[2].rstrip(","))
                 latency = int(split[3].rstrip(","))
-                tupleId = split[4].rstrip()
                 arrivedTime = completedTime - latency
                 if (initialTime == -1 or initialTime > arrivedTime):
                     initialTime = arrivedTime
-                if tupleId not in groundTruthLatencyPerTuple:
-                    groundTruthLatencyPerTuple[tupleId] = [arrivedTime, latency]
-                elif groundTruthLatencyPerTuple[tupleId][1] < latency:
-                    groundTruthLatencyPerTuple[tupleId][1] = latency
-                #groundTruthLatency += [[arrivedTime, latency]]
+                if(not isSingleOperator):
+                    tupleId = split[4].rstrip()
+                    if tupleId not in groundTruthLatencyPerTuple:
+                        groundTruthLatencyPerTuple[tupleId] = [arrivedTime, latency]
+                    elif groundTruthLatencyPerTuple[tupleId][1] < latency:
+                        groundTruthLatencyPerTuple[tupleId][1] = latency
+                else:
+                    groundTruthLatency += [[arrivedTime, latency]]
 
-    for value in groundTruthLatencyPerTuple.values():
-        groundTruthLatency += [value]
+    if(not isSingleOperator):
+        for value in groundTruthLatencyPerTuple.values():
+            groundTruthLatency += [value]
 
     streamSluiceOutputPath = rawDir + expName + "/" + "flink-samza-standalonesession-0-eagle-sane.out"
     print("Reading streamsluice output:" + streamSluiceOutputPath)
@@ -135,10 +138,11 @@ def draw(rawDir, outputDir, expName, baselineName, windowSize):
 
 rawDir = "/Users/swrrt/Workplace/BacklogDelayPaper/experiments/raw/"
 outputDir = "/Users/swrrt/Workplace/BacklogDelayPaper/experiments/results/"
-expName = "streamsluice-twoOP-180-60-60-80-120-2-10-10-0.25-1000-500-100-true-1"
+expName = "streamsluice-twoOP-180-60-60-90-60-2-10-10-0.25-1000-500-100-true-1"
 #expName = "streamsluice-scaletest-400-400-550-5-2000-1000-100-1"
-baselineName = "streamsluice-twoOP-180-60-60-80-120-2-10-10-0.25-1000-500-100-false-1"
+baselineName = "streamsluice-twoOP-180-60-60-90-60-2-10-10-0.25-1000-500-100-false-1"
 windowSize = 1
 latencyLimit = 1000
 endTime = 180
+isSingleOperator = False #True
 draw(rawDir, outputDir + expName + "/", expName, baselineName, windowSize)

@@ -57,7 +57,8 @@ public class TwoOperatorTest {
         final int p2 = params.getInt("p2", 1);
         final int mp2 = params.getInt("mp2", 64);
         final double zipf_skew = params.getDouble("zipf_skew", 0);
-        final long AVERAGE_LENGTH = params.getLong("sentence_length", 10);
+        final long AVERAGE_LENGTH = params.getLong("sentence_length", 2);
+        final int stateSize = params.getInt("state_size", 10);
         env.addSource(new TwoPhaseSineSource(PHASE1_TIME, PHASE2_TIME, INTERMEDIATE_TIME, PHASE1_RATE, PHASE2_RATE, INTERMEDIATE_RATE, INTERMEDIATE_PERIOD, mp1, zipf_skew, AVERAGE_LENGTH))
                 .keyBy(0)
                 .flatMap(new DumbSplitter())
@@ -68,7 +69,7 @@ public class TwoOperatorTest {
                 .setParallelism(p1)
                 .slotSharingGroup("a")
                 .keyBy(0)
-                .map(new DumbStatefulMap(5))
+                .map(new DumbStatefulMap(stateSize))
                 .name("Time counter")
                 .setMaxParallelism(mp2)
                 .setParallelism(p2)
@@ -88,7 +89,7 @@ public class TwoOperatorTest {
                 long id = input.f2;
                 out.collect(new Tuple3<String, Long, Long>(token, t, id));
             }
-            delay(25);
+            delay(4);
         }
 
         private void delay(int interval) {
@@ -222,8 +223,6 @@ public class TwoOperatorTest {
                     long ctime = System.currentTimeMillis();
                     if(ntime >= ctime) {
                         Thread.sleep(ntime - ctime);
-                    }else{
-                        System.out.println("+++ source err: output time not enough, expected ntime: " + ntime + " : ctime: " + ctime + " index: " + index);
                     }
                 }
                 synchronized (ctx.getCheckpointLock()) {
