@@ -48,7 +48,7 @@ init() {
   FLINK_CONF="flink-conf-so1-ss.yaml"
   # app level
   JAR="${FLINK_APP_DIR}/target/testbed-1.0-SNAPSHOT.jar"
-  job="flinkapp.StreamSluiceTestSet.ScaleOutTest"
+  job="flinkapp.StreamSluiceTestSet.OneOperatorTest"
   # only used in script
   runtime=180
   # set in Flink app
