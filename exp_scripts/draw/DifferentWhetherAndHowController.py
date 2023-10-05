@@ -10,6 +10,21 @@ OPERATOR_NAMING = {
     "22359d48bcb33236cf1e31888091e54c": "Counter"
 }
 
+EXP_COLOR = {
+    "Baseline" : "gray",
+    "Streamsluice" : "blue",
+    "Streamsluice_latency_only": "red",
+    "Streamsluice_trend_only": "orange",
+    "DS2" : "purple",
+}
+EXP_MARKER = {
+    "Baseline" : "o",
+    "Streamsluice" : "o",
+    "Streamsluice_latency_only": "*",
+    "Streamsluice_trend_only": "v",
+    "DS2" : "s",
+}
+
 SMALL_SIZE = 25
 MEDIUM_SIZE = 30
 BIGGER_SIZE = 35
@@ -21,7 +36,7 @@ plt.rc('xtick', labelsize=SMALL_SIZE)    # font-size of the tick labels
 plt.rc('ytick', labelsize=SMALL_SIZE)    # fontsize of the tick labels
 plt.rc('legend', fontsize=SMALL_SIZE)    # legend fontsize
 plt.rc('figure', titlesize=BIGGER_SIZE)  # fontsize of the figure title
-MARKERSIZE=4
+MARKERSIZE=6
 
 def addLatencyLimitMarker(plt):
     x = [0, 10000000]
@@ -96,21 +111,23 @@ def readGroundTruthLatency(rawDir, expName, windowSize):
         averageGroundTruthLatency[1] += [y]
     return [averageGroundTruthLatency, initialTime]
 
-def draw(rawDir, outputDir, expName, baselineName, windowSize):
+def draw(rawDir, outputDir, exps, windowSize):
 
-    result = readGroundTruthLatency(rawDir, expName, windowSize)
-    averageGroundTruthLatency = result[0]
-    if baselineName != "":
-        result = readGroundTruthLatency(rawDir, baselineName, windowSize)
-        baselineLatency = result[0]
-    print(averageGroundTruthLatency)
+    groundTruthLatencys = []
+    for i in range(0, len(exps)):
+        controller = exps[i][0]
+        print("Read ground truth for " + controller)
+        expName = exps[i][1]
+        result = readGroundTruthLatency(rawDir, expName, windowSize)
+        groundTruthLatencys += [result[0]]
     fig = plt.figure(figsize=(24, 18))
     print("Draw ground truth curve...")
-    legend = ["StreamSluice Ground Truth Latency"]
-    plt.plot(averageGroundTruthLatency[0], averageGroundTruthLatency[1], '*', color='blue', markersize=MARKERSIZE)
-    if baselineName != "":
-        legend += ["Baseline Ground Truth Latency"]
-        plt.plot(baselineLatency[0], baselineLatency[1], '*', color="gray", markersize=MARKERSIZE)
+    legend = []
+    for i in range(0, len(exps)):
+        controller = exps[i][0]
+        print("Draw ground truth for " + controller)
+        legend += [controller + " Truth Latency"]
+        plt.plot(groundTruthLatencys[i][0], groundTruthLatencys[i][1], EXP_MARKER[controller], color=EXP_COLOR[controller], markersize=MARKERSIZE)
     addLatencyLimitMarker(plt)
     plt.plot()
     plt.legend(legend, loc='upper left')
@@ -132,17 +149,22 @@ def draw(rawDir, outputDir, expName, baselineName, windowSize):
     import os
     if not os.path.exists(outputDir):
         os.makedirs(outputDir)
-    plt.savefig(outputDir + 'ground_truth_latency_curves.png')
+    plt.savefig(outputDir + 'different_controller_ground_truth_latency_curves.png')
     plt.close(fig)
 
 
 rawDir = "/Users/swrrt/Workplace/BacklogDelayPaper/experiments/raw/"
 outputDir = "/Users/swrrt/Workplace/BacklogDelayPaper/experiments/results/"
-expName = "streamsluice-twoOP-180-300-300-450-60-2-10-2-0.25-1000-500-10-100-true-1"
-#expName = "streamsluice-scaletest-400-400-550-5-2000-1000-100-1"
-baselineName = "streamsluice-twoOP-180-300-300-450-60-2-10-2-0.25-1000-500-10-100-false-1"
-windowSize = 1
+exps = [
+    #["Baseline", "streamsluice-scaleout-streamsluice-streamsluice-180-600-1000-800-240-10-0.25-1000-500-10-100-false-1"],
+    ["Streamsluice", "streamsluice-scaleout-streamsluice-streamsluice-180-600-1000-800-240-10-0-1000-500-10-100-true-1"],
+    ["Streamsluice_latency_only", "streamsluice-scaleout-streamsluice_trend_only-streamsluice-180-600-1000-800-240-10-0-1000-500-10-100-true-1"],
+    ["Streamsluice_trend_only", "streamsluice-scaleout-streamsluice_latency_only-streamsluice-180-600-1000-800-240-10-0-1000-500-10-100-true-1"],
+    ["DS2", "streamsluice-scaleout-ds2-streamsluice-180-600-1000-800-240-10-0-1000-500-10-100-true-1"],
+
+]
+windowSize = 1000
 latencyLimit = 1000
 endTime = 180
-isSingleOperator = False #True
-draw(rawDir, outputDir + expName + "/", expName, baselineName, windowSize)
+isSingleOperator = True
+draw(rawDir, outputDir + exps[1][1] + "/", exps, windowSize)

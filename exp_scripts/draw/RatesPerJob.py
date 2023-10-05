@@ -317,5 +317,5 @@ totalYMax = {
 rawDir = "/Users/swrrt/Workplace/BacklogDelayPaper/experiments/raw/"
 outputDir = "/Users/swrrt/Workplace/BacklogDelayPaper/experiments/results/"
 #expName = "streamsluice-scaletest-400-600-500-5-2000-1000-100-1"
-expName = "streamsluice-twoOP-180-300-300-450-60-2-10-2-0.25-1000-500-10-100-true-1"
+expName = "streamsluice-scaleout-streamsluice-streamsluice-180-600-1000-800-240-10-0-1000-500-10-100-true-1"
 draw(rawDir, outputDir + expName + "/", expName)

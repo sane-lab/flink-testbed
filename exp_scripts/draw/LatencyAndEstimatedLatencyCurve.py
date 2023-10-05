@@ -186,7 +186,7 @@ def draw(rawDir, outputDir, expName, windowSize):
 
 rawDir = "/Users/swrrt/Workplace/BacklogDelayPaper/experiments/raw/"
 outputDir = "/Users/swrrt/Workplace/BacklogDelayPaper/experiments/results/"
-expName = "streamsluice-twoOP-180-300-300-450-60-2-10-2-0.25-1000-500-10-100-true-1"
+expName = "streamsluice-scaleout-streamsluice_latency_only-streamsluice-180-600-1000-800-240-10-0.25-1000-500-10-100-true-1"
 #expName = "streamsluice-scaletest-400-400-550-5-2000-1000-100-1"
 windowSize = 1
 latencyLimit = 1000
