@@ -45,7 +45,7 @@ init() {
   vertex_id="0a448493b4782967b150582570326227"
   L=1000
   migration_overhead=500
-  migration_interval=30000
+  migration_interval=5000
   epoch=100
   FLINK_CONF="flink-conf-so1-ss.yaml"
   # app level
@@ -54,17 +54,19 @@ init() {
   # only used in script
   runtime=120
   # set in Flink app
-  RATE1=400
+  RATE1=200
   TIME1=30
-  RATE2=600
+  RATE2=300
   TIME2=40
-  RATE_I=500
+  RATE_I=250
   TIME_I=60
   PERIOD_I=120
   ZIPF_SKEW=0
-  STATE_SIZE=1000
+  STATE_SIZE=10000
   N1=5
   MP1=64
+  N2=2
+  MP2=64
   repeat=1
   warmup=10000
 }
@@ -83,7 +85,7 @@ run_scale_test(){
     echo "Run scale-out test..."
     init
     for is_treat in true; do
-        for whether_type in "streamsluice_threshold25" "streamsluice_threshold50" "streamsluice_threshold75" "streamsluice_threshold100"; do #"streamsluice" "streamsluice_earlier" "streamsluice_later" "streamsluice_40" "streamsluice_50"; do # "streamsluice_trend_only" "streamsluice_latency_only" "ds2" "dhalion" "drs"; do
+        for whether_type in "streamsluice" "streamsluice_earlier" "streamsluice_later" "streamsluice_40" "streamsluice_50"; do # "streamsluice_trend_only" "streamsluice_latency_only" "ds2" "dhalion" "drs"; do
             for repeat in 1; do
                 run_one_exp
             done
