@@ -250,12 +250,12 @@ def draw(rawDir, outputDir, exps, windowSize):
 rawDir = "/Users/swrrt/Workplace/BacklogDelayPaper/experiments/raw/"
 outputDir = "/Users/swrrt/Workplace/BacklogDelayPaper/experiments/results/"
 exps = [
-    ["Baseline", "streamsluice-scaleout-streamsluice-streamsluice-120-400-600-500-120-5-0-1000-500-1000-100-false-1"],
-    ["Streamsluice", "streamsluice-scaleout-streamsluice-streamsluice-120-400-600-500-120-5-0-1000-500-1000-100-true-1"],
-    ["Threshold_25", "streamsluice-scaleout-streamsluice_threshold25-streamsluice-120-400-600-500-120-5-0-1000-500-1000-100-true-1"],
-    ["Threshold_50", "streamsluice-scaleout-streamsluice_threshold50-streamsluice-120-400-600-500-120-5-0-1000-500-1000-100-true-1"],
-    ["Threshold_75", "streamsluice-scaleout-streamsluice_threshold75-streamsluice-120-400-600-500-120-5-0-1000-500-1000-100-true-1"],
-    ["Threshold_100", "streamsluice-scaleout-streamsluice_threshold100-streamsluice-120-400-600-500-120-5-0-1000-500-1000-100-true-1"],
+    ["Baseline", "streamsluice-scaleout-streamsluice-streamsluice-120-400-600-500-120-5-0-1000-500-10000-100-false-1"],
+    ["Streamsluice", "streamsluice-scaleout-streamsluice-streamsluice-120-400-600-500-120-5-0-1000-500-10000-100-true-1"],
+    ["Threshold_25", "streamsluice-scaleout-streamsluice_threshold25-streamsluice-120-400-600-500-120-5-0-1000-500-10000-100-true-1"],
+    ["Threshold_50", "streamsluice-scaleout-streamsluice_threshold50-streamsluice-120-400-600-500-120-5-0-1000-500-10000-100-true-1"],
+    ["Threshold_75", "streamsluice-scaleout-streamsluice_threshold75-streamsluice-120-400-600-500-120-5-0-1000-500-10000-100-true-1"],
+    ["Threshold_100", "streamsluice-scaleout-streamsluice_threshold100-streamsluice-120-400-600-500-120-5-0-1000-500-10000-100-true-1"],
     #["Streamsluice_earlier", "streamsluice-scaleout-streamsluice_earlier-streamsluice-120-400-600-500-120-5-0-1000-500-1000-100-true-1"],
     #["Streamsluice_later", "streamsluice-scaleout-streamsluice_later-streamsluice-120-400-600-500-120-5-0-1000-500-1000-100-true-1"],
     #["Streamsluice_40", "streamsluice-scaleout-streamsluice_40-streamsluice-120-400-600-500-120-5-0-1000-500-1000-100-true-1"],
