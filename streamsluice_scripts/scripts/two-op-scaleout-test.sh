@@ -17,7 +17,7 @@ function analyze() {
 }
 
 run_one_exp() {
-  EXP_NAME=streamsluice-scaleout-${whether_type}-${how_type}-${runtime}-${RATE1}-${RATE2}-${RATE_I}-${PERIOD_I}-${N1}-${ZIPF_SKEW}-${L}-${migration_overhead}-${STATE_SIZE}-${epoch}-${is_treat}-${repeat}
+  EXP_NAME=streamsluice-2opscaleout-${whether_type}-${how_type}-${runtime}-${RATE1}-${RATE2}-${RATE_I}-${PERIOD_I}-${N1}-${ZIPF_SKEW}-${L}-${migration_overhead}-${STATE_SIZE}-${epoch}-${is_treat}-${repeat}
 
   echo "INFO: run exp ${EXP_NAME}"
   configFlink
@@ -50,7 +50,7 @@ init() {
   FLINK_CONF="flink-conf-so1-ss.yaml"
   # app level
   JAR="${FLINK_APP_DIR}/target/testbed-1.0-SNAPSHOT.jar"
-  job="flinkapp.StreamSluiceTestSet.ScaleOutTest"
+  job="flinkapp.StreamSluiceTestSet.TwoOpScaleOutTest"
   # only used in script
   runtime=120
   # set in Flink app
@@ -84,16 +84,42 @@ function runApp() {
 run_scale_test(){
     echo "Run scale-out test..."
     init
+    # pattern 1
+    RATE1=200
+    TIME1=30
+    RATE2=300
+    TIME2=40
+    RATE_I=250
+    TIME_I=60
+    PERIOD_I=120
     for is_treat in true; do
-        for whether_type in "streamsluice" "streamsluice_earlier" "streamsluice_later" "streamsluice_40" "streamsluice_50"; do # "streamsluice_trend_only" "streamsluice_latency_only" "ds2" "dhalion" "drs"; do
+        for whether_type in "streamsluice" "streamsluice_threshold25" "streamsluice_threshold50" "streamsluice_threshold75" "streamsluice_threshold100"; do # "streamsluice_earlier" "streamsluice_later" "streamsluice_40" "streamsluice_50"; do # "streamsluice_trend_only" "streamsluice_latency_only" "ds2" "dhalion" "drs"; do
             for repeat in 1; do
                 run_one_exp
             done
         done
     done
-    #is_treat=false
-    #whether_type="streamsluice"
-    #run_one_exp
+    is_treat=false
+    whether_type="streamsluice"
+    run_one_exp
+    # pattern 2
+    RATE1=400
+    TIME1=30
+    RATE2=600
+    TIME2=90
+    RATE_I=500
+    TIME_I=10
+    PERIOD_I=20
+    for is_treat in true; do
+        for whether_type in "streamsluice" "streamsluice_threshold25" "streamsluice_threshold50" "streamsluice_threshold75" "streamsluice_threshold100"; do # "streamsluice_earlier" "streamsluice_later" "streamsluice_40" "streamsluice_50"; do # "streamsluice_trend_only" "streamsluice_latency_only" "ds2" "dhalion" "drs"; do
+            for repeat in 1; do
+                run_one_exp
+            done
+        done
+    done
+    is_treat=false
+    whether_type="streamsluice"
+    run_one_exp
 }
 
 run_scale_test
