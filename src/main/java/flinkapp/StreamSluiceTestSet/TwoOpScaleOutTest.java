@@ -82,7 +82,7 @@ public class TwoOpScaleOutTest {
                 long id = input.f2;
                 out.collect(new Tuple3<String, Long, Long>(token, t, id));
             }
-            delay(5);
+            delay(3);
         }
 
         private void delay(int interval) {

@@ -264,17 +264,17 @@ def draw(rawDir, outputDir, exps, windowSize):
 
 rawDir = "/Users/swrrt/Workplace/BacklogDelayPaper/experiments/raw/"
 outputDir = "/Users/swrrt/Workplace/BacklogDelayPaper/experiments/results/"
-setting = "-120-400-600-500-120-5-0-1000-500-20000-100" #"-120-200-300-250-120-5-0-1000-500-10000-100" #
-exp = "streamsluice-scaleout" #"streamsluice-2opscaleout"
+setting = "-120-400-600-500-120-2-0-1000-500-20000-100" # "-120-400-600-500-120-5-0-1000-500-20000-100" #
+exp = "streamsluice-2opscaleout" # "streamsluice-scaleout" #
 baseline = setting+"-false-1"
 other = setting+"-true-1"
 exps = [
     ["Baseline", exp+"-streamsluice-streamsluice"+baseline],
     ["Streamsluice", exp+"-streamsluice-streamsluice"+other],
-    ["Threshold_25", exp+"-streamsluice_threshold25-streamsluice"+other],
-    ["Threshold_50", exp+"-streamsluice_threshold50-streamsluice"+other],
-    ["Threshold_75", exp+"-streamsluice_threshold75-streamsluice"+other],
-    ["Threshold_100", exp+"-streamsluice_threshold100-streamsluice"+other],
+    #["Threshold_25", exp+"-streamsluice_threshold25-streamsluice"+other],
+    #["Threshold_50", exp+"-streamsluice_threshold50-streamsluice"+other],
+    #["Threshold_75", exp+"-streamsluice_threshold75-streamsluice"+other],
+    #["Threshold_100", exp+"-streamsluice_threshold100-streamsluice"+other],
     #["Streamsluice_earlier", "streamsluice-scaleout-streamsluice_earlier-streamsluice-120-400-600-500-120-5-0-1000-500-1000-100-true-1"],
     #["Streamsluice_later", "streamsluice-scaleout-streamsluice_later-streamsluice-120-400-600-500-120-5-0-1000-500-1000-100-true-1"],
     #["Streamsluice_40", "streamsluice-scaleout-streamsluice_40-streamsluice-120-400-600-500-120-5-0-1000-500-1000-100-true-1"],
