@@ -52,17 +52,17 @@ init() {
   # only used in script
   runtime=180
   # set in Flink app
-  RATE1=300
+  RATE1=400
   TIME1=30
-  RATE2=300
-  TIME2=30
-  RATE_I=450
+  RATE2=400
+  TIME2=40
+  RATE_I=500
   TIME_I=120
-  PERIOD_I=60
+  PERIOD_I=30
   AVERAGE_LENGTH=2
   ZIPF_SKEW=0.25
-  STATE_SIZE=10
-  N1=2
+  STATE_SIZE=10000
+  N1=5
   MP1=128
   N2=10
   MP2=128
@@ -83,9 +83,17 @@ function runApp() {
 run_scale_test(){
     echo "Run two operator test..."
     init
-    for is_treat in true false; do
-        for repeat in 1; do
-            run_one_exp
+    migration_overhead=500
+    STATE_SIZE=10000
+    ZIPF_SKEW=0.25
+    is_treat=false
+    repeat=1
+    run_one_exp
+    for L in 750 1000 1250 1500 2000; do
+        for is_treat in true; do
+            for repeat in 1; do
+                run_one_exp
+            done
         done
     done
 }
