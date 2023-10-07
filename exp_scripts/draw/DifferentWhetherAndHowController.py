@@ -109,7 +109,14 @@ def readGroundTruthLatency(rawDir, expName, windowSize):
     groundTruthLatency = []
     scalingMarkerByOperator = {}
 
-    groundTruthPath = rawDir + expName + "/" + "flink-samza-taskexecutor-0-eagle-sane.out"
+    taskExecutor = "flink-samza-taskexecutor-0-eagle-sane.out"
+    import os
+    for file in os.listdir(rawDir + expName +"/"):
+        if file.endswith(".out"):
+            #print(os.path.join(rawDir + expName + "/", file))
+            if file.count("taskexecutor") == 1:
+                taskExecutor = file
+    groundTruthPath = rawDir + expName + "/" + taskExecutor
     print("Reading ground truth file:" + groundTruthPath)
     counter = 0
     with open(groundTruthPath) as f:
@@ -139,7 +146,14 @@ def readGroundTruthLatency(rawDir, expName, windowSize):
         for value in groundTruthLatencyPerTuple.values():
             groundTruthLatency += [value]
 
-    streamSluiceOutputPath = rawDir + expName + "/" + "flink-samza-standalonesession-0-eagle-sane.out"
+    streamsluiceOutput = "flink-samza-standalonesession-0-eagle-sane.out"
+    import os
+    for file in os.listdir(rawDir + expName + "/"):
+        if file.endswith(".out"):
+            # print(os.path.join(rawDir + expName + "/", file))
+            if file.count("standalonesession") == 1:
+                streamsluiceOutput = file
+    streamSluiceOutputPath = rawDir + expName + "/" + streamsluiceOutput
     print("Reading streamsluice output:" + streamSluiceOutputPath)
     counter = 0
     with open(streamSluiceOutputPath) as f:
@@ -236,9 +250,10 @@ def draw(rawDir, outputDir, exps, windowSize):
     for x in range(0, endTime * 1000, 30000): #averageGroundTruthLatency[0][-1], 10000):
         xlabels += [str(int(x / 1000))]
     axes.set_xticklabels(xlabels)
-    # axes.set_yscale('log')
-    axes.set_ylim(0, 1200)
-    axes.set_yticks(np.arange(0, 1200, 200))
+    axes.set_yscale('log')
+    axes.set_ylim(10, 10000)
+    axes.set_yticks([10, 50, 100, 500, 1000, 5000, 10000])  # np.arange(0, 1000, 200))
+    axes.get_yaxis().set_major_formatter(matplotlib.ticker.ScalarFormatter())
     plt.grid(True)
     import os
     if not os.path.exists(outputDir):
@@ -249,13 +264,17 @@ def draw(rawDir, outputDir, exps, windowSize):
 
 rawDir = "/Users/swrrt/Workplace/BacklogDelayPaper/experiments/raw/"
 outputDir = "/Users/swrrt/Workplace/BacklogDelayPaper/experiments/results/"
+setting = "-120-400-600-500-120-5-0-1000-500-20000-100" #"-120-200-300-250-120-5-0-1000-500-10000-100" #
+exp = "streamsluice-scaleout" #"streamsluice-2opscaleout"
+baseline = setting+"-false-1"
+other = setting+"-true-1"
 exps = [
-    ["Baseline", "streamsluice-scaleout-streamsluice-streamsluice-120-400-600-500-120-5-0-1000-500-10000-100-false-1"],
-    ["Streamsluice", "streamsluice-scaleout-streamsluice-streamsluice-120-400-600-500-120-5-0-1000-500-10000-100-true-1"],
-    ["Threshold_25", "streamsluice-scaleout-streamsluice_threshold25-streamsluice-120-400-600-500-120-5-0-1000-500-10000-100-true-1"],
-    ["Threshold_50", "streamsluice-scaleout-streamsluice_threshold50-streamsluice-120-400-600-500-120-5-0-1000-500-10000-100-true-1"],
-    ["Threshold_75", "streamsluice-scaleout-streamsluice_threshold75-streamsluice-120-400-600-500-120-5-0-1000-500-10000-100-true-1"],
-    ["Threshold_100", "streamsluice-scaleout-streamsluice_threshold100-streamsluice-120-400-600-500-120-5-0-1000-500-10000-100-true-1"],
+    ["Baseline", exp+"-streamsluice-streamsluice"+baseline],
+    ["Streamsluice", exp+"-streamsluice-streamsluice"+other],
+    ["Threshold_25", exp+"-streamsluice_threshold25-streamsluice"+other],
+    ["Threshold_50", exp+"-streamsluice_threshold50-streamsluice"+other],
+    ["Threshold_75", exp+"-streamsluice_threshold75-streamsluice"+other],
+    ["Threshold_100", exp+"-streamsluice_threshold100-streamsluice"+other],
     #["Streamsluice_earlier", "streamsluice-scaleout-streamsluice_earlier-streamsluice-120-400-600-500-120-5-0-1000-500-1000-100-true-1"],
     #["Streamsluice_later", "streamsluice-scaleout-streamsluice_later-streamsluice-120-400-600-500-120-5-0-1000-500-1000-100-true-1"],
     #["Streamsluice_40", "streamsluice-scaleout-streamsluice_40-streamsluice-120-400-600-500-120-5-0-1000-500-1000-100-true-1"],

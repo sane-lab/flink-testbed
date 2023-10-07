@@ -45,7 +45,7 @@ init() {
   vertex_id="0a448493b4782967b150582570326227"
   L=1000
   migration_overhead=500
-  migration_interval=30000
+  migration_interval=5000
   epoch=100
   FLINK_CONF="flink-conf-so1-ss.yaml"
   # app level

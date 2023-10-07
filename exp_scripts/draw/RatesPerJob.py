@@ -64,7 +64,14 @@ def draw(rawDir, outputDir, expName):
 
     scalingMarkerByOperator = {}
 
-    groundTruthPath = rawDir + expName + "/" + "flink-samza-taskexecutor-0-eagle-sane.out"
+    taskExecutor = "flink-samza-taskexecutor-0-eagle-sane.out"
+    import os
+    for file in os.listdir(rawDir + expName + "/"):
+        if file.endswith(".out"):
+            # print(os.path.join(rawDir + expName + "/", file))
+            if file.count("taskexecutor") == 1:
+                taskExecutor = file
+    groundTruthPath = rawDir + expName + "/" + taskExecutor
     print("Reading ground truth file:" + groundTruthPath)
     counter = 0
     with open(groundTruthPath) as f:
@@ -85,8 +92,14 @@ def draw(rawDir, outputDir, expName):
                     lastTime = completedTime
     print(lastTime)
     #lastTime = initialTime + 240000
-
-    streamSluiceOutputPath = rawDir + expName + "/" + "flink-samza-standalonesession-0-eagle-sane.out"
+    streamsluiceOutput = "flink-samza-standalonesession-0-eagle-sane.out"
+    import os
+    for file in os.listdir(rawDir + expName + "/"):
+        if file.endswith(".out"):
+            # print(os.path.join(rawDir + expName + "/", file))
+            if file.count("standalonesession") == 1:
+                streamsluiceOutput = file
+    streamSluiceOutputPath = rawDir + expName + "/" + streamsluiceOutput
     print("Reading streamsluice output:" + streamSluiceOutputPath)
     counter = 0
     with open(streamSluiceOutputPath) as f:
@@ -317,5 +330,5 @@ totalYMax = {
 rawDir = "/Users/swrrt/Workplace/BacklogDelayPaper/experiments/raw/"
 outputDir = "/Users/swrrt/Workplace/BacklogDelayPaper/experiments/results/"
 #expName = "streamsluice-scaletest-400-600-500-5-2000-1000-100-1"
-expName = "streamsluice-scaleout-streamsluice-streamsluice-120-400-600-500-120-5-0-1000-500-10000-100-true-1"
+expName = "streamsluice-scaleout-streamsluice-streamsluice-120-400-600-500-120-5-0-1000-500-20000-100-true-1" #"streamsluice-scaleout-streamsluice-streamsluice-120-400-600-500-20-5-0-1000-500-20000-100-true-1"
 draw(rawDir, outputDir + expName + "/", expName)

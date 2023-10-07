@@ -76,7 +76,7 @@ public class TwoOpScaleOutTest {
         private RandomDataGenerator randomGen = new RandomDataGenerator();
         @Override
         public void flatMap(Tuple3<String, Long, Long> input, Collector<Tuple3<String, Long, Long>> out) throws Exception {
-            String[] tokens = input.f0.toLowerCase().split("\\W+");
+            String[] tokens = input.f0.split("\\W+");
             for(String token: tokens) {
                 long t = input.f1;
                 long id = input.f2;
@@ -86,7 +86,7 @@ public class TwoOpScaleOutTest {
         }
 
         private void delay(int interval) {
-            Double ranN = randomGen.nextGaussian(interval, 1);
+            Double ranN = randomGen.nextGaussian(interval, 0.1);
             ranN = ranN*1000000;
             long delay = ranN.intValue();
             if (delay < 0) delay = interval * 1000000;
@@ -115,7 +115,7 @@ public class TwoOpScaleOutTest {
             return new Tuple4<String, Long, Long, Long>(input.f0, currentTime, currentTime - input.f1, input.f2);
         }
         private void delay(int interval) {
-            Double ranN = randomGen.nextGaussian(interval, 1);
+            Double ranN = randomGen.nextGaussian(interval, 0.1);
             ranN = ranN*1000000;
             long delay = ranN.intValue();
             if (delay < 0) delay = interval * 1000000;
@@ -234,7 +234,7 @@ public class TwoOpScaleOutTest {
         private String getSentence(int cur){
             StringBuilder str = new StringBuilder();
             for(int i = 0; i < sentenceLength; i++) {
-                String key = getChar(count * sentenceLength + i);
+                String key = getChar(cur * sentenceLength + i);
                 if(i > 0){
                     str.append(" ");
                 }

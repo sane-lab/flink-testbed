@@ -42,10 +42,10 @@ init() {
   controller_type=StreamSluice
   whether_type="streamsluice"
   how_type="streamsluice"
-  vertex_id="0a448493b4782967b150582570326227"
+  vertex_id="c21234bcbf1e8eb4c61f1927190efebd,22359d48bcb33236cf1e31888091e54c"
   L=1000
   migration_overhead=500
-  migration_interval=5000
+  migration_interval=1000
   epoch=100
   FLINK_CONF="flink-conf-so1-ss.yaml"
   # app level
@@ -62,11 +62,12 @@ init() {
   TIME_I=60
   PERIOD_I=120
   ZIPF_SKEW=0
-  STATE_SIZE=10000
-  N1=5
-  MP1=64
-  N2=2
-  MP2=64
+  STATE_SIZE=20000
+  SENTENCE_LENGTH=2
+  N1=2
+  MP1=100
+  N2=5
+  MP2=1000
   repeat=1
   warmup=10000
 }
@@ -75,10 +76,10 @@ init() {
 function runApp() {
     echo "INFO: ${FLINK_DIR}/bin/flink run -c ${job} ${JAR} \
     -p1 ${N1} -mp1 ${MP1} -phase1Time ${TIME1} -phase1Rate ${RATE1} -phase2Time ${TIME2} \
-    -phase2Rate ${RATE2} -interTime ${TIME_I} -interRate ${RATE_I} -interPeriod ${PERIOD_I} -zipf_skew ${ZIPF_SKEW} -state_size ${STATE_SIZE} &"
+    -phase2Rate ${RATE2} -interTime ${TIME_I} -interRate ${RATE_I} -interPeriod ${PERIOD_I} -zipf_skew ${ZIPF_SKEW} -state_size ${STATE_SIZE} -sentence_length ${SENTENCE_LENGTH} &"
     ${FLINK_DIR}/bin/flink run -c ${job} ${JAR} \
     -p1 ${N1} -mp1 ${MP1} -phase1Time ${TIME1} -phase1Rate ${RATE1} -phase2Time ${TIME2} \
-    -phase2Rate ${RATE2} -interTime ${TIME_I} -interRate ${RATE_I} -interPeriod ${PERIOD_I} -zipf_skew ${ZIPF_SKEW} -state_size ${STATE_SIZE} &
+    -phase2Rate ${RATE2} -interTime ${TIME_I} -interRate ${RATE_I} -interPeriod ${PERIOD_I} -zipf_skew ${ZIPF_SKEW} -state_size ${STATE_SIZE} -sentence_length ${SENTENCE_LENGTH} &
 }
 
 run_scale_test(){
@@ -103,23 +104,23 @@ run_scale_test(){
     whether_type="streamsluice"
     run_one_exp
     # pattern 2
-    RATE1=400
-    TIME1=30
-    RATE2=600
-    TIME2=90
-    RATE_I=500
-    TIME_I=10
-    PERIOD_I=20
-    for is_treat in true; do
-        for whether_type in "streamsluice" "streamsluice_threshold25" "streamsluice_threshold50" "streamsluice_threshold75" "streamsluice_threshold100"; do # "streamsluice_earlier" "streamsluice_later" "streamsluice_40" "streamsluice_50"; do # "streamsluice_trend_only" "streamsluice_latency_only" "ds2" "dhalion" "drs"; do
-            for repeat in 1; do
-                run_one_exp
-            done
-        done
-    done
-    is_treat=false
-    whether_type="streamsluice"
-    run_one_exp
+    #RATE1=200
+    #TIME1=30
+    #RATE2=300
+    #TIME2=90
+    #RATE_I=250
+    #TIME_I=10
+    #PERIOD_I=20
+    #for is_treat in true; do
+    #    for whether_type in "streamsluice" "streamsluice_threshold25" "streamsluice_threshold50" "streamsluice_threshold75" "streamsluice_threshold100"; do # "streamsluice_earlier" "streamsluice_later" "streamsluice_40" "streamsluice_50"; do # "streamsluice_trend_only" "streamsluice_latency_only" "ds2" "dhalion" "drs"; do
+    #        for repeat in 1; do
+    #            run_one_exp
+    #        done
+    #    done
+    #done
+    #is_treat=false
+    #whether_type="streamsluice"
+    #run_one_exp
 }
 
 run_scale_test
