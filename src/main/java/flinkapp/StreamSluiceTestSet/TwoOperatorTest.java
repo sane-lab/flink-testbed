@@ -2,6 +2,7 @@ package flinkapp.StreamSluiceTestSet;
 
 import Nexmark.sources.Util;
 import common.FastZipfGenerator;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.math3.random.RandomDataGenerator;
 import org.apache.flink.api.common.functions.FlatMapFunction;
 import org.apache.flink.api.common.functions.RichMapFunction;
@@ -105,18 +106,17 @@ public class TwoOperatorTest {
     public static final class DumbStatefulMap extends RichMapFunction<Tuple3<String, Long, Long>, Tuple4<String, Long, Long, Long>> {
 
         private final int stateSize;
-        private transient MapState<Integer, Long> countMap;
+        private transient MapState<String, String> countMap;
         private RandomDataGenerator randomGen = new RandomDataGenerator();
+        private final String payload;
         DumbStatefulMap(int _stateSize){
             stateSize = _stateSize;
+            this.payload = StringUtils.repeat("A", stateSize);
         }
 
         @Override
         public Tuple4<String, Long, Long, Long> map(Tuple3<String, Long, Long> input) throws Exception {
-            int hashValue = (input.f0.hashCode() % stateSize + stateSize) % stateSize;
-            Long cur = countMap.get(hashValue);
-            cur = (cur == null) ? 1 : cur + 1;
-            countMap.put(hashValue, cur);
+            countMap.put(input.f0, payload);
             delay(10);
             long currentTime = System.currentTimeMillis();
             System.out.println("GT: " + input.f0 + ", " + currentTime + ", " + (currentTime - input.f1) + ", " + input.f2);
@@ -133,8 +133,8 @@ public class TwoOperatorTest {
 
         @Override
         public void open(Configuration config) {
-            MapStateDescriptor<Integer, Long> descriptor =
-                    new MapStateDescriptor<>("word-count", Integer.class, Long.class);
+            MapStateDescriptor<String, String> descriptor =
+                    new MapStateDescriptor<>("word-count", String.class, String.class);
             countMap = getRuntimeContext().getMapState(descriptor);
         }
     }
