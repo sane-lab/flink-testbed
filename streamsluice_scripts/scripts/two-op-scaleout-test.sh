@@ -92,7 +92,7 @@ run_scale_test(){
     RATE_I=500
     TIME_I=60
     PERIOD_I=120
-    for STATE_SIZE in 1 10000 20000 40000 80000; do
+#    for STATE_SIZE in 1 10000 20000 40000 80000; do
 #        for is_treat in true; do
 #            for whether_type in "streamsluice_threshold50" "streamsluice_threshold75"; do #"streamsluice_threshold25" "streamsluice_threshold100"; do #"streamsluice"; do # "streamsluice" "streamsluice_earlier" "streamsluice_later" "streamsluice_40" "streamsluice_50"; do # "streamsluice_trend_only" "streamsluice_latency_only" "ds2" "dhalion" "drs"; do
 #                for repeat in 1; do
@@ -100,28 +100,25 @@ run_scale_test(){
 #                done
 #            done
 #        done
-        is_treat=false
-        whether_type="streamsluice"
-        run_one_exp
+#        is_treat=false
+#        whether_type="streamsluice"
+#        run_one_exp
+#    done
+    whether_type="streamsluice_threshold50"
+    for STATE_SIZE in 1 10000 20000 40000 80000; do
+        for is_treat in true; do
+            for how_type in "streamsluice" "op1_so1_shuffle" "op1_so2_shuffle" "op2_so1_shuffle" "op2_so2_shuffle" "op2_so3_shuffle" "op2_so1_keep" "op2_so2_keep" "op2_so3_keep"; do #"streamsluice_threshold25" "streamsluice_threshold100"; do #"streamsluice"; do # "streamsluice" "streamsluice_earlier" "streamsluice_later" "streamsluice_40" "streamsluice_50"; do # "streamsluice_trend_only" "streamsluice_latency_only" "ds2" "dhalion" "drs"; do
+                for repeat in 1; do
+                    run_one_exp
+                done
+            done
+        done
+        #is_treat=false
+        #whether_type="streamsluice"
+        #run_one_exp
     done
-    # pattern 2
-    #RATE1=200
-    #TIME1=30
-    #RATE2=300
-    #TIME2=90
-    #RATE_I=250
-    #TIME_I=10
-    #PERIOD_I=20
-    #for is_treat in true; do
-    #    for whether_type in "streamsluice" "streamsluice_threshold25" "streamsluice_threshold50" "streamsluice_threshold75" "streamsluice_threshold100"; do # "streamsluice_earlier" "streamsluice_later" "streamsluice_40" "streamsluice_50"; do # "streamsluice_trend_only" "streamsluice_latency_only" "ds2" "dhalion" "drs"; do
-    #        for repeat in 1; do
-    #            run_one_exp
-    #        done
-    #    done
-    #done
-    #is_treat=false
-    #whether_type="streamsluice"
-    #run_one_exp
+
+
 }
 
 run_scale_test
