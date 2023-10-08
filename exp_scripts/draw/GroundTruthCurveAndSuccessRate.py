@@ -33,7 +33,14 @@ def readGroundTruthLatency(rawDir, expName, windowSize):
     groundTruthLatencyPerTuple = {}
     groundTruthLatency = []
 
-    groundTruthPath = rawDir + expName + "/" + "flink-samza-taskexecutor-0-eagle-sane.out"
+    taskExecutor = "flink-samza-taskexecutor-0-eagle-sane.out"
+    import os
+    for file in os.listdir(rawDir + expName + "/"):
+        if file.endswith(".out"):
+            # print(os.path.join(rawDir + expName + "/", file))
+            if file.count("taskexecutor") == 1:
+                taskExecutor = file
+    groundTruthPath = rawDir + expName + "/" + taskExecutor
     print("Reading ground truth file:" + groundTruthPath)
     counter = 0
     with open(groundTruthPath) as f:
@@ -63,7 +70,14 @@ def readGroundTruthLatency(rawDir, expName, windowSize):
         for value in groundTruthLatencyPerTuple.values():
             groundTruthLatency += [value]
 
-    streamSluiceOutputPath = rawDir + expName + "/" + "flink-samza-standalonesession-0-eagle-sane.out"
+    streamsluiceOutput = "flink-samza-standalonesession-0-eagle-sane.out"
+    import os
+    for file in os.listdir(rawDir + expName + "/"):
+        if file.endswith(".out"):
+            # print(os.path.join(rawDir + expName + "/", file))
+            if file.count("standalonesession") == 1:
+                streamsluiceOutput = file
+    streamSluiceOutputPath = rawDir + expName + "/" + streamsluiceOutput
     print("Reading streamsluice output:" + streamSluiceOutputPath)
     counter = 0
     with open(streamSluiceOutputPath) as f:
@@ -138,11 +152,11 @@ def draw(rawDir, outputDir, expName, baselineName, windowSize):
 
 rawDir = "/Users/swrrt/Workplace/BacklogDelayPaper/experiments/raw/"
 outputDir = "/Users/swrrt/Workplace/BacklogDelayPaper/experiments/results/"
-expName = "streamsluice-twoOP-180-300-300-450-60-2-10-2-0.25-1000-500-10-100-true-1"
+expName = "streamsluice-twoOP-180-400-400-500-30-5-10-2-0.25-1500-500-10000-100-true-1"
 #expName = "streamsluice-scaletest-400-400-550-5-2000-1000-100-1"
-baselineName = "streamsluice-twoOP-180-300-300-450-60-2-10-2-0.25-1000-500-10-100-false-1"
+baselineName = "streamsluice-twoOP-180-400-400-500-30-5-10-2-0.25-1500-500-10000-100-true-1"
 windowSize = 1
-latencyLimit = 1000
+latencyLimit = 1500
 endTime = 180
 isSingleOperator = False #True
 draw(rawDir, outputDir + expName + "/", expName, baselineName, windowSize)

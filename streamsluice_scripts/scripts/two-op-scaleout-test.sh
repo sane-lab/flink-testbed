@@ -92,16 +92,18 @@ run_scale_test(){
     RATE_I=500
     TIME_I=60
     PERIOD_I=120
-    for is_treat in true; do
-        for whether_type in "streamsluice"; do #"streamsluice_threshold25" "streamsluice_threshold50" "streamsluice_threshold75" "streamsluice_threshold100"; do # "streamsluice" "streamsluice_earlier" "streamsluice_later" "streamsluice_40" "streamsluice_50"; do # "streamsluice_trend_only" "streamsluice_latency_only" "ds2" "dhalion" "drs"; do
-            for repeat in 1; do
-                run_one_exp
-            done
-        done
+    for STATE_SIZE in 1 10000 20000 40000 80000; do
+#        for is_treat in true; do
+#            for whether_type in "streamsluice_threshold50" "streamsluice_threshold75"; do #"streamsluice_threshold25" "streamsluice_threshold100"; do #"streamsluice"; do # "streamsluice" "streamsluice_earlier" "streamsluice_later" "streamsluice_40" "streamsluice_50"; do # "streamsluice_trend_only" "streamsluice_latency_only" "ds2" "dhalion" "drs"; do
+#                for repeat in 1; do
+#                    run_one_exp
+#                done
+#            done
+#        done
+        is_treat=false
+        whether_type="streamsluice"
+        run_one_exp
     done
-    is_treat=false
-    whether_type="streamsluice"
-    run_one_exp
     # pattern 2
     #RATE1=200
     #TIME1=30

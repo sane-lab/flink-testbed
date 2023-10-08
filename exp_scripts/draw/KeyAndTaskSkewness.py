@@ -66,7 +66,14 @@ def getResults(rawDir, expName):
     serviceRatePerTask = {}
     backlogPerTask = {}
     arrivalRatePerKey = {}
-    groundTruthPath = rawDir + expName + "/" + "flink-samza-taskexecutor-0-eagle-sane.out"
+    taskExecutor = "flink-samza-taskexecutor-0-eagle-sane.out"
+    import os
+    for file in os.listdir(rawDir + expName + "/"):
+        if file.endswith(".out"):
+            # print(os.path.join(rawDir + expName + "/", file))
+            if file.count("taskexecutor") == 1:
+                taskExecutor = file
+    groundTruthPath = rawDir + expName + "/" + taskExecutor
     print("Reading ground truth file:" + groundTruthPath)
     counter = 0
     with open(groundTruthPath) as f:
@@ -88,7 +95,14 @@ def getResults(rawDir, expName):
     print(lastTime)
     # lastTime = initialTime + 240000
 
-    streamSluiceOutputPath = rawDir + expName + "/" + "flink-samza-standalonesession-0-eagle-sane.out"
+    streamsluiceOutput = "flink-samza-standalonesession-0-eagle-sane.out"
+    import os
+    for file in os.listdir(rawDir + expName + "/"):
+        if file.endswith(".out"):
+            # print(os.path.join(rawDir + expName + "/", file))
+            if file.count("standalonesession") == 1:
+                streamsluiceOutput = file
+    streamSluiceOutputPath = rawDir + expName + "/" + streamsluiceOutput
     print("Reading streamsluice output:" + streamSluiceOutputPath)
     counter = 0
     with open(streamSluiceOutputPath) as f:
@@ -244,7 +258,7 @@ def draw(rawDir, outputDir, expName, baseline):
     fig = plt.figure(figsize=(24, 18))
     operators = list(averageKeyRate.keys())
     for i in range(0, len(operators)):
-        plt.subplot(len(operators), i + 1, 1)
+        plt.subplot(2, 1, i+1)
         legend = ["Average Rate"]
         operator = operators[i]
         p = plt.bar(averageKeyRate[operator][0], averageKeyRate[operator][1], width, label="Average")
@@ -253,9 +267,9 @@ def draw(rawDir, outputDir, expName, baseline):
         p = plt.errorbar(averageKeyRate[operator][0], averageKeyRate[operator][1], yerr=maximumKeyRate[operator][1], fmt='o',
                          markersize=MARKERSIZE, capsize=MARKERSIZE)
         axes = plt.gca()
-        axes.set_ylim(0, 200)
-        axes.set_yticks(np.arange(0, 200, 20))
-    plt.title('Key Arrival')
+        axes.set_ylim(0, 100)
+        axes.set_yticks(np.arange(0, 100, 10))
+        plt.title('Key Arrival' + operator)
     plt.legend(legend, loc='upper left')
     import os
     if not os.path.exists(outputDir):
@@ -267,7 +281,7 @@ def draw(rawDir, outputDir, expName, baseline):
     fig = plt.figure(figsize=(24, 18))
     operators = list(baseAverageKeyRate.keys())
     for i in range(0, len(operators)):
-        plt.subplot(len(operators), i + 1, 1)
+        plt.subplot(2, 1, i + 1)
         legend = ["Average Rate"]
         operator = operators[i]
         p = plt.bar(baseAverageKeyRate[operator][0], baseAverageKeyRate[operator][1], width, label="Average")
@@ -276,9 +290,9 @@ def draw(rawDir, outputDir, expName, baseline):
         p = plt.errorbar(baseAverageKeyRate[operator][0], baseAverageKeyRate[operator][1], yerr=baseMaximumKeyRate[operator][1], fmt='o',
                          markersize=MARKERSIZE, capsize=MARKERSIZE)
         axes = plt.gca()
-        axes.set_ylim(0, 100)
-        axes.set_yticks(np.arange(0, 100, 10))
-    plt.title('Key Arrival')
+        axes.set_ylim(0, 10)
+        axes.set_yticks(np.arange(0, 10, 2))
+        plt.title('Key Arrival' + operator)
     plt.legend(legend, loc='upper left')
     import os
     if not os.path.exists(outputDir):
@@ -290,6 +304,6 @@ def draw(rawDir, outputDir, expName, baseline):
 rawDir = "/Users/swrrt/Workplace/BacklogDelayPaper/experiments/raw/"
 outputDir = "/Users/swrrt/Workplace/BacklogDelayPaper/experiments/results/"
 #expName = "streamsluice-scaletest-400-600-500-5-2000-1000-100-1"
-expName = "streamsluice-twoOP-180-300-300-450-60-2-10-2-0.25-1000-500-10-100-true-1"
-baselineName = "streamsluice-twoOP-180-300-300-450-60-2-10-2-0.25-1000-500-10-100-false-1"
+expName = "streamsluice-twoOP-180-400-400-500-30-5-10-2-0.25-1500-500-10000-100-true-1"
+baselineName = "streamsluice-twoOP-180-400-400-500-30-5-10-2-0.25-1500-500-10000-100-true-1"
 draw(rawDir, outputDir + expName + "/", expName, baselineName)

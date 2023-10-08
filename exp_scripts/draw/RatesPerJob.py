@@ -325,10 +325,10 @@ backlogYMax = {
 totalYMax = {
     "Stateful Map": 1000,
     "Splitter": 1000,
-    "Counter": 1000
+    "Counter": 2000
 }
 rawDir = "/Users/swrrt/Workplace/BacklogDelayPaper/experiments/raw/"
 outputDir = "/Users/swrrt/Workplace/BacklogDelayPaper/experiments/results/"
-#expName = "streamsluice-scaletest-400-600-500-5-2000-1000-100-1"
-expName = "streamsluice-2opscaleout-streamsluice-streamsluice-120-400-600-500-120-2-0-1000-500-20000-100-true-1"
+expName = "streamsluice-2opscaleout-streamsluice_threshold50-streamsluice-120-400-600-500-120-2-0-1000-500-80000-100-true-1"
+#expName = "streamsluice-twoOP-180-400-400-500-30-5-10-2-0.25-1500-500-10000-100-true-1"
 draw(rawDir, outputDir + expName + "/", expName)

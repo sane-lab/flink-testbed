@@ -88,15 +88,37 @@ run_scale_test(){
     ZIPF_SKEW=0.25
     is_treat=false
     repeat=1
-    run_one_exp
-    for L in 750 1000 1250 1500 2000; do
+    #run_one_exp
+    #for L in 750 1000 1250 1500 2000; do
+    L=1000
+    for PERIOD_I in 15 30 60 120; do
         for is_treat in true; do
             for repeat in 1; do
                 run_one_exp
             done
         done
     done
+    PERIOD_I=30
+
+    for epoch in 25 50 100 200 400; do
+        for is_treat in true; do
+            for repeat in 1; do
+                run_one_exp
+            done
+        done
+    done
+    epoch=100
+
+    for ZIPF_SKEW in 0 0.25 0.5 1.0 2.0; do
+        for is_treat in true; do
+            for repeat in 1; do
+                run_one_exp
+            done
+        done
+    done
+    ZIPF_SKEW=0.25
 }
 
 run_scale_test
+
 

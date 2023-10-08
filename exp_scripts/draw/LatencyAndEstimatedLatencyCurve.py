@@ -53,7 +53,14 @@ def draw(rawDir, outputDir, expName, windowSize):
     nextEpochLatency = [[], []]
     nextSpikes = [[], []]
 
-    groundTruthPath = rawDir + expName + "/" + "flink-samza-taskexecutor-0-eagle-sane.out"
+    taskExecutor = "flink-samza-taskexecutor-0-eagle-sane.out"
+    import os
+    for file in os.listdir(rawDir + expName + "/"):
+        if file.endswith(".out"):
+            # print(os.path.join(rawDir + expName + "/", file))
+            if file.count("taskexecutor") == 1:
+                taskExecutor = file
+    groundTruthPath = rawDir + expName + "/" + taskExecutor
     print("Reading ground truth file:" + groundTruthPath)
     counter = 0
     with open(groundTruthPath) as f:
@@ -72,7 +79,14 @@ def draw(rawDir, outputDir, expName, windowSize):
                     initialTime = arrivedTime
                 groundTruthLatency += [[arrivedTime, latency]]
 
-    streamSluiceOutputPath = rawDir + expName + "/" + "flink-samza-standalonesession-0-eagle-sane.out"
+    streamsluiceOutput = "flink-samza-standalonesession-0-eagle-sane.out"
+    import os
+    for file in os.listdir(rawDir + expName + "/"):
+        if file.endswith(".out"):
+            # print(os.path.join(rawDir + expName + "/", file))
+            if file.count("standalonesession") == 1:
+                streamsluiceOutput = file
+    streamSluiceOutputPath = rawDir + expName + "/" + streamsluiceOutput
     print("Reading streamsluice output:" + streamSluiceOutputPath)
     counter = 0
     with open(streamSluiceOutputPath) as f:
@@ -186,8 +200,8 @@ def draw(rawDir, outputDir, expName, windowSize):
 
 rawDir = "/Users/swrrt/Workplace/BacklogDelayPaper/experiments/raw/"
 outputDir = "/Users/swrrt/Workplace/BacklogDelayPaper/experiments/results/"
-expName = "streamsluice-scaleout-streamsluice-streamsluice-120-400-600-500-20-5-0-1000-500-20000-100-true-1"
+expName = "streamsluice-twoOP-180-400-400-500-30-5-10-2-0.25-1500-500-10000-100-true-1"
 #expName = "streamsluice-scaletest-400-400-550-5-2000-1000-100-1"
 windowSize = 1
-latencyLimit = 1000
+latencyLimit = 1500
 draw(rawDir, outputDir + expName + "/", expName, windowSize)
