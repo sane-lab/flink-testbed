@@ -208,7 +208,7 @@ public class MultiOperatorTest {
             this.maxParallelism = maxParallelism;
             this.fastZipfGenerator = new FastZipfGenerator(maxParallelism, zipfSkew, 0, 114514);
             for (int i = 0; i < nkeys; i++) {
-                String key = getChar(nkeys);
+                String key = getChar(i);
                 int keygroup = MathUtils.murmurHash(key.hashCode()) % maxParallelism;
                 List<String> keys = keyGroupMapping.computeIfAbsent(keygroup, t -> new ArrayList<>());
                 keys.add(key);
