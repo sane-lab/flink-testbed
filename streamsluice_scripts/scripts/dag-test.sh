@@ -40,7 +40,7 @@ run_one_exp() {
 init() {
   # exp scenario
   controller_type=StreamSluice
-  vertex_id="c21234bcbf1e8eb4c61f1927190efebd,22359d48bcb33236cf1e31888091e54c"
+  vertex_id="a84740bacf923e828852cc4966f2247c,eabd4c11f6c6fbdf011f0f1fc42097b1,d01047f852abd5702a0dabeedac99ff5,d2336f79a0d60b5a4b16c8769ec82e47"
   L=1000
   migration_overhead=500
   migration_interval=200

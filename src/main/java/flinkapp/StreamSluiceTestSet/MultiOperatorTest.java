@@ -56,14 +56,14 @@ public class MultiOperatorTest {
                 .setParallelism(params.getInt("p1", 1));
 
         DataStream<Tuple3<String, Long, Long>> up = source
-//                .slotSharingGroup("g1")
                 .keyBy(0)
                 .flatMap(new DumbStatefulMap(params.getLong("op2Delay", 100), params.getInt("op2IoRate", 1), params.getInt("op2KeyStateSize", 1)))
                 .disableChaining()
                 .name("Splitter")
                 .uid("op2")
                 .setParallelism(params.getInt("p2", 1))
-                .setMaxParallelism(params.getInt("mp2", 8));
+                .setMaxParallelism(params.getInt("mp2", 8))
+                .slotSharingGroup("g2");
 
         DataStream<Tuple3<String, Long, Long>> stream1 = up
                 .keyBy(0)
@@ -72,7 +72,8 @@ public class MultiOperatorTest {
                 .name("FlatMap 3")
                 .uid("op3")
                 .setParallelism(params.getInt("p3", 1))
-                .setMaxParallelism(params.getInt("mp3", 8));
+                .setMaxParallelism(params.getInt("mp3", 8))
+                .slotSharingGroup("g3");
 
         DataStream<Tuple3<String, Long, Long>> stream2 = up
                 .keyBy(0)
@@ -81,16 +82,18 @@ public class MultiOperatorTest {
                 .name("FlatMap 4")
                 .uid("op4")
                 .setParallelism(params.getInt("p4", 1))
-                .setMaxParallelism(params.getInt("mp4", 8));
+                .setMaxParallelism(params.getInt("mp4", 8))
+                .slotSharingGroup("g4");
 
         DataStream<Tuple3<String, Long, Long>> unionStream =  stream1.union(stream2);
         unionStream.keyBy(0)
                 .map(new DumbSink(params.getLong("op5Delay", 100), params.getInt("op5KeyStateSize", 1)))
                 .disableChaining()
-                .name("Map Sink")
+                .name("FlatMap 5")
                 .uid("op5")
                 .setParallelism(params.getInt("p5", 1))
-                .setMaxParallelism(params.getInt("mp5", 8));
+                .setMaxParallelism(params.getInt("mp5", 8))
+                .slotSharingGroup("g5");
 
         env.execute();
     }
@@ -99,7 +102,7 @@ public class MultiOperatorTest {
 
         private RandomDataGenerator randomGen = new RandomDataGenerator();
         private transient MapState<String, String> countMap;
-        private int ioRatio = 1;
+        private int ioRatio;
         private final int perKeyStateSize;
         private long averageDelay = 1000; // micro second
 

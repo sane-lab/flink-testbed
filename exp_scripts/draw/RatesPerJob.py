@@ -7,7 +7,11 @@ import matplotlib.pyplot as plt
 OPERATOR_NAMING = {
     "0a448493b4782967b150582570326227": "Stateful Map",
     "c21234bcbf1e8eb4c61f1927190efebd": "Splitter",
-    "22359d48bcb33236cf1e31888091e54c": "Counter"
+    "22359d48bcb33236cf1e31888091e54c": "Counter",
+    "a84740bacf923e828852cc4966f2247c": "OP2",
+    "eabd4c11f6c6fbdf011f0f1fc42097b1": "OP3",
+    "d01047f852abd5702a0dabeedac99ff5": "OP4",
+    "d2336f79a0d60b5a4b16c8769ec82e47": "OP5",
 }
 
 
@@ -277,7 +281,7 @@ def draw(rawDir, outputDir, expName):
         sy = [totalServiceRatePerJob[job][x] for x in sx]
 
         print("Draw job " + job + " figure...")
-        plt.subplot(2, 1, i+1)
+        plt.subplot(len(totalArrivalRatePerJob.keys()), 1, i+1)
 
         print("Draw total arrival rates")
         legend = ["Arrival Rate"]
@@ -315,17 +319,29 @@ def draw(rawDir, outputDir, expName):
 rateYMax = {
     "Stateful Map": 200,
     "Splitter": 500,
-    "Counter": 200
+    "Counter": 200,
+    "OP2": 1000,
+    "OP3": 1000,
+    "OP4": 1000,
+    "OP5": 1000,
 }
 backlogYMax = {
     "Stateful Map": 200,
     "Splitter": 1000,
-    "Counter": 1000
+    "Counter": 1000,
+    "OP2": 1000,
+    "OP3": 1000,
+    "OP4": 1000,
+    "OP5": 1000,
 }
 totalYMax = {
     "Stateful Map": 1000,
     "Splitter": 1000,
-    "Counter": 2000
+    "Counter": 2000,
+    "OP2": 2000,
+    "OP3": 2000,
+    "OP4": 2000,
+    "OP5": 2000,
 }
 rawDir = "/Users/swrrt/Workplace/BacklogDelayPaper/experiments/raw/"
 outputDir = "/Users/swrrt/Workplace/BacklogDelayPaper/experiments/results/"
