@@ -40,7 +40,7 @@ run_one_exp() {
 init() {
   # exp scenario
   controller_type=StreamSluice
-  vertex_id="a84740bacf923e828852cc4966f2247c,eabd4c11f6c6fbdf011f0f1fc42097b1,d01047f852abd5702a0dabeedac99ff5,d2336f79a0d60b5a4b16c8769ec82e47"
+  vertex_id="c21234bcbf1e8eb4c61f1927190efebd,22359d48bcb33236cf1e31888091e54c"
   L=1000
   migration_overhead=500
   migration_interval=200
@@ -64,27 +64,27 @@ init() {
   STATE_SIZE3=10000
   STATE_SIZE4=10000
   STATE_SIZE5=10000
-  N1=1
+  P1=1
 
-  N2=1
+  P2=1
   MP2=128
   DELAY2=1000
   IO2=1
   STATE_SIZE2=1
 
-  N3=5
+  P3=5
   MP3=128
   DELAY3=10000
   IO3=1
   STATE_SIZE3=10000
 
-  N4=1
+  P4=1
   MP4=128
   DELAY4=1000
   IO4=1
   STATE_SIZE4=10000
 
-  N5=2
+  P5=2
   MP5=128
   DELAY5=2000
   STATE_SIZE5=10000
@@ -115,19 +115,17 @@ function runApp() {
 run_scale_test(){
     echo "Run two operator test..."
     init
-    migration_overhead=500
     is_treat=false
     repeat=1
-    #run_one_exp
+    run_one_exp
     #for L in 750 1000 1250 1500 2000; do
-    L=1000
-    for PERIOD_I in 15 30 60 120; do
-        for is_treat in true; do
-            for repeat in 1; do
-                run_one_exp
-            done
-        done
-    done
+    #for PERIOD_I in 15 30 60 120; do
+    #    for is_treat in true; do
+    #        for repeat in 1; do
+    #            run_one_exp
+    #        done
+    #    done
+    #done
 }
 
 run_scale_test
