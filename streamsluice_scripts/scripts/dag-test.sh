@@ -40,6 +40,8 @@ run_one_exp() {
 init() {
   # exp scenario
   controller_type=StreamSluice
+  whether_type="streamsluice"
+  how_type="streamsluice"
   vertex_id="a84740bacf923e828852cc4966f2247c,eabd4c11f6c6fbdf011f0f1fc42097b1,d01047f852abd5702a0dabeedac99ff5,d2336f79a0d60b5a4b16c8769ec82e47"
   L=1000
   migration_overhead=500
@@ -51,19 +53,15 @@ init() {
   # only used in script
   runtime=120
   # set in Flink app
-  RATE1=400
+  RATE1=300
   TIME1=30
   RATE2=600
   TIME2=40
-  RATE_I=500
+  RATE_I=450
   TIME_I=120
   PERIOD_I=240
-  AVERAGE_LENGTH=2
   ZIPF_SKEW=0.25
   NKEYS=1000
-  STATE_SIZE3=10000
-  STATE_SIZE4=10000
-  STATE_SIZE5=10000
   P1=1
 
   P2=1
@@ -72,22 +70,22 @@ init() {
   IO2=1
   STATE_SIZE2=1
 
-  P3=5
+  P3=4
   MP3=128
   DELAY3=10000
   IO3=1
-  STATE_SIZE3=10000
+  STATE_SIZE3=1000
 
   P4=1
   MP4=128
   DELAY4=1000
   IO4=1
-  STATE_SIZE4=10000
+  STATE_SIZE4=1000
 
-  P5=2
+  P5=1
   MP5=128
-  DELAY5=2000
-  STATE_SIZE5=10000
+  DELAY5=1000
+  STATE_SIZE5=1000
 
 
   repeat=1
@@ -100,14 +98,14 @@ function runApp() {
     -p1 ${P1} -mp1 ${MP1} -p2 ${P2} -mp2 ${MP2} -op2Delay ${DELAY2} -op2IoRate ${IO2} -op2KeyStateSize ${STATE_SIZE2} \
     -p3 ${P3} -mp3 ${MP3} -op3Delay ${DELAY3} -op3IoRate ${IO3} -op3KeyStateSize ${STATE_SIZE3} \
     -p4 ${P4} -mp4 ${MP4} -op4Delay ${DELAY4} -op4IoRate ${IO4} -op4KeyStateSize ${STATE_SIZE4} \
-    -p5 ${P5} -mp5 ${MP5} -op5Delay ${DELAY2} -op5KeyStateSize ${STATE_SIZE5} \
+    -p5 ${P5} -mp5 ${MP5} -op5Delay ${DELAY5} -op5KeyStateSize ${STATE_SIZE5} \
     -nkeys ${NKEYS} -phase1Time ${TIME1} -phase1Rate ${RATE1} -phase2Time ${TIME2} \
     -phase2Rate ${RATE2} -interTime ${TIME_I} -interRate ${RATE_I} -interPeriod ${PERIOD_I} -zipf_skew ${ZIPF_SKEW} &"
     ${FLINK_DIR}/bin/flink run -c ${job} ${JAR} \
     -p1 ${P1} -mp1 ${MP1} -p2 ${P2} -mp2 ${MP2} -op2Delay ${DELAY2} -op2IoRate ${IO2} -op2KeyStateSize ${STATE_SIZE2} \
     -p3 ${P3} -mp3 ${MP3} -op3Delay ${DELAY3} -op3IoRate ${IO3} -op3KeyStateSize ${STATE_SIZE3} \
     -p4 ${P4} -mp4 ${MP4} -op4Delay ${DELAY4} -op4IoRate ${IO4} -op4KeyStateSize ${STATE_SIZE4} \
-    -p5 ${P5} -mp5 ${MP5} -op5Delay ${DELAY2} -op5KeyStateSize ${STATE_SIZE5} \
+    -p5 ${P5} -mp5 ${MP5} -op5Delay ${DELAY5} -op5KeyStateSize ${STATE_SIZE5} \
     -nkeys ${NKEYS} -phase1Time ${TIME1} -phase1Rate ${RATE1} -phase2Time ${TIME2} \
     -phase2Rate ${RATE2} -interTime ${TIME_I} -interRate ${RATE_I} -interPeriod ${PERIOD_I} -zipf_skew ${ZIPF_SKEW} &
 }
@@ -115,7 +113,7 @@ function runApp() {
 run_scale_test(){
     echo "Run two operator test..."
     init
-    is_treat=false
+    is_treat=true
     repeat=1
     run_one_exp
     #for L in 750 1000 1250 1500 2000; do
