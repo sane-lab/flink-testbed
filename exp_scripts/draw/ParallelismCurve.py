@@ -6,10 +6,24 @@ import matplotlib.pyplot as plt
 
 
 OPERATOR_NAMING = {
-    "TOTAL": "TOTAL",
     "0a448493b4782967b150582570326227": "Stateful Map",
     "c21234bcbf1e8eb4c61f1927190efebd": "Splitter",
-    "22359d48bcb33236cf1e31888091e54c": "Counter"
+    "22359d48bcb33236cf1e31888091e54c": "Counter",
+    "a84740bacf923e828852cc4966f2247c": "OP2",
+    "eabd4c11f6c6fbdf011f0f1fc42097b1": "OP3",
+    "d01047f852abd5702a0dabeedac99ff5": "OP4",
+    "d2336f79a0d60b5a4b16c8769ec82e47": "OP5",
+    "TOTAL": "TOTAL",
+}
+COLOR = {
+    "TOTAL": "red",
+    "Stateful Map": "red",
+    "Splitter": "blue",
+    "Counter": "green",
+    "OP2": "blue",
+    "OP3": "green",
+    "OP4": "purple",
+    "OP5": "orange",
 }
 
 SMALL_SIZE = 25
@@ -176,11 +190,7 @@ def draw(rawDir, outputDir, expName):
 
 
     fig = plt.figure(figsize=(24, 18))
-    colors = {}
-    colors["TOTAL"] = "red"
-    colors["Stateful Map"] = "red"
-    colors["Splitter"] = "blue"
-    colors["Counter"] = "green"
+
     legend = []
     for job in ParallelismPerJob:
         print("Draw Job " + job + " curve...")
@@ -203,7 +213,7 @@ def draw(rawDir, outputDir, expName):
             line[0].append(x1)
             line[1].append(y0)
             line[1].append(y1)
-        plt.plot(line[0], line[1], color=colors[OPERATOR_NAMING[job]], linewidth=LINEWIDTH)
+        plt.plot(line[0], line[1], color=COLOR[OPERATOR_NAMING[job]], linewidth=LINEWIDTH)
     plt.legend(legend, loc='upper left')
     for operator in scalingMarkerByOperator:
         addScalingMarker(plt, scalingMarkerByOperator[operator])
@@ -218,8 +228,8 @@ def draw(rawDir, outputDir, expName):
     for x in range(0, lastTime-initialTime, 10000):
         xlabels += [str(int(x / 1000))]
     axes.set_xticklabels(xlabels)
-    axes.set_ylim(0, 20)
-    axes.set_yticks(np.arange(0, 20, 2))
+    axes.set_ylim(0, 40)
+    axes.set_yticks(np.arange(0, 40, 2))
     plt.grid(True)
     import os
     if not os.path.exists(outputDir):
@@ -231,6 +241,6 @@ def draw(rawDir, outputDir, expName):
 rawDir = "/Users/swrrt/Workplace/BacklogDelayPaper/experiments/raw/"
 outputDir = "/Users/swrrt/Workplace/BacklogDelayPaper/experiments/results/"
 #expName = "streamsluice-scaletest-400-600-500-5-2000-1000-100-1"
-expName = "streamsluice-twoOP-180-400-400-500-30-5-10-2-0.25-1500-500-10000-100-true-1"
+expName = "streamsluice-dag-120-1000-1500-1250-240-1-0.25-4-1666-1-1000-9-5000-1-1000-5-2500-1-1000-7-1666-1000-1000-500-100-true-1"
 draw(rawDir, outputDir + expName + "/", expName)
 

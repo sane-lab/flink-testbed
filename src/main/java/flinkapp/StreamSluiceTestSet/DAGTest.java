@@ -4,7 +4,6 @@ import Nexmark.sources.Util;
 import common.FastZipfGenerator;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.math3.random.RandomDataGenerator;
-import org.apache.flink.api.common.functions.FlatMapFunction;
 import org.apache.flink.api.common.functions.RichFlatMapFunction;
 import org.apache.flink.api.common.functions.RichMapFunction;
 import org.apache.flink.api.common.state.ListState;
@@ -32,7 +31,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public class MultiOperatorTest {
+public class DAGTest {
     public static void main(String[] args) throws Exception {
         // Checking input parameters
         final ParameterTool params = ParameterTool.fromArgs(args);

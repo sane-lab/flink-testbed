@@ -49,42 +49,42 @@ init() {
   epoch=100
   # app level
   JAR="${FLINK_APP_DIR}/target/testbed-1.0-SNAPSHOT.jar"
-  job="flinkapp.StreamSluiceTestSet.MultiOperatorTest"
+  job="flinkapp.StreamSluiceTestSet.DAGTest"
   # only used in script
   runtime=120
   # set in Flink app
-  RATE1=300
+  RATE1=6000
   TIME1=30
-  RATE2=600
+  RATE2=8000
   TIME2=40
-  RATE_I=450
+  RATE_I=7000
   TIME_I=120
   PERIOD_I=240
   ZIPF_SKEW=0.25
   NKEYS=1000
   P1=1
 
-  P2=1
+  P2=3 #2
   MP2=128
-  DELAY2=1000
+  DELAY2=250
   IO2=1
-  STATE_SIZE2=1
+  STATE_SIZE2=1000
 
-  P3=4
+  P3=7 #6
   MP3=128
-  DELAY3=10000
+  DELAY3=800
   IO3=1
   STATE_SIZE3=1000
 
-  P4=1
+  P4=4 #3
   MP4=128
-  DELAY4=1000
+  DELAY4=400
   IO4=1
   STATE_SIZE4=1000
 
-  P5=1
+  P5=3 #2
   MP5=128
-  DELAY5=1000
+  DELAY5=125
   STATE_SIZE5=1000
 
 
@@ -111,7 +111,7 @@ function runApp() {
 }
 
 run_scale_test(){
-    echo "Run two operator test..."
+    echo "Run DAG test..."
     init
     is_treat=true
     repeat=1

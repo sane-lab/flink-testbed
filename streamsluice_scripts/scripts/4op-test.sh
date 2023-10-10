@@ -17,7 +17,7 @@ function analyze() {
 }
 
 run_one_exp() {
-  EXP_NAME=streamsluice-dag-${runtime}-${RATE1}-${RATE2}-${RATE_I}-${PERIOD_I}-${P1}-${ZIPF_SKEW}-${P2}-${DELAY2}-${IO2}-${STATE_SIZE2}-${P3}-${DELAY3}-${IO3}-${STATE_SIZE3}-${P4}-${DELAY4}-${IO4}-${STATE_SIZE4}-${P5}-${DELAY5}-${STATE_SIZE5}-${L}-${migration_overhead}-${epoch}-${is_treat}-${repeat}
+  EXP_NAME=streamsluice-4op-${runtime}-${RATE1}-${RATE2}-${RATE_I}-${PERIOD_I}-${P1}-${ZIPF_SKEW}-${P2}-${DELAY2}-${IO2}-${STATE_SIZE2}-${P3}-${DELAY3}-${IO3}-${STATE_SIZE3}-${P4}-${DELAY4}-${IO4}-${STATE_SIZE4}-${P5}-${DELAY5}-${STATE_SIZE5}-${L}-${migration_overhead}-${epoch}-${is_treat}-${repeat}
 
   echo "INFO: run exp ${EXP_NAME}"
   configFlink
@@ -45,7 +45,7 @@ init() {
   vertex_id="a84740bacf923e828852cc4966f2247c,eabd4c11f6c6fbdf011f0f1fc42097b1,d01047f852abd5702a0dabeedac99ff5,d2336f79a0d60b5a4b16c8769ec82e47"
   L=1000
   migration_overhead=500
-  migration_interval=200
+  migration_interval=500
   epoch=100
   # app level
   JAR="${FLINK_APP_DIR}/target/testbed-1.0-SNAPSHOT.jar"
@@ -53,39 +53,39 @@ init() {
   # only used in script
   runtime=120
   # set in Flink app
-  RATE1=300
+  RATE1=8000
   TIME1=30
-  RATE2=600
+  RATE2=12000
   TIME2=40
-  RATE_I=450
+  RATE_I=10000
   TIME_I=120
-  PERIOD_I=240
-  ZIPF_SKEW=0.25
+  PERIOD_I=240a
+  ZIPF_SKEW=0
   NKEYS=1000
   P1=1
 
-  P2=1
+  P2=2
   MP2=128
-  DELAY2=1000
+  DELAY2=200
   IO2=1
-  STATE_SIZE2=1
+  STATE_SIZE2=100
 
   P3=5
   MP3=128
-  DELAY3=10000
+  DELAY3=500
   IO3=1
-  STATE_SIZE3=1000
+  STATE_SIZE3=100
 
-  P4=2
+  P4=3
   MP4=128
-  DELAY4=5000
+  DELAY4=333
   IO4=1
-  STATE_SIZE4=1000
+  STATE_SIZE4=100
 
-  P5=1
+  P5=3
   MP5=128
-  DELAY5=2000
-  STATE_SIZE5=1000
+  DELAY5=250
+  STATE_SIZE5=100
 
 
   repeat=1

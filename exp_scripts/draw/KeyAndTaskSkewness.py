@@ -9,7 +9,11 @@ import pandas as pd
 OPERATOR_NAMING = {
     "0a448493b4782967b150582570326227": "Stateful Map",
     "c21234bcbf1e8eb4c61f1927190efebd": "Splitter",
-    "22359d48bcb33236cf1e31888091e54c": "Counter"
+    "22359d48bcb33236cf1e31888091e54c": "Counter",
+    "a84740bacf923e828852cc4966f2247c": "OP2",
+    "eabd4c11f6c6fbdf011f0f1fc42097b1": "OP3",
+    "d01047f852abd5702a0dabeedac99ff5": "OP4",
+    "d2336f79a0d60b5a4b16c8769ec82e47": "OP5",
 }
 
 SMALL_SIZE = 25

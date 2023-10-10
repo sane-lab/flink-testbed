@@ -188,6 +188,8 @@ public class FourOperatorTest {
 
         private final Map<Integer, List<String>> keyGroupMapping = new HashMap<>();
 
+        private final Map<Integer, Long> totalOutputNumbers = new HashMap<>();
+
         public TwoPhaseSineSource(long PHASE1_TIME, long PHASE2_TIME, long INTERMEDIATE_TIME, long PHASE1_RATE, long PHASE2_RATE, long INTERMEDIATE_RATE, long INTERMEDIATE_PERIOD, int maxParallelism, double zipfSkew, int nkeys){
             this.PHASE1_TIME = PHASE1_TIME;
             this.PHASE2_TIME = PHASE2_TIME;
@@ -201,7 +203,7 @@ public class FourOperatorTest {
             this.maxParallelism = maxParallelism;
             this.fastZipfGenerator = new FastZipfGenerator(maxParallelism, zipfSkew, 0, 114514);
             for (int i = 0; i < nkeys; i++) {
-                String key = getChar(i);
+                String key = "A" + i;
                 int keygroup = MathUtils.murmurHash(key.hashCode()) % maxParallelism;
                 List<String> keys = keyGroupMapping.computeIfAbsent(keygroup, t -> new ArrayList<>());
                 keys.add(key);
@@ -236,6 +238,7 @@ public class FourOperatorTest {
                 for (int i = 0; i < PHASE1_RATE / 20; i++) {
                     int selectedKeygroup = fastZipfGenerator.next();
                     subKeySet = keyGroupMapping.get(selectedKeygroup);
+                    totalOutputNumbers.put(selectedKeygroup, totalOutputNumbers.getOrDefault(selectedKeygroup, 0l)+1);
                     String key = getSubKeySetChar(count, subKeySet);
                     ctx.collect(Tuple3.of(key, System.currentTimeMillis(), (long)count));
                     count++;
@@ -266,6 +269,7 @@ public class FourOperatorTest {
                 synchronized (ctx.getCheckpointLock()) {
                     int selectedKeygroup = fastZipfGenerator.next();
                     subKeySet = keyGroupMapping.get(selectedKeygroup);
+                    totalOutputNumbers.put(selectedKeygroup, totalOutputNumbers.getOrDefault(selectedKeygroup, 0l)+1);
                     String key = getSubKeySetChar(count, subKeySet);
                     ctx.collect(Tuple3.of(key, System.currentTimeMillis(), (long)count));
                     remainedNumber --;
@@ -284,6 +288,7 @@ public class FourOperatorTest {
                 for (int i = 0; i < PHASE2_RATE / 20; i++) {
                     int selectedKeygroup = fastZipfGenerator.next();
                     subKeySet = keyGroupMapping.get(selectedKeygroup);
+                    totalOutputNumbers.put(selectedKeygroup, totalOutputNumbers.getOrDefault(selectedKeygroup, 0l)+1);
                     String key = getSubKeySetChar(count, subKeySet);
                     ctx.collect(Tuple3.of(key, System.currentTimeMillis(), (long)count));
                     count++;

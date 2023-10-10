@@ -320,31 +320,31 @@ rateYMax = {
     "Stateful Map": 200,
     "Splitter": 500,
     "Counter": 200,
-    "OP2": 1000,
-    "OP3": 1000,
-    "OP4": 1000,
-    "OP5": 1000,
+    "OP2": 10000,
+    "OP3": 5000,
+    "OP4": 5000,
+    "OP5": 10000,
 }
 backlogYMax = {
     "Stateful Map": 200,
     "Splitter": 1000,
     "Counter": 1000,
-    "OP2": 1000,
-    "OP3": 1000,
-    "OP4": 1000,
-    "OP5": 1000,
+    "OP2": 10000,
+    "OP3": 10000,
+    "OP4": 10000,
+    "OP5": 10000,
 }
 totalYMax = {
     "Stateful Map": 1000,
     "Splitter": 1000,
     "Counter": 2000,
-    "OP2": 2000,
-    "OP3": 2000,
-    "OP4": 2000,
-    "OP5": 2000,
+    "OP2": 20000,
+    "OP3": 20000,
+    "OP4": 20000,
+    "OP5": 30000,
 }
 rawDir = "/Users/swrrt/Workplace/BacklogDelayPaper/experiments/raw/"
 outputDir = "/Users/swrrt/Workplace/BacklogDelayPaper/experiments/results/"
-expName = "streamsluice-dag-120-300-600-450-240-1-0.25-1-1000-1-1-4-10000-1000-1-1000-1000-1000-500-100-true-1"
+expName = "streamsluice-4op-120-8000-12000-10000-240-1-0-2-200-1-100-5-500-1-100-3-333-1-100-3-250-100-1000-500-100-true-1"
 #expName = "streamsluice-twoOP-180-400-400-500-30-5-10-2-0.25-1500-500-10000-100-true-1"
 draw(rawDir, outputDir + expName + "/", expName)

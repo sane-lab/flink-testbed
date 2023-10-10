@@ -152,11 +152,11 @@ def draw(rawDir, outputDir, expName, baselineName, windowSize):
 
 rawDir = "/Users/swrrt/Workplace/BacklogDelayPaper/experiments/raw/"
 outputDir = "/Users/swrrt/Workplace/BacklogDelayPaper/experiments/results/"
-expName = "streamsluice-dag-120-400-600-500-240-1-0.25-1-1000-1-1-5-10000-1-10000-1-1000-1-10000-2-2000-1-1000-500-100-false-1"
+expName = "streamsluice-4op-120-8000-12000-10000-240-1-0-2-200-1-100-5-500-1-100-3-333-1-100-3-250-100-1000-500-100-true-1"
 #expName = "streamsluice-scaletest-400-400-550-5-2000-1000-100-1"
-baselineName = "streamsluice-dag-120-400-600-500-240-1-0.25-1-1000-1-1-5-10000-1-10000-1-1000-1-10000-2-2000-1-1000-500-100-false-1"
+baselineName = "streamsluice-4op-120-8000-12000-10000-240-1-0-2-200-1-100-5-500-1-100-3-333-1-100-3-250-100-1000-500-100-true-1"
 windowSize = 1
-latencyLimit = 1500
-endTime = 180
+latencyLimit = 1000
+endTime = 120
 isSingleOperator = False #True
 draw(rawDir, outputDir + expName + "/", expName, baselineName, windowSize)
