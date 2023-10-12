@@ -51,15 +51,15 @@ init() {
   JAR="${FLINK_APP_DIR}/target/testbed-1.0-SNAPSHOT.jar"
   job="flinkapp.StreamSluiceTestSet.FourOperatorTest"
   # only used in script
-  runtime=120
+  runtime=300
   # set in Flink app
   RATE1=8000
   TIME1=30
-  RATE2=12000
+  RATE2=8000
   TIME2=40
   RATE_I=10000
-  TIME_I=120
-  PERIOD_I=240a
+  TIME_I=240
+  PERIOD_I=120
   ZIPF_SKEW=0
   NKEYS=1000
   P1=1
@@ -111,21 +111,100 @@ function runApp() {
 }
 
 run_scale_test(){
-    echo "Run two operator test..."
+    echo "Run 4 operator test..."
     init
-    is_treat=true
-    repeat=1
-    run_one_exp
-    #for L in 750 1000 1250 1500 2000; do
-    #for PERIOD_I in 15 30 60 120; do
-    #    for is_treat in true; do
-    #        for repeat in 1; do
-    #            run_one_exp
+    #L=1000
+    #is_treat=false
+    #repeat=1
+    #run_one_exp
+
+    # Range
+#    true_spike=400
+#    PERIOD_I=120
+#    for RATE1 in 5000 6000 7000 9000; do
+#        RATE2=${RATE1}
+#        L=1000
+#        is_treat=false
+#        repeat=1
+#        run_one_exp
+#        for L in 750 1000 1250 1500 2000; do
+#            migration_overhead="$((${L}-${true_spike}))"
+#            #migration_overhead="$(((${L}-${true_spike})/2+${true_spike}))"
+#            migration_interval="$((${L}-${true_spike}))"
+#            for is_treat in true; do
+#                for repeat in 1; do
+#                    run_one_exp
+#                done
+#            done
+#        done
+#    done
+
+    # Period
+#    true_spike=400
+#    RATE1=8000
+#    RATE2=8000
+#    for PERIOD_I in 30 48 60 80; do
+#        L=1000
+#        is_treat=false
+#        repeat=1
+#        run_one_exp
+#        for L in 750 1000 1250 1500 2000; do
+#            migration_overhead="$((${L}-${true_spike}))"
+#            #migration_overhead="$(((${L}-${true_spike})/2+${true_spike}))"
+#            migration_interval="$((${L}-${true_spike}))"
+#            for is_treat in true; do
+#                for repeat in 1; do
+#                    run_one_exp
+#                done
+#            done
+#        done
+#    done
+
+    # SKEW
+#    PERIOD_I=120
+#    for ZIPF_SKEW in 0.25 0.5 1; do
+#        L=1000
+#        is_treat=false
+#        repeat=1
+#        run_one_exp
+#        for L in 750 1000 1250 1500 2000; do
+#            migration_overhead="$((${L}-${true_spike}))"
+#            #migration_overhead="$(((${L}-${true_spike})/2+${true_spike}))"
+#            migration_interval="$((${L}-${true_spike}))"
+#            for is_treat in true; do
+#                for repeat in 1; do
+#                    run_one_exp
+#                done
+#            done
+#        done
+#    done
+
+    # State size
+    #RATE1=8000
+    #RATE2=8000
+    #PERIOD_I=120
+    #ZIPF_SKEW=0
+    #for STATE_SIZE2 in 500 1000 2000 4000; do
+    #    STATE_SIZE3=${STATE_SIZE2}
+    #    STATE_SIZE4=${STATE_SIZE2}
+    #    STATE_SIZE5=${STATE_SIZE2}
+    #    is_treat=false
+    #    repeat=1
+    #    run_one_exp
+    #    for L in 750 1000 1250 1500 2000; do
+    #        for migration_overhead in 250 500 750 1000 1500; do
+    #            if [[ ${L} -gt ${migration_overhead} ]]; then
+    #                migration_interval="$((${L}-${STATE_SIZE2}))"
+    #                for is_treat in true; do
+    #                    for repeat in 1; do
+    #                        run_one_exp
+    #                    done
+    #                done
+    #            fi
     #        done
     #    done
     #done
 }
 
 run_scale_test
-
 

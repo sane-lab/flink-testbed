@@ -241,6 +241,6 @@ def draw(rawDir, outputDir, expName):
 rawDir = "/Users/swrrt/Workplace/BacklogDelayPaper/experiments/raw/"
 outputDir = "/Users/swrrt/Workplace/BacklogDelayPaper/experiments/results/"
 #expName = "streamsluice-scaletest-400-600-500-5-2000-1000-100-1"
-expName = "streamsluice-dag-120-1000-1500-1250-240-1-0.25-4-1666-1-1000-9-5000-1-1000-5-2500-1-1000-7-1666-1000-1000-500-100-true-1"
+expName = "streamsluice-4op-120-8000-12000-10000-180-1-0-2-200-1-100-5-500-1-100-3-333-1-100-3-250-100-2000-500-100-true-1"
 draw(rawDir, outputDir + expName + "/", expName)
 

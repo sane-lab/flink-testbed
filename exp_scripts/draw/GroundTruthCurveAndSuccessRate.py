@@ -140,8 +140,8 @@ def draw(rawDir, outputDir, expName, baselineName, windowSize):
         xlabels += [str(int(x / 1000))]
     axes.set_xticklabels(xlabels)
     # axes.set_yscale('log')
-    axes.set_ylim(0, 5000)
-    axes.set_yticks(np.arange(0, 5000, 500))
+    axes.set_ylim(0, 3000)
+    axes.set_yticks(np.arange(0, 3000, 200))
     plt.grid(True)
     import os
     if not os.path.exists(outputDir):
@@ -152,11 +152,15 @@ def draw(rawDir, outputDir, expName, baselineName, windowSize):
 
 rawDir = "/Users/swrrt/Workplace/BacklogDelayPaper/experiments/raw/"
 outputDir = "/Users/swrrt/Workplace/BacklogDelayPaper/experiments/results/"
-expName = "streamsluice-4op-120-8000-12000-10000-240-1-0-2-200-1-100-5-500-1-100-3-333-1-100-3-250-100-1000-500-100-true-1"
+expName = "streamsluice-4op-300-8000-8000-10000-120-1-0-2-200-1-100-5-500-1-100-3-333-1-100-3-250-100-1000-600-100-true-2"
+import sys
+if len(sys.argv) > 1:
+    expName = sys.argv[1].split("/")[-1]
 #expName = "streamsluice-scaletest-400-400-550-5-2000-1000-100-1"
-baselineName = "streamsluice-4op-120-8000-12000-10000-240-1-0-2-200-1-100-5-500-1-100-3-333-1-100-3-250-100-1000-500-100-true-1"
+baselineName = expName #"streamsluice-4op-300-5000-5000-10000-120-1-0-2-200-1-100-5-500-1-100-3-333-1-100-3-250-100-1000-500-100-false-1"
 windowSize = 1
-latencyLimit = 1000
-endTime = 120
+#latencyLimit = 2000
+latencyLimit = int(expName.split("-")[-5])
+endTime = 300
 isSingleOperator = False #True
 draw(rawDir, outputDir + expName + "/", expName, baselineName, windowSize)

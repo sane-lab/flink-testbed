@@ -173,8 +173,8 @@ def draw(rawDir, outputDir, expName):
                         serviceRatePerTask[task] = [[], []]
                     serviceRatePerTask[task][0] += [time - initialTime]
                     serviceRatePerTask[task][1] += [int(serviceRates[task] * 1000)]
-    print(backlogPerTask)
-    print(arrivalRates)
+    #print(backlogPerTask)
+    #print(arrivalRates)
 
     taskPerFig = [[]]
 
@@ -196,58 +196,58 @@ def draw(rawDir, outputDir, expName):
         taskPerFig[-1] += [task]
 
     print(scalingMarkerByOperator)
+    if drawTaskFigureFlag:
+        for i in range(0, len(taskPerFig)):
+            print("Draw " + str(i) + "-th figure...")
+            figName = "ratesPerTask_" + str(i) + ".png"
+            fig = plt.figure(figsize=(24, 30))
+            print(taskPerFig[i])
+            for j in range(0, len(taskPerFig[i])):
+                task = taskPerFig[i][j]
+                print("Draw task " + task + " figure...")
+                ax1 = plt.subplot(MAXTASKPERFIG, 1, j + 1)
+                ax2 = ax1.twinx()
+                print("Draw arrival rates")
+                ax1.plot(arrivalRatePerTask[task][0], arrivalRatePerTask[task][1], '*', color='red', markersize=MARKERSIZE, label="Arrival Rate")
+                print("Draw service rates")
+                ax1.plot(serviceRatePerTask[task][0], serviceRatePerTask[task][1], '*', color='blue', markersize=MARKERSIZE, label="Service Rate")
+                operator = task.split('_')[0]
+                if(operator in scalingMarkerByOperator):
+                    addScalingMarker(plt, scalingMarkerByOperator[operator])
+                ax1.set_xlabel('Time (s)')
+                ax1.set_ylabel('Rate (tps)')
+                plt.title('Rates and Backlog of ' + task)
+                ax1.set_xlim(0, lastTime-initialTime)
+                ax1.set_xticks(np.arange(0, lastTime-initialTime, 10000))
+                xlabels = []
+                for x in range(0, lastTime-initialTime, 10000):
+                    xlabels += [str(int(x / 1000))]
+                ax1.set_xticklabels(xlabels)
+                job = task.split("_")[0]
+                ylim = rateYMax[OPERATOR_NAMING[job]]
+                ax1.set_ylim(1, ylim)
+                ax1.set_yticks(np.arange(0, ylim, ylim / 10))
+                plt.grid(True)
 
-    for i in range(0, len(taskPerFig)):
-        print("Draw " + str(i) + "-th figure...")
-        figName = "ratesPerTask_" + str(i) + ".png"
-        fig = plt.figure(figsize=(24, 30))
-        print(taskPerFig[i])
-        for j in range(0, len(taskPerFig[i])):
-            task = taskPerFig[i][j]
-            print("Draw task " + task + " figure...")
-            ax1 = plt.subplot(MAXTASKPERFIG, 1, j + 1)
-            ax2 = ax1.twinx()
-            print("Draw arrival rates")
-            ax1.plot(arrivalRatePerTask[task][0], arrivalRatePerTask[task][1], '*', color='red', markersize=MARKERSIZE, label="Arrival Rate")
-            print("Draw service rates")
-            ax1.plot(serviceRatePerTask[task][0], serviceRatePerTask[task][1], '*', color='blue', markersize=MARKERSIZE, label="Service Rate")
-            operator = task.split('_')[0]
-            if(operator in scalingMarkerByOperator):
-                addScalingMarker(plt, scalingMarkerByOperator[operator])
-            ax1.set_xlabel('Time (s)')
-            ax1.set_ylabel('Rate (tps)')
-            plt.title('Rates and Backlog of ' + task)
-            ax1.set_xlim(0, lastTime-initialTime)
-            ax1.set_xticks(np.arange(0, lastTime-initialTime, 10000))
-            xlabels = []
-            for x in range(0, lastTime-initialTime, 10000):
-                xlabels += [str(int(x / 1000))]
-            ax1.set_xticklabels(xlabels)
-            job = task.split("_")[0]
-            ylim = rateYMax[OPERATOR_NAMING[job]]
-            ax1.set_ylim(1, ylim)
-            ax1.set_yticks(np.arange(0, ylim, ylim / 10))
-            plt.grid(True)
+                print("Draw backlog")
+                ax2.plot(backlogPerTask[task][0], backlogPerTask[task][1], '*', color='grey', markersize=MARKERSIZE, label="Backlog")
+                lines1, labels1 = ax1.get_legend_handles_labels()
+                lines2, labels2 = ax2.get_legend_handles_labels()
+                ax2.legend(lines1 + lines2, labels1 + labels2, loc='upper left')
+                ax2.set_xlabel('Time (s)')
+                ax2.set_ylabel('# of Tuples')
+                #ax2.set_yscale('log')
+                # ax2.set_yticks([1, 100, 1000, 10000, 100000])
+                job = task.split("_")[0]
+                ylim = backlogYMax[OPERATOR_NAMING[job]]
+                ax2.set_ylim(1, ylim)
+                ax2.set_yticks(np.arange(0, ylim, ylim / 10))
 
-            print("Draw backlog")
-            ax2.plot(backlogPerTask[task][0], backlogPerTask[task][1], '*', color='grey', markersize=MARKERSIZE, label="Backlog")
-            lines1, labels1 = ax1.get_legend_handles_labels()
-            lines2, labels2 = ax2.get_legend_handles_labels()
-            ax2.legend(lines1 + lines2, labels1 + labels2, loc='upper left')
-            ax2.set_xlabel('Time (s)')
-            ax2.set_ylabel('# of Tuples')
-            #ax2.set_yscale('log')
-            # ax2.set_yticks([1, 100, 1000, 10000, 100000])
-            job = task.split("_")[0]
-            ylim = backlogYMax[OPERATOR_NAMING[job]]
-            ax2.set_ylim(1, ylim)
-            ax2.set_yticks(np.arange(0, ylim, ylim / 10))
-
-        import os
-        if not os.path.exists(outputDir):
-            os.makedirs(outputDir)
-        plt.savefig(outputDir + figName)
-        plt.close(fig)
+            import os
+            if not os.path.exists(outputDir):
+                os.makedirs(outputDir)
+            plt.savefig(outputDir + figName)
+            plt.close(fig)
 
     totalArrivalRatePerJob = {}
     totalServiceRatePerJob = {}
@@ -341,10 +341,14 @@ totalYMax = {
     "OP2": 20000,
     "OP3": 20000,
     "OP4": 20000,
-    "OP5": 30000,
+    "OP5": 20000,
 }
 rawDir = "/Users/swrrt/Workplace/BacklogDelayPaper/experiments/raw/"
 outputDir = "/Users/swrrt/Workplace/BacklogDelayPaper/experiments/results/"
-expName = "streamsluice-4op-120-8000-12000-10000-240-1-0-2-200-1-100-5-500-1-100-3-333-1-100-3-250-100-1000-500-100-true-1"
+drawTaskFigureFlag = False
+expName = "streamsluice-4op-120-8000-12000-10000-180-1-0-2-200-1-100-5-500-1-100-3-333-1-100-3-250-100-750-400-100-true-1"
 #expName = "streamsluice-twoOP-180-400-400-500-30-5-10-2-0.25-1500-500-10000-100-true-1"
+import sys
+if len(sys.argv) > 1:
+    expName = sys.argv[1].split("/")[-1]
 draw(rawDir, outputDir + expName + "/", expName)

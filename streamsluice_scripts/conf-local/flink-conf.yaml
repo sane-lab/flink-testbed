@@ -49,7 +49,7 @@ taskmanager.heap.size: 10240m
 
 # The number of task slots that each TaskManager offers. Each slot runs one parallel pipeline.
 
-taskmanager.numberOfTaskSlots: 32
+taskmanager.numberOfTaskSlots: 64
 
 # The parallelism used for programs that did not specify and other parallelism.
 
@@ -278,7 +278,7 @@ model.retrieve.nrecords: 15
 
 model.vertex: a84740bacf923e828852cc4966f2247c,eabd4c11f6c6fbdf011f0f1fc42097b1,d01047f852abd5702a0dabeedac99ff5,d2336f79a0d60b5a4b16c8769ec82e47
 
-model.retrieve.interval: 100
+streamsluice.system.metrics_interval: 100
 
 model.warmup: 10000
 
@@ -290,7 +290,7 @@ streamsluice.system.migration_overhead: 500
 
 streamswitch.system.initialservicerate: 0.8
 
-streamsluice.system.is_treat: true
+streamsluice.system.is_treat: false
 
 controller.whether.type: streamsluice
 
