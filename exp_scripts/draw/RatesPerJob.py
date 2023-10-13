@@ -345,8 +345,8 @@ totalYMax = {
 }
 rawDir = "/Users/swrrt/Workplace/BacklogDelayPaper/experiments/raw/"
 outputDir = "/Users/swrrt/Workplace/BacklogDelayPaper/experiments/results/"
-drawTaskFigureFlag = False
-expName = "streamsluice-4op-120-8000-12000-10000-180-1-0-2-200-1-100-5-500-1-100-3-333-1-100-3-250-100-750-400-100-true-1"
+drawTaskFigureFlag = True #False
+expName = "streamsluice-4op-300-8000-8000-10000-120-1-0.5-2-200-1-100-5-500-1-100-3-333-1-100-3-250-100-1000-600-100-true-1"
 #expName = "streamsluice-twoOP-180-400-400-500-30-5-10-2-0.25-1500-500-10000-100-true-1"
 import sys
 if len(sys.argv) > 1:

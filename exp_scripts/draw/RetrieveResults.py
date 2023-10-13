@@ -301,9 +301,12 @@ if len(sys.argv) > 1:
     expName = sys.argv[1].split("/")[-1]
 windowSize = 1
 #latencyLimit = 1000
-latencyLimit = int(expName.split("-")[-5])
+if expName.count("autotune") > 0:
+    latencyLimit = int(expName.split("-")[-2])
+else:
+    latencyLimit = int(expName.split("-")[-5])
 startTime = 30
-endTime = 300
+endTime = 90
 isSingleOperator = False #True
 results = retrieveResult(rawDir, expName, windowSize)
 print("\t".join(map(str, results)))

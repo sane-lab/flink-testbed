@@ -197,7 +197,7 @@ def getResults(rawDir, expName):
 
 def draw(rawDir, outputDir, expName, baseline):
     averageTaskRateRatio, maximumTaskRateRatio, averageKeyRate, maximumKeyRate = getResults(rawDir, expName)
-    baseAverageTaskRateRatio, baseMaximumTaskRateRatio, baseAverageKeyRate, baseMaximumKeyRate = getResults(rawDir, baseline)
+    #baseAverageTaskRateRatio, baseMaximumTaskRateRatio, baseAverageKeyRate, baseMaximumKeyRate = getResults(rawDir, baseline)
 
     print("Drawing experiment task rate")
     fig = plt.figure(figsize=(24, 18))
@@ -228,41 +228,41 @@ def draw(rawDir, outputDir, expName, baseline):
     plt.savefig(outputDir + "task_rate_ratio.png")
     plt.close(fig)
 
-    print("Drawing baseline task rate")
-    fig = plt.figure(figsize=(24, 18))
-    legend = ["Average Rate"]
-    p = plt.bar(baseAverageTaskRateRatio[0], baseAverageTaskRateRatio[1], width, label="Average")
-    plt.bar_label(p, label_type='center', fmt='%.3f')
-    legend += ["Maximum Rate"]
-    p = plt.errorbar(baseAverageTaskRateRatio[0], baseAverageTaskRateRatio[1], yerr=baseMaximumTaskRateRatio[1], fmt='o',
-                     markersize=MARKERSIZE, capsize=MARKERSIZE)
-    plt.title('Task Arrival/Service Rate Ratio')
-    plt.legend(legend, loc='upper left')
-    axes = plt.gca()
-    xlabels = []
-    t_operator = ""
-    axes.set_xticks(np.arange(0, len(baseAverageTaskRateRatio[0]), 1))
-    for x in baseAverageTaskRateRatio[0]:
-        operator, key = x.split('_')
-        if operator != t_operator:
-            t_operator = operator
-            xlabels += [operator + '_' + key]
-        else:
-            xlabels += [key]
-    axes.set_xticklabels(xlabels)
-    axes.set_ylim(0, 2)
-    axes.set_yticks(np.arange(0, 2, 0.2))
-    import os
-    if not os.path.exists(outputDir):
-        os.makedirs(outputDir)
-    plt.savefig(outputDir + "baseline_task_rate_ratio.png")
-    plt.close(fig)
+    # print("Drawing baseline task rate")
+    # fig = plt.figure(figsize=(24, 18))
+    # legend = ["Average Rate"]
+    # p = plt.bar(baseAverageTaskRateRatio[0], baseAverageTaskRateRatio[1], width, label="Average")
+    # plt.bar_label(p, label_type='center', fmt='%.3f')
+    # legend += ["Maximum Rate"]
+    # p = plt.errorbar(baseAverageTaskRateRatio[0], baseAverageTaskRateRatio[1], yerr=baseMaximumTaskRateRatio[1], fmt='o',
+    #                  markersize=MARKERSIZE, capsize=MARKERSIZE)
+    # plt.title('Task Arrival/Service Rate Ratio')
+    # plt.legend(legend, loc='upper left')
+    # axes = plt.gca()
+    # xlabels = []
+    # t_operator = ""
+    # axes.set_xticks(np.arange(0, len(baseAverageTaskRateRatio[0]), 1))
+    # for x in baseAverageTaskRateRatio[0]:
+    #     operator, key = x.split('_')
+    #     if operator != t_operator:
+    #         t_operator = operator
+    #         xlabels += [operator + '_' + key]
+    #     else:
+    #         xlabels += [key]
+    # axes.set_xticklabels(xlabels)
+    # axes.set_ylim(0, 2)
+    # axes.set_yticks(np.arange(0, 2, 0.2))
+    # import os
+    # if not os.path.exists(outputDir):
+    #     os.makedirs(outputDir)
+    # plt.savefig(outputDir + "baseline_task_rate_ratio.png")
+    # plt.close(fig)
 
     print("Drawing experiment key arrival rate")
     fig = plt.figure(figsize=(24, 18))
     operators = list(averageKeyRate.keys())
     for i in range(0, len(operators)):
-        plt.subplot(2, 1, i+1)
+        plt.subplot(len(operators), 1, i+1)
         legend = ["Average Rate"]
         operator = operators[i]
         p = plt.bar(averageKeyRate[operator][0], averageKeyRate[operator][1], width, label="Average")
@@ -281,33 +281,33 @@ def draw(rawDir, outputDir, expName, baseline):
     plt.savefig(outputDir + "key_arrivalrate.png")
     plt.close(fig)
 
-    print("Drawing baseline experiment key arrival rate")
-    fig = plt.figure(figsize=(24, 18))
-    operators = list(baseAverageKeyRate.keys())
-    for i in range(0, len(operators)):
-        plt.subplot(2, 1, i + 1)
-        legend = ["Average Rate"]
-        operator = operators[i]
-        p = plt.bar(baseAverageKeyRate[operator][0], baseAverageKeyRate[operator][1], width, label="Average")
-        #plt.bar_label(p, label_type='center', fmt='%.3f')
-        legend += ["Maximum Rate"]
-        p = plt.errorbar(baseAverageKeyRate[operator][0], baseAverageKeyRate[operator][1], yerr=baseMaximumKeyRate[operator][1], fmt='o',
-                         markersize=MARKERSIZE, capsize=MARKERSIZE)
-        axes = plt.gca()
-        axes.set_ylim(0, 10)
-        axes.set_yticks(np.arange(0, 10, 2))
-        plt.title('Key Arrival' + operator)
-    plt.legend(legend, loc='upper left')
-    import os
-    if not os.path.exists(outputDir):
-        os.makedirs(outputDir)
-    plt.savefig(outputDir + "baseline_key_arrivalrate.png")
-    plt.close(fig)
+    # print("Drawing baseline experiment key arrival rate")
+    # fig = plt.figure(figsize=(24, 18))
+    # operators = list(baseAverageKeyRate.keys())
+    # for i in range(0, len(operators)):
+    #     plt.subplot(len(operators), 1, i + 1)
+    #     legend = ["Average Rate"]
+    #     operator = operators[i]
+    #     p = plt.bar(baseAverageKeyRate[operator][0], baseAverageKeyRate[operator][1], width, label="Average")
+    #     #plt.bar_label(p, label_type='center', fmt='%.3f')
+    #     legend += ["Maximum Rate"]
+    #     p = plt.errorbar(baseAverageKeyRate[operator][0], baseAverageKeyRate[operator][1], yerr=baseMaximumKeyRate[operator][1], fmt='o',
+    #                      markersize=MARKERSIZE, capsize=MARKERSIZE)
+    #     axes = plt.gca()
+    #     axes.set_ylim(0, 10)
+    #     axes.set_yticks(np.arange(0, 10, 2))
+    #     plt.title('Key Arrival' + operator)
+    # plt.legend(legend, loc='upper left')
+    # import os
+    # if not os.path.exists(outputDir):
+    #     os.makedirs(outputDir)
+    # plt.savefig(outputDir + "baseline_key_arrivalrate.png")
+    # plt.close(fig)
 
 
 rawDir = "/Users/swrrt/Workplace/BacklogDelayPaper/experiments/raw/"
 outputDir = "/Users/swrrt/Workplace/BacklogDelayPaper/experiments/results/"
 #expName = "streamsluice-scaletest-400-600-500-5-2000-1000-100-1"
-expName = "streamsluice-twoOP-180-400-400-500-30-5-10-2-0.25-1500-500-10000-100-true-1"
-baselineName = "streamsluice-twoOP-180-400-400-500-30-5-10-2-0.25-1500-500-10000-100-true-1"
+expName = "streamsluice-4op-300-8000-8000-10000-120-1-1-2-200-1-100-5-500-1-100-3-333-1-100-3-250-100-1000-600-100-true-1"
+baselineName = "streamsluice-4op-300-8000-8000-10000-120-1-1-2-200-1-100-5-500-1-100-3-333-1-100-3-250-100-1000-600-100-true-1"
 draw(rawDir, outputDir + expName + "/", expName, baselineName)
