@@ -152,7 +152,7 @@ def draw(rawDir, outputDir, expName, baselineName, windowSize):
 
 rawDir = "/Users/swrrt/Workplace/BacklogDelayPaper/experiments/raw/"
 outputDir = "/Users/swrrt/Workplace/BacklogDelayPaper/experiments/results/"
-expName = "streamsluice-4op-300-8000-8000-10000-120-1-0-2-200-1-100-5-500-1-100-3-333-1-100-3-250-100-1000-600-100-true-2"
+expName = "4op-150-8000-8000-10000-20-1-0-2-200-1-100-5-500-1-100-3-333-1-100-3-250-100-autotune-1717-1317"
 import sys
 if len(sys.argv) > 1:
     expName = sys.argv[1].split("/")[-1]

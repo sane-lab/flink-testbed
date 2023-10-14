@@ -50,7 +50,7 @@ init() {
   epoch=100
   # app level
   JAR="${FLINK_APP_DIR}/target/testbed-1.0-SNAPSHOT.jar"
-  job="flinkapp.StreamSluiceTestSet.FourOperatorTest" # "flinkapp.StreamSluiceTestSet.DAGTest"
+  job="flinkapp.StreamSluiceTestSet.DAGTest"
   # only used in script
   runtime=150
   # set in Flink app
@@ -147,7 +147,7 @@ run_workloads(){
 }
 
 run_auto_tuner(){
-    WORKLOAD_NAME=4op-${runtime}-${RATE1}-${RATE2}-${RATE_I}-${PERIOD_I}-${P1}-${ZIPF_SKEW}-${P2}-${DELAY2}-${IO2}-${STATE_SIZE2}-${P3}-${DELAY3}-${IO3}-${STATE_SIZE3}-${P4}-${DELAY4}-${IO4}-${STATE_SIZE4}-${P5}-${DELAY5}-${STATE_SIZE5}
+    WORKLOAD_NAME=DAG-${runtime}-${RATE1}-${RATE2}-${RATE_I}-${PERIOD_I}-${P1}-${ZIPF_SKEW}-${P2}-${DELAY2}-${IO2}-${STATE_SIZE2}-${P3}-${DELAY3}-${IO3}-${STATE_SIZE3}-${P4}-${DELAY4}-${IO4}-${STATE_SIZE4}-${P5}-${DELAY5}-${STATE_SIZE5}
     echo "Run auto tuner for workload ${WORKLOAD_NAME}"
     printf "\n\nTune log for workload ${WORKLOAD_NAME}\n" >> tune_log
     startTime=${TIME1}
