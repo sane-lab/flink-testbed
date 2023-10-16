@@ -63,7 +63,7 @@ function cleanEnv() {
     rm -r /tmp/kafka-logs/
     rm -r /tmp/zookeeper/
 
-    python -c 'import time; time.sleep(10)'
+    python -c 'import time; time.sleep(2)'
 
     $HELLOSAMZA_DIR/bin/grid start zookeeper
     $HELLOSAMZA_DIR/bin/grid start kafka
@@ -75,7 +75,7 @@ function cleanEnv() {
     $KAFKA_PATH/kafka-topics.sh --create --zookeeper localhost:2181 --topic flink_metrics --partitions 1 --replication-factor 1
     $KAFKA_PATH/kafka-topics.sh --create --zookeeper localhost:2181 --topic flink_keygroups_status --partitions 1 --replication-factor 1
 
-    python -c 'import time; time.sleep(5)'
+    python -c 'import time; time.sleep(1)'
 }
 
 
