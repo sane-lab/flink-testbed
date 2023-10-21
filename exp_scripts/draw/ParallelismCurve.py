@@ -186,15 +186,15 @@ def draw(rawDir, outputDir, expName):
                     ParallelismPerJob["TOTAL"][1][i] += ParallelismPerJob[job][1][i]
     print(ParallelismPerJob)
 
-    figName = "Parallelism.png"
+    figName = "Parallelism"
 
 
-    fig = plt.figure(figsize=(24, 18))
+    fig = plt.figure(figsize=(24, 5))
 
     legend = []
     for job in ParallelismPerJob:
         print("Draw Job " + job + " curve...")
-        legend += ["Parallelism of job " + OPERATOR_NAMING[job]]
+        legend += [OPERATOR_NAMING[job]]
         line = [[], []]
         for i in range(0, len(ParallelismPerJob[job][0])):
             x0 = ParallelismPerJob[job][0][i]
@@ -214,33 +214,42 @@ def draw(rawDir, outputDir, expName):
             line[1].append(y0)
             line[1].append(y1)
         plt.plot(line[0], line[1], color=COLOR[OPERATOR_NAMING[job]], linewidth=LINEWIDTH)
-    plt.legend(legend, loc='upper left')
-    for operator in scalingMarkerByOperator:
-        addScalingMarker(plt, scalingMarkerByOperator[operator])
-    plt.xlabel('Time (s)')
+    plt.legend(legend, loc='upper right', ncol=5)
+    #for operator in scalingMarkerByOperator:
+    #    addScalingMarker(plt, scalingMarkerByOperator[operator])
+    #plt.xlabel('Time (s)')
     plt.ylabel('# of tasks')
-    plt.title('Parallelism of ' + OPERATOR_NAMING[job])
+    #plt.title('Parallelism of Operators')
     axes = plt.gca()
-    axes.set_xlim(0, lastTime-initialTime)
-    axes.set_xticks(np.arange(0, lastTime-initialTime, 10000))
+    # axes.set_xlim(0, lastTime-initialTime)
+    # axes.set_xticks(np.arange(0, lastTime-initialTime, 30000))
+    #
+    # xlabels = []
+    # for x in range(0, lastTime-initialTime, 30000):
+    #     xlabels += [str(int(x / 1000))]
+    # axes.set_xticklabels(xlabels)
+    axes.set_xlim(startTime * 1000, (startTime + 3600) * 1000)
+    axes.set_xticks(np.arange(startTime * 1000, (startTime + 3600) * 1000 + 300000, 300000))
+    axes.set_xticklabels([int((x - startTime * 1000) / 60000) for x in np.arange(startTime * 1000,(startTime + 3600) * 1000 + 300000, 300000)])
 
-    xlabels = []
-    for x in range(0, lastTime-initialTime, 10000):
-        xlabels += [str(int(x / 1000))]
-    axes.set_xticklabels(xlabels)
     axes.set_ylim(0, 40)
-    axes.set_yticks(np.arange(0, 40, 2))
+    axes.set_yticks(np.arange(0, 45, 10))
     plt.grid(True)
     import os
     if not os.path.exists(outputDir):
         os.makedirs(outputDir)
-    plt.savefig(outputDir + figName)
+    #plt.savefig(outputDir + figName + ".png")
+    plt.savefig(outputDir + figName + ".pdf", bbox_inches='tight')
     plt.close(fig)
 
 
 rawDir = "/Users/swrrt/Workplace/BacklogDelayPaper/experiments/raw/"
 outputDir = "/Users/swrrt/Workplace/BacklogDelayPaper/experiments/results/"
 #expName = "streamsluice-scaletest-400-600-500-5-2000-1000-100-1"
-expName = "streamsluice-4op-120-8000-12000-10000-180-1-0-2-200-1-100-5-500-1-100-3-333-1-100-3-250-100-2000-500-100-true-1"
+expName = "stock-sb-4hr-50ms.txt-3690-30-1500-20-3-1250-1-10-5-1666-1-10-10-2500-1-10-12-5000-10-2500-1800-100-true-1"
+startTime = 120
+import sys
+if len(sys.argv) > 1:
+    expName = sys.argv[1].split("/")[-1]
 draw(rawDir, outputDir + expName + "/", expName)
 

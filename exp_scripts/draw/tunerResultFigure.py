@@ -56,10 +56,10 @@ import os
 if not os.path.exists(saveDir):
     os.makedirs(saveDir)
 
-print("scp....")
-import subprocess
-for targetFile in targetFiles:
-    subprocess.run(["scp", host + ":" + targetFile, saveDir])
+#print("scp....")
+#import subprocess
+#for targetFile in targetFiles:
+#    subprocess.run(["scp", host + ":" + targetFile, saveDir])
 
 tuneResultPerWorkload = []
 import os
@@ -87,7 +87,7 @@ baseRange = 10000
 baseline["period"] = 30
 baseline["statesize"] = 1000
 baseline["skew"] = 0
-
+i_dimension = 0
 for dimension in dimensions:
     print("For dimension " + dimension)
     orderResult = {}
@@ -105,7 +105,7 @@ for dimension in dimensions:
         if dimension == 'range':
             avg = key
             upper = avg * 2 - baseRange
-            x += [str(baseRange) + '-' + str(upper)]
+            x += [str(baseRange) + '-\n' + str(upper)]
         elif dimension == 'statesize':
             x += [str(key)]
         elif dimension == 'period':
@@ -116,95 +116,94 @@ for dimension in dimensions:
         traces += [orderResult[key][1]]
 
     print("Draw dimension " + dimension)
-    figName = "BestLatencyLimits_" + dimension + ".png"
-    fig = plt.figure(figsize=(10, 7))
+    fig = plt.figure(figsize=(6, 3))
+    figName = "limit_" + dimension
     p = plt.bar(x, y, width=0.8, bottom=None, align='center')
     plt.bar_label(p, label_type='center')
     #plt.plot(x, y, "*", markersize=6)
-    plt.title("Best latency guarante can achieved under different " + dimension)
-    plt.ylabel("Latency limit")
-    plt.xlabel(dimension)
+    #plt.title("Best latency guarante can achieved under different " + dimension)
+    plt.ylabel("Best Latency Limit(ms)")
+    #plt.xlabel(dimension)
 
     import os
     if not os.path.exists(outputDir):
         os.makedirs(outputDir)
-    plt.savefig(outputDir + figName)
+    plt.savefig(outputDir + figName + ".pdf", bbox_inches='tight')
     plt.close(fig)
 
-    print("Draw trace..")
-    figName = "tuningSuccessRateCurve_" + dimension + " .png"
-    fig = plt.figure(figsize=(10, 7))
-    legend = []
-    xrange = [0, 4000]
-    for i in range(0, len(x)):
-        limits = sorted(traces[i].keys())
-        successRate = [traces[i][x][0] for x in limits]
-        plt.plot(limits, successRate, "*-", markersize=12)
-        legend += [x[i]]
-    requiredLinex = [0, 100000]
-    requiredLiney = [0.99, 0.99]
-    plt.plot(requiredLinex, requiredLiney, '-', color='r')
-    plt.title("Success rate under different latency limits under " + dimension)
-    plt.legend(legend)
-    plt.ylabel("Success Rate")
-    plt.xlabel("Latency Limit")
-    axes = plt.gca()
-    axes.set_xlim(xrange[0], xrange[1])
-    # axes.set_yscale('log')
-    # plt.yscale('log')
-    # axes.invert_yaxis()
-    import os
-    if not os.path.exists(outputDir):
-        os.makedirs(outputDir)
-    plt.savefig(outputDir + figName)
-    plt.close(fig)
-
-    print("Draw parallelism...")
-    figName = "tuningParallelismCurve_" + dimension + " .png"
-    fig = plt.figure(figsize=(10, 7))
-    legend = []
-    for i in range(0, len(x)):
-        limits = sorted(traces[i].keys())
-        avgParalellism = [traces[i][x][1] for x in limits]
-        plt.plot(limits, avgParalellism, "*-", markersize=6)
-        legend += [x[i]]
-    plt.title("Avg parallelism under different latency limits under " + dimension)
-    plt.legend(legend)
-    plt.ylabel("Parallelism")
-    plt.xlabel("Latency Limit")
-    axes = plt.gca()
-    #axes.set_yscale('log')
-    #plt.yscale('log')
-    #axes.invert_yaxis()
-    import os
-    if not os.path.exists(outputDir):
-        os.makedirs(outputDir)
-    plt.savefig(outputDir + figName)
-    plt.close(fig)
-
-    print("Draw spike...")
-    figName = "tuningMaxSpikeCurve_" + dimension + " .png"
-    fig = plt.figure(figsize=(10, 7))
-    legend = []
-    for i in range(0, len(x)):
-        limits = sorted(traces[i].keys())
-        maxSpike = [traces[i][x][2] for x in limits]
-        plt.plot(limits, maxSpike, "*-", markersize=6)
-        legend += [x[i]]
-    plt.title("Max spike under different latency limits under " + dimension)
-    plt.legend(legend)
-    plt.ylabel("Spike")
-    plt.xlabel("Latency Limit")
-    axes = plt.gca()
-    # axes.set_yscale('log')
-    # plt.yscale('log')
-    # axes.invert_yaxis()
-    import os
-    if not os.path.exists(outputDir):
-        os.makedirs(outputDir)
-    plt.savefig(outputDir + figName)
-    plt.close(fig)
-
+    # print("Draw trace..")
+    # figName = "tuningSuccessRateCurve_" + dimension
+    # fig = plt.figure(figsize=(11, 5))
+    # legend = []
+    # xrange = [0, 4000]
+    # for i in range(0, len(x)):
+    #     limits = sorted(traces[i].keys())
+    #     successRate = [traces[i][x][0] for x in limits]
+    #     plt.plot(limits, successRate, "*-", markersize=12)
+    #     legend += [x[i]]
+    # requiredLinex = [0, 100000]
+    # requiredLiney = [0.99, 0.99]
+    # plt.plot(requiredLinex, requiredLiney, '-', color='r')
+    # plt.title("Success rate under different latency limits under " + dimension)
+    # plt.legend(legend)
+    # plt.ylabel("Success Rate")
+    # plt.xlabel("Latency Limit")
+    # axes = plt.gca()
+    # axes.set_xlim(xrange[0], xrange[1])
+    # # axes.set_yscale('log')
+    # # plt.yscale('log')
+    # # axes.invert_yaxis()
+    # import os
+    # if not os.path.exists(outputDir):
+    #     os.makedirs(outputDir)
+    # plt.savefig(outputDir + figName + ".pdf", bbox_inches='tight')
+    # plt.close(fig)
+    #
+    # print("Draw parallelism...")
+    # figName = "tuningParallelismCurve_" + dimension
+    # fig = plt.figure(figsize=(10, 7))
+    # legend = []
+    # for i in range(0, len(x)):
+    #     limits = sorted(traces[i].keys())
+    #     avgParalellism = [traces[i][x][1] for x in limits]
+    #     plt.plot(limits, avgParalellism, "*-", markersize=6)
+    #     legend += [x[i]]
+    # plt.title("Avg parallelism under different latency limits under " + dimension)
+    # plt.legend(legend)
+    # plt.ylabel("Parallelism")
+    # plt.xlabel("Latency Limit")
+    # axes = plt.gca()
+    # #axes.set_yscale('log')
+    # #plt.yscale('log')
+    # #axes.invert_yaxis()
+    # import os
+    # if not os.path.exists(outputDir):
+    #     os.makedirs(outputDir)
+    # plt.savefig(outputDir + figName + ".pdf", bbox_inches='tight')
+    # plt.close(fig)
+    #
+    # print("Draw spike...")
+    # figName = "tuningMaxSpikeCurve_" + dimension
+    # fig = plt.figure(figsize=(10, 7))
+    # legend = []
+    # for i in range(0, len(x)):
+    #     limits = sorted(traces[i].keys())
+    #     maxSpike = [traces[i][x][2] for x in limits]
+    #     plt.plot(limits, maxSpike, "*-", markersize=6)
+    #     legend += [x[i]]
+    # plt.title("Max spike under different latency limits under " + dimension)
+    # plt.legend(legend)
+    # plt.ylabel("Spike")
+    # plt.xlabel("Latency Limit")
+    # axes = plt.gca()
+    # # axes.set_yscale('log')
+    # # plt.yscale('log')
+    # # axes.invert_yaxis()
+    # import os
+    # if not os.path.exists(outputDir):
+    #     os.makedirs(outputDir)
+    # plt.savefig(outputDir + figName + ".pdf", bbox_inches='tight')
+    # plt.close(fig)
 
 
 

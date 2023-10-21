@@ -8,10 +8,10 @@ OPERATOR_NAMING = {
     "0a448493b4782967b150582570326227": "Stateful Map",
     "c21234bcbf1e8eb4c61f1927190efebd": "Splitter",
     "22359d48bcb33236cf1e31888091e54c": "Counter",
-    "a84740bacf923e828852cc4966f2247c": "OP2",
-    "eabd4c11f6c6fbdf011f0f1fc42097b1": "OP3",
-    "d01047f852abd5702a0dabeedac99ff5": "OP4",
-    "d2336f79a0d60b5a4b16c8769ec82e47": "OP5",
+    "a84740bacf923e828852cc4966f2247c": "OP1",
+    "eabd4c11f6c6fbdf011f0f1fc42097b1": "OP2",
+    "d01047f852abd5702a0dabeedac99ff5": "OP3",
+    "d2336f79a0d60b5a4b16c8769ec82e47": "OP4",
 }
 
 
@@ -161,8 +161,10 @@ def draw(rawDir, outputDir, expName):
                 for task in arrivalRates:
                     if task not in arrivalRatePerTask:
                         arrivalRatePerTask[task] = [[], []]
-                    arrivalRatePerTask[task][0] += [time - initialTime]
-                    arrivalRatePerTask[task][1] += [int(arrivalRates[task] * 1000)]
+                    import math
+                    if not math.isnan(arrivalRates[task]) and not math.isinf(arrivalRates[task]):
+                        arrivalRatePerTask[task][0] += [time - initialTime]
+                        arrivalRatePerTask[task][1] += [int(arrivalRates[task] * 1000)]
             if (split[0] == "+++" and split[1] == "[METRICS]" and split[4] == "task" and split[5] == "serviceRate:"):
                 time = int(split[3])
                 #if (time > lastTime):
@@ -199,8 +201,8 @@ def draw(rawDir, outputDir, expName):
     if drawTaskFigureFlag:
         for i in range(0, len(taskPerFig)):
             print("Draw " + str(i) + "-th figure...")
-            figName = "ratesPerTask_" + str(i) + ".png"
-            fig = plt.figure(figsize=(24, 30))
+            figName = "ratesPerTask_" + str(i)
+            fig = plt.figure(figsize=(12, 18))
             print(taskPerFig[i])
             for j in range(0, len(taskPerFig[i])):
                 task = taskPerFig[i][j]
@@ -246,7 +248,8 @@ def draw(rawDir, outputDir, expName):
             import os
             if not os.path.exists(outputDir):
                 os.makedirs(outputDir)
-            plt.savefig(outputDir + figName)
+            #plt.savefig(outputDir + figName + ".png")
+            plt.savefig(outputDir + figName + ".pdf", bbox_inches='tight')
             plt.close(fig)
 
     totalArrivalRatePerJob = {}
@@ -259,59 +262,83 @@ def draw(rawDir, outputDir, expName):
             totalArrivalRatePerJob[job] = {}
         for i in range(0, n):
             ax = arrivalRatePerTask[task][0][i]
+            index = math.floor(ax / windowSize) * windowSize
             ay = arrivalRatePerTask[task][1][i]
             sx = serviceRatePerTask[task][0][i]
             sy = serviceRatePerTask[task][1][i]
-            if ax not in totalArrivalRatePerJob[job]:
-                totalArrivalRatePerJob[job][ax] = ay
+            if index not in totalArrivalRatePerJob[job]:
+                totalArrivalRatePerJob[job][index] = ay
             else:
-                totalArrivalRatePerJob[job][ax] += ay
+                totalArrivalRatePerJob[job][index] += ay
             if sx not in totalServiceRatePerJob[job]:
                 totalServiceRatePerJob[job][sx] = sy
             else:
                 totalServiceRatePerJob[job][sx] += sy
     print("Draw total figure...")
-    figName = "total_rates.png"
-    fig = plt.figure(figsize=(24, 18))
-    for i in range(0, len(totalArrivalRatePerJob.keys())):
-        job = sorted(totalArrivalRatePerJob.keys())[i]
+    figName = "total_rates"
+    fig, axs= plt.subplots(1, 1, figsize=(24, 5), layout='constrained')
+
+    operatorNameToId = {}
+    for x in totalArrivalRatePerJob.keys():
+        operatorNameToId[OPERATOR_NAMING[x]] = x
+
+    for i in range(0, 1):#len(totalArrivalRatePerJob.keys())):
+        ax1 = axs#[i]
+        job = operatorNameToId[sorted(operatorNameToId.keys())[i]]
+
         ax = sorted(totalArrivalRatePerJob[job].keys())
-        ay = [totalArrivalRatePerJob[job][x] for x in ax]
+        print(totalArrivalRatePerJob[job])
+        ay = [totalArrivalRatePerJob[job][x] / (windowSize / 100) for x in ax]
         sx = sorted(totalServiceRatePerJob[job].keys())
         sy = [totalServiceRatePerJob[job][x] for x in sx]
 
         print("Draw job " + job + " figure...")
-        plt.subplot(len(totalArrivalRatePerJob.keys()), 1, i+1)
-
+        #plt.subplot(len(totalArrivalRatePerJob.keys()), 1, i+1)
         print("Draw total arrival rates")
-        legend = ["Arrival Rate"]
-        plt.plot(ax, ay, '*', color='red', markersize=MARKERSIZE)
-        print("Draw total service rates")
-        legend += ["Service Rate"]
-        plt.plot(sx, sy, '*', color='blue', markersize=MARKERSIZE)
-        plt.legend(legend, loc='upper left')
+        if (i == 0):
+            ax1.plot(ax, ay, '*', color='red', markersize=MARKERSIZE, label="Arrival Rate")
+            if(serviceRateFlag):
+                ax1.plot(sx, sy, '*', color='blue', markersize=MARKERSIZE, label="Service Rate")
+        else:
+            ax1.plot(ax, ay, '*', color='red', markersize=MARKERSIZE)
+            if(serviceRateFlag):
+                ax1.plot(sx, sy, '*', color='blue', markersize=MARKERSIZE)
         #for operator in scalingMarkerByOperator:
-        if(job in scalingMarkerByOperator):
-            addScalingMarker(plt, scalingMarkerByOperator[job])
-        plt.xlabel('Time (s)')
-        plt.ylabel('Rate (tps)')
-        plt.title('Rates of ' + OPERATOR_NAMING[job])
-        axes = plt.gca()
-        axes.set_xlim(0, lastTime - initialTime)
-        axes.set_xticks(np.arange(0, lastTime - initialTime, 20000))
+        if(job in scalingMarkerByOperator and scalingMarkerFlag):
+            addScalingMarker(ax1, scalingMarkerByOperator[job])
+        #if i + 1 == len(totalArrivalRatePerJob.keys()):
+            #ax1.set_xlabel('Time (s)')
+        ax1.set_ylabel('Rate (tps)')
+        #ax1.title.set_text('Rates of ' + OPERATOR_NAMING[job])
+        # ax1.set_xlim(0, lastTime - initialTime)
+        # ax1.set_xticks(np.arange(0, lastTime - initialTime, 30000))
+        # xlabels = []
+        # for x in range(0, lastTime - initialTime, 30000):
+        #     xlabels += [str(int(x / 1000))]
+        # ax1.set_xticklabels(xlabels)
+        ax1.set_xlim(startTime * 1000, (startTime + 3600) * 1000)
+        ax1.set_xticks(np.arange(startTime * 1000, (startTime + 3600) * 1000 + 300000, 300000))
+        ax1.set_xticklabels([int((x - startTime * 1000) / 60000) for x in np.arange(startTime * 1000, (startTime + 3600) * 1000 + 300000, 300000)])
 
-        xlabels = []
-        for x in range(0, lastTime - initialTime, 20000):
-            xlabels += [str(int(x / 1000))]
-        axes.set_xticklabels(xlabels)
+
         ylim = totalYMax[OPERATOR_NAMING[job]]
-        axes.set_ylim(0, ylim)
-        axes.set_yticks(np.arange(0, ylim, ylim/10))
-        plt.grid(True)
+        ax1.set_ylim(0, ylim)
+        ax1.set_yticks(np.arange(0, ylim + 500, 500))
+        ax1.grid(True)
+    lines = []
+    labels = []
+    for ax in fig.axes:
+        Line, Label = ax.get_legend_handles_labels()
+        # print(Label)
+        lines.extend(Line)
+        labels.extend(Label)
+    #fig.legend(lines, labels, loc='upper left')
+    #fig.suptitle('Arrival/Service Rate of Operators')
     import os
     if not os.path.exists(outputDir):
         os.makedirs(outputDir)
-    plt.savefig(outputDir + figName)
+    #plt.savefig(outputDir + figName + ".png")
+    plt.savefig(outputDir + figName + ".pdf", bbox_inches='tight')
     plt.close(fig)
 
 
@@ -320,34 +347,38 @@ rateYMax = {
     "Stateful Map": 200,
     "Splitter": 500,
     "Counter": 200,
-    "OP2": 10000,
-    "OP3": 5000,
-    "OP4": 5000,
-    "OP5": 10000,
+    "OP1": 16000,
+    "OP2": 8000,
+    "OP3": 4000,
+    "OP4": 2000,
 }
 backlogYMax = {
     "Stateful Map": 200,
     "Splitter": 1000,
     "Counter": 1000,
-    "OP2": 10000,
-    "OP3": 10000,
-    "OP4": 10000,
-    "OP5": 10000,
+    "OP1": 16000,
+    "OP2": 8000,
+    "OP3": 4000,
+    "OP4": 2000,
 }
 totalYMax = {
     "Stateful Map": 1000,
     "Splitter": 1000,
     "Counter": 2000,
-    "OP2": 20000,
-    "OP3": 20000,
-    "OP4": 20000,
-    "OP5": 20000,
+    "OP1": 2500,
+    "OP2": 2500,
+    "OP3": 2500,
+    "OP4": 2500,
 }
 rawDir = "/Users/swrrt/Workplace/BacklogDelayPaper/experiments/raw/"
 outputDir = "/Users/swrrt/Workplace/BacklogDelayPaper/experiments/results/"
-drawTaskFigureFlag = True #False
-expName = "4op-150-8000-8000-10000-20-1-0-2-200-1-100-5-500-1-100-3-333-1-100-3-250-100-autotune-1717-1317"
+drawTaskFigureFlag = False
+expName = "stock-sb-4hr-50ms.txt-3690-30-1500-20-3-1250-1-10-5-1666-1-10-10-2500-1-10-12-5000-10-2500-1800-100-true-1"
 #expName = "streamsluice-twoOP-180-400-400-500-30-5-10-2-0.25-1500-500-10000-100-true-1"
+startTime=120
+windowSize=1000
+serviceRateFlag=False
+scalingMarkerFlag=False
 import sys
 if len(sys.argv) > 1:
     expName = sys.argv[1].split("/")[-1]

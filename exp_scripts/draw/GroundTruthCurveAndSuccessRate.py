@@ -1,3 +1,4 @@
+import math
 import sys
 import numpy as np
 import matplotlib
@@ -97,17 +98,20 @@ def readGroundTruthLatency(rawDir, expName, windowSize):
     for pair in groundTruthLatency:
         index = int((pair[0] - initialTime) / windowSize)
         if index not in aggregatedGroundTruthLatency:
-            aggregatedGroundTruthLatency[index] = [0, 0]
-        aggregatedGroundTruthLatency[index][0] += pair[1]
-        aggregatedGroundTruthLatency[index][1] += 1
+            aggregatedGroundTruthLatency[index] = []
+        aggregatedGroundTruthLatency[index] += [pair[1]]
 
     averageGroundTruthLatency = [[], []]
     for index in sorted(aggregatedGroundTruthLatency):
         time = index * windowSize
         x = int(time)
-        y = int(aggregatedGroundTruthLatency[index][0] / float(aggregatedGroundTruthLatency[index][1]))
-        averageGroundTruthLatency[0] += [x]
-        averageGroundTruthLatency[1] += [y]
+        if index in aggregatedGroundTruthLatency:
+            sortedLatency = sorted(aggregatedGroundTruthLatency[index])
+            size = len(sortedLatency)
+            target = min(math.ceil(size * 0.99), size) - 1
+            y = sortedLatency[target]
+            averageGroundTruthLatency[0] += [x]
+            averageGroundTruthLatency[1] += [y]
     return [averageGroundTruthLatency, initialTime]
 
 def draw(rawDir, outputDir, expName, baselineName, windowSize):
@@ -117,53 +121,59 @@ def draw(rawDir, outputDir, expName, baselineName, windowSize):
     if baselineName != "":
         result = readGroundTruthLatency(rawDir, baselineName, windowSize)
         baselineLatency = result[0]
-    print(averageGroundTruthLatency)
-    fig = plt.figure(figsize=(24, 18))
+    #print(averageGroundTruthLatency)
+    fig = plt.figure(figsize=(24, 5))
     print("Draw ground truth curve...")
-    legend = ["StreamSluice Ground Truth Latency"]
-    plt.plot(averageGroundTruthLatency[0], averageGroundTruthLatency[1], '*', color='blue', markersize=MARKERSIZE)
+    legend = ["Ground Truth Latency"]
+    plt.plot(averageGroundTruthLatency[0], averageGroundTruthLatency[1], 'D', color='blue', markersize=2)
     if baselineName != "":
         legend += ["Baseline Ground Truth Latency"]
-        plt.plot(baselineLatency[0], baselineLatency[1], '*', color="gray", markersize=MARKERSIZE)
+        plt.plot(baselineLatency[0], baselineLatency[1], 'D', color="gray", markersize=MARKERSIZE)
     addLatencyLimitMarker(plt)
     plt.plot()
     plt.legend(legend, loc='upper left')
-    plt.xlabel('Time (s)')
+    plt.xlabel('Time (min)')
     plt.ylabel('Latency (ms)')
-    plt.title('Latency Curves')
+    #plt.title('Latency Curves')
     axes = plt.gca()
-    axes.set_xlim(0, endTime * 1000)#averageGroundTruthLatency[0][-1])
-    axes.set_xticks(np.arange(0, endTime * 1000, 30000))# averageGroundTruthLatency[0][-1], 10000))
-
-    xlabels = []
-    for x in range(0, endTime * 1000, 30000): #averageGroundTruthLatency[0][-1], 10000):
-        xlabels += [str(int(x / 1000))]
-    axes.set_xticklabels(xlabels)
-    # axes.set_yscale('log')
+    # axes.set_xlim(0, endTime * 1000)#averageGroundTruthLatency[0][-1])
+    # axes.set_xticks(np.arange(0, endTime * 1000, 30000))# averageGroundTruthLatency[0][-1], 10000))
+    #
+    # xlabels = []
+    # for x in range(0, endTime * 1000, 30000): #averageGroundTruthLatency[0][-1], 10000):
+    #     xlabels += [str(int(x / 1000))]
+    # axes.set_xticklabels(xlabels)
+    axes.set_xlim(startTime * 1000, (startTime + 3600) * 1000)
+    axes.set_xticks(np.arange(startTime * 1000, (startTime + 3600) * 1000 + 300000, 300000))
+    axes.set_xticklabels([int((x - startTime * 1000) / 60000) for x in np.arange(startTime * 1000, (startTime + 3600) * 1000 + 300000, 300000)])
+    #axes.set_yscale('log')
     axes.set_ylim(0, 3000)
-    axes.set_yticks(np.arange(0, 3000, 200))
+    axes.set_yticks(np.arange(0, 3000, 500))
     plt.grid(True)
     import os
     if not os.path.exists(outputDir):
         os.makedirs(outputDir)
-    plt.savefig(outputDir + 'ground_truth_latency_curves.png')
+    #plt.savefig(outputDir + 'ground_truth_latency_curves.png')
+    plt.savefig(outputDir + 'ground_truth_latency_curves.pdf', bbox_inches='tight')
     plt.close(fig)
 
 
 rawDir = "/Users/swrrt/Workplace/BacklogDelayPaper/experiments/raw/"
 outputDir = "/Users/swrrt/Workplace/BacklogDelayPaper/experiments/results/"
-expName = "4op-150-8000-8000-10000-20-1-0-2-200-1-100-5-500-1-100-3-333-1-100-3-250-100-autotune-1717-1317"
+expName = "stock-sb-4hr-50ms.txt-3690-30-1500-20-3-1250-1-10-5-1666-1-10-10-2500-1-10-12-5000-10-2500-1800-100-true-1"
 import sys
 if len(sys.argv) > 1:
     expName = sys.argv[1].split("/")[-1]
 #expName = "streamsluice-scaletest-400-400-550-5-2000-1000-100-1"
-baselineName = expName #"streamsluice-4op-300-5000-5000-10000-120-1-0-2-200-1-100-5-500-1-100-3-333-1-100-3-250-100-1000-500-100-false-1"
-windowSize = 1
+baselineName = "" #"streamsluice-4op-300-5000-5000-10000-120-1-0-2-200-1-100-5-500-1-100-3-333-1-100-3-250-100-1000-500-100-false-1"
+windowSize = 500
 #latencyLimit = 2000
 if expName.count("autotune") > 0:
     latencyLimit = int(expName.split("-")[-2])
 else:
-    latencyLimit = int(expName.split("-")[-5])
-endTime = 300
+    latencyLimit = int(expName.split("-")[-4])
+latencyLimit = 2500
+#endTime = 660 #630
+startTime = 120
 isSingleOperator = False #True
 draw(rawDir, outputDir + expName + "/", expName, baselineName, windowSize)
