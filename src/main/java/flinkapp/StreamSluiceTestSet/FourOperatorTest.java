@@ -19,8 +19,6 @@ import org.apache.flink.runtime.state.FunctionSnapshotContext;
 import org.apache.flink.runtime.state.memory.MemoryStateBackend;
 import org.apache.flink.streaming.api.TimeCharacteristic;
 import org.apache.flink.streaming.api.checkpoint.CheckpointedFunction;
-import org.apache.flink.streaming.api.datastream.DataStream;
-import org.apache.flink.streaming.api.datastream.DataStreamSource;
 import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
 import org.apache.flink.streaming.api.functions.source.SourceFunction;
 import org.apache.flink.util.Collector;
@@ -51,7 +49,7 @@ public class FourOperatorTest {
         final long INTERMEDIATE_PERIOD = params.getLong("interPeriod", 240) * 1000;
         final double zipf_skew = params.getDouble("zipf_skew", 0);
         final int nKeys = params.getInt("nkeys", 1000);
-        env.addSource(new TwoPhaseSineSource(PHASE1_TIME, PHASE2_TIME, INTERMEDIATE_TIME, PHASE1_RATE, PHASE2_RATE, INTERMEDIATE_RATE, INTERMEDIATE_PERIOD,params.getInt("mp2", 8), zipf_skew, nKeys))
+        env.addSource(new DynamicAvgRateSineSource(PHASE1_TIME, PHASE2_TIME, INTERMEDIATE_TIME, PHASE1_RATE, PHASE2_RATE, INTERMEDIATE_RATE, INTERMEDIATE_PERIOD, params.getLong("macroInterAmplitude", 0), params.getLong("macroInterPeriod", 60) * 1000, params.getInt("mp2", 8), zipf_skew, nKeys, params.get("curve_type", "sine")))
                 .setParallelism(params.getInt("p1", 1))
                 .keyBy(0)
                 .flatMap(new DumbStatefulMap(params.getLong("op2Delay", 100), params.getInt("op2IoRate", 1), params.getInt("op2KeyStateSize", 1)))
@@ -174,8 +172,8 @@ public class FourOperatorTest {
     }
 
 
-    public static final class TwoPhaseSineSource implements SourceFunction<Tuple3<String, Long, Long>>, CheckpointedFunction {
-        private long PHASE1_TIME, PHASE2_TIME, INTERMEDIATE_TIME, PHASE1_RATE, PHASE2_RATE, INTERMEDIATE_RATE, INTERMEDIATE_PERIOD, INTERVAL;
+    public static final class DynamicAvgRateSineSource implements SourceFunction<Tuple3<String, Long, Long>>, CheckpointedFunction {
+        private long PHASE1_TIME, PHASE2_TIME, INTERMEDIATE_TIME, PHASE1_RATE, PHASE2_RATE, INTERMEDIATE_RATE, INTERMEDIATE_PERIOD, INTERVAL, macroAmplitude, macroPeriod;
         private int count = 0;
         private volatile boolean isRunning = true;
 
@@ -185,12 +183,13 @@ public class FourOperatorTest {
         private FastZipfGenerator fastZipfGenerator;
         private RandomDataGenerator randomGen = new RandomDataGenerator();
         private int nKeys;
+        private final String curve_type;
 
         private final Map<Integer, List<String>> keyGroupMapping = new HashMap<>();
 
         private final Map<Integer, Long> totalOutputNumbers = new HashMap<>();
 
-        public TwoPhaseSineSource(long PHASE1_TIME, long PHASE2_TIME, long INTERMEDIATE_TIME, long PHASE1_RATE, long PHASE2_RATE, long INTERMEDIATE_RATE, long INTERMEDIATE_PERIOD, int maxParallelism, double zipfSkew, int nkeys){
+        public DynamicAvgRateSineSource(long PHASE1_TIME, long PHASE2_TIME, long INTERMEDIATE_TIME, long PHASE1_RATE, long PHASE2_RATE, long INTERMEDIATE_RATE, long INTERMEDIATE_PERIOD, long macro_amplitude, long macro_period, int maxParallelism, double zipfSkew, int nkeys, String curve_type){
             this.PHASE1_TIME = PHASE1_TIME;
             this.PHASE2_TIME = PHASE2_TIME;
             this.INTERMEDIATE_TIME = INTERMEDIATE_TIME;
@@ -198,10 +197,13 @@ public class FourOperatorTest {
             this.PHASE2_RATE = PHASE2_RATE;
             this.INTERMEDIATE_RATE = INTERMEDIATE_RATE;
             this.INTERMEDIATE_PERIOD = INTERMEDIATE_PERIOD;
+            this.macroAmplitude = macro_amplitude;
+            this.macroPeriod = macro_period;
             this.INTERVAL = 50;
             this.nKeys = nkeys;
             this.maxParallelism = maxParallelism;
             this.fastZipfGenerator = new FastZipfGenerator(maxParallelism, zipfSkew, 0, 114514);
+            this.curve_type = curve_type;
             for (int i = 0; i < nkeys; i++) {
                 String key = "A" + i;
                 int keygroup = MathUtils.murmurHash(key.hashCode()) % maxParallelism;
@@ -224,6 +226,47 @@ public class FourOperatorTest {
             if (context.isRestored()) {
                 for (Integer count : this.checkpointedCount.get()) {
                     this.count = count;
+                }
+            }
+        }
+
+        public void startInterPhase(long startTime, SourceContext<Tuple3<String, Long, Long>> ctx, String curve_type, long PHASE1_RATE, long INTERMEDIATE_RATE, long INTERMEDIATE_PERIOD, long INTERMEDIATE_TIME, long macroAmplitude, long macroPeriod) throws Exception {
+            long remainedNumber = (long) Math.floor(PHASE1_RATE * INTERVAL / 1000.0);
+            long AMPLITUDE = INTERMEDIATE_RATE - PHASE1_RATE;
+            while (isRunning && System.currentTimeMillis() - startTime < INTERMEDIATE_TIME) {
+                if (remainedNumber <= 0) {
+                    long index = (System.currentTimeMillis() - startTime) / INTERVAL;
+                    long ntime = (index + 1) * INTERVAL + startTime;
+                    double macroTheta = Math.sin(Math.toRadians(index * INTERVAL * 360 / ((double) macroPeriod)));
+                    AMPLITUDE = (INTERMEDIATE_RATE - PHASE1_RATE) + (long) Math.floor(macroTheta * macroAmplitude);
+                    double theta = 0.0;
+                    if (curve_type.equals("sine")) {
+                        theta = Math.sin(Math.toRadians(index * INTERVAL * 360 / ((double) INTERMEDIATE_PERIOD) - 90));
+                    } else if (curve_type.equals("gradient")) {
+                        theta = 1.0;
+                    } else if (curve_type.equals("linear")) {
+                        double x = index * INTERVAL - Math.floor(index * INTERVAL / ((double) INTERMEDIATE_PERIOD)) * INTERMEDIATE_PERIOD;
+                        if (x >= INTERMEDIATE_PERIOD / 2.0) {
+                            theta = 2.0 - x / (INTERMEDIATE_PERIOD / 2.0);
+                        } else {
+                            theta = x / (INTERMEDIATE_PERIOD / 2.0);
+                        }
+                        theta = theta * 2 - 1.0;
+                    }
+                    remainedNumber = (long) Math.floor((INTERMEDIATE_RATE + theta * AMPLITUDE) / 1000 * INTERVAL);
+                    long ctime = System.currentTimeMillis();
+                    if (ntime >= ctime) {
+                        Thread.sleep(ntime - ctime);
+                    }
+                }
+                synchronized (ctx.getCheckpointLock()) {
+                    int selectedKeygroup = fastZipfGenerator.next();
+                    List<String> subKeySet = keyGroupMapping.get(selectedKeygroup);
+                    totalOutputNumbers.put(selectedKeygroup, totalOutputNumbers.getOrDefault(selectedKeygroup, 0l) + 1);
+                    String key = getSubKeySetChar(count, subKeySet);
+                    ctx.collect(Tuple3.of(key, System.currentTimeMillis(), (long) count));
+                    remainedNumber--;
+                    count++;
                 }
             }
         }
@@ -253,29 +296,7 @@ public class FourOperatorTest {
             // Intermediate Phase
             startTime = System.currentTimeMillis();
             System.out.println("Intermediate phase start at: " + startTime);
-            long remainedNumber = (long)Math.floor(PHASE1_RATE * INTERVAL / 1000.0);
-            long AMPLITUDE = INTERMEDIATE_RATE - PHASE1_RATE;
-            while (isRunning && System.currentTimeMillis() - startTime < INTERMEDIATE_TIME) {
-                if(remainedNumber <= 0){
-                    long index = (System.currentTimeMillis() - startTime) / INTERVAL;
-                    long ntime = (index + 1) * INTERVAL + startTime;
-                    double theta = Math.sin(Math.toRadians(index * INTERVAL * 360 / ((double)INTERMEDIATE_PERIOD) - 90));
-                    remainedNumber = (long)Math.floor((INTERMEDIATE_RATE + theta * AMPLITUDE) / 1000 * INTERVAL);
-                    long ctime = System.currentTimeMillis();
-                    if(ntime >= ctime) {
-                        Thread.sleep(ntime - ctime);
-                    }
-                }
-                synchronized (ctx.getCheckpointLock()) {
-                    int selectedKeygroup = fastZipfGenerator.next();
-                    subKeySet = keyGroupMapping.get(selectedKeygroup);
-                    totalOutputNumbers.put(selectedKeygroup, totalOutputNumbers.getOrDefault(selectedKeygroup, 0l)+1);
-                    String key = getSubKeySetChar(count, subKeySet);
-                    ctx.collect(Tuple3.of(key, System.currentTimeMillis(), (long)count));
-                    remainedNumber --;
-                    count++;
-                }
-            }
+            startInterPhase(startTime, ctx, curve_type, PHASE1_RATE, INTERMEDIATE_RATE, INTERMEDIATE_PERIOD, INTERMEDIATE_TIME, macroAmplitude, macroPeriod);
             if (!isRunning) {
                 return ;
             }

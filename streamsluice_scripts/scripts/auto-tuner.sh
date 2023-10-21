@@ -59,7 +59,7 @@ init() {
   RATE2=10000
   TIME2=20
   RATE_I=12000
-  TIME_I=60
+  TIME_I=30
   PERIOD_I=30
   ZIPF_SKEW=0
   NKEYS=1000
@@ -133,23 +133,25 @@ function runApp() {
 }
 run_workloads(){
     init
-
+    runtime=630
+    TIME1=30
+    TIME_I=600
     RATE1=10000
     RATE2=10000
     RATE_I=13000
-#    for PERIOD_I in 60 40 30 20 15; do
-#        run_auto_tuner
-#    done
+    for PERIOD_I in 30 20; do #60 40 30 20 15; do
+        run_auto_tuner
+    done
 
     RATE1=10000
     RATE2=10000
     PERIOD_I=30
-#    for RATE_I in 15000 14000 12000 11000 ; do
-#        run_auto_tuner
-#    done
-#
-    RATE_I=13000
-    PERIOD_I=30
+    for RATE_I in 14000; do #15000 14000 12000 11000 ; do
+        run_auto_tuner
+    done
+
+#    RATE_I=13000
+#    PERIOD_I=30
 #    for STATE_SIZE2 in 500 2000 3000 4000; do
 #        STATE_SIZE3=${STATE_SIZE2}
 #        STATE_SIZE4=${STATE_SIZE2}
@@ -160,17 +162,17 @@ run_workloads(){
 
 
 
-    STATE_SIZE2=1000
-    STATE_SIZE3=${STATE_SIZE2}
-    STATE_SIZE4=${STATE_SIZE2}
-    STATE_SIZE5=${STATE_SIZE2}
-    P2=4
-    P3=6
-    P4=12
-    P6=16
-    for ZIPF_SKEW in 0.05 0.1 0.2 0.4; do
-        run_auto_tuner
-    done
+#    STATE_SIZE2=1000
+#    STATE_SIZE3=${STATE_SIZE2}
+#    STATE_SIZE4=${STATE_SIZE2}
+#    STATE_SIZE5=${STATE_SIZE2}
+#    P2=4
+#    P3=6
+#    P4=12
+#    P6=16
+#    for ZIPF_SKEW in 0.05 0.1 0.2 0.4; do
+#        run_auto_tuner
+#    done
 }
 
 run_auto_tuner(){

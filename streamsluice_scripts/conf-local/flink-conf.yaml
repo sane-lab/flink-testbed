@@ -284,15 +284,15 @@ streamsluice.system.metrics_interval: 100
 
 model.warmup: 10000
 
-streamsluice.system.migration_interval: 4850
+streamsluice.system.migration_interval: 700
 
-streamsluice.requirement.latency: 5200
+streamsluice.requirement.latency: 2000
 
-streamsluice.system.migration_overhead: 4850
+streamsluice.system.migration_overhead: 1300
 
 streamswitch.system.initialservicerate: 0.8
 
-streamsluice.system.is_treat:
+streamsluice.system.is_treat: true
 
 controller.whether.type: streamsluice
 
