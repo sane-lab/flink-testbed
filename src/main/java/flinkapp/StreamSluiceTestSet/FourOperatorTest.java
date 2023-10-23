@@ -75,7 +75,7 @@ public class FourOperatorTest {
                 .setMaxParallelism(params.getInt("mp4", 8))
                 .slotSharingGroup("g4")
                 .keyBy(0)
-                .map(new DumbSink(params.getLong("op5Delay", 100), params.getInt("op5KeyStateSize", 1)))
+                .map(new DumbSink(params.getLong("op5Delay", 100), params.getInt("op5KeyStateSize", 1), params.getBoolean("outputGroundTruth", true)))
                 .disableChaining()
                 .name("FlatMap 5")
                 .uid("op5")
@@ -140,18 +140,26 @@ public class FourOperatorTest {
         private final int perKeyStateSize;
         private long averageDelay = 1000; // micro second
         private final String payload;
-        DumbSink(long averageDelay, int perKeyStateSize){
+        private final boolean isOutput;
+
+        private int processNumber = 0;
+        DumbSink(long averageDelay, int perKeyStateSize, boolean isOutput){
             this.averageDelay = averageDelay;
             this.perKeyStateSize = perKeyStateSize;
             this.payload = StringUtils.repeat("A", perKeyStateSize);
+            this.isOutput = isOutput;
         }
 
         @Override
         public Tuple4<String, Long, Long, Long> map(Tuple3<String, Long, Long> input) throws Exception {
             countMap.put(input.f0, payload);
+            processNumber++;
             delay(averageDelay);
             long currentTime = System.currentTimeMillis();
-            System.out.println("GT: " + input.f0 + ", " + currentTime + ", " + (currentTime - input.f1) + ", " + input.f2);
+            if(isOutput || processNumber >= 10000) {
+                processNumber = 0;
+                System.out.println("GT: " + input.f0 + ", " + currentTime + ", " + (currentTime - input.f1) + ", " + input.f2);
+            }
             return new Tuple4<String, Long, Long, Long>(input.f0, currentTime, currentTime - input.f1, input.f2);
         }
         private void delay(long interval) {
