@@ -284,19 +284,21 @@ streamsluice.system.metrics_interval: 100
 
 model.warmup: 10000
 
-streamsluice.system.migration_interval: 700
+streamsluice.system.migration_interval: 5000
 
-streamsluice.requirement.latency: 2000
+streamsluice.requirement.latency: 1000
 
-streamsluice.system.migration_overhead: 1300
+streamsluice.system.migration_overhead: 500
 
 streamswitch.system.initialservicerate: 0.8
 
 streamsluice.system.is_treat: true
 
-controller.whether.type: streamsluice
+controller.whether.type: randomtime
 
-controller.how.type: streamsluice
+controller.how.type: random_3_40_0_1_0
+
+streamsluice.metrics.is_output: false
 
 #==============================================================================
 # Backpressure Configuration

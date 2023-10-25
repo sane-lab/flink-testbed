@@ -17,7 +17,7 @@ function analyze() {
 }
 
 run_one_exp() {
-  EXP_NAME=random_scaling-${runtime}-${CURVE_TYPE}-${RATE1}-${RATE2}-${RATE_I}-${PERIOD_I}-${P1}-${ZIPF_SKEW}-${P2}-${DELAY2}-${IO2}-${STATE_SIZE2}-${P3}-${DELAY3}-${IO3}-${STATE_SIZE3}-${P4}-${DELAY4}-${IO4}-${STATE_SIZE4}-${P5}-${DELAY5}-${STATE_SIZE5}-${repeat}
+  EXP_NAME=${how_type}-${runtime}-${CURVE_TYPE}-${RATE1}-${RATE2}-${RATE_I}-${PERIOD_I}-${P1}-${ZIPF_SKEW}-${P2}-${DELAY2}-${IO2}-${STATE_SIZE2}-${P3}-${DELAY3}-${IO3}-${STATE_SIZE3}-${P4}-${DELAY4}-${IO4}-${STATE_SIZE4}-${P5}-${DELAY5}-${STATE_SIZE5}-${repeat}
 
   echo "INFO: run exp ${EXP_NAME}"
   configFlink
@@ -40,13 +40,14 @@ run_one_exp() {
 init() {
   # exp scenario
   controller_type=StreamSluice
-  whether_type="streamsluice"
-  how_type="streamsluice"
+  whether_type="randomtime"
+  how_type="random_3_10_0_1_0"
   vertex_id="a84740bacf923e828852cc4966f2247c,eabd4c11f6c6fbdf011f0f1fc42097b1,d01047f852abd5702a0dabeedac99ff5,d2336f79a0d60b5a4b16c8769ec82e47"
   L=1000
   migration_overhead=500
-  migration_interval=500
+  migration_interval=5000
   epoch=100
+  metrics_output=false
   CURVE_TYPE="sine"
   # app level
   JAR="${FLINK_APP_DIR}/target/testbed-1.0-SNAPSHOT.jar"
@@ -55,12 +56,12 @@ init() {
   runtime=50
   # set in Flink app
   RATE1=10000
-  TIME1=25
-  RATE2=10000
-  TIME2=20
-  RATE_I=15000
-  TIME_I=25
-  PERIOD_I=25
+  TIME1=20
+  RATE2=13000
+  TIME2=50
+  RATE_I=12000
+  TIME_I=1
+  PERIOD_I=1
   ZIPF_SKEW=0
   NKEYS=1000
   P1=1
@@ -77,13 +78,13 @@ init() {
   IO3=1
   STATE_SIZE3=1000
 
-  P46=6
+  P4=6
   MP4=128
   DELAY4=500
   IO4=1
   STATE_SIZE4=1000
 
-  P5=12
+  P5=11
   MP5=128
   DELAY5=1000
   STATE_SIZE5=1000
@@ -114,22 +115,65 @@ function runApp() {
     -curve_type ${CURVE_TYPE} -outputGroundTruth ${outputGroundTruth} &
 }
 
+run_multiple_times(){
+  repeat=1
+  while [ ${repeat} -le 50 ]
+  do
+    run_one_exp
+    printf "${EXP_NAME}\n" >> random-scale.txt
+    repeat="$(( ${repeat} + 1 ))"
+  done
+}
+
 run_random_scale(){
     echo "Run random-scale..."
     init
-    printf "" > random-scale.txt
     whether_type="randomtime"
-    how_type="random"
+    CURVE_TYPE="linear"
+    printf "" > random-scale.txt
     outputGroundTruth=false
-    for CURVE_TYPE in "linear"; do
-      for STATE_SIZE2 in 1000 2000 3000 4000 5000 6000 7000 8000 9000 10000; do
+    how_type="random_3_10_0_1_0"
+    STATE_SIZE2=50000
+    for STATE_SIZE2 in 50000; do
+      for how_type in "random_3_10_0_1_0" "random_3_20_0_1_0" "random_3_40_0_1_0"; do
         STATE_SIZE3=${STATE_SIZE2}
         STATE_SIZE4=${STATE_SIZE2}
         STATE_SIZE5=${STATE_SIZE2}
-        for repeat in 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 27 28 29 30; do
-            run_one_exp
-            printf "${EXP_NAME}\n" >> random-scale.txt
-        done
+
+        RATE1=5000
+        TIME1=20
+        RATE2=5000
+        TIME2=50
+        RATE_I=10000
+        TIME_I=30
+        PERIOD_I=30
+        P5=12
+        run_multiple_times
+
+        RATE1=10000
+        TIME1=20
+        RATE2=12000
+        TIME2=50
+        RATE_I=12000
+        TIME_I=0
+        PERIOD_I=1
+        run_multiple_times
+
+        RATE1=10000
+        RATE2=13000
+        run_multiple_times
+
+        RATE1=10000
+        RATE2=14000
+        run_multiple_times
+
+        RATE1=10000
+        RATE2=14500
+        run_multiple_times
+
+        RATE1=10000
+        RATE2=15000
+        run_multiple_times
       done
     done
 }
