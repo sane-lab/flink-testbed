@@ -78,7 +78,7 @@ for fdir in os.listdir(rawDir):
                 state_size = dir.split("-")[-2]
                 movekey_num = dir.split("_")[2]
                 setting_name = state_size + "_K" + movekey_num
-                if(state_size == "50000"): # if (movekey_num == "20"):
+                if (movekey_num == "20"): # if(state_size == "50000"): #
                     result = retrieveLatencySpikeInfoFromFile(rawDir + fdir + '/' + dir)
                     if len(result) == 2 and result[0] == "error":
                         errorFiles += [result[1]]
