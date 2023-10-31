@@ -82,6 +82,7 @@ init() {
 
   repeat=1
   warmup=10000
+  spike_estimation="none"
   is_treat=true
 }
 

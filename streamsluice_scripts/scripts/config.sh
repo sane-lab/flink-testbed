@@ -46,7 +46,8 @@ function configFlink() {
     sed 's/^\(\s*controller.type\s*:\s*\).*/\1'"$controller_type"'/' tmp8 > tmp9
     sed 's/^\(\s*controller.whether.type\s*:\s*\).*/\1'"$whether_type"'/' tmp9 > tmp10
     sed 's/^\(\s*controller.how.type\s*:\s*\).*/\1'"$how_type"'/' tmp10 > tmp11
-    sed 's/^\(\s*streamsluice.metrics.is_output\s*:\s*\).*/\1'"$metrics_output"'/' tmp11 > ${FLINK_CONF_DIR}/flink-conf.yaml
+    sed 's/^\(\s*streamsluice.metrics.is_output\s*:\s*\).*/\1'"$metrics_output"'/' tmp11 > tmp12
+    sed 's/^\(\s*streamsluice.system.spike_estimation\s*:\s*\).*/\1'"$spike_estimation"'/' tmp12 > ${FLINK_CONF_DIR}/flink-conf.yaml
     rm tmp*
     echo ${FLINK_CONF_DIR}/flink-conf.yaml
     cp ${FLINK_CONF_DIR}/* ${FLINK_DIR}/conf
