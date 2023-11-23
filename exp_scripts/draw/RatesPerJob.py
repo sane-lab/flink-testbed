@@ -202,7 +202,7 @@ def draw(rawDir, outputDir, expName):
         for i in range(0, len(taskPerFig)):
             print("Draw " + str(i) + "-th figure...")
             figName = "ratesPerTask_" + str(i)
-            fig = plt.figure(figsize=(12, 18))
+            fig = plt.figure(figsize=(12, 36))
             print(taskPerFig[i])
             for j in range(0, len(taskPerFig[i])):
                 task = taskPerFig[i][j]
@@ -276,69 +276,124 @@ def draw(rawDir, outputDir, expName):
                 totalServiceRatePerJob[job][sx] += sy
     print("Draw total figure...")
     figName = "total_rates"
-    fig, axs= plt.subplots(1, 1, figsize=(24, 5), layout='constrained')
+
 
     operatorNameToId = {}
     for x in totalArrivalRatePerJob.keys():
         operatorNameToId[OPERATOR_NAMING[x]] = x
 
-    for i in range(0, 1):#len(totalArrivalRatePerJob.keys())):
-        ax1 = axs#[i]
-        job = operatorNameToId[sorted(operatorNameToId.keys())[i]]
+    if(drawOperatorFigureFlag):
+        fig, axs = plt.subplots(len(totalArrivalRatePerJob.keys()), 1, figsize=(12, 16), layout='constrained')
+        for i in range(0, len(totalArrivalRatePerJob.keys())):
+            ax1 = axs[i]
+            job = operatorNameToId[sorted(operatorNameToId.keys())[i]]
 
-        ax = sorted(totalArrivalRatePerJob[job].keys())
-        print(totalArrivalRatePerJob[job])
-        ay = [totalArrivalRatePerJob[job][x] / (windowSize / 100) for x in ax]
-        sx = sorted(totalServiceRatePerJob[job].keys())
-        sy = [totalServiceRatePerJob[job][x] for x in sx]
+            ax = sorted(totalArrivalRatePerJob[job].keys())
+            #print(totalArrivalRatePerJob[job])
+            ay = [totalArrivalRatePerJob[job][x] / (windowSize / 100) for x in ax]
+            sx = sorted(totalServiceRatePerJob[job].keys())
+            sy = [totalServiceRatePerJob[job][x] for x in sx]
 
-        print("Draw job " + job + " figure...")
-        #plt.subplot(len(totalArrivalRatePerJob.keys()), 1, i+1)
-        print("Draw total arrival rates")
-        if (i == 0):
-            ax1.plot(ax, ay, '*', color='red', markersize=MARKERSIZE, label="Arrival Rate")
-            if(serviceRateFlag):
-                ax1.plot(sx, sy, '*', color='blue', markersize=MARKERSIZE, label="Service Rate")
-        else:
-            ax1.plot(ax, ay, '*', color='red', markersize=MARKERSIZE)
-            if(serviceRateFlag):
-                ax1.plot(sx, sy, '*', color='blue', markersize=MARKERSIZE)
-        #for operator in scalingMarkerByOperator:
-        if(job in scalingMarkerByOperator and scalingMarkerFlag):
-            addScalingMarker(ax1, scalingMarkerByOperator[job])
-        #if i + 1 == len(totalArrivalRatePerJob.keys()):
-            #ax1.set_xlabel('Time (s)')
-        ax1.set_ylabel('Rate (tps)')
-        #ax1.title.set_text('Rates of ' + OPERATOR_NAMING[job])
-        # ax1.set_xlim(0, lastTime - initialTime)
-        # ax1.set_xticks(np.arange(0, lastTime - initialTime, 30000))
-        # xlabels = []
-        # for x in range(0, lastTime - initialTime, 30000):
-        #     xlabels += [str(int(x / 1000))]
-        # ax1.set_xticklabels(xlabels)
-        ax1.set_xlim(startTime * 1000, (startTime + 3600) * 1000)
-        ax1.set_xticks(np.arange(startTime * 1000, (startTime + 3600) * 1000 + 300000, 300000))
-        ax1.set_xticklabels([int((x - startTime * 1000) / 60000) for x in np.arange(startTime * 1000, (startTime + 3600) * 1000 + 300000, 300000)])
+            print("Draw job " + job + " figure...")
+            print("Draw total arrival rates")
+            if (i == 0):
+                ax1.plot(ax, ay, '*', color='red', markersize=MARKERSIZE, label="Arrival Rate")
+                if (serviceRateFlag):
+                    ax1.plot(sx, sy, '*', color='blue', markersize=MARKERSIZE, label="Service Rate")
+            else:
+                ax1.plot(ax, ay, '*', color='red', markersize=MARKERSIZE)
+                if (serviceRateFlag):
+                    ax1.plot(sx, sy, '*', color='blue', markersize=MARKERSIZE)
+            # for operator in scalingMarkerByOperator:
+            if (job in scalingMarkerByOperator and scalingMarkerFlag):
+                addScalingMarker(ax1, scalingMarkerByOperator[job])
+            # if i + 1 == len(totalArrivalRatePerJob.keys()):
+            # ax1.set_xlabel('Time (s)')
+            ax1.set_ylabel('Rate (tps)')
+            ax1.title.set_text('Rates of ' + OPERATOR_NAMING[job])
+            ax1.set_xlim(0, lastTime - initialTime)
+            ax1.set_xticks(np.arange(0, lastTime - initialTime, 30000))
+            xlabels = []
+            for x in range(0, lastTime - initialTime, 30000):
+                xlabels += [str(int(x / 1000))]
+            ax1.set_xticklabels(xlabels)
+            # ax1.set_xlim(startTime * 1000, (startTime + 3600) * 1000)
+            # ax1.set_xticks(np.arange(startTime * 1000, (startTime + 3600) * 1000 + 300000, 300000))
+            # ax1.set_xticklabels([int((x - startTime * 1000) / 60000) for x in np.arange(startTime * 1000, (startTime + 3600) * 1000 + 300000, 300000)])
+
+            ylim = totalYMax[OPERATOR_NAMING[job]]
+            ax1.set_ylim(0, ylim)
+            ax1.set_yticks(np.arange(0, ylim + 5000, 5000))
+            ax1.grid(True)
+        lines = []
+        labels = []
+        for ax in fig.axes:
+            Line, Label = ax.get_legend_handles_labels()
+            # print(Label)
+            lines.extend(Line)
+            labels.extend(Label)
+        # fig.legend(lines, labels, loc='upper left')
+        # fig.suptitle('Arrival/Service Rate of Operators')
+    else:
+        fig, axs = plt.subplots(1, 1, figsize=(24, 5), layout='constrained')
+        for i in range(0, 1):
+            ax1 = axs
+            job = operatorNameToId[sorted(operatorNameToId.keys())[i]]
+
+            ax = sorted(totalArrivalRatePerJob[job].keys())
+            print(totalArrivalRatePerJob[job])
+            ay = [totalArrivalRatePerJob[job][x] / (windowSize / 100) for x in ax]
+            sx = sorted(totalServiceRatePerJob[job].keys())
+            sy = [totalServiceRatePerJob[job][x] for x in sx]
+
+            print("Draw job " + job + " figure...")
+            #plt.subplot(len(totalArrivalRatePerJob.keys()), 1, i+1)
+            print("Draw total arrival rates")
+            if (i == 0):
+                ax1.plot(ax, ay, '*', color='red', markersize=MARKERSIZE, label="Arrival Rate")
+                if(serviceRateFlag):
+                    ax1.plot(sx, sy, '*', color='blue', markersize=MARKERSIZE, label="Service Rate")
+            else:
+                ax1.plot(ax, ay, '*', color='red', markersize=MARKERSIZE)
+                if(serviceRateFlag):
+                    ax1.plot(sx, sy, '*', color='blue', markersize=MARKERSIZE)
+            #for operator in scalingMarkerByOperator:
+            if(job in scalingMarkerByOperator and scalingMarkerFlag):
+                addScalingMarker(ax1, scalingMarkerByOperator[job])
+            #if i + 1 == len(totalArrivalRatePerJob.keys()):
+                #ax1.set_xlabel('Time (s)')
+            ax1.set_ylabel('Rate (tps)')
+            #ax1.title.set_text('Rates of ' + OPERATOR_NAMING[job])
+            print(totalArrivalRatePerJob)
+            ax1.set_xlim(0, lastTime - initialTime)
+            ax1.set_xticks(np.arange(0, lastTime - initialTime, 30000))
+            xlabels = []
+            for x in range(0, lastTime - initialTime, 30000):
+                xlabels += [str(int(x / 1000))]
+            ax1.set_xticklabels(xlabels)
+            # ax1.set_xlim(startTime * 1000, (startTime + 3600) * 1000)
+            # ax1.set_xticks(np.arange(startTime * 1000, (startTime + 3600) * 1000 + 300000, 300000))
+            # ax1.set_xticklabels([int((x - startTime * 1000) / 60000) for x in np.arange(startTime * 1000, (startTime + 3600) * 1000 + 300000, 300000)])
 
 
-        ylim = totalYMax[OPERATOR_NAMING[job]]
-        ax1.set_ylim(0, ylim)
-        ax1.set_yticks(np.arange(0, ylim + 500, 500))
-        ax1.grid(True)
-    lines = []
-    labels = []
-    for ax in fig.axes:
-        Line, Label = ax.get_legend_handles_labels()
-        # print(Label)
-        lines.extend(Line)
-        labels.extend(Label)
-    #fig.legend(lines, labels, loc='upper left')
-    #fig.suptitle('Arrival/Service Rate of Operators')
+            # ylim = totalYMax[OPERATOR_NAMING[job]]
+            # ax1.set_ylim(0, ylim)
+            # ax1.set_yticks(np.arange(0, ylim + 500, 500))
+            # ax1.grid(True)
+        lines = []
+        labels = []
+        for ax in fig.axes:
+            Line, Label = ax.get_legend_handles_labels()
+            # print(Label)
+            lines.extend(Line)
+            labels.extend(Label)
+        #fig.legend(lines, labels, loc='upper left')
+        #fig.suptitle('Arrival/Service Rate of Operators')
     import os
     if not os.path.exists(outputDir):
         os.makedirs(outputDir)
     #plt.savefig(outputDir + figName + ".png")
-    plt.savefig(outputDir + figName + ".pdf", bbox_inches='tight')
+    plt.savefig(outputDir + figName + ".png", bbox_inches='tight')
     plt.close(fig)
 
 
@@ -365,20 +420,21 @@ totalYMax = {
     "Stateful Map": 1000,
     "Splitter": 1000,
     "Counter": 2000,
-    "OP1": 2500,
-    "OP2": 2500,
-    "OP3": 2500,
-    "OP4": 2500,
+    "OP1": 30000,
+    "OP2": 30000,
+    "OP3": 30000,
+    "OP4": 30000,
 }
 rawDir = "/Users/swrrt/Workplace/BacklogDelayPaper/experiments/raw/"
 outputDir = "/Users/swrrt/Workplace/BacklogDelayPaper/experiments/results/"
 drawTaskFigureFlag = False
-expName = "stock-sb-4hr-50ms.txt-3690-30-1500-20-3-1250-1-10-5-1666-1-10-10-2500-1-10-12-5000-10-2500-1800-100-true-1"
+expName = "autotune_4op-false-390-10000-12500-60-15000-60-12500-60-1-0-2-125-1-5000-2-120-1-5000-3-250-1-5000-6-500-5000-2000-1500-100-true-1"
 #expName = "streamsluice-twoOP-180-400-400-500-30-5-10-2-0.25-1500-500-10000-100-true-1"
 startTime=120
-windowSize=1000
-serviceRateFlag=False
-scalingMarkerFlag=False
+windowSize=100
+serviceRateFlag=True
+scalingMarkerFlag = True
+drawOperatorFigureFlag = True
 import sys
 if len(sys.argv) > 1:
     expName = sys.argv[1].split("/")[-1]
