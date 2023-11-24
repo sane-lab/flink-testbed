@@ -189,7 +189,7 @@ def draw(rawDir, outputDir, expName):
     figName = "Parallelism"
 
 
-    fig = plt.figure(figsize=(24, 5))
+    fig = plt.figure(figsize=(12, 4))
 
     legend = []
     for job in ParallelismPerJob:
@@ -221,33 +221,34 @@ def draw(rawDir, outputDir, expName):
     plt.ylabel('# of tasks')
     #plt.title('Parallelism of Operators')
     axes = plt.gca()
-    # axes.set_xlim(0, lastTime-initialTime)
-    # axes.set_xticks(np.arange(0, lastTime-initialTime, 30000))
-    #
-    # xlabels = []
-    # for x in range(0, lastTime-initialTime, 30000):
-    #     xlabels += [str(int(x / 1000))]
-    # axes.set_xticklabels(xlabels)
-    axes.set_xlim(startTime * 1000, (startTime + 3600) * 1000)
-    axes.set_xticks(np.arange(startTime * 1000, (startTime + 3600) * 1000 + 300000, 300000))
-    axes.set_xticklabels([int((x - startTime * 1000) / 60000) for x in np.arange(startTime * 1000,(startTime + 3600) * 1000 + 300000, 300000)])
+    axes.set_xlim(0, lastTime-initialTime)
+    axes.set_xticks(np.arange(0, lastTime-initialTime, 30000))
 
-    axes.set_ylim(0, 40)
-    axes.set_yticks(np.arange(0, 45, 10))
+    xlabels = []
+    for x in range(0, lastTime-initialTime, 30000):
+        xlabels += [str(int(x / 1000))]
+    axes.set_xticklabels(xlabels)
+    # axes.set_xlim(startTime * 1000, (startTime + 3600) * 1000)
+    # axes.set_xticks(np.arange(startTime * 1000, (startTime + 3600) * 1000 + 300000, 300000))
+    # axes.set_xticklabels([int((x - startTime * 1000) / 60000) for x in np.arange(startTime * 1000,(startTime + 3600) * 1000 + 300000, 300000)])
+
+    axes.set_ylim(0, 65)
+    axes.set_yticks(np.arange(0, 65, 5))
     plt.grid(True)
     import os
     if not os.path.exists(outputDir):
         os.makedirs(outputDir)
     #plt.savefig(outputDir + figName + ".png")
-    plt.savefig(outputDir + figName + ".pdf", bbox_inches='tight')
+    plt.savefig(outputDir + figName + ".png", bbox_inches='tight')
     plt.close(fig)
 
 
 rawDir = "/Users/swrrt/Workplace/BacklogDelayPaper/experiments/raw/"
 outputDir = "/Users/swrrt/Workplace/BacklogDelayPaper/experiments/results/"
 #expName = "streamsluice-scaletest-400-600-500-5-2000-1000-100-1"
-expName = "stock-sb-4hr-50ms.txt-3690-30-1500-20-3-1250-1-10-5-1666-1-10-10-2500-1-10-12-5000-10-2500-1800-100-true-1"
-startTime = 120
+expName = "autotune_4op-false-390-10000-12500-60-15000-60-12500-60-1-0-2-125-1-5000-2-120-1-5000-3-250-1-5000-6-500-5000-2000-1500-100-true-1"
+startTime = 0 # 120
+perOperatorFlag = True
 import sys
 if len(sys.argv) > 1:
     expName = sys.argv[1].split("/")[-1]

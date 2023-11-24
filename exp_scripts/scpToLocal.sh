@@ -1,5 +1,5 @@
 scp_from_dir(){
-	name="${host}:${inputdir}/flink-samza-standalonesession-0-camel-sane.out" #*.out"
+	name="${host}:${inputdir}/*.out"
 	echo $name
 	expName=$(basename ${inputdir})
 	mkdir "/Users/swrrt/Workplace/BacklogDelayPaper/experiments/raw/${expName}"
@@ -34,10 +34,10 @@ while IFS= read -r line; do
   printf 'Line: %s\n' "$line"
   trap "echo Exited!; exit;" SIGINT SIGTERM
   inputdir="/data/streamsluice/raw/${line}"
-	scp_from_dir
-	#python ./draw/RatesPerJob.py ${inputdir}
-	#python ./draw/GroundTruthCurveAndSuccessRate.py ${inputdir}
-	#python ./draw/ParallelismCurve.py ${inputdir}
+	#scp_from_dir
+	python ./draw/RatesPerJob.py ${inputdir}
+	python ./draw/GroundTruthCurveAndSuccessRate.py ${inputdir}
+	python ./draw/ParallelismCurve.py ${inputdir}
 	#python ./draw/RetrieveResults.py ${inputdir}
 done < $file
 
