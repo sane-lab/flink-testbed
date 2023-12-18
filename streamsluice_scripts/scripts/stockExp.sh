@@ -42,7 +42,7 @@ init() {
   controller_type=StreamSluice
   whether_type="streamsluice"
   how_type="streamsluice"
-  vertex_id="a84740bacf923e828852cc4966f2247c,eabd4c11f6c6fbdf011f0f1fc42097b1,d01047f852abd5702a0dabeedac99ff5,d2336f79a0d60b5a4b16c8769ec82e47"
+  vertex_id="a84740bacf923e828852cc4966f2247c,eabd4c11f6c6fbdf011f0f1fc42097b1,d01047f852abd5702a0dabeedac99ff5"
   L=2000
   migration_interval=500
   epoch=100

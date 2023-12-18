@@ -54,9 +54,9 @@ public class StockTest {
                 .uid("op2")
                 .setParallelism(params.getInt("p2", 1))
                 .setMaxParallelism(params.getInt("mp2", 8))
-                .slotSharingGroup("g2").keyBy(0);
+                .slotSharingGroup("g2");
 
-        up.map(new DumbSink(params.getLong("op3Delay", 100), params.getInt("op3KeyStateSize", 1)))
+        up.keyBy(0).map(new DumbSink(params.getLong("op3Delay", 100), params.getInt("op3KeyStateSize", 1)))
                 .disableChaining()
                 .name("Sink 1")
                 .uid("op3")
@@ -64,7 +64,7 @@ public class StockTest {
                 .setMaxParallelism(params.getInt("mp3", 8))
                 .slotSharingGroup("g3");
 
-        up.map(new DumbSink(params.getLong("op4Delay", 100), params.getInt("op4KeyStateSize", 1)))
+        up.keyBy(0).map(new DumbSink(params.getLong("op4Delay", 100), params.getInt("op4KeyStateSize", 1)))
                 .disableChaining()
                 .name("Sink 2")
                 .uid("op4")
