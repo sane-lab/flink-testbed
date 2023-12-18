@@ -17,7 +17,7 @@ function analyze() {
 }
 
 run_one_exp() {
-  EXP_NAME=stock-${stock_file_name}-${runtime}-${warmup_time}-${warmup_rate}-${skip_interval}-${P2}-${DELAY2}-${IO2}-${STATE_SIZE2}-${P3}-${DELAY3}-${IO3}-${STATE_SIZE3}-${P4}-${DELAY4}-${IO4}-${STATE_SIZE4}-${P5}-${DELAY5}-${STATE_SIZE5}-${L}-${migration_overhead}-${epoch}-${is_treat}-${repeat}
+  EXP_NAME=stock-${stock_file_name}-${whether_type}-${how_type}-${runtime}-${warmup_time}-${warmup_rate}-${skip_interval}-${P2}-${DELAY2}-${IO2}-${STATE_SIZE2}-${P3}-${DELAY3}-${IO3}-${STATE_SIZE3}-${P4}-${DELAY4}-${IO4}-${STATE_SIZE4}-${L}-${epoch}-${is_treat}-${repeat}
 
   echo "INFO: run exp ${EXP_NAME}"
   configFlink
@@ -43,8 +43,7 @@ init() {
   whether_type="streamsluice"
   how_type="streamsluice"
   vertex_id="a84740bacf923e828852cc4966f2247c,eabd4c11f6c6fbdf011f0f1fc42097b1,d01047f852abd5702a0dabeedac99ff5,d2336f79a0d60b5a4b16c8769ec82e47"
-  L=1000
-  migration_overhead=500
+  L=2000
   migration_interval=500
   epoch=100
   # app level
@@ -57,32 +56,29 @@ init() {
   stock_file_name="sb-4hr-50ms.txt"
   P1=1
 
-  P2=2
+  P2=6
   MP2=128
-  DELAY2=1250
+  DELAY2=2000
   IO2=1
-  STATE_SIZE2=10
+  STATE_SIZE2=10000
 
-  P3=4
+  P3=9
   MP3=128
-  DELAY3=1666
+  DELAY3=3333
   IO3=1
-  STATE_SIZE3=10
+  STATE_SIZE3=10000
 
-  P4=6
+  P4=12
   MP4=128
-  DELAY4=2500
+  DELAY4=5000
   IO4=1
-  STATE_SIZE4=10
-
-  P5=12
-  MP5=128
-  DELAY5=5000 #1000
-  STATE_SIZE5=10
+  STATE_SIZE4=10000
 
   repeat=1
   warmup=10000
-  spike_estimation="none"
+  spike_estimation="linear_regression"
+  spike_slope=0.7
+  spike_intercept=1000
   is_treat=true
 }
 
@@ -90,15 +86,13 @@ init() {
 function runApp() {
     echo "INFO: ${FLINK_DIR}/bin/flink run -c ${job} ${JAR} \
     -p1 ${P1} -mp1 ${MP1} -p2 ${P2} -mp2 ${MP2} -op2Delay ${DELAY2} -op2IoRate ${IO2} -op2KeyStateSize ${STATE_SIZE2} \
-    -p3 ${P3} -mp3 ${MP3} -op3Delay ${DELAY3} -op3IoRate ${IO3} -op3KeyStateSize ${STATE_SIZE3} \
-    -p4 ${P4} -mp4 ${MP4} -op4Delay ${DELAY4} -op4IoRate ${IO4} -op4KeyStateSize ${STATE_SIZE4} \
-    -p5 ${P5} -mp5 ${MP5} -op5Delay ${DELAY5} -op5KeyStateSize ${STATE_SIZE5} \
+    -p3 ${P3} -mp3 ${MP3} -op3Delay ${DELAY3} -op3KeyStateSize ${STATE_SIZE3} \
+    -p4 ${P4} -mp4 ${MP4} -op4Delay ${DELAY4} -op4KeyStateSize ${STATE_SIZE4} \
     -file_name ${stock_path}${stock_file_name} -warmup_rate ${warmup_rate} -warmup_time ${warmup_time} -skip_interval ${skip_interval} &"
     ${FLINK_DIR}/bin/flink run -c ${job} ${JAR} \
     -p1 ${P1} -mp1 ${MP1} -p2 ${P2} -mp2 ${MP2} -op2Delay ${DELAY2} -op2IoRate ${IO2} -op2KeyStateSize ${STATE_SIZE2} \
-    -p3 ${P3} -mp3 ${MP3} -op3Delay ${DELAY3} -op3IoRate ${IO3} -op3KeyStateSize ${STATE_SIZE3} \
-    -p4 ${P4} -mp4 ${MP4} -op4Delay ${DELAY4} -op4IoRate ${IO4} -op4KeyStateSize ${STATE_SIZE4} \
-    -p5 ${P5} -mp5 ${MP5} -op5Delay ${DELAY5} -op5KeyStateSize ${STATE_SIZE5} \
+    -p3 ${P3} -mp3 ${MP3} -op3Delay ${DELAY3} -op3KeyStateSize ${STATE_SIZE3} \
+    -p4 ${P4} -mp4 ${MP4} -op4Delay ${DELAY4} -op4KeyStateSize ${STATE_SIZE4} \
     -file_name ${stock_path}${stock_file_name} -warmup_rate ${warmup_rate} -warmup_time ${warmup_time} -skip_interval ${skip_interval} &
 }
 
@@ -107,15 +101,12 @@ run_stock_test(){
     init
     L=2500
     runtime=3690
-    migration_overhead=1800
-    migration_interval=700
     warmup_rate=1500
     warmup_time=30
     skip_interval=20
-    P2=3
-    P3=4
-    P3=5
-    P4=10
+    P2=6
+    P3=9
+    P4=12
     repeat=1
     #is_treat=false
 

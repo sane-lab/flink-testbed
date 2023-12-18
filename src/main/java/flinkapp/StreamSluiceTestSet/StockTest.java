@@ -19,6 +19,8 @@ import org.apache.flink.runtime.state.FunctionSnapshotContext;
 import org.apache.flink.runtime.state.memory.MemoryStateBackend;
 import org.apache.flink.streaming.api.TimeCharacteristic;
 import org.apache.flink.streaming.api.checkpoint.CheckpointedFunction;
+import org.apache.flink.streaming.api.datastream.DataStream;
+import org.apache.flink.streaming.api.datastream.DataStreamSource;
 import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
 import org.apache.flink.streaming.api.functions.source.RichParallelSourceFunction;
 import org.apache.flink.streaming.api.functions.source.SourceFunction;
@@ -41,7 +43,36 @@ public class StockTest {
         env.setStateBackend(new MemoryStateBackend(1073741824));
         env.setStreamTimeCharacteristic(TimeCharacteristic.EventTime);
 
-        env.addSource(new SSERealRateSource(params.get("file_name", "/home/samza/SSE_data/sb-4hr-50ms.txt"), params.getLong("warmup_time", 30L) * 1000, params.getLong("warmup_rate", 1500L), params.getLong("skip_interval", 20L) * 20))
+        DataStreamSource<Tuple3<String, Long, Long>> source = env.addSource(new SSERealRateSource(params.get("file_name", "/home/samza/SSE_data/sb-4hr-50ms.txt"), params.getLong("warmup_time", 30L) * 1000, params.getLong("warmup_rate", 1500L), params.getLong("skip_interval", 20L) * 20))
+                .setParallelism(params.getInt("p1", 1));
+
+        DataStream<Tuple3<String, Long, Long>> up = source
+                .keyBy(0)
+                .flatMap(new DumbStatefulMap(params.getLong("op2Delay", 100), params.getInt("op2IoRate", 1), params.getInt("op2KeyStateSize", 1)))
+                .disableChaining()
+                .name("Splitter")
+                .uid("op2")
+                .setParallelism(params.getInt("p2", 1))
+                .setMaxParallelism(params.getInt("mp2", 8))
+                .slotSharingGroup("g2").keyBy(0);
+
+        up.map(new DumbSink(params.getLong("op3Delay", 100), params.getInt("op3KeyStateSize", 1)))
+                .disableChaining()
+                .name("Sink 1")
+                .uid("op3")
+                .setParallelism(params.getInt("p3", 1))
+                .setMaxParallelism(params.getInt("mp3", 8))
+                .slotSharingGroup("g3");
+
+        up.map(new DumbSink(params.getLong("op4Delay", 100), params.getInt("op4KeyStateSize", 1)))
+                .disableChaining()
+                .name("Sink 2")
+                .uid("op4")
+                .setParallelism(params.getInt("p4", 1))
+                .setMaxParallelism(params.getInt("mp4", 8))
+                .slotSharingGroup("g4");
+
+        /*env.addSource(new SSERealRateSource(params.get("file_name", "/home/samza/SSE_data/sb-4hr-50ms.txt"), params.getLong("warmup_time", 30L) * 1000, params.getLong("warmup_rate", 1500L), params.getLong("skip_interval", 20L) * 20))
                 .setParallelism(params.getInt("p1", 1))
                 .keyBy(0)
                 .flatMap(new DumbStatefulMap(params.getLong("op2Delay", 100), params.getInt("op2IoRate", 1), params.getInt("op2KeyStateSize", 1)))
@@ -73,7 +104,7 @@ public class StockTest {
                 .uid("op5")
                 .setParallelism(params.getInt("p5", 1))
                 .setMaxParallelism(params.getInt("mp5", 8))
-                .slotSharingGroup("g5");
+                .slotSharingGroup("g5");*/
 
         env.execute();
     }
