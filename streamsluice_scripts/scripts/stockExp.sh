@@ -99,7 +99,7 @@ function runApp() {
 run_stock_test(){
     echo "Run overall test..."
     init
-    L=2500
+    L=2000
     runtime=3690
     warmup_rate=1500
     warmup_time=30
