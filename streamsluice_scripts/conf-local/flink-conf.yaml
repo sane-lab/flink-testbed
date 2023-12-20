@@ -306,6 +306,8 @@ controller.whether.type: streamsluice
 
 controller.how.type: streamsluice
 
+controller.scale_in.type: streamsluice
+
 streamsluice.metrics.is_output: 
 
 streamsluice.system.autotune: false

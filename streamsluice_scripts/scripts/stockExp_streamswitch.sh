@@ -33,12 +33,13 @@ function cleanEnv() {
 # configure parameters in flink bin
 function configFlink() {
     # set user requirement
-    sed 's/^\(\s*streamswitch.requirement.latency.a84740bacf923e828852cc4966f2247c\s*:\s*\).*/\1'"$L1"'/' ${FLINK_DIR}/conf/flink-conf.yaml > tmp
-    sed 's/^\(\s*streamswitch.requirement.latency.eabd4c11f6c6fbdf011f0f1fc42097b1\s*:\s*\).*/\1'"$L2"'/' tmp > tmp1
-    sed 's/^\(\s*streamswitch.requirement.latency.d01047f852abd5702a0dabeedac99ff5\s*:\s*\).*/\1'"$L3"'/' tmp > tmp2
-    sed 's/^\(\s*streamswitch.system.l_low\s*:\s*\).*/\1'"$l_low"'/' tmp2 > tmp3
-    sed 's/^\(\s*streamswitch.system.l_high\s*:\s*\).*/\1'"$l_high"'/' tmp3 > ${FLINK_DIR}/conf/flink-conf.yaml
-    rm tmp tmp1 tmp2
+    sed 's/^\(\s*model.vertex\s*:\s*\).*/\1'"a84740bacf923e828852cc4966f2247c,eabd4c11f6c6fbdf011f0f1fc42097b1,d01047f852abd5702a0dabeedac99ff5"'/' ${FLINK_DIR}/conf/flink-conf.yaml > tmp
+    sed 's/^\(\s*streamswitch.requirement.latency.a84740bacf923e828852cc4966f2247c\s*:\s*\).*/\1'"$L1"'/' tmp > tmp1
+    sed 's/^\(\s*streamswitch.requirement.latency.eabd4c11f6c6fbdf011f0f1fc42097b1\s*:\s*\).*/\1'"$L2"'/' tmp1 > tmp2
+    sed 's/^\(\s*streamswitch.requirement.latency.d01047f852abd5702a0dabeedac99ff5\s*:\s*\).*/\1'"$L3"'/' tmp2 > tmp3
+    sed 's/^\(\s*streamswitch.system.l_low\s*:\s*\).*/\1'"$l_low"'/' tmp3 > tmp4
+    sed 's/^\(\s*streamswitch.system.l_high\s*:\s*\).*/\1'"$l_high"'/' tmp4 > ${FLINK_DIR}/conf/flink-conf.yaml
+    rm tmp tmp*
 
     # set static or streamswitch
     if [[ ${isTreat} == 1 ]]
@@ -112,7 +113,10 @@ isTreat=1
 JAR="${FLINK_APP_DIR}/target/testbed-1.0-SNAPSHOT.jar"
 job="flinkapp.StreamSluiceTestSet.StockTest"
 # only used in script
-runtime=90
+runtime=3690
+warmup_rate=2000
+warmup_time=30
+skip_interval=20
 # set in Flink app
 stock_path="/home/samza/SSE_data/"
 stock_file_name="sb-4hr-50ms.txt"
@@ -152,7 +156,8 @@ configFlink
 runFlink
 runApp
 
-python -c 'import time; time.sleep('"${SUMRUNTIME}"')'
+SCRIPTS_RUNTIME=`expr ${runtime} + 10`
+python -c 'import time; time.sleep('"${SCRIPTS_RUNTIME}"')'
 
 analyze
 closeFlink

@@ -110,17 +110,17 @@ run_stock_test(){
     #is_treat=false
     #run_one_exp
 
-    is_treat=false
-    P2=2
-    P3=3
-    P4=8
-    run_one_exp
-
-    is_treat=false
-    P2=2
-    P3=4
-    P4=10
-    run_one_exp
+#    is_treat=false
+#    P2=2
+#    P3=3
+#    P4=8
+#    run_one_exp
+#
+#    is_treat=false
+#    P2=2
+#    P3=4
+#    P4=10
+#    run_one_exp
 
 
 
@@ -129,8 +129,9 @@ run_stock_test(){
 #    how_type="ds2"
 #    run_one_exp
 
-#    whether_type="drs"
-#    how_type="drs"
-#    run_one_exp
+    whether_type="streamswitch"
+    how_type="streamswitch"
+    scalein_type="streamswitch"
+    run_one_exp
 }
 run_stock_test

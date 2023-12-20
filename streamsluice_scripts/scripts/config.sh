@@ -7,7 +7,7 @@ FLINK_CONF_DIR="${SCRIPT_DIR}/conf-local"
 EXP_DIR="/data/streamsluice"
 
 HELLOSAMZA_DIR="/home/samza/samza-hello-samza"
-
+scalein_type="streamsluice"
 # run flink clsuter
 function runFlink() {
     echo "INFO: starting the cluster"
@@ -50,7 +50,8 @@ function configFlink() {
     sed 's/^\(\s*streamsluice.system.spike_estimation\s*:\s*\).*/\1'"$spike_estimation"'/' tmp12 > tmp13
     sed 's/^\(\s*streamsluice.system.spike_estimation_slope\s*:\s*\).*/\1'"$spike_slope"'/' tmp13 > tmp14
     sed 's/^\(\s*streamsluice.system.spike_estimation_intercept\s*:\s*\).*/\1'"$spike_intercept"'/' tmp14 > tmp15
-    sed 's/^\(\s*streamsluice.system.autotune\s*:\s*\).*/\1'"$autotune"'/' tmp15 > ${FLINK_CONF_DIR}/flink-conf.yaml
+    sed 's/^\(\s*streamsluice.system.autotune\s*:\s*\).*/\1'"$autotune"'/' tmp15 > tmp16
+    sed 's/^\(\s*controller.scale_in.type\s*:\s*\).*/\1'"$scalein_type"'/' tmp16 > ${FLINK_CONF_DIR}/flink-conf.yaml
     rm tmp*
     echo ${FLINK_CONF_DIR}/flink-conf.yaml
     cp ${FLINK_CONF_DIR}/* ${FLINK_DIR}/conf
