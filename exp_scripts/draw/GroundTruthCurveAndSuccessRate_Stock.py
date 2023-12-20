@@ -155,11 +155,14 @@ rawDir = "/Users/swrrt/Workplace/BacklogDelayPaper/experiments/raw/"
 outputDir = "/Users/swrrt/Workplace/BacklogDelayPaper/experiments/results/"
 #expName = "stock-sb-4hr-50ms.txt-streamsluice-streamsluice-3690-30-2000-20-3-1000-1-100-5-2000-1-100-12-5000-1-100-2000-100-true-1"
 exps = [
-    ["StreamSluice", "stock-sb-4hr-50ms.txt-streamsluice-streamsluice-3690-30-2000-20-3-1000-1-100-5-2000-1-100-12-5000-1-100-2000-100-true-1", "blue"],
-    ["StreamSwitch", "stock-sb-4hr-50ms.txt-streamswitch-streamswitch-3690-30-2000-20-3-1000-1-100-5-2000-1-100-12-5000-1-100-2000-100-true-1", "green"],
+    #["StreamSluice", "stock-sb-4hr-50ms.txt-streamsluice-streamsluice-3690-30-2000-20-3-1000-1-100-5-2000-1-100-12-5000-1-100-2000-100-true-1", "blue"],
+    #["StreamSwitch", "stock-sb-4hr-50ms.txt-streamswitch-streamswitch-3690-30-2000-20-3-1000-1-100-5-2000-1-100-12-5000-1-100-2000-100-true-1", "green"],
     #["Static-1", "stock-sb-4hr-50ms.txt-streamsluice-streamsluice-3690-30-2000-20-3-1000-1-100-5-2000-1-100-12-5000-1-100-2000-100-false-1", "gray"],
     #["Static-2", "stock-sb-4hr-50ms.txt-streamsluice-streamsluice-3690-30-2000-20-2-1000-1-100-3-2000-1-100-8-5000-1-100-2000-100-false-1", "orange"],
     #["Static-3", "stock-sb-4hr-50ms.txt-streamsluice-streamsluice-3690-30-2000-20-2-1000-1-100-4-2000-1-100-10-5000-1-100-2000-100-false-1", "brown"],
+    ["StreamSluice", "stock-sb-4hr-50ms.txt-streamsluice-streamsluice-3690-30-1000-20-2-1000-1-100-3-2000-1-100-7-5000-1-100-2000-100-true-1", "blue"],
+    #["StreamSwitch", "stock-sb-4hr-50ms.txt-streamswitch-streamswitch-3690-30-1000-20-2-1000-1-100-3-2000-1-100-7-5000-1-100-2000-100-true-1", "green"],
+    ["DS2", "stock-sb-4hr-50ms.txt-ds2-ds2-3690-30-1000-20-2-1000-1-100-3-2000-1-100-7-5000-1-100-2000-100-true-1", "purple"]
 ]
 import sys
 if len(sys.argv) > 1:
@@ -168,6 +171,6 @@ if len(sys.argv) > 1:
 windowSize = 500
 latencyLimit = 2000
 endTime = 270 #150 #630
-startTime = 120
+startTime = 30
 isSingleOperator = False #True
 draw(rawDir, outputDir + exps[0][1] + "/", exps, windowSize)
