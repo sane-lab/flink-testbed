@@ -56,23 +56,23 @@ init() {
   stock_file_name="sb-4hr-50ms.txt"
   P1=1
 
-  P2=6
+  P2=3
   MP2=128
-  DELAY2=2000
+  DELAY2=1000
   IO2=1
-  STATE_SIZE2=3000
+  STATE_SIZE2=100
 
-  P3=9
+  P3=5
   MP3=128
-  DELAY3=3333
+  DELAY3=2000
   IO3=1
-  STATE_SIZE3=3000
+  STATE_SIZE3=100
 
   P4=12
   MP4=128
   DELAY4=5000
   IO4=1
-  STATE_SIZE4=3000
+  STATE_SIZE4=100
 
   repeat=1
   warmup=10000
@@ -101,17 +101,36 @@ run_stock_test(){
     init
     L=2000
     runtime=3690
-    warmup_rate=1500
+    warmup_rate=2000
     warmup_time=30
     skip_interval=20
-    P2=6
-    P3=9
-    P4=12
     repeat=1
+    #run_one_exp
+
     #is_treat=false
+    #run_one_exp
 
+    is_treat=false
+    P2=2
+    P3=3
+    P4=8
     run_one_exp
+
+    is_treat=false
+    P2=2
+    P3=4
+    P4=10
+    run_one_exp
+
+
+
+#    is_treat=true
+#    whether_type="ds2"
+#    how_type="ds2"
+#    run_one_exp
+
+#    whether_type="drs"
+#    how_type="drs"
+#    run_one_exp
 }
-
 run_stock_test
-

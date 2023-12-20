@@ -367,22 +367,10 @@ def draw(rawDir, outputDir, expName):
             ax1.set_ylabel('Rate (tps)')
             #ax1.title.set_text('Rates of ' + OPERATOR_NAMING[job])
             print(totalArrivalRatePerJob)
-            if (not expName.startswith("stock")):
-                ax1.set_xlim(0, lastTime - initialTime)
-                ax1.set_xticks(np.arange(0, lastTime - initialTime, 30000))
-                xlabels = []
-                for x in range(0, lastTime - initialTime, 30000):
-                    xlabels += [str(int(x / 1000))]
-                ax1.set_xticklabels(xlabels)
-            else:
-                ax1.set_xlim(startTime * 1000, (startTime + 3600) * 1000)
-                ax1.set_xticks(np.arange(startTime * 1000, (startTime + 3600) * 1000 + 300000, 300000))
-                ax1.set_xticklabels([int((x - startTime * 1000) / 60000) for x in np.arange(startTime * 1000, (startTime + 3600) * 1000 + 300000, 300000)])
-
-
-            ylim = totalYMax[OPERATOR_NAMING[job]]
-            ax1.set_ylim(0, ylim)
-            ax1.set_yticks(np.arange(0, ylim + 500, 500))
+            ax1.set_xlim(startTime * 1000, (startTime + 3600) * 1000)
+            ax1.set_xticks(np.arange(startTime * 1000, (startTime + 3600) * 1000 + 300000, 300000))
+            ax1.set_xticklabels([int((x - startTime * 1000) / 60000) for x in
+                                 np.arange(startTime * 1000, (startTime + 3600) * 1000 + 300000, 300000)])
             ax1.grid(True)
         lines = []
         labels = []
@@ -438,7 +426,7 @@ startTime=120
 windowSize=100
 serviceRateFlag=True
 scalingMarkerFlag = True
-drawOperatorFigureFlag = True
+drawOperatorFigureFlag = False
 import sys
 if len(sys.argv) > 1:
     expName = sys.argv[1].split("/")[-1]

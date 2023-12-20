@@ -34,10 +34,13 @@ while IFS= read -r line; do
   printf 'Line: %s\n' "$line"
   trap "echo Exited!; exit;" SIGINT SIGTERM
   inputdir="/data/streamsluice/raw/${line}"
-	#scp_from_dir
-	python ./draw/RatesPerJob.py ${inputdir}
-	python ./draw/GroundTruthCurveAndSuccessRate.py ${inputdir}
-	python ./draw/ParallelismCurve.py ${inputdir}
+	scp_from_dir
+	#python ./draw/RatesPerJob.py ${inputdir}
+	#python ./draw/RatesPerJob_Stock.py ${inputdir}
+	#python ./draw/GroundTruthCurveAndSuccessRate.py ${inputdir}
+	#python ./draw/GroundTruthCurveAndSuccessRate_Stock.py ${inputdir}
+	#python ./draw/ParallelismCurve.py ${inputdir}
+	#python ./draw/ParallelismCurve_Stock.py ${inputdir}
 	#python ./draw/RetrieveResults.py ${inputdir}
 done < $file
 
