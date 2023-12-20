@@ -132,6 +132,7 @@ run_stock_test(){
     whether_type="streamswitch"
     how_type="streamswitch"
     scalein_type="streamswitch"
+    migration_interval=5000
     run_one_exp
 }
 run_stock_test
