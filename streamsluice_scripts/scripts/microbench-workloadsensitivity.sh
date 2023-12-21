@@ -17,7 +17,7 @@ function analyze() {
 }
 
 run_one_exp() {
-  EXP_NAME=microbench-workload-${GRAPH_TYPE}-${runtime}-${RATE1}-${RATE2}-${RATE_I}-${RANGE_I}-${PERIOD_I}-${P1}-${ZIPF_SKEW}-${P2}-${DELAY2}-${IO2}-${STATE_SIZE2}-${P3}-${DELAY3}-${IO3}-${STATE_SIZE3}-${P4}-${DELAY4}-${IO4}-${STATE_SIZE4}-${P5}-${DELAY5}-${STATE_SIZE5}-${L}-${migration_overhead}-${epoch}-${is_treat}-${repeat}
+  EXP_NAME=microbench-workload-${GRAPH_TYPE}-${runtime}-${RATE1}-${RATE2}-${RATE_I}-${RANGE_I}-${PERIOD_I}-${P1}-${ZIPF_SKEW}-${P2}-${DELAY2}-${IO2}-${STATE_SIZE2}-${P3}-${DELAY3}-${IO3}-${STATE_SIZE3}-${P4}-${DELAY4}-${IO4}-${STATE_SIZE4}-${L}-${migration_interval}-${epoch}-${is_treat}-${repeat}
 
   echo "INFO: run exp ${EXP_NAME}"
   configFlink
@@ -86,7 +86,7 @@ init() {
   spike_estimation="linear_regression"
   spike_slope=0.7
   spike_intercept=500
-
+  is_treat=true
   repeat=1
   warmup=10000
 }
