@@ -53,35 +53,28 @@ init() {
   runtime=300
   # set in Flink app
   GRAPH=2op
-  RATE1=10000
-  TIME1=30
-  RATE2=10000
-  TIME2=40
-  RATE_I=10000
-  RANGE_I=2000
-  TIME_I=240
-  PERIOD_I=120
-  ZIPF_SKEW=0
-  NKEYS=1000
-  P1=1
-
-  P2=3
+  P2=1
   MP2=128
-  DELAY2=200
+  DELAY2=125
   IO2=1
-  STATE_SIZE2=100
+  STATE_SIZE2=1000
 
-  P3=6
+  P3=2
   MP3=128
-  DELAY3=500
+  DELAY3=250
   IO3=1
-  STATE_SIZE3=100
+  STATE_SIZE3=1000
 
-  P4=4
+  P4=3
   MP4=128
-  DELAY4=333
+  DELAY4=444 #500
   IO4=1
-  STATE_SIZE4=100
+  STATE_SIZE4=1000
+
+  P5=5
+  MP5=128
+  DELAY5=1000
+  STATE_SIZE5=1000
 
   spike_estimation="linear_regression"
   spike_slope=0.7
@@ -123,46 +116,57 @@ run_scale_test(){
 
 
     # Different cases
-    runtime=120
-    L=1000
-    TIME1=30
-    TIME2=40
-    TIME_I=3600
     GRAPH=2op
     vertex_id="a84740bacf923e828852cc4966f2247c,eabd4c11f6c6fbdf011f0f1fc42097b1"
-    DELTA_I=90
-    PERIOD_I=120
-    RATE1=10000
-    RATE2=10000
-    RATE_I=10000
-    P2=3
-    P3=6
-    P4=4
-    STATE_SIZE2=10000
-    STATE_SIZE3=10000
     autotune=false
 
-    L=1000
-    migration_interval=5000
-    spike_intercept=500
-
-    RATE1=400
-    TIME1=30
-    RATE2=600
-    TIME2=40
-    RATE_I=500
-    TIME_I=60
-    PERIOD_I=120
-
-    for whether_type in "streamsluice"; do # "streamsluice_threshold25" "streamsluice_threshold50" "streamsluice_threshold75" "streamsluice_threshold100"; do
-        for repeat in 1; do
-            run_one_exp
-        done
+    migration_interval=2000
+    spike_intercept=900
+    STATE_SIZE2=1000
+    STATE_SIZE3=1000
+    L=2000
+    migration_interval=2000
+    # Whether 1
+    RATE1=4000
+    RATE2=6000
+    RATE_I=5000
+    PERIOD_I=20
+    TIME_I=10
+    RATE1=4000
+    RATE2=6000
+    RATE_I=5000
+    PERIOD_I=20
+    TIME_I=10
+    printf "" > whetherhow_result.txt
+    for CURVE_TYPE in "sine"; do # "linear"; do #"sine" "gradient"; do #; do
+      is_treat=false
+      #run_one_exp
+      #printf "1_${CURVE_TYPE} ${EXP_NAME}\n" >> whetherhow_result.txt
+      is_treat=true
+      whether_type="streamsluice"
+      how_type="streamsluice"
+      #run_one_exp
+      #printf "1_${CURVE_TYPE} ${EXP_NAME}\n" >> whetherhow_result.txt
     done
-
-    is_treat=false
-    whether_type="streamsluice"
-    run_one_exp
+#      if [[ ${CURVE_TYPE} == "sine" ]]; then
+#          # time 22.7 scale-out 5->8
+#          whether_early="time_21"
+#          whether_late="time_25"
+#      elif [[ ${CURVE_TYPE} == "linear" ]]; then
+#          # time 23.3 5->8
+#          whether_early="time_21"
+#          whether_late="time_25"
+#      elif [[ ${CURVE_TYPE} == "gradient" ]]; then
+#          # time 15.9 5->8
+#          whether_early="time_14"
+#          whether_late="time_18"
+#      fi
+#      for whether_type in ${whether_early} ${whether_late}; do
+#        how_type="streamsluice"
+#        #run_one_exp
+#        #printf "1_${CURVE_TYPE} ${EXP_NAME}\n" >> whetherhow_result.txt
+#      done
+#    done
 }
 
 run_scale_test

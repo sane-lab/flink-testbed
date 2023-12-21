@@ -158,8 +158,8 @@ def draw(rawDir, outputDir, exps, windowSize):
     axes.set_xlim(startTime * 1000, (startTime + 3660) * 1000)
     axes.set_xticks(np.arange(startTime * 1000, (startTime + 3660) * 1000 + 300000, 300000))
     axes.set_xticklabels([int((x - startTime * 1000) / 60000) for x in np.arange(startTime * 1000, (startTime + 3660) * 1000 + 300000, 300000)])
-    axes.set_ylim(0, 10000)
-    axes.set_yticks(np.arange(0, 11000, 1000))
+    axes.set_ylim(0, 4000)
+    axes.set_yticks(np.arange(0, 5000, 1000))
     # axes.set_yscale('log')
     plt.grid(True)
     import os
@@ -174,13 +174,13 @@ rawDir = "/Users/swrrt/Workplace/BacklogDelayPaper/experiments/raw/"
 outputDir = "/Users/swrrt/Workplace/BacklogDelayPaper/experiments/results/"
 #expName = "stock-sb-4hr-50ms.txt-streamsluice-streamsluice-3690-30-2000-20-3-1000-1-100-5-2000-1-100-12-5000-1-100-2000-100-true-1"
 exps = [
-    ["StreamSluice", "microbench-workload-2op-3660-10000-10000-10000-2000-120-1-0-3-200-1-100-6-1000-1-100-4-333-1-100-1000-500-100-true-1", "blue"],
+    ["StreamSluice", "microbench-workload-2op-3660-10000-10000-10000-2500-120-1-0-3-200-1-100-12-1000-1-100-4-333-1-100-1000-500-100-true-1", "blue"],
 ]
 import sys
 if len(sys.argv) > 1:
     expName = sys.argv[1].split("/")[-1]
 
-windowSize = 500
+windowSize = 1000
 latencyLimit = 2000
 endTime = 270 #150 #630
 startTime = 0

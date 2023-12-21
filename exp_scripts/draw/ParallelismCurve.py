@@ -246,7 +246,7 @@ def draw(rawDir, outputDir, expName):
 rawDir = "/Users/swrrt/Workplace/BacklogDelayPaper/experiments/raw/"
 outputDir = "/Users/swrrt/Workplace/BacklogDelayPaper/experiments/results/"
 #expName = "streamsluice-scaletest-400-600-500-5-2000-1000-100-1"
-expName = "microbench-workload-2op-3660-10000-10000-10000-2000-120-1-0-3-200-1-100-6-1000-1-100-4-333-1-100-1000-500-100-true-1"
+expName = "microbench-workload-2op-3660-10000-10000-10000-2500-120-1-0-3-200-1-100-12-1000-1-100-4-333-1-100-1000-500-100-true-1"
 startTime = 0 # 120
 perOperatorFlag = True
 import sys
