@@ -128,6 +128,7 @@ run_scale_test(){
     TIME2=40
     TIME_I=3600
     graph_type=2op
+    vertex_id="a84740bacf923e828852cc4966f2247c,eabd4c11f6c6fbdf011f0f1fc42097b1" #,d01047f852abd5702a0dabeedac99ff5"
     DELTA_I=0
     PERIOD_I=120
     RATE1=10000
