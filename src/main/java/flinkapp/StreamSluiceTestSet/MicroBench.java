@@ -56,18 +56,6 @@ public class MicroBench {
 
         DataStreamSource<Tuple3<String, Long, Long>> source = env.addSource(new DynamicAvgRateSineSource(PHASE1_TIME, PHASE2_TIME, INTERMEDIATE_TIME, PHASE1_RATE, PHASE2_RATE, INTERMEDIATE_RATE, INTERMEDIATE_RANGE, INTERMEDIATE_PERIOD, params.getLong("macroInterAmplitude", 0), params.getLong("macroInterPeriod", 60) * 1000, params.getInt("mp2", 8), zipf_skew, nKeys, params.get("curve_type", "sine"), params.getInt("inter_delta", 0)))
                 .setParallelism(params.getInt("p1", 1));
-        if(GRAPH_TYPE.equals("1op")){
-            source.keyBy(0)
-                    .map(new DumbSink(params.getLong("op2Delay", 100), params.getInt("op2KeyStateSize", 1), params.getBoolean("outputGroundTruth", true)))
-                    .disableChaining()
-                    .name("Sink 2")
-                    .uid("op2")
-                    .setParallelism(params.getInt("p2", 1))
-                    .setMaxParallelism(params.getInt("mp2", 8))
-                    .slotSharingGroup("g2");
-            env.execute();
-            return ;
-        }
         SingleOutputStreamOperator<Tuple3<String, Long, Long>> leng1 = source.keyBy(0)
                 .flatMap(new DumbStatefulMap(params.getLong("op2Delay", 100), params.getInt("op2IoRate", 1), params.getInt("op2KeyStateSize", 1)))
                 .disableChaining()
@@ -76,15 +64,7 @@ public class MicroBench {
                 .setParallelism(params.getInt("p2", 1))
                 .setMaxParallelism(params.getInt("mp2", 8))
                 .slotSharingGroup("g2");
-
-        if(GRAPH_TYPE.equals("2op")){
-            leng1.keyBy(0).map(new DumbSink(params.getLong("op3Delay", 100), params.getInt("op3KeyStateSize", 1), params.getBoolean("outputGroundTruth", true)))
-                    .disableChaining()
-                    .name("Sink 3")
-                    .uid("op3")
-                    .setParallelism(params.getInt("p3", 1))
-                    .setMaxParallelism(params.getInt("mp3", 8))
-                    .slotSharingGroup("g3");
+        if(GRAPH_TYPE.equals("1op")){
             env.execute();
             return ;
         }
@@ -97,15 +77,20 @@ public class MicroBench {
                 .setParallelism(params.getInt("p3", 1))
                 .setMaxParallelism(params.getInt("mp3", 8))
                 .slotSharingGroup("g3");
+        if(GRAPH_TYPE.equals("2op")){
+            env.execute();
+            return ;
+        }
 
+        SingleOutputStreamOperator<Tuple3<String, Long, Long>> leng3 = leng1.keyBy(0)
+                .flatMap(new DumbStatefulMap(params.getLong("op4Delay", 100), params.getInt("op4IoRate", 1), params.getInt("op4KeyStateSize", 1)))
+                .disableChaining()
+                .name("FlatMap 4")
+                .uid("op4")
+                .setParallelism(params.getInt("p4", 1))
+                .setMaxParallelism(params.getInt("mp4", 8))
+                .slotSharingGroup("g4");
         if(GRAPH_TYPE.equals("3op")){
-            leng2.keyBy(0).map(new DumbSink(params.getLong("op4Delay", 100), params.getInt("op4KeyStateSize", 1), params.getBoolean("outputGroundTruth", true)))
-                    .disableChaining()
-                    .name("Sink 4")
-                    .uid("op4")
-                    .setParallelism(params.getInt("p4", 1))
-                    .setMaxParallelism(params.getInt("mp4", 8))
-                    .slotSharingGroup("g4");
             env.execute();
             return ;
         }
@@ -157,52 +142,6 @@ public class MicroBench {
             countMap = getRuntimeContext().getMapState(descriptor);
         }
 
-    }
-
-    public static final class DumbSink extends RichMapFunction<Tuple3<String, Long, Long>, Tuple4<String, Long, Long, Long>> {
-
-        private transient MapState<String, String> countMap;
-        private RandomDataGenerator randomGen = new RandomDataGenerator();
-        private final int perKeyStateSize;
-        private long averageDelay = 1000; // micro second
-        private final String payload;
-        private final boolean isOutput;
-
-        private int processNumber = 0;
-        DumbSink(long averageDelay, int perKeyStateSize, boolean isOutput){
-            this.averageDelay = averageDelay;
-            this.perKeyStateSize = perKeyStateSize;
-            this.payload = StringUtils.repeat("A", perKeyStateSize);
-            this.isOutput = isOutput;
-        }
-
-        @Override
-        public Tuple4<String, Long, Long, Long> map(Tuple3<String, Long, Long> input) throws Exception {
-            countMap.put(input.f0, payload);
-            processNumber++;
-            delay(averageDelay);
-            long currentTime = System.currentTimeMillis();
-            if(isOutput || processNumber >= 10000) {
-                processNumber = 0;
-                System.out.println("GT: " + input.f0 + ", " + currentTime + ", " + (currentTime - input.f1) + ", " + input.f2);
-            }
-            return new Tuple4<String, Long, Long, Long>(input.f0, currentTime, currentTime - input.f1, input.f2);
-        }
-        private void delay(long interval) {
-            Double ranN = randomGen.nextGaussian(interval, 1);
-            ranN = ranN*1000;
-            long delay = ranN.intValue();
-            if (delay < 0) delay = interval * 1000;
-            Long start = System.nanoTime();
-            while (System.nanoTime() - start < delay) {}
-        }
-
-        @Override
-        public void open(Configuration config) {
-            MapStateDescriptor<String, String> descriptor =
-                    new MapStateDescriptor<>("word-count", String.class, String.class);
-            countMap = getRuntimeContext().getMapState(descriptor);
-        }
     }
 
 
