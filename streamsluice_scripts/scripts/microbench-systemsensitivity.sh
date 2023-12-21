@@ -136,7 +136,7 @@ run_scale_test(){
 #    PERIOD_I=20
     TIME_I=10
     RATE1=4000
-    TIM1=30
+    TIME1=30
     RATE2=6000
     TIME2=120
     RATE_I=5000
