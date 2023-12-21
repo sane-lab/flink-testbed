@@ -17,7 +17,7 @@ function analyze() {
 }
 
 run_one_exp() {
-  EXP_NAME=microbench-workload-${GRAPH_TYPE}-${runtime}-${RATE1}-${RATE2}-${RATE_I}-${RANGE_I}-${PERIOD_I}-${P1}-${ZIPF_SKEW}-${P2}-${DELAY2}-${IO2}-${STATE_SIZE2}-${P3}-${DELAY3}-${IO3}-${STATE_SIZE3}-${P4}-${DELAY4}-${IO4}-${STATE_SIZE4}-${L}-${migration_interval}-${epoch}-${is_treat}-${repeat}
+  EXP_NAME=microbench-workload-${GRAPH}-${runtime}-${RATE1}-${RATE2}-${RATE_I}-${RANGE_I}-${PERIOD_I}-${P1}-${ZIPF_SKEW}-${P2}-${DELAY2}-${IO2}-${STATE_SIZE2}-${P3}-${DELAY3}-${IO3}-${STATE_SIZE3}-${P4}-${DELAY4}-${IO4}-${STATE_SIZE4}-${L}-${migration_interval}-${epoch}-${is_treat}-${repeat}
 
   echo "INFO: run exp ${EXP_NAME}"
   configFlink
@@ -52,7 +52,7 @@ init() {
   # only used in script
   runtime=300
   # set in Flink app
-  graph_type=2op
+  GRAPH=2op
   RATE1=10000
   TIME1=30
   RATE2=10000
@@ -94,7 +94,7 @@ init() {
 # run applications
 function runApp() {
     echo "INFO: ${FLINK_DIR}/bin/flink run -c ${job} ${JAR} \
-    -GRAPH_TYPE ${graph_type} \
+    -graph ${GRAPH} \
     -p1 ${P1} -mp1 ${MP1} -p2 ${P2} -mp2 ${MP2} -op2Delay ${DELAY2} -op2IoRate ${IO2} -op2KeyStateSize ${STATE_SIZE2} \
     -p3 ${P3} -mp3 ${MP3} -op3Delay ${DELAY3} -op3IoRate ${IO3} -op3KeyStateSize ${STATE_SIZE3} \
     -p4 ${P4} -mp4 ${MP4} -op4Delay ${DELAY4} -op4IoRate ${IO4} -op4KeyStateSize ${STATE_SIZE4} \
@@ -103,6 +103,7 @@ function runApp() {
     -phase2Rate ${RATE2} -interTime ${TIME_I} -interRate ${RATE_I} -interRange ${RANGE_I} -interPeriod ${PERIOD_I} -inter_delta ${DELTA_I} \
     -zipf_skew ${ZIPF_SKEW} &"
     ${FLINK_DIR}/bin/flink run -c ${job} ${JAR} \
+    -graph ${GRAPH} \
     -p1 ${P1} -mp1 ${MP1} -p2 ${P2} -mp2 ${MP2} -op2Delay ${DELAY2} -op2IoRate ${IO2} -op2KeyStateSize ${STATE_SIZE2} \
     -p3 ${P3} -mp3 ${MP3} -op3Delay ${DELAY3} -op3IoRate ${IO3} -op3KeyStateSize ${STATE_SIZE3} \
     -p4 ${P4} -mp4 ${MP4} -op4Delay ${DELAY4} -op4IoRate ${IO4} -op4KeyStateSize ${STATE_SIZE4} \
@@ -127,7 +128,7 @@ run_scale_test(){
     TIME1=30
     TIME2=40
     TIME_I=3600
-    graph_type=2op
+    GRAPH=2op
     vertex_id="a84740bacf923e828852cc4966f2247c,eabd4c11f6c6fbdf011f0f1fc42097b1" #,d01047f852abd5702a0dabeedac99ff5"
     DELTA_I=0
     PERIOD_I=120
