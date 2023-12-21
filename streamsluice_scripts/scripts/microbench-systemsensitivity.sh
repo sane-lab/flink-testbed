@@ -52,29 +52,26 @@ init() {
   # only used in script
   runtime=300
   # set in Flink app
-  GRAPH=2op
-  P2=1
+  GRAPH=3op
+  ZIPF_SKEW=0
+  NKEYS=1000
+  P2=2
   MP2=128
-  DELAY2=125
+  DELAY2=250
   IO2=1
   STATE_SIZE2=1000
 
-  P3=2
+  P3=3
   MP3=128
-  DELAY3=250
+  DELAY3=444
   IO3=1
   STATE_SIZE3=1000
 
-  P4=3
+  P4=5
   MP4=128
-  DELAY4=444 #500
+  DELAY4=1000 #500
   IO4=1
   STATE_SIZE4=1000
-
-  P5=5
-  MP5=128
-  DELAY5=1000
-  STATE_SIZE5=1000
 
   spike_estimation="linear_regression"
   spike_slope=0.7
@@ -116,8 +113,8 @@ run_scale_test(){
 
 
     # Different cases
-    GRAPH=2op
-    vertex_id="a84740bacf923e828852cc4966f2247c,eabd4c11f6c6fbdf011f0f1fc42097b1"
+    GRAPH=3op
+    vertex_id="a84740bacf923e828852cc4966f2247c,eabd4c11f6c6fbdf011f0f1fc42097b1,d01047f852abd5702a0dabeedac99ff5"
     autotune=false
 
     migration_interval=2000
@@ -127,9 +124,13 @@ run_scale_test(){
     L=2000
     migration_interval=2000
     # Whether 1
+    runtime=60
     RATE1=4000
+    TIME1=30
     RATE2=6000
+    TIME2=120
     RATE_I=5000
+    DELTA_I=90
     PERIOD_I=20
     TIME_I=10
     RATE1=4000
