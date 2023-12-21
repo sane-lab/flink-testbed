@@ -131,7 +131,7 @@ run_scale_test(){
     RATE2=10000
     RATE_I=10000
     P2=3
-    P3=6
+    P3=12
     P4=4
     STATE_SIZE2=100
     STATE_SIZE3=100
