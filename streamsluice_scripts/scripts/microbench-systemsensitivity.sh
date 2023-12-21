@@ -107,7 +107,7 @@ function runApp() {
 }
 
 run_scale_test(){
-    echo "Run micro bench workload sensitivity..."
+    echo "Run micro bench system sensitivity..."
     init
     #L=1000
     #is_treat=false
@@ -145,8 +145,8 @@ run_scale_test(){
       is_treat=true
       whether_type="streamsluice"
       how_type="streamsluice"
-      #run_one_exp
-      #printf "1_${CURVE_TYPE} ${EXP_NAME}\n" >> whetherhow_result.txt
+      run_one_exp
+      printf "1_${CURVE_TYPE} ${EXP_NAME}\n" >> whetherhow_result.txt
     done
 #      if [[ ${CURVE_TYPE} == "sine" ]]; then
 #          # time 22.7 scale-out 5->8
