@@ -126,17 +126,21 @@ run_scale_test(){
     migration_interval=2000
     # Whether 1
     runtime=60
+    DELTA_I=90
+
+#    RATE1=4000
+#    TIME1=30
+#    RATE2=6000
+#    TIME2=120
+#    RATE_I=5000
+#    PERIOD_I=20
+    TIME_I=10
     RATE1=4000
-    TIME1=30
+    TIM1=30
     RATE2=6000
     TIME2=120
     RATE_I=5000
-    DELTA_I=90
-    PERIOD_I=20
-    TIME_I=10
-    RATE1=4000
-    RATE2=6000
-    RATE_I=5000
+    RANGE_I=1000
     PERIOD_I=20
     TIME_I=10
     printf "" > whetherhow_result.txt
