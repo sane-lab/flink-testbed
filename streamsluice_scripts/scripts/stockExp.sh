@@ -105,24 +105,22 @@ run_stock_test(){
     warmup_time=30
     skip_interval=20
     repeat=1
-    #run_one_exp
-
-    is_treat=false
     run_one_exp
 
-    is_treat=false
-    P2=3
-    P3=5
-    P4=12
-    run_one_exp
-
-    is_treat=false
-    P2=3
-    P3=4
-    P4=9
-    run_one_exp
-
-
+#    is_treat=false
+#    run_one_exp
+#
+#    is_treat=false
+#    P2=3
+#    P3=5
+#    P4=12
+#    run_one_exp
+#
+#    is_treat=false
+#    P2=3
+#    P3=4
+#    P4=9
+#    run_one_exp
 
 #    is_treat=true
 #    whether_type="ds2"

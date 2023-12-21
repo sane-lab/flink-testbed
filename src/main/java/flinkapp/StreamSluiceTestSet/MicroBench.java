@@ -54,7 +54,7 @@ public class MicroBench {
         final int nKeys = params.getInt("nkeys", 1000);
         final String GRAPH_TYPE = params.get("graph", "2op");
 
-        DataStreamSource<Tuple3<String, Long, Long>> source = env.addSource(new DynamicAvgRateSineSource(PHASE1_TIME, PHASE2_TIME, INTERMEDIATE_TIME, PHASE1_RATE, PHASE2_RATE, INTERMEDIATE_RATE, INTERMEDIATE_RANGE, INTERMEDIATE_PERIOD, params.getLong("macroInterAmplitude", 0), params.getLong("macroInterPeriod", 60) * 1000, params.getInt("mp2", 8), zipf_skew, nKeys, params.get("curve_type", "sine")))
+        DataStreamSource<Tuple3<String, Long, Long>> source = env.addSource(new DynamicAvgRateSineSource(PHASE1_TIME, PHASE2_TIME, INTERMEDIATE_TIME, PHASE1_RATE, PHASE2_RATE, INTERMEDIATE_RATE, INTERMEDIATE_RANGE, INTERMEDIATE_PERIOD, params.getLong("macroInterAmplitude", 0), params.getLong("macroInterPeriod", 60) * 1000, params.getInt("mp2", 8), zipf_skew, nKeys, params.get("curve_type", "sine"), params.getInt("inter_delta", 0)))
                 .setParallelism(params.getInt("p1", 1));
         if(GRAPH_TYPE.equals("1op")){
             source.keyBy(0)
@@ -208,6 +208,7 @@ public class MicroBench {
 
     public static final class DynamicAvgRateSineSource implements SourceFunction<Tuple3<String, Long, Long>>, CheckpointedFunction {
         private long PHASE1_TIME, PHASE2_TIME, INTERMEDIATE_TIME, PHASE1_RATE, PHASE2_RATE, INTERMEDIATE_RATE, INTERMEDIATE_RANGE, INTERMEDIATE_PERIOD, INTERVAL, macroAmplitude, macroPeriod;
+        private int INTERMEDIATE_DELTA;
         private int count = 0;
         private volatile boolean isRunning = true;
 
@@ -223,7 +224,7 @@ public class MicroBench {
 
         private final Map<Integer, Long> totalOutputNumbers = new HashMap<>();
 
-        public DynamicAvgRateSineSource(long PHASE1_TIME, long PHASE2_TIME, long INTERMEDIATE_TIME, long PHASE1_RATE, long PHASE2_RATE, long INTERMEDIATE_RATE, long INTERMEDIATE_RANGE, long INTERMEDIATE_PERIOD, long macro_amplitude, long macro_period, int maxParallelism, double zipfSkew, int nkeys, String curve_type){
+        public DynamicAvgRateSineSource(long PHASE1_TIME, long PHASE2_TIME, long INTERMEDIATE_TIME, long PHASE1_RATE, long PHASE2_RATE, long INTERMEDIATE_RATE, long INTERMEDIATE_RANGE, long INTERMEDIATE_PERIOD, long macro_amplitude, long macro_period, int maxParallelism, double zipfSkew, int nkeys, String curve_type, int delta){
             this.PHASE1_TIME = PHASE1_TIME;
             this.PHASE2_TIME = PHASE2_TIME;
             this.INTERMEDIATE_TIME = INTERMEDIATE_TIME;
@@ -232,6 +233,7 @@ public class MicroBench {
             this.INTERMEDIATE_RATE = INTERMEDIATE_RATE;
             this.INTERMEDIATE_RANGE = INTERMEDIATE_RANGE;
             this.INTERMEDIATE_PERIOD = INTERMEDIATE_PERIOD;
+            this.INTERMEDIATE_DELTA = delta;
             this.macroAmplitude = macro_amplitude;
             this.macroPeriod = macro_period;
             this.INTERVAL = 50;
@@ -265,7 +267,7 @@ public class MicroBench {
             }
         }
 
-        public void startInterPhase(long startTime, SourceContext<Tuple3<String, Long, Long>> ctx, String curve_type, long PHASE1_RATE, long INTERMEDIATE_RATE, long INTERMEDIATE_PERIOD, long INTERMEDIATE_TIME, long macroAmplitude, long macroPeriod, double delta) throws Exception {
+        public void startInterPhase(long startTime, SourceContext<Tuple3<String, Long, Long>> ctx, String curve_type, long PHASE1_RATE, long INTERMEDIATE_RATE, long INTERMEDIATE_PERIOD, long INTERMEDIATE_TIME, long macroAmplitude, long macroPeriod, int delta) throws Exception {
             long remainedNumber = (long) Math.floor(PHASE1_RATE * INTERVAL / 1000.0);
             long AMPLITUDE = INTERMEDIATE_RANGE;
             while (isRunning && System.currentTimeMillis() - startTime < INTERMEDIATE_TIME) {
@@ -331,7 +333,8 @@ public class MicroBench {
             // Intermediate Phase
             startTime = System.currentTimeMillis();
             System.out.println("Intermediate phase start at: " + startTime);
-            // startInterPhase(startTime, ctx, curve_type, PHASE1_RATE, INTERMEDIATE_RATE, INTERMEDIATE_PERIOD, INTERMEDIATE_TIME, macroAmplitude, macroPeriod);
+            startInterPhase(startTime, ctx, curve_type, PHASE1_RATE, INTERMEDIATE_RATE, INTERMEDIATE_PERIOD, INTERMEDIATE_TIME, macroAmplitude, macroPeriod, INTERMEDIATE_DELTA);
+
             if (!isRunning) {
                 return ;
             }

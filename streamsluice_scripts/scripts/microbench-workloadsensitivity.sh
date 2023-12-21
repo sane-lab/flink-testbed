@@ -100,14 +100,16 @@ function runApp() {
     -p4 ${P4} -mp4 ${MP4} -op4Delay ${DELAY4} -op4IoRate ${IO4} -op4KeyStateSize ${STATE_SIZE4} \
     -p5 ${P5} -mp5 ${MP5} -op5Delay ${DELAY5} -op5KeyStateSize ${STATE_SIZE5} \
     -nkeys ${NKEYS} -phase1Time ${TIME1} -phase1Rate ${RATE1} -phase2Time ${TIME2} \
-    -phase2Rate ${RATE2} -interTime ${TIME_I} -interRate ${RATE_I} -interRange ${RANGE_I} -interPeriod ${PERIOD_I} -zipf_skew ${ZIPF_SKEW} &"
+    -phase2Rate ${RATE2} -interTime ${TIME_I} -interRate ${RATE_I} -interRange ${RANGE_I} -interPeriod ${PERIOD_I} -inter_delta ${DELTA_I} \
+    -zipf_skew ${ZIPF_SKEW} &"
     ${FLINK_DIR}/bin/flink run -c ${job} ${JAR} \
     -p1 ${P1} -mp1 ${MP1} -p2 ${P2} -mp2 ${MP2} -op2Delay ${DELAY2} -op2IoRate ${IO2} -op2KeyStateSize ${STATE_SIZE2} \
     -p3 ${P3} -mp3 ${MP3} -op3Delay ${DELAY3} -op3IoRate ${IO3} -op3KeyStateSize ${STATE_SIZE3} \
     -p4 ${P4} -mp4 ${MP4} -op4Delay ${DELAY4} -op4IoRate ${IO4} -op4KeyStateSize ${STATE_SIZE4} \
     -p5 ${P5} -mp5 ${MP5} -op5Delay ${DELAY5} -op5KeyStateSize ${STATE_SIZE5} \
     -nkeys ${NKEYS} -phase1Time ${TIME1} -phase1Rate ${RATE1} -phase2Time ${TIME2} \
-    -phase2Rate ${RATE2} -interTime ${TIME_I} -interRate ${RATE_I} -interRange ${RANGE_I} -interPeriod ${PERIOD_I} -zipf_skew ${ZIPF_SKEW} &
+    -phase2Rate ${RATE2} -interTime ${TIME_I} -interRate ${RATE_I} -interRange ${RANGE_I} -interPeriod ${PERIOD_I} -inter_delta ${DELTA_I} \
+    -zipf_skew ${ZIPF_SKEW} &
 }
 
 run_scale_test(){
@@ -118,22 +120,29 @@ run_scale_test(){
     #repeat=1
     #run_one_exp
 
+
+    # Range difference autotune
+    runtime=3660
+    L=1000
+    TIME1=30
+    TIME2=40
+    TIME_I=3600
+    graph_type=2op
+    DELTA_I=0
     PERIOD_I=120
     RATE1=10000
     RATE2=10000
     RATE_I=10000
-    for RATE1 in 5000 6000 8000 7000 9000; do
-        RATE2=${RATE1}
-        L=1000
-        is_treat=false
-        repeat=1
+    P2=3
+    P3=6
+    P4=4
+    STATE_SIZE2=100
+    STATE_SIZE3=100
+    STATE_SIZE4=100
+    autotune=true
+    for RANGE_I in 1000; do
         run_one_exp
-          for is_treat in true; do
-              for repeat in 1; do
-                  run_one_exp
-              done
-          done
-      done
+    done
 
     # Period
 #    true_spike=400
