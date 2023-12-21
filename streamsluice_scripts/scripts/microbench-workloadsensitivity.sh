@@ -31,6 +31,7 @@ run_one_exp() {
   python -c 'import time; time.sleep('"${SCRIPTS_RUNTIME}"')'
 
   analyze
+  echo "${EXP_NAME}" > completedExps
   stopFlink
 
   python -c 'import time; time.sleep(5)'
@@ -116,12 +117,6 @@ function runApp() {
 run_scale_test(){
     echo "Run micro bench workload sensitivity..."
     init
-    #L=1000
-    #is_treat=false
-    #repeat=1
-    #run_one_exp
-
-
     # Range difference autotune
     runtime=3660
     L=1000
@@ -173,51 +168,6 @@ run_scale_test(){
     run_one_exp
     GRAPH=2op
     vertex_id="a84740bacf923e828852cc4966f2247c,eabd4c11f6c6fbdf011f0f1fc42097b1" #,d01047f852abd5702a0dabeedac99ff5"
-
-    # SKEW
-#    PERIOD_I=120
-#    for ZIPF_SKEW in 0.25 0.5 1; do
-#        L=1000
-#        is_treat=false
-#        repeat=1
-#        run_one_exp
-#        for L in 750 1000 1250 1500 2000; do
-#            migration_overhead="$((${L}-${true_spike}))"
-#            #migration_overhead="$(((${L}-${true_spike})/2+${true_spike}))"
-#            migration_interval="$((${L}-${true_spike}))"
-#            for is_treat in true; do
-#                for repeat in 1; do
-#                    run_one_exp
-#                done
-#            done
-#        done
-#    done
-
-    # State size
-    #RATE1=8000
-    #RATE2=8000
-    #PERIOD_I=120
-    #ZIPF_SKEW=0
-    #for STATE_SIZE2 in 500 1000 2000 4000; do
-    #    STATE_SIZE3=${STATE_SIZE2}
-    #    STATE_SIZE4=${STATE_SIZE2}
-    #    STATE_SIZE5=${STATE_SIZE2}
-    #    is_treat=false
-    #    repeat=1
-    #    run_one_exp
-    #    for L in 750 1000 1250 1500 2000; do
-    #        for migration_overhead in 250 500 750 1000 1500; do
-    #            if [[ ${L} -gt ${migration_overhead} ]]; then
-    #                migration_interval="$((${L}-${STATE_SIZE2}))"
-    #                for is_treat in true; do
-    #                    for repeat in 1; do
-    #                        run_one_exp
-    #                    done
-    #                done
-    #            fi
-    #        done
-    #    done
-    #done
 }
 
 run_scale_test
