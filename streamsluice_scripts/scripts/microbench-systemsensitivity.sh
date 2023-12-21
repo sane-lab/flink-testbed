@@ -56,6 +56,7 @@ init() {
   ZIPF_SKEW=0
   NKEYS=1000
   P1=1
+  MP1=1
 
   P2=2
   MP2=128
