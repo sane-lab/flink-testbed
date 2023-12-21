@@ -148,6 +148,44 @@ public class StockTest {
 
     }
 
+    public static final class DumbSink extends RichMapFunction<Tuple3<String, Long, Long>, Tuple4<String, Long, Long, Long>> {
+
+        private transient MapState<String, String> countMap;
+        private RandomDataGenerator randomGen = new RandomDataGenerator();
+        private final int perKeyStateSize;
+        private long averageDelay = 1000; // micro second
+        private final String payload;
+        DumbSink(long averageDelay, int perKeyStateSize){
+            this.averageDelay = averageDelay;
+            this.perKeyStateSize = perKeyStateSize;
+            this.payload = StringUtils.repeat("A", perKeyStateSize);
+        }
+
+        @Override
+        public Tuple4<String, Long, Long, Long> map(Tuple3<String, Long, Long> input) throws Exception {
+            countMap.put(input.f0, payload);
+            delay(averageDelay);
+            long currentTime = System.currentTimeMillis();
+            System.out.println("GT: " + input.f0 + ", " + currentTime + ", " + (currentTime - input.f1) + ", " + input.f2);
+            return new Tuple4<String, Long, Long, Long>(input.f0, currentTime, currentTime - input.f1, input.f2);
+        }
+        private void delay(long interval) {
+            Double ranN = randomGen.nextGaussian(interval, 1);
+            ranN = ranN*1000;
+            long delay = ranN.intValue();
+            if (delay < 0) delay = interval * 1000;
+            Long start = System.nanoTime();
+            while (System.nanoTime() - start < delay) {}
+        }
+
+        @Override
+        public void open(Configuration config) {
+            MapStateDescriptor<String, String> descriptor =
+                    new MapStateDescriptor<>("word-count", String.class, String.class);
+            countMap = getRuntimeContext().getMapState(descriptor);
+        }
+    }
+
 
     private static class SSERealRateSource extends RichParallelSourceFunction<Tuple3<String, Long, Long>> {
 
