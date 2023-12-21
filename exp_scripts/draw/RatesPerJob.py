@@ -312,6 +312,7 @@ def draw(rawDir, outputDir, expName):
             ax1.set_ylabel('Rate (tps)')
             ax1.title.set_text('Rates of ' + OPERATOR_NAMING[job])
             if(not expName.startswith("stock")):
+                lastTime = initialTime + 600000
                 ax1.set_xlim(0, lastTime - initialTime)
                 ax1.set_xticks(np.arange(0, lastTime - initialTime, 30000))
                 xlabels = []
@@ -379,7 +380,6 @@ def draw(rawDir, outputDir, expName):
                 ax1.set_xticks(np.arange(startTime * 1000, (startTime + 3600) * 1000 + 300000, 300000))
                 ax1.set_xticklabels([int((x - startTime * 1000) / 60000) for x in np.arange(startTime * 1000, (startTime + 3600) * 1000 + 300000, 300000)])
 
-
             ylim = totalYMax[OPERATOR_NAMING[job]]
             ax1.set_ylim(0, ylim)
             ax1.set_yticks(np.arange(0, ylim + 500, 500))
@@ -424,15 +424,15 @@ totalYMax = {
     "Stateful Map": 1000,
     "Splitter": 1000,
     "Counter": 2000,
-    "OP1": 3000,
-    "OP2": 3000,
-    "OP3": 3000,
-    "OP4": 3000,
+    "OP1": 20000,
+    "OP2": 20000,
+    "OP3": 20000,
+    "OP4": 20000,
 }
 rawDir = "/Users/swrrt/Workplace/BacklogDelayPaper/experiments/raw/"
 outputDir = "/Users/swrrt/Workplace/BacklogDelayPaper/experiments/results/"
 drawTaskFigureFlag = False
-expName = "autotune_4op-false-390-10000-12500-60-15000-60-12500-60-1-0-2-125-1-5000-2-120-1-5000-3-250-1-5000-6-500-5000-2000-1500-100-true-1"
+expName = "microbench-workload-2op-3660-10000-10000-10000-2000-120-1-0-3-200-1-100-6-1000-1-100-4-333-1-100-1000-500-100-true-1"
 #expName = "streamsluice-twoOP-180-400-400-500-30-5-10-2-0.25-1500-500-10000-100-true-1"
 startTime=120
 windowSize=100

@@ -17,7 +17,7 @@ function analyze() {
 }
 
 run_one_exp() {
-  EXP_NAME=microbench-workload-${GRAPH}-${runtime}-${RATE1}-${RATE2}-${RATE_I}-${RANGE_I}-${PERIOD_I}-${P1}-${ZIPF_SKEW}-${P2}-${DELAY2}-${IO2}-${STATE_SIZE2}-${P3}-${DELAY3}-${IO3}-${STATE_SIZE3}-${P4}-${DELAY4}-${IO4}-${STATE_SIZE4}-${L}-${migration_interval}-${epoch}-${is_treat}-${repeat}
+  EXP_NAME=microbench-system-${GRAPH}-${runtime}-${RATE1}-${RATE2}-${RATE_I}-${RANGE_I}-${PERIOD_I}-${P1}-${ZIPF_SKEW}-${P2}-${DELAY2}-${IO2}-${STATE_SIZE2}-${P3}-${DELAY3}-${IO3}-${STATE_SIZE3}-${P4}-${DELAY4}-${IO4}-${STATE_SIZE4}-${L}-${migration_interval}-${epoch}-${is_treat}-${repeat}
 
   echo "INFO: run exp ${EXP_NAME}"
   configFlink
@@ -71,9 +71,9 @@ init() {
   IO2=1
   STATE_SIZE2=100
 
-  P3=12
+  P3=6
   MP3=128
-  DELAY3=1000
+  DELAY3=500
   IO3=1
   STATE_SIZE3=100
 
@@ -85,7 +85,7 @@ init() {
 
   spike_estimation="linear_regression"
   spike_slope=0.7
-  spike_intercept=500
+  spike_intercept=250
   is_treat=true
   repeat=1
   warmup=10000
@@ -122,15 +122,15 @@ run_scale_test(){
     #run_one_exp
 
 
-    # Range difference autotune
-    runtime=3660
+    # Different cases
+    runtime=120
     L=1000
     TIME1=30
     TIME2=40
     TIME_I=3600
     GRAPH=2op
-    vertex_id="a84740bacf923e828852cc4966f2247c,eabd4c11f6c6fbdf011f0f1fc42097b1" #,d01047f852abd5702a0dabeedac99ff5"
-    DELTA_I=0
+    vertex_id="a84740bacf923e828852cc4966f2247c,eabd4c11f6c6fbdf011f0f1fc42097b1"
+    DELTA_I=90
     PERIOD_I=120
     RATE1=10000
     RATE2=10000
@@ -138,86 +138,31 @@ run_scale_test(){
     P2=3
     P3=6
     P4=4
-    STATE_SIZE2=100
-    STATE_SIZE3=100
-    STATE_SIZE4=100
-    autotune=true
-    for RANGE_I in 2500 5000 7500; do
-        run_one_exp
-    done
+    STATE_SIZE2=10000
+    STATE_SIZE3=10000
+    autotune=false
 
-    RANGE_I=5000
-    for PERIOD_I in 60 90 180; do
-      run_one_exp
-    done
+    L=1000
+    migration_interval=5000
+    spike_intercept=500
+
+    RATE1=400
+    TIME1=30
+    RATE2=600
+    TIME2=40
+    RATE_I=500
+    TIME_I=60
     PERIOD_I=120
 
-    for STATE_SIZE2 in 500 1000 2000; do
-        STATE_SIZE3=${STATE_SIZE2}
-        spike_intercept="$((${STATE_SIZE2}+100))"
-        run_one_exp
+    for whether_type in "streamsluice"; do # "streamsluice_threshold25" "streamsluice_threshold50" "streamsluice_threshold75" "streamsluice_threshold100"; do
+        for repeat in 1; do
+            run_one_exp
+        done
     done
-    STATE_SIZE2=100
-    STATE_SIZE3=100
 
-    for ZIPF_SKEW in 0.25 0.5 1; do
-        run_one_exp
-    done
-    ZIPF_SKEW=0
-
-    GRAPH=1op
-    vertex_id="a84740bacf923e828852cc4966f2247c" #,eabd4c11f6c6fbdf011f0f1fc42097b1,d01047f852abd5702a0dabeedac99ff5"
+    is_treat=false
+    whether_type="streamsluice"
     run_one_exp
-    GRAPH=3op
-    vertex_id="a84740bacf923e828852cc4966f2247c,eabd4c11f6c6fbdf011f0f1fc42097b1,d01047f852abd5702a0dabeedac99ff5"
-    run_one_exp
-    GRAPH=2op
-    vertex_id="a84740bacf923e828852cc4966f2247c,eabd4c11f6c6fbdf011f0f1fc42097b1" #,d01047f852abd5702a0dabeedac99ff5"
-
-    # SKEW
-#    PERIOD_I=120
-#    for ZIPF_SKEW in 0.25 0.5 1; do
-#        L=1000
-#        is_treat=false
-#        repeat=1
-#        run_one_exp
-#        for L in 750 1000 1250 1500 2000; do
-#            migration_overhead="$((${L}-${true_spike}))"
-#            #migration_overhead="$(((${L}-${true_spike})/2+${true_spike}))"
-#            migration_interval="$((${L}-${true_spike}))"
-#            for is_treat in true; do
-#                for repeat in 1; do
-#                    run_one_exp
-#                done
-#            done
-#        done
-#    done
-
-    # State size
-    #RATE1=8000
-    #RATE2=8000
-    #PERIOD_I=120
-    #ZIPF_SKEW=0
-    #for STATE_SIZE2 in 500 1000 2000 4000; do
-    #    STATE_SIZE3=${STATE_SIZE2}
-    #    STATE_SIZE4=${STATE_SIZE2}
-    #    STATE_SIZE5=${STATE_SIZE2}
-    #    is_treat=false
-    #    repeat=1
-    #    run_one_exp
-    #    for L in 750 1000 1250 1500 2000; do
-    #        for migration_overhead in 250 500 750 1000 1500; do
-    #            if [[ ${L} -gt ${migration_overhead} ]]; then
-    #                migration_interval="$((${L}-${STATE_SIZE2}))"
-    #                for is_treat in true; do
-    #                    for repeat in 1; do
-    #                        run_one_exp
-    #                    done
-    #                done
-    #            fi
-    #        done
-    #    done
-    #done
 }
 
 run_scale_test
