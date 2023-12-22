@@ -312,6 +312,10 @@ streamsluice.metrics.is_output:
 
 streamsluice.system.autotune: false
 
+streamsluice.system.autotune.interval: 360
+
+streamsluice.system.autotune.groundtruthfile: /home/samza/workspace/flink-related/flink-extended-ete/build-target/log/flink-samza-taskexecutor-0-camel-sane.out
+
 #==============================================================================
 # Backpressure Configuration
 #==============================================================================
