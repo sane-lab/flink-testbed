@@ -68,7 +68,7 @@ init() {
 
   P2=3
   MP2=128
-  DELAY2=200
+  DELAY2=266
   IO2=1
   STATE_SIZE2=100
 
@@ -80,7 +80,7 @@ init() {
 
   P4=4
   MP4=128
-  DELAY4=333
+  DELAY4=357
   IO4=1
   STATE_SIZE4=100
 
@@ -137,37 +137,38 @@ run_scale_test(){
     STATE_SIZE3=100
     STATE_SIZE4=100
     autotune=true
-    for RANGE_I in 2500 5000 7500; do
+    L=800
+    for RANGE_I in 1250 2500 3750 5000; do
         run_one_exp
     done
 
-    RANGE_I=5000
-    for PERIOD_I in 60 90 180; do
-      run_one_exp
-    done
-    PERIOD_I=120
-
-    for STATE_SIZE2 in 500 1000 2000; do
-        STATE_SIZE3=${STATE_SIZE2}
-        spike_intercept="$((${STATE_SIZE2}+100))"
-        run_one_exp
-    done
-    STATE_SIZE2=100
-    STATE_SIZE3=100
-
-    for ZIPF_SKEW in 0.25 0.5 1; do
-        run_one_exp
-    done
-    ZIPF_SKEW=0
-
-    GRAPH=1op
-    vertex_id="a84740bacf923e828852cc4966f2247c" #,eabd4c11f6c6fbdf011f0f1fc42097b1,d01047f852abd5702a0dabeedac99ff5"
-    run_one_exp
-    GRAPH=3op
-    vertex_id="a84740bacf923e828852cc4966f2247c,eabd4c11f6c6fbdf011f0f1fc42097b1,d01047f852abd5702a0dabeedac99ff5"
-    run_one_exp
-    GRAPH=2op
-    vertex_id="a84740bacf923e828852cc4966f2247c,eabd4c11f6c6fbdf011f0f1fc42097b1" #,d01047f852abd5702a0dabeedac99ff5"
+#    RANGE_I=3000
+#    for PERIOD_I in 30 60 90 180; do
+#      run_one_exp
+#    done
+#    PERIOD_I=120
+#
+#    for STATE_SIZE2 in 500 1000 2000; do
+#        STATE_SIZE3=${STATE_SIZE2}
+#        spike_intercept="$((${STATE_SIZE2}+100))"
+#        run_one_exp
+#    done
+#    STATE_SIZE2=100
+#    STATE_SIZE3=100
+#
+#    for ZIPF_SKEW in 0.25 0.5 1; do
+#        run_one_exp
+#    done
+#    ZIPF_SKEW=0
+#
+#    GRAPH=1op
+#    vertex_id="a84740bacf923e828852cc4966f2247c" #,eabd4c11f6c6fbdf011f0f1fc42097b1,d01047f852abd5702a0dabeedac99ff5"
+#    run_one_exp
+#    GRAPH=3op
+#    vertex_id="a84740bacf923e828852cc4966f2247c,eabd4c11f6c6fbdf011f0f1fc42097b1,d01047f852abd5702a0dabeedac99ff5"
+#    run_one_exp
+#    GRAPH=2op
+#    vertex_id="a84740bacf923e828852cc4966f2247c,eabd4c11f6c6fbdf011f0f1fc42097b1" #,d01047f852abd5702a0dabeedac99ff5"
 }
 
 run_scale_test

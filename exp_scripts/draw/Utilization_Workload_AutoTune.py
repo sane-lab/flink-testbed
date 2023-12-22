@@ -286,7 +286,7 @@ drawTaskFigureFlag = False
 #expName = "stock-sb-4hr-50ms.txt-streamsluice-streamsluice-3690-30-2000-20-3-1000-1-100-5-2000-1-100-12-5000-1-100-2000-100-true-1"
 #expName = "streamsluice-twoOP-180-400-400-500-30-5-10-2-0.25-1500-500-10000-100-true-1"
 exps = [
-    ["StreamSluice", "microbench-workload-2op-3660-10000-10000-10000-2500-120-1-0-3-200-1-100-12-1000-1-100-4-333-1-100-1000-500-100-true-1", "blue", "o"],
+    ["StreamSluice", "microbench-workload-2op-3660-10000-10000-10000-5000-120-1-0-3-200-1-100-12-1000-1-100-4-333-1-100-1000-500-100-true-1", "blue", "o"],
 ]
 startTime=30
 windowSize=1000
