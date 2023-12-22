@@ -145,7 +145,7 @@ run_scale_test(){
     TIME_I=10
     printf "" > whetherhow_result.txt
     for CURVE_TYPE in "sine"; do # "linear"; do #"sine" "gradient"; do #; do
-      is_treat=false
+      #is_treat=false
       #run_one_exp
       #printf "1_${CURVE_TYPE} ${EXP_NAME}\n" >> whetherhow_result.txt
       is_treat=true

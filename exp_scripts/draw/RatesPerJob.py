@@ -312,7 +312,7 @@ def draw(rawDir, outputDir, expName):
             ax1.set_ylabel('Rate (tps)')
             ax1.title.set_text('Rates of ' + OPERATOR_NAMING[job])
             if(not expName.startswith("stock")):
-                lastTime = initialTime + 600000
+                lastTime = initialTime + 120000
                 ax1.set_xlim(0, lastTime - initialTime)
                 ax1.set_xticks(np.arange(0, lastTime - initialTime, 30000))
                 xlabels = []
