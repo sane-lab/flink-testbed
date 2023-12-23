@@ -17,7 +17,7 @@ function analyze() {
 }
 
 run_one_exp() {
-  EXP_NAME=microbench-system-${whether_type}-${how_type}-${GRAPH}-${runtime}-${RATE1}-${RATE2}-${RATE_I}-${RANGE_I}-${PERIOD_I}-${P1}-${ZIPF_SKEW}-${P2}-${DELAY2}-${IO2}-${STATE_SIZE2}-${P3}-${DELAY3}-${IO3}-${STATE_SIZE3}-${P4}-${DELAY4}-${IO4}-${STATE_SIZE4}-${L}-${migration_interval}-${epoch}-${is_treat}-${repeat}
+  EXP_NAME=microbench-system-${whether_type}-${how_type}-${CURVE_TYPE}-${GRAPH}-${runtime}-${RATE1}-${RATE2}-${RATE_I}-${RANGE_I}-${PERIOD_I}-${P1}-${ZIPF_SKEW}-${P2}-${DELAY2}-${IO2}-${STATE_SIZE2}-${P3}-${DELAY3}-${IO3}-${STATE_SIZE3}-${P4}-${DELAY4}-${IO4}-${STATE_SIZE4}-${L}-${migration_interval}-${epoch}-${is_treat}-${repeat}
 
   echo "INFO: run exp ${EXP_NAME}"
   configFlink
@@ -77,8 +77,8 @@ init() {
   STATE_SIZE4=1000
 
   spike_estimation="linear_regression"
-  spike_slope=0.7
-  spike_intercept=500
+  spike_slope=0.65
+  spike_intercept=250
   is_treat=true
   repeat=1
   warmup=10000
@@ -141,7 +141,7 @@ run_scale_test(){
     TIME_I=10
     printf "" > whetherhow_result.txt
     # Curve 1 & 2
-    for CURVE_TYPE in "gradient"; do # "sine"; do # "linear"; do #"sine" "gradient"; do #; do
+    for CURVE_TYPE in "gradient" "sine"; do # "linear"; do #"sine" "gradient"; do #; do
       is_treat=false
       run_one_exp
       printf "1_${CURVE_TYPE} ${EXP_NAME}\n" >> whetherhow_result.txt
