@@ -93,7 +93,7 @@ function runApp() {
     -p4 ${P4} -mp4 ${MP4} -op4Delay ${DELAY4} -op4IoRate ${IO4} -op4KeyStateSize ${STATE_SIZE4} \
     -nkeys ${NKEYS} -phase1Time ${TIME1} -phase1Rate ${RATE1} -phase2Time ${TIME2} \
     -phase2Rate ${RATE2} -interTime ${TIME_I} -interRate ${RATE_I} -interRange ${RANGE_I} -interPeriod ${PERIOD_I} -inter_delta ${DELTA_I} \
-    -zipf_skew ${ZIPF_SKEW} &"
+    -zipf_skew ${ZIPF_SKEW} -curve_type ${CURVE_TYPE} &"
     ${FLINK_DIR}/bin/flink run -c ${job} ${JAR} \
     -graph ${GRAPH} \
     -p1 ${P1} -mp1 ${MP1} -p2 ${P2} -mp2 ${MP2} -op2Delay ${DELAY2} -op2IoRate ${IO2} -op2KeyStateSize ${STATE_SIZE2} \
@@ -101,7 +101,7 @@ function runApp() {
     -p4 ${P4} -mp4 ${MP4} -op4Delay ${DELAY4} -op4IoRate ${IO4} -op4KeyStateSize ${STATE_SIZE4} \
     -nkeys ${NKEYS} -phase1Time ${TIME1} -phase1Rate ${RATE1} -phase2Time ${TIME2} \
     -phase2Rate ${RATE2} -interTime ${TIME_I} -interRate ${RATE_I} -interRange ${RANGE_I} -interPeriod ${PERIOD_I} -inter_delta ${DELTA_I} \
-    -zipf_skew ${ZIPF_SKEW} &
+    -zipf_skew ${ZIPF_SKEW} -curve_type ${CURVE_TYPE} &
 }
 
 run_scale_test(){
@@ -144,7 +144,7 @@ run_scale_test(){
     # Curve 1
     CURVE_TYPE="gradient"
     spike_slope=0.65
-    spike_intercept=200
+    spike_intercept=210
 #    is_treat=false
 #    run_one_exp
 #    printf "1_${CURVE_TYPE} ${EXP_NAME}\n" >> whetherhow_result.txt
@@ -153,11 +153,9 @@ run_scale_test(){
     how_type="streamsluice"
     run_one_exp
     printf "1_${CURVE_TYPE} ${EXP_NAME}\n" >> whetherhow_result.txt
-#    if [[ ${CURVE_TYPE} == "gradient" ]]; then
-#        # time 15.9 5->8
-#        whether_early="time_14"
-#        whether_late="time_18"
-#    fi
+#    # time 15.9 5->8
+#    whether_early="time_14"
+#    whether_late="time_18"
 #    for whether_type in ${whether_early} ${whether_late}; do
 #      how_type="streamsluice"
 #      run_one_exp
@@ -167,25 +165,24 @@ run_scale_test(){
     # Curve 2
     CURVE_TYPE="sine"
     spike_slope=0.65
-    spike_intercept=200
+    spike_intercept=210
 
-#    is_treat=false
-#    run_one_exp
-#    printf "1_${CURVE_TYPE} ${EXP_NAME}\n" >> whetherhow_result.txt
-    is_treat=true
     whether_type="streamsluice"
     how_type="streamsluice"
+    is_treat=false
     run_one_exp
     printf "1_${CURVE_TYPE} ${EXP_NAME}\n" >> whetherhow_result.txt
-#    if [[ ${CURVE_TYPE} == "sine" ]]; then
-#        # time 22.3 scale-out 5->8
-#        whether_early="time_20"   #"time_21"
-#        whether_late="time_24"    #"time_25"
-#    for whether_type in ${whether_early} ${whether_late}; do
-#      how_type="streamsluice"
-#      run_one_exp
-#      printf "1_${CURVE_TYPE} ${EXP_NAME}\n" >> whetherhow_result.txt
-#    done
+    is_treat=true
+    #run_one_exp
+    printf "1_${CURVE_TYPE} ${EXP_NAME}\n" >> whetherhow_result.txt
+    # time 23.3 scale-out 5->8
+    whether_early="time_21"   #"time_21"
+    whether_late="time_25"    #"time_25"
+    for whether_type in ${whether_early} ${whether_late}; do
+      how_type="streamsluice"
+      run_one_exp
+      printf "1_${CURVE_TYPE} ${EXP_NAME}\n" >> whetherhow_result.txt
+    done
 
 
     # Curve 3
