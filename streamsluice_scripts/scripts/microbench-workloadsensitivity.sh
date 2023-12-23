@@ -141,37 +141,39 @@ run_scale_test(){
     autotune=true
     autotune_interval=240
     L=1000
-    for RANGE_I in 2500 1250 3750 5000; do
+    for RANGE_I in 1250; do #2500 3750 5000; do
         run_one_exp
     done
 
-#    RANGE_I=3000
-#    for PERIOD_I in 30 60 90 180; do
-#      run_one_exp
-#    done
-#    PERIOD_I=120
-#
-#    for STATE_SIZE2 in 500 1000 2000; do
-#        STATE_SIZE3=${STATE_SIZE2}
-#        spike_intercept="$((${STATE_SIZE2}+100))"
-#        run_one_exp
-#    done
-#    STATE_SIZE2=100
-#    STATE_SIZE3=100
-#
-#    for ZIPF_SKEW in 0.25 0.5 1; do
-#        run_one_exp
-#    done
-#    ZIPF_SKEW=0
-#
-#    GRAPH=1op
-#    vertex_id="a84740bacf923e828852cc4966f2247c" #,eabd4c11f6c6fbdf011f0f1fc42097b1,d01047f852abd5702a0dabeedac99ff5"
-#    run_one_exp
-#    GRAPH=3op
-#    vertex_id="a84740bacf923e828852cc4966f2247c,eabd4c11f6c6fbdf011f0f1fc42097b1,d01047f852abd5702a0dabeedac99ff5"
-#    run_one_exp
-#    GRAPH=2op
-#    vertex_id="a84740bacf923e828852cc4966f2247c,eabd4c11f6c6fbdf011f0f1fc42097b1" #,d01047f852abd5702a0dabeedac99ff5"
+    RANGE_I=2500
+    for PERIOD_I in 60 90 180; do
+      autotune_interval="$((${PERIOD_I}*2))"
+      run_one_exp
+    done
+    PERIOD_I=120
+    autotune_interval=240
+
+    for STATE_SIZE2 in 500 1000 2000; do
+        STATE_SIZE3=${STATE_SIZE2}
+        spike_intercept="$((${STATE_SIZE2}+100))"
+        run_one_exp
+    done
+    STATE_SIZE2=100
+    STATE_SIZE3=100
+
+    for ZIPF_SKEW in 0.05 0.1 0.2; do
+        run_one_exp
+    done
+    ZIPF_SKEW=0
+
+    GRAPH=1op
+    vertex_id="a84740bacf923e828852cc4966f2247c" #,eabd4c11f6c6fbdf011f0f1fc42097b1,d01047f852abd5702a0dabeedac99ff5"
+    run_one_exp
+    GRAPH=3op
+    vertex_id="a84740bacf923e828852cc4966f2247c,eabd4c11f6c6fbdf011f0f1fc42097b1,d01047f852abd5702a0dabeedac99ff5"
+    run_one_exp
+    GRAPH=2op
+    vertex_id="a84740bacf923e828852cc4966f2247c,eabd4c11f6c6fbdf011f0f1fc42097b1" #,d01047f852abd5702a0dabeedac99ff5"
 }
 
 run_scale_test
