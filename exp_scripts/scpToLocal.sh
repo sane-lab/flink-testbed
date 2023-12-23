@@ -5,8 +5,8 @@ scp_from_dir(){
 	mkdir "/Users/swrrt/Workplace/BacklogDelayPaper/experiments/raw/${expName}"
 	scp -r "$name" "/Users/swrrt/Workplace/BacklogDelayPaper/experiments/raw/${expName}"
 }
-#host="samza@camel-sane.d2.comp.nus.edu.sg" #
-host="samza@eagle-sane.d2.comp.nus.edu.sg" #"samza@flamingo-sane.d2.comp.nus.edu.sg" #  #
+host="samza@camel-sane.d2.comp.nus.edu.sg" #
+#host="samza@eagle-sane.d2.comp.nus.edu.sg" #"samza@flamingo-sane.d2.comp.nus.edu.sg" #  #
 path="/data/streamsluice/raw/"
 setting="-120-400-600-500-120-2-0-1000-500-80000-100" #"-180-400-400-500-30-5-10-2-0.25-750-500-10000-100" #
 exp="streamsluice-2opscaleout" #"streamsluice-twoOP" #  # "streamsluice-scaleout" #

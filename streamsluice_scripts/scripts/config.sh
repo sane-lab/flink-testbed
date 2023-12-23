@@ -51,7 +51,10 @@ function configFlink() {
     sed 's/^\(\s*streamsluice.system.spike_estimation_slope\s*:\s*\).*/\1'"$spike_slope"'/' tmp13 > tmp14
     sed 's/^\(\s*streamsluice.system.spike_estimation_intercept\s*:\s*\).*/\1'"$spike_intercept"'/' tmp14 > tmp15
     sed 's/^\(\s*streamsluice.system.autotune\s*:\s*\).*/\1'"$autotune"'/' tmp15 > tmp16
-    sed 's/^\(\s*controller.scale_in.type\s*:\s*\).*/\1'"$scalein_type"'/' tmp16 > ${FLINK_CONF_DIR}/flink-conf.yaml
+    sed 's/^\(\s*model.max_parallelism.a84740bacf923e828852cc4966f2247c\s*:\s*\).*/\1'"$LP2"'/' tmp16 > tmp17
+    sed 's/^\(\s*model.max_parallelism.eabd4c11f6c6fbdf011f0f1fc42097b1\s*:\s*\).*/\1'"$LP3"'/' tmp17 > tmp18
+    sed 's/^\(\s*model.max_parallelism.d01047f852abd5702a0dabeedac99ff5\s*:\s*\).*/\1'"$LP4"'/' tmp18 > ${FLINK_CONF_DIR}/flink-conf.yaml
+
     rm tmp*
     echo ${FLINK_CONF_DIR}/flink-conf.yaml
     cp ${FLINK_CONF_DIR}/* ${FLINK_DIR}/conf
