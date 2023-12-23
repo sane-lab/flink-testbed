@@ -78,7 +78,7 @@ init() {
 
   spike_estimation="linear_regression"
   spike_slope=0.7
-  spike_intercept=250
+  spike_intercept=500
   is_treat=true
   repeat=1
   warmup=10000
@@ -119,15 +119,17 @@ run_scale_test(){
     autotune=false
 
     migration_interval=2000
-    spike_intercept=900
+    spike_intercept=500
     STATE_SIZE2=1000
     STATE_SIZE3=1000
     L=2000
     migration_interval=2000
     # Whether 1
     runtime=60
-    DELTA_I=90
-
+    DELTA_I=270
+    LP2=10
+    LP3=10
+    LP4=10
 #    RATE1=4000
 #    TIME1=30
 #    RATE2=6000
