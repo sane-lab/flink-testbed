@@ -154,12 +154,12 @@ run_scale_test(){
       is_treat=true
       whether_type="streamsluice"
       how_type="streamsluice"
-      run_one_exp
+      #run_one_exp
       printf "1_${CURVE_TYPE} ${EXP_NAME}\n" >> whetherhow_result.txt
       if [[ ${CURVE_TYPE} == "sine" ]]; then
-          # time 30.7 scale-out 5->8     # old time 22.7 scale-out 5->8
-          whether_early="time_29"   #"time_21"
-          whether_late="time_33"    #"time_25"
+          # time 22.3 scale-out 5->8     # old time 22.7 scale-out 5->8
+          whether_early="time_20"   #"time_21"
+          whether_late="time_24"    #"time_25"
 #      elif [[ ${CURVE_TYPE} == "linear" ]]; then
 #          # time 23.3 5->8
 #          whether_early="time_21"
