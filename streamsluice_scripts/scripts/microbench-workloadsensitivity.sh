@@ -66,9 +66,9 @@ init() {
   NKEYS=1000
   P1=1
 
-  P2=3
+  P2=1
   MP2=128
-  DELAY2=266
+  DELAY2=50 #266
   IO2=1
   STATE_SIZE2=100
 
@@ -132,7 +132,7 @@ run_scale_test(){
     RATE1=10000
     RATE2=10000
     RATE_I=10000
-    P2=3
+    P2=1 #3
     P3=12
     P4=4
     STATE_SIZE2=100
@@ -141,7 +141,7 @@ run_scale_test(){
     autotune=true
     autotune_interval=240
     L=1000
-    for RANGE_I in 1250; do #2500 3750 5000; do
+    for RANGE_I in 3750 5000 2500; do
         run_one_exp
     done
 
