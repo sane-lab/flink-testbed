@@ -86,7 +86,7 @@ init() {
 
   spike_estimation="linear_regression"
   spike_slope=0.7
-  spike_intercept=500
+  spike_intercept=200
   is_treat=true
   repeat=1
   warmup=10000
