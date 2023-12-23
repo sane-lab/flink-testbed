@@ -130,12 +130,6 @@ run_scale_test(){
     LP2=10
     LP3=10
     LP4=10
-#    RATE1=4000
-#    TIME1=30
-#    RATE2=6000
-#    TIME2=120
-#    RATE_I=5000
-#    PERIOD_I=20
     TIME_I=10
     RATE1=4000
     TIME1=30
@@ -146,34 +140,30 @@ run_scale_test(){
     PERIOD_I=20
     TIME_I=10
     printf "" > whetherhow_result.txt
-
-    for CURVE_TYPE in "sine"; do # "linear"; do #"sine" "gradient"; do #; do
-      #is_treat=false
-      #run_one_exp
-      #printf "1_${CURVE_TYPE} ${EXP_NAME}\n" >> whetherhow_result.txt
+    # Curve 1 & 2
+    for CURVE_TYPE in "gradient"; do # "sine"; do # "linear"; do #"sine" "gradient"; do #; do
+      is_treat=false
+      run_one_exp
+      printf "1_${CURVE_TYPE} ${EXP_NAME}\n" >> whetherhow_result.txt
       is_treat=true
       whether_type="streamsluice"
       how_type="streamsluice"
-      #run_one_exp
+      run_one_exp
       printf "1_${CURVE_TYPE} ${EXP_NAME}\n" >> whetherhow_result.txt
-      if [[ ${CURVE_TYPE} == "sine" ]]; then
-          # time 22.3 scale-out 5->8     # old time 22.7 scale-out 5->8
-          whether_early="time_20"   #"time_21"
-          whether_late="time_24"    #"time_25"
-#      elif [[ ${CURVE_TYPE} == "linear" ]]; then
-#          # time 23.3 5->8
-#          whether_early="time_21"
-#          whether_late="time_25"
+#      if [[ ${CURVE_TYPE} == "sine" ]]; then
+#          # time 22.3 scale-out 5->8     # old time 22.7 scale-out 5->8
+#          whether_early="time_20"   #"time_21"
+#          whether_late="time_24"    #"time_25"
 #      elif [[ ${CURVE_TYPE} == "gradient" ]]; then
 #          # time 15.9 5->8
 #          whether_early="time_14"
 #          whether_late="time_18"
-      fi
-      for whether_type in ${whether_early} ${whether_late}; do
-        how_type="streamsluice"
-        run_one_exp
-        printf "1_${CURVE_TYPE} ${EXP_NAME}\n" >> whetherhow_result.txt
-      done
+#      fi
+#      for whether_type in ${whether_early} ${whether_late}; do
+#        how_type="streamsluice"
+#        run_one_exp
+#        printf "1_${CURVE_TYPE} ${EXP_NAME}\n" >> whetherhow_result.txt
+#      done
     done
 }
 
