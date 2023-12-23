@@ -312,7 +312,7 @@ def draw(rawDir, outputDir, expName):
             ax1.set_ylabel('Rate (tps)')
             ax1.title.set_text('Rates of ' + OPERATOR_NAMING[job])
             if(not expName.startswith("stock")):
-                lastTime = initialTime + 3600000#120000
+                lastTime = initialTime + endTime * 1000
                 ax1.set_xlim(0, lastTime - initialTime)
                 ax1.set_xticks(np.arange(0, lastTime - initialTime, 30000))
                 xlabels = []
@@ -432,9 +432,10 @@ totalYMax = {
 rawDir = "/Users/swrrt/Workplace/BacklogDelayPaper/experiments/raw/"
 outputDir = "/Users/swrrt/Workplace/BacklogDelayPaper/experiments/results/"
 drawTaskFigureFlag = False
-expName = "microbench-workload-2op-3660-10000-10000-10000-3750-120-1-0-3-266-1-100-12-1000-1-100-4-357-1-100-1000-500-100-true-1"
+expName = "microbench-system-3op-60-4000-6000-5000-1000-20-1-0-2-250-1-1000-3-444-1-1000-5-1000-1-1000-2000-2000-100-true-1"
 #expName = "streamsluice-twoOP-180-400-400-500-30-5-10-2-0.25-1500-500-10000-100-true-1"
 startTime=120
+endTime=120
 windowSize=100
 serviceRateFlag=True
 scalingMarkerFlag = True

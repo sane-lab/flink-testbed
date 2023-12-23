@@ -146,6 +146,7 @@ run_scale_test(){
     PERIOD_I=20
     TIME_I=10
     printf "" > whetherhow_result.txt
+
     for CURVE_TYPE in "sine"; do # "linear"; do #"sine" "gradient"; do #; do
       #is_treat=false
       #run_one_exp
@@ -153,13 +154,12 @@ run_scale_test(){
       is_treat=true
       whether_type="streamsluice"
       how_type="streamsluice"
-      run_one_exp
+      #run_one_exp
       printf "1_${CURVE_TYPE} ${EXP_NAME}\n" >> whetherhow_result.txt
-    done
-#      if [[ ${CURVE_TYPE} == "sine" ]]; then
-#          # time 22.7 scale-out 5->8
-#          whether_early="time_21"
-#          whether_late="time_25"
+      if [[ ${CURVE_TYPE} == "sine" ]]; then
+          # time 30.7 scale-out 5->8     # old time 22.7 scale-out 5->8
+          whether_early="time_29"   #"time_21"
+          whether_late="time_33"    #"time_25"
 #      elif [[ ${CURVE_TYPE} == "linear" ]]; then
 #          # time 23.3 5->8
 #          whether_early="time_21"
@@ -168,13 +168,13 @@ run_scale_test(){
 #          # time 15.9 5->8
 #          whether_early="time_14"
 #          whether_late="time_18"
-#      fi
-#      for whether_type in ${whether_early} ${whether_late}; do
-#        how_type="streamsluice"
-#        #run_one_exp
-#        #printf "1_${CURVE_TYPE} ${EXP_NAME}\n" >> whetherhow_result.txt
-#      done
-#    done
+      fi
+      for whether_type in ${whether_early} ${whether_late}; do
+        how_type="streamsluice"
+        run_one_exp
+        printf "1_${CURVE_TYPE} ${EXP_NAME}\n" >> whetherhow_result.txt
+      done
+    done
 }
 
 run_scale_test
