@@ -139,6 +139,7 @@ run_scale_test(){
     STATE_SIZE3=100
     STATE_SIZE4=100
     autotune=true
+    autotune_interval=240
     L=1000
     for RANGE_I in 2500 1250 3750 5000; do
         run_one_exp
