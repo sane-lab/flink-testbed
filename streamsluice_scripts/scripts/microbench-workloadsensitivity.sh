@@ -141,7 +141,7 @@ run_scale_test(){
     autotune=true
     autotune_interval=240
     L=1000
-    for RANGE_I in 3750 5000 2500; do
+    for RANGE_I in 5000 3750 2500 1250; do
         run_one_exp
     done
 
@@ -155,7 +155,7 @@ run_scale_test(){
 
     for STATE_SIZE2 in 500 1000 2000; do
         STATE_SIZE3=${STATE_SIZE2}
-        spike_intercept="$((${STATE_SIZE2}+100))"
+        spike_intercept="$((${STATE_SIZE2}/3))"
         run_one_exp
     done
     STATE_SIZE2=100
