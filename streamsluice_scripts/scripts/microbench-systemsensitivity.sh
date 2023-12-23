@@ -222,19 +222,18 @@ run_scale_test(){
 #    run_one_exp
 #    printf "${EXP_NAME}\n" >> whetherhow_result.txt
     is_treat=true
-    whether_type="streamsluice"
-    how_type="streamsluice"
-
-    run_one_exp
-    printf "${EXP_NAME}\n" >> whetherhow_result.txt
-#    # time 16.9 5->8  #old time 15.9 5->8
-#    whether_early="time_15" # "time_14"
-#    whether_late="time_19" # "time_18"
-#    for whether_type in ${whether_early} ${whether_late}; do
-#      how_type="streamsluice"
-#      run_one_exp
-#      printf "${EXP_NAME}\n" >> whetherhow_result.txt
-#    done
+#    whether_type="streamsluice"
+#    how_type="streamsluice"
+#    run_one_exp
+#    printf "${EXP_NAME}\n" >> whetherhow_result.txt
+#    # time 15.8 5->8  #old time 15.9 5->8
+    whether_early="time_14" # "time_14"
+    whether_late="time_18" # "time_18"
+    for whether_type in ${whether_early} ${whether_late}; do
+      how_type="streamsluice"
+      run_one_exp
+      printf "${EXP_NAME}\n" >> whetherhow_result.txt
+    done
 
 
     # Curve 4
