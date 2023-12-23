@@ -140,37 +140,20 @@ run_scale_test(){
     PERIOD_I=20
     TIME_I=10
     printf "" > whetherhow_result.txt
+
     # Curve 1
     CURVE_TYPE="gradient"
-    spike_slope=0
-    spike_intercept=950
-    is_treat=false
-    run_one_exp
-    printf "1_${CURVE_TYPE} ${EXP_NAME}\n" >> whetherhow_result.txt
-    is_treat=true
-    whether_type="streamsluice"
-    how_type="streamsluice"
-    run_one_exp
-    printf "1_${CURVE_TYPE} ${EXP_NAME}\n" >> whetherhow_result.txt
-
-    # Curve 2
-    CURVE_TYPE="sine"
     spike_slope=0.65
     spike_intercept=250
-
-    is_treat=false
-    run_one_exp
-    printf "1_${CURVE_TYPE} ${EXP_NAME}\n" >> whetherhow_result.txt
+#    is_treat=false
+#    run_one_exp
+#    printf "1_${CURVE_TYPE} ${EXP_NAME}\n" >> whetherhow_result.txt
     is_treat=true
     whether_type="streamsluice"
     how_type="streamsluice"
     run_one_exp
     printf "1_${CURVE_TYPE} ${EXP_NAME}\n" >> whetherhow_result.txt
-#    if [[ ${CURVE_TYPE} == "sine" ]]; then
-#        # time 22.3 scale-out 5->8     # old time 22.7 scale-out 5->8
-#        whether_early="time_20"   #"time_21"
-#        whether_late="time_24"    #"time_25"
-#    elif [[ ${CURVE_TYPE} == "gradient" ]]; then
+#    if [[ ${CURVE_TYPE} == "gradient" ]]; then
 #        # time 15.9 5->8
 #        whether_early="time_14"
 #        whether_late="time_18"
@@ -180,6 +163,39 @@ run_scale_test(){
 #      run_one_exp
 #      printf "1_${CURVE_TYPE} ${EXP_NAME}\n" >> whetherhow_result.txt
 #    done
+
+    # Curve 2
+    CURVE_TYPE="sine"
+    spike_slope=0.65
+    spike_intercept=150
+
+#    is_treat=false
+#    run_one_exp
+#    printf "1_${CURVE_TYPE} ${EXP_NAME}\n" >> whetherhow_result.txt
+    is_treat=true
+    whether_type="streamsluice"
+    how_type="streamsluice"
+    run_one_exp
+    printf "1_${CURVE_TYPE} ${EXP_NAME}\n" >> whetherhow_result.txt
+#    if [[ ${CURVE_TYPE} == "sine" ]]; then
+#        # time 22.3 scale-out 5->8
+#        whether_early="time_20"   #"time_21"
+#        whether_late="time_24"    #"time_25"
+#    for whether_type in ${whether_early} ${whether_late}; do
+#      how_type="streamsluice"
+#      run_one_exp
+#      printf "1_${CURVE_TYPE} ${EXP_NAME}\n" >> whetherhow_result.txt
+#    done
+
+
+    # Curve 3
+    RATE1=4000
+    RATE2=4000
+    RATE_I=5000
+    RANGE_I=1000
+    PERIOD_I=10
+    TIME_I=10
+    CURVE_TYPE="gradient"
 }
 
 run_scale_test
