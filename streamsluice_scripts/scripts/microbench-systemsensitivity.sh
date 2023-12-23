@@ -144,7 +144,7 @@ run_scale_test(){
     # Curve 1
     CURVE_TYPE="gradient"
     spike_slope=0.65
-    spike_intercept=250
+    spike_intercept=200
 #    is_treat=false
 #    run_one_exp
 #    printf "1_${CURVE_TYPE} ${EXP_NAME}\n" >> whetherhow_result.txt
@@ -167,7 +167,7 @@ run_scale_test(){
     # Curve 2
     CURVE_TYPE="sine"
     spike_slope=0.65
-    spike_intercept=150
+    spike_intercept=200
 
 #    is_treat=false
 #    run_one_exp
