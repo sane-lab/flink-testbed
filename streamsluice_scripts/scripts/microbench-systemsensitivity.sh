@@ -147,6 +147,7 @@ run_scale_test(){
     spike_intercept=300
     whether_type="streamsluice"
     how_type="streamsluice"
+    is_treat=true
 #    is_treat=false
 #    run_one_exp
 #    printf "1_${CURVE_TYPE} ${EXP_NAME}\n" >> whetherhow_result.txt
@@ -174,14 +175,14 @@ run_scale_test(){
 #    is_treat=true
 #    run_one_exp
 #    printf "1_${CURVE_TYPE} ${EXP_NAME}\n" >> whetherhow_result.txt
-#    # time 23.1 scale-out 5->8
-#    whether_early="time_21"   #"time_21"
-#    whether_late="time_25"    #"time_25"
-#    for whether_type in ${whether_early} ${whether_late}; do
-#      how_type="streamsluice"
-#      run_one_exp
-#      printf "1_${CURVE_TYPE} ${EXP_NAME}\n" >> whetherhow_result.txt
-#    done
+    # time 23.1 scale-out 5->8
+    whether_early="time_21"   #"time_21"
+    whether_late="time_25"    #"time_25"
+    for whether_type in ${whether_early} ${whether_late}; do
+      how_type="streamsluice"
+      run_one_exp
+      printf "1_${CURVE_TYPE} ${EXP_NAME}\n" >> whetherhow_result.txt
+    done
 
 
     # Curve 3
