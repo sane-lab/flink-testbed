@@ -73,6 +73,9 @@ init() {
   DELAY4=5000
   IO4=1
   STATE_SIZE4=100
+  LP2=8
+  LP3=15
+  LP4=40
 
   repeat=1
   warmup=10000
