@@ -58,9 +58,9 @@ init() {
   P1=1
   MP1=1
 
-  P2=2
+  P2=3
   MP2=128
-  DELAY2=250
+  DELAY2=444
   IO2=1
   STATE_SIZE2=1000
 
@@ -127,9 +127,9 @@ run_scale_test(){
     # Whether 1
     runtime=60
     DELTA_I=270
-    LP2=6
-    LP3=6
-    LP4=18
+    LP2=5
+    LP3=5
+    LP4=13
     TIME_I=10
     RATE1=4000
     TIME1=30
@@ -145,36 +145,36 @@ run_scale_test(){
     CURVE_TYPE="gradient"
     spike_slope=0.65
     spike_intercept=350
-    is_treat=false
-    run_one_exp
-    printf "1_${CURVE_TYPE} ${EXP_NAME}\n" >> whetherhow_result.txt
-    is_treat=true
     whether_type="streamsluice"
     how_type="streamsluice"
-#    run_one_exp
-#    printf "1_${CURVE_TYPE} ${EXP_NAME}\n" >> whetherhow_result.txt
-    # time 16.9 5->8  #old time 15.9 5->8
-    whether_early="time_15" # "time_14"
-    whether_late="time_19" # "time_18"
-    for whether_type in ${whether_early} ${whether_late}; do
-      how_type="streamsluice"
-      run_one_exp
-      printf "1_${CURVE_TYPE} ${EXP_NAME}\n" >> whetherhow_result.txt
-    done
-
-    # Curve 2
-#    CURVE_TYPE="sine"
-#    spike_slope=0.65
-#    spike_intercept=200
-#
-#    whether_type="streamsluice"
-#    how_type="streamsluice"
 #    is_treat=false
 #    run_one_exp
 #    printf "1_${CURVE_TYPE} ${EXP_NAME}\n" >> whetherhow_result.txt
-#    is_treat=true
-#    #run_one_exp
+    is_treat=true
+
+    run_one_exp
+    printf "1_${CURVE_TYPE} ${EXP_NAME}\n" >> whetherhow_result.txt
+    # time 16.9 5->8  #old time 15.9 5->8
+#    whether_early="time_15" # "time_14"
+#    whether_late="time_19" # "time_18"
+#    for whether_type in ${whether_early} ${whether_late}; do
+#      how_type="streamsluice"
+#      run_one_exp
+#      printf "1_${CURVE_TYPE} ${EXP_NAME}\n" >> whetherhow_result.txt
+#    done
+
+    # Curve 2
+    CURVE_TYPE="sine"
+    spike_slope=0.65
+    spike_intercept=200
+    whether_type="streamsluice"
+    how_type="streamsluice"
+#    is_treat=false
+#    run_one_exp
 #    printf "1_${CURVE_TYPE} ${EXP_NAME}\n" >> whetherhow_result.txt
+    is_treat=true
+    run_one_exp
+    printf "1_${CURVE_TYPE} ${EXP_NAME}\n" >> whetherhow_result.txt
 #    # time 23.3 scale-out 5->8
 #    whether_early="time_21"   #"time_21"
 #    whether_late="time_25"    #"time_25"
@@ -195,6 +195,22 @@ run_scale_test(){
     RANGE_I=1000
     PERIOD_I=10
     TIME_I=10
+#    is_treat=false
+#    run_one_exp
+#    printf "2_${CURVE_TYPE} ${EXP_NAME}\n" >> whetherhow_result.txt
+#    is_treat=true
+#    whether_type="streamsluice"
+#    how_type="streamsluice"
+#    run_one_exp
+#    printf "2_${CURVE_TYPE} ${EXP_NAME}\n" >> whetherhow_result.txt
+#    # time 16.9 5->8  #old time 15.9 5->8
+#    whether_early="time_15" # "time_14"
+#    whether_late="time_19" # "time_18"
+#    for whether_type in ${whether_early} ${whether_late}; do
+#      how_type="streamsluice"
+#      run_one_exp
+#      printf "2_${CURVE_TYPE} ${EXP_NAME}\n" >> whetherhow_result.txt
+#    done
 
 
     # Curve 4
@@ -207,6 +223,22 @@ run_scale_test(){
     CURVE_TYPE="sine"
     spike_slope=0.65
     spike_intercept=200
+#    is_treat=false
+#    run_one_exp
+#    printf "2_${CURVE_TYPE} ${EXP_NAME}\n" >> whetherhow_result.txt
+#    is_treat=true
+#    whether_type="streamsluice"
+#    how_type="streamsluice"
+#    run_one_exp
+#    printf "2_${CURVE_TYPE} ${EXP_NAME}\n" >> whetherhow_result.txt
+#    # time 16.9 5->8  #old time 15.9 5->8
+#    whether_early="time_15" # "time_14"
+#    whether_late="time_19" # "time_18"
+#    for whether_type in ${whether_early} ${whether_late}; do
+#      how_type="streamsluice"
+#      run_one_exp
+#      printf "2_${CURVE_TYPE} ${EXP_NAME}\n" >> whetherhow_result.txt
+#    done
 }
 
 run_scale_test
