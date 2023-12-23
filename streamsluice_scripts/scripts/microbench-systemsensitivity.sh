@@ -145,22 +145,22 @@ run_scale_test(){
     CURVE_TYPE="gradient"
     spike_slope=0.65
     spike_intercept=350
-#    is_treat=false
-#    run_one_exp
-#    printf "1_${CURVE_TYPE} ${EXP_NAME}\n" >> whetherhow_result.txt
+    is_treat=false
+    run_one_exp
+    printf "1_${CURVE_TYPE} ${EXP_NAME}\n" >> whetherhow_result.txt
     is_treat=true
     whether_type="streamsluice"
     how_type="streamsluice"
-    run_one_exp
-    printf "1_${CURVE_TYPE} ${EXP_NAME}\n" >> whetherhow_result.txt
-#    # time 15.9 5->8
-#    whether_early="time_14"
-#    whether_late="time_18"
-#    for whether_type in ${whether_early} ${whether_late}; do
-#      how_type="streamsluice"
-#      run_one_exp
-#      printf "1_${CURVE_TYPE} ${EXP_NAME}\n" >> whetherhow_result.txt
-#    done
+#    run_one_exp
+#    printf "1_${CURVE_TYPE} ${EXP_NAME}\n" >> whetherhow_result.txt
+    # time 16.9 5->8  #old time 15.9 5->8
+    whether_early="time_15" # "time_14"
+    whether_late="time_19" # "time_18"
+    for whether_type in ${whether_early} ${whether_late}; do
+      how_type="streamsluice"
+      run_one_exp
+      printf "1_${CURVE_TYPE} ${EXP_NAME}\n" >> whetherhow_result.txt
+    done
 
     # Curve 2
 #    CURVE_TYPE="sine"
