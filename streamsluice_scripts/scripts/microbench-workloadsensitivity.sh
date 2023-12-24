@@ -138,6 +138,9 @@ run_scale_test(){
     STATE_SIZE2=100
     STATE_SIZE3=100
     STATE_SIZE4=100
+    # STATE=100 slope, intercept
+    spike_slope=200
+    slope=0.6
     autotune=true
     autotune_interval=240
     L=1000
@@ -155,7 +158,22 @@ run_scale_test(){
 
     for STATE_SIZE2 in 500 1000 2000; do
         STATE_SIZE3=${STATE_SIZE2}
-        spike_intercept="$((${STATE_SIZE2}/3))"
+        if [[ ${STATE_SIZE2} == 100 ]]; then
+          spike_slope=0.6
+          spike_intercept=200
+        fi
+        if [[ ${STATE_SIZE2} == 100 ]]; then
+          spike_slope=0.6
+          spike_intercept=200
+        fi
+        if [[ ${STATE_SIZE2} == 100 ]]; then
+          spike_slope=0.6
+          spike_intercept=200
+        fi
+        if [[ ${STATE_SIZE2} == 100 ]]; then
+          spike_slope=0.6
+          spike_intercept=200
+        fi
         run_one_exp
     done
     STATE_SIZE2=100
