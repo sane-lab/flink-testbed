@@ -501,10 +501,12 @@ def drawAll(resultsPerCurve, outputDir, curves):
         #    for x in range(0, endTime * 1000, 30000): #averageGroundTruthLatency[0][-1], 10000):
         #        xlabels += [str(int(x / 1000))]
         #    axes.set_xticklabels(xlabels)
-        ax1.set_yscale('log')
-        ax1.set_ylim(100, 5000)
-        ax1.set_yticks([100, 500, 1000, 2000, 5000])  # np.arange(0, 1000, 200))
-        ax1.get_yaxis().set_major_formatter(matplotlib.ticker.ScalarFormatter())
+        ax1.set_ylim(0, 4000)
+        ax1.set_yticks(np.arange(0, 4500, 500))
+        # ax1.set_yscale('log')
+        # ax1.set_ylim(100, 5000)
+        # ax1.set_yticks([100, 500, 1000, 2000, 5000])  # np.arange(0, 1000, 200))
+        # ax1.get_yaxis().set_major_formatter(matplotlib.ticker.ScalarFormatter())
         ax1.grid(True)
 
         print("Draw total parallelism")
@@ -590,7 +592,7 @@ with open("../howList.txt") as f:
             exps_whether += [[name, path]]
             exps_how += [[name, path]]
 
-windowSize = 400 #500
+windowSize = 200 #500
 latencyLimit = 2000
 starTime = 25
 endTime = 45
