@@ -120,11 +120,17 @@ run_scale_test(){
 
     migration_interval=2000
     spike_intercept=500
-    STATE_SIZE2=1000
-    STATE_SIZE3=1000
     L=2000
     migration_interval=2000
-    # Whether 1
+    spike_slope=0.65
+    #spike_intercept=200
+    #STATE_SIZE2=1000
+    #STATE_SIZE3=1000
+    #STATE_SIZE4=1000
+    spike_intercept=500
+    STATE_SIZE2=2500
+    STATE_SIZE3=2500
+    STATE_SIZE4=2500
     runtime=60
     DELTA_I=270
     LP2=5
@@ -143,8 +149,7 @@ run_scale_test(){
 
     # Curve 1
     CURVE_TYPE="gradient"
-    spike_slope=0.65
-    spike_intercept=200
+
     whether_type="streamsluice"
     how_type="streamsluice"
     is_treat=true
@@ -152,9 +157,9 @@ run_scale_test(){
 #    is_treat=false
 #    run_one_exp
 #    printf "${EXP_NAME}\n" >> whetherhow_result.txt
-#    is_treat=true
-#    run_one_exp
-#    printf "${EXP_NAME}\n" >> whetherhow_result.txt
+    is_treat=true
+    run_one_exp
+    printf "${EXP_NAME}\n" >> whetherhow_result.txt
 #    # time 16.3 5->8  #old time 15.9 5->8
 #    whether_early="time_14" # "time_14"
 #    whether_late="time_18" # "time_18"
@@ -164,12 +169,12 @@ run_scale_test(){
 #      printf "${EXP_NAME}\n" >> whetherhow_result.txt
 #    done
 
-    whether_type="streamsluice"
-    how_type="streamsluice"
-    for how_type in "op_1_6_keep" "op_1_1_keep" "op_2_2_keep"; do
-      run_one_exp
-      printf "${EXP_NAME}\n" >> whetherhow_result.txt
-    done
+#    whether_type="streamsluice"
+#    how_type="streamsluice"
+#    for how_type in "op_1_6_keep" "op_1_1_keep" "op_2_2_keep"; do
+#      run_one_exp
+#      printf "${EXP_NAME}\n" >> whetherhow_result.txt
+#    done
 
 
 
@@ -177,8 +182,6 @@ run_scale_test(){
 
     # Curve 2
     CURVE_TYPE="sine"
-    spike_slope=0.65
-    spike_intercept=200
     whether_type="streamsluice"
     how_type="streamsluice"
     printf "2_${CURVE_TYPE}\n" >> whetherhow_result.txt
@@ -186,8 +189,8 @@ run_scale_test(){
 #    run_one_exp
 #    printf "${EXP_NAME}\n" >> whetherhow_result.txt
     is_treat=true
-#    run_one_exp
-#    printf "${EXP_NAME}\n" >> whetherhow_result.txt
+    run_one_exp
+    printf "${EXP_NAME}\n" >> whetherhow_result.txt
 #    # time 23.1 scale-out 5->8
 #    whether_early="time_21"   #"time_21"
 #    whether_late="time_25"    #"time_25"
@@ -197,20 +200,18 @@ run_scale_test(){
 #      printf "${EXP_NAME}\n" >> whetherhow_result.txt
 #    done
 
-    whether_type="streamsluice"
-    how_type="streamsluice"
-    for how_type in "op_1_6_keep" "op_1_1_keep" "op_2_2_keep"; do
-      run_one_exp
-      printf "${EXP_NAME}\n" >> whetherhow_result.txt
-    done
+#    whether_type="streamsluice"
+#    how_type="streamsluice"
+#    for how_type in "op_1_6_keep" "op_1_1_keep" "op_2_2_keep"; do
+#      run_one_exp
+#      printf "${EXP_NAME}\n" >> whetherhow_result.txt
+#    done
 
 
     # Curve 3
     CURVE_TYPE="gradient"
     whether_type="streamsluice"
     how_type="streamsluice"
-    spike_slope=0.65
-    spike_intercept=200
     RATE1=4000
     RATE2=4000
     RATE_I=5000
@@ -235,12 +236,12 @@ run_scale_test(){
 #      printf "${EXP_NAME}\n" >> whetherhow_result.txt
 #    done
 
-    whether_type="streamsluice"
-    how_type="streamsluice"
-    for how_type in "op_1_6_keep" "op_1_1_keep" "op_2_2_keep"; do
-      run_one_exp
-      printf "${EXP_NAME}\n" >> whetherhow_result.txt
-    done
+#    whether_type="streamsluice"
+#    how_type="streamsluice"
+#    for how_type in "op_1_6_keep" "op_1_1_keep" "op_2_2_keep"; do
+#      run_one_exp
+#      printf "${EXP_NAME}\n" >> whetherhow_result.txt
+#    done
 
     # Curve 4
     CURVE_TYPE="sine"
@@ -252,21 +253,18 @@ run_scale_test(){
     RANGE_I=1000
     PERIOD_I=10
     TIME_I=10
-    spike_slope=0.65
-    spike_intercept=200
     printf "4_${CURVE_TYPE}\n" >> whetherhow_result.txt
 #    is_treat=false
 #    run_one_exp
 #    printf "${EXP_NAME}\n" >> whetherhow_result.txt
-#    is_treat=true
-#    whether_type="streamsluice"
-#    how_type="streamsluice"
+    is_treat=true
+    whether_type="streamsluice"
+    how_type="streamsluice"
 #    run_one_exp
 #    printf "${EXP_NAME}\n" >> whetherhow_result.txt
 #    # time 16.9 5->8  #old time 15.9 5->8
-#    whether_early="time_15" # "time_14"
-#    whether_late="time_19" # "time_18"
-#    for whether_type in ${whether_early} ${whether_late}; do
+#    whether_early="time_21" # "time_14"
+#    for whether_type in ${whether_early} ; do
 #      how_type="streamsluice"
 #      run_one_exp
 #      printf "${EXP_NAME}\n" >> whetherhow_result.txt
