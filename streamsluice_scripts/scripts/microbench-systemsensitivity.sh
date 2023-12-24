@@ -119,7 +119,6 @@ run_scale_test(){
     autotune=false
 
     migration_interval=2000
-    spike_intercept=500
     L=2000
     migration_interval=2000
     spike_slope=0.65
@@ -128,9 +127,9 @@ run_scale_test(){
     #STATE_SIZE3=1000
     #STATE_SIZE4=1000
     spike_intercept=500
-    STATE_SIZE2=3000
-    STATE_SIZE3=3000
-    STATE_SIZE4=3000
+    STATE_SIZE2=5000
+    STATE_SIZE3=5000
+    STATE_SIZE4=5000
     runtime=60
     DELTA_I=270
     LP2=5

@@ -178,7 +178,7 @@ rawDir = "/Users/swrrt/Workplace/BacklogDelayPaper/experiments/raw/"
 outputDir = "/Users/swrrt/Workplace/BacklogDelayPaper/experiments/results/"
 #expName = "stock-sb-4hr-50ms.txt-streamsluice-streamsluice-3690-30-2000-20-3-1000-1-100-5-2000-1-100-12-5000-1-100-2000-100-true-1"
 exps = [
-    ["StreamSluice", "microbench-system-streamsluice-streamsluice-gradient-3op-60-4000-6000-5000-1000-20-1-0-3-444-1-2500-3-444-1-2500-5-1000-1-2500-2000-2000-100-true-1", "blue"],
+    ["StreamSluice", "microbench-system-streamsluice-streamsluice-sine-3op-60-4000-6000-5000-1000-20-1-0-3-444-1-3000-3-444-1-3000-5-1000-1-3000-2000-2000-100-true-1", "blue"],
 ]
 import sys
 if len(sys.argv) > 1:
