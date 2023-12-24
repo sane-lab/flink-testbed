@@ -191,12 +191,12 @@ run_scale_test(){
     whether_type="streamsluice"
     how_type="streamsluice"
     printf "2_${CURVE_TYPE}\n" >> whetherhow_result.txt
-#    is_treat=false
-#    run_one_exp
-#    printf "${EXP_NAME}\n" >> whetherhow_result.txt
-    is_treat=true
+    is_treat=false
     run_one_exp
     printf "${EXP_NAME}\n" >> whetherhow_result.txt
+#    is_treat=true
+#    run_one_exp
+#    printf "${EXP_NAME}\n" >> whetherhow_result.txt
 #    # time 23.1 scale-out 5->8
 #    whether_early="time_21"   #"time_21"
 #    whether_late="time_25"    #"time_25"
