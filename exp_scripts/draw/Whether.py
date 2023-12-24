@@ -441,7 +441,7 @@ def draw(rawDir, outputDir, exps, windowSize, figType):
 
 def drawAll(resultsPerCurve, outputDir, curves):
     CURVENUM = len(resultsPerCurve.keys())
-    fig, axs = plt.subplots(3, CURVENUM, figsize=(24, 9), layout='constrained')
+    fig, axs = plt.subplots(3, CURVENUM, figsize=(24, 21), layout='constrained') #(24, 9)
     #fig.suptitle('Arrival Rate/Latency/Parallelism under Different Workload')
     cindex = 0
     for curve in sorted(resultsPerCurve.keys()):
