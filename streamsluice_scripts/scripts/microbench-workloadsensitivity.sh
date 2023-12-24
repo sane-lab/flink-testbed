@@ -135,11 +135,14 @@ run_scale_test(){
     P2=1 #3
     P3=12
     P4=4
-    STATE_SIZE2=100
-    STATE_SIZE3=100
-    STATE_SIZE4=100
+#    STATE_SIZE2=100
+#    STATE_SIZE3=100
+#    STATE_SIZE4=100
+    STATE_SIZE2=10000
+    STATE_SIZE3=10000
+    STATE_SIZE4=10000
     # STATE=100 slope, intercept
-    spike_slope=200
+    spike_slope=400
     slope=0.6
     autotune=true
     autotune_interval=240
@@ -147,51 +150,55 @@ run_scale_test(){
     for RANGE_I in 5000 3750 2500 1250; do
         run_one_exp
     done
-
-    RANGE_I=2500
-    for PERIOD_I in 60 90 180; do
-      autotune_interval="$((${PERIOD_I}*2))"
-      run_one_exp
-    done
-    PERIOD_I=120
-    autotune_interval=240
-
-    for STATE_SIZE2 in 500 1000 2000; do
-        STATE_SIZE3=${STATE_SIZE2}
-        if [[ ${STATE_SIZE2} == 100 ]]; then
-          spike_slope=0.6
-          spike_intercept=200
-        fi
-        if [[ ${STATE_SIZE2} == 100 ]]; then
-          spike_slope=0.6
-          spike_intercept=200
-        fi
-        if [[ ${STATE_SIZE2} == 100 ]]; then
-          spike_slope=0.6
-          spike_intercept=200
-        fi
-        if [[ ${STATE_SIZE2} == 100 ]]; then
-          spike_slope=0.6
-          spike_intercept=200
-        fi
-        run_one_exp
-    done
-    STATE_SIZE2=100
-    STATE_SIZE3=100
-
-    for ZIPF_SKEW in 0.05 0.1 0.2; do
-        run_one_exp
-    done
-    ZIPF_SKEW=0
-
-    GRAPH=1op
-    vertex_id="a84740bacf923e828852cc4966f2247c" #,eabd4c11f6c6fbdf011f0f1fc42097b1,d01047f852abd5702a0dabeedac99ff5"
-    run_one_exp
-    GRAPH=3op
-    vertex_id="a84740bacf923e828852cc4966f2247c,eabd4c11f6c6fbdf011f0f1fc42097b1,d01047f852abd5702a0dabeedac99ff5"
-    run_one_exp
-    GRAPH=2op
-    vertex_id="a84740bacf923e828852cc4966f2247c,eabd4c11f6c6fbdf011f0f1fc42097b1" #,d01047f852abd5702a0dabeedac99ff5"
+#
+#    RANGE_I=2500
+#    for PERIOD_I in 60 90 180; do
+#      autotune_interval="$((${PERIOD_I}*2))"
+#      run_one_exp
+#    done
+#    PERIOD_I=120
+#    autotune_interval=240
+#
+#    for STATE_SIZE2 in 1000 5000 10000; do
+#        STATE_SIZE3=${STATE_SIZE2}
+#        if [[ ${STATE_SIZE2} == 100 ]]; then
+#          # intercept=100
+#          spike_slope=0.6
+#          spike_intercept=200
+#        fi
+#        if [[ ${STATE_SIZE2} == 500 ]]; then
+#          # intercept=100
+#          spike_slope=0.6
+#          spike_intercept=200
+#        fi
+#        if [[ ${STATE_SIZE2} == 1000 ]]; then
+#          # intercept=120
+#          spike_slope=0.6
+#          spike_intercept=200
+#        fi
+#        if [[ ${STATE_SIZE2} == 2000 ]]; then
+#          # intercept=180
+#          spike_slope=0.6
+#          spike_intercept=200
+#        fi
+#        run_one_exp
+#    done
+#    STATE_SIZE2=100
+#    STATE_SIZE3=100
+#
+#    for ZIPF_SKEW in 0.05 0.1 0.2; do
+#        run_one_exp
+#    done
+#    ZIPF_SKEW=0
+#
+#    GRAPH=1op
+#    vertex_id="a84740bacf923e828852cc4966f2247c" #,eabd4c11f6c6fbdf011f0f1fc42097b1,d01047f852abd5702a0dabeedac99ff5"
+#    run_one_exp
+#    GRAPH=3op
+#    vertex_id="a84740bacf923e828852cc4966f2247c,eabd4c11f6c6fbdf011f0f1fc42097b1,d01047f852abd5702a0dabeedac99ff5"
+#    run_one_exp
+#    GRAPH=2op
+#    vertex_id="a84740bacf923e828852cc4966f2247c,eabd4c11f6c6fbdf011f0f1fc42097b1" #,d01047f852abd5702a0dabeedac99ff5"
 }
 
 run_scale_test
