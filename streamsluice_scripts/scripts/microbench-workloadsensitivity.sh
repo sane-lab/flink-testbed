@@ -142,8 +142,8 @@ run_scale_test(){
     STATE_SIZE3=10000
     STATE_SIZE4=10000
     # STATE=100 slope, intercept
-    spike_slope=400
-    slope=0.6
+    spike_intercept=250
+    spike_slope=0.7
     autotune=true
     autotune_interval=240
     L=1000
