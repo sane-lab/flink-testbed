@@ -233,7 +233,7 @@ run_scale_test(){
     #whether_type="streamsluice"
     #how_type="streamsluice"
     whether_type="time_15"
-    how_type="op_1_4_keep"
+    how_type="op_1_3_keep"
     RATE1=4000
     RATE2=4000
     RATE_I=5000
@@ -245,8 +245,8 @@ run_scale_test(){
 #    run_one_exp
 #    printf "${EXP_NAME}\n" >> whetherhow_result.txt
     is_treat=true
-#    run_one_exp
-#    printf "${EXP_NAME}\n" >> whetherhow_result.txt
+    run_one_exp
+    printf "${EXP_NAME}\n" >> whetherhow_result.txt
 #    # time 15.8 5->8  statesize=1000
 #    whether_early="time_14" # "time_14"
 #    whether_late="time_18" # "time_18"
