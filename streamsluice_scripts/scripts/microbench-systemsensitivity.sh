@@ -151,7 +151,7 @@ run_scale_test(){
     #whether_type="streamsluice"
     #how_type="streamsluice"
     whether_type="time_15"
-    how_type="op1_3_keep"
+    how_type="op_1_3_keep"
     is_treat=true
     printf "1_${CURVE_TYPE}\n" >> whetherhow_result.txt
 #    is_treat=false
@@ -179,11 +179,11 @@ run_scale_test(){
 
 #    whether_type="streamsluice"
 #    how_type="streamsluice"
-    whether_type="time_15"
-    for how_type in "op_1_6_keep" "op_1_1_keep" "op_2_2_keep"; do
-      run_one_exp
-      printf "${EXP_NAME}\n" >> whetherhow_result.txt
-    done
+#    whether_type="time_15"
+#    for how_type in "op_1_6_keep" "op_1_1_keep" "op_2_2_keep"; do
+#      run_one_exp
+#      printf "${EXP_NAME}\n" >> whetherhow_result.txt
+#    done
 
 
 
@@ -194,7 +194,7 @@ run_scale_test(){
     #whether_type="streamsluice"
     #how_type="streamsluice"
     whether_type="time_22"
-    how_type="op1_3_keep"
+    how_type="op_1_3_keep"
     printf "2_${CURVE_TYPE}\n" >> whetherhow_result.txt
 #    is_treat=false
 #    run_one_exp
@@ -233,7 +233,7 @@ run_scale_test(){
     #whether_type="streamsluice"
     #how_type="streamsluice"
     whether_type="time_15"
-    how_type="op1_4_keep"
+    how_type="op_1_4_keep"
     RATE1=4000
     RATE2=4000
     RATE_I=5000
