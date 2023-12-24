@@ -439,7 +439,7 @@ def draw(rawDir, outputDir, exps, windowSize, figType):
 
 def drawAll(resultsPerCurve, outputDir, curves):
     CURVENUM = len(resultsPerCurve.keys())
-    fig, axs = plt.subplots(2, CURVENUM, figsize=(24, 6), layout='constrained')
+    fig, axs = plt.subplots(2, CURVENUM, figsize=(24, 14), layout='constrained') # (24, 6)
     #fig.suptitle('Arrival Rate/Latency/Parallelism under Different Workload')
     cindex = 0
     for curve in sorted(resultsPerCurve.keys()):
@@ -590,7 +590,7 @@ with open("../howList.txt") as f:
             exps_whether += [[name, path]]
             exps_how += [[name, path]]
 
-windowSize = 500
+windowSize = 400 #500
 latencyLimit = 2000
 starTime = 25
 endTime = 45
