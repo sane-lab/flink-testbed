@@ -175,7 +175,7 @@ run_scale_test(){
     whether_early="time_154"
     whether_late="time_158"
     for whether_type in ${whether_early} ${whether_late}; do
-      how_type="streamsluice"
+      #how_type="streamsluice"
       run_one_exp
       printf "${EXP_NAME}\n" >> whetherhow_result.txt
     done
@@ -220,7 +220,7 @@ run_scale_test(){
     whether_early="time_215"
     whether_late="time_219"
     for whether_type in ${whether_early} ${whether_late}; do
-      how_type="streamsluice"
+      #how_type="streamsluice"
       run_one_exp
       printf "${EXP_NAME}\n" >> whetherhow_result.txt
     done
