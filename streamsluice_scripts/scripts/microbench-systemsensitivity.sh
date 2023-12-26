@@ -117,6 +117,7 @@ run_scale_test(){
     GRAPH=3op
     vertex_id="a84740bacf923e828852cc4966f2247c,eabd4c11f6c6fbdf011f0f1fc42097b1,d01047f852abd5702a0dabeedac99ff5"
     autotune=false
+    metrics_smooth=false
 
     L=2000
     migration_interval=2000
@@ -220,7 +221,7 @@ run_scale_test(){
 #    whether_early="time_200"
 #    whether_late="time_240"
     whether_early="time_215"
-    whether_late="time_220"
+    whether_late="time_225"
     for whether_type in ${whether_early} ${whether_late}; do
       #how_type="streamsluice"
       run_one_exp
