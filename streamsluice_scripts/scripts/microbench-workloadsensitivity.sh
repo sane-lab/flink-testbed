@@ -150,14 +150,14 @@ run_scale_test(){
     printf "" > workload_result.txt
 
     printf "RANGE\n" >> workload_result.txt
-    for RANGE_I in 7500 6250 2500; do # 5000 3750
+    for RANGE_I in 6250; do #  7500 5000 3750 2500
         run_one_exp
         printf "${EXP_NAME}\n" >> workload_result.txt
     done
 
 
     printf "PERIOD\n" >> workload_result.txt
-#    RANGE_I=2500
+#    RANGE_I=5000
 #    for PERIOD_I in 60 90 180; do
 #      autotune_interval="$((${PERIOD_I}*2))"
 #      run_one_exp
