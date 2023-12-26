@@ -131,6 +131,8 @@ run_scale_test(){
     STATE_SIZE4=10000
     runtime=60
     DELTA_I=270
+    #epoch=100
+    epoch=500
     LP2=5
     LP3=5
     LP4=13
@@ -151,7 +153,8 @@ run_scale_test(){
     #whether_type="streamsluice"
     #how_type="streamsluice"
 #    whether_type="time_150"
-    whether_type="time_156"
+    #whether_type="time_156"
+    whether_type="streamsluice"
     how_type="op_1_3_keep"
     is_treat=true
     printf "1_${CURVE_TYPE}\n" >> whetherhow_result.txt
@@ -172,13 +175,13 @@ run_scale_test(){
 #    # time 15.6 5->8   statesize=10000
 #    whether_early="time_150"
 #    whether_late="time_170"
-    whether_early="time_154"
-    whether_late="time_158"
-    for whether_type in ${whether_early} ${whether_late}; do
-      #how_type="streamsluice"
-      run_one_exp
-      printf "${EXP_NAME}\n" >> whetherhow_result.txt
-    done
+#    whether_early="time_154"
+#    whether_late="time_158"
+#    for whether_type in ${whether_early} ${whether_late}; do
+#      #how_type="streamsluice"
+#      run_one_exp
+#      printf "${EXP_NAME}\n" >> whetherhow_result.txt
+#    done
 
 #    whether_type="streamsluice"
 #    how_type="streamsluice"
@@ -197,7 +200,8 @@ run_scale_test(){
     #whether_type="streamsluice"
     #how_type="streamsluice"
     #whether_type="time_220"
-    whether_type="time_217"
+    #whether_type="time_217"
+    whether_type="streamsluice"
     how_type="op_1_3_keep"
     printf "2_${CURVE_TYPE}\n" >> whetherhow_result.txt
 #    is_treat=false
@@ -217,8 +221,8 @@ run_scale_test(){
 #    # time 21.7 scale-out 5->8   statesize=10000
 #    whether_early="time_200"
 #    whether_late="time_240"
-    whether_early="time_215"
-    whether_late="time_219"
+    #whether_early="time_215"
+    #whether_late="time_219"
     for whether_type in ${whether_early} ${whether_late}; do
       #how_type="streamsluice"
       run_one_exp
@@ -239,7 +243,8 @@ run_scale_test(){
     #whether_type="streamsluice"
     #how_type="streamsluice"
     #whether_type="time_150"
-    whether_type="time_150"
+    #whether_type="time_150"
+    whether_type="streamsluice"
     how_type="op_1_3_keep"
     RATE1=4000
     RATE2=4000
@@ -265,13 +270,13 @@ run_scale_test(){
     # time 15 5->8  statesize=10000
     #whether_early="time_130"
     #whether_late="time_170"
-    whether_early="time_148"
-    whether_late="time_152"
-    for whether_type in ${whether_early} ${whether_late}; do
-      #how_type="streamsluice"
-      run_one_exp
-      printf "${EXP_NAME}\n" >> whetherhow_result.txt
-    done
+#    whether_early="time_148"
+#    whether_late="time_152"
+#    for whether_type in ${whether_early} ${whether_late}; do
+#      #how_type="streamsluice"
+#      run_one_exp
+#      printf "${EXP_NAME}\n" >> whetherhow_result.txt
+#    done
 
 
     #whether_type="streamsluice"
