@@ -313,7 +313,7 @@ controller.scale_in.type: streamsluice
 
 streamsluice.metrics.is_output:
 
-streamsluice.system.metrics_smooth: true
+streamsluice.model.decision_interval: 1
 
 streamsluice.system.autotune: false
 

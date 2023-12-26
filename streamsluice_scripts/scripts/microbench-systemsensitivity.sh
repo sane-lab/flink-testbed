@@ -117,7 +117,9 @@ run_scale_test(){
     GRAPH=3op
     vertex_id="a84740bacf923e828852cc4966f2247c,eabd4c11f6c6fbdf011f0f1fc42097b1,d01047f852abd5702a0dabeedac99ff5"
     autotune=false
-    metrics_smooth=false
+    epoch=100
+    decision_interval=5
+    snapshot_size=5
 
     L=2000
     migration_interval=2000
@@ -132,7 +134,6 @@ run_scale_test(){
     STATE_SIZE4=10000
     runtime=60
     DELTA_I=270
-    epoch=100
     #epoch=500
     LP2=5
     LP3=5
