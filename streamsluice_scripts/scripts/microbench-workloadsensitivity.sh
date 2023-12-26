@@ -158,7 +158,7 @@ run_scale_test(){
 
     printf "PERIOD\n" >> workload_result.txt
     RANGE_I=5000
-    for PERIOD_I in 60 90 180; do
+    for PERIOD_I in 30 60 90 180; do
       autotune_interval="$((${PERIOD_I}*2))"
       run_one_exp
       printf "${EXP_NAME}\n" >> workload_result.txt
@@ -167,33 +167,37 @@ run_scale_test(){
     autotune_interval=240
 
     printf "STATE\n" >> workload_result.txt
-#    for STATE_SIZE2 in 1000 5000 10000; do
-#        STATE_SIZE3=${STATE_SIZE2}
-#        if [[ ${STATE_SIZE2} == 100 ]]; then
-#          # intercept=100
-#          spike_slope=0.6
-#          spike_intercept=200
-#        fi
-#        if [[ ${STATE_SIZE2} == 500 ]]; then
-#          # intercept=100
-#          spike_slope=0.6
-#          spike_intercept=200
-#        fi
-#        if [[ ${STATE_SIZE2} == 1000 ]]; then
-#          # intercept=120
-#          spike_slope=0.6
-#          spike_intercept=200
-#        fi
-#        if [[ ${STATE_SIZE2} == 2000 ]]; then
-#          # intercept=180
-#          spike_slope=0.6
-#          spike_intercept=200
-#        fi
-#        run_one_exp
-#        printf "${EXP_NAME}\n" >> workload_result.txt
-#    done
-#    STATE_SIZE2=100
-#    STATE_SIZE3=100
+    for STATE_SIZE2 in 2500 5000 20000 40000; do
+        STATE_SIZE3=${STATE_SIZE2}
+        if [[ ${STATE_SIZE2} == 2500 ]]; then
+          spike_slope=0.7
+          spike_intercept=100
+          L=700
+        fi
+        if [[ ${STATE_SIZE2} == 5000 ]]; then
+          spike_slope=0.7
+          spike_intercept=150
+          L=800
+        fi
+        if [[ ${STATE_SIZE2} == 20000 ]]; then
+          spike_slope=0.7
+          spike_intercept=500
+          L=1200
+        fi
+        if [[ ${STATE_SIZE2} == 40000 ]]; then
+          # intercept=180
+          spike_slope=0.6
+          spike_intercept=1000
+          L=2000
+        fi
+        run_one_exp
+        printf "${EXP_NAME}\n" >> workload_result.txt
+    done
+    STATE_SIZE2=10000
+    STATE_SIZE3=10000
+    spike_intercept=250
+    spike_slope=0.7
+    L=1000
 
     printf "SKEW\n" >> workload_result.txt
 #    for ZIPF_SKEW in 0.05 0.1 0.2; do
