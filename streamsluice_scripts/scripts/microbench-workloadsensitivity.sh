@@ -150,7 +150,7 @@ run_scale_test(){
     printf "" > workload_result.txt
 
     printf "RANGE\n" >> workload_result.txt
-    for RANGE_I in 5000 3750 2500 1250; do
+    for RANGE_I in 7500 6250 2500; do # 5000 3750
         run_one_exp
         printf "${EXP_NAME}\n" >> workload_result.txt
     done
