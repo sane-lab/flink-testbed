@@ -221,16 +221,16 @@ def draw(rawDir, outputDir, expName):
     plt.ylabel('# of tasks')
     #plt.title('Parallelism of Operators')
     axes = plt.gca()
-    axes.set_xlim(0, lastTime-initialTime)
-    axes.set_xticks(np.arange(0, lastTime-initialTime, 30000))
-
-    xlabels = []
-    for x in range(0, lastTime-initialTime, 30000):
-        xlabels += [str(int(x / 1000))]
-    axes.set_xticklabels(xlabels)
-    # axes.set_xlim(startTime * 1000, (startTime + 3600) * 1000)
-    # axes.set_xticks(np.arange(startTime * 1000, (startTime + 3600) * 1000 + 300000, 300000))
-    # axes.set_xticklabels([int((x - startTime * 1000) / 60000) for x in np.arange(startTime * 1000,(startTime + 3600) * 1000 + 300000, 300000)])
+    # axes.set_xlim(0, lastTime-initialTime)
+    # axes.set_xticks(np.arange(0, lastTime-initialTime, 30000))
+    #
+    # xlabels = []
+    # for x in range(0, lastTime-initialTime, 30000):
+    #     xlabels += [str(int(x / 1000))]
+    # axes.set_xticklabels(xlabels)
+    axes.set_xlim(startTime * 1000, (startTime + 3600) * 1000)
+    axes.set_xticks(np.arange(startTime * 1000, (startTime + 3600) * 1000 + 300000, 300000))
+    axes.set_xticklabels([int((x - startTime * 1000) / 60000) for x in np.arange(startTime * 1000,(startTime + 3600) * 1000 + 300000, 300000)])
 
     axes.set_ylim(0, 65)
     axes.set_yticks(np.arange(0, 65, 5))

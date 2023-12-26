@@ -161,19 +161,19 @@ def draw(rawDir, outputDir, expName, windowSize):
     fig = plt.figure(figsize=(24, 18))
     print("Draw ground truth curve...")
     legend = []
-    #legend += ["Ground Truth"]
-    #plt.plot(averageGroundTruthLatency[0], averageGroundTruthLatency[1], '*', color='gray', markersize=MARKERSIZE)
-    legend += ["Current Latency"]
-    plt.plot(currentLatency[0], currentLatency[1], '*-', color='black',
+    legend += ["Ground Truth"]
+    plt.plot(averageGroundTruthLatency[0], averageGroundTruthLatency[1], '*', color='gray', markersize=MARKERSIZE)
+    legend += ["Estimated"]
+    plt.plot(currentLatency[0], currentLatency[1], '*-', color='blue',
              markersize=MARKERSIZE)
-    legend += ["Current Spike"]
-    plt.plot(currentSpikes[0], currentSpikes[1], '*-', color='blue',
-             markersize=MARKERSIZE)
-    legend += ["Next Epoch Spike"]
-    plt.plot(nextSpikes[0], nextSpikes[1], '*-', color='green',
-             markersize=MARKERSIZE)
-    for operator in scalingMarkerByOperator:
-        addScalingMarker(plt, scalingMarkerByOperator[operator])
+    # legend += ["Current Spike"]
+    # plt.plot(currentSpikes[0], currentSpikes[1], '*-', color='blue',
+    #          markersize=MARKERSIZE)
+    # legend += ["Next Epoch Spike"]
+    # plt.plot(nextSpikes[0], nextSpikes[1], '*-', color='green',
+    #          markersize=MARKERSIZE)
+    #for operator in scalingMarkerByOperator:
+    #    addScalingMarker(plt, scalingMarkerByOperator[operator])
     addLatencyLimitMarker(plt)
 
     plt.legend(legend, loc='upper left')
@@ -181,16 +181,23 @@ def draw(rawDir, outputDir, expName, windowSize):
     plt.ylabel('Latency (ms)')
     plt.title('Latency Curves')
     axes = plt.gca()
-    axes.set_xlim(0, averageGroundTruthLatency[0][-1])
-    axes.set_xticks(np.arange(0, averageGroundTruthLatency[0][-1], 10000))
+    # axes.set_xlim(0, averageGroundTruthLatency[0][-1])
+    # axes.set_xticks(np.arange(0, averageGroundTruthLatency[0][-1], 10000))
+    # for x in range(0, averageGroundTruthLatency[0][-1], 10000):
+    #     xlabels += [str(int(x / 1000))]
+    # axes.set_xticklabels(xlabels)
+    # # axes.set_yscale('log')
+    # axes.set_ylim(0, 4000)
+    # axes.set_yticks(np.arange(0, 4500, 500))
+    axes.set_xlim(startTime * 1000, (startTime + 3660) * 1000)
+    axes.set_xticks(np.arange(startTime * 1000, (startTime + 3660) * 1000 + 300000, 300000))
+    axes.set_xticklabels([int((x - startTime * 1000) / 60000) for x in
+                          np.arange(startTime * 1000, (startTime + 3660) * 1000 + 300000, 300000)])
+    axes.set_ylim(0, 4000)
+    axes.set_yticks(np.arange(0, 4500, 500))
 
     xlabels = []
-    for x in range(0, averageGroundTruthLatency[0][-1], 10000):
-        xlabels += [str(int(x / 1000))]
-    axes.set_xticklabels(xlabels)
-    # axes.set_yscale('log')
-    axes.set_ylim(0, 3000)
-    axes.set_yticks(np.arange(0, 3000, 200))
+
     plt.grid(True)
     import os
     if not os.path.exists(outputDir):
@@ -200,9 +207,9 @@ def draw(rawDir, outputDir, expName, windowSize):
 
 rawDir = "/Users/swrrt/Workplace/BacklogDelayPaper/experiments/raw/"
 outputDir = "/Users/swrrt/Workplace/BacklogDelayPaper/experiments/results/"
-expName = "streamsluice-4op-300-8000-8000-10000-120-1-0-2-200-1-100-5-500-1-100-3-333-1-100-3-250-100-1250-500-100-true-1"
-#expName = "streamsluice-scaletest-400-400-550-5-2000-1000-100-1"
+expName = "stock-sb-4hr-50ms.txt-streamsluice-streamsluice-3690-30-1000-20-2-1000-1-2000-3-2000-1-2000-7-5000-1-2000-2000-100-true-1"
 windowSize = 1
-#latencyLimit = 1000
-latencyLimit = int(expName.split("-")[-5])
+latencyLimit = 2000
+startTime = 120
+#latencyLimit = int(expName.split("-")[-5])
 draw(rawDir, outputDir + expName + "/", expName, windowSize)
