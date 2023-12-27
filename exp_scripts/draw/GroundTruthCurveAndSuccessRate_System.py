@@ -178,7 +178,7 @@ rawDir = "/Users/swrrt/Workplace/BacklogDelayPaper/experiments/raw/"
 outputDir = "/Users/swrrt/Workplace/BacklogDelayPaper/experiments/results/"
 #expName = "stock-sb-4hr-50ms.txt-streamsluice-streamsluice-3690-30-2000-20-3-1000-1-100-5-2000-1-100-12-5000-1-100-2000-100-true-1"
 exps = [
-    ["StreamSluice", "microbench-system-streamsluice-streamsluice-gradient-3op-60-4000-7000-5500-1500-20-1-0-3-415-1-10000-3-415-1-10000-5-1000-1-10000-2000-2000-100-10-true-1", "blue"],
+    ["StreamSluice", "microbench-system-streamsluice-streamsluice-gradient-3op-60-4000-8000-6000-2000-20-1-0-2-222-1-10000-2-222-1-10000-5-1000-1-10000-2000-2000-100-10-true-1", "blue"],
     #["StreamSluice-1", "microbench-system-time_160-streamsluice_more-gradient-3op-60-4000-6000-5000-1000-20-1-0-3-444-1-10000-3-444-1-10000-5-1000-1-10000-2000-2000-100-10-true-1", "green"],
     #["StreamSluice-2", "microbench-system-time_160-streamsluice_less-gradient-3op-60-4000-6000-5000-1000-20-1-0-3-444-1-10000-3-444-1-10000-5-1000-1-10000-2000-2000-100-10-true-1", "orange"],
 ]
@@ -186,7 +186,7 @@ import sys
 if len(sys.argv) > 1:
     expName = sys.argv[1].split("/")[-1]
 
-windowSize = 200
+windowSize = 100
 latencyLimit = 2000
 endTime = 270 #150 #630
 startTime = 0
