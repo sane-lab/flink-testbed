@@ -596,7 +596,7 @@ with open("../whetherList.txt") as f:
             exps_whether += [[name, path]]
             exps_how += [[name, path]]
 
-windowSize = 10 #500
+windowSize = 50 #500
 latencyLimit = 2000
 starTime = 25
 endTime = 45
