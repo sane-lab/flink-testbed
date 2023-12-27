@@ -21,7 +21,8 @@ EXP_COLOR = {
     "Early": "purple",
     "Late": "orange",
     "Not_Enough": "orange",
-    "Too_Much": "purple",
+    "Minus_One": "purple",
+    "Too_Much": "green",
     "Shuffle_Keys": "brown",
     "Not_Bottleneck": "orange",
 }
@@ -32,6 +33,7 @@ EXP_MARKER = {
     "Early": "-",
     "Late": "-",
     "Not_Enough": "-",
+    "Minus_One": "-",
     "Too_Much": "-",
     "Shuffle_Keys": "-",
     "Not_Bottleneck": "-",
@@ -43,6 +45,7 @@ SCALE_MARKER = {
     "Early": "*",
     "Late": "v",
     "Not_Enough": "*",
+    "Minus_One": "d",
     "Too_Much": "v",
     "Shuffle_Keys": "s",
     "Not_Bottleneck": "X",
@@ -439,29 +442,33 @@ def draw(rawDir, outputDir, exps, windowSize, figType):
 
 def drawAll(resultsPerCurve, outputDir, curves):
     CURVENUM = len(resultsPerCurve.keys())
-    fig, axs = plt.subplots(2, CURVENUM, figsize=(24, 14), layout='constrained') # (24, 6)
+    fig, axs = plt.subplots(3, CURVENUM, figsize=(6 * CURVENUM, 14), layout='constrained') # (24, 6)
     #fig.suptitle('Arrival Rate/Latency/Parallelism under Different Workload')
     cindex = 0
     for curve in sorted(resultsPerCurve.keys()):
         cindex += 1
-        ax1 = axs[0, cindex - 1]
+        if CURVENUM == 1:
+            ax1 = axs[0]
+        else:
+            ax1 = axs[0, cindex - 1]
+
         print(cindex)
         print(curve)
         groundTruthLatencys, scaleMarkers, totalArrivalRate, totalParallelism = resultsPerCurve[curve]
         exps = curves[curve][1] #curves[curve][0]
 
 
-        # print("Draw total arrival rates")
-        # ax1.plot(totalArrivalRate[0], totalArrivalRate[1], 'o', color='red', markersize=MARKERSIZE)
-        # ax1.set_xlabel('Time (s)')
-        # ax1.set_ylabel('Arrival Rate (tps)')
-        # ax1.set_xlim(starTime * 1000, endTime * 1000)
-        # ax1.set_xticks(np.arange(starTime * 1000, endTime * 1000 + 5000, 5000))
-        # ax1.set_xticklabels(
-        #     [int((x - starTime * 1000) / 1000) for x in np.arange(starTime * 1000, endTime * 1000 + 5000, 5000)])
-        # ax1.set_ylim(RateRange[0], RateRange[1])
-        # ax1.set_yticks(np.arange(4000, 6500, 500))
-        # ax1.grid(True)
+        print("Draw total arrival rates")
+        ax1.plot(totalArrivalRate[0], totalArrivalRate[1], 'o', color='red', markersize=MARKERSIZE)
+        ax1.set_xlabel('Time (s)')
+        ax1.set_ylabel('Arrival Rate (tps)')
+        ax1.set_xlim(starTime * 1000, endTime * 1000)
+        ax1.set_xticks(np.arange(starTime * 1000, endTime * 1000 + 5000, 5000))
+        ax1.set_xticklabels(
+            [int((x - starTime * 1000) / 1000) for x in np.arange(starTime * 1000, endTime * 1000 + 5000, 5000)])
+        ax1.set_ylim(RateRange[0], RateRange[1])
+        ax1.set_yticks(np.arange(4000, 6500, 500))
+        ax1.grid(True)
     #fig.title('Total Arrival Rate')
     #fig.legend(legend)
     # axes.set_yticks(np.arange(RateRange[0], RateRange[1], (RateRange[1] - RateRange[0]) / 5))
@@ -472,7 +479,11 @@ def drawAll(resultsPerCurve, outputDir, curves):
     # plt.close(fig)
 
         print("Draw ground truth curve...")
-        ax1 = axs[0, cindex - 1]
+        if CURVENUM == 1:
+            ax1 = axs[1]
+        else:
+            ax1 = axs[1, cindex - 1]
+
         for i in range(0, len(exps)):
             controller = exps[i][0]
             print("Draw ground truth for " + controller)
@@ -510,7 +521,11 @@ def drawAll(resultsPerCurve, outputDir, curves):
         ax1.grid(True)
 
         print("Draw total parallelism")
-        ax1 = axs[1, cindex - 1]
+        if CURVENUM == 1:
+            ax1 = axs[2]
+        else:
+            ax1 = axs[2, cindex - 1]
+
         legend = []
         for i in range(0, len(exps)):
             controller = exps[i][0]
