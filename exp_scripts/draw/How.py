@@ -23,6 +23,7 @@ EXP_COLOR = {
     "Not_Enough": "orange",
     "Minus_One": "purple",
     "Too_Much": "green",
+    "No_Balance": "olive",
     "Shuffle_Keys": "brown",
     "Not_Bottleneck": "orange",
 }
@@ -35,6 +36,7 @@ EXP_MARKER = {
     "Not_Enough": "-",
     "Minus_One": "-",
     "Too_Much": "-",
+    "No_Balance": "-",
     "Shuffle_Keys": "-",
     "Not_Bottleneck": "-",
 }
@@ -47,6 +49,7 @@ SCALE_MARKER = {
     "Not_Enough": "*",
     "Minus_One": "d",
     "Too_Much": "v",
+    "No_Balance": "*",
     "Shuffle_Keys": "s",
     "Not_Bottleneck": "X",
 }
