@@ -190,14 +190,14 @@ run_scale_test(){
 #    done
 
 #
-#    whether_type="streamsluice"
-#    how_type="streamsluice"
-#    whether_type="time_160"
-#    #for how_type in "op_1_6_keep" "op_1_1_keep" "op_2_2_keep"; do
-#    for how_type in "streamsluice_minus_one"; do #"streamsluice_more" "streamsluice_less" "streamsluice_not_bottleneck"; do
+    whether_type="streamsluice"
+    how_type="streamsluice"
+    whether_type="time_160"
+    #for how_type in "op_1_6_keep" "op_1_1_keep" "op_2_2_keep"; do
+    for how_type in "streamsluice_no_balance"; do # "streamsluice_minus_one"; do #"streamsluice_more" "streamsluice_less" "streamsluice_not_bottleneck"; do
 #      run_one_exp
-#      printf "${EXP_NAME}\n" >> whetherhow_result.txt
-#    done
+      printf "${EXP_NAME}\n" >> whetherhow_result.txt
+    done
 
 
 
@@ -247,7 +247,7 @@ run_scale_test(){
     how_type="streamsluice"
     whether_type="time_220"
 #    for how_type in "op_1_6_keep" "op_1_1_keep" "op_2_2_keep"; do
-    for how_type in "streamsluice_minus_one" "streamsluice_more" "streamsluice_less" "streamsluice_not_bottleneck"; do
+    for how_type in "streamsluice_no_balance"; do # "streamsluice_minus_one" "streamsluice_more" "streamsluice_less" "streamsluice_not_bottleneck"; do
       run_one_exp
       printf "${EXP_NAME}\n" >> whetherhow_result.txt
     done
@@ -304,7 +304,7 @@ run_scale_test(){
     how_type="streamsluice"
     whether_type="time_160"
 #    for how_type in "op_1_6_keep" "op_1_1_keep" "op_2_2_keep"; do
-    for how_type in "streamsluice_minus_one" "streamsluice_more" "streamsluice_less" "streamsluice_not_bottleneck"; do
+    for how_type in "streamsluice_no_balance"; do #"streamsluice_minus_one" "streamsluice_more" "streamsluice_less" "streamsluice_not_bottleneck"; do
       run_one_exp
       printf "${EXP_NAME}\n" >> whetherhow_result.txt
     done
@@ -377,7 +377,7 @@ run_scale_test(){
     how_type="streamsluice"
     whether_type="time_180"
     #for how_type in "op_1_6_keep" "op_1_1_keep" "op_2_2_keep"; do
-    for how_type in "streamsluice_minus_one" "streamsluice_more" "streamsluice_less" "streamsluice_not_bottleneck"; do
+    for how_type in "streamsluice_minus_one" "streamsluice_no_balance"; do #"streamsluice_more" "streamsluice_less" "streamsluice_not_bottleneck"; do
       run_one_exp
       printf "${EXP_NAME}\n" >> whetherhow_result.txt
     done
