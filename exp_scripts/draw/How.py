@@ -20,7 +20,7 @@ EXP_COLOR = {
     "StreamSluice" : "blue",
     "Early": "purple",
     "Late": "orange",
-    "Not_Enough": "green",
+    "Not_Enough": "orange",
     "Too_Much": "purple",
     "Shuffle_Keys": "brown",
     "Not_Bottleneck": "orange",
@@ -592,7 +592,7 @@ with open("../howList.txt") as f:
             exps_whether += [[name, path]]
             exps_how += [[name, path]]
 
-windowSize = 200 #500
+windowSize = 50 #500
 latencyLimit = 2000
 starTime = 25
 endTime = 45
