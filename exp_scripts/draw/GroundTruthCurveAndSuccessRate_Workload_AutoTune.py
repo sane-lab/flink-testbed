@@ -130,24 +130,31 @@ def readGroundTruthLatency(rawDir, expName, windowSize):
     latencyLimits[0] = [x - initialTime for x in latencyLimits[0]]
     return [averageGroundTruthLatency, initialTime, latencyLimits]
 
-def draw(rawDir, outputDir, exps, windowSize):
+def draw(rawDir, outputDir, expName, windowSize):
+    result = readGroundTruthLatency(rawDir, expName, windowSize)
+    averageGroundTruthLatency = result[0]
+    latencyLimits = result[2]
 
-    averageGroundTruthLatencies = []
+    limitTriedTimes = {}
+    limitFailTimes = {}
+    for i in range(0, len(latencyLimits[1])):
+        limit = latencyLimits[1][i]
+        if limit not in limitTriedTimes:
+            limitTriedTimes[limit] = 1
+            limitFailTimes[limit] = 0
+        else:
+            limitTriedTimes[limit] += 1
+        if i < len(latencyLimits[1]) - 1 and limit < latencyLimits[1][i]:
+            limitFailTimes[limit] += 1
+    possibleLimits = [limit for limit in limitTriedTimes.keys() if limitTriedTimes[limit] > 1 and limitFailTimes[limit] == 0]
+    bestLimit = min(possibleLimits)
+    print("Possible limits: " + str(possibleLimits))
 
-    for i in range(0, len(exps)):
-        expFile = exps[i][1]
-        result = readGroundTruthLatency(rawDir, expFile, windowSize)
-        averageGroundTruthLatencies += [result[0]]
-        latencyLimits = result[2]
-
-        #print(averageGroundTruthLatency)
     fig = plt.figure(figsize=(24, 10))
     print("Draw ground truth curve...")
-    legend = []
-    for i in range(0, len(exps)):
-        legend += [exps[i][0]]
-        averageGroundTruthLatency = averageGroundTruthLatencies[i]
-        plt.plot(averageGroundTruthLatency[0], averageGroundTruthLatency[1], 'o', color=exps[i][2], markersize=2)
+    legend = ["Ground Truth"]
+    plt.plot(averageGroundTruthLatency[0], averageGroundTruthLatency[1], 'o', color='b', markersize=2)
+    legend += ["Limit"]
     addLatencyLimitMarker(plt, latencyLimits)
     plt.plot()
     plt.legend(legend, loc='upper left')
@@ -173,16 +180,13 @@ def draw(rawDir, outputDir, exps, windowSize):
 rawDir = "/Users/swrrt/Workplace/BacklogDelayPaper/experiments/raw/"
 outputDir = "/Users/swrrt/Workplace/BacklogDelayPaper/experiments/results/"
 #expName = "stock-sb-4hr-50ms.txt-streamsluice-streamsluice-3690-30-2000-20-3-1000-1-100-5-2000-1-100-12-5000-1-100-2000-100-true-1"
-exps = [
-    ["StreamSluice", "microbench-workload-2op-3660-10000-10000-10000-6250-120-1-0-1-50-1-10000-12-1000-1-10000-4-357-1-10000-1000-500-100-true-1", "blue"],
-]
+expName = "microbench-workload-2op-3660-10000-10000-10000-6250-120-1-0-1-50-1-10000-12-1000-1-10000-4-357-1-10000-1000-500-100-true-1"
 import sys
 if len(sys.argv) > 1:
     expName = sys.argv[1].split("/")[-1]
-
 windowSize = 1000
 latencyLimit = 2000
 endTime = 270 #150 #630
 startTime = 0
 isSingleOperator = False #True
-draw(rawDir, outputDir + exps[0][1] + "/", exps, windowSize)
+draw(rawDir, outputDir + expName + "/", expName, windowSize)

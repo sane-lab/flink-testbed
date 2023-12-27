@@ -150,7 +150,8 @@ run_scale_test(){
     printf "" > workload_result.txt
 
     printf "RANGE\n" >> workload_result.txt
-    for RANGE_I in 6250; do #  7500 5000 3750 2500
+    for RANGE_I in 2500; do #  7500 5000 3750 2500 6250
+        L=700
         run_one_exp
         printf "${EXP_NAME}\n" >> workload_result.txt
     done
@@ -158,20 +159,22 @@ run_scale_test(){
 
     printf "PERIOD\n" >> workload_result.txt
     RANGE_I=5000
-    for PERIOD_I in 30 60 90 180; do
+    for PERIOD_I in 180; do # 30 60 90
+      L=700
       autotune_interval="$((${PERIOD_I}*2))"
       run_one_exp
       printf "${EXP_NAME}\n" >> workload_result.txt
     done
     PERIOD_I=120
     autotune_interval=240
+    L=1000
 
     printf "STATE\n" >> workload_result.txt
-    for STATE_SIZE2 in 2500 5000 20000 40000; do
+    for STATE_SIZE2 in 2500 40000; do #2500 5000 20000 40000; do
         STATE_SIZE3=${STATE_SIZE2}
         if [[ ${STATE_SIZE2} == 2500 ]]; then
           spike_slope=0.7
-          spike_intercept=100
+          spike_intercept=150
           L=700
         fi
         if [[ ${STATE_SIZE2} == 5000 ]]; then
@@ -186,9 +189,9 @@ run_scale_test(){
         fi
         if [[ ${STATE_SIZE2} == 40000 ]]; then
           # intercept=180
-          spike_slope=0.6
-          spike_intercept=1000
-          L=2000
+          spike_slope=0.7
+          spike_intercept=1200
+          L=2500
         fi
         run_one_exp
         printf "${EXP_NAME}\n" >> workload_result.txt
@@ -200,23 +203,23 @@ run_scale_test(){
     L=1000
 
     printf "SKEW\n" >> workload_result.txt
-#    for ZIPF_SKEW in 0.05 0.1 0.2; do
-#        run_one_exp
-#        printf "${EXP_NAME}\n" >> workload_result.txt
-#    done
-#    ZIPF_SKEW=0
+    for ZIPF_SKEW in 0.025 0.05 0.1 0.2; do
+        run_one_exp
+        printf "${EXP_NAME}\n" >> workload_result.txt
+    done
+    ZIPF_SKEW=0
 
     printf "TOPOLOGY\n" >> workload_result.txt
-#    GRAPH=1op
-#    vertex_id="a84740bacf923e828852cc4966f2247c" #,eabd4c11f6c6fbdf011f0f1fc42097b1,d01047f852abd5702a0dabeedac99ff5"
-#    run_one_exp
-#    printf "${EXP_NAME}\n" >> workload_result.txt
-#    GRAPH=3op
-#    vertex_id="a84740bacf923e828852cc4966f2247c,eabd4c11f6c6fbdf011f0f1fc42097b1,d01047f852abd5702a0dabeedac99ff5"
-#    run_one_exp
-#    printf "${EXP_NAME}\n" >> workload_result.txt
-#    GRAPH=2op
-#    vertex_id="a84740bacf923e828852cc4966f2247c,eabd4c11f6c6fbdf011f0f1fc42097b1" #,d01047f852abd5702a0dabeedac99ff5"
+    GRAPH=1op
+    vertex_id="a84740bacf923e828852cc4966f2247c" #,eabd4c11f6c6fbdf011f0f1fc42097b1,d01047f852abd5702a0dabeedac99ff5"
+    run_one_exp
+    printf "${EXP_NAME}\n" >> workload_result.txt
+    GRAPH=3op
+    vertex_id="a84740bacf923e828852cc4966f2247c,eabd4c11f6c6fbdf011f0f1fc42097b1,d01047f852abd5702a0dabeedac99ff5"
+    run_one_exp
+    printf "${EXP_NAME}\n" >> workload_result.txt
+    GRAPH=2op
+    vertex_id="a84740bacf923e828852cc4966f2247c,eabd4c11f6c6fbdf011f0f1fc42097b1" #,d01047f852abd5702a0dabeedac99ff5"
 }
 
 run_scale_test

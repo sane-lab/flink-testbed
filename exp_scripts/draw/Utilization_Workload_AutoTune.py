@@ -57,12 +57,10 @@ def readUtilization(rawDir, expName):
     initialTime = -1
     lastTime = 0
 
-    longestScalingTime = 0
     arrivalRatePerTask = {}
     serviceRatePerTask = {}
     backlogPerTask = {}
-    parallelismsPerOperator = {}
-    selectivity = {}
+
 
 
     scalingMarkerByOperator = {}

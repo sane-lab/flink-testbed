@@ -1,4 +1,1 @@
-microbench-system-time_220-streamsluice_no_balance-sine-3op-60-4000-6000-5000-1000-20-1-0-3-444-1-10000-3-444-1-10000-5-1000-1-10000-2000-2000-100-10-true-1
-microbench-system-time_160-streamsluice_no_balance-gradient-3op-60-4000-4000-5000-1000-10-1-0-3-444-1-10000-3-444-1-10000-5-1000-1-10000-2000-2000-100-10-true-1
 microbench-system-time_180-streamsluice_minus_one-gradient-3op-60-4000-5500-4750-750-20-1-0-3-444-1-10000-3-444-1-10000-5-1000-1-10000-2000-2000-100-10-true-1
-microbench-system-time_180-streamsluice_no_balance-gradient-3op-60-4000-5500-4750-750-20-1-0-3-444-1-10000-3-444-1-10000-5-1000-1-10000-2000-2000-100-10-true-1
