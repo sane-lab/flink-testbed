@@ -60,13 +60,13 @@ init() {
 
   P2=3
   MP2=128
-  DELAY2=444
+  DELAY2=415
   IO2=1
   STATE_SIZE2=1000
 
   P3=3
   MP3=128
-  DELAY3=444
+  DELAY3=415
   IO3=1
   STATE_SIZE3=1000
 
@@ -344,6 +344,7 @@ run_scale_test(){
     CURVE_TYPE="gradient"
     RATE_I=5500
     RANGE_I=1500
+    RATE2=7000
     TIME1=30
     PERIOD_I=20
     TIME_I=10
