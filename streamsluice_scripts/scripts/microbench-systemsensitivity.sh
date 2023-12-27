@@ -58,15 +58,15 @@ init() {
   P1=1
   MP1=1
 
-  P2=2
+  P2=3
   MP2=128
-  DELAY2=222
+  DELAY2=444
   IO2=1
   STATE_SIZE2=1000
 
-  P3=2
+  P3=3
   MP3=128
-  DELAY3=222
+  DELAY3=444
   IO3=1
   STATE_SIZE3=1000
 
@@ -342,35 +342,35 @@ run_scale_test(){
 
     # Curve 5
     CURVE_TYPE="gradient"
-    RATE_I=6000
-    RANGE_I=2000
-    RATE2=8000
+    RATE_I=4750
+    RANGE_I=750
+    RATE2=5500
     TIME1=30
     PERIOD_I=20
     TIME_I=10
     whether_type="streamsluice"
     how_type="streamsluice"
     #whether_type="streamsluice"
-    how_type="op_1_5_keep"
+    #how_type="op_1_5_keep"
     is_treat=true
     printf "5_${CURVE_TYPE}\n" >> whetherhow_result.txt
 #    is_treat=false
 #    run_one_exp
 #    printf "${EXP_NAME}\n" >> whetherhow_result.txt
     is_treat=true
-#    run_one_exp
-#    printf "${EXP_NAME}\n" >> whetherhow_result.txt
+    run_one_exp
+    printf "${EXP_NAME}\n" >> whetherhow_result.txt
 #    # time 16 5->8  decision epoch=1000
 #    whether_early="time_150"
 #    whether_late="time_170"
-    whether_early="streamsluice_earlier"
-    whether_late="streamsluice_later"
-
-    for whether_type in ${whether_early} ${whether_late}; do
-      #how_type="streamsluice"
-      run_one_exp
-      printf "${EXP_NAME}\n" >> whetherhow_result.txt
-    done
+#    whether_early="streamsluice_earlier"
+#    whether_late="streamsluice_later"
+#
+#    for whether_type in ${whether_early} ${whether_late}; do
+#      #how_type="streamsluice"
+#      run_one_exp
+#      printf "${EXP_NAME}\n" >> whetherhow_result.txt
+#    done
 
 
 #    whether_type="streamsluice"
