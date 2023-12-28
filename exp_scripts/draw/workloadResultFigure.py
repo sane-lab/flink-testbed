@@ -29,7 +29,7 @@ with open("../workload_result.txt") as f:
     for i in range(0, len(lines)):
         line = lines[i]
         split = line.rstrip().split()
-        if split[0].startswith("microbench"):
+        if len(split) > 0 and split[0].startswith("microbench"):
             expName = split[0]
             result_str = lines[i+1].rstrip().split()
             result = [int(result_str[0])]
@@ -61,7 +61,7 @@ for dimension in dimensions:
             x += [str(key)]
         elif dimension == 'period':
             x += [str(key)]
-        elif dimension == 'skew':
+        elif dimension == 'skewness':
             x += [str(key)]
         y += [orderResult[key][0]]
         opSize = len(orderResult[key]) - 1

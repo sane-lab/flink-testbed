@@ -170,7 +170,8 @@ exps = [
     #["Static-3", "stock-sb-4hr-50ms.txt-streamsluice-streamsluice-3690-30-1000-20-3-1000-1-100-4-2000-1-100-9-5000-1-100-2000-100-false-1", "brown"],
 
     # statesize=2000
-    ["StreamSluice", "stock-sb-4hr-50ms.txt-streamsluice-streamsluice-3690-30-1000-20-2-1000-1-2000-3-2000-1-2000-7-5000-1-2000-2000-100-true-1", "blue"],
+
+    ["StreamSluice", "stock-sb-4hr-50ms.txt-streamsluice-streamsluice-3690-30-1000-20-2-1000-1-100-3-2000-1-100-6-5000-1-100-2000-100-true-1", "blue"],
     ["StreamSwitch","stock-sb-4hr-50ms.txt-streamswitch-streamswitch-3690-30-1000-20-2-1000-1-2000-3-2000-1-2000-7-5000-1-2000-2000-100-true-1","green"],
     ["DS2", "stock-sb-4hr-50ms.txt-ds2-ds2-3690-30-1000-20-2-1000-1-2000-3-2000-1-2000-7-5000-1-2000-2000-100-true-1","purple"],
     ["Static-1","stock-sb-4hr-50ms.txt-streamsluice-streamsluice-3690-30-1000-20-2-1000-1-2000-3-2000-1-2000-7-5000-1-2000-2000-100-false-1","gray"],
