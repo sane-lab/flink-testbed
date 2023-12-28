@@ -158,13 +158,13 @@ run_scale_test(){
 
 
     printf "PERIOD\n" >> workload_result.txt
-    RANGE_I=5000
-    for PERIOD_I in 180; do # 30 60 90
-      L=700
-      autotune_interval=240 #"$((${PERIOD_I}*2))"
-      run_one_exp
-      printf "${EXP_NAME}\n" >> workload_result.txt
-    done
+#    RANGE_I=5000
+#    for PERIOD_I in 180; do # 30 60 90
+#      L=700
+#      autotune_interval=240 #"$((${PERIOD_I}*2))"
+#      run_one_exp
+#      printf "${EXP_NAME}\n" >> workload_result.txt
+#    done
     PERIOD_I=120
     autotune_interval=240
     L=1000
