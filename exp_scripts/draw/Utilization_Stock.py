@@ -199,8 +199,8 @@ def readUtilization(rawDir, expName):
 
     totalArrivalRatePerJob = {}
     totalServiceRatePerJob = {}
-    totalUtilization = {}
-    totalParallelism = {}
+    utilizationPerJob = {}
+    parallelismPerJob = {}
     for task in arrivalRatePerTask:
         job = task.split("_")[0]
         n = len(arrivalRatePerTask[task][0])
@@ -221,21 +221,22 @@ def readUtilization(rawDir, expName):
                 totalServiceRatePerJob[job][sx] = sy
             else:
                 totalServiceRatePerJob[job][sx] += sy
+                utilization = 1
+                if sy > 0:
+                    utilization = min(ay / sy, 1.0)
+                if index not in utilizationPerJob[job]:
+                    utilizationPerJob[job][index] = utilization
+                    parallelismPerJob[job][index] = 1
+                else:
+                    utilizationPerJob[job][index] += utilization
+                    parallelismPerJob[job][index] += 1
+    avgUtilizationPerJob = {}
+    for job in utilizationPerJob.keys():
+        avgUtilizationPerJob[job] = {}
+        for index in utilizationPerJob[job].keys():
+            avgUtilizationPerJob[job][index] = utilizationPerJob[job][index] / parallelismPerJob[job][index]
 
-            utilization = 1
-            if sy > 0:
-                utilization = min(ay/sy, 1.0)
-            if index not in totalUtilization:
-                totalUtilization[index] = utilization
-                totalParallelism[index] = 1
-            else:
-                totalUtilization[index] += utilization
-                totalParallelism[index] += 1
-
-    avgUtilization = {}
-    for index in totalUtilization.keys():
-        avgUtilization[index] = totalUtilization[index] / totalParallelism[index]
-    return [avgUtilization, initialTime]
+    return [avgUtilizationPerJob, initialTime]
 
 def draw(rawDir, outputDir, exps):
     avgUtilizations = []
