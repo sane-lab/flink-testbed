@@ -56,7 +56,9 @@ for dimension in dimensions:
     y = []
     utilizations = {}
     opSize = 0
+    keyIndex = 0
     for key in sorted(orderResult.keys()):
+        keyIndex += 1
         if dimension == 'amplitude':
             lower = baseRange - key
             upper = baseRange + key
@@ -67,21 +69,23 @@ for dimension in dimensions:
             x += [str(key)]
         elif dimension == 'skewness':
             x += [str(key)]
-        elif dimension == 'op':
-            x += [str(key) + '_OP']
+        elif dimension == 'topology':
+            x += [str(int(key)) + '_OP']
         y += [orderResult[key][0]]
         opSize = len(orderResult[key]) - 1
         for opIndex in range(1, len(orderResult[key])):
             opName = "OP_" + str(opIndex)
             if opName not in utilizations:
                 utilizations[opName] = []
+            if dimension == "topology" and len(utilizations[opName]) < keyIndex - 1:
+                utilizations[opName] += [0] * (keyIndex - 1 - len(utilizations[opName]))
             utilizations[opName] += [orderResult[key][opIndex]]
 
     print(x)
     print(y)
     print(utilizations)
     print("Draw dimension " + dimension)
-    fig, axs = plt.subplots(1, 2, figsize=(10, 4), layout='constrained') #(24, 9)
+    fig, axs = plt.subplots(1, 2, figsize=(10, 3), layout='constrained') #(24, 9)
     figName = "limit_" + dimension
     ax1 = axs[0]
     p = ax1.bar(x, y, width=0.8, bottom=None, align='center')
@@ -98,10 +102,13 @@ for dimension in dimensions:
     nx = np.arange(len(orderResult.keys()))
     for opName, utilizationList in utilizations.items():
         offset = width * multiplier
+        if dimension == "topology":
+            nx = np.arange(len(utilizationList))
         rects = ax1.bar(nx + offset, utilizationList, width, label=opName)
         ax1.bar_label(rects, padding=3, label_type='center')
+        ax1.set_ylim(0, 1.0)
         multiplier += 1
-    ax1.set_xticks(nx)
+    ax1.set_xticks(np.arange(len(orderResult.keys())))
     ax1.set_xticklabels(x)
 
     # plt.plot(x, y, "*", markersize=6)
@@ -114,5 +121,5 @@ for dimension in dimensions:
     import os
     if not os.path.exists(outputDir):
         os.makedirs(outputDir)
-    plt.savefig(outputDir + figName + ".pdf", bbox_inches='tight')
+    plt.savefig(outputDir + figName + ".png", bbox_inches='tight')
     plt.close(fig)
