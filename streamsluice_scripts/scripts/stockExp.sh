@@ -104,17 +104,17 @@ function runApp() {
 run_stock_test(){
     echo "Run overall test..."
     init
-    L=2000
+    L=1000
     runtime=690 #3690
     warmup_rate=1000
     warmup_time=30
     skip_interval=20
     repeat=1
-    STATE_SIZE2=10000
-    STATE_SIZE3=10000
-    STATE_SIZE4=10000
+    STATE_SIZE2=500
+    STATE_SIZE3=500
+    STATE_SIZE4=500
     spike_slope=0.8
-    spike_intercept=250
+    spike_intercept=150
     run_one_exp
 
 #    is_treat=false
@@ -126,11 +126,11 @@ run_stock_test(){
 #    P4=9
 #    run_one_exp
 
-#    is_treat=true
-#    whether_type="ds2"
-#    how_type="ds2"
-#    migration_interval=5000
-#    run_one_exp
+    is_treat=true
+    whether_type="ds2"
+    how_type="ds2"
+    migration_interval=5000
+    run_one_exp
 
     whether_type="streamswitch"
     how_type="streamswitch"

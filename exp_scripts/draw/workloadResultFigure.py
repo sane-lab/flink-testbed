@@ -47,7 +47,11 @@ for dimension in dimensions:
         expSetting = parseSetting(exp)
         if checkIsThisDimension(dimension, dimensions, baselineSetting, expSetting):
             print(expSetting)
-            orderResult[float(expSetting[dimension])] = exps[exp]
+            if dimension == "topology":
+                orderResult[float(expSetting[dimension][:1])] = exps[exp]
+            else:
+                orderResult[float(expSetting[dimension])] = exps[exp]
+
     x = []
     y = []
     utilizations = {}
@@ -63,6 +67,8 @@ for dimension in dimensions:
             x += [str(key)]
         elif dimension == 'skewness':
             x += [str(key)]
+        elif dimension == 'op':
+            x += [str(key) + '_OP']
         y += [orderResult[key][0]]
         opSize = len(orderResult[key]) - 1
         for opIndex in range(1, len(orderResult[key])):

@@ -362,16 +362,16 @@ exps = [
 
     # statesize=2000
     ["StreamSluice",
-     "stock-sb-4hr-50ms.txt-streamsluice-streamsluice-3690-30-1000-20-2-1000-1-2000-3-2000-1-2000-7-5000-1-2000-2000-100-true-1",
-     "blue"],
-    ["StreamSwitch",
-     "stock-sb-4hr-50ms.txt-streamswitch-streamswitch-3690-30-1000-20-2-1000-1-2000-3-2000-1-2000-7-5000-1-2000-2000-100-true-1",
-     "green"],
-    ["DS2", "stock-sb-4hr-50ms.txt-ds2-ds2-3690-30-1000-20-2-1000-1-2000-3-2000-1-2000-7-5000-1-2000-2000-100-true-1",
-     "purple"],
+     "stock-sb-4hr-50ms.txt-streamsluice-streamsluice-690-30-1000-20-2-1000-1-10000-3-2000-1-10000-6-5000-1-10000-2000-100-true-1",
+     "blue", "o"],
+    #["StreamSwitch",
+    # "stock-sb-4hr-50ms.txt-streamswitch-streamswitch-3690-30-1000-20-2-1000-1-2000-3-2000-1-2000-7-5000-1-2000-2000-100-true-1",
+    # "green", "p"],
+    #["DS2", "stock-sb-4hr-50ms.txt-ds2-ds2-3690-30-1000-20-2-1000-1-2000-3-2000-1-2000-7-5000-1-2000-2000-100-true-1",
+    # "purple", "d"],
     ["Static-1",
      "stock-sb-4hr-50ms.txt-streamsluice-streamsluice-3690-30-1000-20-2-1000-1-2000-3-2000-1-2000-7-5000-1-2000-2000-100-false-1",
-     "gray"],
+     "gray", "*"],
 ]
 windowSize=1000
 startTime = 30
