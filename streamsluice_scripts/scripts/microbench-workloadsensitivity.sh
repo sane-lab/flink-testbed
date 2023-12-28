@@ -202,12 +202,12 @@ run_scale_test(){
     spike_slope=0.7
     L=1000
 
-#    printf "SKEW\n" >> workload_result.txt
-#    for ZIPF_SKEW in 0.4; do #0.025 0.05 0.1 0.2
-#        run_one_exp
-#        printf "${EXP_NAME}\n" >> workload_result.txt
-#    done
-#    ZIPF_SKEW=0
+    printf "SKEW\n" >> workload_result.txt
+    for ZIPF_SKEW in 0.4 0.6 0.8; do #0.025 0.05 0.1 0.2
+        run_one_exp
+        printf "${EXP_NAME}\n" >> workload_result.txt
+    done
+    ZIPF_SKEW=0
 
     printf "TOPOLOGY\n" >> workload_result.txt
 #    GRAPH=1op
@@ -233,8 +233,10 @@ run_scale_test(){
     P2=1
     P3=1
     P4=12
-    run_one_exp
-    printf "${EXP_NAME}\n" >> workload_result.txt
+    for repeat in 2 3 4 5; do
+      run_one_exp
+      printf "${EXP_NAME}\n" >> workload_result.txt
+    done
     DELAY3=1000
     DELAY4=50
     LP2=12
