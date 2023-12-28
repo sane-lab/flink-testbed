@@ -207,6 +207,8 @@ def readUtilization(rawDir, expName):
         if job not in totalServiceRatePerJob:
             totalServiceRatePerJob[job] = {}
             totalArrivalRatePerJob[job] = {}
+            utilizationPerJob[job] = {}
+            parallelismPerJob[job] = {}
         for i in range(0, n):
             ax = arrivalRatePerTask[task][0][i]
             index = math.floor(ax / windowSize) * windowSize
@@ -239,39 +241,53 @@ def readUtilization(rawDir, expName):
     return [avgUtilizationPerJob, initialTime]
 
 def draw(rawDir, outputDir, exps):
-    avgUtilizations = []
+    avgUtilizationsPerJob = {}
     for expindex in range(0, len(exps)):
         expName = exps[expindex][1]
         result = readUtilization(rawDir, expName)
-        avgUtilizations += [result[0]]
-
+        avgUtilizationPerJob = result[0]
+        for job in avgUtilizationPerJob.keys():
+            if job not in avgUtilizationsPerJob:
+                avgUtilizationsPerJob[job] = []
+            avgUtilizationsPerJob[job] += [avgUtilizationPerJob[job]]
     print("Draw total figure...")
     figName = "avg_utilization"
 
-    fig, ax1 = plt.subplots(1, 1, figsize=(24, 5), layout='constrained')
-    legend = ["50%"]
-    limitx = [0, 100000000]
-    limity = [0.5, 0.5]
-    ax1.plot(limitx, limity, color='red', linewidth=1.5)
-    for expindex in range(0, len(exps)):
-        legend += [exps[expindex][0]]
-        avgUtilization = avgUtilizations[expindex]
-        #print(avgUtilization)
-        ax = sorted(avgUtilization.keys())
-        ay = [avgUtilization[x] for x in ax]
-        print("Draw " + exps[expindex][0] + " figure...")
-        #plt.subplot(len(totalArrivalRatePerJob.keys()), 1, i+1)
-        ax1.plot(ax, ay, exps[expindex][3], color=exps[expindex][2], markersize=MARKERSIZE)
-    ax1.set_ylabel('Utilization (ratio)')
-    ax1.set_ylim(0, 1.0)
-    ax1.set_yticks(np.arange(0, 1.2, 0.2))
 
-    ax1.set_xlim(startTime * 1000, (startTime + 3600) * 1000)
-    ax1.set_xticks(np.arange(startTime * 1000, (startTime + 3600) * 1000 + 300000, 300000))
-    ax1.set_xticklabels([int((x - startTime * 1000) / 60000) for x in
-                         np.arange(startTime * 1000, (startTime + 3600) * 1000 + 300000, 300000)])
-    ax1.grid(True)
-    plt.legend(legend, loc='upper left')
+    nJobs = len(avgUtilizationsPerJob.keys())
+    jobList = ["a84740bacf923e828852cc4966f2247c", "eabd4c11f6c6fbdf011f0f1fc42097b1", "d01047f852abd5702a0dabeedac99ff5"]
+    fig, axs = plt.subplots(nJobs, 1, figsize=(24, 5 * nJobs), layout='constrained')
+    for jobIndex in range(0, nJobs):
+        job = jobList[jobIndex]
+        if nJobs == 1:
+            ax1 = axs
+        else:
+            ax1 = axs[jobIndex]
+        legend = ["50%"]
+        limitx = [0, 100000000]
+        limity = [0.5, 0.5]
+        ax1.plot(limitx, limity, color='red', linewidth=1.5)
+        for expindex in range(0, len(exps)):
+            legend += [exps[expindex][0]]
+            avgUtilization = avgUtilizationsPerJob[job][expindex]
+            #print(avgUtilization)
+            ax = sorted(avgUtilization.keys())
+            ay = [avgUtilization[x] for x in ax]
+            print("Draw " + exps[expindex][0] + " figure...")
+            #plt.subplot(len(totalArrivalRatePerJob.keys()), 1, i+1)
+            ax1.plot(ax, ay, exps[expindex][3], color=exps[expindex][2], markersize=MARKERSIZE)
+        ax1.set_ylabel("OP_" + str(jobIndex + 1) + ' Utilization')
+        ax1.set_ylim(0, 1.0)
+        ax1.set_yticks(np.arange(0, 1.2, 0.2))
+
+        ax1.set_xlim(startTime * 1000, (startTime + 3600) * 1000)
+        ax1.set_xticks(np.arange(startTime * 1000, (startTime + 3600) * 1000 + 300000, 300000))
+        ax1.set_xticklabels([int((x - startTime * 1000) / 60000) for x in
+                             np.arange(startTime * 1000, (startTime + 3600) * 1000 + 300000, 300000)])
+
+        ax1.grid(True)
+        if jobIndex == 0:
+            ax1.legend(legend, loc='upper left')
     import os
     if not os.path.exists(outputDir):
         os.makedirs(outputDir)

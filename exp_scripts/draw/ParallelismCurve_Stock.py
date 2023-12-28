@@ -227,56 +227,69 @@ def readParallelism(rawDir, expName):
                 totalArrivalRatePerJob[job][index] = ay
             else:
                 totalArrivalRatePerJob[job][index] += ay
-    operatorNameToId = {}
-    for x in totalArrivalRatePerJob.keys():
-        operatorNameToId[OPERATOR_NAMING[x]] = x
-    job = operatorNameToId[sorted(operatorNameToId.keys())[0]]
-    return [ParallelismPerJob["TOTAL"], totalArrivalRatePerJob[job], initialTime]
+    return [ParallelismPerJob, totalArrivalRatePerJob, initialTime]
 
 def draw(rawDir, outputDir, exps):
-    parallelisms = []
-    totalArrivalRates = []
+    parallelismsPerJob = {}
+    totalArrivalRatesPerJob = {}
     for expindex in range(0, len(exps)):
         expFile = exps[expindex][1]
         result = readParallelism(rawDir, expFile)
-        parallelisms += [result[0]]
-        totalArrivalRates += [result[1]]
+        parallelisms = result[0]
+        totalArrivalRates = result[1]
+        for job in parallelisms.keys():
+            if job == "TOTAL":
+                continue
+            if job not in parallelismsPerJob:
+                parallelismsPerJob[job] = []
+                totalArrivalRatesPerJob[job] = []
+            parallelismsPerJob[job] += [parallelisms[job]]
+            totalArrivalRatesPerJob[job] += [totalArrivalRates[job]]
     print("Draw total figure...")
 
     figName = "Parallelism"
+    nJobs = len(parallelismsPerJob.keys())
+    jobList = ["a84740bacf923e828852cc4966f2247c", "eabd4c11f6c6fbdf011f0f1fc42097b1",
+               "d01047f852abd5702a0dabeedac99ff5"]
+    fig, axs = plt.subplots(nJobs, 1, figsize=(24, 5 * nJobs), layout='constrained') #plt.figure(figsize=(12, 4))
+    for jobIndex in range(0, nJobs):
+        job = jobList[jobIndex]
+        if nJobs == 1:
+            ax1 = axs
+        else:
+            ax1 = axs[jobIndex]
+        ax2 = ax1.twinx()
+        legend = []
+        for expindex in range(0, len(exps)):
+            print("Draw exps " + exps[expindex][0] + " curve...")
+            Parallelism = parallelismsPerJob[job][expindex]
 
-    fig, ax1 = plt.subplots(figsize=(24, 5)) #plt.figure(figsize=(12, 4))
-    ax2 = ax1.twinx()
-    legend = []
-    for expindex in range(0, len(exps)):
-        print("Draw exps " + exps[expindex][0] + " curve...")
-        Parallelism = parallelisms[expindex]
-
-        legend += [exps[expindex][0]]
-        line = [[], []]
-        for i in range(0, len(Parallelism[0])):
-            x0 = Parallelism[0][i]
-            y0 = Parallelism[1][i]
-            if i+1 >= len(Parallelism[0]):
-                x1 = 10000000
-                y1 = y0
-            else:
-                x1 = Parallelism[0][i+1]
-                y1 = Parallelism[1][i+1]
-            line[0].append(x0)
-            line[0].append(x1)
-            line[1].append(y0)
-            line[1].append(y0)
-            line[0].append(x1)
-            line[0].append(x1)
-            line[1].append(y0)
-            line[1].append(y1)
-        ax1.plot(line[0], line[1], color=exps[expindex][2], linewidth=LINEWIDTH)
-        ax1.legend(legend, loc='upper right', ncol=5)
+            legend += [exps[expindex][0]]
+            line = [[], []]
+            for i in range(0, len(Parallelism[0])):
+                x0 = Parallelism[0][i]
+                y0 = Parallelism[1][i]
+                if i+1 >= len(Parallelism[0]):
+                    x1 = 10000000
+                    y1 = y0
+                else:
+                    x1 = Parallelism[0][i+1]
+                    y1 = Parallelism[1][i+1]
+                line[0].append(x0)
+                line[0].append(x1)
+                line[1].append(y0)
+                line[1].append(y0)
+                line[0].append(x1)
+                line[0].append(x1)
+                line[1].append(y0)
+                line[1].append(y1)
+            ax1.plot(line[0], line[1], color=exps[expindex][2], linewidth=LINEWIDTH)
+        if jobIndex == 0:
+            ax1.legend(legend, loc='upper right', ncol=5)
         #for operator in scalingMarkerByOperator:
         #    addScalingMarker(plt, scalingMarkerByOperator[operator])
         #plt.xlabel('Time (s)')
-        ax1.set_ylabel('# of tasks')
+        ax1.set_ylabel('OP_'+str(jobIndex+1)+' Parallelism')
         #plt.title('Parallelism of Operators')
         #axes = plt.gca()
         # axes.set_xlim(0, lastTime-initialTime)
@@ -290,24 +303,36 @@ def draw(rawDir, outputDir, exps):
         ax1.set_xticks(np.arange(startTime * 1000, (startTime + 3600) * 1000 + 300000, 300000))
         ax1.set_xticklabels([int((x - startTime * 1000) / 60000) for x in np.arange(startTime * 1000,(startTime + 3600) * 1000 + 300000, 300000)])
 
-        ax1.set_ylim(0, 40)
-        ax1.set_yticks(np.arange(0, 45, 5))
-        plt.grid(True)
+        if jobIndex < 2:
+            ax1.set_ylim(0, 10)
+            ax1.set_yticks(np.arange(0, 12, 2))
+        else:
+            ax1.set_ylim(0, 20)
+            ax1.set_yticks(np.arange(0, 24, 4))
+        ax1.grid(True)
 
 
-    ax = sorted(totalArrivalRates[0].keys())
-    #print(totalArrivalRatePerJob[job])
-    ay = [totalArrivalRates[0][x] / (windowSize / 100) for x in ax]
-    ax2.plot(ax, ay, 'o-', color='red', markersize=MARKERSIZE/2, label="Arrival Rate")
-    ax2.set_ylabel('Rate (tps)')
-    ax2.set_ylim(0, 5000)
-    ax2.set_xticks(np.arange(0, 5500, 500))
-    legend = ["Total Arrival Rate"]
-    ax2.set_xlim(startTime * 1000, (startTime + 3600) * 1000)
-    ax2.set_xticks(np.arange(startTime * 1000, (startTime + 3600) * 1000 + 300000, 300000))
-    ax2.set_xticklabels([int((x - startTime * 1000) / 60000) for x in
-                         np.arange(startTime * 1000, (startTime + 3600) * 1000 + 300000, 300000)])
-    ax2.legend(legend, loc='upper left', ncol=1)
+        ax = sorted(totalArrivalRatesPerJob[job][0].keys())
+        #print(totalArrivalRatePerJob[job])
+        ay = [totalArrivalRatesPerJob[job][0][x] / (windowSize / 100) for x in ax]
+        ax2.plot(ax, ay, 'o-', color='red', markersize=MARKERSIZE/2, label="Arrival Rate")
+        ax2.set_ylabel('Rate (tps)')
+        if jobIndex == 0:
+            ax2.set_ylim(0, 10000)
+            ax2.set_xticks(np.arange(0, 11000, 1000))
+        elif jobIndex == 1:
+            ax2.set_ylim(0, 5000)
+            ax2.set_xticks(np.arange(0, 5500, 500))
+        else:
+            ax2.set_ylim(0, 4000)
+            ax2.set_xticks(np.arange(0, 4800, 800))
+        legend = ["OP_" + str(jobIndex + 1) +"Arrival Rate"]
+        ax2.set_xlim(startTime * 1000, (startTime + 3600) * 1000)
+        ax2.set_xticks(np.arange(startTime * 1000, (startTime + 3600) * 1000 + 300000, 300000))
+        ax2.set_xticklabels([int((x - startTime * 1000) / 60000) for x in
+                             np.arange(startTime * 1000, (startTime + 3600) * 1000 + 300000, 300000)])
+        if jobIndex == 0:
+            ax2.legend(legend, loc='upper left', ncol=1)
     import os
     if not os.path.exists(outputDir):
         os.makedirs(outputDir)

@@ -55,27 +55,29 @@ init() {
   stock_path="/home/samza/SSE_data/"
   stock_file_name="sb-4hr-50ms.txt"
   P1=1
-
+  LP2=4
   P2=2 #3
   MP2=128
   DELAY2=1000
   IO2=1
   STATE_SIZE2=100
 
+  LP=9
   P3=3 #5
   MP3=128
   DELAY3=2000
   IO3=1
   STATE_SIZE3=100
 
-  P4=7 #12
+  LP=18
+  P4=6 #12
   MP4=128
   DELAY4=5000
   IO4=1
   STATE_SIZE4=100
-  LP2=8
-  LP3=15
-  LP4=40
+#  LP2=8
+#  LP3=15
+#  LP4=40
 
   repeat=1
   warmup=10000
@@ -110,30 +112,25 @@ run_stock_test(){
     repeat=1
     run_one_exp
 
-#    is_treat=false
-#    run_one_exp
-#
-#    is_treat=false
-#    P2=3
-#    P3=5
-#    P4=12
-#    run_one_exp
-#
-#    is_treat=false
-#    P2=3
-#    P3=4
-#    P4=9
-#    run_one_exp
+    is_treat=false
+    run_one_exp
+
+    is_treat=false
+    P2=3
+    P3=4
+    P4=9
+    run_one_exp
 
 #    is_treat=true
 #    whether_type="ds2"
 #    how_type="ds2"
+#    migration_interval=5000
 #    run_one_exp
 
-#    whether_type="streamswitch"
-#    how_type="streamswitch"
-#    scalein_type="streamswitch"
-#    migration_interval=500
-#    run_one_exp
+    whether_type="streamswitch"
+    how_type="streamswitch"
+    scalein_type="streamswitch"
+    migration_interval=500
+    run_one_exp
 }
 run_stock_test
