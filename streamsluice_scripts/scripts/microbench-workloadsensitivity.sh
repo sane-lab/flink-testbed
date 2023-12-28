@@ -210,14 +210,14 @@ run_scale_test(){
 #    ZIPF_SKEW=0
 
     printf "TOPOLOGY\n" >> workload_result.txt
-    GRAPH=1op
-    vertex_id="a84740bacf923e828852cc4966f2247c" #,eabd4c11f6c6fbdf011f0f1fc42097b1,d01047f852abd5702a0dabeedac99ff5"
-    DELAY2=1000
-    L=500
-    LP2=63
-    P2=12
-    run_one_exp
-    printf "${EXP_NAME}\n" >> workload_result.txt
+#    GRAPH=1op
+#    vertex_id="a84740bacf923e828852cc4966f2247c" #,eabd4c11f6c6fbdf011f0f1fc42097b1,d01047f852abd5702a0dabeedac99ff5"
+#    DELAY2=1000
+#    L=500
+#    LP2=63
+#    P2=12
+#    run_one_exp
+#    printf "${EXP_NAME}\n" >> workload_result.txt
     DELAY2=50
     P2=1
     L=1000
