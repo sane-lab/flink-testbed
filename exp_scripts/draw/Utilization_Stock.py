@@ -317,17 +317,17 @@ exps = [
     #["Static-3", "stock-sb-4hr-50ms.txt-streamsluice-streamsluice-3690-30-1000-20-3-1000-1-100-4-2000-1-100-9-5000-1-100-2000-100-false-1", "brown", "d"],
 
     # statesize=2000
-    ["StreamSluice",
-     "stock-sb-4hr-50ms.txt-streamsluice-streamsluice-690-30-1000-20-2-1000-1-500-3-2000-1-500-6-5000-1-500-1000-100-true-1",
-     "blue", "o"],
-    #["StreamSwitch",
-    # "stock-sb-4hr-50ms.txt-streamswitch-streamswitch-3690-30-1000-20-2-1000-1-2000-3-2000-1-2000-7-5000-1-2000-2000-100-true-1",
-    # "green", "p"],
-    ["DS2", "stock-sb-4hr-50ms.txt-ds2-ds2-690-30-1000-20-2-1000-1-500-3-2000-1-500-6-5000-1-500-1000-100-true-1",
-     "purple", "d"],
     ["Static-1",
      "stock-sb-4hr-50ms.txt-streamsluice-streamsluice-3690-30-1000-20-2-1000-1-2000-3-2000-1-2000-7-5000-1-2000-2000-100-false-1",
      "gray", "*"],
+    ["DS2", "stock-sb-4hr-50ms.txt-ds2-ds2-690-30-1000-20-2-1000-1-500-3-2000-1-500-6-5000-1-500-1000-100-true-1",
+     "purple", "d"],
+    ["StreamSwitch",
+     "stock-sb-4hr-50ms.txt-streamswitch-streamswitch-690-30-1000-20-2-1000-1-500-3-2000-1-500-6-5000-1-500-1000-100-true-1",
+     "green", "p"],
+    ["StreamSluice",
+     "stock-sb-4hr-50ms.txt-streamsluice-streamsluice-690-30-1000-20-2-1000-1-500-3-2000-1-500-6-5000-1-500-1000-100-true-1",
+     "blue", "o"],
 
 ]
 startTime=30
@@ -335,4 +335,6 @@ windowSize=1000
 serviceRateFlag=True
 scalingMarkerFlag = False
 drawOperatorFigureFlag = False
-draw(rawDir, outputDir + exps[0][1] + "/", exps)
+expName = [exp[1] for exp in exps if exp[0] == "StreamSluice"][0]
+print(expName)
+draw(rawDir, outputDir + expName + "/", exps)

@@ -1,3 +1,4 @@
+import math
 import sys
 import numpy as np
 import matplotlib
@@ -14,6 +15,40 @@ OPERATOR_NAMING = {
     "d2336f79a0d60b5a4b16c8769ec82e47": "OP4",
     "all": "All",
 }
+
+SMALL_SIZE = 25
+MEDIUM_SIZE = 30
+BIGGER_SIZE = 35
+LINEWIDTH=1.5
+
+plt.rc('font', size=SMALL_SIZE)          # controls default text sizes
+plt.rc('axes', titlesize=SMALL_SIZE)     # fontsize of the axes title
+plt.rc('axes', labelsize=MEDIUM_SIZE)    # fontsize of the x and y labels
+plt.rc('xtick', labelsize=SMALL_SIZE)    # font-size of the tick labels
+plt.rc('ytick', labelsize=SMALL_SIZE)    # fontsize of the tick labels
+plt.rc('legend', fontsize=SMALL_SIZE)    # legend fontsize
+plt.rc('figure', titlesize=BIGGER_SIZE)  # fontsize of the figure title
+MARKERSIZE=4
+
+
+def calculateMeanAbsoluteError(observedValues, predicitedValues):
+    total = 0.0
+    for i in range(len(observedValues)):
+        total += abs(observedValues[i] - predicitedValues[i])
+    return total/len(observedValues)
+
+def calculateRootMeanSquaredError(observedValues, predicitedValues):
+    total = 0.0
+    for i in range(len(observedValues)):
+        total += (observedValues[i] - predicitedValues[i]) * (observedValues[i] - predicitedValues[i])
+    return math.sqrt(total/len(observedValues))
+
+def calculateMeanAbsolutePercentageError(observedValues, predicitedValues):
+    total = 0.0
+    for i in range(len(observedValues)):
+        total += abs((observedValues[i] - predicitedValues[i])/float(observedValues[i]))
+    return total/len(observedValues)
+
 
 def draw(rawDir, outputDir, expName):
     streamsluiceOutput = "flink-samza-standalonesession-0-eagle-sane.out"
@@ -42,6 +77,10 @@ def draw(rawDir, outputDir, expName):
 
     estimatedScalingTimes = estimatedScalingTimes[30:]
     trueScalingTimes = trueScalingTimes[30:]
+    MAE = calculateMeanAbsoluteError(trueScalingTimes, estimatedScalingTimes)
+    RMSE = calculateRootMeanSquaredError(trueScalingTimes, estimatedScalingTimes)
+    MAPE = calculateMeanAbsolutePercentageError(trueScalingTimes, estimatedScalingTimes)
+    print(MAE, RMSE, MAPE)
     fig, axs = plt.subplots(1, 1, figsize=(15, 6), layout='constrained')
     ax1 = axs
     print("Draw estimated/true scaling time")
