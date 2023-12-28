@@ -497,7 +497,6 @@ if len(sys.argv) > 1:
     expName = sys.argv[1].split("/")[-1]
 windowSize = 1000
 latencyLimit = 2000
-endTime = 270 #150 #630
 startTime = 0
 isSingleOperator = False #True
 with open("../workload_list.txt") as f:

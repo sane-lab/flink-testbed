@@ -158,7 +158,7 @@ run_scale_test(){
 
 
     printf "PERIOD\n" >> workload_result.txt
-#    RANGE_I=5000
+    RANGE_I=5000
 #    for PERIOD_I in 180; do # 30 60 90
 #      L=700
 #      autotune_interval=240 #"$((${PERIOD_I}*2))"
@@ -222,6 +222,7 @@ run_scale_test(){
     P2=1
     L=1000
 
+    RANGE_I=5000
     GRAPH=3op
     vertex_id="a84740bacf923e828852cc4966f2247c,eabd4c11f6c6fbdf011f0f1fc42097b1,d01047f852abd5702a0dabeedac99ff5"
     DELAY3=50
