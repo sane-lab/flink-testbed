@@ -42,6 +42,7 @@ init() {
   controller_type=StreamSluice
   whether_type="streamsluice"
   how_type="streamsluice"
+  scalein_type="streamsluice"
   vertex_id="a84740bacf923e828852cc4966f2247c,eabd4c11f6c6fbdf011f0f1fc42097b1,d01047f852abd5702a0dabeedac99ff5"
   L=2000
   migration_interval=500
@@ -105,7 +106,7 @@ run_stock_test(){
     echo "Run overall test..."
     init
     L=1000
-    runtime=690 #3690
+    runtime=3690 #690
     warmup_rate=1000
     warmup_time=30
     skip_interval=20
@@ -116,18 +117,18 @@ run_stock_test(){
     spike_slope=0.8
     spike_intercept=150
     printf "" > stock_result.txt
-    #run_one_exp
-    #printf "${EXP_NAME}\n" >> stock_result.txt
+    run_one_exp
+    printf "${EXP_NAME}\n" >> stock_result.txt
 
-#    is_treat=false
-#    run_one_exp
-#    printf "${EXP_NAME}\n" >> stock_result.txt
-#    is_treat=false
-#    P2=3
-#    P3=4
-#    P4=9
-#    run_one_exp
-#    printf "${EXP_NAME}\n" >> stock_result.txt
+    is_treat=false
+    run_one_exp
+    printf "${EXP_NAME}\n" >> stock_result.txt
+    is_treat=false
+    P2=3
+    P3=4
+    P4=9
+    run_one_exp
+    printf "${EXP_NAME}\n" >> stock_result.txt
     is_treat=true
     whether_type="ds2"
     how_type="ds2"

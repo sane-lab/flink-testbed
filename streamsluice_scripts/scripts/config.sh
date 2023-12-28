@@ -7,7 +7,6 @@ FLINK_CONF_DIR="${SCRIPT_DIR}/conf-local"
 EXP_DIR="/data/streamsluice"
 
 HELLOSAMZA_DIR="/home/samza/samza-hello-samza"
-scalein_type="streamsluice"
 # run flink clsuter
 function runFlink() {
     echo "INFO: starting the cluster"
