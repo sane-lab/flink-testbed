@@ -149,19 +149,19 @@ run_scale_test(){
     L=1000
     printf "" > workload_result.txt
 
-    printf "RANGE\n" >> workload_result.txt
-    for RANGE_I in 2500; do #  7500 5000 3750 2500 6250
-        L=700
-        run_one_exp
-        printf "${EXP_NAME}\n" >> workload_result.txt
-    done
+#    printf "RANGE\n" >> workload_result.txt
+#    for RANGE_I in 2500; do #  7500 5000 3750 2500 6250
+#        L=700
+#        run_one_exp
+#        printf "${EXP_NAME}\n" >> workload_result.txt
+#    done
 
 
     printf "PERIOD\n" >> workload_result.txt
     RANGE_I=5000
     for PERIOD_I in 180; do # 30 60 90
       L=700
-      autotune_interval="$((${PERIOD_I}*2))"
+      autotune_interval=240 #"$((${PERIOD_I}*2))"
       run_one_exp
       printf "${EXP_NAME}\n" >> workload_result.txt
     done
@@ -202,38 +202,40 @@ run_scale_test(){
     spike_slope=0.7
     L=1000
 
-    printf "SKEW\n" >> workload_result.txt
-    for ZIPF_SKEW in 0.05 0.2; do #0.025
-        run_one_exp
-        printf "${EXP_NAME}\n" >> workload_result.txt
-    done
-    ZIPF_SKEW=0
+#    printf "SKEW\n" >> workload_result.txt
+#    for ZIPF_SKEW in 0.4; do #0.025 0.05 0.1 0.2
+#        run_one_exp
+#        printf "${EXP_NAME}\n" >> workload_result.txt
+#    done
+#    ZIPF_SKEW=0
 
     printf "TOPOLOGY\n" >> workload_result.txt
     GRAPH=1op
     vertex_id="a84740bacf923e828852cc4966f2247c" #,eabd4c11f6c6fbdf011f0f1fc42097b1,d01047f852abd5702a0dabeedac99ff5"
     DELAY2=1000
+    L=500
     LP2=63
     P2=12
     run_one_exp
     printf "${EXP_NAME}\n" >> workload_result.txt
     DELAY2=50
     P2=1
+    L=1000
 
     GRAPH=3op
     vertex_id="a84740bacf923e828852cc4966f2247c,eabd4c11f6c6fbdf011f0f1fc42097b1,d01047f852abd5702a0dabeedac99ff5"
-    DELAY3=100
+    DELAY3=50
     DELAY4=1000
     LP2=3
-    LP3=9
-    LP4=51
+    LP3=3
+    LP4=57
     P2=1
-    P3=2
+    P3=1
     P4=12
     run_one_exp
     printf "${EXP_NAME}\n" >> workload_result.txt
     DELAY3=1000
-    DELAY4=100
+    DELAY4=50
     LP2=12
     LP3=51
     P2=1 #3

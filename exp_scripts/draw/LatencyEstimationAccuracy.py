@@ -49,6 +49,7 @@ def draw(rawDir, outputDir, expName, windowSize):
     groundTruthLatency = []
     scalingMarkerByOperator = {}
     currentLatency = [[], []]
+    spikeMarker = [[], []]
     currentSpikes = [[], []]
     nextEpochLatency = [[], []]
     nextSpikes = [[], []]
@@ -119,10 +120,17 @@ def draw(rawDir, outputDir, expName, windowSize):
                 else:
                     cSpike = float(split[11].rstrip('\n'))
                     nSpike = float(split[13].rstrip('\n'))
-                currentSpikes[0] += [estimateTime - initialTime]
-                currentSpikes[1] += [cSpike]
-                nextSpikes[0] += [estimateTime - initialTime]
-                nextSpikes[1] += [nSpike]
+                # currentSpikes[0] += [estimateTime - initialTime]
+                # currentSpikes[1] += [cSpike]
+                # nextSpikes[0] += [estimateTime - initialTime]
+                # nextSpikes[1] += [nSpike]
+            if (len(split) >= 7 and split[0] == "+++" and split[1] == "[MODEL]" and split[6] == "new_ete_l:"):
+                estimateTime = int(split[3].rstrip('\n'))
+                cLatency = float(split[7].rstrip('\n'))
+                currentLatency[0] += [estimateTime - initialTime]
+                currentLatency[1] += [cLatency]
+                spikeMarker[0] += [estimateTime - initialTime]
+                spikeMarker[1] += [cLatency]
             if (len(split) >= 10 and split[0] == "+++" and split[1] == "[CONTROL]" and split[6] == "scale" and split[8] == "operator:"):
                 time = int(split[3])
                 # if (time > lastTime):
@@ -162,7 +170,7 @@ def draw(rawDir, outputDir, expName, windowSize):
         averageGroundTruthLatency[1] += [int(aggregatedGroundTruthLatency[index][0] / float(aggregatedGroundTruthLatency[index][1]))]
 
     #print(averageGroundTruthLatency)
-    fig = plt.figure(figsize=(12, 5))
+    fig = plt.figure(figsize=(15, 6), layout='constrained')
     print("Draw ground truth curve...")
     legend = []
     legend += ["Ground Truth"]
@@ -170,6 +178,8 @@ def draw(rawDir, outputDir, expName, windowSize):
     legend += ["Estimated"]
     plt.plot(currentLatency[0], currentLatency[1], '-', color='blue',
              markersize=MARKERSIZE)
+    legend += ["Scaling Spike"]
+    plt.plot(spikeMarker[0], spikeMarker[1], 'd', color='blue', markersize=6)
     # legend += ["Current Spike"]
     # plt.plot(currentSpikes[0], currentSpikes[1], '*-', color='blue',
     #          markersize=MARKERSIZE)
@@ -180,10 +190,10 @@ def draw(rawDir, outputDir, expName, windowSize):
     #    addScalingMarker(plt, scalingMarkerByOperator[operator])
 #    addLatencyLimitMarker(plt)
 
-    plt.legend(legend, loc='upper left')
-    plt.xlabel('Time (s)')
+    plt.legend(legend, loc='upper left', ncol=3)
+    plt.xlabel('Time (min)')
     plt.ylabel('Latency (ms)')
-    plt.title('Latency Curves')
+    plt.title('Ground-Truth vs Estimated Latency')
     axes = plt.gca()
     # axes.set_xlim(0, averageGroundTruthLatency[0][-1])
     # axes.set_xticks(np.arange(0, averageGroundTruthLatency[0][-1], 10000))
@@ -201,10 +211,8 @@ def draw(rawDir, outputDir, expName, windowSize):
     axes.set_xticks(np.arange(startTime * 1000, endTime * 1000 + 60000, 60000))
     axes.set_xticklabels([int((x - startTime * 1000) / 60000) for x in
                           np.arange(startTime * 1000, endTime * 1000 + 60000, 60000)])
-    axes.set_ylim(0, 2000)
-    axes.set_yticks(np.arange(0, 2400, 400))
-
-    xlabels = []
+    axes.set_ylim(0, 1500)
+    axes.set_yticks(np.arange(0, 1800, 300))
 
     plt.grid(True)
     import os
@@ -218,7 +226,7 @@ outputDir = "/Users/swrrt/Workplace/BacklogDelayPaper/experiments/results/"
 expName = "microbench-workload-2op-3660-10000-10000-10000-5000-120-1-0-1-50-1-10000-12-1000-1-10000-4-357-1-10000-1000-500-100-true-1"
 windowSize = 100
 latencyLimit = 2000
-startTime = 600
-endTime = 1200
+startTime = 300
+endTime = 600
 #latencyLimit = int(expName.split("-")[-5])
 draw(rawDir, outputDir + expName + "/", expName, windowSize)
