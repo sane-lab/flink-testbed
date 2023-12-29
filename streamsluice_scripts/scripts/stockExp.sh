@@ -117,31 +117,31 @@ run_stock_test(){
     spike_slope=0.8
     spike_intercept=150
     printf "" > stock_result.txt
-    run_one_exp
-    printf "${EXP_NAME}\n" >> stock_result.txt
-
+#    run_one_exp
+#    printf "${EXP_NAME}\n" >> stock_result.txt
+#
+#    is_treat=false
+#    run_one_exp
+#    printf "${EXP_NAME}\n" >> stock_result.txt
     is_treat=false
+    P2=4
+    P3=6
+    P4=12
     run_one_exp
     printf "${EXP_NAME}\n" >> stock_result.txt
-    is_treat=false
-    P2=3
-    P3=4
-    P4=9
-    run_one_exp
-    printf "${EXP_NAME}\n" >> stock_result.txt
-    is_treat=true
-    whether_type="ds2"
-    how_type="ds2"
-    scalein_type="ds2"
-    migration_interval=5000
-    run_one_exp
-    printf "${EXP_NAME}\n" >> stock_result.txt
+#    is_treat=true
+#    whether_type="ds2"
+#    how_type="ds2"
+#    scalein_type="ds2"
+#    migration_interval=5000
+#    run_one_exp
+#    printf "${EXP_NAME}\n" >> stock_result.txt
 
-    whether_type="streamswitch"
-    how_type="streamswitch"
-    scalein_type="streamswitch"
-    migration_interval=1000
-    run_one_exp
-    printf "${EXP_NAME}\n" >> stock_result.txt
+#    whether_type="streamswitch"
+#    how_type="streamswitch"
+#    scalein_type="streamswitch"
+#    migration_interval=1000
+#    run_one_exp
+#    printf "${EXP_NAME}\n" >> stock_result.txt
 }
 run_stock_test
