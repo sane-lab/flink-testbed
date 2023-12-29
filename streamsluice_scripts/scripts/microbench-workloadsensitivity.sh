@@ -203,11 +203,13 @@ run_scale_test(){
     L=1000
 
     printf "SKEW\n" >> workload_result.txt
-    for ZIPF_SKEW in 0.4 0.6 0.8; do #0.025 0.05 0.1 0.2
+    for ZIPF_SKEW in 0.4 0.8 0.1 0.2; do #0.025 0.05 0.1 0.2
+        L=800
         run_one_exp
         printf "${EXP_NAME}\n" >> workload_result.txt
     done
     ZIPF_SKEW=0
+    L=1000
 
     printf "TOPOLOGY\n" >> workload_result.txt
 #    GRAPH=1op
@@ -218,34 +220,34 @@ run_scale_test(){
 #    P2=12
 #    run_one_exp
 #    printf "${EXP_NAME}\n" >> workload_result.txt
-    DELAY2=50
-    P2=1
-    L=1000
-
-    RANGE_I=5000
-    GRAPH=3op
-    vertex_id="a84740bacf923e828852cc4966f2247c,eabd4c11f6c6fbdf011f0f1fc42097b1,d01047f852abd5702a0dabeedac99ff5"
-    DELAY3=50
-    DELAY4=1000
-    LP2=3
-    LP3=3
-    LP4=57
-    P2=1
-    P3=1
-    P4=12
-    for repeat in 2 3 4 5; do
-      run_one_exp
-      printf "${EXP_NAME}\n" >> workload_result.txt
-    done
-    DELAY3=1000
-    DELAY4=50
-    LP2=12
-    LP3=51
-    P2=1 #3
-    P3=12
-    P4=4
-    GRAPH=2op
-    vertex_id="a84740bacf923e828852cc4966f2247c,eabd4c11f6c6fbdf011f0f1fc42097b1" #,d01047f852abd5702a0dabeedac99ff5"
+#    DELAY2=50
+#    P2=1
+#    L=1000
+#
+#    RANGE_I=5000
+#    GRAPH=3op
+#    vertex_id="a84740bacf923e828852cc4966f2247c,eabd4c11f6c6fbdf011f0f1fc42097b1,d01047f852abd5702a0dabeedac99ff5"
+#    DELAY3=50
+#    DELAY4=1000
+#    LP2=3
+#    LP3=3
+#    LP4=57
+#    P2=1
+#    P3=1
+#    P4=12
+#    for repeat in 1; do
+#      run_one_exp
+#      printf "${EXP_NAME}\n" >> workload_result.txt
+#    done
+#    DELAY3=1000
+#    DELAY4=50
+#    LP2=12
+#    LP3=51
+#    P2=1 #3
+#    P3=12
+#    P4=4
+#    GRAPH=2op
+#    vertex_id="a84740bacf923e828852cc4966f2247c,eabd4c11f6c6fbdf011f0f1fc42097b1" #,d01047f852abd5702a0dabeedac99ff5"
 }
 
 run_scale_test

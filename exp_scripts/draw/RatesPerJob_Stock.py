@@ -249,7 +249,7 @@ def draw(rawDir, outputDir, expName):
             if not os.path.exists(outputDir):
                 os.makedirs(outputDir)
             #plt.savefig(outputDir + figName + ".png")
-            plt.savefig(outputDir + figName + ".pdf", bbox_inches='tight')
+            plt.savefig(outputDir + figName + ".png", bbox_inches='tight')
             plt.close(fig)
 
     totalArrivalRatePerJob = {}
@@ -419,14 +419,14 @@ totalYMax = {
 }
 rawDir = "/Users/swrrt/Workplace/BacklogDelayPaper/experiments/raw/"
 outputDir = "/Users/swrrt/Workplace/BacklogDelayPaper/experiments/results/"
-drawTaskFigureFlag = False
-expName = "autotune_4op-false-390-10000-12500-60-15000-60-12500-60-1-0-2-125-1-5000-2-120-1-5000-3-250-1-5000-6-500-5000-2000-1500-100-true-1"
+drawTaskFigureFlag = True
+expName = "stock-sb-4hr-50ms.txt-streamsluice-streamsluice-3690-30-1000-20-4-1000-1-500-6-2000-1-500-12-5000-1-500-1000-100-false-1"
 #expName = "streamsluice-twoOP-180-400-400-500-30-5-10-2-0.25-1500-500-10000-100-true-1"
 startTime=120
 windowSize=100
 serviceRateFlag=True
 scalingMarkerFlag = True
-drawOperatorFigureFlag = False
+drawOperatorFigureFlag = True
 import sys
 if len(sys.argv) > 1:
     expName = sys.argv[1].split("/")[-1]

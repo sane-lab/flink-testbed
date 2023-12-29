@@ -179,7 +179,7 @@ def draw(rawDir, outputDir, expName, windowSize):
     plt.plot(currentLatency[0], currentLatency[1], '-', color='blue',
              markersize=MARKERSIZE)
     legend += ["Scaling Spike"]
-    plt.plot(spikeMarker[0], spikeMarker[1], 'd', color='blue', markersize=6)
+    plt.plot(spikeMarker[0], spikeMarker[1], 'd', color='blue', markersize=24   )
     # legend += ["Current Spike"]
     # plt.plot(currentSpikes[0], currentSpikes[1], '*-', color='blue',
     #          markersize=MARKERSIZE)
@@ -224,7 +224,7 @@ def draw(rawDir, outputDir, expName, windowSize):
 rawDir = "/Users/swrrt/Workplace/BacklogDelayPaper/experiments/raw/"
 outputDir = "/Users/swrrt/Workplace/BacklogDelayPaper/experiments/results/"
 expName = "microbench-workload-2op-3660-10000-10000-10000-5000-120-1-0-1-50-1-10000-12-1000-1-10000-4-357-1-10000-1000-500-100-true-1"
-windowSize = 100
+windowSize = 1000
 latencyLimit = 2000
 startTime = 300
 endTime = 600
