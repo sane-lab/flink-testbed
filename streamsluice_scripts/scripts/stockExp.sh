@@ -77,10 +77,10 @@ init() {
   IO4=1
   STATE_SIZE4=100
 
-  LP5=4
-  P5=2 #3
+  LP5=15
+  P5=4 #3
   MP5=128
-  DELAY5=1000
+  DELAY5=3333
   STATE_SIZE5=100
   WINDOW5=1
 
@@ -132,30 +132,35 @@ run_stock_test(){
     printf "" > stock_result.txt
     run_one_exp
     printf "${EXP_NAME}\n" >> stock_result.txt
-#
-#    is_treat=false
-#    run_one_exp
-#    printf "${EXP_NAME}\n" >> stock_result.txt
-#    is_treat=false
-#    P2=4
-#    P3=6
-#    P4=12
-#    run_one_exp
-#    printf "${EXP_NAME}\n" >> stock_result.txt
+
+    is_treat=false
+    run_one_exp
+    printf "${EXP_NAME}\n" >> stock_result.txt
+    is_treat=false
+    P2=4
+    P3=6
+    P5=9
+    P4=12
+    run_one_exp
+    printf "${EXP_NAME}\n" >> stock_result.txt
     is_treat=true
 
-#    whether_type="ds2"
-#    how_type="ds2"
-#    scalein_type="ds2"
-#    migration_interval=5000
-#    run_one_exp
-#    printf "${EXP_NAME}\n" >> stock_result.txt
+    P2=2
+    P3=3
+    P5=6
+    P4=4
+    whether_type="ds2"
+    how_type="ds2"
+    scalein_type="ds2"
+    migration_interval=5000
+    run_one_exp
+    printf "${EXP_NAME}\n" >> stock_result.txt
 
-#    whether_type="streamswitch"
-#    how_type="streamswitch"
-#    scalein_type="streamswitch"
-#    migration_interval=1000
-#    run_one_exp
-#    printf "${EXP_NAME}\n" >> stock_result.txt
+    whether_type="streamswitch"
+    how_type="streamswitch"
+    scalein_type="streamswitch"
+    migration_interval=1000
+    run_one_exp
+    printf "${EXP_NAME}\n" >> stock_result.txt
 }
 run_stock_test
