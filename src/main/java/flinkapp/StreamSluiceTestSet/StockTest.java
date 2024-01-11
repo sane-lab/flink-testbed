@@ -106,6 +106,7 @@ public class StockTest {
                     .slotSharingGroup("g4");
 
         }else if(topology.equals("split_join")){
+            env.setStreamTimeCharacteristic(TimeCharacteristic.IngestionTime);
             DataStreamSource<Tuple3<String, Long, Long>> source = env.addSource(new SSERealRateSource(params.get("file_name", "/home/samza/SSE_data/sb-4hr-50ms.txt"), params.getLong("warmup_time", 30L) * 1000, params.getLong("warmup_rate", 1500L), params.getLong("skip_interval", 20L) * 20))
                     .setParallelism(params.getInt("p1", 1));
             DataStream<Tuple3<String, Long, Long>> up = source
