@@ -134,8 +134,8 @@ public class StockTest {
                     .slotSharingGroup("g4");
             ((SingleOutputStreamOperator)(split1
                     .join(split2)
-                    .where((KeySelector<Tuple3<String, Long, Long>, String>) p -> p.f0)
-                    .equalTo((KeySelector<Tuple3<String, Long, Long>, String>) p -> p.f0)
+                    .where((KeySelector<Tuple3<String, Long, Long>, Long>) p -> p.f2)
+                    .equalTo((KeySelector<Tuple3<String, Long, Long>, Long>) p -> p.f2)
                     .window(TumblingEventTimeWindows.of(Time.milliseconds(params.getInt("op5window", 1000))))
                     .apply(
                             new DumbJoinMap(params.getInt("op5Delay", 100))
@@ -252,6 +252,7 @@ public class StockTest {
         public void join(Tuple3<String, Long, Long> split1_tuple, Tuple3<String, Long, Long> split2_tuple, Collector<Tuple3<String, Long, Long>> collector) throws Exception {
             delay(averageDelay);
             long currentTime = System.currentTimeMillis();
+            System.out.println("join: t1=" + split1_tuple.toString() + " t2=" + split2_tuple.toString());
             if(split1_tuple.f2 == split2_tuple.f2) {
                 System.out.println("GT: " + split1_tuple.f0 + ", " + currentTime + ", " + (currentTime - Math.min(split1_tuple.f1, split2_tuple.f1)) + ", " + split1_tuple.f2);
                 collector.collect(new Tuple3<>(split1_tuple.f0, Math.min(split1_tuple.f1, split2_tuple.f1), split1_tuple.f2));

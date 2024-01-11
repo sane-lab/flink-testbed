@@ -81,7 +81,7 @@ init() {
   P5=2 #3
   MP5=128
   DELAY5=1000
-  WINDOW5=2000
+  WINDOW5=10000
 
   repeat=1
   warmup=10000
