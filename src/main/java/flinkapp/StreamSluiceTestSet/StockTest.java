@@ -77,7 +77,7 @@ public class StockTest {
                     .setParallelism(params.getInt("p4", 1))
                     .setMaxParallelism(params.getInt("mp4", 8))
                     .slotSharingGroup("g4");
-        }else if(topology.equals("split")){
+        }else if(topology.equals("split2")){
             DataStreamSource<Tuple3<String, Long, Long>> source = env.addSource(new SSERealRateSource(params.get("file_name", "/home/samza/SSE_data/sb-4hr-50ms.txt"), params.getLong("warmup_time", 30L) * 1000, params.getLong("warmup_rate", 1500L), params.getLong("skip_interval", 20L) * 20))
                 .setParallelism(params.getInt("p1", 1));
             DataStream<Tuple3<String, Long, Long>> up = source
@@ -104,8 +104,40 @@ public class StockTest {
                     .setParallelism(params.getInt("p4", 1))
                     .setMaxParallelism(params.getInt("mp4", 8))
                     .slotSharingGroup("g4");
-
-        }else if(topology.equals("split_join")){
+        }else if(topology.equals("split3")){
+            DataStreamSource<Tuple3<String, Long, Long>> source = env.addSource(new SSERealRateSource(params.get("file_name", "/home/samza/SSE_data/sb-4hr-50ms.txt"), params.getLong("warmup_time", 30L) * 1000, params.getLong("warmup_rate", 1500L), params.getLong("skip_interval", 20L) * 20))
+                    .setParallelism(params.getInt("p1", 1));
+            DataStream<Tuple3<String, Long, Long>> up = source
+                    .keyBy(0)
+                    .flatMap(new DumbStatefulMap(params.getLong("op2Delay", 100), params.getInt("op2IoRate", 1), params.getInt("op2KeyStateSize", 1)))
+                    .disableChaining()
+                    .name("Splitter")
+                    .uid("op2")
+                    .setParallelism(params.getInt("p2", 1))
+                    .setMaxParallelism(params.getInt("mp2", 8))
+                    .slotSharingGroup("g2");
+            up.keyBy(0).map(new DumbSink(params.getLong("op3Delay", 100), params.getInt("op3KeyStateSize", 1)))
+                    .disableChaining()
+                    .name("Analytic 1")
+                    .uid("op3")
+                    .setParallelism(params.getInt("p3", 1))
+                    .setMaxParallelism(params.getInt("mp3", 8))
+                    .slotSharingGroup("g3");
+            up.keyBy(0).map(new DumbSink(params.getLong("op4Delay", 100), params.getInt("op4KeyStateSize", 1)))
+                    .disableChaining()
+                    .name("Analytic 2")
+                    .uid("op4")
+                    .setParallelism(params.getInt("p4", 1))
+                    .setMaxParallelism(params.getInt("mp4", 8))
+                    .slotSharingGroup("g4");
+            up.keyBy(0).map(new DumbSink(params.getLong("op5Delay", 100), params.getInt("op5KeyStateSize", 1)))
+                    .disableChaining()
+                    .name("Analytic 3")
+                    .uid("op5")
+                    .setParallelism(params.getInt("p5", 1))
+                    .setMaxParallelism(params.getInt("mp5", 8))
+                    .slotSharingGroup("g5");
+    } else if(topology.equals("split_join")){ // Both join and union have bug, they will block other operator scaling.
             env.setStreamTimeCharacteristic(TimeCharacteristic.IngestionTime);
             DataStreamSource<Tuple3<String, Long, Long>> source = env.addSource(new SSERealRateSource(params.get("file_name", "/home/samza/SSE_data/sb-4hr-50ms.txt"), params.getLong("warmup_time", 30L) * 1000, params.getLong("warmup_rate", 1500L), params.getLong("skip_interval", 20L) * 20))
                     .setParallelism(params.getInt("p1", 1));
