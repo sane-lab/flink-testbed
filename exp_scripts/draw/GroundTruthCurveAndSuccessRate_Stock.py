@@ -122,7 +122,7 @@ def draw(rawDir, outputDir, exps, windowSize):
         result = readGroundTruthLatency(rawDir, expFile, windowSize)
         averageGroundTruthLatencies += [result[0]]
     #print(averageGroundTruthLatency)
-    fig = plt.figure(figsize=(24, 5))
+    fig = plt.figure(figsize=(24, 6))
     print("Draw ground truth curve...")
     legend = []
     for i in range(0, len(exps)):
@@ -131,9 +131,9 @@ def draw(rawDir, outputDir, exps, windowSize):
         plt.plot(averageGroundTruthLatency[0], averageGroundTruthLatency[1], 'o', color=exps[i][2], markersize=2)
     addLatencyLimitMarker(plt)
     plt.plot()
-    plt.legend(legend, loc='upper left')
+    plt.legend(legend, loc='upper right', ncol=2)
     plt.xlabel('Time (min)')
-    plt.ylabel('Ground Truth Latency (ms)')
+    plt.ylabel('Latency (ms)')
     #plt.title('Latency Curves')
     axes = plt.gca()
     axes.set_xlim(startTime * 1000, (startTime + 3600) * 1000)
@@ -154,6 +154,7 @@ def draw(rawDir, outputDir, exps, windowSize):
 rawDir = "/Users/swrrt/Workplace/BacklogDelayPaper/experiments/raw/"
 outputDir = "/Users/swrrt/Workplace/BacklogDelayPaper/experiments/results/"
 #expName = "stock-sb-4hr-50ms.txt-streamsluice-streamsluice-3690-30-2000-20-3-1000-1-100-5-2000-1-100-12-5000-1-100-2000-100-true-1"
+import sys
 exps = [
     #["StreamSluice", "stock-sb-4hr-50ms.txt-streamsluice-streamsluice-3690-30-2000-20-3-1000-1-100-5-2000-1-100-12-5000-1-100-2000-100-true-1", "blue"],
     #["StreamSwitch", "stock-sb-4hr-50ms.txt-streamswitch-streamswitch-3690-30-2000-20-3-1000-1-100-5-2000-1-100-12-5000-1-100-2000-100-true-1", "green"],
@@ -176,7 +177,7 @@ exps = [
     ["Static-2",
      "stock-sb-4hr-50ms.txt-streamsluice-streamsluice-3690-30-1000-20-4-1000-1-500-6-2000-1-500-12-5000-1-500-1000-100-false-1",
      "orange", "*"],
-    ["DS2", "stock-sb-4hr-50ms.txt-ds2-ds2-3690-30-1000-20-3-1000-1-500-4-2000-1-500-9-5000-1-500-1000-100-true-1",
+    ["DS2", "stock-sb-4hr-50ms.txt-ds2-ds2-3690-30-1000-20-2-1000-1-500-3-2000-1-500-6-5000-1-500-1000-100-true-1",
      "purple", "d"],
     ["StreamSwitch",
      "stock-sb-4hr-50ms.txt-streamswitch-streamswitch-3690-30-1000-20-3-1000-1-500-4-2000-1-500-9-5000-1-500-1000-100-true-1",
@@ -184,9 +185,7 @@ exps = [
     ["StreamSluice",
      "stock-sb-4hr-50ms.txt-streamsluice-streamsluice-3690-30-1000-20-2-1000-1-500-3-2000-1-500-6-5000-1-500-1000-100-true-1",
      "blue", "o"],
-
 ]
-import sys
 if len(sys.argv) > 1:
     expName = sys.argv[1].split("/")[-1]
 

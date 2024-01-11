@@ -63,14 +63,14 @@ init() {
   IO2=1
   STATE_SIZE2=100
 
-  LP=9
+  LP3=9
   P3=3 #5
   MP3=128
   DELAY3=2000
   IO3=1
   STATE_SIZE3=100
 
-  LP=18
+  LP4=18
   P4=6 #12
   MP4=128
   DELAY4=5000

@@ -43,10 +43,37 @@ public class StockTest {
         env.setStateBackend(new MemoryStateBackend(1073741824));
         env.setStreamTimeCharacteristic(TimeCharacteristic.EventTime);
 
-        /*DataStreamSource<Tuple3<String, Long, Long>> source = env.addSource(new SSERealRateSource(params.get("file_name", "/home/samza/SSE_data/sb-4hr-50ms.txt"), params.getLong("warmup_time", 30L) * 1000, params.getLong("warmup_rate", 1500L), params.getLong("skip_interval", 20L) * 20))
-                .setParallelism(params.getInt("p1", 1));*/
-
-       /* DataStream<Tuple3<String, Long, Long>> up = source
+        String topology = params.get("topology", "3op");
+        if(topology.equals("3op")) {
+            env.addSource(new SSERealRateSource(params.get("file_name", "/home/samza/SSE_data/sb-4hr-50ms.txt"), params.getLong("warmup_time", 30L) * 1000, params.getLong("warmup_rate", 1500L), params.getLong("skip_interval", 20L) * 20))
+                    .setParallelism(params.getInt("p1", 1))
+                    .keyBy(0)
+                    .flatMap(new DumbStatefulMap(params.getLong("op2Delay", 100), params.getInt("op2IoRate", 1), params.getInt("op2KeyStateSize", 1)))
+                    .disableChaining()
+                    .name("Splitter")
+                    .uid("op2")
+                    .setParallelism(params.getInt("p2", 1))
+                    .setMaxParallelism(params.getInt("mp2", 8))
+                    .slotSharingGroup("g2").keyBy(0)
+                    .flatMap(new DumbStatefulMap(params.getLong("op3Delay", 100), params.getInt("op3IoRate", 1), params.getInt("op3KeyStateSize", 1)))
+                    .disableChaining()
+                    .name("FlatMap 3")
+                    .uid("op3")
+                    .setParallelism(params.getInt("p3", 1))
+                    .setMaxParallelism(params.getInt("mp3", 8))
+                    .slotSharingGroup("g3")
+                    .keyBy(0)
+                    .map(new DumbSink(params.getLong("op4Delay", 100), params.getInt("op4KeyStateSize", 1)))
+                    .disableChaining()
+                    .name("FlatMap 4")
+                    .uid("op4")
+                    .setParallelism(params.getInt("p4", 1))
+                    .setMaxParallelism(params.getInt("mp4", 8))
+                    .slotSharingGroup("g4");
+        }else if(topology.equals("split_join")){
+            DataStreamSource<Tuple3<String, Long, Long>> source = env.addSource(new SSERealRateSource(params.get("file_name", "/home/samza/SSE_data/sb-4hr-50ms.txt"), params.getLong("warmup_time", 30L) * 1000, params.getLong("warmup_rate", 1500L), params.getLong("skip_interval", 20L) * 20))
+                .setParallelism(params.getInt("p1", 1));
+            DataStream<Tuple3<String, Long, Long>> up = source
                 .keyBy(0)
                 .flatMap(new DumbStatefulMap(params.getLong("op2Delay", 100), params.getInt("op2IoRate", 1), params.getInt("op2KeyStateSize", 1)))
                 .disableChaining()
@@ -55,49 +82,23 @@ public class StockTest {
                 .setParallelism(params.getInt("p2", 1))
                 .setMaxParallelism(params.getInt("mp2", 8))
                 .slotSharingGroup("g2");
+            up.keyBy(0).map(new DumbSink(params.getLong("op3Delay", 100), params.getInt("op3KeyStateSize", 1)))
+                    .disableChaining()
+                    .name("Analytic 1")
+                    .uid("op3")
+                    .setParallelism(params.getInt("p3", 1))
+                    .setMaxParallelism(params.getInt("mp3", 8))
+                    .slotSharingGroup("g3");
 
-        up.keyBy(0).map(new DumbSink(params.getLong("op3Delay", 100), params.getInt("op3KeyStateSize", 1)))
-                .disableChaining()
-                .name("Sink 1")
-                .uid("op3")
-                .setParallelism(params.getInt("p3", 1))
-                .setMaxParallelism(params.getInt("mp3", 8))
-                .slotSharingGroup("g3");
+            up.keyBy(0).map(new DumbSink(params.getLong("op4Delay", 100), params.getInt("op4KeyStateSize", 1)))
+                    .disableChaining()
+                    .name("Analytic 2")
+                    .uid("op4")
+                    .setParallelism(params.getInt("p4", 1))
+                    .setMaxParallelism(params.getInt("mp4", 8))
+                    .slotSharingGroup("g4");
 
-        up.keyBy(0).map(new DumbSink(params.getLong("op4Delay", 100), params.getInt("op4KeyStateSize", 1)))
-                .disableChaining()
-                .name("Sink 2")
-                .uid("op4")
-                .setParallelism(params.getInt("p4", 1))
-                .setMaxParallelism(params.getInt("mp4", 8))
-                .slotSharingGroup("g4");
-        */
-        env.addSource(new SSERealRateSource(params.get("file_name", "/home/samza/SSE_data/sb-4hr-50ms.txt"), params.getLong("warmup_time", 30L) * 1000, params.getLong("warmup_rate", 1500L), params.getLong("skip_interval", 20L) * 20))
-                .setParallelism(params.getInt("p1", 1))
-                .keyBy(0)
-                .flatMap(new DumbStatefulMap(params.getLong("op2Delay", 100), params.getInt("op2IoRate", 1), params.getInt("op2KeyStateSize", 1)))
-                .disableChaining()
-                .name("Splitter")
-                .uid("op2")
-                .setParallelism(params.getInt("p2", 1))
-                .setMaxParallelism(params.getInt("mp2", 8))
-                .slotSharingGroup("g2").keyBy(0)
-                .flatMap(new DumbStatefulMap(params.getLong("op3Delay", 100), params.getInt("op3IoRate", 1), params.getInt("op3KeyStateSize", 1)))
-                .disableChaining()
-                .name("FlatMap 3")
-                .uid("op3")
-                .setParallelism(params.getInt("p3", 1))
-                .setMaxParallelism(params.getInt("mp3", 8))
-                .slotSharingGroup("g3")
-                .keyBy(0)
-                .map(new DumbSink(params.getLong("op4Delay", 100), params.getInt("op4KeyStateSize", 1)))
-                .disableChaining()
-                .name("FlatMap 4")
-                .uid("op4")
-                .setParallelism(params.getInt("p4", 1))
-                .setMaxParallelism(params.getInt("mp4", 8))
-                .slotSharingGroup("g4");
-
+        }
         env.execute();
     }
 
