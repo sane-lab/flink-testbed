@@ -252,8 +252,8 @@ public class StockTest {
         public void join(Tuple3<String, Long, Long> split1_tuple, Tuple3<String, Long, Long> split2_tuple, Collector<Tuple3<String, Long, Long>> collector) throws Exception {
             delay(averageDelay);
             long currentTime = System.currentTimeMillis();
-            System.out.println("join: t1=" + split1_tuple.toString() + " t2=" + split2_tuple.toString());
-            if(split1_tuple.f2 == split2_tuple.f2) {
+            // System.out.println("join: t1=" + split1_tuple.toString() + " t2=" + split2_tuple.toString());
+            if(Objects.equals(split1_tuple.f2, split2_tuple.f2)) {
                 System.out.println("GT: " + split1_tuple.f0 + ", " + currentTime + ", " + (currentTime - Math.min(split1_tuple.f1, split2_tuple.f1)) + ", " + split1_tuple.f2);
                 collector.collect(new Tuple3<>(split1_tuple.f0, Math.min(split1_tuple.f1, split2_tuple.f1), split1_tuple.f2));
             }
