@@ -63,22 +63,25 @@ init() {
   IO2=1
   STATE_SIZE2=100
 
-  LP=9
+  LP3=9
   P3=3 #5
   MP3=128
   DELAY3=2000
   IO3=1
   STATE_SIZE3=100
 
-  LP=18
+  LP4=18
   P4=6 #12
   MP4=128
   DELAY4=5000
   IO4=1
   STATE_SIZE4=100
-#  LP2=8
-#  LP3=15
-#  LP4=40
+
+  LP5=4
+  P5=2 #3
+  MP5=128
+  DELAY5=1000
+  WINDOW5=2000
 
   repeat=1
   warmup=10000
@@ -94,11 +97,13 @@ function runApp() {
     -p1 ${P1} -mp1 ${MP1} -p2 ${P2} -mp2 ${MP2} -op2Delay ${DELAY2} -op2IoRate ${IO2} -op2KeyStateSize ${STATE_SIZE2} \
     -p3 ${P3} -mp3 ${MP3} -op3Delay ${DELAY3} -op3KeyStateSize ${STATE_SIZE3} \
     -p4 ${P4} -mp4 ${MP4} -op4Delay ${DELAY4} -op4KeyStateSize ${STATE_SIZE4} \
+    -p5 ${P5} -mp5 ${MP5} -op5Delay ${DELAY5} -op5window ${WINDOW5} \
     -file_name ${stock_path}${stock_file_name} -warmup_rate ${warmup_rate} -warmup_time ${warmup_time} -skip_interval ${skip_interval} -topology ${topology} &"
     ${FLINK_DIR}/bin/flink run -c ${job} ${JAR} \
     -p1 ${P1} -mp1 ${MP1} -p2 ${P2} -mp2 ${MP2} -op2Delay ${DELAY2} -op2IoRate ${IO2} -op2KeyStateSize ${STATE_SIZE2} \
     -p3 ${P3} -mp3 ${MP3} -op3Delay ${DELAY3} -op3KeyStateSize ${STATE_SIZE3} \
     -p4 ${P4} -mp4 ${MP4} -op4Delay ${DELAY4} -op4KeyStateSize ${STATE_SIZE4} \
+    -p5 ${P5} -mp5 ${MP5} -op5Delay ${DELAY5} -op5window ${WINDOW5} \
     -file_name ${stock_path}${stock_file_name} -warmup_rate ${warmup_rate} -warmup_time ${warmup_time} -skip_interval ${skip_interval} -topology ${topology} &
 }
 
@@ -118,6 +123,10 @@ run_stock_test(){
     spike_intercept=150
     #topology="3op"
     topology="split_join"
+    if [[ "${topology}" == "split_join" ]]; then
+       vertex_id="a84740bacf923e828852cc4966f2247c,eabd4c11f6c6fbdf011f0f1fc42097b1,d01047f852abd5702a0dabeedac99ff5,d2336f79a0d60b5a4b16c8769ec82e47"
+    fi
+
     printf "" > stock_result.txt
 #    run_one_exp
 #    printf "${EXP_NAME}\n" >> stock_result.txt

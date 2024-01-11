@@ -2,14 +2,18 @@ package flinkapp.StreamSluiceTestSet;
 
 import Nexmark.sources.Util;
 import common.FastZipfGenerator;
+import org.apache.beam.sdk.nexmark.model.Auction;
+import org.apache.beam.sdk.nexmark.model.Person;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.math3.random.RandomDataGenerator;
+import org.apache.flink.api.common.functions.FlatJoinFunction;
 import org.apache.flink.api.common.functions.RichFlatMapFunction;
 import org.apache.flink.api.common.functions.RichMapFunction;
 import org.apache.flink.api.common.state.ListState;
 import org.apache.flink.api.common.state.ListStateDescriptor;
 import org.apache.flink.api.common.state.MapState;
 import org.apache.flink.api.common.state.MapStateDescriptor;
+import org.apache.flink.api.java.functions.KeySelector;
 import org.apache.flink.api.java.tuple.Tuple3;
 import org.apache.flink.api.java.tuple.Tuple4;
 import org.apache.flink.api.java.utils.ParameterTool;
@@ -21,9 +25,12 @@ import org.apache.flink.streaming.api.TimeCharacteristic;
 import org.apache.flink.streaming.api.checkpoint.CheckpointedFunction;
 import org.apache.flink.streaming.api.datastream.DataStream;
 import org.apache.flink.streaming.api.datastream.DataStreamSource;
+import org.apache.flink.streaming.api.datastream.SingleOutputStreamOperator;
 import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
 import org.apache.flink.streaming.api.functions.source.RichParallelSourceFunction;
 import org.apache.flink.streaming.api.functions.source.SourceFunction;
+import org.apache.flink.streaming.api.windowing.assigners.TumblingEventTimeWindows;
+import org.apache.flink.streaming.api.windowing.time.Time;
 import org.apache.flink.util.Collector;
 import org.apache.flink.util.MathUtils;
 
@@ -70,7 +77,7 @@ public class StockTest {
                     .setParallelism(params.getInt("p4", 1))
                     .setMaxParallelism(params.getInt("mp4", 8))
                     .slotSharingGroup("g4");
-        }else if(topology.equals("split_join")){
+        }else if(topology.equals("split")){
             DataStreamSource<Tuple3<String, Long, Long>> source = env.addSource(new SSERealRateSource(params.get("file_name", "/home/samza/SSE_data/sb-4hr-50ms.txt"), params.getLong("warmup_time", 30L) * 1000, params.getLong("warmup_rate", 1500L), params.getLong("skip_interval", 20L) * 20))
                 .setParallelism(params.getInt("p1", 1));
             DataStream<Tuple3<String, Long, Long>> up = source
@@ -98,6 +105,45 @@ public class StockTest {
                     .setMaxParallelism(params.getInt("mp4", 8))
                     .slotSharingGroup("g4");
 
+        }else if(topology.equals("split_join")){
+            DataStreamSource<Tuple3<String, Long, Long>> source = env.addSource(new SSERealRateSource(params.get("file_name", "/home/samza/SSE_data/sb-4hr-50ms.txt"), params.getLong("warmup_time", 30L) * 1000, params.getLong("warmup_rate", 1500L), params.getLong("skip_interval", 20L) * 20))
+                    .setParallelism(params.getInt("p1", 1));
+            DataStream<Tuple3<String, Long, Long>> up = source
+                    .keyBy(0)
+                    .flatMap(new DumbStatefulMap(params.getLong("op2Delay", 100), params.getInt("op2IoRate", 1), params.getInt("op2KeyStateSize", 1)))
+                    .disableChaining()
+                    .name("Splitter")
+                    .uid("op2")
+                    .setParallelism(params.getInt("p2", 1))
+                    .setMaxParallelism(params.getInt("mp2", 8))
+                    .slotSharingGroup("g2");
+            DataStream<Tuple3<String, Long, Long>> split1 = up.keyBy(0).flatMap(new DumbStatefulMap(params.getLong("op3Delay", 100), params.getInt("op3IoRate", 1), params.getInt("op3KeyStateSize", 1)))
+                    .disableChaining()
+                    .name("Analytic 1")
+                    .uid("op3")
+                    .setParallelism(params.getInt("p3", 1))
+                    .setMaxParallelism(params.getInt("mp3", 8))
+                    .slotSharingGroup("g3");
+            DataStream<Tuple3<String, Long, Long>> split2 = up.keyBy(0).flatMap(new DumbStatefulMap(params.getLong("op4Delay", 100), params.getInt("op4IoRate", 1), params.getInt("op4KeyStateSize", 1)))
+                    .disableChaining()
+                    .name("Analytic 2")
+                    .uid("op4")
+                    .setParallelism(params.getInt("p4", 1))
+                    .setMaxParallelism(params.getInt("mp4", 8))
+                    .slotSharingGroup("g4");
+            ((SingleOutputStreamOperator)(split1
+                    .join(split2)
+                    .where((KeySelector<Tuple3<String, Long, Long>, String>) p -> p.f0)
+                    .equalTo((KeySelector<Tuple3<String, Long, Long>, String>) p -> p.f0)
+                    .window(TumblingEventTimeWindows.of(Time.milliseconds(params.getInt("op5window", 1000))))
+                    .apply(
+                            new DumbJoinMap(params.getInt("op5Delay", 100))
+                    ))).disableChaining()
+                    .name("Join")
+                    .uid("op5")
+                    .setParallelism(params.getInt("p5", 1))
+                    .setMaxParallelism(params.getInt("mp5", 8))
+                    .slotSharingGroup("g5");
         }
         env.execute();
     }
@@ -184,6 +230,31 @@ public class StockTest {
             MapStateDescriptor<String, String> descriptor =
                     new MapStateDescriptor<>("word-count", String.class, String.class);
             countMap = getRuntimeContext().getMapState(descriptor);
+        }
+    }
+
+    private static class DumbJoinMap implements FlatJoinFunction<Tuple3<String, Long, Long>, Tuple3<String, Long, Long>, Tuple3<String, Long, Long>>{
+        private RandomDataGenerator randomGen = new RandomDataGenerator();
+        private long averageDelay = 1000; // micro second
+        DumbJoinMap(long averageDelay){
+            this.averageDelay = averageDelay;
+        }
+        private void delay(long interval) {
+            Double ranN = randomGen.nextGaussian(interval, 1);
+            ranN = ranN*1000;
+            long delay = ranN.intValue();
+            if (delay < 0) delay = interval * 1000;
+            Long start = System.nanoTime();
+            while (System.nanoTime() - start < delay) {}
+        }
+        @Override
+        public void join(Tuple3<String, Long, Long> split1_tuple, Tuple3<String, Long, Long> split2_tuple, Collector<Tuple3<String, Long, Long>> collector) throws Exception {
+            delay(averageDelay);
+            long currentTime = System.currentTimeMillis();
+            if(split1_tuple.f2 == split2_tuple.f2) {
+                System.out.println("GT: " + split1_tuple.f0 + ", " + currentTime + ", " + (currentTime - Math.min(split1_tuple.f1, split2_tuple.f1)) + ", " + split1_tuple.f2);
+                collector.collect(new Tuple3<>(split1_tuple.f0, Math.min(split1_tuple.f1, split2_tuple.f1), split1_tuple.f2));
+            }
         }
     }
 
