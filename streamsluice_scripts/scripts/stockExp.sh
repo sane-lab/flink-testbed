@@ -124,8 +124,8 @@ run_stock_test(){
     spike_slope=0.8
     spike_intercept=150
     #topology="3op"
-    topology="split_join"
-    if [[ "${topology}" == "split_join"  ]] || [[ "${topology}" == "split3"  ]]; then
+    topology="split3" #"split_join"
+    if [[ "${topology}" == "split_join" || "${topology}" == "split3"  ]]; then
        vertex_id="a84740bacf923e828852cc4966f2247c,eabd4c11f6c6fbdf011f0f1fc42097b1,d01047f852abd5702a0dabeedac99ff5,d2336f79a0d60b5a4b16c8769ec82e47"
     fi
 
