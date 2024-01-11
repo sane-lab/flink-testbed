@@ -81,6 +81,7 @@ init() {
   P5=2 #3
   MP5=128
   DELAY5=1000
+  STATE_SIZE5=100
   WINDOW5=1
 
   repeat=1
@@ -119,6 +120,7 @@ run_stock_test(){
     STATE_SIZE2=500
     STATE_SIZE3=500
     STATE_SIZE4=500
+    STATE_SIZE5=500
     spike_slope=0.8
     spike_intercept=150
     #topology="3op"
