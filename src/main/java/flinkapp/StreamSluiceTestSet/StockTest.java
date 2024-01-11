@@ -119,14 +119,14 @@ public class StockTest {
                     .setMaxParallelism(params.getInt("mp2", 8))
                     .slotSharingGroup("g2");
             DataStream<Tuple3<String, Long, Long>> split1 = up.keyBy(0).flatMap(new DumbStatefulMap(params.getLong("op3Delay", 100), params.getInt("op3IoRate", 1), params.getInt("op3KeyStateSize", 1)))
-                    .disableChaining()
+                    //.disableChaining()
                     .name("Analytic 1")
                     .uid("op3")
                     .setParallelism(params.getInt("p3", 1))
                     .setMaxParallelism(params.getInt("mp3", 8))
                     .slotSharingGroup("g3");
             DataStream<Tuple3<String, Long, Long>> split2 = up.keyBy(0).flatMap(new DumbStatefulMap(params.getLong("op4Delay", 100), params.getInt("op4IoRate", 1), params.getInt("op4KeyStateSize", 1)))
-                    .disableChaining()
+                    //.disableChaining()
                     .name("Analytic 2")
                     .uid("op4")
                     .setParallelism(params.getInt("p4", 1))
