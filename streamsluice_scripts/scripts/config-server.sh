@@ -5,7 +5,6 @@ SCRIPT_DIR="/home/samza/workspace/flink-related/flink-testbed-sane/streamsluice_
 FLINK_CONF_DIR="${SCRIPT_DIR}/conf-server"
 
 EXP_DIR="/data/streamsluice"
-
 HELLOSAMZA_DIR="/home/samza/samza-hello-samza"
 # run flink clsuter
 function runFlink() {
@@ -14,6 +13,7 @@ function runFlink() {
         rm -rf ${FLINK_DIR}/log
     fi
     mkdir ${FLINK_DIR}/log
+
     ${FLINK_DIR}/bin/start-cluster.sh
 }
 
@@ -65,29 +65,33 @@ function configFlink() {
 
 # clean kafka related data
 function cleanEnv() {
-    rm -rf /tmp/flink*
-    rm ${FLINK_DIR}/log/*
-    export JAVA_HOME=/home/samza/kit/jdk
-    $HELLOSAMZA_DIR/bin/grid stop kafka
-    $HELLOSAMZA_DIR/bin/grid stop zookeeper
-    kill -9 $(jps |grep Kafka|awk '{print $1}')
-    rm -rf /data/kafka/kafka-logs/
-    rm -r /tmp/kafka-logs/
-    rm -r /tmp/zookeeper/
+    for hosts in "camel" "eagle"; do
+      ssh otherhost "
+        rm -rf /tmp/flink*
+        rm ${FLINK_DIR}/log/*
+        export JAVA_HOME=/home/samza/kit/jdk
+        $HELLOSAMZA_DIR/bin/grid stop kafka
+        $HELLOSAMZA_DIR/bin/grid stop zookeeper
+        kill -9 $(jps |grep Kafka|awk '{print $1}')
+        rm -rf /data/kafka/kafka-logs/
+        rm -r /tmp/kafka-logs/
+        rm -r /tmp/zookeeper/
 
-    python -c 'import time; time.sleep(2)'
+        python -c 'import time; time.sleep(2)'
 
-    $HELLOSAMZA_DIR/bin/grid start zookeeper
-    $HELLOSAMZA_DIR/bin/grid start kafka
+        $HELLOSAMZA_DIR/bin/grid start zookeeper
+        $HELLOSAMZA_DIR/bin/grid start kafka
 
-    KAFKA_PATH="${HELLOSAMZA_DIR}/deploy/kafka/bin"
+        KAFKA_PATH="${HELLOSAMZA_DIR}/deploy/kafka/bin"
 
-    $KAFKA_PATH/kafka-topics.sh --delete --zookeeper localhost:2181 --topic flink_metrics
-    $KAFKA_PATH/kafka-topics.sh --delete --zookeeper localhost:2181 --topic flink_keygroups_status
-    $KAFKA_PATH/kafka-topics.sh --create --zookeeper localhost:2181 --topic flink_metrics --partitions 1 --replication-factor 1
-    $KAFKA_PATH/kafka-topics.sh --create --zookeeper localhost:2181 --topic flink_keygroups_status --partitions 1 --replication-factor 1
+        $KAFKA_PATH/kafka-topics.sh --delete --zookeeper localhost:2181 --topic flink_metrics
+        $KAFKA_PATH/kafka-topics.sh --delete --zookeeper localhost:2181 --topic flink_keygroups_status
+        $KAFKA_PATH/kafka-topics.sh --create --zookeeper localhost:2181 --topic flink_metrics --partitions 1 --replication-factor 1
+        $KAFKA_PATH/kafka-topics.sh --create --zookeeper localhost:2181 --topic flink_keygroups_status --partitions 1 --replication-factor 1
 
-    python -c 'import time; time.sleep(1)'
+        python -c 'import time; time.sleep(1)'
+      "
+    done
 }
 
 
