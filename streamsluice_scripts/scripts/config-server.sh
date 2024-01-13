@@ -68,6 +68,7 @@ function configFlink() {
 
 # clean kafka related data
 function cleanEnv() {
+    KAFKA_PATH="${HELLOSAMZA_DIR}/deploy/kafka/bin";
     for host in "camel" "eagle"; do
       script="
         rm -rf /tmp/flink*;
@@ -85,7 +86,7 @@ function cleanEnv() {
         ${HELLOSAMZA_DIR}/bin/grid start zookeeper;
         ${HELLOSAMZA_DIR}/bin/grid start kafka;
 
-        KAFKA_PATH="${HELLOSAMZA_DIR}/deploy/kafka/bin";
+
 
         ${KAFKA_PATH}/kafka-topics.sh --delete --zookeeper localhost:2181 --topic flink_metrics;
         ${KAFKA_PATH}/kafka-topics.sh --delete --zookeeper localhost:2181 --topic flink_keygroups_status;
