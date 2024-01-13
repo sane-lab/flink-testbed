@@ -90,32 +90,33 @@ def readParallelism(rawDir, expName):
     ParallelismPerJob = {}
     scalingMarkerByOperator = {}
 
-    taskExecutor = "flink-samza-taskexecutor-0-eagle-sane.out"
+    taskExecutors = [] #"flink-samza-taskexecutor-0-eagle-sane.out"
     import os
     for file in os.listdir(rawDir + expName + "/"):
         if file.endswith(".out"):
             # print(os.path.join(rawDir + expName + "/", file))
             if file.count("taskexecutor") == 1:
-                taskExecutor = file
-    groundTruthPath = rawDir + expName + "/" + taskExecutor
-    print("Reading ground truth file:" + groundTruthPath)
-    counter = 0
-    with open(groundTruthPath) as f:
-        lines = f.readlines()
-        for i in range(0, len(lines)):
-            line = lines[i]
-            split = line.rstrip().split()
-            counter += 1
-            if (counter % 5000 == 0):
-                print("Processed to line:" + str(counter))
-            if (split[0] == "GT:"):
-                completedTime = int(split[2].rstrip(","))
-                latency = int(split[3].rstrip(","))
-                arrivedTime = completedTime - latency
-                if (initialTime == -1 or initialTime > arrivedTime):
-                    initialTime = arrivedTime
-                if (lastTime < completedTime):
-                    lastTime = completedTime
+                taskExecutors += [file]
+    for taskExecutor in taskExecutors:
+        groundTruthPath = rawDir + expName + "/" + taskExecutor
+        print("Reading ground truth file:" + groundTruthPath)
+        counter = 0
+        with open(groundTruthPath) as f:
+            lines = f.readlines()
+            for i in range(0, len(lines)):
+                line = lines[i]
+                split = line.rstrip().split()
+                counter += 1
+                if (counter % 5000 == 0):
+                    print("Processed to line:" + str(counter))
+                if(split[0] == "GT:"):
+                    completedTime = int(split[2].rstrip(","))
+                    latency = int(split[3].rstrip(","))
+                    arrivedTime = completedTime - latency
+                    if (initialTime == -1 or initialTime > arrivedTime):
+                        initialTime = arrivedTime
+                    if (lastTime < completedTime):
+                        lastTime = completedTime
     print(lastTime)
 
     streamsluiceOutput = "flink-samza-standalonesession-0-eagle-sane.out"
@@ -382,19 +383,24 @@ exps = [
     #  "blue", "o"],
 
     # Split and join
-    ["Static-1",
-     "stock-split3hBsb-4hr-50ms.txt-streamsluice-streamsluice-3690-30-1000-20-2-1000-1-500-3-2000-1-500-6-5000-1-500-1000-100-false-1",
-     "gray", "*"],
-    ["Static-2",
-     "stock-split3hBsb-4hr-50ms.txt-streamsluice-streamsluice-3690-30-1000-20-4-1000-1-500-6-2000-1-500-12-5000-1-500-1000-100-false-1",
-     "orange", "*"],
-    ["DS2", "stock-split3hBsb-4hr-50ms.txt-ds2-ds2-3690-30-1000-20-2-1000-1-500-3-2000-1-500-4-5000-1-500-1000-100-true-1",
-     "purple", "d"],
-    ["StreamSwitch",
-     "stock-split3hBsb-4hr-50ms.txt-streamswitch-streamswitch-3690-30-1000-20-2-1000-1-500-3-2000-1-500-4-5000-1-500-1000-100-true-1",
-     "green", "p"],
+    # ["Static-1",
+    #  "stock-split3hBsb-4hr-50ms.txt-streamsluice-streamsluice-3690-30-1000-20-2-1000-1-500-3-2000-1-500-6-5000-1-500-1000-100-false-1",
+    #  "gray", "*"],
+    # ["Static-2",
+    #  "stock-split3hBsb-4hr-50ms.txt-streamsluice-streamsluice-3690-30-1000-20-4-1000-1-500-6-2000-1-500-12-5000-1-500-1000-100-false-1",
+    #  "orange", "*"],
+    # ["DS2", "stock-split3hBsb-4hr-50ms.txt-ds2-ds2-3690-30-1000-20-2-1000-1-500-3-2000-1-500-4-5000-1-500-1000-100-true-1",
+    #  "purple", "d"],
+    # ["StreamSwitch",
+    #  "stock-split3hBsb-4hr-50ms.txt-streamswitch-streamswitch-3690-30-1000-20-2-1000-1-500-3-2000-1-500-4-5000-1-500-1000-100-true-1",
+    #  "green", "p"],
+    # ["StreamSluice",
+    #  "stock-split3hBsb-4hr-50ms.txt-streamsluice-streamsluice-3690-30-1000-20-2-1000-1-500-3-2000-1-500-6-5000-1-500-1000-100-true-1",
+    #  "blue", "o"],
+
+    # Cluster
     ["StreamSluice",
-     "stock-split3hBsb-4hr-50ms.txt-streamsluice-streamsluice-3690-30-1000-20-2-1000-1-500-3-2000-1-500-6-5000-1-500-1000-100-true-1",
+     "stock-server-split3-sb-4hr-50ms.txt-streamsluice-streamsluice-690-30-1000-20-2-1000-1-500-3-2000-1-500-6-5000-1-500-1000-100-true-1",
      "blue", "o"],
 ]
 windowSize=1000

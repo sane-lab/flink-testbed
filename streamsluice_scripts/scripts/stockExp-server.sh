@@ -114,7 +114,7 @@ run_stock_test(){
     echo "Run overall test..."
     init
     L=1000
-    runtime=690 #3690
+    runtime=390 #3690
     warmup_rate=1000
     warmup_time=30
     skip_interval=20

@@ -34,38 +34,39 @@ def readGroundTruthLatency(rawDir, expName, windowSize):
     groundTruthLatencyPerTuple = {}
     groundTruthLatency = []
 
-    taskExecutor = "flink-samza-taskexecutor-0-eagle-sane.out"
+    taskExecutors = []  # "flink-samza-taskexecutor-0-eagle-sane.out"
     import os
     for file in os.listdir(rawDir + expName + "/"):
         if file.endswith(".out"):
             # print(os.path.join(rawDir + expName + "/", file))
             if file.count("taskexecutor") == 1:
-                taskExecutor = file
-    groundTruthPath = rawDir + expName + "/" + taskExecutor
-    print("Reading ground truth file:" + groundTruthPath)
-    counter = 0
-    with open(groundTruthPath) as f:
-        lines = f.readlines()
-        for i in range(0, len(lines)):
-            line = lines[i]
-            split = line.rstrip().split()
-            counter += 1
-            if (counter % 5000 == 0):
-                print("Processed to line:" + str(counter))
-            if (split[0] == "GT:"):
-                completedTime = int(split[2].rstrip(","))
-                latency = int(split[3].rstrip(","))
-                arrivedTime = completedTime - latency
-                if (initialTime == -1 or initialTime > arrivedTime):
-                    initialTime = arrivedTime
-                if(not isSingleOperator):
-                    tupleId = split[4].rstrip()
-                    if tupleId not in groundTruthLatencyPerTuple:
-                        groundTruthLatencyPerTuple[tupleId] = [arrivedTime, latency]
-                    elif groundTruthLatencyPerTuple[tupleId][1] < latency:
-                        groundTruthLatencyPerTuple[tupleId][1] = latency
-                else:
-                    groundTruthLatency += [[arrivedTime, latency]]
+                taskExecutors += [file]
+    for taskExecutor in taskExecutors:
+        groundTruthPath = rawDir + expName + "/" + taskExecutor
+        print("Reading ground truth file:" + groundTruthPath)
+        counter = 0
+        with open(groundTruthPath) as f:
+            lines = f.readlines()
+            for i in range(0, len(lines)):
+                line = lines[i]
+                split = line.rstrip().split()
+                counter += 1
+                if (counter % 5000 == 0):
+                    print("Processed to line:" + str(counter))
+                if (split[0] == "GT:"):
+                    completedTime = int(split[2].rstrip(","))
+                    latency = int(split[3].rstrip(","))
+                    arrivedTime = completedTime - latency
+                    if (initialTime == -1 or initialTime > arrivedTime):
+                        initialTime = arrivedTime
+                    if(not isSingleOperator):
+                        tupleId = split[4].rstrip()
+                        if tupleId not in groundTruthLatencyPerTuple:
+                            groundTruthLatencyPerTuple[tupleId] = [arrivedTime, latency]
+                        elif groundTruthLatencyPerTuple[tupleId][1] < latency:
+                            groundTruthLatencyPerTuple[tupleId][1] = latency
+                    else:
+                        groundTruthLatency += [[arrivedTime, latency]]
 
     if(not isSingleOperator):
         for value in groundTruthLatencyPerTuple.values():
