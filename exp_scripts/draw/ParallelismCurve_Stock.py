@@ -249,8 +249,7 @@ def draw(rawDir, outputDir, exps):
 
     figName = "Parallelism"
     nJobs = len(parallelismsPerJob.keys())
-    jobList = ["a84740bacf923e828852cc4966f2247c", "eabd4c11f6c6fbdf011f0f1fc42097b1",
-               "d01047f852abd5702a0dabeedac99ff5"]
+    jobList = ["a84740bacf923e828852cc4966f2247c", "eabd4c11f6c6fbdf011f0f1fc42097b1", "d01047f852abd5702a0dabeedac99ff5", "d2336f79a0d60b5a4b16c8769ec82e47"]
     fig, axs = plt.subplots(nJobs, 1, figsize=(24, 5 * nJobs), layout='constrained') #plt.figure(figsize=(12, 4))
     for jobIndex in range(0, nJobs):
         job = jobList[jobIndex]
@@ -306,9 +305,12 @@ def draw(rawDir, outputDir, exps):
         if jobIndex < 2:
             ax1.set_ylim(0, 10)
             ax1.set_yticks(np.arange(0, 12, 2))
-        else:
+        elif jobIndex == 2:
             ax1.set_ylim(0, 20)
             ax1.set_yticks(np.arange(0, 24, 4))
+        else:
+            ax1.set_ylim(0, 15)
+            ax1.set_yticks(np.arange(0, 18, 3))
         ax1.grid(True)
 
 
@@ -323,9 +325,12 @@ def draw(rawDir, outputDir, exps):
         elif jobIndex == 1:
             ax2.set_ylim(0, 5000)
             ax2.set_xticks(np.arange(0, 5500, 500))
-        else:
+        elif jobIndex == 2:
             ax2.set_ylim(0, 4000)
             ax2.set_xticks(np.arange(0, 4800, 800))
+        else:
+            ax2.set_ylim(0, 4500)
+            ax2.set_xticks(np.arange(0, 5400, 900))
         legend = ["OP_" + str(jobIndex + 1) +"Arrival Rate"]
         ax2.set_xlim(startTime * 1000, (startTime + 3600) * 1000)
         ax2.set_xticks(np.arange(startTime * 1000, (startTime + 3600) * 1000 + 300000, 300000))
@@ -377,8 +382,19 @@ exps = [
     #  "blue", "o"],
 
     # Split and join
+    ["Static-1",
+     "stock-split3hBsb-4hr-50ms.txt-streamsluice-streamsluice-3690-30-1000-20-2-1000-1-500-3-2000-1-500-6-5000-1-500-1000-100-false-1",
+     "gray", "*"],
+    ["Static-2",
+     "stock-split3hBsb-4hr-50ms.txt-streamsluice-streamsluice-3690-30-1000-20-4-1000-1-500-6-2000-1-500-12-5000-1-500-1000-100-false-1",
+     "orange", "*"],
+    ["DS2", "stock-split3hBsb-4hr-50ms.txt-ds2-ds2-3690-30-1000-20-2-1000-1-500-3-2000-1-500-4-5000-1-500-1000-100-true-1",
+     "purple", "d"],
+    ["StreamSwitch",
+     "stock-split3hBsb-4hr-50ms.txt-streamswitch-streamswitch-3690-30-1000-20-2-1000-1-500-3-2000-1-500-4-5000-1-500-1000-100-true-1",
+     "green", "p"],
     ["StreamSluice",
-     "stock-split_joinhBsb-4hr-50ms.txt-streamsluice-streamsluice-690-30-1000-20-2-1000-1-500-3-2000-1-500-6-5000-1-500-1000-100-true-1",
+     "stock-split3hBsb-4hr-50ms.txt-streamsluice-streamsluice-3690-30-1000-20-2-1000-1-500-3-2000-1-500-6-5000-1-500-1000-100-true-1",
      "blue", "o"],
 ]
 windowSize=1000
@@ -389,6 +405,7 @@ parallelismWeight = {
     "OP2": 10,
     "OP3": 5,
     "OP4" : 2,
+    "OP5" : 3,
 }
 arrivalRateFlag = True
 import sys
