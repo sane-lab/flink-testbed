@@ -49,7 +49,7 @@ taskmanager.heap.size: 10240m
 
 # The number of task slots that each TaskManager offers. Each slot runs one parallel pipeline.
 
-taskmanager.numberOfTaskSlots: 18 # 63
+taskmanager.numberOfTaskSlots: 18 #31
 
 # The parallelism used for programs that did not specify and other parallelism.
 

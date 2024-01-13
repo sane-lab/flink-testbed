@@ -188,19 +188,24 @@ exps = [
     #  "blue", "o"],
 
     # Split and join
-    ["Static-1",
-     "stock-split3hBsb-4hr-50ms.txt-streamsluice-streamsluice-3690-30-1000-20-2-1000-1-500-3-2000-1-500-6-5000-1-500-1000-100-false-1",
-     "gray", "*"],
-    ["Static-2",
-     "stock-split3hBsb-4hr-50ms.txt-streamsluice-streamsluice-3690-30-1000-20-4-1000-1-500-6-2000-1-500-12-5000-1-500-1000-100-false-1",
-     "orange", "*"],
-    ["DS2", "stock-split3hBsb-4hr-50ms.txt-ds2-ds2-3690-30-1000-20-2-1000-1-500-3-2000-1-500-4-5000-1-500-1000-100-true-1",
-     "purple", "d"],
-    ["StreamSwitch",
-     "stock-split3hBsb-4hr-50ms.txt-streamswitch-streamswitch-3690-30-1000-20-2-1000-1-500-3-2000-1-500-4-5000-1-500-1000-100-true-1",
-     "green", "p"],
+    # ["Static-1",
+    #  "stock-split3hBsb-4hr-50ms.txt-streamsluice-streamsluice-3690-30-1000-20-2-1000-1-500-3-2000-1-500-6-5000-1-500-1000-100-false-1",
+    #  "gray", "*"],
+    # ["Static-2",
+    #  "stock-split3hBsb-4hr-50ms.txt-streamsluice-streamsluice-3690-30-1000-20-4-1000-1-500-6-2000-1-500-12-5000-1-500-1000-100-false-1",
+    #  "orange", "*"],
+    # ["DS2", "stock-split3hBsb-4hr-50ms.txt-ds2-ds2-3690-30-1000-20-2-1000-1-500-3-2000-1-500-4-5000-1-500-1000-100-true-1",
+    #  "purple", "d"],
+    # ["StreamSwitch",
+    #  "stock-split3hBsb-4hr-50ms.txt-streamswitch-streamswitch-3690-30-1000-20-2-1000-1-500-3-2000-1-500-4-5000-1-500-1000-100-true-1",
+    #  "green", "p"],
+    # ["StreamSluice",
+    #  "stock-split3hBsb-4hr-50ms.txt-streamsluice-streamsluice-3690-30-1000-20-2-1000-1-500-3-2000-1-500-6-5000-1-500-1000-100-true-1",
+    #  "blue", "o"],
+
+    # Cluster
     ["StreamSluice",
-     "stock-split3hBsb-4hr-50ms.txt-streamsluice-streamsluice-3690-30-1000-20-2-1000-1-500-3-2000-1-500-6-5000-1-500-1000-100-true-1",
+     "stock-server-split3-sb-4hr-50ms.txt-streamsluice-streamsluice-390-30-1000-20-2-1000-1-500-3-2000-1-500-6-5000-1-500-1000-100-true-1",
      "blue", "o"],
 ]
 if len(sys.argv) > 1:

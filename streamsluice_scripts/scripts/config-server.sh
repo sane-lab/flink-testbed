@@ -61,20 +61,20 @@ function configFlink() {
     rm tmp*
     echo ${FLINK_CONF_DIR}/flink-conf.yaml
     cp ${FLINK_CONF_DIR}/* ${FLINK_DIR}/conf
-    for host in "camel" "eagle"; do
-      scp ${FLINK_CONF_DIR}/flink-conf.yaml ${host}:${FLINK_DIR}/conf/flink-conf.yaml
+    for host in "eagle"; do
+      scp ${FLINK_CONF_DIR}/flink-conf-${host}.yaml ${host}:${FLINK_DIR}/conf/flink-conf.yaml
     done
 }
 
 # clean kafka related data
 function cleanEnv() {
     for host in "camel" "eagle"; do
-      ssh ${host} "
+      script="
         rm -rf /tmp/flink*;
         rm ${FLINK_DIR}/log/*;
         export JAVA_HOME=/home/samza/kit/jdk;
-        $HELLOSAMZA_DIR/bin/grid stop kafka;
-        $HELLOSAMZA_DIR/bin/grid stop zookeeper;
+        ${HELLOSAMZA_DIR}/bin/grid stop kafka;
+        ${HELLOSAMZA_DIR}/bin/grid stop zookeeper;
         kill -9 $(jps |grep Kafka|awk '{print $1}');
         rm -rf /data/kafka/kafka-logs/;
         rm -r /tmp/kafka-logs/;
@@ -82,18 +82,19 @@ function cleanEnv() {
 
         python -c 'import time; time.sleep(2)';
 
-        $HELLOSAMZA_DIR/bin/grid start zookeeper;
-        $HELLOSAMZA_DIR/bin/grid start kafka;
+        ${HELLOSAMZA_DIR}/bin/grid start zookeeper;
+        ${HELLOSAMZA_DIR}/bin/grid start kafka;
 
         KAFKA_PATH="${HELLOSAMZA_DIR}/deploy/kafka/bin";
 
-        $KAFKA_PATH/kafka-topics.sh --delete --zookeeper localhost:2181 --topic flink_metrics;
-        $KAFKA_PATH/kafka-topics.sh --delete --zookeeper localhost:2181 --topic flink_keygroups_status;
-        $KAFKA_PATH/kafka-topics.sh --create --zookeeper localhost:2181 --topic flink_metrics --partitions 1 --replication-factor 1;
-        $KAFKA_PATH/kafka-topics.sh --create --zookeeper localhost:2181 --topic flink_keygroups_status --partitions 1 --replication-factor 1;
+        ${KAFKA_PATH}/kafka-topics.sh --delete --zookeeper localhost:2181 --topic flink_metrics;
+        ${KAFKA_PATH}/kafka-topics.sh --delete --zookeeper localhost:2181 --topic flink_keygroups_status;
+        ${KAFKA_PATH}/kafka-topics.sh --create --zookeeper localhost:2181 --topic flink_metrics --partitions 1 --replication-factor 1;
+        ${KAFKA_PATH}/kafka-topics.sh --create --zookeeper localhost:2181 --topic flink_keygroups_status --partitions 1 --replication-factor 1;
 
-        python -c 'import time; time.sleep(1)';
+        python -c 'import time; time.sleep(1)'
       "
+      ssh ${host} "${script}"
     done
 }
 
