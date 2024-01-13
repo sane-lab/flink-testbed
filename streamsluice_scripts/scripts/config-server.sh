@@ -62,7 +62,7 @@ function configFlink() {
     echo ${FLINK_CONF_DIR}/flink-conf.yaml
     cp ${FLINK_CONF_DIR}/* ${FLINK_DIR}/conf
     for host in "camel" "eagle"; do
-      scp ${FLINK_CONF_DIR}/flink-conf.yaml ${host}:${FLINK_CONF}/conf/flink-conf.yaml
+      scp ${FLINK_CONF_DIR}/flink-conf.yaml ${host}:${FLINK_DIR}/conf/flink-conf.yaml
     done
 }
 
