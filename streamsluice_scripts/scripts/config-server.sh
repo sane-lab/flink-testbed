@@ -61,12 +61,15 @@ function configFlink() {
     rm tmp*
     echo ${FLINK_CONF_DIR}/flink-conf.yaml
     cp ${FLINK_CONF_DIR}/* ${FLINK_DIR}/conf
+    for host in "camel" "eagle"; do
+      scp ${FLINK_CONF_DIR}/flink-conf.yaml ${host}:${FLINK_CONF_DIR}/flink-conf.yaml
+    done
 }
 
 # clean kafka related data
 function cleanEnv() {
-    for hosts in "camel" "eagle"; do
-      ssh otherhost "
+    for host in "camel" "eagle"; do
+      ssh ${host} "
         rm -rf /tmp/flink*
         rm ${FLINK_DIR}/log/*
         export JAVA_HOME=/home/samza/kit/jdk
