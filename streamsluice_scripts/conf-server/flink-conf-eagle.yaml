@@ -259,7 +259,7 @@ parallelism.default: 1
 policy.windowSize: 100000000
 
 # kafka broker list
-policy.metrics.servers: camel:9092
+policy.metrics.servers: "camel:9092"
 
 # kafka topic
 policy.metrics.topic: flink_metrics
