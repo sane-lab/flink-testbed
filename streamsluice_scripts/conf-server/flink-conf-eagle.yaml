@@ -30,7 +30,7 @@
 # automatically configure the host name based on the hostname of the node where the
 # JobManager runs.
 
-jobmanager.rpc.address: camel #localhost
+jobmanager.rpc.address: camel
 
 # The RPC port where the JobManager is reachable.
 
@@ -259,7 +259,7 @@ parallelism.default: 1
 policy.windowSize: 100000000
 
 # kafka broker list
-policy.metrics.servers: "camel:9092"
+policy.metrics.servers: camel:9092
 
 # kafka topic
 policy.metrics.topic: flink_metrics

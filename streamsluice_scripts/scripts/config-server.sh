@@ -70,7 +70,7 @@ function configFlink() {
 # clean kafka related data
 function cleanEnv() {
     KAFKA_PATH="${HELLOSAMZA_DIR}/deploy/kafka/bin";
-    for host in "camel" "eagle"; do
+    for host in "camel"; do
       script="
         rm -rf /tmp/flink*;
         rm ${FLINK_DIR}/log/*;
