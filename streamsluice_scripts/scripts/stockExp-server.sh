@@ -13,6 +13,8 @@ function analyze() {
     fi
     mv ${FLINK_DIR}/log/* ${EXP_DIR}/streamsluice/
     mv ${EXP_DIR}/streamsluice/ ${EXP_DIR}/raw/${EXP_NAME}
+    host="eagle"
+    scp ${host}:${FLINK_DIR}/log/* ${EXP_DIR}/raw/${EXP_NAME}/
     mkdir ${EXP_DIR}/streamsluice/
 }
 
