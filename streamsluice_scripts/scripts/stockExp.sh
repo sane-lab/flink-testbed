@@ -130,25 +130,25 @@ run_stock_test(){
     fi
 
     printf "" > stock_result.txt
-    run_one_exp
-    printf "${EXP_NAME}\n" >> stock_result.txt
-
-    is_treat=false
-    run_one_exp
-    printf "${EXP_NAME}\n" >> stock_result.txt
-    is_treat=false
-    P2=4
-    P3=6
-    P5=9
-    P4=12
-    run_one_exp
-    printf "${EXP_NAME}\n" >> stock_result.txt
+#    run_one_exp
+#    printf "${EXP_NAME}\n" >> stock_result.txt
+#
+#    is_treat=false
+#    run_one_exp
+#    printf "${EXP_NAME}\n" >> stock_result.txt
+#    is_treat=false
+#    P2=4
+#    P3=6
+#    P5=9
+#    P4=12
+#    run_one_exp
+#    printf "${EXP_NAME}\n" >> stock_result.txt
     is_treat=true
 
     P2=2
     P3=3
-    P5=6
-    P4=4
+    P4=6
+    P5=4
     whether_type="ds2"
     how_type="ds2"
     scalein_type="ds2"
