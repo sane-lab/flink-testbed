@@ -43,7 +43,7 @@ init() {
   controller_type=StreamSluice
   whether_type="streamsluice"
   how_type="streamsluice"
-  vertex_id="a84740bacf923e828852cc4966f2247c,eabd4c11f6c6fbdf011f0f1fc42097b1,d01047f852abd5702a0dabeedac99ff5"
+  vertex_id="a84740bacf923e828852cc4966f2247c,eabd4c11f6c6fbdf011f0f1fc42097b1,d01047f852abd5702a0dabeedac99ff5,d2336f79a0d60b5a4b16c8769ec82e47"
   L=1000
   migration_interval=500
   epoch=100
@@ -72,17 +72,23 @@ init() {
   IO2=1
   STATE_SIZE2=100
 
-  P3=12
+  P3=1
   MP3=128
-  DELAY3=1000
+  DELAY3=50
   IO3=1
   STATE_SIZE3=100
 
-  P4=4
+  P4=12
   MP4=128
-  DELAY4=357
+  DELAY4=1000
   IO4=1
   STATE_SIZE4=100
+
+  P5=1
+  MP5=128
+  DELAY5=50
+  IO5=1
+  STATE_SIZE5=100
 
   spike_estimation="linear_regression"
   spike_slope=0.7
@@ -123,24 +129,26 @@ run_scale_test(){
     TIME1=30
     TIME2=40
     TIME_I=3600
-    GRAPH=2op
-    vertex_id="a84740bacf923e828852cc4966f2247c,eabd4c11f6c6fbdf011f0f1fc42097b1" #,d01047f852abd5702a0dabeedac99ff5"
-    LP2=12
-    LP3=51
+    GRAPH=1split2
+    vertex_id="a84740bacf923e828852cc4966f2247c,eabd4c11f6c6fbdf011f0f1fc42097b1,d01047f852abd5702a0dabeedac99ff5"
+    LP2=4
+    LP3=4
+    LP4=51
+    P2=1
+    P3=1
+    P4=12
     DELTA_I=0
     PERIOD_I=120
     RATE1=10000
     RATE2=10000
     RATE_I=10000
-    P2=1 #3
-    P3=12
-    P4=4
 #    STATE_SIZE2=100
 #    STATE_SIZE3=100
 #    STATE_SIZE4=100
     STATE_SIZE2=10000
     STATE_SIZE3=10000
     STATE_SIZE4=10000
+    STATE_SIZE5=10000
     # STATE=100 slope, intercept
     spike_intercept=250
     spike_slope=0.7
@@ -150,60 +158,62 @@ run_scale_test(){
     printf "" > workload_result.txt
 
     printf "RANGE\n" >> workload_result.txt
-#    for RANGE_I in 2500; do #  7500 5000 3750 2500 6250
-#        L=700
-#        run_one_exp
-#        printf "${EXP_NAME}\n" >> workload_result.txt
-#    done
+    for RANGE_I in 7500 6250 5000 3750 2500; do #
+        L=1000
+        run_one_exp
+        printf "${EXP_NAME}\n" >> workload_result.txt
+    done
 
 
     printf "PERIOD\n" >> workload_result.txt
     RANGE_I=5000
-#    for PERIOD_I in 180; do # 30 60 90
-#      L=700
-#      autotune_interval=240 #"$((${PERIOD_I}*2))"
-#      run_one_exp
-#      printf "${EXP_NAME}\n" >> workload_result.txt
-#    done
+    for PERIOD_I in 90 60 30; do # 180
+      L=1000
+      autotune_interval="$((${PERIOD_I}*2))" # 240
+      run_one_exp
+      printf "${EXP_NAME}\n" >> workload_result.txt
+    done
     PERIOD_I=120
     autotune_interval=240
     L=1000
 
     printf "STATE\n" >> workload_result.txt
-#    for STATE_SIZE2 in 2500 40000; do #2500 5000 20000 40000; do
-#        STATE_SIZE3=${STATE_SIZE2}
-#        if [[ ${STATE_SIZE2} == 2500 ]]; then
-#          spike_slope=0.7
-#          spike_intercept=150
-#          L=700
-#        fi
-#        if [[ ${STATE_SIZE2} == 5000 ]]; then
-#          spike_slope=0.7
-#          spike_intercept=150
-#          L=800
-#        fi
-#        if [[ ${STATE_SIZE2} == 20000 ]]; then
-#          spike_slope=0.7
-#          spike_intercept=500
-#          L=1200
-#        fi
-#        if [[ ${STATE_SIZE2} == 40000 ]]; then
-#          # intercept=180
-#          spike_slope=0.7
-#          spike_intercept=1200
-#          L=2500
-#        fi
-#        run_one_exp
-#        printf "${EXP_NAME}\n" >> workload_result.txt
-#    done
+    for STATE_SIZE2 in 2500 5000 20000 40000; do
+        STATE_SIZE3=${STATE_SIZE2}
+        STATE_SIZE4=${STATE_SIZE2}
+        if [[ ${STATE_SIZE2} == 2500 ]]; then
+          spike_slope=0.7
+          spike_intercept=150
+          L=1000
+        fi
+        if [[ ${STATE_SIZE2} == 5000 ]]; then
+          spike_slope=0.7
+          spike_intercept=150
+          L=1100
+        fi
+        if [[ ${STATE_SIZE2} == 20000 ]]; then
+          spike_slope=0.7
+          spike_intercept=500
+          L=1400
+        fi
+        if [[ ${STATE_SIZE2} == 40000 ]]; then
+          # intercept=180
+          spike_slope=0.7
+          spike_intercept=1200
+          L=2500
+        fi
+        run_one_exp
+        printf "${EXP_NAME}\n" >> workload_result.txt
+    done
     STATE_SIZE2=10000
     STATE_SIZE3=10000
+    STATE_SIZE4=10000
     spike_intercept=250
     spike_slope=0.7
     L=1000
 
     printf "SKEW\n" >> workload_result.txt
-    for ZIPF_SKEW in 0.4 0.8 0.1 0.2; do #0.025 0.05 0.1 0.2
+    for ZIPF_SKEW in 0.025 0.05 0.1 0.2; do # 0.4 0.8
         L=800
         run_one_exp
         printf "${EXP_NAME}\n" >> workload_result.txt
@@ -239,15 +249,23 @@ run_scale_test(){
 #      run_one_exp
 #      printf "${EXP_NAME}\n" >> workload_result.txt
 #    done
-#    DELAY3=1000
-#    DELAY4=50
-#    LP2=12
-#    LP3=51
-#    P2=1 #3
-#    P3=12
-#    P4=4
-#    GRAPH=2op
-#    vertex_id="a84740bacf923e828852cc4966f2247c,eabd4c11f6c6fbdf011f0f1fc42097b1" #,d01047f852abd5702a0dabeedac99ff5"
+
+    GRAPH=1split3
+    vertex_id="a84740bacf923e828852cc4966f2247c,eabd4c11f6c6fbdf011f0f1fc42097b1,d01047f852abd5702a0dabeedac99ff5,d2336f79a0d60b5a4b16c8769ec82e47"
+    L=1000
+    LP5=3
+    p5=1
+    DELAY5=50
+    run_one_exp
+    printf "${EXP_NAME}\n" >> workload_result.txt
+    GRAPH=2split2
+    vertex_id="a84740bacf923e828852cc4966f2247c,eabd4c11f6c6fbdf011f0f1fc42097b1,d01047f852abd5702a0dabeedac99ff5,d2336f79a0d60b5a4b16c8769ec82e47"
+    L=1000
+    LP5=3
+    p5=1
+    DELAY5=50
+    run_one_exp
+    printf "${EXP_NAME}\n" >> workload_result.txt
 }
 
 run_scale_test

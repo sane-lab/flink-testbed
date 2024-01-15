@@ -87,6 +87,47 @@ public class MicroBench {
                     .slotSharingGroup("g3");
             env.execute();
             return ;
+        }else if(GRAPH_TYPE.equals("1split2")){
+            leng1.keyBy(0).map(new DumbSink(params.getLong("op3Delay", 100), params.getInt("op3KeyStateSize", 1), params.getBoolean("outputGroundTruth", true)))
+                    .disableChaining()
+                    .name("FlatMap 3")
+                    .uid("op3")
+                    .setParallelism(params.getInt("p3", 1))
+                    .setMaxParallelism(params.getInt("mp3", 8))
+                    .slotSharingGroup("g3");
+            leng1.keyBy(0).map(new DumbSink(params.getLong("op4Delay", 100), params.getInt("op4KeyStateSize", 1), params.getBoolean("outputGroundTruth", true)))
+                    .disableChaining()
+                    .name("FlatMap 4")
+                    .uid("op4")
+                    .setParallelism(params.getInt("p4", 1))
+                    .setMaxParallelism(params.getInt("mp4", 8))
+                    .slotSharingGroup("g4");
+            env.execute();
+            return ;
+        }else if(GRAPH_TYPE.equals("1split3")){
+            leng1.keyBy(0).map(new DumbSink(params.getLong("op3Delay", 100), params.getInt("op3KeyStateSize", 1), params.getBoolean("outputGroundTruth", true)))
+                    .disableChaining()
+                    .name("FlatMap 3")
+                    .uid("op3")
+                    .setParallelism(params.getInt("p3", 1))
+                    .setMaxParallelism(params.getInt("mp3", 8))
+                    .slotSharingGroup("g3");
+            leng1.keyBy(0).map(new DumbSink(params.getLong("op4Delay", 100), params.getInt("op4KeyStateSize", 1), params.getBoolean("outputGroundTruth", true)))
+                    .disableChaining()
+                    .name("FlatMap 4")
+                    .uid("op4")
+                    .setParallelism(params.getInt("p4", 1))
+                    .setMaxParallelism(params.getInt("mp4", 8))
+                    .slotSharingGroup("g4");
+            leng1.keyBy(0).map(new DumbSink(params.getLong("op5Delay", 100), params.getInt("op5KeyStateSize", 1), params.getBoolean("outputGroundTruth", true)))
+                    .disableChaining()
+                    .name("FlatMap 5")
+                    .uid("op5")
+                    .setParallelism(params.getInt("p5", 1))
+                    .setMaxParallelism(params.getInt("mp5", 8))
+                    .slotSharingGroup("g5");
+            env.execute();
+            return ;
         }
 
         SingleOutputStreamOperator<Tuple3<String, Long, Long>> leng2 = leng1.keyBy(0)
@@ -106,6 +147,23 @@ public class MicroBench {
                     .setParallelism(params.getInt("p4", 1))
                     .setMaxParallelism(params.getInt("mp4", 8))
                     .slotSharingGroup("g4");
+            env.execute();
+            return ;
+        }else if(GRAPH_TYPE.equals("2split2")){
+            leng2.keyBy(0).map(new DumbSink(params.getLong("op4Delay", 100), params.getInt("op4KeyStateSize", 1), params.getBoolean("outputGroundTruth", true)))
+                    .disableChaining()
+                    .name("FlatMap 4")
+                    .uid("op4")
+                    .setParallelism(params.getInt("p4", 1))
+                    .setMaxParallelism(params.getInt("mp4", 8))
+                    .slotSharingGroup("g4");
+            leng2.keyBy(0).map(new DumbSink(params.getLong("op5Delay", 100), params.getInt("op5KeyStateSize", 1), params.getBoolean("outputGroundTruth", true)))
+                    .disableChaining()
+                    .name("FlatMap 5")
+                    .uid("op5")
+                    .setParallelism(params.getInt("p5", 1))
+                    .setMaxParallelism(params.getInt("mp5", 8))
+                    .slotSharingGroup("g5");
             env.execute();
             return ;
         }
