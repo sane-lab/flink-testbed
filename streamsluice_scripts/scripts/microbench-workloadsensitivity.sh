@@ -158,28 +158,29 @@ run_scale_test(){
     printf "" > workload_result.txt
 
     printf "RANGE\n" >> workload_result.txt
-    for RANGE_I in 2500; do # 7500 6250 5000 3750
-        L=800 #1000
-        run_one_exp
-        printf "${EXP_NAME}\n" >> workload_result.txt
-    done
+#    for RANGE_I in 2500; do # 7500 6250 5000 3750
+#        L=800 #1000
+#        run_one_exp
+#        printf "${EXP_NAME}\n" >> workload_result.txt
+#    done
 
 
     printf "PERIOD\n" >> workload_result.txt
-#    RANGE_I=5000
-#    for PERIOD_I in 180 90 60 30; do #
-#      L=1000
-#      if [[ "${PERIOD_I}" == 180 ]]; then
-#        autotune_interval=240 # 240
-#      else
-#        autotune_interval="$((${PERIOD_I}*2))" # 240
-#      fi
-#      run_one_exp
-#      printf "${EXP_NAME}\n" >> workload_result.txt
-#    done
-#    PERIOD_I=120
-#    autotune_interval=240
-#    L=1000
+    RANGE_I=5000
+    for PERIOD_I in 180 90 60 30; do #
+      if [[ "${PERIOD_I}" == 180 ]]; then
+        L=800
+        autotune_interval=240 # 240
+      else
+        L=1000
+        autotune_interval="$((${PERIOD_I}*2))" # 240
+      fi
+      run_one_exp
+      printf "${EXP_NAME}\n" >> workload_result.txt
+    done
+    PERIOD_I=120
+    autotune_interval=240
+    L=1000
 
     printf "STATE\n" >> workload_result.txt
 #    for STATE_SIZE2 in 2500 5000 20000 40000; do
