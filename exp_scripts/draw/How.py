@@ -586,7 +586,6 @@ def drawAll(resultsPerCurve, outputDir, curves):
 rawDir = "/Users/swrrt/Workplace/BacklogDelayPaper/experiments/raw/"
 outputDir = "/Users/swrrt/Workplace/BacklogDelayPaper/experiments/part3/"
 curves = {}
-#with open("../whetherList.txt") as f:
 with open("../howList.txt") as f:
     lines = f.readlines()
     for i in range(0, len(lines)):
