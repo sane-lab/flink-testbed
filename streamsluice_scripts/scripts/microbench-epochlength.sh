@@ -157,11 +157,11 @@ run_scale_test(){
     L=1000
     printf "" > epoch_result.txt
 
-    printf "Epoch\n" >> workload_result.txt
+    printf "Epoch\n" >> epoch_result.txt
     for epoch in 50 500 1000 5000; do
         L=800
         run_one_exp
-        printf "${EXP_NAME}\n" >> workload_result.txt
+        printf "${EXP_NAME}\n" >> epoch_result.txt
     done
 }
 
