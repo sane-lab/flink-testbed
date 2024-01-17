@@ -162,8 +162,8 @@ run_scale_test(){
 #    run_one_exp
 #    printf "${EXP_NAME}\n" >> whetherhow_result.txt
     is_treat=true
-#    run_one_exp
-#    printf "${EXP_NAME}\n" >> whetherhow_result.txt
+    run_one_exp
+    printf "${EXP_NAME}\n" >> whetherhow_result.txt
 ##    # time 16.3 5->8   statesize=1000
 #    whether_early="time_14" # "time_14"
 #    whether_late="time_18" # "time_18"
@@ -181,8 +181,8 @@ run_scale_test(){
 #    whether_early="time_150"
 #    whether_late="time_170"
     whether_early="streamsluice_earlier"
-    whether_late="streamsluice_later"
-    for whether_type in ${whether_early} ${whether_late}; do
+    #whether_late="streamsluice_later"
+    for whether_type in ${whether_early}; do # ${whether_late}; do
       #how_type="streamsluice"
       run_one_exp
       printf "${EXP_NAME}\n" >> whetherhow_result.txt
@@ -222,13 +222,13 @@ run_scale_test(){
 #    # time 16 5->8  decision epoch=1000
 #    whether_early="time_150"
 #    whether_late="time_170"
-    whether_early="streamsluice_earlier"
-    whether_late="streamsluice_later"
-    for whether_type in ${whether_early} ${whether_late}; do
-      #how_type="streamsluice"
-      run_one_exp
-      printf "${EXP_NAME}\n" >> whetherhow_result.txt
-    done
+#    whether_early="streamsluice_earlier"
+#    whether_late="streamsluice_later"
+#    for whether_type in ${whether_early} ${whether_late}; do
+#      #how_type="streamsluice"
+#      run_one_exp
+#      printf "${EXP_NAME}\n" >> whetherhow_result.txt
+#    done
 
 
     whether_type="streamsluice"
@@ -243,15 +243,23 @@ run_scale_test(){
 
     # Curve 3
     CURVE_TYPE="sine"
+    RATE1=4000
+    TIME1=30
+    RATE2=6000
+    TIME2=120
+    RATE_I=5000
+    RANGE_I=1000
+    PERIOD_I=20
+    TIME_I=10
     #whether_type="streamsluice"
     #how_type="streamsluice"
     #whether_type="time_220"
     whether_type="streamsluice"
     how_type="op_1_3_keep"
     printf "3_${CURVE_TYPE}\n" >> whetherhow_result.txt
-#    is_treat=false
-#    run_one_exp
-#    printf "${EXP_NAME}\n" >> whetherhow_result.txt
+    is_treat=false
+    run_one_exp
+    printf "${EXP_NAME}\n" >> whetherhow_result.txt
     is_treat=true
 #    run_one_exp
 #    printf "${EXP_NAME}\n" >> whetherhow_result.txt
@@ -308,8 +316,8 @@ run_scale_test(){
 #    run_one_exp
 #    printf "${EXP_NAME}\n" >> whetherhow_result.txt
     is_treat=true
-#    run_one_exp
-#    printf "${EXP_NAME}\n" >> whetherhow_result.txt
+    run_one_exp
+    printf "${EXP_NAME}\n" >> whetherhow_result.txt
 #    # time 15.8 5->8  statesize=1000
 #    whether_early="time_14" # "time_14"
 #    whether_late="time_18" # "time_18"
@@ -329,7 +337,7 @@ run_scale_test(){
 #    whether_late="time_170"
     whether_early="streamsluice_earlier"
     whether_late="streamsluice_later"
-    for whether_type in ${whether_early} ${whether_late}; do
+    for whether_type in ${whether_early}; do # ${whether_late}; do
       #how_type="streamsluice"
       run_one_exp
       printf "${EXP_NAME}\n" >> whetherhow_result.txt
