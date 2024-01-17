@@ -1,3 +1,2 @@
-microbench-system-streamsluice_later-op_1_3_keep-sine-1split2-60-4000-6000-5000-1000-20-1-0-3-444-1-10000-3-444-1-10000-5-1000-1-10000-2000-2000-100-10-true-1
 microbench-system-streamsluice-op_1_3_keep-gradient-1split2-60-4000-4000-5000-1000-10-1-0-3-444-1-10000-3-444-1-10000-5-1000-1-10000-2000-2000-100-10-true-1
-microbench-system-streamsluice_earlier-op_1_3_keep-gradient-1split2-60-4000-4000-5000-1000-10-1-0-3-444-1-10000-3-444-1-10000-5-1000-1-10000-2000-2000-100-10-true-1
+microbench-system-streamsluice_later-op_1_3_keep-gradient-1split2-60-4000-4000-5000-1000-10-1-0-3-444-1-10000-3-444-1-10000-5-1000-1-10000-2000-2000-100-10-true-1
