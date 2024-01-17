@@ -4,6 +4,18 @@ import matplotlib
 matplotlib.use('Agg')
 import matplotlib.pyplot as plt
 
+topologyToIndex = {
+    "1op": 1,
+    "2op": 2,
+    "1split2": 3,
+    "1split3": 4,
+    "3op": 5,
+    "2split2": 6,
+}
+topologyName = {}
+for topology in topologyToIndex.keys():
+    topologyName[topologyToIndex[topology]] = topology
+
 def parseSetting(fileName):
     split = fileName.split('-')
     setting = {}
@@ -21,7 +33,7 @@ def checkIsThisDimension(dimension, dimensions, baseline, expSetting):
             return False
     return True
 
-outputDir = "/Users/swrrt/Workplace/BacklogDelayPaper/experiments/figures/"
+outputDir = "/Users/swrrt/Workplace/BacklogDelayPaper/experiments/figures/workload_1split2/"
 
 exps = {}
 with open("../workload_result.txt") as f:
@@ -37,8 +49,9 @@ with open("../workload_result.txt") as f:
                 result += [float(result_str[j])]
             exps[expName] = result
 
+
 dimensions = ["amplitude", "period", "statesize", "skewness", "topology"]
-baselineSetting = parseSetting("microbench-workload-2op-3660-10000-10000-10000-5000-120-1-0-1-50-1-10000-12-1000-1-10000-4-357-1-10000-1000-500-100-true-1")
+baselineSetting = parseSetting("microbench-workload-1split2-3660-10000-10000-10000-5000-120-1-0-1-50-1-10000-1-50-1-10000-12-1000-1-10000-1000-500-100-true-1")
 baseRange = 10000
 for dimension in dimensions:
     print("For dimension " + dimension)
@@ -48,7 +61,7 @@ for dimension in dimensions:
         if checkIsThisDimension(dimension, dimensions, baselineSetting, expSetting):
             print(expSetting)
             if dimension == "topology":
-                orderResult[float(expSetting[dimension][:1])] = exps[exp]
+                orderResult[topologyToIndex[expSetting[dimension]]] = exps[exp]
             else:
                 orderResult[float(expSetting[dimension])] = exps[exp]
 
@@ -70,7 +83,7 @@ for dimension in dimensions:
         elif dimension == 'skewness':
             x += [str(key)]
         elif dimension == 'topology':
-            x += [str(int(key)) + '_OP']
+            x += [topologyName[key]] #[str(int(key)) + '_OP']
         y += [orderResult[key][0]]
         opSize = len(orderResult[key]) - 1
         for opIndex in range(1, len(orderResult[key])):
@@ -105,7 +118,7 @@ for dimension in dimensions:
         if dimension == "topology":
             nx = np.arange(len(utilizationList))
         rects = ax1.bar(nx + offset, utilizationList, width, label=opName)
-        ax1.bar_label(rects, padding=3, label_type='center')
+        ax1.bar_label(rects, fmt='%.2f', padding=3, label_type='center')
         ax1.set_ylim(0, 1.0)
         multiplier += 1
     ax1.set_xticks(np.arange(len(orderResult.keys())))

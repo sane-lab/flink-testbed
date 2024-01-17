@@ -218,8 +218,8 @@ run_scale_test(){
 #    L=1000
 
     printf "SKEW\n" >> workload_result.txt
-    for ZIPF_SKEW in 0.1; do # 0.025 0.05 0.2 0.4
-        L=700 #800
+    for ZIPF_SKEW in 0.6; do # 0.025 0.05 0.1 0.2 0.4
+        L=800 #800
         run_one_exp
         printf "${EXP_NAME}\n" >> workload_result.txt
     done
@@ -255,14 +255,14 @@ run_scale_test(){
 #      printf "${EXP_NAME}\n" >> workload_result.txt
 #    done
 
-    GRAPH=1split3
-    vertex_id="a84740bacf923e828852cc4966f2247c,eabd4c11f6c6fbdf011f0f1fc42097b1,d01047f852abd5702a0dabeedac99ff5,d2336f79a0d60b5a4b16c8769ec82e47"
-    L=800
-    LP5=3
-    p5=1
-    DELAY5=50
-    run_one_exp
-    printf "${EXP_NAME}\n" >> workload_result.txt
+#    GRAPH=1split3
+#    vertex_id="a84740bacf923e828852cc4966f2247c,eabd4c11f6c6fbdf011f0f1fc42097b1,d01047f852abd5702a0dabeedac99ff5,d2336f79a0d60b5a4b16c8769ec82e47"
+#    L=800
+#    LP5=3
+#    p5=1
+#    DELAY5=50
+#    run_one_exp
+#    printf "${EXP_NAME}\n" >> workload_result.txt
 #    GRAPH=2split2
 #    vertex_id="a84740bacf923e828852cc4966f2247c,eabd4c11f6c6fbdf011f0f1fc42097b1,d01047f852abd5702a0dabeedac99ff5,d2336f79a0d60b5a4b16c8769ec82e47"
 #    L=1000
