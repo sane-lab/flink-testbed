@@ -114,7 +114,7 @@ run_scale_test(){
 
 
     # Different cases
-    GRAPH=3op
+    GRAPH=1split2 #3op
     vertex_id="a84740bacf923e828852cc4966f2247c,eabd4c11f6c6fbdf011f0f1fc42097b1,d01047f852abd5702a0dabeedac99ff5"
     autotune=false
     epoch=100
@@ -158,12 +158,12 @@ run_scale_test(){
     how_type="op_1_3_keep"
     is_treat=true
     printf "1_${CURVE_TYPE}\n" >> whetherhow_result.txt
-#    is_treat=false
-#    run_one_exp
-#    printf "${EXP_NAME}\n" >> whetherhow_result.txt
+    is_treat=false
+    run_one_exp
+    printf "${EXP_NAME}\n" >> whetherhow_result.txt
     is_treat=true
-#    run_one_exp
-#    printf "${EXP_NAME}\n" >> whetherhow_result.txt
+    run_one_exp
+    printf "${EXP_NAME}\n" >> whetherhow_result.txt
 ##    # time 16.3 5->8   statesize=1000
 #    whether_early="time_14" # "time_14"
 #    whether_late="time_18" # "time_18"

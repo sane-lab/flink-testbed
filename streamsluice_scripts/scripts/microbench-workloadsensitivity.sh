@@ -218,8 +218,8 @@ run_scale_test(){
 #    L=1000
 
     printf "SKEW\n" >> workload_result.txt
-    for ZIPF_SKEW in 0.025 0.1 0.4; do # 0.05  0.2
-        L=900 #800
+    for ZIPF_SKEW in 0.1; do # 0.025 0.05 0.2 0.4
+        L=700 #800
         run_one_exp
         printf "${EXP_NAME}\n" >> workload_result.txt
     done
