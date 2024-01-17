@@ -180,9 +180,8 @@ run_scale_test(){
 #    # time 16 5->8  decision epoch=1000
 #    whether_early="time_150"
 #    whether_late="time_170"
-#    whether_early="streamsluice_earlier"
-#    whether_late="streamsluice_later"
-#
+    whether_early="streamsluice_earlier"
+    whether_late="streamsluice_later"
     for whether_type in ${whether_early} ${whether_late}; do
       #how_type="streamsluice"
       run_one_exp
@@ -223,9 +222,8 @@ run_scale_test(){
 #    # time 16 5->8  decision epoch=1000
 #    whether_early="time_150"
 #    whether_late="time_170"
-#    whether_early="streamsluice_earlier"
-#    whether_late="streamsluice_later"
-#
+    whether_early="streamsluice_earlier"
+    whether_late="streamsluice_later"
     for whether_type in ${whether_early} ${whether_late}; do
       #how_type="streamsluice"
       run_one_exp
@@ -274,9 +272,8 @@ run_scale_test(){
 #    # time 22
 #    whether_early="time_210"
 #    whether_late="time_230"
-#    whether_early="streamsluice_earlier"
-#    whether_late="streamsluice_later"
-#
+    whether_early="streamsluice_earlier"
+    whether_late="streamsluice_later"
     for whether_type in ${whether_early} ${whether_late}; do
       #how_type="streamsluice"
       run_one_exp
@@ -330,9 +327,8 @@ run_scale_test(){
 #    # time 16 5->8  decision epoch=1000
 #    whether_early="time_150"
 #    whether_late="time_170"
-#    whether_early="streamsluice_earlier"
-#    whether_late="streamsluice_later"
-#
+    whether_early="streamsluice_earlier"
+    whether_late="streamsluice_later"
     for whether_type in ${whether_early} ${whether_late}; do
       #how_type="streamsluice"
       run_one_exp
