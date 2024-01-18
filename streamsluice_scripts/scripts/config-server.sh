@@ -61,9 +61,9 @@ function configFlink() {
     rm tmp*
     echo ${FLINK_CONF_DIR}/flink-conf.yaml
     cp ${FLINK_CONF_DIR}/* ${FLINK_DIR}/conf
-    for host in "eagle"; do
+    for host in "dragon" "eagle" "flamingo" "giraffe"; do
       scp ${FLINK_CONF_DIR}/* ${host}:${FLINK_DIR}/conf
-      scp ${FLINK_CONF_DIR}/flink-conf-${host}.yaml ${host}:${FLINK_DIR}/conf/flink-conf.yaml
+      scp ${FLINK_CONF_DIR}/flink-conf-slave.yaml ${host}:${FLINK_DIR}/conf/flink-conf.yaml
     done
 }
 
