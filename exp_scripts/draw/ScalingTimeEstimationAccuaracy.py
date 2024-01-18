@@ -113,7 +113,7 @@ def draw(rawDir, outputDir, expName):
 rawDir = "/Users/swrrt/Workplace/BacklogDelayPaper/experiments/raw/"
 outputDir = "/Users/swrrt/Workplace/BacklogDelayPaper/experiments/results/"
 import sys
-expName = "microbench-workload-2op-3660-10000-10000-10000-5000-120-1-0-1-50-1-10000-12-1000-1-10000-4-357-1-10000-1000-500-100-true-1"
+expName = "microbench-workload-1split2-3660-10000-10000-10000-5000-120-1-0-1-50-1-10000-1-50-1-10000-12-1000-1-10000-1000-500-100-true-1"
 if len(sys.argv) > 1:
     expName = sys.argv[1].split("/")[-1]
 draw(rawDir, outputDir + expName + "/", expName)
