@@ -142,6 +142,7 @@ run_scale_test(){
     RATE1=10000
     RATE2=10000
     RATE_I=10000
+    RANGE_I=5000
 #    STATE_SIZE2=100
 #    STATE_SIZE3=100
 #    STATE_SIZE4=100
@@ -158,8 +159,19 @@ run_scale_test(){
     printf "" > epoch_result.txt
 
     printf "Epoch\n" >> epoch_result.txt
-    for epoch in 50 500 1000 5000; do
-        L=800
+    for epoch in 50 200 500 1000; do
+        if [[ "${epoch}" == 50 ]]; then
+            L=800
+        fi
+        if [[ "${epoch}" == 200 ]]; then
+            L=800
+        fi
+        if [[ "${epoch}" == 500 ]]; then
+            L=1500
+        fi
+        if [[ "${epoch}" == 1000 ]]; then
+            L=3000
+        fi
         run_one_exp
         printf "${EXP_NAME}\n" >> epoch_result.txt
     done
