@@ -126,8 +126,8 @@ run_stock_test(){
     STATE_SIZE3=500
     STATE_SIZE4=500
     STATE_SIZE5=500
-    spike_slope=0.8
-    spike_intercept=150
+    spike_slope=0.75
+    spike_intercept=300
     #topology="3op"
     topology="split3" #"split_join"
     if [[ "${topology}" == "split_join" || "${topology}" == "split3"  ]]; then

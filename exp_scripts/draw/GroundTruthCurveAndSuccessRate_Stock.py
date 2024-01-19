@@ -41,9 +41,11 @@ def readGroundTruthLatency(rawDir, expName, windowSize):
             # print(os.path.join(rawDir + expName + "/", file))
             if file.count("taskexecutor") == 1:
                 taskExecutors += [file]
+    fileInitialTimes = {}
     for taskExecutor in taskExecutors:
         groundTruthPath = rawDir + expName + "/" + taskExecutor
         print("Reading ground truth file:" + groundTruthPath)
+        fileInitialTime = - 1
         counter = 0
         with open(groundTruthPath) as f:
             lines = f.readlines()
@@ -57,8 +59,8 @@ def readGroundTruthLatency(rawDir, expName, windowSize):
                     completedTime = int(split[2].rstrip(","))
                     latency = int(split[3].rstrip(","))
                     arrivedTime = completedTime - latency
-                    if (initialTime == -1 or initialTime > arrivedTime):
-                        initialTime = arrivedTime
+                    if (fileInitialTime == -1 or fileInitialTime > arrivedTime):
+                        fileInitialTime = arrivedTime
                     if(not isSingleOperator):
                         tupleId = split[4].rstrip()
                         if tupleId not in groundTruthLatencyPerTuple:
@@ -67,7 +69,10 @@ def readGroundTruthLatency(rawDir, expName, windowSize):
                             groundTruthLatencyPerTuple[tupleId][1] = latency
                     else:
                         groundTruthLatency += [[arrivedTime, latency]]
-
+        fileInitialTimes[taskExecutor] = fileInitialTime
+        if (initialTime == -1 or initialTime > fileInitialTime):
+            initialTime = fileInitialTime
+    print("FF: " + str(fileInitialTimes))
     if(not isSingleOperator):
         for value in groundTruthLatencyPerTuple.values():
             groundTruthLatency += [value]
@@ -122,6 +127,7 @@ def draw(rawDir, outputDir, exps, windowSize):
         expFile = exps[i][1]
         result = readGroundTruthLatency(rawDir, expFile, windowSize)
         averageGroundTruthLatencies += [result[0]]
+    print("+++ " + str(averageGroundTruthLatencies))
     #print(averageGroundTruthLatency)
     fig = plt.figure(figsize=(24, 6))
     print("Draw ground truth curve...")
@@ -215,7 +221,7 @@ exps = [
     ["StreamSwitch",
      "stock-server-split3-sb-4hr-50ms.txt-streamswitch-streamswitch-3690-30-1000-20-2-1000-1-500-3-2000-1-500-6-5000-1-500-1000-100-true-1",
      "green", "p"],
-    ["StreamSluice",
+     ["StreamSluice",
      "stock-server-split3-sb-4hr-50ms.txt-streamsluice-streamsluice-3690-30-1000-20-2-1000-1-500-3-2000-1-500-6-5000-1-500-1000-100-true-1",
      "blue", "o"],
 ]
