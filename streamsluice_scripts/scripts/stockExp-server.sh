@@ -117,28 +117,21 @@ run_stock_test(){
     echo "Run overall test..."
     init
     L=1000
-    runtime=690 #3690
-#    skip_interval=20 # number of output epochs (50ms)
-#    warmup_time=30
-#    warmup_rate=1000
-#    P2=2
-#    P3=3
-#    P4=6
-#    P5=4
-    skip_interval=300 # number of output epochs (50ms)
+    runtime=3990 #3690
+    skip_interval=20 # skip seconds
     warmup_time=30
-    warmup_rate=1250
+    warmup_rate=1000
     P2=2
     P3=3
-    P4=8
-    P5=6
+    P4=6
+    P5=4
     repeat=1
     STATE_SIZE2=500
     STATE_SIZE3=500
     STATE_SIZE4=500
     STATE_SIZE5=500
     spike_slope=0.75
-    spike_intercept=300 #150
+    spike_intercept=400 #150
     #topology="3op"
     topology="split3" #"split_join"
     if [[ "${topology}" == "split_join" || "${topology}" == "split3"  ]]; then

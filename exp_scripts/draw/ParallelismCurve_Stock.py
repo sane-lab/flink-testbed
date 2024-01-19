@@ -416,7 +416,7 @@ exps = [
 
     # Change rate
     ["StreamSluice",
-     "stock-server-split3-sb-4hr-50ms.txt-streamsluice-streamsluice-690-30-1000-20-2-1000-1-500-3-2000-1-500-6-5000-1-500-1000-100-true-1",
+     "stock-server-split3-sb-4hr-50ms.txt-streamsluice-streamsluice-690-30-1250-300-2-1000-1-500-3-2000-1-500-8-5000-1-500-1000-100-true-1",
      "blue", "o"],
 ]
 windowSize=1000
