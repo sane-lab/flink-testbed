@@ -367,12 +367,12 @@ exps = [
     #  "stock-server-split3-sb-4hr-50ms.txt-streamsluice-streamsluice-3690-30-1000-20-2-1000-1-500-3-2000-1-500-6-5000-1-500-1000-100-true-1",
     #  "blue", "o"],
 
-    # Change rate
+    # Cut first 5mins
     ["StreamSluice",
-     "stock-server-split3-sb-4hr-50ms.txt-streamsluice-streamsluice-690-30-1250-300-2-1000-1-500-3-2000-1-500-8-5000-1-500-1000-100-true-1",
+     "stock-server-split3-sb-4hr-50ms.txt-streamsluice-streamsluice-3990-30-1000-20-2-1000-1-500-3-2000-1-500-6-5000-1-500-1000-100-true-1",
      "blue", "o"],
 ]
-startTime=30
+startTime=30+300 #30
 windowSize=1000
 serviceRateFlag=True
 scalingMarkerFlag = False
