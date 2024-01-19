@@ -322,16 +322,16 @@ def draw(rawDir, outputDir, exps):
         ax2.set_ylabel('Rate (tps)')
         if jobIndex == 0:
             ax2.set_ylim(0, 10000)
-            ax2.set_xticks(np.arange(0, 11000, 1000))
+            ax2.set_yticks(np.arange(0, 12000, 2000))
         elif jobIndex == 1:
             ax2.set_ylim(0, 5000)
-            ax2.set_xticks(np.arange(0, 5500, 500))
+            ax2.set_yticks(np.arange(0, 6000, 1000))
         elif jobIndex == 2:
             ax2.set_ylim(0, 4000)
-            ax2.set_xticks(np.arange(0, 4800, 800))
+            ax2.set_yticks(np.arange(0, 4800, 800))
         else:
             ax2.set_ylim(0, 4500)
-            ax2.set_xticks(np.arange(0, 5400, 900))
+            ax2.set_yticks(np.arange(0, 5400, 900))
         legend = ["OP_" + str(jobIndex + 1) +"Arrival Rate"]
         ax2.set_xlim(startTime * 1000, (startTime + 3600) * 1000)
         ax2.set_xticks(np.arange(startTime * 1000, (startTime + 3600) * 1000 + 300000, 300000))
