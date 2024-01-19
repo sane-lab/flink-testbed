@@ -61,31 +61,31 @@ init() {
   stock_path="/home/samza/SSE_data/"
   stock_file_name="sb-4hr-50ms.txt"
   P1=1
-  LP2=4
+  LP2=5
   P2=2 #3
   MP2=128
   DELAY2=1000
   IO2=1
   STATE_SIZE2=100
 
-  LP3=9
+  LP3=10
   P3=3 #5
   MP3=128
   DELAY3=2000
   IO3=1
   STATE_SIZE3=100
 
-  LP4=18
+  LP4=25
   P4=6 #12
   MP4=128
   DELAY4=5000
   IO4=1
   STATE_SIZE4=100
 
-  LP5=15
-  P5=4 #3
+  LP5=6
+  P5=2 #4
   MP5=128
-  DELAY5=3333
+  DELAY5=1111 #3333
   STATE_SIZE5=100
   WINDOW5=1
 
@@ -120,16 +120,11 @@ run_stock_test(){
     runtime=690 #3690
     skip_interval=20
     warmup_time=30
-#    warmup_rate=1000
-#    P2=2
-#    P3=3
-#    P4=6
-#    P5=4
-    warmup_rate=1200
+    warmup_rate=1000
     P2=2
     P3=3
-    P4=7
-    P5=5
+    P4=6
+    P5=4
     repeat=1
     STATE_SIZE2=500
     STATE_SIZE3=500

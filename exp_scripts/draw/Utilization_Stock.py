@@ -352,19 +352,24 @@ exps = [
     #  "blue", "o"],
 
     # Cluster
-    ["Static-1",
-     "stock-server-split3-sb-4hr-50ms.txt-streamsluice-streamsluice-3690-30-1000-20-2-1000-1-500-3-2000-1-500-6-5000-1-500-1000-100-false-1",
-     "gray", "*"],
-    ["Static-2",
-     "stock-server-split3-sb-4hr-50ms.txt-streamsluice-streamsluice-3690-30-1000-20-4-1000-1-500-6-2000-1-500-12-5000-1-500-1000-100-false-1",
-     "orange", "*"],
-    ["DS2", "stock-server-split3-sb-4hr-50ms.txt-ds2-ds2-3690-30-1000-20-2-1000-1-500-3-2000-1-500-6-5000-1-500-1000-100-true-1",
-     "purple", "d"],
+    # ["Static-1",
+    #  "stock-server-split3-sb-4hr-50ms.txt-streamsluice-streamsluice-3690-30-1000-20-2-1000-1-500-3-2000-1-500-6-5000-1-500-1000-100-false-1",
+    #  "gray", "*"],
+    # ["Static-2",
+    #  "stock-server-split3-sb-4hr-50ms.txt-streamsluice-streamsluice-3690-30-1000-20-4-1000-1-500-6-2000-1-500-12-5000-1-500-1000-100-false-1",
+    #  "orange", "*"],
+    # ["DS2", "stock-server-split3-sb-4hr-50ms.txt-ds2-ds2-3690-30-1000-20-2-1000-1-500-3-2000-1-500-6-5000-1-500-1000-100-true-1",
+    #  "purple", "d"],
     # ["StreamSwitch",
     #  "stock-server-split3-sb-4hr-50ms.txt-streamswitch-streamswitch-3690-30-1000-20-2-1000-1-500-3-2000-1-500-6-5000-1-500-1000-100-true-1",
     #  "green", "p"],
-     ["StreamSluice",
-     "stock-server-split3-sb-4hr-50ms.txt-streamsluice-streamsluice-3690-30-1000-20-2-1000-1-500-3-2000-1-500-6-5000-1-500-1000-100-true-1",
+    #  ["StreamSluice",
+    #  "stock-server-split3-sb-4hr-50ms.txt-streamsluice-streamsluice-3690-30-1000-20-2-1000-1-500-3-2000-1-500-6-5000-1-500-1000-100-true-1",
+    #  "blue", "o"],
+
+    # Warmuprate
+    ["StreamSluice",
+     "stock-server-split3-sb-4hr-50ms.txt-streamsluice-streamsluice-690-30-1200-20-2-1000-1-500-3-2000-1-500-7-5000-1-500-1000-100-true-1",
      "blue", "o"],
 ]
 startTime=30

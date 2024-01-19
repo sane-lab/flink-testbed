@@ -1,1 +1,1 @@
-stock-server-split3-sb-4hr-50ms.txt-streamsluice-streamsluice-3690-30-1000-20-2-1000-1-500-3-2000-1-500-6-5000-1-500-1000-100-true-1
+stock-server-split3-sb-4hr-50ms.txt-streamsluice-streamsluice-690-30-1200-20-2-1000-1-500-3-2000-1-500-7-5000-1-500-1000-100-true-1
