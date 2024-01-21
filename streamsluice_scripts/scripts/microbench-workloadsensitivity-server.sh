@@ -1,6 +1,6 @@
 #!/bin/bash
 
-source config.sh
+source config-server.sh
 
 # dump data
 function analyze() {
@@ -14,10 +14,15 @@ function analyze() {
     mv ${FLINK_DIR}/log/* ${EXP_DIR}/streamsluice/
     mv ${EXP_DIR}/streamsluice/ ${EXP_DIR}/raw/${EXP_NAME}
     mkdir ${EXP_DIR}/streamsluice/
+
+    for host in "dragon" "eagle" "flamingo" "giraffe"; do
+      scp ${host}:${FLINK_DIR}/log/* ${EXP_DIR}/raw/${EXP_NAME}/
+      ssh ${host} "rm ${FLINK_DIR}/log/*"
+    done
 }
 
 run_one_exp() {
-  EXP_NAME=microbench-workload-${GRAPH}-${runtime}-${RATE1}-${RATE2}-${RATE_I}-${RANGE_I}-${PERIOD_I}-${P1}-${ZIPF_SKEW}-${P2}-${DELAY2}-${IO2}-${STATE_SIZE2}-${P3}-${DELAY3}-${IO3}-${STATE_SIZE3}-${P4}-${DELAY4}-${IO4}-${STATE_SIZE4}-${L}-${migration_interval}-${epoch}-${is_treat}-${repeat}
+  EXP_NAME=microbench-workload-server-${GRAPH}-${runtime}-${RATE1}-${RATE2}-${RATE_I}-${RANGE_I}-${PERIOD_I}-${P1}-${ZIPF_SKEW}-${P2}-${DELAY2}-${IO2}-${STATE_SIZE2}-${P3}-${DELAY3}-${IO3}-${STATE_SIZE3}-${P4}-${DELAY4}-${IO4}-${STATE_SIZE4}-${L}-${migration_interval}-${epoch}-${is_treat}-${repeat}
 
   echo "INFO: run exp ${EXP_NAME}"
   configFlink
@@ -145,10 +150,10 @@ run_scale_test(){
 #    STATE_SIZE2=100
 #    STATE_SIZE3=100
 #    STATE_SIZE4=100
-    STATE_SIZE2=10000
-    STATE_SIZE3=10000
-    STATE_SIZE4=10000
-    STATE_SIZE5=10000
+    STATE_SIZE2=1000 #10000
+    STATE_SIZE3=1000 #10000
+    STATE_SIZE4=1000 #10000
+    STATE_SIZE5=1000 #10000
     # STATE=100 slope, intercept
     spike_intercept=250
     spike_slope=0.7
@@ -158,11 +163,11 @@ run_scale_test(){
     printf "" > workload_result.txt
 
     printf "RANGE\n" >> workload_result.txt
-#    for RANGE_I in 2500; do # 7500 6250 5000 3750
-#        L=700 #1000
-#        run_one_exp
-#        printf "${EXP_NAME}\n" >> workload_result.txt
-#    done
+    for RANGE_I in 7500 6250 5000 3750 2500; do
+        L=1000
+        run_one_exp
+        printf "${EXP_NAME}\n" >> workload_result.txt
+    done
 
 
     printf "PERIOD\n" >> workload_result.txt
@@ -218,13 +223,13 @@ run_scale_test(){
 #    L=1000
 
     printf "SKEW\n" >> workload_result.txt
-    for ZIPF_SKEW in 0.6; do # 0.025 0.05 0.1 0.2 0.4
-        L=800 #800
-        run_one_exp
-        printf "${EXP_NAME}\n" >> workload_result.txt
-    done
-    ZIPF_SKEW=0
-    L=1000
+#    for ZIPF_SKEW in 0.6; do # 0.025 0.05 0.1 0.2 0.4
+#        L=800 #800
+#        run_one_exp
+#        printf "${EXP_NAME}\n" >> workload_result.txt
+#    done
+#    ZIPF_SKEW=0
+#    L=1000
 
     printf "TOPOLOGY\n" >> workload_result.txt
 #    GRAPH=1op
