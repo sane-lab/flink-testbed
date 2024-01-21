@@ -116,7 +116,7 @@ function runApp() {
 run_stock_test(){
     echo "Run overall test..."
     init
-    L=1000
+    L=1500 #1000
     runtime=3990 #3690
     skip_interval=20 # skip seconds
     warmup_time=30
@@ -131,7 +131,7 @@ run_stock_test(){
     STATE_SIZE4=500
     STATE_SIZE5=500
     spike_slope=0.75
-    spike_intercept=300 #150
+    spike_intercept=400 #150
     #topology="3op"
     topology="split3" #"split_join"
     if [[ "${topology}" == "split_join" || "${topology}" == "split3"  ]]; then
@@ -139,21 +139,21 @@ run_stock_test(){
     fi
 
     printf "" > stock_result.txt
-#    run_one_exp
-#    printf "${EXP_NAME}\n" >> stock_result.txt
+    run_one_exp
+    printf "${EXP_NAME}\n" >> stock_result.txt
 #
 #
 #    is_treat=false
 #    run_one_exp
 #    printf "${EXP_NAME}\n" >> stock_result.txt
-    is_treat=false
-    P2=4
-    P3=6
-    P4=12
-    P5=9
-    run_one_exp
-    printf "${EXP_NAME}\n" >> stock_result.txt
-    is_treat=true
+#    is_treat=false
+#    P2=4
+#    P3=6
+#    P4=12
+#    P5=9
+#    run_one_exp
+#    printf "${EXP_NAME}\n" >> stock_result.txt
+#    is_treat=true
 
 #    P2=2
 #    P3=3

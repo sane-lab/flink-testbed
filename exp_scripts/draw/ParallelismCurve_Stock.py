@@ -252,6 +252,34 @@ def draw(rawDir, outputDir, exps):
     figName = "Parallelism"
     nJobs = len(parallelismsPerJob.keys())
     jobList = ["a84740bacf923e828852cc4966f2247c", "eabd4c11f6c6fbdf011f0f1fc42097b1", "d01047f852abd5702a0dabeedac99ff5", "d2336f79a0d60b5a4b16c8769ec82e47"]
+
+    avgParallelismPerExp = {}
+    for expindex in range(0, len(exps)):
+        avgParallelismPerExp[exps[expindex][0]] = []
+        for jobIndex in range(0, nJobs):
+            job = jobList[jobIndex]
+            Parallelism = parallelismsPerJob[job][expindex]
+            totalParallelismInRange = 0
+            totalTime = 0
+            for i in range(0, len(Parallelism[0])):
+                x0 = Parallelism[0][i]
+                y0 = Parallelism[1][i]
+                if i + 1 >= len(Parallelism[0]):
+                    x1 = 10000000
+                    y1 = y0
+                else:
+                    x1 = Parallelism[0][i + 1]
+                    y1 = Parallelism[1][i + 1]
+                if x0 < startTime * 1000:
+                    x0 = startTime * 1000
+                if x1 > (startTime + 3600) * 1000:
+                    x1 = (startTime + 3600) * 1000
+                if x0 < x1:
+                    totalParallelismInRange += y0 * (x1 - x0)
+                    totalTime += (x1 - x0)
+            avgParallelismPerExp[exps[expindex][0]] += [totalParallelismInRange / float(totalTime)]
+    print(avgParallelismPerExp)
+
     fig, axs = plt.subplots(nJobs, 1, figsize=(24, 5 * nJobs), layout='constrained') #plt.figure(figsize=(12, 4))
     for jobIndex in range(0, nJobs):
         job = jobList[jobIndex]
@@ -263,9 +291,7 @@ def draw(rawDir, outputDir, exps):
         legend = []
         for expindex in range(0, len(exps)):
             print("Draw exps " + exps[expindex][0] + " curve...")
-            print(expindex, job, len(parallelismsPerJob[job]))  #parallelismsPerJob[job])
             Parallelism = parallelismsPerJob[job][expindex]
-
             legend += [exps[expindex][0]]
             line = [[], []]
             for i in range(0, len(Parallelism[0])):
@@ -420,9 +446,9 @@ exps = [
     ["Static-1",
      "stock-server-split3-sb-4hr-50ms.txt-streamsluice-streamsluice-3990-30-1000-20-2-1000-1-500-3-2000-1-500-6-5000-1-500-1000-100-false-1",
      "gray", "*"],
-    # ["Static-2",
-    #  "stock-server-split3-sb-4hr-50ms.txt-streamsluice-streamsluice-3990-30-1000-20-4-1000-1-500-6-2000-1-500-12-5000-1-500-1000-100-false-1",
-    #  "orange", "*"],
+    ["Static-2",
+     "stock-server-split3-sb-4hr-50ms.txt-streamsluice-streamsluice-3990-30-1000-20-4-1000-1-500-6-2000-1-500-12-5000-1-500-1000-100-false-1",
+     "orange", "*"],
     ["DS2", "stock-server-split3-sb-4hr-50ms.txt-ds2-ds2-3990-30-1000-20-2-1000-1-500-3-2000-1-500-6-5000-1-500-1000-100-true-1",
      "purple", "d"],
     ["StreamSwitch",

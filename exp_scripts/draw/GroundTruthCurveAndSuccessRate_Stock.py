@@ -128,6 +128,17 @@ def draw(rawDir, outputDir, exps, windowSize):
         result = readGroundTruthLatency(rawDir, expFile, windowSize)
         averageGroundTruthLatencies += [result[0]]
     print("+++ " + str(averageGroundTruthLatencies))
+
+    successRatePerExps = {}
+    for i in range(0, len(exps)):
+        totalSuccess = len([x for x in range(0, len(averageGroundTruthLatencies[i][0])) if
+                              averageGroundTruthLatencies[i][0][x] >= startTime * 1000 and
+                              averageGroundTruthLatencies[i][0][x] <= (startTime + 3600) * 1000 and averageGroundTruthLatencies[i][1][x] <= latencyLimit])
+        totalWindows = len([x for x in range(0, len(averageGroundTruthLatencies[i][0])) if
+                              averageGroundTruthLatencies[i][0][x] >= startTime * 1000 and
+                              averageGroundTruthLatencies[i][0][x] <= (startTime + 3600) * 1000])
+        successRatePerExps[exps[i][0]] = totalSuccess / float(totalWindows)
+    print(successRatePerExps)
     #print(averageGroundTruthLatency)
     fig = plt.figure(figsize=(24, 6))
     print("Draw ground truth curve...")

@@ -258,6 +258,16 @@ def draw(rawDir, outputDir, exps):
     nJobs = len(avgUtilizationsPerJob.keys())
     jobList = ["a84740bacf923e828852cc4966f2247c", "eabd4c11f6c6fbdf011f0f1fc42097b1", "d01047f852abd5702a0dabeedac99ff5", "d2336f79a0d60b5a4b16c8769ec82e47"]
     fig, axs = plt.subplots(nJobs, 1, figsize=(24, 5 * nJobs), layout='constrained')
+    utilizationPerExp = {}
+    for expindex in range(0, len(exps)):
+        utilizationPerExp[exps[expindex][0]] = []
+        for jobIndex in range(0, nJobs):
+            job = jobList[jobIndex]
+            utilizationInRange = [avgUtilizationsPerJob[job][expindex][x] for x in sorted((avgUtilizationsPerJob[job][expindex]).keys()) if x >= startTime * 1000 and x <= (startTime + 3600) * 1000]
+            totalUtilization = sum(utilizationInRange)
+            totalWindow = len(utilizationInRange)
+            utilizationPerExp[exps[expindex][0]] += [totalUtilization / float(totalWindow)]
+    print(utilizationPerExp)
     for jobIndex in range(0, nJobs):
         job = jobList[jobIndex]
         if nJobs == 1:
@@ -280,7 +290,6 @@ def draw(rawDir, outputDir, exps):
         ax1.set_ylabel("OP_" + str(jobIndex + 1) + ' Utilization')
         ax1.set_ylim(0, 1.0)
         ax1.set_yticks(np.arange(0, 1.2, 0.2))
-
         ax1.set_xlim(startTime * 1000, (startTime + 3600) * 1000)
         ax1.set_xticks(np.arange(startTime * 1000, (startTime + 3600) * 1000 + 300000, 300000))
         ax1.set_xticklabels([int((x - startTime * 1000) / 60000) for x in
@@ -371,9 +380,9 @@ exps = [
     ["Static-1",
      "stock-server-split3-sb-4hr-50ms.txt-streamsluice-streamsluice-3990-30-1000-20-2-1000-1-500-3-2000-1-500-6-5000-1-500-1000-100-false-1",
      "gray", "*"],
-    # ["Static-2",
-    #  "stock-server-split3-sb-4hr-50ms.txt-streamsluice-streamsluice-3990-30-1000-20-4-1000-1-500-6-2000-1-500-12-5000-1-500-1000-100-false-1",
-    #  "orange", "*"],
+    ["Static-2",
+     "stock-server-split3-sb-4hr-50ms.txt-streamsluice-streamsluice-3990-30-1000-20-4-1000-1-500-6-2000-1-500-12-5000-1-500-1000-100-false-1",
+     "orange", "*"],
     ["DS2", "stock-server-split3-sb-4hr-50ms.txt-ds2-ds2-3990-30-1000-20-2-1000-1-500-3-2000-1-500-6-5000-1-500-1000-100-true-1",
      "purple", "d"],
     ["StreamSwitch",
