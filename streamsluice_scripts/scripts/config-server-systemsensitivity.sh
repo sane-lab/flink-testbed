@@ -64,7 +64,7 @@ function configFlink() {
     cp ${FLINK_CONF_DIR}/slaves_systemsensitivity ${FLINK_DIR}/conf/slaves
     for host in "dragon" "eagle"; do
       scp ${FLINK_CONF_DIR}/* ${host}:${FLINK_DIR}/conf
-      scp ${FLINK_CONF_DIR}/flink-conf-slave-systemsensitivity ${host}:${FLINK_DIR}/conf/flink-conf.yaml
+      scp ${FLINK_CONF_DIR}/flink-conf-slave-systemsensitivity.yaml ${host}:${FLINK_DIR}/conf/flink-conf.yaml
     done
 }
 
