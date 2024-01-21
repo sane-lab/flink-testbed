@@ -134,9 +134,9 @@ run_scale_test(){
     #STATE_SIZE3=1000
     #STATE_SIZE4=1000
     spike_intercept=500
-    STATE_SIZE2=100 #10000
-    STATE_SIZE3=100 #10000
-    STATE_SIZE4=100 #10000
+    STATE_SIZE2=1 #10000
+    STATE_SIZE3=1 #10000
+    STATE_SIZE4=1 #10000
     runtime=60
     DELTA_I=270
     LP2=5
@@ -157,10 +157,10 @@ run_scale_test(){
     CURVE_TYPE="gradient"
 
     #whether_type="streamsluice"
-    #how_type="streamsluice"
+    how_type="streamsluice"
 #    whether_type="time_15"
     whether_type="streamsluice"
-    how_type="op_1_3_keep"
+#    how_type="op_1_3_keep"
     is_treat=true
     printf "1_${CURVE_TYPE}\n" >> whetherhow_result.txt
 #    is_treat=false
