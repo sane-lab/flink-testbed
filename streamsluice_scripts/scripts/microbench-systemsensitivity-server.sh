@@ -1,6 +1,6 @@
 #!/bin/bash
 
-source config-server.sh
+source config-server-systemsensitivity.sh
 
 # dump data
 function analyze() {
@@ -15,7 +15,7 @@ function analyze() {
     mv ${EXP_DIR}/streamsluice/ ${EXP_DIR}/raw/${EXP_NAME}
     mkdir ${EXP_DIR}/streamsluice/
 
-    for host in "dragon" "eagle" "flamingo" "giraffe"; do
+    for host in "dragon" "eagle"; do
       scp ${host}:${FLINK_DIR}/log/* ${EXP_DIR}/raw/${EXP_NAME}/
       ssh ${host} "rm ${FLINK_DIR}/log/*"
     done
