@@ -133,7 +133,7 @@ run_scale_test(){
     #STATE_SIZE2=1000
     #STATE_SIZE3=1000
     #STATE_SIZE4=1000
-    spike_intercept=500
+    spike_intercept=800
     STATE_SIZE2=1 #10000
     STATE_SIZE3=1 #10000
     STATE_SIZE4=1 #10000
