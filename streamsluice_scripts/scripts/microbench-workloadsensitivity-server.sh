@@ -150,20 +150,20 @@ run_scale_test(){
 #    STATE_SIZE2=100
 #    STATE_SIZE3=100
 #    STATE_SIZE4=100
-    STATE_SIZE2=1000 #10000
-    STATE_SIZE3=1000 #10000
-    STATE_SIZE4=1000 #10000
-    STATE_SIZE5=1000 #10000
+    STATE_SIZE2=10000
+    STATE_SIZE3=10000
+    STATE_SIZE4=10000
+    STATE_SIZE5=10000
     # STATE=100 slope, intercept
-    spike_intercept=250
+    spike_intercept=750
     spike_slope=0.7
     autotune=true
     autotune_interval=240
-    L=1000
+    L=2000
     printf "" > workload_result.txt
 
     printf "RANGE\n" >> workload_result.txt
-    for RANGE_I in 7500 6250 5000 3750 2500; do
+    for RANGE_I in 5000; do #7500 6250 5000 3750 2500; do
         L=1000
         run_one_exp
         printf "${EXP_NAME}\n" >> workload_result.txt
