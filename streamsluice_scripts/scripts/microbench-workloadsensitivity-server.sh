@@ -138,7 +138,7 @@ run_scale_test(){
     vertex_id="a84740bacf923e828852cc4966f2247c,eabd4c11f6c6fbdf011f0f1fc42097b1,d01047f852abd5702a0dabeedac99ff5"
     LP2=4
     LP3=4
-    LP4=78
+    LP4=60
     P2=1
     P3=1
     P4=12
