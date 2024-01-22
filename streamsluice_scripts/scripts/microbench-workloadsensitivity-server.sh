@@ -139,9 +139,11 @@ run_scale_test(){
     LP2=4
     LP3=4
     LP4=60
-    P2=1
-    P3=1
-    P4=12
+    LP5=4
+    P2=4 #1
+    P3=4 #1
+    P4=60 #12
+    P5=4 #1
     DELTA_I=0
     PERIOD_I=120
     RATE1=10000
@@ -164,7 +166,7 @@ run_scale_test(){
 
     printf "RANGE\n" >> workload_result.txt
     for RANGE_I in 5000; do #7500 6250 5000 3750 2500; do
-        L=1000
+        L=2000
         run_one_exp
         printf "${EXP_NAME}\n" >> workload_result.txt
     done
