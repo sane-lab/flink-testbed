@@ -135,9 +135,9 @@ run_scale_test(){
     #STATE_SIZE4=1000
     spike_intercept=500 #600
 
-    STATE_SIZE2=5000
-    STATE_SIZE3=5000
-    STATE_SIZE4=5000
+    STATE_SIZE2=10000
+    STATE_SIZE3=10000
+    STATE_SIZE4=10000
     runtime=60
     DELTA_I=270
     LP2=5
