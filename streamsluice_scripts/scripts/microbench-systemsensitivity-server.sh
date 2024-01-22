@@ -167,9 +167,9 @@ run_scale_test(){
 #    is_treat=false
 #    run_one_exp
 #    printf "${EXP_NAME}\n" >> whetherhow_result.txt
-#    is_treat=true
-#    run_one_exp
-#    printf "${EXP_NAME}\n" >> whetherhow_result.txt
+    is_treat=true
+    run_one_exp
+    printf "${EXP_NAME}\n" >> whetherhow_result.txt
 ##    # time 16.3 5->8   statesize=1000
 #    whether_early="time_14" # "time_14"
 #    whether_late="time_18" # "time_18"
@@ -221,9 +221,9 @@ run_scale_test(){
     printf "2_${CURVE_TYPE}\n" >> whetherhow_result.txt
 #    is_treat=false
 #    run_one_exp
-#    printf "${EXP_NAME}\n" >> whetherhow_result.txt
-#    is_treat=true
-#    run_one_exp
+    printf "${EXP_NAME}\n" >> whetherhow_result.txt
+    is_treat=true
+    run_one_exp
 #    printf "${EXP_NAME}\n" >> whetherhow_result.txt
 #    # time 16 5->8  decision epoch=1000
 #    whether_early="time_150"
@@ -266,9 +266,9 @@ run_scale_test(){
 #    is_treat=false
 #    run_one_exp
 #    printf "${EXP_NAME}\n" >> whetherhow_result.txt
-    is_treat=true
-    run_one_exp
-    printf "${EXP_NAME}\n" >> whetherhow_result.txt
+#    is_treat=true
+#    run_one_exp
+#    printf "${EXP_NAME}\n" >> whetherhow_result.txt
 #    # time 23.1 scale-out 5->8   statesize=1000
 #    whether_early="time_21"   #"time_21"
 #    whether_late="time_25"    #"time_25"
@@ -286,13 +286,13 @@ run_scale_test(){
 #    # time 22
 #    whether_early="time_210"
 #    whether_late="time_230"
-    whether_early="streamsluice_earlier"
-    whether_late="streamsluice_later"
-    for whether_type in ${whether_late}; do # ${whether_early}
-      #how_type="streamsluice"
-      run_one_exp
-      printf "${EXP_NAME}\n" >> whetherhow_result.txt
-    done
+#    whether_early="streamsluice_earlier"
+#    whether_late="streamsluice_later"
+#    for whether_type in ${whether_late}; do # ${whether_early}
+#      #how_type="streamsluice"
+#      run_one_exp
+#      printf "${EXP_NAME}\n" >> whetherhow_result.txt
+#    done
 
 #    whether_type="streamsluice"
 #    how_type="streamsluice"
@@ -389,8 +389,6 @@ run_scale_test(){
 #      run_one_exp
 #      printf "${EXP_NAME}\n" >> whetherhow_result.txt
 #    done
-
-
 }
 
 run_scale_test
