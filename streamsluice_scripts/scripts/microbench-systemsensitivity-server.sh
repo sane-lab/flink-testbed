@@ -167,9 +167,9 @@ run_scale_test(){
 #    is_treat=false
 #    run_one_exp
 #    printf "${EXP_NAME}\n" >> whetherhow_result.txt
-    is_treat=true
-    run_one_exp
-    printf "${EXP_NAME}\n" >> whetherhow_result.txt
+#    is_treat=true
+#    run_one_exp
+#    printf "${EXP_NAME}\n" >> whetherhow_result.txt
 ##    # time 16.3 5->8   statesize=1000
 #    whether_early="time_14" # "time_14"
 #    whether_late="time_18" # "time_18"
@@ -222,9 +222,9 @@ run_scale_test(){
 #    is_treat=false
 #    run_one_exp
 #    printf "${EXP_NAME}\n" >> whetherhow_result.txt
-    is_treat=true
-    run_one_exp
-    printf "${EXP_NAME}\n" >> whetherhow_result.txt
+#    is_treat=true
+#    run_one_exp
+#    printf "${EXP_NAME}\n" >> whetherhow_result.txt
 #    # time 16 5->8  decision epoch=1000
 #    whether_early="time_150"
 #    whether_late="time_170"
@@ -321,9 +321,9 @@ run_scale_test(){
 #    is_treat=false
 #    run_one_exp
 #    printf "${EXP_NAME}\n" >> whetherhow_result.txt
-    is_treat=true
-    run_one_exp
-    printf "${EXP_NAME}\n" >> whetherhow_result.txt
+#    is_treat=true
+#    run_one_exp
+#    printf "${EXP_NAME}\n" >> whetherhow_result.txt
 #    # time 15.8 5->8  statesize=1000
 #    whether_early="time_14" # "time_14"
 #    whether_late="time_18" # "time_18"
@@ -368,8 +368,8 @@ run_scale_test(){
     RATE_I=5000
     RANGE_I=1000
     TIME1=32
-    PERIOD_I=3
-    TIME_I=3
+    PERIOD_I=2
+    TIME_I=2
     printf "5_${CURVE_TYPE}\n" >> whetherhow_result.txt
 #    is_treat=false
 #    run_one_exp
@@ -383,12 +383,12 @@ run_scale_test(){
 #    whether_early="time_20"
 
 #     Epoch=1000
-#    whether_early="streamsluice_earlier"
-#    for whether_type in ${whether_early} ; do
-##      how_type="streamsluice"
-#      run_one_exp
-#      printf "${EXP_NAME}\n" >> whetherhow_result.txt
-#    done
+    whether_early="streamsluice_earlier"
+    for whether_type in ${whether_early} ; do
+#      how_type="streamsluice"
+      run_one_exp
+      printf "${EXP_NAME}\n" >> whetherhow_result.txt
+    done
 }
 
 run_scale_test
