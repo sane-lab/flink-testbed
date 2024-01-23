@@ -165,64 +165,64 @@ run_scale_test(){
     printf "" > workload_result.txt
 
     printf "RANGE\n" >> workload_result.txt
-    for RANGE_I in 7500 6250 5000 3750 2500; do
-        L=1500
+    for RANGE_I in 5000 3750 2500; do # 7500 6250
+        L=1200 #1500
         run_one_exp
         printf "${EXP_NAME}\n" >> workload_result.txt
     done
 
 
     printf "PERIOD\n" >> workload_result.txt
-    RANGE_I=5000
-    for PERIOD_I in 30 60 90 180; do
-      if [[ "${PERIOD_I}" == 180 ]]; then
-        L=1300
-        autotune_interval=240 # 240
-      else
-        L=1500 #2000
-        autotune_interval="$((${PERIOD_I}*2))" # 240
-      fi
-      run_one_exp
-      printf "${EXP_NAME}\n" >> workload_result.txt
-    done
-    PERIOD_I=120
-    autotune_interval=240
-    L=1000
+#    RANGE_I=5000
+#    for PERIOD_I in 30 60 90 180; do
+#      if [[ "${PERIOD_I}" == 180 ]]; then
+#        L=1300
+#        autotune_interval=240 # 240
+#      else
+#        L=1500 #2000
+#        autotune_interval="$((${PERIOD_I}*2))" # 240
+#      fi
+#      run_one_exp
+#      printf "${EXP_NAME}\n" >> workload_result.txt
+#    done
+#    PERIOD_I=120
+#    autotune_interval=240
+#    L=1000
 
     printf "STATE\n" >> workload_result.txt
-    for STATE_SIZE2 in 2500 5000 20000 40000; do
-        STATE_SIZE3=${STATE_SIZE2}
-        STATE_SIZE4=${STATE_SIZE2}
-        if [[ ${STATE_SIZE2} == 2500 ]]; then
-          spike_slope=0.7
-          spike_intercept=300
-          L=1000
-        fi
-        if [[ ${STATE_SIZE2} == 5000 ]]; then
-          spike_slope=0.7
-          spike_intercept=500
-          L=1200
-        fi
-        if [[ ${STATE_SIZE2} == 20000 ]]; then
-          spike_slope=0.7
-          spike_intercept=1000
-          L=2000
-        fi
-        if [[ ${STATE_SIZE2} == 40000 ]]; then
-          # intercept=180
-          spike_slope=0.7
-          spike_intercept=1400
-          L=4000
-        fi
-        run_one_exp
-        printf "${EXP_NAME}\n" >> workload_result.txt
-    done
-    STATE_SIZE2=10000
-    STATE_SIZE3=10000
-    STATE_SIZE4=10000
-    spike_intercept=750
-    spike_slope=0.7
-    L=1500
+#    for STATE_SIZE2 in 2500 5000 20000 40000; do
+#        STATE_SIZE3=${STATE_SIZE2}
+#        STATE_SIZE4=${STATE_SIZE2}
+#        if [[ ${STATE_SIZE2} == 2500 ]]; then
+#          spike_slope=0.7
+#          spike_intercept=300
+#          L=1000
+#        fi
+#        if [[ ${STATE_SIZE2} == 5000 ]]; then
+#          spike_slope=0.7
+#          spike_intercept=500
+#          L=1200
+#        fi
+#        if [[ ${STATE_SIZE2} == 20000 ]]; then
+#          spike_slope=0.7
+#          spike_intercept=1000
+#          L=2000
+#        fi
+#        if [[ ${STATE_SIZE2} == 40000 ]]; then
+#          # intercept=180
+#          spike_slope=0.7
+#          spike_intercept=1400
+#          L=4000
+#        fi
+#        run_one_exp
+#        printf "${EXP_NAME}\n" >> workload_result.txt
+#    done
+#    STATE_SIZE2=10000
+#    STATE_SIZE3=10000
+#    STATE_SIZE4=10000
+#    spike_intercept=750
+#    spike_slope=0.7
+#    L=1500
 
     printf "SKEW\n" >> workload_result.txt
 #    for ZIPF_SKEW in 0.025 0.05 0.1 0.2 0.4; do # 0.6
