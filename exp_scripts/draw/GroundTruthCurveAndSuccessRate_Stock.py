@@ -139,18 +139,18 @@ def draw(rawDir, outputDir, exps, windowSize):
                               averageGroundTruthLatencies[i][0][x] <= (startTime + 3600) * 1000])
         successRatePerExps[exps[i][0]] = totalSuccess / float(totalWindows)
     print(successRatePerExps)
-    #print(averageGroundTruthLatency)
-    fig = plt.figure(figsize=(24, 6))
+    #fig = plt.figure(figsize=(24, 6))
+    fig = plt.figure(figsize=(24, 3))
     print("Draw ground truth curve...")
     legend = []
     for i in range(0, len(exps)):
         legend += [exps[i][0]]
         averageGroundTruthLatency = averageGroundTruthLatencies[i]
         plt.plot(averageGroundTruthLatency[0], averageGroundTruthLatency[1], 'o', color=exps[i][2], markersize=2)
+    legend += ["Limit"]
     addLatencyLimitMarker(plt)
-    plt.plot()
-    plt.legend(legend, loc='upper right', ncol=2)
-    plt.xlabel('Time (min)')
+    plt.legend(legend, bbox_to_anchor=(0.5, 1.3), loc='upper center', ncol=6, markerscale=4.)
+    #plt.xlabel('Time (min)')
     plt.ylabel('Latency (ms)')
     #plt.title('Latency Curves')
     axes = plt.gca()
@@ -164,8 +164,8 @@ def draw(rawDir, outputDir, exps, windowSize):
     import os
     if not os.path.exists(outputDir):
         os.makedirs(outputDir)
-    #plt.savefig(outputDir + 'ground_truth_latency_curves.png')
-    plt.savefig(outputDir + 'ground_truth_latency_curves.png', bbox_inches='tight')
+    #plt.savefig(outputDir + 'ground_truth_latency_curves.png', bbox_inches='tight')
+    plt.savefig(outputDir + 'ground_truth_latency_curves.pdf', bbox_inches='tight')
     plt.close(fig)
 
 
@@ -248,7 +248,7 @@ exps = [
     ["StreamSwitch",
      "stock-server-split3-sb-4hr-50ms.txt-streamswitch-streamswitch-3990-30-1000-20-2-1000-1-500-3-2000-1-500-6-5000-1-500-1000-100-true-1",
      "green", "p"],
-    ["StreamSluice",
+    ["Spacker",
      "stock-server-split3-sb-4hr-50ms.txt-streamsluice-streamsluice-3990-30-1000-20-2-1000-1-500-3-2000-1-500-6-5000-1-500-1000-100-true-1",
      "blue", "o"],
 ]
@@ -260,6 +260,6 @@ latencyLimit = 1000
 endTime = 270 #150 #630
 startTime=30+300 #30
 isSingleOperator = False #True
-expName = [exp[1] for exp in exps if exp[0] == "StreamSluice"][0]
+expName = [exp[1] for exp in exps if exp[0] == "StreamSluice" or exp[0] == "Spacker"][0]
 print(expName)
 draw(rawDir, outputDir + expName + "/", exps, windowSize)

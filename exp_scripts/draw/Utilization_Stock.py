@@ -15,6 +15,8 @@ OPERATOR_NAMING = {
 }
 
 
+APP_NAMING = ["TF", "PA", "VA", "TA"]
+
 SMALL_SIZE = 25
 MEDIUM_SIZE = 30
 BIGGER_SIZE = 35
@@ -257,7 +259,11 @@ def draw(rawDir, outputDir, exps):
 
     nJobs = len(avgUtilizationsPerJob.keys())
     jobList = ["a84740bacf923e828852cc4966f2247c", "eabd4c11f6c6fbdf011f0f1fc42097b1", "d01047f852abd5702a0dabeedac99ff5", "d2336f79a0d60b5a4b16c8769ec82e47"]
-    fig, axs = plt.subplots(nJobs, 1, figsize=(24, 5 * nJobs), layout='constrained')
+    #fig, axs = plt.subplots(nJobs, 1, figsize=(24, 5 * nJobs), layout='constrained')
+    fig, axs = plt.subplots(nJobs, 1, figsize=(24, 2 * nJobs), layout='constrained')
+
+    fig.supylabel("Utilization Per Operator")
+
     utilizationPerExp = {}
     for expindex in range(0, len(exps)):
         utilizationPerExp[exps[expindex][0]] = []
@@ -287,22 +293,29 @@ def draw(rawDir, outputDir, exps):
             print("Draw " + exps[expindex][0] + " figure...")
             #plt.subplot(len(totalArrivalRatePerJob.keys()), 1, i+1)
             ax1.plot(ax, ay, exps[expindex][3], color=exps[expindex][2], markersize=MARKERSIZE)
-        ax1.set_ylabel("OP_" + str(jobIndex + 1) + ' Utilization')
+        # ax1.set_ylabel("OP_" + str(jobIndex + 1) + ' Utilization')
+        # ax1.set_ylim(0, 1.0)
+        # ax1.set_yticks(np.arange(0, 1.2, 0.2))
+        ax1.set_ylabel(APP_NAMING[jobIndex])
         ax1.set_ylim(0, 1.0)
-        ax1.set_yticks(np.arange(0, 1.2, 0.2))
+        ax1.set_yticks(np.arange(0, 1.5, 0.5))
         ax1.set_xlim(startTime * 1000, (startTime + 3600) * 1000)
         ax1.set_xticks(np.arange(startTime * 1000, (startTime + 3600) * 1000 + 300000, 300000))
-        ax1.set_xticklabels([int((x - startTime * 1000) / 60000) for x in
-                             np.arange(startTime * 1000, (startTime + 3600) * 1000 + 300000, 300000)])
+        if jobIndex == nJobs - 1:
+            ax1.set_xticklabels([int((x - startTime * 1000) / 60000) for x in
+                                 np.arange(startTime * 1000, (startTime + 3600) * 1000 + 300000, 300000)])
+            ax1.set_xlabel("Time (minute)")
+        else:
+            ax1.set_xticklabels([])
 
         ax1.grid(True)
         if jobIndex == 0:
-            ax1.legend(legend, loc='upper right', ncol=5)
+            ax1.legend(legend, bbox_to_anchor=(1, 1.6), loc='upper right', ncol=6, markerscale=4.)
     import os
     if not os.path.exists(outputDir):
         os.makedirs(outputDir)
-    #plt.savefig(outputDir + figName + ".png")
-    plt.savefig(outputDir + figName + ".png", bbox_inches='tight')
+    #plt.savefig(outputDir + figName + ".png", bbox_inches='tight')
+    plt.savefig(outputDir + figName + ".pdf", bbox_inches='tight')
     plt.close(fig)
 
 
@@ -388,7 +401,7 @@ exps = [
     ["StreamSwitch",
      "stock-server-split3-sb-4hr-50ms.txt-streamswitch-streamswitch-3990-30-1000-20-2-1000-1-500-3-2000-1-500-6-5000-1-500-1000-100-true-1",
      "green", "p"],
-    ["StreamSluice",
+    ["Spacker",
      "stock-server-split3-sb-4hr-50ms.txt-streamsluice-streamsluice-3990-30-1000-20-2-1000-1-500-3-2000-1-500-6-5000-1-500-1000-100-true-1",
      "blue", "o"],
 ]
@@ -397,6 +410,6 @@ windowSize=1000
 serviceRateFlag=True
 scalingMarkerFlag = False
 drawOperatorFigureFlag = False
-expName = [exp[1] for exp in exps if exp[0] == "StreamSluice"][0]
+expName = [exp[1] for exp in exps if exp[0] == "StreamSluice" or exp[0] == "Spacker"][0]
 print(expName)
 draw(rawDir, outputDir + expName + "/", exps)
