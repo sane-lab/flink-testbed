@@ -157,7 +157,7 @@ run_scale_test(){
     STATE_SIZE4=10000
     STATE_SIZE5=10000
     # STATE=100 slope, intercept
-    spike_intercept=750
+    spike_intercept=600 # 750
     spike_slope=0.7
     autotune=true
     autotune_interval=240
@@ -165,61 +165,61 @@ run_scale_test(){
     printf "" > workload_result.txt
 
     printf "RANGE\n" >> workload_result.txt
-#    for RANGE_I in 2500; do # 7500 6250 5000 3750
-#        L=1100 #1500
-#        run_one_exp
-#        printf "${EXP_NAME}\n" >> workload_result.txt
-#    done
-
-
-    printf "PERIOD\n" >> workload_result.txt
-    RANGE_I=5000
-    for PERIOD_I in 30; do # 60 90 180; do # 30
-      if [[ "${PERIOD_I}" == 180 ]]; then
-        L=1100
-        autotune_interval=240 # 240
-      elif [[ "${PERIOD_I}" == 30 ]]; then
-        L=3000
-        autotune_interval=60 # 240
-      else
-        L=1500 #2000
-        autotune_interval="$((${PERIOD_I}*2))" # 240
-      fi
-      run_one_exp
-      printf "${EXP_NAME}\n" >> workload_result.txt
-    done
-    PERIOD_I=120
-    autotune_interval=240
-    L=1000
-
-    printf "STATE\n" >> workload_result.txt
-    for STATE_SIZE2 in 40000; do #  2500 5000 20000
-        STATE_SIZE3=${STATE_SIZE2}
-        STATE_SIZE4=${STATE_SIZE2}
-        if [[ ${STATE_SIZE2} == 2500 ]]; then
-          spike_slope=0.7
-          spike_intercept=300
-          L=1000
-        fi
-        if [[ ${STATE_SIZE2} == 5000 ]]; then
-          spike_slope=0.7
-          spike_intercept=500
-          L=1200
-        fi
-        if [[ ${STATE_SIZE2} == 20000 ]]; then
-          spike_slope=0.7
-          spike_intercept=1200
-          L=2000
-        fi
-        if [[ ${STATE_SIZE2} == 40000 ]]; then
-          # intercept=180
-          spike_slope=0.7
-          spike_intercept=2000
-          L=3500
-        fi
+    for RANGE_I in 5000; do # 7500 6250 5000 3750
+        L=1200 #1500
         run_one_exp
         printf "${EXP_NAME}\n" >> workload_result.txt
     done
+
+
+    printf "PERIOD\n" >> workload_result.txt
+#    RANGE_I=5000
+#    for PERIOD_I in 30; do # 60 90 180; do # 30
+#      if [[ "${PERIOD_I}" == 180 ]]; then
+#        L=1100
+#        autotune_interval=240 # 240
+#      elif [[ "${PERIOD_I}" == 30 ]]; then
+#        L=3000
+#        autotune_interval=60 # 240
+#      else
+#        L=1500 #2000
+#        autotune_interval="$((${PERIOD_I}*2))" # 240
+#      fi
+#      run_one_exp
+#      printf "${EXP_NAME}\n" >> workload_result.txt
+#    done
+#    PERIOD_I=120
+#    autotune_interval=240
+#    L=1000
+
+    printf "STATE\n" >> workload_result.txt
+#    for STATE_SIZE2 in 40000; do #  2500 5000 20000
+#        STATE_SIZE3=${STATE_SIZE2}
+#        STATE_SIZE4=${STATE_SIZE2}
+#        if [[ ${STATE_SIZE2} == 2500 ]]; then
+#          spike_slope=0.7
+#          spike_intercept=300
+#          L=1000
+#        fi
+#        if [[ ${STATE_SIZE2} == 5000 ]]; then
+#          spike_slope=0.7
+#          spike_intercept=500
+#          L=1200
+#        fi
+#        if [[ ${STATE_SIZE2} == 20000 ]]; then
+#          spike_slope=0.7
+#          spike_intercept=1200
+#          L=2000
+#        fi
+#        if [[ ${STATE_SIZE2} == 40000 ]]; then
+#          # intercept=180
+#          spike_slope=0.7
+#          spike_intercept=2000
+#          L=3500
+#        fi
+#        run_one_exp
+#        printf "${EXP_NAME}\n" >> workload_result.txt
+#    done
     STATE_SIZE2=10000
     STATE_SIZE3=10000
     STATE_SIZE4=10000
@@ -228,52 +228,71 @@ run_scale_test(){
     L=1500
 
     printf "SKEW\n" >> workload_result.txt
-    for ZIPF_SKEW in 0.6; do #0.025 0.05 0.1 0.2 0.4; do # 0.6
-        L=1300 #800
-        run_one_exp
-        printf "${EXP_NAME}\n" >> workload_result.txt
-    done
-    ZIPF_SKEW=0
-    L=1500
+#    for ZIPF_SKEW in 0.6; do #0.025 0.05 0.1 0.2 0.4; do # 0.6
+#        L=1300 #800
+#        run_one_exp
+#        printf "${EXP_NAME}\n" >> workload_result.txt
+#    done
+#    ZIPF_SKEW=0
+#    L=1500
 
     printf "TOPOLOGY\n" >> workload_result.txt
-    GRAPH=1op
-    vertex_id="a84740bacf923e828852cc4966f2247c" #,eabd4c11f6c6fbdf011f0f1fc42097b1,d01047f852abd5702a0dabeedac99ff5"
-    DELAY2=1000
-    L=1200
-    LP2=72
-    P2=72
-    run_one_exp
-    printf "${EXP_NAME}\n" >> workload_result.txt
-    DELAY2=50
-    P2=4
-    L=1000
+#    GRAPH=1op
+#    vertex_id="a84740bacf923e828852cc4966f2247c" #,eabd4c11f6c6fbdf011f0f1fc42097b1,d01047f852abd5702a0dabeedac99ff5"
+#    DELAY2=1000
+#    L=1200
+#    LP2=72
+#    P2=72
+#    run_one_exp
+#    printf "${EXP_NAME}\n" >> workload_result.txt
+#    DELAY2=50
+#    P2=4
+#    LP2=4
+#    L=1000
 
     RANGE_I=5000
-    GRAPH=3op
-    vertex_id="a84740bacf923e828852cc4966f2247c,eabd4c11f6c6fbdf011f0f1fc42097b1,d01047f852abd5702a0dabeedac99ff5"
-    DELAY3=50
-    DELAY4=1000
+    GRAPH=2op
+    vertex_id="a84740bacf923e828852cc4966f2247c,eabd4c11f6c6fbdf011f0f1fc42097b1" #,d01047f852abd5702a0dabeedac99ff5"
+    DELAY3=1000
     LP2=4
-    LP3=4
-    LP4=60
     P2=4
-    P3=4
-    P4=60
-    L=1300
+    LP3=68
+    P3=68
+    L=1200
     for repeat in 1; do
       run_one_exp
       printf "${EXP_NAME}\n" >> workload_result.txt
     done
+    DELAY3=50
+    P3=4
+    LP3=4
+    L=1000
 
-    GRAPH=1split3
-    vertex_id="a84740bacf923e828852cc4966f2247c,eabd4c11f6c6fbdf011f0f1fc42097b1,d01047f852abd5702a0dabeedac99ff5,d2336f79a0d60b5a4b16c8769ec82e47"
-    L=1200
-    LP5=4
-    p5=4
-    DELAY5=50
-    run_one_exp
-    printf "${EXP_NAME}\n" >> workload_result.txt
+    RANGE_I=5000
+#    GRAPH=3op
+#    vertex_id="a84740bacf923e828852cc4966f2247c,eabd4c11f6c6fbdf011f0f1fc42097b1,d01047f852abd5702a0dabeedac99ff5"
+#    DELAY3=50
+#    DELAY4=1000
+#    LP2=4
+#    LP3=4
+#    LP4=60
+#    P2=4
+#    P3=4
+#    P4=60
+#    L=1300
+#    for repeat in 1; do
+#      run_one_exp
+#      printf "${EXP_NAME}\n" >> workload_result.txt
+#    done
+
+#    GRAPH=1split3
+#    vertex_id="a84740bacf923e828852cc4966f2247c,eabd4c11f6c6fbdf011f0f1fc42097b1,d01047f852abd5702a0dabeedac99ff5,d2336f79a0d60b5a4b16c8769ec82e47"
+#    L=1200
+#    LP5=4
+#    p5=4
+#    DELAY5=50
+#    run_one_exp
+#    printf "${EXP_NAME}\n" >> workload_result.txt
     GRAPH=2split2
     vertex_id="a84740bacf923e828852cc4966f2247c,eabd4c11f6c6fbdf011f0f1fc42097b1,d01047f852abd5702a0dabeedac99ff5,d2336f79a0d60b5a4b16c8769ec82e47"
     L=1300
@@ -282,7 +301,6 @@ run_scale_test(){
     DELAY5=50
     run_one_exp
     printf "${EXP_NAME}\n" >> workload_result.txt
-
 }
 
 run_scale_test

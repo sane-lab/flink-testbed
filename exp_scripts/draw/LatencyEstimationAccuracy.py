@@ -54,33 +54,34 @@ def draw(rawDir, outputDir, expName, windowSize):
     nextEpochLatency = [[], []]
     nextSpikes = [[], []]
 
-    taskExecutor = "flink-samza-taskexecutor-0-eagle-sane.out"
+    taskExecutors = []  # "flink-samza-taskexecutor-0-eagle-sane.out"
     import os
     for file in os.listdir(rawDir + expName + "/"):
         if file.endswith(".out"):
             # print(os.path.join(rawDir + expName + "/", file))
             if file.count("taskexecutor") == 1:
-                taskExecutor = file
-    groundTruthPath = rawDir + expName + "/" + taskExecutor
-    print("Reading ground truth file:" + groundTruthPath)
-    counter = 0
-    with open(groundTruthPath) as f:
-        lines = f.readlines()
-        for i in range(0, len(lines)):
-            line = lines[i]
-            split = line.rstrip().split()
-            counter += 1
-            if (counter % 5000 == 0):
-                print("Processed to line:" + str(counter))
-            if(split[0] == "GT:"):
-                completedTime = int(split[2].rstrip(","))
-                latency = int(split[3].rstrip(","))
-                arrivedTime = completedTime - latency
-                if (initialTime == -1 or initialTime > arrivedTime):
-                    initialTime = arrivedTime
-                if (arrivedTime > initialTime + endTime * 1000 + 20000):
-                    break
-                groundTruthLatency += [[arrivedTime, latency]]
+                taskExecutors += [file]
+    for taskExecutor in taskExecutors:
+        groundTruthPath = rawDir + expName + "/" + taskExecutor
+        print("Reading ground truth file:" + groundTruthPath)
+        counter = 0
+        with open(groundTruthPath) as f:
+            lines = f.readlines()
+            for i in range(0, len(lines)):
+                line = lines[i]
+                split = line.rstrip().split()
+                counter += 1
+                if (counter % 5000 == 0):
+                    print("Processed to line:" + str(counter))
+                if(split[0] == "GT:"):
+                    completedTime = int(split[2].rstrip(","))
+                    latency = int(split[3].rstrip(","))
+                    arrivedTime = completedTime - latency
+                    if (initialTime == -1 or initialTime > arrivedTime):
+                        initialTime = arrivedTime
+                    if (arrivedTime > initialTime + endTime * 1000 + 20000):
+                        break
+                    groundTruthLatency += [[arrivedTime, latency]]
 
     streamsluiceOutput = "flink-samza-standalonesession-0-eagle-sane.out"
     import os
@@ -170,7 +171,7 @@ def draw(rawDir, outputDir, expName, windowSize):
         averageGroundTruthLatency[1] += [int(aggregatedGroundTruthLatency[index][0] / float(aggregatedGroundTruthLatency[index][1]))]
 
     #print(averageGroundTruthLatency)
-    fig = plt.figure(figsize=(15, 6), layout='constrained')
+    fig = plt.figure(figsize=(24, 4), layout='constrained')
     print("Draw ground truth curve...")
     legend = []
     legend += ["Ground Truth"]
@@ -190,10 +191,10 @@ def draw(rawDir, outputDir, expName, windowSize):
     #    addScalingMarker(plt, scalingMarkerByOperator[operator])
 #    addLatencyLimitMarker(plt)
 
-    plt.legend(legend, loc='upper left', ncol=3)
+    plt.legend(legend, loc='upper center', bbox_to_anchor=(0.5, 1.15), ncol=3)
     plt.xlabel('Time (min)')
     plt.ylabel('Latency (ms)')
-    plt.title('Ground-Truth vs Estimated Latency')
+    #plt.title('Ground-Truth vs Estimated Latency')
     axes = plt.gca()
     # axes.set_xlim(0, averageGroundTruthLatency[0][-1])
     # axes.set_xticks(np.arange(0, averageGroundTruthLatency[0][-1], 10000))
@@ -218,12 +219,12 @@ def draw(rawDir, outputDir, expName, windowSize):
     import os
     if not os.path.exists(outputDir):
         os.makedirs(outputDir)
-    plt.savefig(outputDir + 'latency_curves.png')
+    plt.savefig(outputDir + 'latency_curves.pdf')
     plt.close(fig)
 
 rawDir = "/Users/swrrt/Workplace/BacklogDelayPaper/experiments/raw/"
 outputDir = "/Users/swrrt/Workplace/BacklogDelayPaper/experiments/results/"
-expName = "microbench-workload-1split2-3660-10000-10000-10000-5000-120-1-0-1-50-1-10000-1-50-1-10000-12-1000-1-10000-1000-500-100-true-1"
+expName = "microbench-workload-server-1split2-3660-10000-10000-10000-5000-120-1-0-4-50-1-10000-4-50-1-10000-60-1000-1-10000-1200-500-100-true-1"
 windowSize = 1000
 latencyLimit = 2000
 startTime = 300

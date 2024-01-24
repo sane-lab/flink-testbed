@@ -81,17 +81,17 @@ def draw(rawDir, outputDir, expName):
     RMSE = calculateRootMeanSquaredError(trueScalingTimes, estimatedScalingTimes)
     MAPE = calculateMeanAbsolutePercentageError(trueScalingTimes, estimatedScalingTimes)
     print(MAE, RMSE, MAPE)
-    fig, axs = plt.subplots(1, 1, figsize=(15, 6), layout='constrained')
+    fig, axs = plt.subplots(1, 1, figsize=(24, 4), layout='constrained')
     ax1 = axs
     print("Draw estimated/true scaling time")
     x = np.arange(0, len(estimatedScalingTimes))
-    legend = ["Ground Truth", "Estimated"]
-    ax1.plot(x, trueScalingTimes, 'd', color="gray", markersize=4)
-    ax1.plot(x, estimatedScalingTimes, 'o', color="blue", markersize=4)
+    legend = ["Ground-Truth", "Predicted"]
+    ax1.plot(x, trueScalingTimes, 'd', color="red", markersize=6)
+    ax1.plot(x, estimatedScalingTimes, 'o', color="blue", markersize=6)
     for index in range(0, len(estimatedScalingTimes)):
         x = [index, index]
         y = [trueScalingTimes[index], estimatedScalingTimes[index]]
-        ax1.plot(x, y, '-', color="blue", linewidth=1)
+        ax1.plot(x, y, '-', color="gray", linewidth=1)
     # width = 0.4
     # offset = 0
     # rects = ax1.bar(x + offset, spikesPerOperator[operator][0], width, label="Estimated Spike")
@@ -99,21 +99,23 @@ def draw(rawDir, outputDir, expName):
     # offset = width
     # rects = ax1.bar(x + offset, spikesPerOperator[operator][1], width, label="True Spike")
     # ax1.bar_label(rects, padding=3)
+    ax1.set_ylim(0, 2000)
     ax1.set_ylabel('Scaling Time (ms)')
+    ax1.yaxis.set_label_coords(-0.05, 0.35)
     ax1.set_xlabel('Scaling Index')
-    ax1.set_title("Ground-Truth/Estimated Scaling Time")
+    #ax1.set_title("Ground-Truth/Estimated Scaling Time")
     ax1.legend(legend, loc='upper left', ncol=2)
     import os
     if not os.path.exists(outputDir):
         os.makedirs(outputDir)
-    plt.savefig(outputDir + "scaling_spike.png", bbox_inches='tight')
+    plt.savefig(outputDir + "scaling_spike.pdf", bbox_inches='tight')
     plt.close(fig)
 
 
 rawDir = "/Users/swrrt/Workplace/BacklogDelayPaper/experiments/raw/"
 outputDir = "/Users/swrrt/Workplace/BacklogDelayPaper/experiments/results/"
 import sys
-expName = "microbench-workload-1split2-3660-10000-10000-10000-5000-120-1-0-1-50-1-10000-1-50-1-10000-12-1000-1-10000-1000-500-100-true-1"
+expName = "microbench-workload-server-1split2-3660-10000-10000-10000-5000-120-1-0-4-50-1-10000-4-50-1-10000-60-1000-1-10000-1200-500-100-true-1"
 if len(sys.argv) > 1:
     expName = sys.argv[1].split("/")[-1]
 draw(rawDir, outputDir + expName + "/", expName)

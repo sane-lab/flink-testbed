@@ -297,7 +297,10 @@ def readGroundTruthLatency(rawDir, expName, windowSize):
 
 def drawLatency(outputDir, averageGroundTruthLatency, latencyLimits):
     # Draw Latency
-    fig = plt.figure(figsize=(24, 10))
+    if isPdfOutput:
+        fig = plt.figure(figsize=(5, 5))
+    else:
+        fig = plt.figure(figsize=(24, 10))
     print("Draw ground truth curve...")
     legend = ["Ground Truth"]
     plt.plot(averageGroundTruthLatency[0], averageGroundTruthLatency[1], 'o', color='b', markersize=2)
@@ -306,21 +309,32 @@ def drawLatency(outputDir, averageGroundTruthLatency, latencyLimits):
     plt.plot()
     plt.legend(legend, loc='upper left')
     plt.xlabel('Time (min)')
-    plt.ylabel('Ground Truth Latency (ms)')
+    if not isPdfOutput:
+        plt.ylabel('Ground Truth Latency (ms)')
+    else:
+        plt.ylabel('Latency (ms)')
     #plt.title('Latency Curves')
     axes = plt.gca()
-    axes.set_xlim(startTime * 1000, (startTime + 3660) * 1000)
-    axes.set_xticks(np.arange(startTime * 1000, (startTime + 3660) * 1000 + 300000, 300000))
-    axes.set_xticklabels([int((x - startTime * 1000) / 60000) for x in np.arange(startTime * 1000, (startTime + 3660) * 1000 + 300000, 300000)])
-    axes.set_ylim(0, 4000)
-    axes.set_yticks(np.arange(0, 4500, 500))
+    if not isPdfOutput:
+        axes.set_xlim(startTime * 1000, (startTime + 3660) * 1000)
+        axes.set_xticks(np.arange(startTime * 1000, (startTime + 3660) * 1000 + 300000, 300000))
+        axes.set_xticklabels([int((x - startTime * 1000) / 60000) for x in np.arange(startTime * 1000, (startTime + 3660) * 1000 + 300000, 300000)])
+        axes.set_ylim(0, 4000)
+        axes.set_yticks(np.arange(0, 4500, 500))
+    else:
+        axes.set_xlim(startTime * 1000, (startTime + 3600) * 1000)
+        axes.set_xticks(np.arange(startTime * 1000, (startTime + 3600) * 1000 + 600000, 600000))
+        axes.set_xticklabels([int((x - startTime * 1000) / 60000) for x in
+                              np.arange(startTime * 1000, (startTime + 3600) * 1000 + 600000, 600000)])
+        axes.set_ylim(0, 4000)
+        axes.set_yticks(np.arange(0, 5000, 1000))
     # axes.set_yscale('log')
     plt.grid(True)
     import os
     if not os.path.exists(outputDir):
         os.makedirs(outputDir)
-    #plt.savefig(outputDir + 'ground_truth_latency_curves.png')
-    plt.savefig(outputDir + 'ground_truth_latency_curves.png', bbox_inches='tight')
+    #plt.savefig(outputDir + 'ground_truth_latency_curves.png', bbox_inches='tight')
+    plt.savefig(outputDir + 'ground_truth_latency_curves.pdf', bbox_inches='tight')
     plt.close(fig)
 
 def drawUtilization(outputDir, avgUtilizationPerJob):
@@ -329,17 +343,26 @@ def drawUtilization(outputDir, avgUtilizationPerJob):
     print("Draw total figure...")
     figName = "avg_utilization"
     legend = []
-    fig, axs = plt.subplots(len(avgUtilizationPerJob), 1, figsize=(24, 5), layout='constrained')
+    if isPdfOutput:
+        fig, axs = plt.subplots(len(avgUtilizationPerJob), 1, figsize=(5, 5), layout='constrained')
+        fig.supylabel("Utilization Per Operator")
+    else:
+        fig, axs = plt.subplots(len(avgUtilizationPerJob), 1, figsize=(24, 5), layout='constrained')
+
     for jobIndex in range(0, len(avgUtilizationPerJob)):
         job = jobList[jobIndex]
         limitx = [0, 100000000]
         limity = [0.5, 0.5]
-        legend = ["50%"]
         if (len(avgUtilizationPerJob) == 1):
             ax1 = axs
         else:
             ax1 = axs[jobIndex]
-        ax1.plot(limitx, limity, color='red', linewidth=1.5)
+        if not isPdfOutput:
+            legend = ["50%"]
+            ax1.plot(limitx, limity, color='red', linewidth=1.5)
+        else:
+
+            legend = []
         legend += ["Utilization"]
         avgUtilization = avgUtilizationPerJob[job]
         # print(avgUtilization)
@@ -348,30 +371,44 @@ def drawUtilization(outputDir, avgUtilizationPerJob):
         print("Draw " + job + " utilization...")
         # plt.subplot(len(totalArrivalRatePerJob.keys()), 1, i+1)
         ax1.plot(ax, ay, "o", color="blue", markersize=MARKERSIZE)
-        ax1.set_ylabel('Utilization (ratio)')
-        ax1.set_ylim(0, 1.0)
-        ax1.set_yticks(np.arange(0, 1.2, 0.2))
+        if not isPdfOutput:
+            ax1.set_ylabel('Utilization (ratio)')
+            ax1.set_ylim(0, 1.0)
+            ax1.set_yticks(np.arange(0, 1.2, 0.2))
 
-        ax1.set_xlim(startTime * 1000, (startTime + 3600) * 1000)
-        ax1.set_xticks(np.arange(startTime * 1000, (startTime + 3600) * 1000 + 300000, 300000))
-        ax1.set_xticklabels([int((x - startTime * 1000) / 60000) for x in
+            ax1.set_xlim(startTime * 1000, (startTime + 3600) * 1000)
+            ax1.set_xticks(np.arange(startTime * 1000, (startTime + 3600) * 1000 + 300000, 300000))
+            ax1.set_xticklabels([int((x - startTime * 1000) / 60000) for x in
                              np.arange(startTime * 1000, (startTime + 3600) * 1000 + 300000, 300000)])
+        else:
+            ax1.set_ylim(0, 1.0)
+            ax1.set_yticks(np.arange(0, 1.5, 0.5))
+            ax1.set_xlim(startTime * 1000, (startTime + 3600) * 1000)
+            ax1.set_xticks(np.arange(startTime * 1000, (startTime + 3600) * 1000 + 600000, 600000))
+            ax1.set_xticklabels([int((x - startTime * 1000) / 60000) for x in
+                                 np.arange(startTime * 1000, (startTime + 3600) * 1000 + 600000, 600000)])
         ax1.grid(True)
-    plt.legend(legend, loc='upper left')
+    if not isPdfOutput:
+        plt.legend(legend, loc='upper left')
     import os
     if not os.path.exists(outputDir):
         os.makedirs(outputDir)
-    # plt.savefig(outputDir + figName + ".png")
-    plt.savefig(outputDir + figName + ".png", bbox_inches='tight')
+    #plt.savefig(outputDir + figName + ".png", bbox_inches='tight')
+    plt.savefig(outputDir + figName + ".pdf", bbox_inches='tight')
     plt.close(fig)
 
 def drawParallelism(outputDir, ParallelismPerJob):
     figName = "Parallelism"
 
-    fig = plt.figure(figsize=(12, 4))
+    if isPdfOutput:
+        fig = plt.figure(figsize=(5, 5))
+    else:
+        fig = plt.figure(figsize=(12, 4))
 
     legend = []
     for job in ParallelismPerJob:
+        if isPdfOutput and job != "TOTAL":
+            continue
         print("Draw Job " + job + " curve...")
         legend += [OPERATOR_NAMING[job]]
         line = [[], []]
@@ -407,19 +444,27 @@ def drawParallelism(outputDir, ParallelismPerJob):
     # for x in range(0, lastTime-initialTime, 30000):
     #     xlabels += [str(int(x / 1000))]
     # axes.set_xticklabels(xlabels)
-    axes.set_xlim(startTime * 1000, (startTime + 3600) * 1000)
-    axes.set_xticks(np.arange(startTime * 1000, (startTime + 3600) * 1000 + 300000, 300000))
-    axes.set_xticklabels([int((x - startTime * 1000) / 60000) for x in
-                          np.arange(startTime * 1000, (startTime + 3600) * 1000 + 300000, 300000)])
+    if not isPdfOutput:
+        axes.set_xlim(startTime * 1000, (startTime + 3600) * 1000)
+        axes.set_xticks(np.arange(startTime * 1000, (startTime + 3600) * 1000 + 300000, 300000))
+        axes.set_xticklabels([int((x - startTime * 1000) / 60000) for x in
+                              np.arange(startTime * 1000, (startTime + 3600) * 1000 + 300000, 300000)])
 
-    axes.set_ylim(0, 65)
-    axes.set_yticks(np.arange(0, 65, 5))
+        axes.set_ylim(0, 65)
+        axes.set_yticks(np.arange(0, 65, 5))
+    else:
+        axes.set_xlim(startTime * 1000, (startTime + 3600) * 1000)
+        axes.set_xticks(np.arange(startTime * 1000, (startTime + 3600) * 1000 + 600000, 600000))
+        axes.set_xticklabels([int((x - startTime * 1000) / 60000) for x in
+                              np.arange(startTime * 1000, (startTime + 3600) * 1000 + 600000, 600000)])
+        axes.set_ylim(0, 70)
+        axes.set_yticks(np.arange(0, 80, 10))
     plt.grid(True)
     import os
     if not os.path.exists(outputDir):
         os.makedirs(outputDir)
-    # plt.savefig(outputDir + figName + ".png")
-    plt.savefig(outputDir + figName + ".png", bbox_inches='tight')
+    #plt.savefig(outputDir + figName + ".png", bbox_inches='tight')
+    plt.savefig(outputDir + figName + ".pdf", bbox_inches='tight')
     plt.close(fig)
 
 def draw(rawDir, outputDir, expName, windowSize):
@@ -500,6 +545,7 @@ windowSize = 1000
 latencyLimit = 2000
 startTime = 0
 isSingleOperator = False #True
+isPdfOutput = False #True
 with open("../workload_list.txt") as f:
     lines = f.readlines()
     for i in range(0, len(lines)):
