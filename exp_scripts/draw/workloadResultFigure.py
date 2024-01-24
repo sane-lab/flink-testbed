@@ -19,11 +19,15 @@ for topology in topologyToIndex.keys():
 def parseSetting(fileName):
     split = fileName.split('-')
     setting = {}
-    setting["topology"] = split[2]
-    setting["amplitude"] = split[7]
-    setting["period"] = split[8]
-    setting["skewness"] = split[10]
-    setting["statesize"] = split[14]
+    if split[2] == "server":
+        startIndex = 1
+    else:
+        startIndex = 0
+    setting["topology"] = split[startIndex + 2]
+    setting["amplitude"] = split[startIndex + 7]
+    setting["period"] = split[startIndex + 8]
+    setting["skewness"] = split[startIndex + 10]
+    setting["statesize"] = split[startIndex + 14]
     return setting
 
 
@@ -98,7 +102,7 @@ for dimension in dimensions:
     print(y)
     print(utilizations)
     print("Draw dimension " + dimension)
-    fig, axs = plt.subplots(1, 2, figsize=(10, 3), layout='constrained') #(24, 9)
+    fig, axs = plt.subplots(1, 2, figsize=(12, 2), layout='constrained') #(24, 9)
     figName = "limit_" + dimension
     ax1 = axs[0]
     p = ax1.bar(x, y, width=0.8, bottom=None, align='center')
@@ -134,5 +138,6 @@ for dimension in dimensions:
     import os
     if not os.path.exists(outputDir):
         os.makedirs(outputDir)
-    plt.savefig(outputDir + figName + ".png", bbox_inches='tight')
+    #plt.savefig(outputDir + figName + ".png", bbox_inches='tight')
+    plt.savefig(outputDir + figName + ".pdf", bbox_inches='tight')
     plt.close(fig)

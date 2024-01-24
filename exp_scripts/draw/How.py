@@ -446,7 +446,11 @@ def draw(rawDir, outputDir, exps, windowSize, figType):
 
 def drawAll(resultsPerCurve, outputDir, curves):
     CURVENUM = len(resultsPerCurve.keys())
-    fig, axs = plt.subplots(3, CURVENUM, figsize=(6 * CURVENUM, 21), layout='constrained') # (24, 6)
+    #fig, axs = plt.subplots(3, CURVENUM, figsize=(6 * CURVENUM, 21), layout='constrained') # (24, 6)
+    if isDrawArrivalRate:
+        fig, axs = plt.subplots(3, CURVENUM, figsize=(6 * CURVENUM, 9), layout='constrained')
+    else:
+        fig, axs = plt.subplots(2, CURVENUM, figsize=(6 * CURVENUM, 6), layout='constrained')
     #fig.suptitle('Arrival Rate/Latency/Parallelism under Different Workload')
     cindex = 0
     for curve in sorted(resultsPerCurve.keys()):
@@ -461,18 +465,19 @@ def drawAll(resultsPerCurve, outputDir, curves):
         groundTruthLatencys, scaleMarkers, totalArrivalRate, totalParallelism = resultsPerCurve[curve]
         exps = curves[curve][1] #curves[curve][0]
 
-
-        print("Draw total arrival rates")
-        ax1.plot(totalArrivalRate[0], totalArrivalRate[1], 'o', color='red', markersize=MARKERSIZE)
-        ax1.set_xlabel('Time (s)')
-        ax1.set_ylabel('Arrival Rate (tps)')
-        ax1.set_xlim(starTime * 1000, endTime * 1000)
-        ax1.set_xticks(np.arange(starTime * 1000, endTime * 1000 + 5000, 5000))
-        ax1.set_xticklabels(
-            [int((x - starTime * 1000) / 1000) for x in np.arange(starTime * 1000, endTime * 1000 + 5000, 5000)])
-        ax1.set_ylim(RateRange[0], RateRange[1])
-        ax1.set_yticks(np.arange(4000, 6500, 500))
-        ax1.grid(True)
+        if isDrawArrivalRate:
+            print("Draw total arrival rates")
+            ax1.plot(totalArrivalRate[0], totalArrivalRate[1], 'o', color='red', markersize=MARKERSIZE)
+            #ax1.set_xlabel('Time (s)')
+            if(cindex == 1):
+                ax1.set_ylabel('Arrival\nRate (tps)')
+            ax1.set_xlim(starTime * 1000, endTime * 1000)
+            ax1.set_xticks(np.arange(starTime * 1000, endTime * 1000 + 5000, 5000))
+            ax1.set_xticklabels(
+                [int((x - starTime * 1000) / 1000) for x in np.arange(starTime * 1000, endTime * 1000 + 5000, 5000)])
+            ax1.set_ylim(RateRange[0], RateRange[1])
+            ax1.set_yticks(np.arange(3500, 7000, 1000))
+            ax1.grid(True)
     #fig.title('Total Arrival Rate')
     #fig.legend(legend)
     # axes.set_yticks(np.arange(RateRange[0], RateRange[1], (RateRange[1] - RateRange[0]) / 5))
@@ -481,12 +486,15 @@ def drawAll(resultsPerCurve, outputDir, curves):
     #     os.makedirs(outputDir)
     # plt.savefig(outputDir + "all_arrival.png")
     # plt.close(fig)
-
+        if isDrawArrivalRate:
+            startIndex = 0
+        else:
+            startIndex = -1
         print("Draw ground truth curve...")
         if CURVENUM == 1:
-            ax1 = axs[1]
+            ax1 = axs[startIndex + 1]
         else:
-            ax1 = axs[1, cindex - 1]
+            ax1 = axs[startIndex + 1, cindex - 1]
 
         for i in range(0, len(exps)):
             controller = exps[i][0]
@@ -526,9 +534,10 @@ def drawAll(resultsPerCurve, outputDir, curves):
 
         print("Draw total parallelism")
         if CURVENUM == 1:
-            ax1 = axs[2]
+            ax1 = axs[startIndex + 2]
         else:
-            ax1 = axs[2, cindex - 1]
+            ax1 = axs[startIndex + 2, cindex - 1]
+
 
         legend = []
         for i in range(0, len(exps)):
@@ -576,7 +585,7 @@ def drawAll(resultsPerCurve, outputDir, curves):
         # print(Label)
         lines.extend(Line)
         labels.extend(Label)
-    fig.legend(lines, labels, bbox_to_anchor=(0.5, 1.15), loc='upper center', ncol=5)
+    fig.legend(lines, labels, bbox_to_anchor=(0.5, 1.1), loc='upper center', ncol=6)
     import os
     if not os.path.exists(outputDir):
         os.makedirs(outputDir)
@@ -615,6 +624,7 @@ latencyLimit = 2000
 starTime = 25
 endTime = 45
 RateRange = [3500, 6500]
+isDrawArrivalRate = False
 isSingleOperator = False
 resultsPerCurve = {}
 for curve in sorted(curves.keys()):
