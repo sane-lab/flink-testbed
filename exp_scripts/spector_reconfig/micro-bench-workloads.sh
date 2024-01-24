@@ -61,9 +61,9 @@ run_batch_key_size_study() {
   init
   checkpoint_interval=10000000 # by default checkpoint in frequent, trigger only when necessary
   for max_parallelism in 128 256 512 1024 2048; do # 256 512 1024
-    affected_keys=`expr ${max_parallelism} \/ ${parallelism} \/ 1` # recompute affected_keys to migrate
-    # affected_keys=`expr ${max_parallelism} \/ 2`
-    for sync_keys in 1 8 ${affected_keys} ; do # `expr ${affected_keys} \/ 8` ${affected_keys}
+    # affected_keys=`expr ${max_parallelism} \/ ${parallelism} \/ 1` # recompute affected_keys to migrate
+    affected_keys=`expr ${max_parallelism} \/ 2`
+    for sync_keys in 1 8 `expr ${affected_keys} \/ ${parallelism}` ; do # `expr ${affected_keys} \/ 8` ${affected_keys}
       run_one_exp
     done
   done
@@ -73,7 +73,7 @@ run_batch_state_size() {
   init
   checkpoint_interval=10000000 # by default checkpoint in frequent, trigger only when necessary
   for per_key_state_size in 1024 2048 4096 8192 16384 32768; do
-    for sync_keys in 1 8 ${affected_keys}; do
+    for sync_keys in 1 8 `expr ${affected_keys} \/ ${parallelism}`; do
       run_one_exp
     done
   done
@@ -83,7 +83,7 @@ run_batch_input_rate() {
   init
   checkpoint_interval=10000000 # by default checkpoint in frequent, trigger only when necessary
   for per_task_rate in 1000 2000 4000 8000; do
-    for sync_keys in 1 8 ${affected_keys}; do
+    for sync_keys in 1 8 `expr ${affected_keys} \/ ${parallelism}`; do
       run_one_exp
     done
   done
@@ -104,11 +104,11 @@ run_update_state_access_ratio() {
   # done
 
   init
-  reconfig_start=80000
+  # reconfig_start=50000
   # parallelism=8
   checkpoint_interval=1000
-  per_key_state_size=8192 # use a smaller state size to test the insights
-  for state_access_ratio in 10; do # 1 2 4 8 16 100
+  per_key_state_size=4096 # use a smaller state size to test the insights
+  for state_access_ratio in 1 10 100; do # 1 10 100
     for replicate_keys_filter in 1 2 4; do # 1 2 4 8
       run_one_exp
     done
@@ -130,6 +130,7 @@ run_update_state_access_ratio() {
 run_update_state_size() {
   init
 #  checkpoint_interval=10000000 # by default checkpoint in frequent, trigger only when necessary
+  state_access_ratio=2
   for per_key_state_size in 1024 2048 4096 8192 16384 32768; do
     for replicate_keys_filter in 1 2 4 8; do
       run_one_exp
@@ -142,7 +143,7 @@ run_update_state_size() {
 # run_batch_key_size_study
 # run_batch_state_size
 run_update_state_access_ratio
-# run_update_state_size
+run_update_state_size
 
 # dump the statistics when all exp are finished
 # in the future, we will draw the intuitive figures

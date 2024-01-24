@@ -12,7 +12,10 @@ def ReadFile(repeat_num, query_id, query_name):
 
     if query_id == 8:
         reading_files = [[0, 8], [0, 0], [0, 1], [1, 0]]
+        # reading_files = [[0, 4], [0, 0], [0, 1], [1, 0]]
     elif query_id == 5:
+        reading_files = [[0, 0], [0, 0], [0, 1], [1, 0]]
+    elif query_id == 11:
         reading_files = [[0, 0], [0, 0], [0, 1], [1, 0]]
 
     for pair in reading_files:
@@ -51,7 +54,7 @@ def ReadFile(repeat_num, query_id, query_name):
 
 
 def draw():
-    for (query_id, query_name) in [(5, "window"), (8, "join")]: # (1, "Mapper"), (2, "Splitter FlatMap"), (5, "window"), (8, "join")
+    for (query_id, query_name) in [(5, "window"), (8, "join"), (11, "window")]: # (1, "Mapper"), (2, "Splitter FlatMap"), (5, "window"), (8, "join"), (11, "window")
         x_values = ["Spacker", "All-at-once", "Fluid", "Replication"]
         y_values = ReadFile(1, query_id, query_name)
 
@@ -60,7 +63,7 @@ def draw():
         print(y_values)
 
         DrawFigure(x_values, y_values, legend_labels,
-                            '', 'Latency (ms)',
+                            '', 'P99 Latency Spike (ms)',
                             'nexmark_q{}_latency_overview'.format(query_id), False)
 
 if __name__ == '__main__': 

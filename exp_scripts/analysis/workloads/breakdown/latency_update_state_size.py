@@ -11,8 +11,10 @@ def ReadFile(repeat_num = 1):
     y = [[] for y in range(h)]
     # y = []
 
+    state_access_ratio = 2
+
     for repeat in range(1, repeat_num + 1):
-        for per_key_state_size in [1024, 2048, 4096, 8196, 16384, 32768]:
+        for per_key_state_size in [1024, 2048, 4096, 8192, 16384, 32768]:
             latency_dict = {}
             for replicate_keys_filter in [1, 2, 4]:
                 col = []
@@ -70,5 +72,5 @@ def draw():
     print(y_values)
 
     DrawFigureV4(x_values, y_values, legend_labels,
-                         'Per Key State Size (Byte)', 'Latency (ms)',
-                         'latency_update_state_size', True)
+                         'Per Key State Size (Byte)', 'P99 Latency Spike (ms)',
+                         'latency_update_state_size', False)

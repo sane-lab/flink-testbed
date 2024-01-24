@@ -2,9 +2,11 @@
 # Need to substitute the default_config.py with this one.
 
 FLINK_DIR="/home/myc/workspace/Spector/build-target"
+# FLINK_DIR="/home/myc/workspace/Spector-v3/build-target"
 FLINK_APP_DIR="/home/myc/workspace/flink-testbed"
 SCRIPTS_DIR="/home/myc/workspace/flink-testbed/exp_scripts"
 FLINK_CONF_DIR="${SCRIPTS_DIR}/flink-conf/conf-server"
+# FLINK_CONF_DIR="${SCRIPTS_DIR}/flink-conf/conf-server-multinodes"
 
 EXP_DIR="/data/myc/spector-proj"
 
@@ -70,6 +72,7 @@ function configFlink() {
     sed 's/^\(\s*spector.reconfig.affected_tasks\s*:\s*\).*/\1'"$affected_tasks"'/' tmp11 > ${FLINK_CONF_DIR}/flink-conf.yaml
     rm tmp*
     cp ${FLINK_CONF_DIR}/* ${FLINK_DIR}/conf
+    # scp -r ${FLINK_CONF_DIR}/* myc@dragon:${FLINK_DIR}/conf
 }
 
 # initialization of the parameters
@@ -88,7 +91,7 @@ init() {
   key_set=16384
   per_key_state_size=32768 # byte
   checkpoint_interval=1000 # by default checkpoint in frequent, trigger only when necessary
-  state_access_ratio=2
+  state_access_ratio=10
   order_function="default"
   zipf_skew=0
 
@@ -97,8 +100,9 @@ init() {
   reconfig_start=50000
   reconfig_interval=10000000
 #  frequency=1 # deprecated
-  affected_tasks=2
-  affected_keys=`expr ${max_parallelism} \/ ${parallelism} \/ 1` # `expr ${max_parallelism} \/ 4`
+  affected_tasks=8
+  # affected_keys=`expr ${max_parallelism} \/ ${parallelism} \/ 1` # `expr ${max_parallelism} \/ 4`
+  affected_keys=`expr ${max_parallelism} \/ 2` # `expr ${max_parallelism} \/ 4`
   sync_keys=0 # disable fluid state migration
   replicate_keys_filter=0 # replicate those key%filter = 0, 1 means replicate all keys
   repeat=1

@@ -3,7 +3,7 @@ import os
 
 from analysis.config.default_config import timers_plot, per_task_rate, parallelism, per_key_state_size, \
     replicate_keys_filter, state_access_ratio, max_parallelism, FILE_FOLER, order_function, zipf_skew, sync_keys
-from analysis.config.general_utilities import DrawFigureV4, breakdown_total
+from analysis.config.general_utilities import DrawFigureV6, breakdown_total
 
 
 def ReadFile(repeat_num = 1):
@@ -11,8 +11,10 @@ def ReadFile(repeat_num = 1):
     y = [[] for y in range(h)]
 
     parallelism = 8
-    max_parallelism = 512
-    per_key_state_size = 16384
+    # max_parallelism = 512
+    # per_key_state_size = 16384
+    max_parallelism = 1024
+    per_key_state_size = 32768
     replicate_keys_filter = 0
     sync_keys = 0
     per_task_rate = 5000
@@ -105,7 +107,7 @@ def ReadFile(repeat_num = 1):
 
     configScenario = "static"
     replicate_keys_filter = 0
-    sync_keys = 8
+    sync_keys = 1
 
     col = []
     coly = []
@@ -202,8 +204,8 @@ def draw():
 
     print(y_values)
 
-    DrawFigureV4(x_values, y_values, legend_labels,
-                         'Phase', 'Latency (ms)',
+    DrawFigureV6(x_values, y_values, legend_labels,
+                         'Phase', 'P99 Latency Spike (ms)',
                          'breakdown_latency_overview', False)
 
 if __name__ == '__main__': 

@@ -75,4 +75,4 @@ def draw():
 
     DrawFigureV4(x_values, y_values, legend_labels,
                          'Zipf Skew Ratio', 'Completion Time (ms)',
-                         'breakdown_ordering_zipf_skew', True)
+                         'breakdown_ordering_zipf_skew', False)

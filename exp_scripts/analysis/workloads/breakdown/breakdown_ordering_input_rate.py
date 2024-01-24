@@ -74,4 +74,4 @@ def draw():
 
     DrawFigureV4(x_values, y_values, legend_labels,
                          'Input Rate (e/s)', 'Completion Time (ms)',
-                         'breakdown_ordering_input_rate', True)
+                         'breakdown_ordering_input_rate', False)

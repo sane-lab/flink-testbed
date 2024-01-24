@@ -13,11 +13,15 @@ def ReadFile(repeat_num, query_id, query_name):
     replicate_keys_filter = 0
     if query_id == 8:
         sync_keys = 8
+        # sync_keys = 4
     elif query_id == 5:
+        sync_keys = 0
+    else:
         sync_keys = 0
 
     exp = FILE_FOLER + '/spector-nexmark-query{}-{}-{}'\
                     .format(query_id, sync_keys, replicate_keys_filter)
+    
     file_path = os.path.join(exp, "timer.output")
 
     fp = open(file_path)
@@ -107,6 +111,8 @@ def ReadFile(repeat_num, query_id, query_name):
                     .format(query_id, sync_keys, replicate_keys_filter)
     file_path = os.path.join(exp, "timer.output")
 
+    print(exp)
+
     fp = open(file_path)
     lines = fp.readlines()
     prev_timer = ""
@@ -132,7 +138,7 @@ def ReadFile(repeat_num, query_id, query_name):
 
 
 def draw():
-    for (query_id, query_name) in [(5, "window"), (8, "join")]: # (1, "Mapper"), (2, "Splitter FlatMap"), (5, "window"), (8, "join")
+    for (query_id, query_name) in [(5, "window"), (8, "join"), (11, "window")]: # (1, "Mapper"), (2, "Splitter FlatMap"), (5, "window"), (8, "join"), (11, "window")
         x_values = ["Spacker", "All-at-once", "Fluid", "Replication"]
         y_values = ReadFile(1, query_id, query_name)
 

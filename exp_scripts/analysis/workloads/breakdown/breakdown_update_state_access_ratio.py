@@ -10,7 +10,7 @@ def ReadFile(repeat_num = 1):
     y = [[] for y in range(h)]
     # y = []
 
-    per_key_state_size = 8192
+    per_key_state_size = 4096
     # replicate_keys_filter = 0
     # sync_keys = 1
     # state_access_ratio = 2
@@ -29,6 +29,7 @@ def ReadFile(repeat_num = 1):
             for replicate_keys_filter in [1, 2, 4]:
                 exp = FILE_FOLER + '/workloads/spector-{}-{}-{}-{}-{}-{}-{}'\
                     .format(per_task_rate, parallelism, max_parallelism, per_key_state_size, sync_keys, replicate_keys_filter, state_access_ratio)
+                print(exp)
                 file_path = os.path.join(exp, "timer.output")
                 # try:
                 stats = breakdown(open(file_path).readlines())
@@ -80,4 +81,4 @@ def draw():
 
     DrawFigureV4(x_values, y_values, legend_labels,
                          'State Access Ratio (%)', 'Completion Time (ms)',
-                         'breakdown_update_state_access_ratio', True)
+                         'breakdown_update_state_access_ratio', False)

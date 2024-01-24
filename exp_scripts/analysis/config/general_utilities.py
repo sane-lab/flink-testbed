@@ -190,7 +190,7 @@ def DrawFigure(x_values, y_values, legend_labels, x_label, y_label, filename, al
 
     # you may need to tune the xticks position to get the best figure.
     plt.xticks(index + 0.5 * width, x_values)
-    plt.xticks(rotation=30)
+    # plt.xticks(rotation=20)
 
     # plt.xlim(0,)
     # plt.ylim(0,1)
@@ -443,7 +443,7 @@ def DrawFigureV4(x_values, y_values, legend_labels, x_label, y_label, filename, 
                              loc='center',
                              prop=LEGEND_FP,
                              ncol=4,
-                             bbox_to_anchor=(0.5, 1.1),
+                             bbox_to_anchor=(0.5, 1.2),
                              handletextpad=0.1,
                              borderaxespad=0.0,
                              handlelength=1.8,
@@ -471,6 +471,7 @@ def DrawFigureV4(x_values, y_values, legend_labels, x_label, y_label, filename, 
     figure.get_xaxis().set_tick_params(direction='in', pad=10)
     figure.get_yaxis().set_tick_params(direction='in', pad=10)
 
+    # plt.ticklabel_format(axis="y", style="sci", scilimits=(0, 0))
     plt.xlabel(x_label, fontproperties=LABEL_FP)
     plt.ylabel(y_label, fontproperties=LABEL_FP)
 
@@ -581,6 +582,91 @@ def DrawFigureV5(x_values, y_values, legend_labels, x_label, y_label, filename, 
     plt.savefig(FIGURE_FOLDER + '/' + filename + '.pdf')
     # plt.savefig(FIGURE_FOLDER + "/" + filename + ".eps", bbox_inches='tight', format='eps')
     # ConvertEpsToPdf(FIGURE_FOLDER + "/" + filename)
+
+def DrawFigureV6(x_values, y_values, legend_labels, x_label, y_label, filename, allow_legend):
+    # you may change the figure size on your own.
+    plt.gcf().canvas.get_renderer()
+
+    fig = plt.figure(figsize=(5, 5))
+    # fig = plt.figure(figsize=(11, 6))
+    figure = fig.add_subplot(111)
+
+    FIGURE_LABEL = legend_labels
+
+    if not os.path.exists(FIGURE_FOLDER):
+        os.makedirs(FIGURE_FOLDER)
+
+    # values in the x_xis
+    index = np.arange(len(x_values))
+    # the bar width.
+    # you may need to tune it to get the best figure.
+    width = 0.2
+    # draw the bars
+    bottom_base = np.zeros(len(y_values[0]))
+    bars = [None] * (len(FIGURE_LABEL))
+    for i in range(len(y_values)):
+        bars[i] = plt.bar(index + i * width + width / 2, y_values[i], width, hatch=PATTERNS[i], color=LINE_COLORS[i],
+                          label=FIGURE_LABEL[i], bottom=bottom_base, edgecolor='black', linewidth=3)
+        # bottom_base = np.array(y_values[i]) + bottom_base
+
+    # sometimes you may not want to draw legends.
+    if allow_legend == True:
+        plt.legend(bars, FIGURE_LABEL
+                   #                     mode='expand',
+                   #                     shadow=False,
+                   #                     columnspacing=0.25,
+                   #                     labelspacing=-2.2,
+                   #                     borderpad=5,
+                   #                     bbox_transform=ax.transAxes,
+                   #                     frameon=False,
+                   #                     columnspacing=5.5,
+                   #                     handlelength=2,
+                   )
+        if allow_legend == True:
+            handles, labels = figure.get_legend_handles_labels()
+        if allow_legend == True:
+            print(handles[::-1], labels[::-1])
+            leg = plt.legend(bars, FIGURE_LABEL,
+                             loc='center',
+                             prop=LEGEND_FP,
+                             ncol=4,
+                             bbox_to_anchor=(0.5, 1.2),
+                             handletextpad=0.1,
+                             borderaxespad=0.0,
+                             handlelength=1.8,
+                             labelspacing=0.3,
+                             columnspacing=0.3,
+                             )
+            leg.get_frame().set_linewidth(2)
+            leg.get_frame().set_edgecolor("black")
+
+    # plt.ylim(0, 100)
+
+    # # you may need to tune the xticks position to get the best figure.
+    # plt.yscale('log')
+
+    # you may need to tune the xticks position to get the best figure.
+    plt.xticks(index + len(y_values) / 2 * width, x_values)
+    # plt.xticks(rotation=30)
+
+    # plt.xlim(0,)
+    # plt.ylim(0,1)
+
+    plt.grid(axis='y', color='gray')
+    figure.yaxis.set_major_locator(LinearLocator(6))
+
+    figure.get_xaxis().set_tick_params(direction='in', pad=10)
+    figure.get_yaxis().set_tick_params(direction='in', pad=10)
+
+    # plt.ticklabel_format(axis="y", style="sci", scilimits=(0, 0))
+    plt.xlabel(x_label, fontproperties=LABEL_FP)
+    plt.ylabel(y_label, fontproperties=LABEL_FP)
+
+    size = fig.get_size_inches()
+    dpi = fig.get_dpi()
+
+    plt.savefig(FIGURE_FOLDER + "/" + filename + ".pdf", bbox_inches='tight', format='pdf')
+
 
 def DrawLegend(legend_labels, filename):
     fig = pylab.figure()

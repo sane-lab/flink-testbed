@@ -24,7 +24,7 @@ def ReadFile(repeat_num = 1):
             w, h = 3, 3
             col_y = [[0 for x in range(w)] for y in range(h)]
             # for sync_keys in [1, int(max_parallelism / 16), int(max_parallelism / 2)]:
-            for sync_keys in [1, 8, int(max_parallelism / parallelism)]:
+            for sync_keys in [1, 8, int(max_parallelism / parallelism / 2)]:
                 exp = FILE_FOLER + '/workloads/spector-{}-{}-{}-{}-{}-{}-{}'\
                     .format(per_task_rate, parallelism, max_parallelism, per_key_state_size, sync_keys, replicate_keys_filter, state_access_ratio)
                 file_path = os.path.join(exp, "timer.output")
@@ -67,10 +67,10 @@ def draw():
     x_values = [128, 256, 512, 1024]
     y_values = ReadFile(repeat_num = 1)
 
-    legend_labels = ["Batch-1", "Batch-8", "Batch-All"]
+    legend_labels = ["Chunk-1", "Chunk-8", "All-at-Once"]
 
     print(y_values)
 
     DrawFigureV4(x_values, y_values, legend_labels,
                          'Number of Keys', 'Completion Time (ms)',
-                         'breakdown_batching_key_size', True)
+                         'breakdown_batching_key_size', False)

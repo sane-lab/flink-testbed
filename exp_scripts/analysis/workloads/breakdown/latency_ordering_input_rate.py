@@ -78,5 +78,5 @@ def draw():
     print(y_values)
 
     DrawFigureV4(x_values, y_values, legend_labels,
-                         'Input Rate (e/s)', 'Latency (ms)',
-                         'latency_ordering_input_rate', True)
+                         'Input Rate (e/s)', 'P99 Latency Spike (ms)',
+                         'latency_ordering_input_rate', False)

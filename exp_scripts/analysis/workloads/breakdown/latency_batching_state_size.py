@@ -12,10 +12,10 @@ def ReadFile(repeat_num = 1):
     # y = []
 
     for repeat in range(1, repeat_num + 1):
-        for per_key_state_size in [1024, 2048, 4096, 8196, 16384, 32768]:
+        for per_key_state_size in [1024, 2048, 4096, 8192, 16384, 32768]:
             latency_dict = {}
             # for sync_keys in [1, int(max_parallelism / 16), int(max_parallelism / 2)]:
-            for sync_keys in [1, 8, int(max_parallelism / parallelism)]:
+            for sync_keys in [1, 8, int(max_parallelism / parallelism / 2)]:
                 col = []
                 coly = []
                 start_ts = float('inf')
@@ -67,10 +67,10 @@ def draw():
     x_values = ["32K", "64K", "128K", "256K", "512K", "1024K"]
     y_values = ReadFile(repeat_num = 1)
 
-    legend_labels = ["Batch-1", "Batch-8", "Batch-All"]
+    legend_labels = ["Chunk-1", "Chunk-8", "All-at-Once"]
 
     print(y_values)
 
     DrawFigureV4(x_values, y_values, legend_labels,
-                         'Per Key State Size (Byte)', 'Latency (ms)',
-                         'latency_batching_state_size', True)
+                         'Per Key State Size (Byte)', 'P99 Latency Spike (ms)',
+                         'latency_batching_state_size', False)

@@ -130,7 +130,7 @@ run_order_zipf_skew() {
 }
 
 
-# run_order_input_rate
+run_order_input_rate
 run_order_zipf_skew
 
 # dump the statistics when all exp are finished

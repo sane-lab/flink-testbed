@@ -299,8 +299,8 @@ run_order_zipf_study() {
 #run_overview
 #run_test
 #run_replication_overhead
-#run_fluid_study
-#run_replication_study
+# run_fluid_study
+# run_replication_study
 run_order_zipf_study
 
 # dump the statistics when all exp are finished

@@ -73,7 +73,7 @@ init() {
 
   # app level
   JAR="${FLINK_APP_DIR}/target/testbed-1.0-SNAPSHOT.jar"
-  job="flinkapp.StatefulDemoLongRunStateControlled"
+  job="flinkapp.MicroBenchmark"
   runtime=50
   source_p=1
   parallelism=8
@@ -89,8 +89,9 @@ init() {
   reconfig_start=25000
   reconfig_interval=10000000
 #  frequency=1 # deprecated
-  affected_tasks=2
-  affected_keys=`expr ${max_parallelism} \/ ${parallelism}` # `expr ${max_parallelism} \/ 4`
+  affected_tasks=8
+  # affected_keys=`expr ${max_parallelism} \/ ${parallelism} \/ 1` # `expr ${max_parallelism} \/ 4`
+  affected_keys=`expr ${max_parallelism} \/ 2` # `expr ${max_parallelism} \/ 4`
   sync_keys=0 # disable fluid state migration
   replicate_keys_filter=0 # replicate those key%filter = 0, 1 means replicate all keys
   repeat=1
@@ -128,9 +129,16 @@ run_query8() {
   run_one_exp
 }
 
+run_query11() {
+#  init
+  job="Nexmark.queries.Query11"
+  operator="window"
+  run_one_exp
+}
+
 
 nexmark_overview() {
-  for query_id in 8; do # 1 2 5 8
+  for query_id in 8; do # 1 2 5 8 11
   
 #    # Migrate at once
 #    init
@@ -148,20 +156,20 @@ nexmark_overview() {
 #    checkpoint_interval=10000000
 #    run_query${query_id}
 
-    # Proactive State replication
-    init
-    replicate_keys_filter=1
-    sync_keys=0
-#    per_task_rate=20000
-    run_query${query_id}
-
-#     # Spacker
-#    init
-#    replicate_keys_filter=0
-#    sync_keys=0
+#     # Proactive State replication
+#     init
+#     replicate_keys_filter=1
+#     sync_keys=0
 # #    per_task_rate=20000
-#    checkpoint_interval=10000000
-#    run_query${query_id}
+#     run_query${query_id}
+
+    # Spacker
+   init
+   replicate_keys_filter=0
+   sync_keys=4 # 8 for nexmark Q8
+#    per_task_rate=20000
+   checkpoint_interval=10000000
+   run_query${query_id}
 
   done
 }

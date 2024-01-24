@@ -77,5 +77,5 @@ def draw():
     print(y_values)
 
     DrawFigureV4(x_values, y_values, legend_labels,
-                         'Zipf Skew Ratio', 'Latency (ms)',
-                         'latency_ordering_zipf_skew', True)
+                         'Zipf Skew Ratio', 'P99 Latency Spike (ms)',
+                         'latency_ordering_zipf_skew', False)

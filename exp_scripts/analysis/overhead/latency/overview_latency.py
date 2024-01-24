@@ -52,7 +52,7 @@ def ReadFile():
         coly = []
         start_ts = float('inf')
         temp_dict = {}
-        for tid in range(0, 2):
+        for tid in range(0, 4):
             f = open(FILE_FOLER + "/spector-{}-{}-{}/Splitter FlatMap-{}.output"
                      .format(per_key_state_size, sync_keys, replicate_keys_filter, tid))
             read = f.readlines()

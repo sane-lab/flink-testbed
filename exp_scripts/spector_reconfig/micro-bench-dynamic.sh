@@ -81,13 +81,16 @@ init() {
   operator="Splitter FlatMap"
   reconfig_start=10000
   reconfig_interval=10000000
-#  frequency=1 # deprecated
-  affected_tasks=2
-  affected_keys=`expr ${max_parallelism} \/ 4` # `expr ${max_parallelism} \/ 4`
+  # affected_tasks=2
+  # affected_keys=`expr ${max_parallelism} \/ 4` # `expr ${max_parallelism} \/ 4`
+  affected_tasks=8
+  affected_keys=`expr ${max_parallelism} \/ 2` # `expr ${max_parallelism} \/ 4`
   sync_keys=0 # disable fluid state migration
   replicate_keys_filter=0 # replicate those key%filter = 0, 1 means replicate all keys
   repeat=1
   changelog_enabled=true
+  window_size=1000000000
+  state_backend_async=false
 }
 
 run_dynamic() {
@@ -116,7 +119,7 @@ run_dynamic() {
   init
   reconfig_scenario="static"
   replicate_keys_filter=0
-  sync_keys=8
+  sync_keys=1
   run_one_exp
 }
 

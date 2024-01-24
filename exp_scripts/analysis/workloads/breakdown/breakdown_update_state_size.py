@@ -13,13 +13,13 @@ def ReadFile(repeat_num = 1):
     # per_key_state_size = 32768
     # replicate_keys_filter = 0
     # sync_keys = 1
-    # state_access_ratio = 2
+    state_access_ratio = 2
     # per_task_rate = 5000
     # parallelism = 2
     # max_parallelism = 512
 
     for repeat in range(1, repeat_num + 1):
-        for per_key_state_size in [1024, 2048, 4096, 8196, 16384, 32768]:
+        for per_key_state_size in [1024, 2048, 4096, 8192, 16384, 32768]:
             i = 0
             w, h = 3, 3
 
@@ -75,4 +75,4 @@ def draw():
 
     DrawFigureV4(x_values, y_values, legend_labels,
                          'Per Key State Size (Byte)', 'Completion Time (ms)',
-                         'breakdown_update_state_size', True)
+                         'breakdown_update_state_size', False)

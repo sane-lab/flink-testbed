@@ -63,14 +63,13 @@ def DrawFigure(xvalues, yvalues, legend_labels, x_label, y_label, filename, allo
                    loc='upper center',
                    ncol=3,
                    #                     mode='expand',
-                   bbox_to_anchor=(0.5, 1.2), shadow=False,
+                   bbox_to_anchor=(0.5, 1.3), shadow=False,
                    columnspacing=0.1,
                    frameon=True, borderaxespad=0.0, handlelength=1.5,
                    handletextpad=0.1,
                    labelspacing=0.1)
 
     plt.yscale('log')
-    plt.xlim(0, 100)
     plt.xlabel(x_label, fontproperties=LABEL_FP)
     plt.ylabel(y_label, fontproperties=LABEL_FP)
 
@@ -127,52 +126,109 @@ def ReadFile():
     x_axis = []
     y_axis = []
 
-    per_key_state_size = 32768
+
+    per_key_state_size = 4096
     sync_keys = 0
     replicate_keys_filter = 1
     reconfig_scenario = "profiling"
 
     col = []
     coly = []
+    memory_dict = {}
     cur_ts = 0
     f = open(FILE_FOLER + "/spector-{}-{}-{}-{}/log/flink-myc-taskexecutor-0-camel-sane.out"
              .format(per_key_state_size, sync_keys, replicate_keys_filter, reconfig_scenario))
     read = f.readlines()
+    start_ts = 0
     for r in read:
         if r.find("++++++ Current memory consumption: ") != -1:
-            memory_size = int(r.split(": ")[1])
+            memory_size_with_ts = r.split(": ")[1]
+            timestamp = int(memory_size_with_ts.split("-")[0])
+            if start_ts == 0:
+                start_ts = timestamp
+            cur_ts = (timestamp - start_ts) / 1000
+            memory_size = int(memory_size_with_ts.split("-")[1])
             coly.append(memory_size)
             col.append(cur_ts)
-            cur_ts += 1
+            memory_dict[cur_ts] = memory_size * 8
+            # cur_ts += 1
 
-    x_axis.append(col)
-    y_axis.append(coly)
+    # x_axis.append(col)
+    # y_axis.append(coly)
+    x_axis.append(memory_dict.keys())
+    y_axis.append(memory_dict.values())
 
-    per_key_state_size = 32768
+
+
+    per_key_state_size = 4096
+    sync_keys = 0
+    replicate_keys_filter = 0
+    reconfig_scenario = "profiling"
+
+    col = []
+    coly = []
+    memory_dict = {}
+    cur_ts = 0
+    f = open(FILE_FOLER + "/spector-{}-{}-{}-{}/log/flink-myc-taskexecutor-0-camel-sane.out"
+             .format(per_key_state_size, sync_keys, replicate_keys_filter, reconfig_scenario))
+    read = f.readlines()
+    start_ts = 0
+    for r in read:
+        if r.find("++++++ Current memory consumption: ") != -1:
+            memory_size_with_ts = r.split(": ")[1]
+            timestamp = int(memory_size_with_ts.split("-")[0])
+            if start_ts == 0:
+                start_ts = timestamp
+            cur_ts = (timestamp - start_ts) / 1000
+            memory_size = int(memory_size_with_ts.split("-")[1])
+            coly.append(memory_size)
+            col.append(cur_ts)
+            memory_dict[cur_ts] = memory_size * 8
+            # cur_ts += 1
+
+    # x_axis.append(col)
+    # y_axis.append(coly)
+    x_axis.append(memory_dict.keys())
+    y_axis.append(memory_dict.values())
+
+
+
+    per_key_state_size = 4096
     sync_keys = 0
     replicate_keys_filter = 0
     reconfig_scenario = "profiling_baseline"
 
     col = []
     coly = []
+    memory_dict = {}
     cur_ts = 0
     f = open(FILE_FOLER + "/spector-{}-{}-{}-{}/log/flink-myc-taskexecutor-0-camel-sane.out"
              .format(per_key_state_size, sync_keys, replicate_keys_filter, reconfig_scenario))
     read = f.readlines()
+    start_ts = 0
     for r in read:
         if r.find("++++++ Current memory consumption: ") != -1:
-            memory_size = int(r.split(": ")[1])
+            memory_size_with_ts = r.split(": ")[1]
+            timestamp = int(memory_size_with_ts.split("-")[0])
+            if start_ts == 0:
+                start_ts = timestamp
+            cur_ts = (timestamp - start_ts) / 1000
+            memory_size = int(memory_size_with_ts.split("-")[1])
             coly.append(memory_size)
             col.append(cur_ts)
-            cur_ts += 1
+            memory_dict[cur_ts] = memory_size * 8
+            # cur_ts += 1
 
-    x_axis.append(col)
-    y_axis.append(coly)
+    # x_axis.append(col)
+    # y_axis.append(coly)
+    x_axis.append(memory_dict.keys())
+    y_axis.append(memory_dict.values())
 
     memory_with_spacker = sum(y_axis[0]) / len(y_axis[0])
-    memory_without_spacker = sum(y_axis[1]) / len(y_axis[1])
+    memory_with_spacker_norepl = sum(y_axis[1]) / len(y_axis[1])
+    memory_without_spacker = sum(y_axis[2]) / len(y_axis[2])
 
-    print(memory_with_spacker, memory_without_spacker, memory_with_spacker / memory_without_spacker)
+    print(memory_with_spacker, memory_with_spacker_norepl, memory_without_spacker, memory_with_spacker / memory_without_spacker)
 
 
     print(x_axis)
@@ -181,6 +237,6 @@ def ReadFile():
 
 if __name__ == '__main__':
     x_axis, y_axis = ReadFile()
-    legend_labels = ["Flink w/ Spacker", "Flink w/o Spacker"]
-    legend = True
-    DrawFigure(x_axis, y_axis, legend_labels, "Elapsed Time (s)", "Memory Consuming (mb)", "memory_consumption_tm", legend)
+    legend_labels = ["Flink w/ Spacker, Repl-100%", "Flink w/ Spacker, Repl-0%", "Flink w/o Spacker"]
+    legend = False
+    DrawFigure(x_axis, y_axis, legend_labels, "Elapsed Time (s)", "Memory Consumption (mb)", "memory_consumption_tm", legend)

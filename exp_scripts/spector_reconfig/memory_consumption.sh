@@ -5,7 +5,7 @@ source config.sh
 FLINK_DIR="/home/myc/workspace/flink-profiling"
 FLINK_APP_DIR="/home/myc/workspace/flink-testbed"
 SCRIPTS_DIR="/home/myc/workspace/flink-testbed/exp_scripts"
-FLINK_CONF_DIR="${SCRIPTS_DIR}/flink-conf/conf-server"
+FLINK_CONF_DIR="${SCRIPTS_DIR}/flink-conf/conf-server-profiling"
 
 
 # run applications
@@ -57,22 +57,48 @@ run_one_exp() {
 }
 
 run_memory_consumption_profiling() {
+  FLINK_DIR="/home/myc/workspace/flink-profiling"
+  FLINK_CONF_DIR="${SCRIPTS_DIR}/flink-conf/conf-server-profiling"
   init
   reconfig_scenario="profiling"
+  checkpoint_interval=1000
   replicate_keys_filter=1
   sync_keys=0
-  parallelism=2
+  parallelism=8
+  state_access_ratio=100
+  per_key_state_size=4096
   run_one_exp
 
+  FLINK_DIR="/home/myc/workspace/flink-profiling"
+  FLINK_CONF_DIR="${SCRIPTS_DIR}/flink-conf/conf-server-profiling"
   init
-  reconfig_scenario="profiling_baseline"
+  reconfig_scenario="profiling"
+  checkpoint_interval=1000
   replicate_keys_filter=0
   sync_keys=0
-  parallelism=2
-    state_backend_async=true
-#   changelog_enabled=false
+  parallelism=8
+  state_access_ratio=100
+  per_key_state_size=4096
+  state_backend_async=true
+  run_one_exp
+
+  FLINK_DIR="/home/myc/workspace/flink-1.8.1"
+  FLINK_CONF_DIR="${SCRIPTS_DIR}/flink-conf/conf-server-1.8.1"
+  init
+  reconfig_scenario="profiling_baseline"
+  checkpoint_interval=1000
+  replicate_keys_filter=0
+  sync_keys=0
+  parallelism=8
+  state_access_ratio=100
+  per_key_state_size=4096
   run_one_exp
 }
 
+
+perf stat -a -x, -e cycles -I1000 -o ~/cpu.csv &
+PERF_PID=$!
+python -c 'import time; time.sleep(5)'
 run_memory_consumption_profiling
+kill $PERF_PID
 

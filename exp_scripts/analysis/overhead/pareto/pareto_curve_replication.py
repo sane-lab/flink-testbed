@@ -242,5 +242,5 @@ if __name__ == "__main__":
     print(x_axis, y_axis)
     # legend_labels = ["Sync Time", "Replication Time", "Update Time", "Latency Spike"]
     legend_labels = ["Sync Time", "Update Time", "Latency Spike"]
-    legend = True
-    DrawFigure(x_axis, y_axis, legend_labels, "Replication Ratio", "Completion Time (ms)", "Latency Spike (ms)", "pareto_curve_replication", legend)
+    legend = False
+    DrawFigure(x_axis, y_axis, legend_labels, "Replication Ratio", "Completion Time (ms)", "P99 Latency Spike (ms)", "pareto_curve_replication", legend)

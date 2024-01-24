@@ -44,7 +44,7 @@ jobmanager.heap.size: 32768m
 
 # The heap size for the TaskManager JVM
 
-taskmanager.heap.size: 32768m
+taskmanager.heap.size: 4096m
 
 
 # The number of task slots that each TaskManager offers. Each slot runs one parallel pipeline.
@@ -308,7 +308,7 @@ cluster.evenly-spread-out-slots: true
 #==============================================================================
 #
 
-spector.reconfig.scenario: shuffle
+spector.reconfig.scenario: profiling
 
 spector.reconfig.workload.zipf_skew: 0
 
@@ -316,19 +316,23 @@ spector.reconfig.workload.zipf_skew: 0
 #spector.reconfig.start: 5000,10000
 
 controller.target.operators: Splitter FlatMap
-spector.reconfig.start: 80000
+spector.reconfig.start: 50000
 
 spector.exp.dir: /data/myc/spector-proj/spector
-spector.reconfig.affected_keys: 128
-spector.reconfig.affected_tasks: 2
+spector.reconfig.affected_keys: 512
+spector.reconfig.affected_tasks: 8
 spector.reconfig.interval: 1000000
 spector.reconfig.sync_keys: 0
-spector.replicate_keys_filter: 4
+spector.replicate_keys_filter: 0
 spector.reconfig.order_function: default
 
-netty.state.transmission.enabled: true
-netty.optimized.acknowledgement.enabled: false # do not make it true, not supported
-netty.optimized.deployment.enabled: false # do not make it true, not supported
+netty.state.transmission.enabled: false
+netty.optimized.acknowledgement.enabled: false # to enable deep serde optimization, do not make it true, not supported
+netty.optimized.deployment.enabled: false # to enable deep serde optimization, do not make it true, not supported
+netty.chunked.acknowledgement.enabled: false # chunked write objects
+netty.chunked.deployment.enabled: false # chunked write objects
+
+spector.netty.channel.count: 4
 
 state.backend.async: false
 snapshot.changelog.enabled: true

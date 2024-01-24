@@ -7,15 +7,15 @@ from analysis.config.general_utilities import DrawFigureV4, breakdown_total
 
 
 def ReadFile(repeat_num = 1):
-    w, h = 4, 3
+    w, h = 3, 3
     y = [[] for y in range(h)]
     # y = []
 
     for repeat in range(1, repeat_num + 1):
-        for max_parallelism in [128, 256, 512, 1024]:
+        for max_parallelism in [256, 512, 1024]:
             latency_dict = {}
             # for sync_keys in [1, int(max_parallelism / 16), int(max_parallelism / 2)]:
-            for sync_keys in [1, 8, int(max_parallelism / parallelism)]:
+            for sync_keys in [1, 8, int(max_parallelism / parallelism / 2)]:
                 col = []
                 coly = []
                 start_ts = float('inf')
@@ -63,13 +63,13 @@ def draw():
     # parallelism
     # x_values = [1024, 10240, 20480, 40960]
     # x_values = [1000, 2000, 4000, 5000, 6000]
-    x_values = [128, 256, 512, 1024]
+    x_values = [256, 512, 1024]
     y_values = ReadFile(repeat_num = 1)
 
-    legend_labels = ["Batch-1", "Batch-8", "Batch-All"]
+    legend_labels = ["Chunk-1", "Chunk-8", "All-at-Once"]
 
     print(y_values)
 
     DrawFigureV4(x_values, y_values, legend_labels,
-                         'Number of Keys', 'Latency (ms)',
-                         'latency_batching_key_size', True)
+                         'Number of Keys', 'P99 Latency Spike (ms)',
+                         'latency_batching_key_size', False)

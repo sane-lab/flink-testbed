@@ -147,6 +147,8 @@ def ReadFile():
     parallelism = 8
     max_parallelism = 512
     per_key_state_size = 16384
+    # max_parallelism = 1024
+    # per_key_state_size = 32768
     replicate_keys_filter = 0
     sync_keys = 0
     per_task_rate = 5000
@@ -216,7 +218,7 @@ def ReadFile():
 
     configScenario = "static"
     replicate_keys_filter = 0
-    sync_keys = 8
+    sync_keys = 1
 
     col = []
     coly = []
@@ -289,4 +291,4 @@ if __name__ == '__main__':
     x_axis, y_axis = ReadFile()
     legend_labels = ["Spacker", "All-at-once", "Fluid", "Replication"]
     legend = True
-    DrawFigure(x_axis, y_axis, legend_labels, "Elapsed Time(s)", "Latency (ms)", "latency_curve_overview", legend)
+    DrawFigure(x_axis, y_axis, legend_labels, "Elapsed Time (s)", "P99 Latency (ms)", "latency_curve_overview", legend)

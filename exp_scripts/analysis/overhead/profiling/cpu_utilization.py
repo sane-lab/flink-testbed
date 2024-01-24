@@ -66,16 +66,19 @@ def ReadFile():
 
 
     x_axis.append(col[0:100])
-    y_axis.append(coly[0:100])
+    y_axis.append(coly[10:110])
     x_axis.append(col[0:100])
     y_axis.append(coly[130:230])
+    x_axis.append(col[0:100])
+    y_axis.append(coly[250:350])
 
-    cpu_with_spacker = sum(coly[0:100]) / len(coly[0:100])
-    cpu_without_spacker = sum(coly[130:230]) / len(coly[0:100])
+    cpu_with_spacker = sum(coly[10:110]) / len(coly[10:110])
+    cpu_with_spacker_nonrepl = sum(coly[130:230]) / len(coly[130:230])
+    cpu_without_spacker = sum(coly[250:350]) / len(coly[250:350])
 
-    print(cpu_with_spacker, cpu_without_spacker, cpu_with_spacker / cpu_without_spacker)
+    print(cpu_with_spacker, cpu_with_spacker_nonrepl, cpu_without_spacker, cpu_with_spacker_nonrepl / cpu_without_spacker, cpu_with_spacker / cpu_without_spacker)
 
-    legend_labels = ["Flink w/ Spacker", "Flink w/o Spacker"]
+    legend_labels = ["Flink w/ Spacker, Repl-100%", "Flink w/ Spacker, Repl-0%", "Flink w/o Spacker"]
 
     return legend_labels, x_axis, y_axis
 
@@ -109,7 +112,7 @@ def DrawFigure(xvalues, yvalues, legend_labels, x_label, y_label, filename, allo
                    loc='upper center',
                    ncol=5,
                    #                     mode='expand',
-                   bbox_to_anchor=(0.5, 1.25), shadow=False,
+                   bbox_to_anchor=(0.5, 1.35), shadow=False,
                    columnspacing=0.1,
                    frameon=True, borderaxespad=0.0, handlelength=1.5,
                    handletextpad=0.1,
@@ -118,8 +121,8 @@ def DrawFigure(xvalues, yvalues, legend_labels, x_label, y_label, filename, allo
     plt.ticklabel_format(axis="y", style="sci", scilimits=(0, 0))
     plt.xlabel(x_label, fontproperties=LABEL_FP)
     plt.ylabel(y_label, fontproperties=LABEL_FP)
-    # plt.yscale('log')
-    # plt.ylim(0, 100)
+    plt.yscale('log')
+    plt.ylim(10E8, 10E10)
     # plt.grid()
     plt.savefig(FIGURE_FOLDER + "/" + filename + ".pdf", bbox_inches='tight')
 
@@ -127,5 +130,5 @@ def DrawFigure(xvalues, yvalues, legend_labels, x_label, y_label, filename, allo
 if __name__ == "__main__":
     legend_labels, x_axis, y_axis = ReadFile()
     # legend_labels = ["1", "2", "3", "4", "5"]
-    legend = True
+    legend = False
     DrawFigure(x_axis, y_axis, legend_labels, "Elapsed Time (s)", "CPU Consumption (ticks)", "cpu_utilization", legend)

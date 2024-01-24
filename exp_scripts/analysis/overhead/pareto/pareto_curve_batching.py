@@ -14,7 +14,7 @@ import pandas as pd
 
 from analysis.config.default_config import LABEL_FONT_SIZE, LEGEND_FONT_SIZE, TICK_FONT_SIZE, OPT_FONT_NAME, \
     LINE_COLORS, LINE_WIDTH, MARKERS, MARKER_SIZE, FIGURE_FOLDER, FILE_FOLER, PATTERNS, timers_plot, per_key_state_size, \
-    replicate_keys_filter, repeat_num
+    replicate_keys_filter, repeat_num, per_task_rate, order_function
 from analysis.config.general_utilities import breakdown_total
 
 mpl.use('Agg')
@@ -49,6 +49,7 @@ def ReadFile():
     y = [[0 for x in range(w)] for y in range(h)]
 
     completion_time_dict = {}
+    # keys = [1, 2, 4, 8, 16, 32, 64, 128]
     keys = [1, 2, 4, 8, 16, 32, 64]
 
     latency_dict = {}
@@ -58,7 +59,12 @@ def ReadFile():
         coly = []
         start_ts = float('inf')
         temp_dict = {}
-        for tid in range(0, 4):
+        for tid in range(0, 8):
+            # f = open(FILE_FOLER + "/spector-{}-{}-{}-{}-{}/Splitter FlatMap-{}.output"
+            #          .format(per_task_rate, per_key_state_size, sync_keys, replicate_keys_filter, order_function, tid))
+            if not os.path.isfile(FILE_FOLER + "/spector-{}-{}-{}/Splitter FlatMap-{}.output"
+                     .format(per_key_state_size, sync_keys, replicate_keys_filter, tid)):
+               continue 
             f = open(FILE_FOLER + "/spector-{}-{}-{}/Splitter FlatMap-{}.output"
                      .format(per_key_state_size, sync_keys, replicate_keys_filter, tid))
             read = f.readlines()
@@ -212,6 +218,7 @@ def DrawFigure(xvalues, yvalues, legend_labels, x_label, y_label, y_label_2, fil
 
     # plt.xticks(index + 0.5 * width, x_values[0])
     plt.xscale('log')
+    # plt.xticks(x_values[0], [1, 2, 4, 8, 16, 32, 64, 128])
     plt.xticks(x_values[0], [1, 2, 4, 8, 16, 32, 64])
     # plt.grid()
     ax1.ticklabel_format(axis="y", style="sci", scilimits=(0, 0))
@@ -228,5 +235,5 @@ if __name__ == "__main__":
 
     print(x_axis, y_axis)
     legend_labels = ["Sync Time", "Update Time", "Latency Spike"]
-    legend = True
-    DrawFigure(x_axis, y_axis, legend_labels, "Per Batch Size", "Completion Time (ms)", "Latency Spike (ms)", "pareto_curve_batching", legend)
+    legend = False
+    DrawFigure(x_axis, y_axis, legend_labels, "Chunk Size", "Completion Time (ms)", "P99 Latency Spike (ms)", "pareto_curve_batching", legend)
