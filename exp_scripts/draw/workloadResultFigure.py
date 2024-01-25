@@ -55,7 +55,7 @@ with open("../workload_result.txt") as f:
 
 
 dimensions = ["amplitude", "period", "statesize", "skewness", "topology"]
-baselineSetting = parseSetting("microbench-workload-1split2-3660-10000-10000-10000-5000-120-1-0-1-50-1-10000-1-50-1-10000-12-1000-1-10000-1000-500-100-true-1")
+baselineSetting = parseSetting("microbench-workload-server-1split2-3660-10000-10000-10000-5000-120-1-0-4-50-1-10000-4-50-1-10000-60-1000-1-10000-1200-500-100-true-1")
 baseRange = 10000
 for dimension in dimensions:
     print("For dimension " + dimension)

@@ -156,17 +156,19 @@ run_scale_test(){
     STATE_SIZE3=10000
     STATE_SIZE4=10000
     STATE_SIZE5=10000
+    DELAY2=50
+    DELAY3=200
+    DELAY4=1000
     # STATE=100 slope, intercept
-    spike_intercept=600 # 750
+    spike_intercept=750 #600
     spike_slope=0.7
     autotune=true
     autotune_interval=240
     L=2000
     printf "" > workload_result.txt
-
     printf "RANGE\n" >> workload_result.txt
-    for RANGE_I in 5000; do # 7500 6250 5000 3750
-        L=1200 #1500
+    for RANGE_I in 7500 6250 5000 3750 2500; do
+        L=1500 #1200 #1500
         run_one_exp
         printf "${EXP_NAME}\n" >> workload_result.txt
     done
@@ -250,23 +252,23 @@ run_scale_test(){
 #    LP2=4
 #    L=1000
 
-    RANGE_I=5000
-    GRAPH=2op
-    vertex_id="a84740bacf923e828852cc4966f2247c,eabd4c11f6c6fbdf011f0f1fc42097b1" #,d01047f852abd5702a0dabeedac99ff5"
-    DELAY3=1000
-    LP2=4
-    P2=4
-    LP3=68
-    P3=68
-    L=1200
-    for repeat in 1; do
-      run_one_exp
-      printf "${EXP_NAME}\n" >> workload_result.txt
-    done
-    DELAY3=50
-    P3=4
-    LP3=4
-    L=1000
+#    RANGE_I=5000
+#    GRAPH=2op
+#    vertex_id="a84740bacf923e828852cc4966f2247c,eabd4c11f6c6fbdf011f0f1fc42097b1" #,d01047f852abd5702a0dabeedac99ff5"
+#    DELAY3=1000
+#    LP2=4
+#    P2=4
+#    LP3=68
+#    P3=68
+#    L=1200
+#    for repeat in 1; do
+#      run_one_exp
+#      printf "${EXP_NAME}\n" >> workload_result.txt
+#    done
+#    DELAY3=50
+#    P3=4
+#    LP3=4
+#    L=1000
 
     RANGE_I=5000
 #    GRAPH=3op
@@ -293,14 +295,14 @@ run_scale_test(){
 #    DELAY5=50
 #    run_one_exp
 #    printf "${EXP_NAME}\n" >> workload_result.txt
-    GRAPH=2split2
-    vertex_id="a84740bacf923e828852cc4966f2247c,eabd4c11f6c6fbdf011f0f1fc42097b1,d01047f852abd5702a0dabeedac99ff5,d2336f79a0d60b5a4b16c8769ec82e47"
-    L=1300
-    LP5=4
-    p5=4
-    DELAY5=50
-    run_one_exp
-    printf "${EXP_NAME}\n" >> workload_result.txt
+#    GRAPH=2split2
+#    vertex_id="a84740bacf923e828852cc4966f2247c,eabd4c11f6c6fbdf011f0f1fc42097b1,d01047f852abd5702a0dabeedac99ff5,d2336f79a0d60b5a4b16c8769ec82e47"
+#    L=1300
+#    LP5=4
+#    p5=4
+#    DELAY5=50
+#    run_one_exp
+#    printf "${EXP_NAME}\n" >> workload_result.txt
 }
 
 run_scale_test
