@@ -237,10 +237,10 @@ exps = [
     #  "blue", "o"],
 
     # Change rate
-    ["Static-1",
+    ["Inadequate",
      "stock-server-split3-sb-4hr-50ms.txt-streamsluice-streamsluice-3990-30-1000-20-2-1000-1-500-3-2000-1-500-6-5000-1-500-1000-100-false-1",
      "gray", "*"],
-    ["Static-2",
+    ["Adequate",
      "stock-server-split3-sb-4hr-50ms.txt-streamsluice-streamsluice-3990-30-1000-20-4-1000-1-500-6-2000-1-500-12-5000-1-500-1000-100-false-1",
      "orange", "*"],
     ["DS2", "stock-server-split3-sb-4hr-50ms.txt-ds2-ds2-3990-30-1000-20-2-1000-1-500-3-2000-1-500-6-5000-1-500-1000-100-true-1",
@@ -248,9 +248,10 @@ exps = [
     ["StreamSwitch",
      "stock-server-split3-sb-4hr-50ms.txt-streamswitch-streamswitch-3990-30-1000-20-2-1000-1-500-3-2000-1-500-6-5000-1-500-1000-100-true-1",
      "green", "p"],
-    ["Spacker",
+    ["Sluice",
      "stock-server-split3-sb-4hr-50ms.txt-streamsluice-streamsluice-3990-30-1000-20-2-1000-1-500-3-2000-1-500-6-5000-1-500-1000-100-true-1",
      "blue", "o"],
+
 ]
 if len(sys.argv) > 1:
     expName = sys.argv[1].split("/")[-1]
@@ -260,6 +261,6 @@ latencyLimit = 1000
 endTime = 270 #150 #630
 startTime=30+300 #30
 isSingleOperator = False #True
-expName = [exp[1] for exp in exps if exp[0] == "StreamSluice" or exp[0] == "Spacker"][0]
+expName = [exp[1] for exp in exps if exp[0] == "StreamSluice" or exp[0] == "Sluice"][0]
 print(expName)
 draw(rawDir, outputDir + expName + "/", exps, windowSize)

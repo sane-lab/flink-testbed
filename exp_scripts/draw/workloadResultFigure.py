@@ -77,13 +77,14 @@ for dimension in dimensions:
     for key in sorted(orderResult.keys()):
         keyIndex += 1
         if dimension == 'amplitude':
-            lower = baseRange - key
-            upper = baseRange + key
-            x += [str(lower) + '-\n' + str(upper)]
+            # lower = baseRange - key
+            # upper = baseRange + key
+            # x += [str(lower) + '-\n' + str(upper)]
+            x += ['%.1f%%' % (key/float(baseRange) * 100)]
         elif dimension == 'statesize':
-            x += [str(key)]
+            x += ['%.0fMB' % (key /100)]
         elif dimension == 'period':
-            x += [str(key)]
+            x += ['%.0fs' % (key)]
         elif dimension == 'skewness':
             x += [str(key)]
         elif dimension == 'topology':
@@ -96,7 +97,7 @@ for dimension in dimensions:
                 utilizations[opName] = []
             if dimension == "topology" and len(utilizations[opName]) < keyIndex - 1:
                 utilizations[opName] += [0] * (keyIndex - 1 - len(utilizations[opName]))
-            utilizations[opName] += [orderResult[key][opIndex]]
+            utilizations[opName] += [orderResult[key][opIndex] * 100]
 
     print(x)
     print(y)
@@ -122,15 +123,16 @@ for dimension in dimensions:
         if dimension == "topology":
             nx = np.arange(len(utilizationList))
         rects = ax1.bar(nx + offset, utilizationList, width, label=opName)
-        ax1.bar_label(rects, fmt='%.2f', padding=3, label_type='center')
-        ax1.set_ylim(0, 1.0)
+        ax1.bar_label(rects, fmt='%.0f', padding=3, label_type='center')
+        ax1.set_ylim(0, 100)
+        ax1.set_yticks(np.arange(0, 120, 20))
         multiplier += 1
     ax1.set_xticks(np.arange(len(orderResult.keys())))
     ax1.set_xticklabels(x)
 
     # plt.plot(x, y, "*", markersize=6)
     ax1.set_title("Average utiliation under different " + dimension)
-    ax1.set_ylabel("Utilization")
+    ax1.set_ylabel("Utilization (%)")
     ax1.legend(loc='upper left', ncols=3)
 
     #plt.xlabel(dimension)
@@ -138,6 +140,6 @@ for dimension in dimensions:
     import os
     if not os.path.exists(outputDir):
         os.makedirs(outputDir)
-    #plt.savefig(outputDir + figName + ".png", bbox_inches='tight')
-    plt.savefig(outputDir + figName + ".pdf", bbox_inches='tight')
+    plt.savefig(outputDir + figName + ".png", bbox_inches='tight')
+    #plt.savefig(outputDir + figName + ".pdf", bbox_inches='tight')
     plt.close(fig)
