@@ -54,7 +54,7 @@ init() {
   runtime=600
   # set in Flink app
   RATE1=6000
-  TIME1=30
+  TIME1=600
   RATE2=8000
   TIME2=40
   RATE_I=7000
