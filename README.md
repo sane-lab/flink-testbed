@@ -4,3 +4,12 @@
 </p>
 
 # flink-testbed
+
+### Test merge operator:
+1. Download Flink
+
+`1`
+
+2. Compile
+3. a
+4. b
