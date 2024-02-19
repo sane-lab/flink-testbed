@@ -20,8 +20,8 @@ run_one_exp() {
   EXP_NAME=streamsluice-dag-${runtime}-${RATE1}-${RATE2}-${RATE_I}-${PERIOD_I}-${P1}-${ZIPF_SKEW}-${P2}-${DELAY2}-${IO2}-${STATE_SIZE2}-${P3}-${DELAY3}-${IO3}-${STATE_SIZE3}-${P4}-${DELAY4}-${IO4}-${STATE_SIZE4}-${P5}-${DELAY5}-${STATE_SIZE5}-${L}-${migration_overhead}-${epoch}-${is_treat}-${repeat}
 
   echo "INFO: run exp ${EXP_NAME}"
-  configFlink
-  runFlink
+  #configFlink
+  #runFlink
 
   python -c 'import time; time.sleep(5)'
 
@@ -30,10 +30,10 @@ run_one_exp() {
   SCRIPTS_RUNTIME=`expr ${runtime} + 10`
   python -c 'import time; time.sleep('"${SCRIPTS_RUNTIME}"')'
 
-  analyze
-  stopFlink
+  #analyze
+  #stopFlink
 
-  python -c 'import time; time.sleep(5)'
+  #python -c 'import time; time.sleep(5)'
 }
 
 # initialization of the parameters
