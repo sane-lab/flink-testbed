@@ -51,11 +51,11 @@ init() {
   JAR="${FLINK_APP_DIR}/target/testbed-1.0-SNAPSHOT.jar"
   job="flinkapp.StreamSluiceTestSet.DAGTest"
   # only used in script
-  runtime=40
+  runtime=600
   DELTA_I=270
   # set in Flink app
   RATE1=2000
-  TIME1=30
+  TIME1=600
   RATE2=2000
   TIME2=10
   RATE_I=2000
