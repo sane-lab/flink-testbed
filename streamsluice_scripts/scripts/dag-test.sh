@@ -52,41 +52,39 @@ init() {
   job="flinkapp.StreamSluiceTestSet.DAGTest"
   # only used in script
   runtime=600
-  DELTA_I=270
   # set in Flink app
-  RATE1=2000
-  TIME1=600
-  RATE2=2000
-  TIME2=10
-  RATE_I=2000
-  RANGE_I=1000
-  PERIOD_I=20
-  TIME_I=10
-  ZIPF_SKEW=0
+  RATE1=6000
+  TIME1=30
+  RATE2=8000
+  TIME2=40
+  RATE_I=7000
+  TIME_I=120
+  PERIOD_I=240
+  ZIPF_SKEW=0.25
   NKEYS=1000
   P1=1
 
-  P2=1
+  P2=3 #2
   MP2=128
-  DELAY2=100
+  DELAY2=250
   IO2=1
   STATE_SIZE2=1000
 
-  P3=1
+  P3=7 #6
   MP3=128
-  DELAY3=100
+  DELAY3=800
   IO3=1
   STATE_SIZE3=1000
 
-  P4=1
+  P4=4 #3
   MP4=128
-  DELAY4=100
+  DELAY4=400
   IO4=1
   STATE_SIZE4=1000
 
-  P5=3
+  P5=3 #2
   MP5=128
-  DELAY5=100
+  DELAY5=125
   STATE_SIZE5=1000
 
   repeat=1
