@@ -54,11 +54,11 @@ init() {
   runtime=60
   DELTA_I=270
   # set in Flink app
-  RATE1=4000
+  RATE1=2000
   TIME1=30
-  RATE2=6000
+  RATE2=3000
   TIME2=120
-  RATE_I=5000
+  RATE_I=2500
   RANGE_I=1000
   PERIOD_I=20
   TIME_I=10
