@@ -45,13 +45,14 @@ public class DAGTest {
         final long PHASE1_RATE = params.getLong("phase1Rate", 400);
         final long PHASE2_RATE = params.getLong("phase2Rate", 600);
         final long INTERMEDIATE_RATE = params.getLong("interRate", 500);
+        final long INTERMEDIATE_RANGE = params.getLong("interRange", 250);
         final long PHASE1_TIME = params.getLong("phase1Time", 60) * 1000;
         final long PHASE2_TIME = params.getLong("phase2Time", 60) * 1000;
         final long INTERMEDIATE_TIME = params.getLong("interTime", 120) * 1000;
         final long INTERMEDIATE_PERIOD = params.getLong("interPeriod", 240) * 1000;
         final double zipf_skew = params.getDouble("zipf_skew", 0);
         final int nKeys = params.getInt("nkeys", 1000);
-        DataStreamSource<Tuple3<String, Long, Long>> source =  env.addSource(new TwoPhaseSineSource(PHASE1_TIME, PHASE2_TIME, INTERMEDIATE_TIME, PHASE1_RATE, PHASE2_RATE, INTERMEDIATE_RATE, INTERMEDIATE_PERIOD,params.getInt("mp2", 8), zipf_skew, nKeys))
+        DataStreamSource<Tuple3<String, Long, Long>> source =  env.addSource(new MicroBench.DynamicAvgRateSineSource(PHASE1_TIME, PHASE2_TIME, INTERMEDIATE_TIME, PHASE1_RATE, PHASE2_RATE, INTERMEDIATE_RATE, INTERMEDIATE_RANGE, INTERMEDIATE_PERIOD, params.getLong("macroInterAmplitude", 0), params.getLong("macroInterPeriod", 60) * 1000, params.getInt("mp2", 8), zipf_skew, nKeys, params.get("curve_type", "sine"), params.getInt("inter_delta", 0)))
                 .setParallelism(params.getInt("p1", 1));
 
         DataStream<Tuple3<String, Long, Long>> up = source
@@ -183,8 +184,9 @@ public class DAGTest {
     }
 
 
-    public static final class TwoPhaseSineSource implements SourceFunction<Tuple3<String, Long, Long>>, CheckpointedFunction {
-        private long PHASE1_TIME, PHASE2_TIME, INTERMEDIATE_TIME, PHASE1_RATE, PHASE2_RATE, INTERMEDIATE_RATE, INTERMEDIATE_PERIOD, INTERVAL;
+    public static final class DynamicAvgRateSineSource implements SourceFunction<Tuple3<String, Long, Long>>, CheckpointedFunction {
+        private long PHASE1_TIME, PHASE2_TIME, INTERMEDIATE_TIME, PHASE1_RATE, PHASE2_RATE, INTERMEDIATE_RATE, INTERMEDIATE_RANGE, INTERMEDIATE_PERIOD, INTERVAL, macroAmplitude, macroPeriod;
+        private int INTERMEDIATE_DELTA;
         private int count = 0;
         private volatile boolean isRunning = true;
 
@@ -194,23 +196,31 @@ public class DAGTest {
         private FastZipfGenerator fastZipfGenerator;
         private RandomDataGenerator randomGen = new RandomDataGenerator();
         private int nKeys;
+        private final String curve_type;
 
         private final Map<Integer, List<String>> keyGroupMapping = new HashMap<>();
 
-        public TwoPhaseSineSource(long PHASE1_TIME, long PHASE2_TIME, long INTERMEDIATE_TIME, long PHASE1_RATE, long PHASE2_RATE, long INTERMEDIATE_RATE, long INTERMEDIATE_PERIOD, int maxParallelism, double zipfSkew, int nkeys){
+        private final Map<Integer, Long> totalOutputNumbers = new HashMap<>();
+
+        public DynamicAvgRateSineSource(long PHASE1_TIME, long PHASE2_TIME, long INTERMEDIATE_TIME, long PHASE1_RATE, long PHASE2_RATE, long INTERMEDIATE_RATE, long INTERMEDIATE_RANGE, long INTERMEDIATE_PERIOD, long macro_amplitude, long macro_period, int maxParallelism, double zipfSkew, int nkeys, String curve_type, int delta){
             this.PHASE1_TIME = PHASE1_TIME;
             this.PHASE2_TIME = PHASE2_TIME;
             this.INTERMEDIATE_TIME = INTERMEDIATE_TIME;
             this.PHASE1_RATE = PHASE1_RATE;
             this.PHASE2_RATE = PHASE2_RATE;
             this.INTERMEDIATE_RATE = INTERMEDIATE_RATE;
+            this.INTERMEDIATE_RANGE = INTERMEDIATE_RANGE;
             this.INTERMEDIATE_PERIOD = INTERMEDIATE_PERIOD;
+            this.INTERMEDIATE_DELTA = delta;
+            this.macroAmplitude = macro_amplitude;
+            this.macroPeriod = macro_period;
             this.INTERVAL = 50;
             this.nKeys = nkeys;
             this.maxParallelism = maxParallelism;
             this.fastZipfGenerator = new FastZipfGenerator(maxParallelism, zipfSkew, 0, 114514);
+            this.curve_type = curve_type;
             for (int i = 0; i < nkeys; i++) {
-                String key = getChar(i);
+                String key = "A" + i;
                 int keygroup = MathUtils.murmurHash(key.hashCode()) % maxParallelism;
                 List<String> keys = keyGroupMapping.computeIfAbsent(keygroup, t -> new ArrayList<>());
                 keys.add(key);
@@ -235,6 +245,47 @@ public class DAGTest {
             }
         }
 
+        public void startInterPhase(long startTime, SourceContext<Tuple3<String, Long, Long>> ctx, String curve_type, long PHASE1_RATE, long INTERMEDIATE_RATE, long INTERMEDIATE_PERIOD, long INTERMEDIATE_TIME, long macroAmplitude, long macroPeriod, int delta) throws Exception {
+            long remainedNumber = (long) Math.floor(PHASE1_RATE * INTERVAL / 1000.0);
+            long AMPLITUDE = INTERMEDIATE_RANGE;
+            while (isRunning && System.currentTimeMillis() - startTime < INTERMEDIATE_TIME) {
+                if (remainedNumber <= 0) {
+                    long index = (System.currentTimeMillis() - startTime) / INTERVAL;
+                    long ntime = (index + 1) * INTERVAL + startTime;
+                    double macroTheta = Math.sin(Math.toRadians(index * INTERVAL * 360 / ((double) macroPeriod)));
+                    AMPLITUDE = (INTERMEDIATE_RANGE) + (long) Math.floor(macroTheta * macroAmplitude);
+                    double theta = 0.0;
+                    if (curve_type.equals("sine")) {
+                        theta = Math.sin(Math.toRadians(index * INTERVAL * 360 / ((double) INTERMEDIATE_PERIOD) + delta));
+                    } else if (curve_type.equals("gradient")) {
+                        theta = 1.0;
+                    } else if (curve_type.equals("linear")) {
+                        double x = index * INTERVAL - Math.floor(index * INTERVAL / ((double) INTERMEDIATE_PERIOD)) * INTERMEDIATE_PERIOD;
+                        if (x >= INTERMEDIATE_PERIOD / 2.0) {
+                            theta = 2.0 - x / (INTERMEDIATE_PERIOD / 2.0);
+                        } else {
+                            theta = x / (INTERMEDIATE_PERIOD / 2.0);
+                        }
+                        theta = theta * 2 - 1.0;
+                    }
+                    remainedNumber = (long) Math.floor((INTERMEDIATE_RATE + theta * AMPLITUDE) / 1000 * INTERVAL);
+                    long ctime = System.currentTimeMillis();
+                    if (ntime >= ctime) {
+                        Thread.sleep(ntime - ctime);
+                    }
+                }
+                synchronized (ctx.getCheckpointLock()) {
+                    int selectedKeygroup = fastZipfGenerator.next();
+                    List<String> subKeySet = keyGroupMapping.get(selectedKeygroup);
+                    totalOutputNumbers.put(selectedKeygroup, totalOutputNumbers.getOrDefault(selectedKeygroup, 0l) + 1);
+                    String key = getSubKeySetChar(count, subKeySet);
+                    ctx.collect(Tuple3.of(key, System.currentTimeMillis(), (long) count));
+                    remainedNumber--;
+                    count++;
+                }
+            }
+        }
+
         public void run(SourceContext<Tuple3<String, Long, Long>> ctx) throws Exception {
             List<String> subKeySet;
             // Phase 1
@@ -245,6 +296,7 @@ public class DAGTest {
                 for (int i = 0; i < PHASE1_RATE / 20; i++) {
                     int selectedKeygroup = fastZipfGenerator.next();
                     subKeySet = keyGroupMapping.get(selectedKeygroup);
+                    totalOutputNumbers.put(selectedKeygroup, totalOutputNumbers.getOrDefault(selectedKeygroup, 0l)+1);
                     String key = getSubKeySetChar(count, subKeySet);
                     ctx.collect(Tuple3.of(key, System.currentTimeMillis(), (long)count));
                     count++;
@@ -259,28 +311,8 @@ public class DAGTest {
             // Intermediate Phase
             startTime = System.currentTimeMillis();
             System.out.println("Intermediate phase start at: " + startTime);
-            long remainedNumber = (long)Math.floor(PHASE1_RATE * INTERVAL / 1000.0);
-            long AMPLITUDE = INTERMEDIATE_RATE - PHASE1_RATE;
-            while (isRunning && System.currentTimeMillis() - startTime < INTERMEDIATE_TIME) {
-                if(remainedNumber <= 0){
-                    long index = (System.currentTimeMillis() - startTime) / INTERVAL;
-                    long ntime = (index + 1) * INTERVAL + startTime;
-                    double theta = Math.sin(Math.toRadians(index * INTERVAL * 360 / ((double)INTERMEDIATE_PERIOD) - 90));
-                    remainedNumber = (long)Math.floor((INTERMEDIATE_RATE + theta * AMPLITUDE) / 1000 * INTERVAL);
-                    long ctime = System.currentTimeMillis();
-                    if(ntime >= ctime) {
-                        Thread.sleep(ntime - ctime);
-                    }
-                }
-                synchronized (ctx.getCheckpointLock()) {
-                    int selectedKeygroup = fastZipfGenerator.next();
-                    subKeySet = keyGroupMapping.get(selectedKeygroup);
-                    String key = getSubKeySetChar(count, subKeySet);
-                    ctx.collect(Tuple3.of(key, System.currentTimeMillis(), (long)count));
-                    remainedNumber --;
-                    count++;
-                }
-            }
+            startInterPhase(startTime, ctx, curve_type, PHASE1_RATE, INTERMEDIATE_RATE, INTERMEDIATE_PERIOD, INTERMEDIATE_TIME, macroAmplitude, macroPeriod, INTERMEDIATE_DELTA);
+
             if (!isRunning) {
                 return ;
             }
@@ -293,22 +325,12 @@ public class DAGTest {
                 for (int i = 0; i < PHASE2_RATE / 20; i++) {
                     int selectedKeygroup = fastZipfGenerator.next();
                     subKeySet = keyGroupMapping.get(selectedKeygroup);
+                    totalOutputNumbers.put(selectedKeygroup, totalOutputNumbers.getOrDefault(selectedKeygroup, 0l)+1);
                     String key = getSubKeySetChar(count, subKeySet);
                     ctx.collect(Tuple3.of(key, System.currentTimeMillis(), (long)count));
                     count++;
                 }
                 Util.pause(emitStartTime);
-            /*synchronized (ctx.getCheckpointLock()) {
-                ctx.collect(Tuple2.of(getChar(count), System.currentTimeMillis()));
-                count++;
-            }
-            if (count % (PHASE2_RATE * INTERVAL / 1000) == 0) {
-                long ctime = System.currentTimeMillis();
-                long nextTime = ((ctime - startTime) / INTERVAL + 1) * INTERVAL + startTime;
-                if(nextTime >= ctime){
-                    Thread.sleep(nextTime - ctime);
-                }
-            }*/
             }
         }
 
