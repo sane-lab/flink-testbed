@@ -84,7 +84,7 @@ init() {
   IO4=1
   STATE_SIZE4=1000
 
-  P5=1
+  P5=3
   MP5=128
   DELAY5=100
   STATE_SIZE5=1000
