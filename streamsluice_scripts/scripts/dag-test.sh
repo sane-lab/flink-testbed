@@ -56,9 +56,9 @@ init() {
   # set in Flink app
   RATE1=2000
   TIME1=30
-  RATE2=3000
+  RATE2=2000
   TIME2=120
-  RATE_I=2500
+  RATE_I=2000
   RANGE_I=1000
   PERIOD_I=20
   TIME_I=10
@@ -116,6 +116,8 @@ run_scale_test(){
     init
     is_treat=true
     repeat=1
+    whether_early="streamsluice_earlier"
+    whether_late="streamsluice_later"
     run_one_exp
 }
 
