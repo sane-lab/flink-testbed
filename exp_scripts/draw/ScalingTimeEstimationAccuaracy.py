@@ -75,36 +75,73 @@ def draw(rawDir, outputDir, expName):
                 estimatedScalingTimes += [float(split[4])]
                 trueScalingTimes += [float(split[7])]
 
-    estimatedScalingTimes = estimatedScalingTimes[30:]
-    trueScalingTimes = trueScalingTimes[30:]
+    startIndex = 30
+    estimatedScalingTimes = estimatedScalingTimes[startIndex:]
+    estimatedScalingTimesReduce200 = [x - 200 for x in estimatedScalingTimes]
+    trueScalingTimes = trueScalingTimes[startIndex:]
     MAE = calculateMeanAbsoluteError(trueScalingTimes, estimatedScalingTimes)
     RMSE = calculateRootMeanSquaredError(trueScalingTimes, estimatedScalingTimes)
     MAPE = calculateMeanAbsolutePercentageError(trueScalingTimes, estimatedScalingTimes)
     print(MAE, RMSE, MAPE)
-    fig, axs = plt.subplots(1, 1, figsize=(24, 4), layout='constrained')
+    MAE = calculateMeanAbsoluteError(trueScalingTimes, estimatedScalingTimesReduce200)
+    RMSE = calculateRootMeanSquaredError(trueScalingTimes, estimatedScalingTimesReduce200)
+    MAPE = calculateMeanAbsolutePercentageError(trueScalingTimes, estimatedScalingTimesReduce200)
+    print(MAE, RMSE, MAPE)
+    # old figure
+    # fig, axs = plt.subplots(1, 1, figsize=(24, 4), layout='constrained')
+    # ax1 = axs
+    # print("Draw estimated/true scaling time")
+    # x = np.arange(0, len(estimatedScalingTimes))
+    # legend = ["Ground-Truth", "Predicted"]
+    # ax1.plot(x, trueScalingTimes, 'd', color="red", markersize=6)
+    # ax1.plot(x, estimatedScalingTimes, 'o', color="blue", markersize=6)
+    # for index in range(0, len(estimatedScalingTimes)):
+    #     x = [index, index]
+    #     y = [trueScalingTimes[index], estimatedScalingTimes[index]]
+    #     ax1.plot(x, y, '-', color="gray", linewidth=1)
+    # # width = 0.4
+    # # offset = 0
+    # # rects = ax1.bar(x + offset, spikesPerOperator[operator][0], width, label="Estimated Spike")
+    # # ax1.bar_label(rects, padding=3)
+    # # offset = width
+    # # rects = ax1.bar(x + offset, spikesPerOperator[operator][1], width, label="True Spike")
+    # # ax1.bar_label(rects, padding=3)
+    # ax1.set_ylim(0, 2000)
+    # ax1.set_ylabel('Scaling Time (ms)')
+    # ax1.yaxis.set_label_coords(-0.05, 0.35)
+    # ax1.set_xlabel('Scaling Index')
+    # #ax1.set_title("Ground-Truth/Estimated Scaling Time")
+    # ax1.legend(legend, loc='upper left', ncol=2)
+    # import os
+    # if not os.path.exists(outputDir):
+    #     os.makedirs(outputDir)
+    # plt.savefig(outputDir + "scaling_spike.pdf", bbox_inches='tight')
+    # plt.close(fig)
+
+    fig, axs = plt.subplots(1, 1, figsize=(12, 9), layout='constrained')
     ax1 = axs
     print("Draw estimated/true scaling time")
-    x = np.arange(0, len(estimatedScalingTimes))
-    legend = ["Ground-Truth", "Predicted"]
-    ax1.plot(x, trueScalingTimes, 'd', color="red", markersize=6)
-    ax1.plot(x, estimatedScalingTimes, 'o', color="blue", markersize=6)
-    for index in range(0, len(estimatedScalingTimes)):
-        x = [index, index]
-        y = [trueScalingTimes[index], estimatedScalingTimes[index]]
-        ax1.plot(x, y, '-', color="gray", linewidth=1)
-    # width = 0.4
-    # offset = 0
-    # rects = ax1.bar(x + offset, spikesPerOperator[operator][0], width, label="Estimated Spike")
-    # ax1.bar_label(rects, padding=3)
-    # offset = width
-    # rects = ax1.bar(x + offset, spikesPerOperator[operator][1], width, label="True Spike")
-    # ax1.bar_label(rects, padding=3)
-    ax1.set_ylim(0, 2000)
-    ax1.set_ylabel('Scaling Time (ms)')
-    ax1.yaxis.set_label_coords(-0.05, 0.35)
-    ax1.set_xlabel('Scaling Index')
+    legend = ["y=x"]
+    x = [0, 100000]
+    y = [0, 100000]
+    ax1.plot(x, y, '-', color="red", linewidth=1)
+    legend += ["y=x-200"]
+    x = [200, 100200]
+    y = [0, 100000]
+    ax1.plot(x, y, '-', color="green", linewidth=1)
+    ax1.plot(estimatedScalingTimes, trueScalingTimes, 'o', mfc='none', color="blue", markersize=6)
+
+
+    # ax1.set_xlim(0, 1000)
+    # ax1.set_ylim(0, 1000)
+    ax1.set_xlim(500, 1500)
+    ax1.set_ylim(250, 2000)
+    ax1.set_ylabel('Actual Scaling Time (ms)')
+    #ax1.yaxis.set_label_coords(-0.05, 0.35)
+    ax1.set_xlabel('Predicted Scaling Time (ms)')
+    #ax1.xaxis.set_label_coords(0.35, -0.1)
     #ax1.set_title("Ground-Truth/Estimated Scaling Time")
-    ax1.legend(legend, loc='upper left', ncol=2)
+    ax1.legend(legend, loc='upper left', ncol=1)
     import os
     if not os.path.exists(outputDir):
         os.makedirs(outputDir)
@@ -115,7 +152,12 @@ def draw(rawDir, outputDir, expName):
 rawDir = "/Users/swrrt/Workplace/BacklogDelayPaper/experiments/raw/"
 outputDir = "/Users/swrrt/Workplace/BacklogDelayPaper/experiments/results/"
 import sys
-expName = "microbench-workload-server-1split2-3660-10000-10000-10000-5000-120-1-0-4-50-1-10000-4-50-1-10000-60-1000-1-10000-1200-500-100-true-1"
+expName = "microbench-workload-server-1split2-3660-10000-10000-10000-5000-60-1-0-4-50-1-10000-4-50-1-10000-60-1000-1-10000-1500-500-100-true-1"
+    #"microbench-workload-1split2-3660-10000-10000-10000-5000-60-1-0-1-50-1-10000-1-50-1-10000-12-1000-1-10000-1000-500-100-true-1"
+
+#"stock-server-split3-sb-4hr-50ms.txt-streamsluice-streamsluice-3990-30-1000-20-2-1000-1-500-3-2000-1-500-6-5000-1-500-1000-100-true-1"
+
+
 if len(sys.argv) > 1:
     expName = sys.argv[1].split("/")[-1]
 draw(rawDir, outputDir + expName + "/", expName)

@@ -95,37 +95,38 @@ def readGroundTruthLatency(rawDir, expName, windowSize):
 
     taskExecutors = []  # "flink-samza-taskexecutor-0-eagle-sane.out"
     import os
-    for file in os.listdir(rawDir + expName + "/"):
-        if file.endswith(".out"):
-            # print(os.path.join(rawDir + expName + "/", file))
-            if file.count("taskexecutor") == 1:
-                taskExecutors += [file]
-    for taskExecutor in taskExecutors:
-        groundTruthPath = rawDir + expName + "/" + taskExecutor
-        print("Reading ground truth file:" + groundTruthPath)
-        counter = 0
-        with open(groundTruthPath) as f:
-            lines = f.readlines()
-            for i in range(0, len(lines)):
-                line = lines[i]
-                split = line.rstrip().split()
-                counter += 1
-                if (counter % 5000 == 0):
-                    print("Processed to line:" + str(counter))
-                if (split[0] == "GT:"):
-                    completedTime = int(split[2].rstrip(","))
-                    latency = int(split[3].rstrip(","))
-                    arrivedTime = completedTime - latency
-                    if (initialTime == -1 or initialTime > arrivedTime):
-                        initialTime = arrivedTime
-                    if(not isSingleOperator):
-                        tupleId = split[4].rstrip()
-                        if tupleId not in groundTruthLatencyPerTuple:
-                            groundTruthLatencyPerTuple[tupleId] = [arrivedTime, latency]
-                        elif groundTruthLatencyPerTuple[tupleId][1] < latency:
-                            groundTruthLatencyPerTuple[tupleId][1] = latency
-                    else:
-                        groundTruthLatency += [[arrivedTime, latency]]
+    if isLatency:
+        for file in os.listdir(rawDir + expName + "/"):
+            if file.endswith(".out"):
+                # print(os.path.join(rawDir + expName + "/", file))
+                if file.count("taskexecutor") == 1:
+                    taskExecutors += [file]
+        for taskExecutor in taskExecutors:
+            groundTruthPath = rawDir + expName + "/" + taskExecutor
+            print("Reading ground truth file:" + groundTruthPath)
+            counter = 0
+            with open(groundTruthPath) as f:
+                lines = f.readlines()
+                for i in range(0, len(lines)):
+                    line = lines[i]
+                    split = line.rstrip().split()
+                    counter += 1
+                    if (counter % 5000 == 0):
+                        print("Processed to line:" + str(counter))
+                    if (split[0] == "GT:"):
+                        completedTime = int(split[2].rstrip(","))
+                        latency = int(split[3].rstrip(","))
+                        arrivedTime = completedTime - latency
+                        if (initialTime == -1 or initialTime > arrivedTime):
+                            initialTime = arrivedTime
+                        if(not isSingleOperator):
+                            tupleId = split[4].rstrip()
+                            if tupleId not in groundTruthLatencyPerTuple:
+                                groundTruthLatencyPerTuple[tupleId] = [arrivedTime, latency]
+                            elif groundTruthLatencyPerTuple[tupleId][1] < latency:
+                                groundTruthLatencyPerTuple[tupleId][1] = latency
+                        else:
+                            groundTruthLatency += [[arrivedTime, latency]]
 
     if(not isSingleOperator):
         for value in groundTruthLatencyPerTuple.values():
@@ -162,6 +163,8 @@ def readGroundTruthLatency(rawDir, expName, windowSize):
             if (len(split) >= 10 and split[0] == "+++" and split[1] == "[CONTROL]" and split[6] == "scale" and split[
                 8] == "operator:"):
                 time = int(split[3])
+                if (initialTime == -1 or initialTime > time):
+                    initialTime = time
                 if (split[7] == "in"):
                     type = 1
                 elif (split[7] == "out"):
@@ -175,8 +178,9 @@ def readGroundTruthLatency(rawDir, expName, windowSize):
             if (len(split) >= 8 and split[0] == "+++" and split[1] == "[CONTROL]" and split[4] == "all" and split[
                 5] == "scaling" and split[6] == "plan" and split[7] == "deployed."):
                 time = int(split[3])
-                # if (time > lastTime):
-                #    continue
+                time = int(split[3])
+                if (initialTime == -1 or initialTime > time):
+                    initialTime = time
                 for operator in lastScalingOperators:
                     if (operator not in scalingMarkerByOperator):
                         scalingMarkerByOperator[operator] = []
@@ -187,6 +191,8 @@ def readGroundTruthLatency(rawDir, expName, windowSize):
                     ParallelismPerJob[job][1].append(len(mapping[job].keys()))
             if (split[0] == "+++" and split[1] == "[METRICS]" and split[4] == "task" and split[5] == "backlog:"):
                 time = int(split[3])
+                if (initialTime == -1 or initialTime > time):
+                    initialTime = time
                 backlogs = parsePerTaskValue(split[6:])
                 parallelism = {}
                 for task in backlogs:
@@ -200,8 +206,8 @@ def readGroundTruthLatency(rawDir, expName, windowSize):
                         print(ParallelismPerJob)
             if(split[0] == "+++" and split[1] == "[METRICS]" and split[4] == "task" and split[5] == "arrivalRate:"):
                 time = int(split[3])
-                #if (time > lastTime):
-                #   continue
+                if (initialTime == -1 or initialTime > time):
+                    initialTime = time
                 arrivalRates = parsePerTaskValue(split[6:])
                 for task in arrivalRates:
                     if task not in arrivalRatePerTask:
@@ -298,7 +304,7 @@ def readGroundTruthLatency(rawDir, expName, windowSize):
 def drawLatency(outputDir, averageGroundTruthLatency, latencyLimits):
     # Draw Latency
     if isPdfOutput:
-        fig = plt.figure(figsize=(5, 5))
+        fig = plt.figure(figsize=(12, 6))
     else:
         fig = plt.figure(figsize=(24, 10))
     print("Draw ground truth curve...")
@@ -326,8 +332,8 @@ def drawLatency(outputDir, averageGroundTruthLatency, latencyLimits):
         axes.set_xticks(np.arange(startTime * 1000, (startTime + 3600) * 1000 + 600000, 600000))
         axes.set_xticklabels([int((x - startTime * 1000) / 60000) for x in
                               np.arange(startTime * 1000, (startTime + 3600) * 1000 + 600000, 600000)])
-        axes.set_ylim(0, 4000)
-        axes.set_yticks(np.arange(0, 5000, 1000))
+        axes.set_ylim(0, 2000)
+        axes.set_yticks(np.arange(0, 2500, 500))
     # axes.set_yscale('log')
     plt.grid(True)
     import os
@@ -401,7 +407,7 @@ def drawParallelism(outputDir, ParallelismPerJob):
     figName = "Parallelism"
 
     if isPdfOutput:
-        fig = plt.figure(figsize=(5, 5))
+        fig = plt.figure(figsize=(12, 6))
     else:
         fig = plt.figure(figsize=(12, 4))
 
@@ -430,7 +436,7 @@ def drawParallelism(outputDir, ParallelismPerJob):
             line[1].append(y0)
             line[1].append(y1)
         plt.plot(line[0], line[1], color=COLOR[OPERATOR_NAMING[job]], linewidth=LINEWIDTH)
-    plt.legend(legend, loc='upper right', ncol=5)
+    plt.legend(legend, loc='upper left', ncol=5)
     # for operator in scalingMarkerByOperator:
     #    addScalingMarker(plt, scalingMarkerByOperator[operator])
     # plt.xlabel('Time (s)')
@@ -496,38 +502,75 @@ def draw(rawDir, outputDir, expName, windowSize):
     # Find utilization under best limit
     bestLimitPeriods = []
     for i in range(len(latencyLimits[0])):
-        x1 = 10000000
+        x1 = 3600 * 1000 # 10000000
         if (i + 1 < len(latencyLimits[0])):
             x1 = latencyLimits[0][i + 1]
         if latencyLimits[1][i] == bestLimit:
             bestLimitPeriods += [[latencyLimits[0][i], x1]]
-    totalUtilizationUnderBestLimitPerJob = {}
-    totalTimeUnderBestLimitPerJob = {}
-    for job in avgUtilizationPerJob.keys():
-        totalUtilizationUnderBestLimitPerJob[job] = 0
-        totalTimeUnderBestLimitPerJob[job] = 0
-        for index in avgUtilizationPerJob[job]:
-            if any(bestLimitPeriod[0] <= index and bestLimitPeriod[1] for bestLimitPeriod in bestLimitPeriods):
-                totalTimeUnderBestLimitPerJob[job] += 1
-                totalUtilizationUnderBestLimitPerJob[job] += avgUtilizationPerJob[job][index]
-    avgUtilizationUnderBestLimitPerJob = {}
-    for job in totalUtilizationUnderBestLimitPerJob.keys():
-        if(totalTimeUnderBestLimitPerJob[job] == 0):
-            avgUtilizationUnderBestLimitPerJob[job] = -1
-        else:
-            avgUtilizationUnderBestLimitPerJob[job] = totalUtilizationUnderBestLimitPerJob[job] / totalTimeUnderBestLimitPerJob[job]
-    print("Average utilization: " + str(avgUtilizationUnderBestLimitPerJob))
+    print(bestLimitPeriods)
+    avgParallelism = []
+    nJobs = len(parallelismPerJob.keys()) - 1
+    jobList = ["a84740bacf923e828852cc4966f2247c", "eabd4c11f6c6fbdf011f0f1fc42097b1",
+               "d01047f852abd5702a0dabeedac99ff5", "d2336f79a0d60b5a4b16c8769ec82e47"]
+    print(parallelismPerJob.keys())
+    print(parallelismPerJob)
+
+    for jobIndex in range(0, nJobs):
+        job = jobList[jobIndex]
+        Parallelism = parallelismPerJob[job]
+        totalParallelismInRange = 0
+        totalTime = 0
+        for i in range(0, len(Parallelism[0])):
+            x0 = Parallelism[0][i]
+            y0 = Parallelism[1][i]
+            if i + 1 >= len(Parallelism[0]):
+                x1 = 10000000
+                y1 = y0
+            else:
+                x1 = Parallelism[0][i + 1]
+                y1 = Parallelism[1][i + 1]
+            for period in bestLimitPeriods:
+                tx0 = x0
+                tx1 = x1
+                if tx0 < period[0]:
+                    tx0 = period[0]
+                if tx1 > period[1]:
+                    tx1 = period[1]
+                if tx0 < tx1:
+                    totalParallelismInRange += y0 * (tx1 - tx0)
+                    totalTime += (tx1 - tx0)
+        if totalTime > 0:
+            avgParallelism += [totalParallelismInRange / float(totalTime)]
+    print(avgParallelism)
+    # totalUtilizationUnderBestLimitPerJob = {}
+    # totalTimeUnderBestLimitPerJob = {}
+    # for job in avgUtilizationPerJob.keys():
+    #     totalUtilizationUnderBestLimitPerJob[job] = 0
+    #     totalTimeUnderBestLimitPerJob[job] = 0
+    #     for index in avgUtilizationPerJob[job]:
+    #         if any(bestLimitPeriod[0] <= index and bestLimitPeriod[1] for bestLimitPeriod in bestLimitPeriods):
+    #             totalTimeUnderBestLimitPerJob[job] += 1
+    #             totalUtilizationUnderBestLimitPerJob[job] += avgUtilizationPerJob[job][index]
+    # avgUtilizationUnderBestLimitPerJob = {}
+    # for job in totalUtilizationUnderBestLimitPerJob.keys():
+    #     if(totalTimeUnderBestLimitPerJob[job] == 0):
+    #         avgUtilizationUnderBestLimitPerJob[job] = -1
+    #     else:
+    #         avgUtilizationUnderBestLimitPerJob[job] = totalUtilizationUnderBestLimitPerJob[job] / totalTimeUnderBestLimitPerJob[job]
+    # print("Average utilization: " + str(avgUtilizationUnderBestLimitPerJob))
     f = open("../workload_result.txt", "a")
     f.write(expName + "\n")
     outputLine = str(bestLimit)
-    for jobIndex in range(0, len(avgUtilizationUnderBestLimitPerJob)):
-        job = jobList[jobIndex]
-        outputLine += " " + str(avgUtilizationUnderBestLimitPerJob[job])
+    outputLine += " " + str(sum(avgParallelism))
+    # for jobIndex in range(0, len(avgUtilizationUnderBestLimitPerJob)):
+    #     job = jobList[jobIndex]
+    #     outputLine += " " + str(avgUtilizationUnderBestLimitPerJob[job])
     f.write(outputLine + "\n")
     f.close()
-    drawLatency(outputDir, averageGroundTruthLatency, latencyLimits)
+    if isLatency:
+        drawLatency(outputDir, averageGroundTruthLatency, latencyLimits)
 
-    drawUtilization(outputDir, avgUtilizationPerJob)
+    #drawUtilization(outputDir, avgUtilizationPerJob)
 
     drawParallelism(outputDir, parallelismPerJob)
 
@@ -545,7 +588,8 @@ windowSize = 1000
 latencyLimit = 2000
 startTime = 0
 isSingleOperator = False #True
-isPdfOutput = False #True
+isPdfOutput = True #True
+isLatency = True
 with open("../workload_list.txt") as f:
     lines = f.readlines()
     for i in range(0, len(lines)):

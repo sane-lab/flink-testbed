@@ -71,7 +71,10 @@ for dimension in dimensions:
 
     x = []
     y = []
-    utilizations = {}
+    #utilizations = {}
+    parallelisms = []
+    theoriticalBestParallelismsUnderAverageRate = []
+    theoriticalBestParallelismsUnderMaximumRate = []
     opSize = 0
     keyIndex = 0
     for key in sorted(orderResult.keys()):
@@ -90,56 +93,116 @@ for dimension in dimensions:
         elif dimension == 'topology':
             x += [topologyName[key]] #[str(int(key)) + '_OP']
         y += [orderResult[key][0]]
-        opSize = len(orderResult[key]) - 1
-        for opIndex in range(1, len(orderResult[key])):
-            opName = "OP_" + str(opIndex)
-            if opName not in utilizations:
-                utilizations[opName] = []
-            if dimension == "topology" and len(utilizations[opName]) < keyIndex - 1:
-                utilizations[opName] += [0] * (keyIndex - 1 - len(utilizations[opName]))
-            utilizations[opName] += [orderResult[key][opIndex] * 100]
-
+        parallelisms += [orderResult[key][1]]
+        theoriticalBestParallelismsUnderAverageRate += [orderResult[key][2]]
+        theoriticalBestParallelismsUnderMaximumRate += [orderResult[key][3]]
+        # opSize = len(orderResult[key]) - 1
+        # for opIndex in range(1, len(orderResult[key])):
+        #     opName = "OP_" + str(opIndex)
+        #     if opName not in utilizations:
+        #         utilizations[opName] = []
+        #     if dimension == "topology" and len(utilizations[opName]) < keyIndex - 1:
+        #         utilizations[opName] += [0] * (keyIndex - 1 - len(utilizations[opName]))
+        #     utilizations[opName] += [orderResult[key][opIndex] * 100]
+    if dimension == 'period':
+        x.reverse()
+        y.reverse()
+        parallelisms.reverse()
     print(x)
     print(y)
-    print(utilizations)
+    #print(utilizations)
     print("Draw dimension " + dimension)
-    fig, axs = plt.subplots(1, 2, figsize=(12, 2), layout='constrained') #(24, 9)
+    fig, axs = plt.subplots(1, 1, figsize=(4, 2), layout='constrained') #(24, 9)
     figName = "limit_" + dimension
-    ax1 = axs[0]
-    p = ax1.bar(x, y, width=0.8, bottom=None, align='center')
-    ax1.bar_label(p, label_type='center')
-    #plt.plot(x, y, "*", markersize=6)
-    ax1.set_title("Best latency limit under different " + str(dimension))
-    ax1.set_ylabel("Best Limit(ms)")
+    ax1 = axs
 
-    print("Draw utilizations...")
-    print(utilizations)
-    ax1 = axs[1]
-    width = 1.0/(opSize + 1)
-    multiplier = 0
-    nx = np.arange(len(orderResult.keys()))
-    for opName, utilizationList in utilizations.items():
-        offset = width * multiplier
-        if dimension == "topology":
-            nx = np.arange(len(utilizationList))
-        rects = ax1.bar(nx + offset, utilizationList, width, label=opName)
-        ax1.bar_label(rects, fmt='%.0f', padding=3, label_type='center')
-        ax1.set_ylim(0, 100)
-        ax1.set_yticks(np.arange(0, 120, 20))
-        multiplier += 1
-    ax1.set_xticks(np.arange(len(orderResult.keys())))
-    ax1.set_xticklabels(x)
+    xindex = np.arange(len(x))
+    ax1.plot(xindex, y, marker="o", linestyle='-', color="blue", linewidth=1, markersize=6)
+    line = ax1.lines[0]
+    for x_value, y_value in zip(line.get_xdata(), line.get_ydata()):
+        label = "{:.0f}".format(y_value)
+        ax1.annotate(label, (x_value, y_value), xytext=(0, 5),
+                    textcoords="offset points", ha='center', va='bottom')
+    ax1.set_xlim(-0.4, len(x) - 0.6)
+    ax1.set_xticks(np.arange(0, len(x), 1))
+    ax1.set_xticklabels( x)
+    yrange = [0, 1000]
+    if dimension == 'amplitude':
+        yrange = [0, 2000]
+    elif dimension == 'period':
+        yrange = [0, 5000]
+    elif dimension == 'statesize':
+        yrange = [0, 5000]
+    elif dimension == 'skewness':
+        yrange = [0, 2000]
+    elif dimension == 'topology':
+        yrange = [0, 2000]
+    ax1.set_ylim(yrange[0], yrange[1])
+    ax1.set_yticks(np.arange(yrange[0], yrange[1] + (yrange[1] - yrange[0])/5, (yrange[1] - yrange[0])/5))
+    # p = ax1.bar(x, y, width=0.8, bottom=None, align='center')
+    # ax1.bar_label(p, label_type='center')
+    #ax1.set_title("Latency Limit under different " + str(dimension))
+    ax1.set_ylabel("Best Limit (ms)")
+    #ax1.set_xlabel(str(dimension))
 
-    # plt.plot(x, y, "*", markersize=6)
-    ax1.set_title("Average utiliation under different " + dimension)
-    ax1.set_ylabel("Utilization (%)")
-    ax1.legend(loc='upper left', ncols=3)
+
+    # ax1 = axs[1]
+    # xindex = np.arange(len(x))
+    # ax1.plot(xindex, parallelisms, "o-", color="blue", markersize=6)
+    # legend = []
+    # legend += ["Rate-based Lowerbound"]
+    # ax1.plot(xindex, theoriticalBestParallelismsUnderAverageRate, 's-', color='gray', markersize=6)
+    # legend += ["2 x Rate-based Lowerbound"]
+    # ax1.plot(xindex, [value * 2 for value in theoriticalBestParallelismsUnderAverageRate], 's-', color='red',
+    #          markersize=6)
+    # legend += ["Tasks Used Under Best Limit"]
+    # line = ax1.lines[0]
+    # for x_value, y_value in zip(line.get_xdata(), line.get_ydata()):
+    #     label = "{:.2f}".format(y_value)
+    #     ax1.annotate(label, (x_value, y_value), xytext=(0, 5),
+    #                  textcoords="offset points", ha='center', va='bottom')
+    # #legend += ["Theoritical Lowerbound Under Maximum Rate"]
+    # #ax1.plot(xindex, theoriticalBestParallelismsUnderMaximumRate, 'c-', color='red', markersize=6)
+    # ax1.set_xlim(-1, len(x))
+    # ax1.set_xticklabels([""] + x)
+    # yrange = [0, 35]
+    # ax1.set_ylim(yrange[0], yrange[1])
+    # ax1.set_yticks(np.arange(yrange[0], yrange[1] + (yrange[1] - yrange[0]) / 5, (yrange[1] - yrange[0]) / 5))
+    # #ax1.legend(legend, loc='upper left', ncol=5)
+    # # p = ax1.bar(x, y, width=0.8, bottom=None, align='center')
+    # # ax1.bar_label(p, label_type='center')
+    # ax1.set_title("Average Tasks Used Under Best Limit")
+    # ax1.set_ylabel("# of Tasks")
+    # #ax1.set_xlabel(str(dimension))
+
+    # print("Draw utilizations...")
+    # print(utilizations)
+    # ax1 = axs[1]
+    # width = 1.0/(opSize + 1)
+    # multiplier = 0
+    # nx = np.arange(len(orderResult.keys()))
+    # for opName, utilizationList in utilizations.items():
+    #     offset = width * multiplier
+    #     if dimension == "topology":
+    #         nx = np.arange(len(utilizationList))
+    #     rects = ax1.bar(nx + offset, utilizationList, width, label=opName)
+    #     ax1.bar_label(rects, fmt='%.0f', padding=3, label_type='center')
+    #     ax1.set_ylim(0, 100)
+    #     ax1.set_yticks(np.arange(0, 120, 20))
+    #     multiplier += 1
+    # ax1.set_xticks(np.arange(len(orderResult.keys())))
+    # ax1.set_xticklabels(x)
+    #
+    # # plt.plot(x, y, "*", markersize=6)
+    # ax1.set_title("Average utiliation under different " + dimension)
+    # ax1.set_ylabel("Utilization (%)")
+    # ax1.legend(loc='upper left', ncols=3)
 
     #plt.xlabel(dimension)
 
     import os
     if not os.path.exists(outputDir):
         os.makedirs(outputDir)
-    plt.savefig(outputDir + figName + ".png", bbox_inches='tight')
-    #plt.savefig(outputDir + figName + ".pdf", bbox_inches='tight')
+    #plt.savefig(outputDir + figName + ".png", bbox_inches='tight')
+    plt.savefig(outputDir + figName + ".pdf", bbox_inches='tight')
     plt.close(fig)

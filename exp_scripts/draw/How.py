@@ -18,6 +18,7 @@ OPERATOR_NAMING = {
 EXP_COLOR = {
     "Baseline" : "gray",
     "StreamSluice" : "blue",
+    "Sluice" : "blue",
     "Early": "purple",
     "Late": "orange",
     "Not_Enough": "orange",
@@ -31,6 +32,7 @@ EXP_COLOR = {
 EXP_MARKER = {
     "Baseline" : "-",
     "StreamSluice" : "-",
+    "Sluice" : "-",
     "Early": "-",
     "Late": "-",
     "Not_Enough": "-",
@@ -44,6 +46,7 @@ EXP_MARKER = {
 SCALE_MARKER = {
     "Baseline" : "o-",
     "StreamSluice" : "o",
+    "Sluice" : "o",
     "Early": "*",
     "Late": "v",
     "Not_Enough": "*",
@@ -624,7 +627,7 @@ latencyLimit = 2000
 starTime = 25
 endTime = 45
 RateRange = [3500, 6500]
-isDrawArrivalRate = False
+isDrawArrivalRate = True
 isSingleOperator = False
 resultsPerCurve = {}
 for curve in sorted(curves.keys()):

@@ -18,6 +18,7 @@ OPERATOR_NAMING = {
 EXP_COLOR = {
     "Baseline" : "gray",
     "StreamSluice" : "blue",
+    "Sluice" : "blue",
     "Early": "purple",
     "Late": "orange",
     "Not_Enough": "green",
@@ -29,6 +30,7 @@ EXP_COLOR = {
 EXP_MARKER = {
     "Baseline" : "-",
     "StreamSluice" : "-",
+    "Sluice" : "-",
     "Early": "-",
     "Late": "-",
     "Not_Enough": "-",
@@ -40,6 +42,7 @@ EXP_MARKER = {
 SCALE_MARKER = {
     "Baseline" : "o-",
     "StreamSluice" : "o",
+    "Sluice" : "o",
     "Early": "*",
     "Late": "v",
     "Not_Enough": "*",
@@ -481,7 +484,7 @@ def drawAll(resultsPerCurve, outputDir, curves):
         for i in range(0, len(exps)):
             controller = exps[i][0]
             print("Draw ground truth for " + controller)
-            if controller == "StreamSluice":
+            if controller == "StreamSluice" or controller == "Sluice":
                 lineWidth = 4
             else:
                 lineWidth = 2

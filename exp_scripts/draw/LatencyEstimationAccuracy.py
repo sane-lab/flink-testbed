@@ -212,8 +212,8 @@ def draw(rawDir, outputDir, expName, windowSize):
     axes.set_xticks(np.arange(startTime * 1000, endTime * 1000 + 60000, 60000))
     axes.set_xticklabels([int((x - startTime * 1000) / 60000) for x in
                           np.arange(startTime * 1000, endTime * 1000 + 60000, 60000)])
-    axes.set_ylim(0, 1500)
-    axes.set_yticks(np.arange(0, 1800, 300))
+    axes.set_ylim(0, 2000)
+    axes.set_yticks(np.arange(0, 2400, 400))
 
     plt.grid(True)
     import os
