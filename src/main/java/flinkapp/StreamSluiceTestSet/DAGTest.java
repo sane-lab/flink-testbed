@@ -121,7 +121,7 @@ public class DAGTest {
                 long id = input.f2;
                 out.collect(new Tuple4<String, Long, Long, String>(s, t, id, operatorName));
                 processCount++;
-                processCountPerUpstreamOperator.put(operatorName, processCountPerUpstreamOperator.getOrDefault(operatorName, 0L) + 1);
+                processCountPerUpstreamOperator.put(input.f3, processCountPerUpstreamOperator.getOrDefault(input.f3, 0L) + 1);
             }
             long ctime = System.currentTimeMillis();
             if(ctime - lastReportTime >= 1000){
@@ -175,7 +175,7 @@ public class DAGTest {
             long currentTime = System.currentTimeMillis();
             // System.out.println("GT: " + input.f0 + ", " + currentTime + ", " + (currentTime - input.f1) + ", " + input.f2);
             processCount++;
-            processCountPerUpstreamOperator.put(operatorName, processCountPerUpstreamOperator.getOrDefault(operatorName, 0L) + 1);
+            processCountPerUpstreamOperator.put(input.f3, processCountPerUpstreamOperator.getOrDefault(input.f3, 0L) + 1);
             long ctime = System.currentTimeMillis();
             if(ctime - lastReportTime >= 1000){
                 System.out.println(operatorName + " time: " + ctime + " in: " + (ctime - lastReportTime) + " totalProcessed: " + processCount + " per upstream operator: " + processCountPerUpstreamOperator);
