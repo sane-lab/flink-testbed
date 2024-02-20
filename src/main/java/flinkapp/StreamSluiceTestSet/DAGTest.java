@@ -45,10 +45,10 @@ public class DAGTest {
         final long PHASE1_RATE = params.getLong("phase1Rate", 400);
         final long PHASE1_TIME = params.getLong("phase1Time", 60) * 1000;
         final int nKeys = params.getInt("nkeys", 1000);
-        DataStreamSource<Tuple3<String, Long, Long>> source =  env.addSource(new SimpleSource(PHASE1_TIME, PHASE1_RATE, params.getInt("mp2", 128), nKeys))
+        DataStreamSource<Tuple4<String, Long, Long, String>> source =  env.addSource(new SimpleSource(PHASE1_TIME, PHASE1_RATE, params.getInt("mp2", 128), nKeys))
                 .setParallelism(params.getInt("p1", 1));
 
-        DataStream<Tuple3<String, Long, Long>> up = source
+        DataStream<Tuple4<String, Long, Long, String>> up = source
                 .keyBy(0)
                 .flatMap(new DumbStatefulMap("Splitter", params.getLong("op2Delay", 100), params.getInt("op2IoRate", 1), params.getInt("op2KeyStateSize", 1)))
                 .disableChaining()
@@ -58,7 +58,7 @@ public class DAGTest {
                 .setMaxParallelism(params.getInt("mp2", 8))
                 .slotSharingGroup("g2");
 
-        DataStream<Tuple3<String, Long, Long>> stream1 = up
+        DataStream<Tuple4<String, Long, Long, String>> stream1 = up
                 .keyBy(0)
                 .flatMap(new DumbStatefulMap("FlatMap 3", params.getLong("op3Delay", 100), params.getInt("op3IoRate", 1), params.getInt("op3KeyStateSize", 1)))
                 .disableChaining()
@@ -68,7 +68,7 @@ public class DAGTest {
                 .setMaxParallelism(params.getInt("mp3", 8))
                 .slotSharingGroup("g3");
 
-        DataStream<Tuple3<String, Long, Long>> stream2 = up
+        DataStream<Tuple4<String, Long, Long, String>> stream2 = up
                 .keyBy(0)
                 .flatMap(new DumbStatefulMap("FlatMap 4", params.getLong("op4Delay", 100), params.getInt("op4IoRate", 1), params.getInt("op4KeyStateSize", 1)))
                 .disableChaining()
@@ -78,7 +78,7 @@ public class DAGTest {
                 .setMaxParallelism(params.getInt("mp4", 8))
                 .slotSharingGroup("g4");
 
-        DataStream<Tuple3<String, Long, Long>> unionStream =  stream1.union(stream2);
+        DataStream<Tuple4<String, Long, Long, String>> unionStream =  stream1.union(stream2);
         unionStream.keyBy(0)
                 .map(new DumbSink("FlatMap 5", params.getLong("op5Delay", 100), params.getInt("op5KeyStateSize", 1)))
                 .disableChaining()
@@ -91,7 +91,7 @@ public class DAGTest {
         env.execute();
     }
 
-    public static final class DumbStatefulMap extends RichFlatMapFunction<Tuple3<String, Long, Long>, Tuple3<String, Long, Long>> {
+    public static final class DumbStatefulMap extends RichFlatMapFunction<Tuple4<String, Long, Long, String>, Tuple4<String, Long, Long, String>> {
 
         private RandomDataGenerator randomGen = new RandomDataGenerator();
         private transient MapState<String, String> countMap;
@@ -101,6 +101,7 @@ public class DAGTest {
 
         private long lastReportTime = 0;
         private long processCount = 0;
+        private final Map<String, Long> processCountPerUpstreamOperator = new HashMap<>();
         private final String payload, operatorName;
 
         public DumbStatefulMap(String operatorName, long averageDelay, int ioRatio, int perKeyStateSize) {
@@ -112,19 +113,21 @@ public class DAGTest {
         }
 
         @Override
-        public void flatMap(Tuple3<String, Long, Long> input, Collector<Tuple3<String, Long, Long>> out) throws Exception {
+        public void flatMap(Tuple4<String, Long, Long, String> input, Collector<Tuple4<String, Long, Long, String>> out) throws Exception {
             String s = input.f0;
             countMap.put(s, payload);
             for(int i = 0; i < ioRatio; i++) {
                 long t = input.f1;
                 long id = input.f2;
-                out.collect(new Tuple3<String, Long, Long>(s, t, id));
+                out.collect(new Tuple4<String, Long, Long, String>(s, t, id, operatorName));
                 processCount++;
+                processCountPerUpstreamOperator.put(operatorName, processCountPerUpstreamOperator.getOrDefault(operatorName, 0L) + 1);
             }
             long ctime = System.currentTimeMillis();
             if(ctime - lastReportTime >= 1000){
-                System.out.println(operatorName + " time: " + ctime + " totalProcessed: " + processCount);
+                System.out.println(operatorName + " time: " + ctime + " in: " + (ctime - lastReportTime) + " totalProcessed: " + processCount + " per upstream operator: " + processCountPerUpstreamOperator);
                 processCount = 0;
+                processCountPerUpstreamOperator.clear();
                 lastReportTime = ctime;
             }
             delay(averageDelay);
@@ -148,7 +151,7 @@ public class DAGTest {
 
     }
 
-    public static final class DumbSink extends RichMapFunction<Tuple3<String, Long, Long>, Tuple4<String, Long, Long, Long>> {
+    public static final class DumbSink extends RichMapFunction<Tuple4<String, Long, Long, String>, Tuple4<String, Long, Long, Long>> {
 
         private transient MapState<String, String> countMap;
         private RandomDataGenerator randomGen = new RandomDataGenerator();
@@ -157,6 +160,7 @@ public class DAGTest {
         private final String payload,  operatorName;
         private long lastReportTime = 0;
         private long processCount = 0;
+        private final Map<String, Long> processCountPerUpstreamOperator = new HashMap<>();
         DumbSink(String operatorName, long averageDelay, int perKeyStateSize){
             this.operatorName = operatorName;
             this.averageDelay = averageDelay;
@@ -165,16 +169,18 @@ public class DAGTest {
         }
 
         @Override
-        public Tuple4<String, Long, Long, Long> map(Tuple3<String, Long, Long> input) throws Exception {
+        public Tuple4<String, Long, Long, Long> map(Tuple4<String, Long, Long, String> input) throws Exception {
             countMap.put(input.f0, payload);
             delay(averageDelay);
             long currentTime = System.currentTimeMillis();
             // System.out.println("GT: " + input.f0 + ", " + currentTime + ", " + (currentTime - input.f1) + ", " + input.f2);
             processCount++;
+            processCountPerUpstreamOperator.put(operatorName, processCountPerUpstreamOperator.getOrDefault(operatorName, 0L) + 1);
             long ctime = System.currentTimeMillis();
             if(ctime - lastReportTime >= 1000){
-                System.out.println(operatorName + " time: " + ctime + " totalProcessed: " + processCount);
+                System.out.println(operatorName + " time: " + ctime + " in: " + (ctime - lastReportTime) + " totalProcessed: " + processCount + " per upstream operator: " + processCountPerUpstreamOperator);
                 processCount = 0;
+                processCountPerUpstreamOperator.clear();
                 lastReportTime = ctime;
             }
             return new Tuple4<String, Long, Long, Long>(input.f0, currentTime, currentTime - input.f1, input.f2);
@@ -197,7 +203,7 @@ public class DAGTest {
     }
 
 
-    public static final class SimpleSource implements SourceFunction<Tuple3<String, Long, Long>>, CheckpointedFunction {
+    public static final class SimpleSource implements SourceFunction<Tuple4<String, Long, Long, String>>, CheckpointedFunction {
         private long PHASE1_TIME, PHASE1_RATE;
         private int count = 0;
         private volatile boolean isRunning = true;
@@ -243,7 +249,7 @@ public class DAGTest {
             }
         }
 
-        public void run(SourceContext<Tuple3<String, Long, Long>> ctx) throws Exception {
+        public void run(SourceContext<Tuple4<String, Long, Long, String>> ctx) throws Exception {
             List<String> subKeySet;
             // Phase 1
             long startTime = System.currentTimeMillis();
@@ -256,7 +262,7 @@ public class DAGTest {
                     int selectedKeygroup = fastZipfGenerator.next();
                     subKeySet = keyGroupMapping.get(selectedKeygroup);
                     String key = getSubKeySetChar(count, subKeySet);
-                    ctx.collect(Tuple3.of(key, System.currentTimeMillis(), (long)count));
+                    ctx.collect(Tuple4.of(key, System.currentTimeMillis(), (long)count, "Source"));
                     count++;
                 }
                 if(emitStartTime - lastMarktime > 1000){
