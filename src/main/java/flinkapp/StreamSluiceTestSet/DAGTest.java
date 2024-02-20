@@ -43,15 +43,9 @@ public class DAGTest {
         env.setStreamTimeCharacteristic(TimeCharacteristic.EventTime);
 
         final long PHASE1_RATE = params.getLong("phase1Rate", 400);
-        final long PHASE2_RATE = params.getLong("phase2Rate", 600);
-        final long INTERMEDIATE_RATE = params.getLong("interRate", 500);
         final long PHASE1_TIME = params.getLong("phase1Time", 60) * 1000;
-        final long PHASE2_TIME = params.getLong("phase2Time", 60) * 1000;
-        final long INTERMEDIATE_TIME = params.getLong("interTime", 120) * 1000;
-        final long INTERMEDIATE_PERIOD = params.getLong("interPeriod", 240) * 1000;
-        final double zipf_skew = params.getDouble("zipf_skew", 0);
         final int nKeys = params.getInt("nkeys", 1000);
-        DataStreamSource<Tuple3<String, Long, Long>> source =  env.addSource(new TwoPhaseSineSource(PHASE1_TIME, PHASE2_TIME, INTERMEDIATE_TIME, PHASE1_RATE, PHASE2_RATE, INTERMEDIATE_RATE, INTERMEDIATE_PERIOD,params.getInt("mp2", 8), zipf_skew, nKeys))
+        DataStreamSource<Tuple3<String, Long, Long>> source =  env.addSource(new SimpleSource(PHASE1_TIME, PHASE1_RATE, params.getInt("mp2", 128), nKeys))
                 .setParallelism(params.getInt("p1", 1));
 
         DataStream<Tuple3<String, Long, Long>> up = source
@@ -162,7 +156,7 @@ public class DAGTest {
             countMap.put(input.f0, payload);
             delay(averageDelay);
             long currentTime = System.currentTimeMillis();
-            System.out.println("GT: " + input.f0 + ", " + currentTime + ", " + (currentTime - input.f1) + ", " + input.f2);
+            // System.out.println("GT: " + input.f0 + ", " + currentTime + ", " + (currentTime - input.f1) + ", " + input.f2);
             return new Tuple4<String, Long, Long, Long>(input.f0, currentTime, currentTime - input.f1, input.f2);
         }
         private void delay(long interval) {
@@ -183,8 +177,8 @@ public class DAGTest {
     }
 
 
-    public static final class TwoPhaseSineSource implements SourceFunction<Tuple3<String, Long, Long>>, CheckpointedFunction {
-        private long PHASE1_TIME, PHASE2_TIME, INTERMEDIATE_TIME, PHASE1_RATE, PHASE2_RATE, INTERMEDIATE_RATE, INTERMEDIATE_PERIOD, INTERVAL;
+    public static final class SimpleSource implements SourceFunction<Tuple3<String, Long, Long>>, CheckpointedFunction {
+        private long PHASE1_TIME, PHASE1_RATE;
         private int count = 0;
         private volatile boolean isRunning = true;
 
@@ -197,18 +191,12 @@ public class DAGTest {
 
         private final Map<Integer, List<String>> keyGroupMapping = new HashMap<>();
 
-        public TwoPhaseSineSource(long PHASE1_TIME, long PHASE2_TIME, long INTERMEDIATE_TIME, long PHASE1_RATE, long PHASE2_RATE, long INTERMEDIATE_RATE, long INTERMEDIATE_PERIOD, int maxParallelism, double zipfSkew, int nkeys){
+        public SimpleSource(long PHASE1_TIME, long PHASE1_RATE, int maxParallelism, int nkeys){
             this.PHASE1_TIME = PHASE1_TIME;
-            this.PHASE2_TIME = PHASE2_TIME;
-            this.INTERMEDIATE_TIME = INTERMEDIATE_TIME;
             this.PHASE1_RATE = PHASE1_RATE;
-            this.PHASE2_RATE = PHASE2_RATE;
-            this.INTERMEDIATE_RATE = INTERMEDIATE_RATE;
-            this.INTERMEDIATE_PERIOD = INTERMEDIATE_PERIOD;
-            this.INTERVAL = 50;
             this.nKeys = nkeys;
             this.maxParallelism = maxParallelism;
-            this.fastZipfGenerator = new FastZipfGenerator(maxParallelism, zipfSkew, 0, 114514);
+            this.fastZipfGenerator = new FastZipfGenerator(maxParallelism, 0, 0, 114514);
             for (int i = 0; i < nkeys; i++) {
                 String key = getChar(i);
                 int keygroup = MathUtils.murmurHash(key.hashCode()) % maxParallelism;
@@ -239,6 +227,8 @@ public class DAGTest {
             List<String> subKeySet;
             // Phase 1
             long startTime = System.currentTimeMillis();
+            long lastMarkCount = 0;
+            long lastMarktime = startTime;
             System.out.println("Phase 1 start at: " + startTime);
             while (isRunning && System.currentTimeMillis() - startTime < PHASE1_TIME) {
                 long emitStartTime = System.currentTimeMillis();
@@ -249,66 +239,12 @@ public class DAGTest {
                     ctx.collect(Tuple3.of(key, System.currentTimeMillis(), (long)count));
                     count++;
                 }
-                Util.pause(emitStartTime);
-            }
-
-            if (!isRunning) {
-                return ;
-            }
-
-            // Intermediate Phase
-            startTime = System.currentTimeMillis();
-            System.out.println("Intermediate phase start at: " + startTime);
-            long remainedNumber = (long)Math.floor(PHASE1_RATE * INTERVAL / 1000.0);
-            long AMPLITUDE = INTERMEDIATE_RATE - PHASE1_RATE;
-            while (isRunning && System.currentTimeMillis() - startTime < INTERMEDIATE_TIME) {
-                if(remainedNumber <= 0){
-                    long index = (System.currentTimeMillis() - startTime) / INTERVAL;
-                    long ntime = (index + 1) * INTERVAL + startTime;
-                    double theta = Math.sin(Math.toRadians(index * INTERVAL * 360 / ((double)INTERMEDIATE_PERIOD) - 90));
-                    remainedNumber = (long)Math.floor((INTERMEDIATE_RATE + theta * AMPLITUDE) / 1000 * INTERVAL);
-                    long ctime = System.currentTimeMillis();
-                    if(ntime >= ctime) {
-                        Thread.sleep(ntime - ctime);
-                    }
-                }
-                synchronized (ctx.getCheckpointLock()) {
-                    int selectedKeygroup = fastZipfGenerator.next();
-                    subKeySet = keyGroupMapping.get(selectedKeygroup);
-                    String key = getSubKeySetChar(count, subKeySet);
-                    ctx.collect(Tuple3.of(key, System.currentTimeMillis(), (long)count));
-                    remainedNumber --;
-                    count++;
-                }
-            }
-            if (!isRunning) {
-                return ;
-            }
-
-            // Phase 2
-            startTime = System.currentTimeMillis();
-            System.out.println("Phase 2 start at: " + startTime);
-            while (isRunning && System.currentTimeMillis() - startTime < PHASE2_TIME) {
-                long emitStartTime = System.currentTimeMillis();
-                for (int i = 0; i < PHASE2_RATE / 20; i++) {
-                    int selectedKeygroup = fastZipfGenerator.next();
-                    subKeySet = keyGroupMapping.get(selectedKeygroup);
-                    String key = getSubKeySetChar(count, subKeySet);
-                    ctx.collect(Tuple3.of(key, System.currentTimeMillis(), (long)count));
-                    count++;
+                if(emitStartTime - lastMarktime > 1000){
+                    System.out.println("Source time: " + emitStartTime + " rate: " + (count-lastMarkCount));
+                    lastMarktime = emitStartTime;
+                    lastMarkCount = count;
                 }
                 Util.pause(emitStartTime);
-            /*synchronized (ctx.getCheckpointLock()) {
-                ctx.collect(Tuple2.of(getChar(count), System.currentTimeMillis()));
-                count++;
-            }
-            if (count % (PHASE2_RATE * INTERVAL / 1000) == 0) {
-                long ctime = System.currentTimeMillis();
-                long nextTime = ((ctime - startTime) / INTERVAL + 1) * INTERVAL + startTime;
-                if(nextTime >= ctime){
-                    Thread.sleep(nextTime - ctime);
-                }
-            }*/
             }
         }
 
