@@ -50,7 +50,7 @@ public class DAGTest {
 
         DataStream<Tuple3<String, Long, Long>> up = source
                 .keyBy(0)
-                .flatMap(new DumbStatefulMap(params.getLong("op2Delay", 100), params.getInt("op2IoRate", 1), params.getInt("op2KeyStateSize", 1)))
+                .flatMap(new DumbStatefulMap("Splitter", params.getLong("op2Delay", 100), params.getInt("op2IoRate", 1), params.getInt("op2KeyStateSize", 1)))
                 .disableChaining()
                 .name("Splitter")
                 .uid("op2")
@@ -60,7 +60,7 @@ public class DAGTest {
 
         DataStream<Tuple3<String, Long, Long>> stream1 = up
                 .keyBy(0)
-                .flatMap(new DumbStatefulMap(params.getLong("op3Delay", 100), params.getInt("op3IoRate", 1), params.getInt("op3KeyStateSize", 1)))
+                .flatMap(new DumbStatefulMap("FlatMap 3", params.getLong("op3Delay", 100), params.getInt("op3IoRate", 1), params.getInt("op3KeyStateSize", 1)))
                 .disableChaining()
                 .name("FlatMap 3")
                 .uid("op3")
@@ -70,7 +70,7 @@ public class DAGTest {
 
         DataStream<Tuple3<String, Long, Long>> stream2 = up
                 .keyBy(0)
-                .flatMap(new DumbStatefulMap(params.getLong("op4Delay", 100), params.getInt("op4IoRate", 1), params.getInt("op4KeyStateSize", 1)))
+                .flatMap(new DumbStatefulMap("FlatMap 4", params.getLong("op4Delay", 100), params.getInt("op4IoRate", 1), params.getInt("op4KeyStateSize", 1)))
                 .disableChaining()
                 .name("FlatMap 4")
                 .uid("op4")
@@ -80,7 +80,7 @@ public class DAGTest {
 
         DataStream<Tuple3<String, Long, Long>> unionStream =  stream1.union(stream2);
         unionStream.keyBy(0)
-                .map(new DumbSink(params.getLong("op5Delay", 100), params.getInt("op5KeyStateSize", 1)))
+                .map(new DumbSink("FlatMap 5", params.getLong("op5Delay", 100), params.getInt("op5KeyStateSize", 1)))
                 .disableChaining()
                 .name("FlatMap 5")
                 .uid("op5")
@@ -99,9 +99,12 @@ public class DAGTest {
         private final int perKeyStateSize;
         private long averageDelay = 1000; // micro second
 
-        private final String payload;
+        private long lastReportTime = 0;
+        private long processCount = 0;
+        private final String payload, operatorName;
 
-        public DumbStatefulMap(long averageDelay, int ioRatio, int perKeyStateSize) {
+        public DumbStatefulMap(String operatorName, long averageDelay, int ioRatio, int perKeyStateSize) {
+            this.operatorName = operatorName;
             this.averageDelay = averageDelay;
             this.ioRatio = ioRatio;
             this.perKeyStateSize = perKeyStateSize;
@@ -116,6 +119,13 @@ public class DAGTest {
                 long t = input.f1;
                 long id = input.f2;
                 out.collect(new Tuple3<String, Long, Long>(s, t, id));
+                processCount++;
+            }
+            long ctime = System.currentTimeMillis();
+            if(ctime - lastReportTime >= 1000){
+                System.out.println(operatorName + " time: " + ctime + " totalProcessed: " + processCount);
+                processCount = 0;
+                lastReportTime = ctime;
             }
             delay(averageDelay);
         }
@@ -144,8 +154,11 @@ public class DAGTest {
         private RandomDataGenerator randomGen = new RandomDataGenerator();
         private final int perKeyStateSize;
         private long averageDelay = 1000; // micro second
-        private final String payload;
-        DumbSink(long averageDelay, int perKeyStateSize){
+        private final String payload,  operatorName;
+        private long lastReportTime = 0;
+        private long processCount = 0;
+        DumbSink(String operatorName, long averageDelay, int perKeyStateSize){
+            this.operatorName = operatorName;
             this.averageDelay = averageDelay;
             this.perKeyStateSize = perKeyStateSize;
             this.payload = StringUtils.repeat("A", perKeyStateSize);
@@ -157,6 +170,13 @@ public class DAGTest {
             delay(averageDelay);
             long currentTime = System.currentTimeMillis();
             // System.out.println("GT: " + input.f0 + ", " + currentTime + ", " + (currentTime - input.f1) + ", " + input.f2);
+            processCount++;
+            long ctime = System.currentTimeMillis();
+            if(ctime - lastReportTime >= 1000){
+                System.out.println(operatorName + " time: " + ctime + " totalProcessed: " + processCount);
+                processCount = 0;
+                lastReportTime = ctime;
+            }
             return new Tuple4<String, Long, Long, Long>(input.f0, currentTime, currentTime - input.f1, input.f2);
         }
         private void delay(long interval) {
