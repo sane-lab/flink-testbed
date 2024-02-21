@@ -120,7 +120,7 @@ run_stock_test(){
     runtime=3990 #
     skip_interval=20 # skip seconds
     warmup_time=30
-    warmup_rate=1000
+    warmup_rate=2000
     P2=2
     P3=3
     P4=6
@@ -131,7 +131,7 @@ run_stock_test(){
     STATE_SIZE4=500
     STATE_SIZE5=500
     spike_slope=0.75
-    spike_intercept=400 #850
+    spike_intercept=850
     #topology="3op"
     topology="split_join" # "split3"
     if [[ "${topology}" == "split_join" || "${topology}" == "split3"  ]]; then
