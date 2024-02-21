@@ -116,8 +116,8 @@ function runApp() {
 run_stock_test(){
     echo "Run overall test..."
     init
-    L=1500 #1000
-    runtime=3990 #3690
+    L=1000
+    runtime=3990 #
     skip_interval=20 # skip seconds
     warmup_time=30
     warmup_rate=2000 #1000
@@ -126,14 +126,14 @@ run_stock_test(){
     P4=6
     P5=4
     repeat=1
-    STATE_SIZE2=10000 #500
-    STATE_SIZE3=10000 #500
-    STATE_SIZE4=10000 #500
-    STATE_SIZE5=10000 #500
+    STATE_SIZE2=500
+    STATE_SIZE3=500
+    STATE_SIZE4=500
+    STATE_SIZE5=500
     spike_slope=0.75
-    spike_intercept=850 #400 #150
+    spike_intercept=400 #850
     #topology="3op"
-    topology="split3" #"split_join"
+    topology="split_join" # "split3"
     if [[ "${topology}" == "split_join" || "${topology}" == "split3"  ]]; then
        vertex_id="a84740bacf923e828852cc4966f2247c,eabd4c11f6c6fbdf011f0f1fc42097b1,d01047f852abd5702a0dabeedac99ff5,d2336f79a0d60b5a4b16c8769ec82e47"
     fi
@@ -155,22 +155,22 @@ run_stock_test(){
 #    printf "${EXP_NAME}\n" >> stock_result.txt
 #    is_treat=true
 
-    P2=2
-    P3=3
-    P4=6
-    P5=4
-    whether_type="ds2"
-    how_type="ds2"
-    scalein_type="ds2"
-    migration_interval=5000
-    run_one_exp
-    printf "${EXP_NAME}\n" >> stock_result.txt
+#    P2=2
+#    P3=3
+#    P4=6
+#    P5=4
+#    whether_type="ds2"
+#    how_type="ds2"
+#    scalein_type="ds2"
+#    migration_interval=5000
+#    run_one_exp
+#    printf "${EXP_NAME}\n" >> stock_result.txt
 #
-    whether_type="streamswitch"
-    how_type="streamswitch"
-    scalein_type="streamswitch"
-    migration_interval=1000
-    run_one_exp
-    printf "${EXP_NAME}\n" >> stock_result.txt
+#    whether_type="streamswitch"
+#    how_type="streamswitch"
+#    scalein_type="streamswitch"
+#    migration_interval=1000
+#    run_one_exp
+#    printf "${EXP_NAME}\n" >> stock_result.txt
 }
 run_stock_test
