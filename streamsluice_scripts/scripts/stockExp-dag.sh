@@ -141,36 +141,36 @@ run_stock_test(){
     printf "" > stock_result.txt
     run_one_exp
     printf "${EXP_NAME}\n" >> stock_result.txt
-#
-#
-#    is_treat=false
-#    run_one_exp
-#    printf "${EXP_NAME}\n" >> stock_result.txt
-#    is_treat=false
-#    P2=4
-#    P3=6
-#    P4=12
-#    P5=9
-#    run_one_exp
-#    printf "${EXP_NAME}\n" >> stock_result.txt
-#    is_treat=true
 
-#    P2=2
-#    P3=3
-#    P4=6
-#    P5=4
-#    whether_type="ds2"
-#    how_type="ds2"
-#    scalein_type="ds2"
-#    migration_interval=5000
-#    run_one_exp
-#    printf "${EXP_NAME}\n" >> stock_result.txt
-#
-#    whether_type="streamswitch"
-#    how_type="streamswitch"
-#    scalein_type="streamswitch"
-#    migration_interval=1000
-#    run_one_exp
-#    printf "${EXP_NAME}\n" >> stock_result.txt
+
+    is_treat=false
+    run_one_exp
+    printf "${EXP_NAME}\n" >> stock_result.txt
+    is_treat=false
+    P2=4
+    P3=6
+    P4=12
+    P5=18
+    run_one_exp
+    printf "${EXP_NAME}\n" >> stock_result.txt
+    is_treat=true
+
+    P2=2
+    P3=3
+    P4=6
+    P5=8
+    whether_type="ds2"
+    how_type="ds2"
+    scalein_type="ds2"
+    migration_interval=5000
+    run_one_exp
+    printf "${EXP_NAME}\n" >> stock_result.txt
+
+    whether_type="streamswitch"
+    how_type="streamswitch"
+    scalein_type="streamswitch"
+    migration_interval=1000
+    run_one_exp
+    printf "${EXP_NAME}\n" >> stock_result.txt
 }
 run_stock_test
