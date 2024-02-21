@@ -82,7 +82,7 @@ init() {
   IO4=1
   STATE_SIZE4=100
 
-  LP5=15
+  LP5=30
   P5=4 #3
   MP5=128
   DELAY5=3333
