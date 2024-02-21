@@ -116,11 +116,11 @@ function runApp() {
 run_stock_test(){
     echo "Run overall test..."
     init
-    L=1000
+    L=2000
     runtime=3990 #
     skip_interval=20 # skip seconds
     warmup_time=30
-    warmup_rate=2000
+    warmup_rate=1000
     P2=2
     P3=3
     P4=6
