@@ -124,7 +124,7 @@ run_stock_test(){
     P2=2
     P3=3
     P4=6
-    P5=4
+    P5=8
     repeat=1
     STATE_SIZE2=500
     STATE_SIZE3=500
@@ -133,7 +133,7 @@ run_stock_test(){
     spike_slope=0.75
     spike_intercept=400 #850
     #topology="3op"
-    topology="split3"
+    topology="split_join" # "split3"
     if [[ "${topology}" == "split_join" || "${topology}" == "split3"  ]]; then
        vertex_id="a84740bacf923e828852cc4966f2247c,eabd4c11f6c6fbdf011f0f1fc42097b1,d01047f852abd5702a0dabeedac99ff5,d2336f79a0d60b5a4b16c8769ec82e47"
     fi
