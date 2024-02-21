@@ -120,7 +120,7 @@ run_stock_test(){
     runtime=3990 #
     skip_interval=20 # skip seconds
     warmup_time=30
-    warmup_rate=2000 #1000
+    warmup_rate=1000
     P2=2
     P3=3
     P4=6
