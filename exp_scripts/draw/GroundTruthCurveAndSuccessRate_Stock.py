@@ -275,7 +275,7 @@ if len(sys.argv) > 1:
     expName = sys.argv[1].split("/")[-1]
 
 windowSize = 500
-latencyLimit = 1000
+latencyLimit = 2000 #1000
 endTime = 270 #150 #630
 startTime=30+300 #30
 isSingleOperator = False #True

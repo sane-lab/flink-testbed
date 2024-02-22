@@ -378,8 +378,10 @@ def draw(rawDir, outputDir, exps):
             ax1.set_ylim(0, 20)
             ax1.set_yticks(np.arange(0, 30, 10))
         else:
-            ax1.set_ylim(0, 12)
-            ax1.set_yticks(np.arange(0, 15, 4))
+            #ax1.set_ylim(0, 12)
+            #ax1.set_yticks(np.arange(0, 15, 4))
+            ax1.set_ylim(0, 30)
+            ax1.set_yticks(np.arange(0, 36, 6))
         ax1.grid(True)
 
 
@@ -409,8 +411,10 @@ def draw(rawDir, outputDir, exps):
             ax2.set_ylim(0, 4000)
             ax2.set_yticks(np.arange(0, 6000, 2000))
         else:
-            ax2.set_ylim(0, 3600)
-            ax2.set_yticks(np.arange(0, 4800, 1200))
+            # ax2.set_ylim(0, 3600)
+            # ax2.set_yticks(np.arange(0, 4800, 1200))
+            ax2.set_ylim(0, 9000)
+            ax2.set_yticks(np.arange(0, 10800, 1800))
         #legend = ["OP_" + str(jobIndex + 1) +"Arrival Rate"]
         legend = ["Arrival Rate"]
         ax2.set_xlim(startTime * 1000, (startTime + 3600) * 1000)
