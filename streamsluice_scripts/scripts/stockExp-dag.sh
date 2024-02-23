@@ -131,7 +131,7 @@ run_stock_test(){
     STATE_SIZE4=500
     STATE_SIZE5=500
     spike_slope=0.75
-    spike_intercept=850
+    spike_intercept=1000
     #topology="3op"
     topology="split_join" # "split3"
     if [[ "${topology}" == "split_join" || "${topology}" == "split3"  ]]; then
@@ -162,7 +162,7 @@ run_stock_test(){
     whether_type="ds2"
     how_type="ds2"
     scalein_type="ds2"
-    migration_interval=5000
+    migration_interval=2500
     run_one_exp
     printf "${EXP_NAME}\n" >> stock_result.txt
 

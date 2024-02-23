@@ -82,7 +82,7 @@ init() {
   IO4=1
   STATE_SIZE4=100
 
-  LP5=15
+  LP5=30
   P5=4 #3
   MP5=128
   DELAY5=3333
@@ -131,7 +131,7 @@ run_stock_test(){
     STATE_SIZE4=500
     STATE_SIZE5=500
     spike_slope=0.75
-    spike_intercept=400 #850
+    spike_intercept=1000 #850
     #topology="3op"
     topology="split_join" # "split3"
     if [[ "${topology}" == "split_join" || "${topology}" == "split3"  ]]; then
@@ -141,36 +141,36 @@ run_stock_test(){
     printf "" > stock_result.txt
     run_one_exp
     printf "${EXP_NAME}\n" >> stock_result.txt
-#
-#
-#    is_treat=false
-#    run_one_exp
-#    printf "${EXP_NAME}\n" >> stock_result.txt
-#    is_treat=false
-#    P2=4
-#    P3=6
-#    P4=12
-#    P5=9
-#    run_one_exp
-#    printf "${EXP_NAME}\n" >> stock_result.txt
-#    is_treat=true
 
-#    P2=2
-#    P3=3
-#    P4=6
-#    P5=4
-#    whether_type="ds2"
-#    how_type="ds2"
-#    scalein_type="ds2"
-#    migration_interval=5000
-#    run_one_exp
-#    printf "${EXP_NAME}\n" >> stock_result.txt
-#
-#    whether_type="streamswitch"
-#    how_type="streamswitch"
-#    scalein_type="streamswitch"
-#    migration_interval=1000
-#    run_one_exp
-#    printf "${EXP_NAME}\n" >> stock_result.txt
+
+    is_treat=false
+    run_one_exp
+    printf "${EXP_NAME}\n" >> stock_result.txt
+    is_treat=false
+    P2=4
+    P3=6
+    P4=12
+    P5=18
+    run_one_exp
+    printf "${EXP_NAME}\n" >> stock_result.txt
+    is_treat=true
+
+    P2=2
+    P3=3
+    P4=6
+    P5=8
+    whether_type="ds2"
+    how_type="ds2"
+    scalein_type="ds2"
+    migration_interval=2500
+    run_one_exp
+    printf "${EXP_NAME}\n" >> stock_result.txt
+
+    whether_type="streamswitch"
+    how_type="streamswitch"
+    scalein_type="streamswitch"
+    migration_interval=1000
+    run_one_exp
+    printf "${EXP_NAME}\n" >> stock_result.txt
 }
 run_stock_test

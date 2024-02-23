@@ -269,7 +269,20 @@ exps = [
     #  "blue", "o"],
 
     # Join
-    ["Sluice", "stock-server-split_join-sb-4hr-50ms.txt-streamsluice-streamsluice-3990-30-1000-20-2-1000-1-500-3-2000-1-500-6-5000-1-500-2000-100-true-1", "blue", "o"]
+    ["Inadequate",
+     "stock-server-split_join-sb-4hr-50ms.txt-streamsluice-streamsluice-3990-30-1000-20-2-1000-1-500-3-2000-1-500-6-5000-1-500-2000-100-false-1",
+     "gray", "*"],
+    ["Adequate",
+     "stock-server-split_join-sb-4hr-50ms.txt-streamsluice-streamsluice-3990-30-1000-20-4-1000-1-500-6-2000-1-500-12-5000-1-500-2000-100-false-1",
+     "orange", "*"],
+    # ["DS2", "stock-server-split_join-sb-4hr-50ms.txt-ds2-ds2-3990-30-1000-20-2-1000-1-500-3-2000-1-500-6-5000-1-500-2000-100-true-1",
+    #  "purple", "d"],
+    # ["StreamSwitch",
+    #  "stock-server-split_join-sb-4hr-50ms.txt-streamswitch-streamswitch-3990-30-1000-20-2-1000-1-500-3-2000-1-500-6-5000-1-500-2000-100-true-1",
+    #  "green", "p"],
+    ["Sluice",
+     "stock-server-split_join-sb-4hr-50ms.txt-streamsluice-streamsluice-3990-30-1000-20-2-1000-1-500-3-2000-1-500-6-5000-1-500-2000-100-true-1",
+     "blue", "o"],
 ]
 if len(sys.argv) > 1:
     expName = sys.argv[1].split("/")[-1]
