@@ -94,6 +94,7 @@ init() {
   spike_estimation="linear_regression"
   spike_slope=0.7
   spike_intercept=1000
+  errorcase_number=3
   is_treat=true
 }
 
@@ -132,6 +133,7 @@ run_stock_test(){
     STATE_SIZE5=500
     spike_slope=0.75
     spike_intercept=1000
+    errorcase_number=3
     #topology="3op"
     topology="split_join" # "split3"
     if [[ "${topology}" == "split_join" || "${topology}" == "split3"  ]]; then

@@ -22,7 +22,7 @@ function analyze() {
 }
 
 run_one_exp() {
-  EXP_NAME=stock-server-${topology}-${stock_file_name}-${whether_type}-${how_type}-${runtime}-${warmup_time}-${warmup_rate}-${skip_interval}-${P2}-${DELAY2}-${IO2}-${STATE_SIZE2}-${P3}-${DELAY3}-${IO3}-${STATE_SIZE3}-${P4}-${DELAY4}-${IO4}-${STATE_SIZE4}-${P5}-${DELAY5}-${STATE_SIZE5}-${L}-${epoch}-${is_treat}-${repeat}
+  EXP_NAME=stock-server-${topology}-${stock_file_name}-${whether_type}-${how_type}-${runtime}-${warmup_time}-${warmup_rate}-${skip_interval}-${P2}-${DELAY2}-${IO2}-${STATE_SIZE2}-${P3}-${DELAY3}-${IO3}-${STATE_SIZE3}-${P4}-${DELAY4}-${IO4}-${STATE_SIZE4}-${P5}-${DELAY5}-${STATE_SIZE5}-${L}-${epoch}-${is_treat}-${errorcase_num}-${repeat}
 
   echo "INFO: run exp ${EXP_NAME}"
   configFlink
@@ -94,6 +94,7 @@ init() {
   spike_estimation="linear_regression"
   spike_slope=0.7
   spike_intercept=1000
+  errorcase_number=3
   is_treat=true
 }
 
@@ -132,6 +133,8 @@ run_stock_test(){
     STATE_SIZE5=500
     spike_slope=0.75
     spike_intercept=1000
+    errorcase_number=3
+
     #topology="3op"
     topology="split_join" # "split3"
     if [[ "${topology}" == "split_join" || "${topology}" == "split3"  ]]; then

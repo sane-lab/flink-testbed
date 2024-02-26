@@ -315,6 +315,8 @@ controller.how.type: streamsluice
 
 controller.scale_in.type: streamsluice
 
+streamsluice.system.errorcase_number: 5
+
 streamsluice.metrics.is_output:
 
 streamsluice.model.decision_interval: 1
