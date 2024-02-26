@@ -22,7 +22,7 @@ function analyze() {
 }
 
 run_one_exp() {
-  EXP_NAME=stock-server-${topology}-${stock_file_name}-${whether_type}-${how_type}-${runtime}-${warmup_time}-${warmup_rate}-${skip_interval}-${P2}-${DELAY2}-${IO2}-${STATE_SIZE2}-${P3}-${DELAY3}-${IO3}-${STATE_SIZE3}-${P4}-${DELAY4}-${IO4}-${STATE_SIZE4}-${L}-${epoch}-${is_treat}-${repeat}
+  EXP_NAME=stock-server-${topology}-${stock_file_name}-${whether_type}-${how_type}-${runtime}-${warmup_time}-${warmup_rate}-${skip_interval}-${P2}-${DELAY2}-${IO2}-${STATE_SIZE2}-${P3}-${DELAY3}-${IO3}-${STATE_SIZE3}-${P4}-${DELAY4}-${IO4}-${STATE_SIZE4}-${P5}-${DELAY5}-${STATE_SIZE5}-${L}-${epoch}-${is_treat}-${repeat}
 
   echo "INFO: run exp ${EXP_NAME}"
   configFlink
@@ -82,10 +82,10 @@ init() {
   IO4=1
   STATE_SIZE4=100
 
-  LP5=30
+  LP5=15
   P5=4 #3
   MP5=128
-  DELAY5=3333
+  DELAY5=1666 #3333
   STATE_SIZE5=100
   WINDOW5=1
 
@@ -124,7 +124,7 @@ run_stock_test(){
     P2=2
     P3=3
     P4=6
-    P5=8
+    P5=4
     repeat=1
     STATE_SIZE2=500
     STATE_SIZE3=500
@@ -150,7 +150,7 @@ run_stock_test(){
     P2=4
     P3=6
     P4=12
-    P5=18
+    P5=9
     run_one_exp
     printf "${EXP_NAME}\n" >> stock_result.txt
     is_treat=true
@@ -158,7 +158,7 @@ run_stock_test(){
     P2=2
     P3=3
     P4=6
-    P5=8
+    P5=4
     whether_type="ds2"
     how_type="ds2"
     scalein_type="ds2"

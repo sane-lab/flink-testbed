@@ -285,7 +285,7 @@ exps = [
     #  "blue", "o"],
 
     ["Sluice",
-     "stock-server-split_join-sb-4hr-50ms.txt-streamsluice-streamsluice-3990-30-1000-20-2-1000-1-500-3-2000-1-500-6-5000-1-500-1000-100-true-1",
+     "stock-server-split_join-sb-4hr-50ms.txt-streamsluice-streamsluice-3990-30-1000-20-2-1000-1-500-3-2000-1-500-6-5000-1-500-2000-100-true-1",
      "blue", "o"],
 ]
 if len(sys.argv) > 1:
