@@ -19,6 +19,7 @@ import org.apache.flink.runtime.state.FunctionSnapshotContext;
 import org.apache.flink.runtime.state.memory.MemoryStateBackend;
 import org.apache.flink.streaming.api.TimeCharacteristic;
 import org.apache.flink.streaming.api.checkpoint.CheckpointedFunction;
+import org.apache.flink.streaming.api.datastream.DataStream;
 import org.apache.flink.streaming.api.datastream.DataStreamSource;
 import org.apache.flink.streaming.api.datastream.SingleOutputStreamOperator;
 import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
@@ -120,6 +121,34 @@ public class MicroBench {
                     .setMaxParallelism(params.getInt("mp4", 8))
                     .slotSharingGroup("g4");
             leng1.keyBy(0).map(new DumbSink(params.getLong("op5Delay", 100), params.getInt("op5KeyStateSize", 1), params.getBoolean("outputGroundTruth", true)))
+                    .disableChaining()
+                    .name("FlatMap 5")
+                    .uid("op5")
+                    .setParallelism(params.getInt("p5", 1))
+                    .setMaxParallelism(params.getInt("mp5", 8))
+                    .slotSharingGroup("g5");
+            env.execute();
+            return ;
+        }else if(GRAPH_TYPE.equals("1split2join1")){
+            SingleOutputStreamOperator<Tuple3<String, Long, Long>> split1 = leng1.keyBy(0)
+                    .flatMap(new DumbStatefulMap(params.getLong("op3Delay", 100), params.getInt("op3IoRate", 1), params.getInt("op3KeyStateSize", 1)))
+                    .disableChaining()
+                    .name("FlatMap 3")
+                    .uid("op3")
+                    .setParallelism(params.getInt("p3", 1))
+                    .setMaxParallelism(params.getInt("mp3", 8))
+                    .slotSharingGroup("g3");
+            SingleOutputStreamOperator<Tuple3<String, Long, Long>> split2 = leng1.keyBy(0)
+                    .flatMap(new DumbStatefulMap(params.getLong("op4Delay", 100), params.getInt("op4IoRate", 1), params.getInt("op4KeyStateSize", 1)))
+                    .disableChaining()
+                    .name("FlatMap 4")
+                    .uid("op4")
+                    .setParallelism(params.getInt("p4", 1))
+                    .setMaxParallelism(params.getInt("mp4", 8))
+                    .slotSharingGroup("g4");
+            DataStream<Tuple3<String, Long, Long>> unionStream =  split1.union(split2);
+            unionStream.keyBy(0)
+                    .map(new DumbSink(params.getLong("op5Delay", 100), params.getInt("op5KeyStateSize", 1), params.getBoolean("outputGroundTruth", true)))
                     .disableChaining()
                     .name("FlatMap 5")
                     .uid("op5")

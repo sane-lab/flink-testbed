@@ -551,7 +551,7 @@ exps = [
      "stock-server-split_join-sb-4hr-50ms.txt-streamswitch-streamswitch-3990-30-1000-20-2-1000-1-500-3-2000-1-500-6-5000-1-500-4-1666-500-2000-100-true-1",
      "green", "p"],
     ["Sluice",
-     "stock-server-split_join-sb-4hr-50ms.txt-streamsluice-streamsluice-3990-30-1000-20-2-1000-1-500-3-2000-1-500-6-5000-1-500-4-1666-500-2000-100-true-1",
+     "stock-server-split_join-sb-4hr-50ms.txt-streamsluice-streamsluice-3990-30-1000-20-2-1000-1-500-3-2000-1-500-6-5000-1-500-4-1666-500-2000-100-true-3-1",
      "blue", "o"],
 
 
