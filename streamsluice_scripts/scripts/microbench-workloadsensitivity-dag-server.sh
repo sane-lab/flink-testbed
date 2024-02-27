@@ -158,8 +158,8 @@ run_scale_test(){
     STATE_SIZE5=10000
     DELAY2=50
     DELAY3=50
-    DELAY4=1000
-    DELAY5=25
+    DELAY4=50 #1000
+    DELAY5=500 #25
     # STATE=100 slope, intercept
     spike_intercept=750 # 600
     spike_slope=0.7
@@ -167,7 +167,7 @@ run_scale_test(){
     autotune_interval=240
     errorcase_number=3
 
-    L=2000
+    L=1500
     printf "" > workload_result.txt
     printf "RANGE\n" >> workload_result.txt
     for RANGE_I in 7500 6250 5000 3750 2500; do
