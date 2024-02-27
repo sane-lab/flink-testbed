@@ -558,7 +558,7 @@ def draw(rawDir, outputDir, expName, windowSize):
     #     else:
     #         avgUtilizationUnderBestLimitPerJob[job] = totalUtilizationUnderBestLimitPerJob[job] / totalTimeUnderBestLimitPerJob[job]
     # print("Average utilization: " + str(avgUtilizationUnderBestLimitPerJob))
-    f = open("../workload_result.txt", "a")
+    f = open("../workload_result", "a")
     f.write(expName + "\n")
     outputLine = str(bestLimit)
     outputLine += " " + str(sum(avgParallelism))

@@ -40,7 +40,7 @@ def checkIsThisDimension(dimension, dimensions, baseline, expSetting):
 outputDir = "/Users/swrrt/Workplace/BacklogDelayPaper/experiments/figures/workload_1split2/"
 
 exps = {}
-with open("../workload_result.txt") as f:
+with open("../workload_result_server_new.txt") as f:
     lines = f.readlines()
     for i in range(0, len(lines)):
         line = lines[i]

@@ -157,8 +157,9 @@ run_scale_test(){
     STATE_SIZE4=10000
     STATE_SIZE5=10000
     DELAY2=50
-    DELAY3=200
+    DELAY3=50
     DELAY4=1000
+    DELAY5=25
     # STATE=100 slope, intercept
     spike_intercept=750 # 600
     spike_slope=0.7
