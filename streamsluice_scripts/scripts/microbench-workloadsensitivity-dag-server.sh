@@ -184,7 +184,7 @@ run_scale_test(){
         L=1100
         autotune_interval=240 # 240
       elif [[ "${PERIOD_I}" == 30 ]]; then
-        L=3500
+        L=4000
         autotune_interval=60 # 240
       else
         L=2500 #2000
