@@ -1,4 +1,4 @@
-microbench-system-server-streamsluice-streamsluice-gradient-1split2join1-60-4000-6000-5000-1000-20-1-0-3-444-1-10000-3-444-1-10000-3-444-1-10000-5-500-10000-2000-2000-100-10-false-1
-microbench-system-server-streamsluice-streamsluice-gradient-1split2join1-60-4000-6000-5000-1000-20-1-0-3-444-1-10000-3-444-1-10000-3-444-1-10000-5-500-10000-2000-2000-100-10-true-1
-microbench-system-server-streamsluice_earlier-streamsluice-gradient-1split2join1-60-4000-6000-5000-1000-20-1-0-3-444-1-10000-3-444-1-10000-3-444-1-10000-5-500-10000-2000-2000-100-10-true-1
-microbench-system-server-streamsluice_later-streamsluice-gradient-1split2join1-60-4000-6000-5000-1000-20-1-0-3-444-1-10000-3-444-1-10000-3-444-1-10000-5-500-10000-2000-2000-100-10-true-1
+microbench-system-server-streamsluice-op_2_3_keep-gradient-1split2join1-60-4000-6000-5000-1000-20-1-0-3-444-1-10000-3-444-1-10000-3-444-1-10000-5-500-10000-2000-2000-100-10-false-1
+microbench-system-server-streamsluice-op_2_3_keep-gradient-1split2join1-60-4000-6000-5000-1000-20-1-0-3-444-1-10000-3-444-1-10000-3-444-1-10000-5-500-10000-2000-2000-100-10-true-1
+microbench-system-server-streamsluice_earlier-op_2_3_keep-gradient-1split2join1-60-4000-6000-5000-1000-20-1-0-3-444-1-10000-3-444-1-10000-3-444-1-10000-5-500-10000-2000-2000-100-10-true-1
+microbench-system-server-streamsluice_later-op_2_3_keep-gradient-1split2join1-60-4000-6000-5000-1000-20-1-0-3-444-1-10000-3-444-1-10000-3-444-1-10000-5-500-10000-2000-2000-100-10-true-1
