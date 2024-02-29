@@ -175,17 +175,17 @@ run_scale_test(){
 #    is_treat=false
 #    run_one_exp
 #    printf "${EXP_NAME}\n" >> whetherhow_result.txt
-    is_treat=true
-    run_one_exp
-    printf "${EXP_NAME}\n" >> whetherhow_result.txt
+#    is_treat=true
+#    run_one_exp
+#    printf "${EXP_NAME}\n" >> whetherhow_result.txt
 
-#    whether_early="streamsluice_earlier"
-#    whether_late="streamsluice_later"
-#    for whether_type in ${whether_early} ${whether_late}; do
-#      #how_type="streamsluice"
-#      run_one_exp
-#      printf "${EXP_NAME}\n" >> whetherhow_result.txt
-#    done
+    whether_early="streamsluice_earlier"
+    whether_late="streamsluice_later"
+    for whether_type in ${whether_early} ${whether_late}; do
+      #how_type="streamsluice"
+      run_one_exp
+      printf "${EXP_NAME}\n" >> whetherhow_result.txt
+    done
 
 #    whether_type="streamsluice"
 #    how_type="streamsluice"
@@ -214,12 +214,12 @@ run_scale_test(){
 #    is_treat=false
 #    run_one_exp
 #    printf "${EXP_NAME}\n" >> whetherhow_result.txt
-    is_treat=true
-    run_one_exp
-    printf "${EXP_NAME}\n" >> whetherhow_result.txt
+#    is_treat=true
+#    run_one_exp
+#    printf "${EXP_NAME}\n" >> whetherhow_result.txt
     whether_early="streamsluice_earlier"
     whether_late="streamsluice_later"
-    for whether_type in ${whether_early} ${whether_late}; do
+    for whether_type in ${whether_late}; do # ${whether_early}
       #how_type="streamsluice"
       run_one_exp
       printf "${EXP_NAME}\n" >> whetherhow_result.txt
@@ -257,13 +257,13 @@ run_scale_test(){
     is_treat=true
     run_one_exp
     printf "${EXP_NAME}\n" >> whetherhow_result.txt
-    whether_early="streamsluice_earlier"
-    whether_late="streamsluice_later"
-    for whether_type in ${whether_early} ${whether_late}; do
-      #how_type="streamsluice"
-      run_one_exp
-      printf "${EXP_NAME}\n" >> whetherhow_result.txt
-    done
+#    whether_early="streamsluice_earlier"
+#    whether_late="streamsluice_later"
+#    for whether_type in ${whether_early} ${whether_late}; do
+#      #how_type="streamsluice"
+#      run_one_exp
+#      printf "${EXP_NAME}\n" >> whetherhow_result.txt
+#    done
 
 #    whether_type="streamsluice"
 #    how_type="streamsluice"
@@ -331,12 +331,12 @@ run_scale_test(){
 #    run_one_exp
 #    printf "${EXP_NAME}\n" >> whetherhow_result.txt
 
-    whether_early="streamsluice_earlier"
-    for whether_type in ${whether_early} ; do
-#      how_type="streamsluice"
-      run_one_exp
-      printf "${EXP_NAME}\n" >> whetherhow_result.txt
-    done
+#    whether_early="streamsluice_earlier"
+#    for whether_type in ${whether_early} ; do
+##      how_type="streamsluice"
+#      run_one_exp
+#      printf "${EXP_NAME}\n" >> whetherhow_result.txt
+#    done
 }
 
 run_scale_test
