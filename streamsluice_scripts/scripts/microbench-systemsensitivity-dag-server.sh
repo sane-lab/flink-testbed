@@ -165,11 +165,11 @@ run_scale_test(){
     # Curve 1
     CURVE_TYPE="gradient"
 
-    #whether_type="streamsluice"
-#    how_type="streamsluice"
-#    whether_type="time_15"
     whether_type="streamsluice"
-    how_type="op_1_3_keep"
+    how_type="streamsluice"
+#    whether_type="time_15"
+#    whether_type="streamsluice"
+#    how_type="op_2_3_keep"
     is_treat=true
     printf "1_${CURVE_TYPE}\n" >> whetherhow_result.txt
     is_treat=false
@@ -246,8 +246,8 @@ run_scale_test(){
     RANGE_I=1000
     PERIOD_I=20
     TIME_I=10
-#    whether_type="streamsluice"
-#    how_type="streamsluice"
+    whether_type="streamsluice"
+    how_type="streamsluice"
     #whether_type="streamsluice"
     #how_type="op_1_3_keep"
     printf "3_${CURVE_TYPE}\n" >> whetherhow_result.txt
@@ -277,10 +277,10 @@ run_scale_test(){
 
     # Curve 4
     CURVE_TYPE="gradient"
-#    whether_type="streamsluice"
-#    how_type="streamsluice"
     whether_type="streamsluice"
-    how_type="op_1_3_keep"
+    how_type="streamsluice"
+#    whether_type="streamsluice"
+#    how_type="op_1_3_keep"
     RATE1=4000
     RATE2=4000
     RATE_I=5000

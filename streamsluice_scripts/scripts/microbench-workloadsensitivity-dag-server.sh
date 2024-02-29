@@ -220,7 +220,7 @@ run_scale_test(){
           # intercept=180
           spike_slope=0.7
           spike_intercept=2000
-          L=3750
+          L=3000
         fi
         run_one_exp
         printf "${EXP_NAME}\n" >> workload_result.txt
