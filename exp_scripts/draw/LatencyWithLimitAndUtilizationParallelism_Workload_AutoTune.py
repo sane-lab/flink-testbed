@@ -334,8 +334,8 @@ def drawLatency(outputDir, averageGroundTruthLatency, latencyLimits):
                               np.arange(startTime * 1000, (startTime + 3600) * 1000 + 600000, 600000)])
         #axes.set_ylim(0, 2000)
         #axes.set_yticks(np.arange(0, 2500, 500))
-        axes.set_ylim(0, 4000)
-        axes.set_yticks(np.arange(0, 4500, 500))
+        axes.set_ylim(0, 7000)
+        axes.set_yticks(np.arange(0, 7500, 500))
     # axes.set_yscale('log')
     plt.grid(True)
     import os

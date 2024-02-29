@@ -179,12 +179,12 @@ run_scale_test(){
 
     printf "PERIOD\n" >> workload_result.txt
     RANGE_I=5000
-    for PERIOD_I in 30 60; do # 90 180; do # 30
+    for PERIOD_I in 30; do # 60 90 180; do # 30
       if [[ "${PERIOD_I}" == 180 ]]; then
         L=1100
         autotune_interval=240 # 240
       elif [[ "${PERIOD_I}" == 30 ]]; then
-        L=4500
+        L=3500
         autotune_interval=60 # 240
       else
         L=2500 #2000
@@ -220,7 +220,7 @@ run_scale_test(){
           # intercept=180
           spike_slope=0.7
           spike_intercept=2000
-          L=4000
+          L=3750
         fi
         run_one_exp
         printf "${EXP_NAME}\n" >> workload_result.txt
@@ -233,13 +233,13 @@ run_scale_test(){
     L=1500
 
     printf "SKEW\n" >> workload_result.txt
-    for ZIPF_SKEW in 0.025 0.05 0.1 0.2 0.4 0.6; do #0.025 0.05 0.1 0.2 0.4; do # 0.6
-        L=1500
-        run_one_exp
-        printf "${EXP_NAME}\n" >> workload_result.txt
-    done
-    ZIPF_SKEW=0
-    L=1500
+#    for ZIPF_SKEW in 0.025 0.05 0.1 0.2 0.4 0.6; do #0.025 0.05 0.1 0.2 0.4; do # 0.6
+#        L=1500
+#        run_one_exp
+#        printf "${EXP_NAME}\n" >> workload_result.txt
+#    done
+#    ZIPF_SKEW=0
+#    L=1500
 
     printf "TOPOLOGY\n" >> workload_result.txt
 #    GRAPH=1op
