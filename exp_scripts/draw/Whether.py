@@ -542,7 +542,7 @@ def drawAll(resultsPerCurve, outputDir, curves):
                 line[0].append(x1)
                 line[1].append(y0)
                 line[1].append(y1)
-            if controller == "StreamSluice":
+            if controller == "StreamSluice" or controller == "Sluice":
                 lineWidth = 4
             else:
                 lineWidth = 2
