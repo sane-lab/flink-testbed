@@ -219,12 +219,12 @@ run_scale_test(){
 #    printf "${EXP_NAME}\n" >> whetherhow_result.txt
 #    whether_early="streamsluice_earlier"
 #    whether_late="streamsluice_later"
-#    for whether_type in ${whether_late}; do # ${whether_early}
-#      #how_type="streamsluice"
-#      how_type="op_2_3_keep"
-#      run_one_exp
-#      printf "${EXP_NAME}\n" >> whetherhow_result.txt
-#    done
+    for whether_type in ${whether_late}; do # ${whether_early}
+      #how_type="streamsluice"
+      how_type="op_2_3_keep"
+      run_one_exp
+      printf "${EXP_NAME}\n" >> whetherhow_result.txt
+    done
 
 
 #    whether_type="streamsluice"
@@ -297,11 +297,11 @@ run_scale_test(){
 #    printf "${EXP_NAME}\n" >> whetherhow_result.txt
 #    whether_early="streamsluice_earlier"
 #    whether_late="streamsluice_later"
-#    for whether_type in ${whether_early}; do # ${whether_late}; do
-#      #how_type="streamsluice"
-#      run_one_exp
-#      printf "${EXP_NAME}\n" >> whetherhow_result.txt
-#    done
+    for whether_type in ${whether_early}; do # ${whether_late}; do
+      #how_type="streamsluice"
+      run_one_exp
+      printf "${EXP_NAME}\n" >> whetherhow_result.txt
+    done
 
 
 #    whether_type="streamsluice"
