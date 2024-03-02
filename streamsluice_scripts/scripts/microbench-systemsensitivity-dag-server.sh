@@ -187,16 +187,14 @@ run_scale_test(){
 #      run_one_exp
 #      printf "${EXP_NAME}\n" >> whetherhow_result.txt
 #    done
-    spike_intercept=1400
     whether_type="streamsluice"
     how_type="streamsluice"
     whether_type="time_170"
     #for how_type in "op_1_6_keep" "op_1_1_keep" "op_2_2_keep"; do
-    for how_type in "streamsluice_minus_one" "streamsluice_more"; do #  "streamsluice_less" "streamsluice_no_balance"  "streamsluice_not_bottleneck"
+    for how_type in "streamsluice_minus_one"; do # "streamsluice_more" "streamsluice_less" "streamsluice_no_balance"  "streamsluice_not_bottleneck"
       run_one_exp
       printf "${EXP_NAME}\n" >> whetherhow_result.txt
     done
-    spike_intercept=1500
 
 
     # Curve 2
@@ -273,7 +271,8 @@ run_scale_test(){
     how_type="streamsluice"
     whether_type="time_230"
 #    for how_type in "op_1_6_keep" "op_1_1_keep" "op_2_2_keep"; do
-    for how_type in "streamsluice_minus_one"  "streamsluice_more"  "streamsluice_no_balance" ; do # "streamsluice_less"  "streamsluice_not_bottleneck"
+    spike_intercept=1500
+    for how_type in "streamsluice_minus_one"  "streamsluice_more"  ; do #  "streamsluice_no_balance" "streamsluice_less"  "streamsluice_not_bottleneck"
       run_one_exp
       printf "${EXP_NAME}\n" >> whetherhow_result.txt
     done
@@ -310,6 +309,7 @@ run_scale_test(){
     how_type="streamsluice"
     whether_type="time_170"
 #    for how_type in "op_1_6_keep" "op_1_1_keep" "op_2_2_keep"; do
+    spike_intercept=1400
     for how_type in "streamsluice_minus_one" "streamsluice_more" ; do #"streamsluice_less" "streamsluice_not_bottleneck" "streamsluice_no_balance"
       run_one_exp
       printf "${EXP_NAME}\n" >> whetherhow_result.txt

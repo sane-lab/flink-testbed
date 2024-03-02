@@ -1,6 +1,5 @@
 microbench-system-server-time_170-streamsluice_minus_one-gradient-1split2join1-60-4000-6000-5000-1000-20-1-0-3-444-1-10000-3-444-1-10000-3-444-1-10000-5-500-10000-2500-2000-100-10-true-1
-microbench-system-server-time_190-streamsluice_more-gradient-1split2join1-60-4000-5500-4750-750-20-1-0-3-444-1-10000-3-444-1-10000-3-444-1-10000-5-500-10000-2500-2000-100-10-true-1
-microbench-system-server-time_190-streamsluice_no_balance-gradient-1split2join1-60-4000-5500-4750-750-20-1-0-3-444-1-10000-3-444-1-10000-3-444-1-10000-5-500-10000-2500-2000-100-10-true-1
+microbench-system-server-time_170-streamsluice_more-gradient-1split2join1-60-4000-6000-5000-1000-20-1-0-3-444-1-10000-3-444-1-10000-3-444-1-10000-5-500-10000-2500-2000-100-10-true-1
 microbench-system-server-time_230-streamsluice_minus_one-sine-1split2join1-60-4000-6000-5000-1000-20-1-0-3-444-1-10000-3-444-1-10000-3-444-1-10000-5-500-10000-2500-2000-100-10-true-1
 microbench-system-server-time_230-streamsluice_more-sine-1split2join1-60-4000-6000-5000-1000-20-1-0-3-444-1-10000-3-444-1-10000-3-444-1-10000-5-500-10000-2500-2000-100-10-true-1
 microbench-system-server-time_230-streamsluice_no_balance-sine-1split2join1-60-4000-6000-5000-1000-20-1-0-3-444-1-10000-3-444-1-10000-3-444-1-10000-5-500-10000-2500-2000-100-10-true-1
