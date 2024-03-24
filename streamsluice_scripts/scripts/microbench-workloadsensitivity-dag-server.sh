@@ -244,25 +244,25 @@ run_scale_test(){
 #    L=1500
 
     printf "IO\n" >> workload_result.txt
-    tDELAY2=DELAY2
-    tDELAY3=DELAY3
-    tDELAY4=DELAY4
-    tDELAY5=DELAY5
+    tDELAY2=${DELAY2}
+    tDELAY3=${DELAY3}
+    tDELAY4=${DELAY4}
+    tDELAY5=${DELAY5}
     for io_ratio in 2 3 4 5; do
-      IO2=io_ratio
-      IO3=io_ratio
-      IO4=io_ratio
-      IO5=io_ratio
+      IO2=${io_ratio}
+      IO3=${io_ratio}
+      IO4=${io_ratio}
+      IO5=1
       DELAY3="$((${tDELAY3}/IO2))"
       DELAY4="$((${tDELAY4}/IO2))"
       DELAY5="$((${tDELAY5}/IO2/IO3))"
       run_one_exp
       printf "${EXP_NAME}\n" >> workload_result.txt
     done
-    DELAY2=tDELAY2
-    DELAY3=tDELAY3
-    DELAY4=tDELAY4
-    DELAY5=tDELAY5
+    DELAY2=${tDELAY2}
+    DELAY3=${tDELAY3}
+    DELAY4=${tDELAY4}
+    DELAY5=${tDELAY5}
     IO2=1
     IO3=1
     IO4=1
