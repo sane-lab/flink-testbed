@@ -1,1 +1,1 @@
-microbench-workload-server-1split2join1-3660-10000-10000-10000-5000-30-1-0-4-50-1-10000-4-50-1-10000-4-50-1-10000-4000-500-100-true-1
+stock-server-split_join-sb-4hr-50ms.txt-streamsluice-streamsluice-3990-30-1000-20-2-1000-1-500-3-2000-1-500-6-5000-1-500-4-1666-500-2000-100-true-3-true-1

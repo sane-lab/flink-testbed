@@ -22,7 +22,7 @@ function analyze() {
 }
 
 run_one_exp() {
-  EXP_NAME=microbench-workload-server-${GRAPH}-${runtime}-${RATE1}-${RATE2}-${RATE_I}-${RANGE_I}-${PERIOD_I}-${P1}-${ZIPF_SKEW}-${P2}-${DELAY2}-${IO2}-${STATE_SIZE2}-${P3}-${DELAY3}-${IO3}-${STATE_SIZE3}-${P4}-${DELAY4}-${IO4}-${STATE_SIZE4}-${L}-${migration_interval}-${epoch}-${is_treat}-${repeat}
+  EXP_NAME=microbench-workload-server-${GRAPH}-${runtime}-${RATE1}-${RATE2}-${RATE_I}-${RANGE_I}-${PERIOD_I}-${P1}-${ZIPF_SKEW}-${P2}-${DELAY2}-${IO2}-${STATE_SIZE2}-${P3}-${DELAY3}-${IO3}-${STATE_SIZE3}-${P4}-${DELAY4}-${IO4}-${STATE_SIZE4}-${L}-${migration_interval}-${epoch}-${calibrate_selectivity}-${is_treat}-${repeat}
 
   echo "INFO: run exp ${EXP_NAME}"
   configFlink
@@ -166,6 +166,8 @@ run_scale_test(){
     autotune=true
     autotune_interval=240
     errorcase_number=3
+    #calibrate_selectivity=false
+    calibrate_selectivity=true
 
     L=1500
     printf "" > workload_result.txt
@@ -177,25 +179,25 @@ run_scale_test(){
 #    done
 
 
-    printf "PERIOD\n" >> workload_result.txt
-    RANGE_I=5000
-    for PERIOD_I in 30; do # 60 90 180; do # 30
-      if [[ "${PERIOD_I}" == 180 ]]; then
-        L=1100
-        autotune_interval=240 # 240
-      elif [[ "${PERIOD_I}" == 30 ]]; then
-        L=4000
-        autotune_interval=60 # 240
-      else
-        L=2500 #2000
-        autotune_interval="$((${PERIOD_I}*2))" # 240
-      fi
-      run_one_exp
-      printf "${EXP_NAME}\n" >> workload_result.txt
-    done
-    PERIOD_I=120
-    autotune_interval=240
-    L=1000
+#    printf "PERIOD\n" >> workload_result.txt
+#    RANGE_I=5000
+#    for PERIOD_I in 30; do # 60 90 180; do # 30
+#      if [[ "${PERIOD_I}" == 180 ]]; then
+#        L=1100
+#        autotune_interval=240 # 240
+#      elif [[ "${PERIOD_I}" == 30 ]]; then
+#        L=4000
+#        autotune_interval=60 # 240
+#      else
+#        L=2500 #2000
+#        autotune_interval="$((${PERIOD_I}*2))" # 240
+#      fi
+#      run_one_exp
+#      printf "${EXP_NAME}\n" >> workload_result.txt
+#    done
+#    PERIOD_I=120
+#    autotune_interval=240
+#    L=1000
 
     printf "STATE\n" >> workload_result.txt
 #    for STATE_SIZE2 in 40000; do #2500 5000 20000 40000; do
@@ -240,6 +242,31 @@ run_scale_test(){
 #    done
 #    ZIPF_SKEW=0
 #    L=1500
+
+    printf "IO\n" >> workload_result.txt
+    tDELAY2=DELAY2
+    tDELAY3=DELAY3
+    tDELAY4=DELAY4
+    tDELAY5=DELAY5
+    for io_ratio in 2 3 4 5; do
+      IO2=io_ratio
+      IO3=io_ratio
+      IO4=io_ratio
+      IO5=io_ratio
+      DELAY3="$((${tDELAY3}/IO2))"
+      DELAY4="$((${tDELAY4}/IO2))"
+      DELAY5="$((${tDELAY5}/IO2/IO3))"
+      run_one_exp
+      printf "${EXP_NAME}\n" >> workload_result.txt
+    done
+    DELAY2=tDELAY2
+    DELAY3=tDELAY3
+    DELAY4=tDELAY4
+    DELAY5=tDELAY5
+    IO2=1
+    IO3=1
+    IO4=1
+    IO5=1
 
     printf "TOPOLOGY\n" >> workload_result.txt
 #    GRAPH=1op

@@ -312,8 +312,10 @@ def draw(rawDir, outputDir, exps):
     axes = plt.gca()
     # axes.set_xticks(range(0, len(exps)))
     # axes.set_xticklabels(range(0, len(exps)))
-    axes.set_xlim(0, 40)
-    axes.set_xticks(np.arange(0, 50, 10))
+    # axes.set_xlim(0, 40)
+    # axes.set_xticks(np.arange(0, 50, 10))
+    axes.set_xlim(0, 50)
+    axes.set_xticks(np.arange(0, 60, 10))
 
 
     import os
@@ -393,20 +395,20 @@ exps = [
     #  "blue", "o"],
 
     # Change rate
-    ["Inadequate",
-     "stock-server-split3-sb-4hr-50ms.txt-streamsluice-streamsluice-3990-30-1000-20-2-1000-1-500-3-2000-1-500-6-5000-1-500-1000-100-false-1",
-     "gray", "*"],
-    ["Adequate",
-     "stock-server-split3-sb-4hr-50ms.txt-streamsluice-streamsluice-3990-30-1000-20-4-1000-1-500-6-2000-1-500-12-5000-1-500-1000-100-false-1",
-     "orange", "*"],
-    ["DS2", "stock-server-split3-sb-4hr-50ms.txt-ds2-ds2-3990-30-1000-20-2-1000-1-500-3-2000-1-500-6-5000-1-500-1000-100-true-1",
-     "purple", "d"],
-    ["StreamSwitch",
-     "stock-server-split3-sb-4hr-50ms.txt-streamswitch-streamswitch-3990-30-1000-20-2-1000-1-500-3-2000-1-500-6-5000-1-500-1000-100-true-1",
-     "green", "p"],
-    ["Sluice",
-     "stock-server-split3-sb-4hr-50ms.txt-streamsluice-streamsluice-3990-30-1000-20-2-1000-1-500-3-2000-1-500-6-5000-1-500-1000-100-true-1",
-     "blue", "o"],
+    # ["Inadequate",
+    #  "stock-server-split3-sb-4hr-50ms.txt-streamsluice-streamsluice-3990-30-1000-20-2-1000-1-500-3-2000-1-500-6-5000-1-500-1000-100-false-1",
+    #  "gray", "*"],
+    # ["Adequate",
+    #  "stock-server-split3-sb-4hr-50ms.txt-streamsluice-streamsluice-3990-30-1000-20-4-1000-1-500-6-2000-1-500-12-5000-1-500-1000-100-false-1",
+    #  "orange", "*"],
+    # ["DS2", "stock-server-split3-sb-4hr-50ms.txt-ds2-ds2-3990-30-1000-20-2-1000-1-500-3-2000-1-500-6-5000-1-500-1000-100-true-1",
+    #  "purple", "d"],
+    # ["StreamSwitch",
+    #  "stock-server-split3-sb-4hr-50ms.txt-streamswitch-streamswitch-3990-30-1000-20-2-1000-1-500-3-2000-1-500-6-5000-1-500-1000-100-true-1",
+    #  "green", "p"],
+    # ["Sluice",
+    #  "stock-server-split3-sb-4hr-50ms.txt-streamsluice-streamsluice-3990-30-1000-20-2-1000-1-500-3-2000-1-500-6-5000-1-500-1000-100-true-1",
+    #  "blue", "o"],
 
     # State10000
     # ["Inadequate",
@@ -424,6 +426,23 @@ exps = [
     # ["Sluice",
     #  "stock-server-split3-sb-4hr-50ms.txt-streamsluice-streamsluice-3990-30-2000-20-2-1000-1-10000-3-2000-1-10000-6-5000-1-10000-1500-100-true-1",
     #  "blue", "o"],
+
+    # Join
+    ["Inadequate",
+     "stock-server-split_join-sb-4hr-50ms.txt-streamsluice-streamsluice-3990-30-1000-20-2-1000-1-500-3-2000-1-500-6-5000-1-500-2000-100-false-1",
+     "gray", "*"],
+    ["Adequate",
+     "stock-server-split_join-sb-4hr-50ms.txt-streamsluice-streamsluice-3990-30-1000-20-4-1000-1-500-6-2000-1-500-12-5000-1-500-2000-100-false-1",
+     "orange", "*"],
+    ["DS2",
+     "stock-server-split_join-sb-4hr-50ms.txt-ds2-ds2-3990-30-1000-20-2-1000-1-500-3-2000-1-500-6-5000-1-500-4-1666-500-2000-100-true-1",
+     "purple", "d"],
+    ["StreamSwitch",
+     "stock-server-split_join-sb-4hr-50ms.txt-streamswitch-streamswitch-3990-30-1000-20-2-1000-1-500-3-2000-1-500-6-5000-1-500-4-1666-500-2000-100-true-1",
+     "green", "p"],
+    ["Sluice",
+     "stock-server-split_join-sb-4hr-50ms.txt-streamsluice-streamsluice-3990-30-1000-20-2-1000-1-500-3-2000-1-500-6-5000-1-500-4-1666-500-2000-100-true-3-1",
+     "blue", "o"],
 ]
 windowSize=1000
 startTime=30+300 #30
