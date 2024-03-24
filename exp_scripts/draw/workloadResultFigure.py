@@ -11,6 +11,7 @@ topologyToIndex = {
     "1split3": 4,
     "3op": 5,
     "2split2": 6,
+    "1split2join1": 7,
 }
 topologyName = {}
 for topology in topologyToIndex.keys():
@@ -37,10 +38,10 @@ def checkIsThisDimension(dimension, dimensions, baseline, expSetting):
             return False
     return True
 
-outputDir = "/Users/swrrt/Workplace/BacklogDelayPaper/experiments/figures/workload_1split2/"
+outputDir = "/Users/swrrt/Workplace/BacklogDelayPaper/experiments/figures/workload_1split2join1/"
 
 exps = {}
-with open("../workload_result_server_new.txt") as f:
+with open("../workload_result_server_dag.txt") as f:
     lines = f.readlines()
     for i in range(0, len(lines)):
         line = lines[i]
@@ -55,7 +56,7 @@ with open("../workload_result_server_new.txt") as f:
 
 
 dimensions = ["amplitude", "period", "statesize", "skewness", "topology"]
-baselineSetting = parseSetting("microbench-workload-server-1split2-3660-10000-10000-10000-5000-120-1-0-4-50-1-10000-4-50-1-10000-60-1000-1-10000-1200-500-100-true-1")
+baselineSetting = parseSetting("microbench-workload-server-1split2join1-3660-10000-10000-10000-5000-120-1-0-4-50-1-10000-4-50-1-10000-60-1000-1-10000-1200-500-100-true-1")
 baseRange = 10000
 for dimension in dimensions:
     print("For dimension " + dimension)
@@ -94,8 +95,9 @@ for dimension in dimensions:
             x += [topologyName[key]] #[str(int(key)) + '_OP']
         y += [orderResult[key][0]]
         parallelisms += [orderResult[key][1]]
-        theoriticalBestParallelismsUnderAverageRate += [orderResult[key][2]]
-        theoriticalBestParallelismsUnderMaximumRate += [orderResult[key][3]]
+        print(orderResult[key])
+        #theoriticalBestParallelismsUnderAverageRate += [orderResult[key][2]]
+        #theoriticalBestParallelismsUnderMaximumRate += [orderResult[key][3]]
         # opSize = len(orderResult[key]) - 1
         # for opIndex in range(1, len(orderResult[key])):
         #     opName = "OP_" + str(opIndex)
@@ -128,9 +130,9 @@ for dimension in dimensions:
     ax1.set_xticklabels( x)
     yrange = [0, 1000]
     if dimension == 'amplitude':
-        yrange = [0, 2000]
-    elif dimension == 'period':
         yrange = [0, 5000]
+    elif dimension == 'period':
+        yrange = [0, 6000]
     elif dimension == 'statesize':
         yrange = [0, 5000]
     elif dimension == 'skewness':

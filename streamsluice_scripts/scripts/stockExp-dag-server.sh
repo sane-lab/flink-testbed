@@ -134,6 +134,8 @@ run_stock_test(){
     spike_slope=0.75
     spike_intercept=1000
     errorcase_number=3
+    #calibrate_selectivity=false
+    calibrate_selectivity=true
 
     #topology="3op"
     topology="split_join" # "split3"
@@ -146,34 +148,34 @@ run_stock_test(){
     printf "${EXP_NAME}\n" >> stock_result.txt
 
 
-    is_treat=false
-    run_one_exp
-    printf "${EXP_NAME}\n" >> stock_result.txt
-    is_treat=false
-    P2=4
-    P3=6
-    P4=12
-    P5=9
-    run_one_exp
-    printf "${EXP_NAME}\n" >> stock_result.txt
-    is_treat=true
+#    is_treat=false
+#    run_one_exp
+#    printf "${EXP_NAME}\n" >> stock_result.txt
+#    is_treat=false
+#    P2=4
+#    P3=6
+#    P4=12
+#    P5=9
+#    run_one_exp
+#    printf "${EXP_NAME}\n" >> stock_result.txt
+#    is_treat=true
 
-    P2=2
-    P3=3
-    P4=6
-    P5=4
-    whether_type="ds2"
-    how_type="ds2"
-    scalein_type="ds2"
-    migration_interval=2500
-    run_one_exp
-    printf "${EXP_NAME}\n" >> stock_result.txt
-
-    whether_type="streamswitch"
-    how_type="streamswitch"
-    scalein_type="streamswitch"
-    migration_interval=1000
-    run_one_exp
-    printf "${EXP_NAME}\n" >> stock_result.txt
+#    P2=2
+#    P3=3
+#    P4=6
+#    P5=4
+#    whether_type="ds2"
+#    how_type="ds2"
+#    scalein_type="ds2"
+#    migration_interval=2500
+#    run_one_exp
+#    printf "${EXP_NAME}\n" >> stock_result.txt
+#
+#    whether_type="streamswitch"
+#    how_type="streamswitch"
+#    scalein_type="streamswitch"
+#    migration_interval=1000
+#    run_one_exp
+#    printf "${EXP_NAME}\n" >> stock_result.txt
 }
 run_stock_test

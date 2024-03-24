@@ -58,7 +58,8 @@ function configFlink() {
     sed 's/^\(\s*streamsluice.model.decision_interval\s*:\s*\).*/\1'"$decision_interval"'/' tmp21 > tmp22
     sed 's/^\(\s*streamsluice.metrics.snapshot_size\s*:\s*\).*/\1'"$snapshot_size"'/' tmp22 > tmp23
     sed 's/^\(\s*streamsluice.system.errorcase_number\s*:\s*\).*/\1'"$errorcase_number"'/' tmp23 > tmp24
-    sed 's/^\(\s*controller.scale_in.type\s*:\s*\).*/\1'"$scalein_type"'/' tmp24 > ${FLINK_CONF_DIR}/flink-conf.yaml
+    sed 's/^\(\s*controller.scale_in.type\s*:\s*\).*/\1'"$scalein_type"'/' tmp24 > tmp25
+    sed 's/^\(\s*streamsluice.system.true_arrival_calibrated\s*:\s*\).*/\1'"$calibrate_selectivity"'/' tmp25 > ${FLINK_CONF_DIR}/flink-conf.yaml
 
     rm tmp*
     echo ${FLINK_CONF_DIR}/flink-conf.yaml
