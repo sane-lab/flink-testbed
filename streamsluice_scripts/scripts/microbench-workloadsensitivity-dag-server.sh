@@ -249,24 +249,24 @@ run_scale_test(){
     tDELAY3=${DELAY3}
     tDELAY4=${DELAY4}
     tDELAY5=${DELAY5}
-    for io_ratio in 0.5 1 1.5 2; do
+    for io_ratio in 1 2 3 4; do
       IO2=${io_ratio}
       IO3=${io_ratio}
       IO4=${io_ratio}
       IO5=1
-      if [[ "${io_ratio}" == 0.5 ]]; then
+      if [[ "${io_ratio}" == 1 ]]; then
         DELAY3="$((${tDELAY3}*2))"
         DELAY4="$((${tDELAY4}*2))"
         DELAY5="$((${tDELAY5}*4))"
-      elif [[ "${io_ratio}" == 1 ]]; then
+      elif [[ "${io_ratio}" == 2 ]]; then
         DELAY3="$((${tDELAY3}))"
         DELAY4="$((${tDELAY4}))"
         DELAY5="$((${tDELAY5}))"
-      elif [[ "${io_ratio}" == 1.5 ]]; then
+      elif [[ "${io_ratio}" == 3 ]]; then
         DELAY3="$((${tDELAY3}*2/3))"
         DELAY4="$((${tDELAY4}*2/3))"
         DELAY5="$((${tDELAY5}*4/9))"
-      elif [[ "${io_ratio}" == 2 ]]; then
+      elif [[ "${io_ratio}" == 4 ]]; then
         DELAY3="$((${tDELAY3}/2))"
         DELAY4="$((${tDELAY4}/2))"
         DELAY5="$((${tDELAY5}/4))"
