@@ -27,10 +27,7 @@ import org.apache.flink.streaming.api.functions.source.SourceFunction;
 import org.apache.flink.util.Collector;
 import org.apache.flink.util.MathUtils;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 public class MicroBench {
     public static void main(String[] args) throws Exception {
@@ -70,7 +67,7 @@ public class MicroBench {
             return ;
         }
         SingleOutputStreamOperator<Tuple3<String, Long, Long>> leng1 = source.keyBy(0)
-                .flatMap(new DumbStatefulMap(params.getLong("op2Delay", 100), params.getInt("op2IoRate", 1), params.getInt("op2KeyStateSize", 1)))
+                .flatMap(new DumbStatefulMap(params.getLong("op2Delay", 100), params.getInt("op2IoRate", 1), params.getBoolean("op2IoFix", false), params.getInt("op2KeyStateSize", 1)))
                 .disableChaining()
                 .name("FlatMap 2")
                 .uid("op2")
@@ -131,7 +128,7 @@ public class MicroBench {
             return ;
         }else if(GRAPH_TYPE.equals("1split2join1")){
             SingleOutputStreamOperator<Tuple3<String, Long, Long>> split1 = leng1.keyBy(0)
-                    .flatMap(new DumbStatefulMap(params.getLong("op3Delay", 100), params.getInt("op3IoRate", 1), params.getInt("op3KeyStateSize", 1)))
+                    .flatMap(new DumbStatefulMap(params.getLong("op3Delay", 100), params.getInt("op3IoRate", 1), params.getBoolean("op3IoFix", false), params.getInt("op3KeyStateSize", 1)))
                     .disableChaining()
                     .name("FlatMap 3")
                     .uid("op3")
@@ -139,7 +136,7 @@ public class MicroBench {
                     .setMaxParallelism(params.getInt("mp3", 8))
                     .slotSharingGroup("g3");
             SingleOutputStreamOperator<Tuple3<String, Long, Long>> split2 = leng1.keyBy(0)
-                    .flatMap(new DumbStatefulMap(params.getLong("op4Delay", 100), params.getInt("op4IoRate", 1), params.getInt("op4KeyStateSize", 1)))
+                    .flatMap(new DumbStatefulMap(params.getLong("op4Delay", 100), params.getInt("op4IoRate", 1), params.getBoolean("op4IoFix", false), params.getInt("op4KeyStateSize", 1)))
                     .disableChaining()
                     .name("FlatMap 4")
                     .uid("op4")
@@ -160,7 +157,7 @@ public class MicroBench {
         }
 
         SingleOutputStreamOperator<Tuple3<String, Long, Long>> leng2 = leng1.keyBy(0)
-                .flatMap(new DumbStatefulMap(params.getLong("op3Delay", 100), params.getInt("op3IoRate", 1), params.getInt("op3KeyStateSize", 1)))
+                .flatMap(new DumbStatefulMap(params.getLong("op3Delay", 100), params.getInt("op3IoRate", 1), params.getBoolean("op3IoFix", false), params.getInt("op3KeyStateSize", 1)))
                 .disableChaining()
                 .name("FlatMap 3")
                 .uid("op3")
@@ -204,26 +201,41 @@ public class MicroBench {
         private RandomDataGenerator randomGen = new RandomDataGenerator();
         private transient MapState<String, String> countMap;
         private int ioRatio;
+        private boolean ioFixedFlag;
+        private Random rand;
         private final int perKeyStateSize;
         private long averageDelay = 1000; // micro second
 
         private final String payload;
 
-        public DumbStatefulMap(long averageDelay, int ioRatio, int perKeyStateSize) {
+        public DumbStatefulMap(long averageDelay, int ioRatio, boolean ioFixedFlag, int perKeyStateSize) {
             this.averageDelay = averageDelay;
             this.ioRatio = ioRatio;
+            this.ioFixedFlag = ioFixedFlag;
             this.perKeyStateSize = perKeyStateSize;
             this.payload = StringUtils.repeat("A", perKeyStateSize);
+            if(!ioFixedFlag){
+                rand = new Random();
+            }
         }
 
         @Override
         public void flatMap(Tuple3<String, Long, Long> input, Collector<Tuple3<String, Long, Long>> out) throws Exception {
             String s = input.f0;
             countMap.put(s, payload);
-            for(int i = 0; i < ioRatio; i++) {
-                long t = input.f1;
-                long id = input.f2;
-                out.collect(new Tuple3<String, Long, Long>(s, t, id));
+            if(ioFixedFlag) {
+                for (int i = 0; i < ioRatio; i++) {
+                    long t = input.f1;
+                    long id = input.f2;
+                    out.collect(new Tuple3<String, Long, Long>(s, t, id));
+                }
+            }else{
+                int numberOfOutput = rand.nextInt(ioRatio * 2);
+                for (int i = 0; i < numberOfOutput; i++){
+                    long t = input.f1;
+                    long id = input.f2;
+                    out.collect(new Tuple3<String, Long, Long>(s, t, id));
+                }
             }
             delay(averageDelay);
         }

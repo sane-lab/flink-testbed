@@ -22,7 +22,7 @@ function analyze() {
 }
 
 run_one_exp() {
-  EXP_NAME=microbench-workload-server-${GRAPH}-${runtime}-${RATE1}-${RATE2}-${RATE_I}-${RANGE_I}-${PERIOD_I}-${P1}-${ZIPF_SKEW}-${P2}-${DELAY2}-${IO2}-${STATE_SIZE2}-${P3}-${DELAY3}-${IO3}-${STATE_SIZE3}-${P4}-${DELAY4}-${IO4}-${STATE_SIZE4}-${L}-${migration_interval}-${epoch}-${calibrate_selectivity}-${is_treat}-${repeat}
+  EXP_NAME=microbench-workload-server-${GRAPH}-${runtime}-${RATE1}-${RATE2}-${RATE_I}-${RANGE_I}-${PERIOD_I}-${P1}-${ZIPF_SKEW}-${P2}-${DELAY2}-${IO2}-${STATE_SIZE2}-${P3}-${DELAY3}-${IO3}-${STATE_SIZE3}-${P4}-${DELAY4}-${IO4}-${STATE_SIZE4}-${L}-${migration_interval}-${epoch}-${IOFixFlag}-${calibrate_selectivity}-${is_treat}-${repeat}
 
   echo "INFO: run exp ${EXP_NAME}"
   configFlink
@@ -244,18 +244,36 @@ run_scale_test(){
 #    L=1500
 
     printf "IO\n" >> workload_result.txt
+    IOFixFlag=true
     tDELAY2=${DELAY2}
     tDELAY3=${DELAY3}
     tDELAY4=${DELAY4}
     tDELAY5=${DELAY5}
-    for io_ratio in 2 3 4 5; do
+    for io_ratio in 0.5 1 1.5 2; do
       IO2=${io_ratio}
       IO3=${io_ratio}
       IO4=${io_ratio}
       IO5=1
-      DELAY3="$((${tDELAY3}/IO2))"
-      DELAY4="$((${tDELAY4}/IO2))"
-      DELAY5="$((${tDELAY5}/IO2/IO3))"
+      if [[ "${io_ratio}" == 0.5 ]]; then
+        DELAY3="$((${tDELAY3}*2))"
+        DELAY4="$((${tDELAY4}*2))"
+        DELAY5="$((${tDELAY5}*4))"
+      elif [[ "${io_ratio}" == 1 ]]; then
+        DELAY3="$((${tDELAY3}))"
+        DELAY4="$((${tDELAY4}))"
+        DELAY5="$((${tDELAY5}))"
+      elif [[ "${io_ratio}" == 1.5 ]]; then
+        DELAY3="$((${tDELAY3}*2/3))"
+        DELAY4="$((${tDELAY4}*2/3))"
+        DELAY5="$((${tDELAY5}*4/9))"
+      elif [[ "${io_ratio}" == 2 ]]; then
+        DELAY3="$((${tDELAY3}/2))"
+        DELAY4="$((${tDELAY4}/2))"
+        DELAY5="$((${tDELAY5}/4))"
+      fi
+#      DELAY3="$((${tDELAY3}/IO2))"
+#      DELAY4="$((${tDELAY4}/IO2))"
+#      DELAY5="$((${tDELAY5}/IO2/IO3))"
       run_one_exp
       printf "${EXP_NAME}\n" >> workload_result.txt
     done
@@ -267,6 +285,7 @@ run_scale_test(){
     IO3=1
     IO4=1
     IO5=1
+    IOFixFlag=false
 
     printf "TOPOLOGY\n" >> workload_result.txt
 #    GRAPH=1op
