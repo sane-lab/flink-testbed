@@ -244,7 +244,8 @@ run_scale_test(){
 #    L=1500
 
     printf "IO\n" >> workload_result.txt
-    IOFixFlag=true
+    IOFixFlag=false
+    #IOFixFlag=true
     tDELAY2=${DELAY2}
     tDELAY3=${DELAY3}
     tDELAY4=${DELAY4}
