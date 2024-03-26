@@ -230,7 +230,7 @@ public class MicroBench {
                     out.collect(new Tuple3<String, Long, Long>(s, t, id));
                 }
             }else{
-                int numberOfOutput = rand.nextInt(ioRatio);
+                int numberOfOutput = rand.nextInt(ioRatio+1);
                 for (int i = 0; i < numberOfOutput; i++){
                     long t = input.f1;
                     long id = input.f2;
