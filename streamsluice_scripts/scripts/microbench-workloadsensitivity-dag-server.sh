@@ -170,6 +170,7 @@ run_scale_test(){
     calibrate_selectivity=true
 
     L=1500
+    RANGE_I=5000
     printf "" > workload_result.txt
     printf "RANGE\n" >> workload_result.txt
 #    for RANGE_I in 7500 6250 5000 3750 2500; do
