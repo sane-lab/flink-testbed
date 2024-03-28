@@ -245,49 +245,55 @@ run_scale_test(){
 #    L=1500
 
     printf "IO\n" >> workload_result.txt
-    IOFixFlag=false
-    #IOFixFlag=true
-    tDELAY2=${DELAY2}
-    tDELAY3=${DELAY3}
-    tDELAY4=${DELAY4}
-    tDELAY5=${DELAY5}
-    for io_ratio in 1 2 3 4; do
-      IO2=${io_ratio}
-      IO3=${io_ratio}
-      IO4=${io_ratio}
-      IO5=1
-      if [[ "${io_ratio}" == 1 ]]; then
-        DELAY3="$((${tDELAY3}*2))"
-        DELAY4="$((${tDELAY4}*2))"
-        DELAY5="$((${tDELAY5}*4))"
-      elif [[ "${io_ratio}" == 2 ]]; then
-        DELAY3="$((${tDELAY3}))"
-        DELAY4="$((${tDELAY4}))"
-        DELAY5="$((${tDELAY5}))"
-      elif [[ "${io_ratio}" == 3 ]]; then
-        DELAY3="$((${tDELAY3}*2/3))"
-        DELAY4="$((${tDELAY4}*2/3))"
-        DELAY5="$((${tDELAY5}*4/9))"
-      elif [[ "${io_ratio}" == 4 ]]; then
-        DELAY3="$((${tDELAY3}/2))"
-        DELAY4="$((${tDELAY4}/2))"
-        DELAY5="$((${tDELAY5}/4))"
-      fi
-#      DELAY3="$((${tDELAY3}/IO2))"
-#      DELAY4="$((${tDELAY4}/IO2))"
-#      DELAY5="$((${tDELAY5}/IO2/IO3))"
+#    IOFixFlag=false
+#    #IOFixFlag=true
+#    tDELAY2=${DELAY2}
+#    tDELAY3=${DELAY3}
+#    tDELAY4=${DELAY4}
+#    tDELAY5=${DELAY5}
+#    for io_ratio in 1 2 3 4; do
+#      IO2=${io_ratio}
+#      IO3=${io_ratio}
+#      IO4=${io_ratio}
+#      IO5=1
+#      if [[ "${io_ratio}" == 1 ]]; then
+#        DELAY3="$((${tDELAY3}*2))"
+#        DELAY4="$((${tDELAY4}*2))"
+#        DELAY5="$((${tDELAY5}*4))"
+#      elif [[ "${io_ratio}" == 2 ]]; then
+#        DELAY3="$((${tDELAY3}))"
+#        DELAY4="$((${tDELAY4}))"
+#        DELAY5="$((${tDELAY5}))"
+#      elif [[ "${io_ratio}" == 3 ]]; then
+#        DELAY3="$((${tDELAY3}*2/3))"
+#        DELAY4="$((${tDELAY4}*2/3))"
+#        DELAY5="$((${tDELAY5}*4/9))"
+#      elif [[ "${io_ratio}" == 4 ]]; then
+#        DELAY3="$((${tDELAY3}/2))"
+#        DELAY4="$((${tDELAY4}/2))"
+#        DELAY5="$((${tDELAY5}/4))"
+#      fi
+##      DELAY3="$((${tDELAY3}/IO2))"
+##      DELAY4="$((${tDELAY4}/IO2))"
+##      DELAY5="$((${tDELAY5}/IO2/IO3))"
+#      run_one_exp
+#      printf "${EXP_NAME}\n" >> workload_result.txt
+#    done
+#    DELAY2=${tDELAY2}
+#    DELAY3=${tDELAY3}
+#    DELAY4=${tDELAY4}
+#    DELAY5=${tDELAY5}
+#    IO2=1
+#    IO3=1
+#    IO4=1
+#    IO5=1
+#    IOFixFlag=false
+    printf "EPOCH\n" >> workload_result.txt
+    for epoch in 50 250 500 1000; do
       run_one_exp
       printf "${EXP_NAME}\n" >> workload_result.txt
     done
-    DELAY2=${tDELAY2}
-    DELAY3=${tDELAY3}
-    DELAY4=${tDELAY4}
-    DELAY5=${tDELAY5}
-    IO2=1
-    IO3=1
-    IO4=1
-    IO5=1
-    IOFixFlag=false
+    epoch=100
 
     printf "TOPOLOGY\n" >> workload_result.txt
 #    GRAPH=1op
