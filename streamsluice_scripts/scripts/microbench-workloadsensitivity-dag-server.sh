@@ -168,6 +168,7 @@ run_scale_test(){
     errorcase_number=3
     #calibrate_selectivity=false
     calibrate_selectivity=true
+    IOFixFlag=true
 
     L=1500
     RANGE_I=5000

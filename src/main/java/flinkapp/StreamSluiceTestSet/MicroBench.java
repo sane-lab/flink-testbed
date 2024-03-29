@@ -67,7 +67,7 @@ public class MicroBench {
             return ;
         }
         SingleOutputStreamOperator<Tuple3<String, Long, Long>> leng1 = source.keyBy(0)
-                .flatMap(new DumbStatefulMap(params.getLong("op2Delay", 100), params.getInt("op2IoRate", 1), params.getBoolean("op2IoFix", false), params.getInt("op2KeyStateSize", 1)))
+                .flatMap(new DumbStatefulMap(params.getLong("op2Delay", 100), params.getInt("op2IoRate", 1), params.getBoolean("op2IoFix", true), params.getInt("op2KeyStateSize", 1)))
                 .disableChaining()
                 .name("FlatMap 2")
                 .uid("op2")
@@ -128,7 +128,7 @@ public class MicroBench {
             return ;
         }else if(GRAPH_TYPE.equals("1split2join1")){
             SingleOutputStreamOperator<Tuple3<String, Long, Long>> split1 = leng1.keyBy(0)
-                    .flatMap(new DumbStatefulMap(params.getLong("op3Delay", 100), params.getInt("op3IoRate", 1), params.getBoolean("op3IoFix", false), params.getInt("op3KeyStateSize", 1)))
+                    .flatMap(new DumbStatefulMap(params.getLong("op3Delay", 100), params.getInt("op3IoRate", 1), params.getBoolean("op3IoFix", true), params.getInt("op3KeyStateSize", 1)))
                     .disableChaining()
                     .name("FlatMap 3")
                     .uid("op3")
@@ -136,7 +136,7 @@ public class MicroBench {
                     .setMaxParallelism(params.getInt("mp3", 8))
                     .slotSharingGroup("g3");
             SingleOutputStreamOperator<Tuple3<String, Long, Long>> split2 = leng1.keyBy(0)
-                    .flatMap(new DumbStatefulMap(params.getLong("op4Delay", 100), params.getInt("op4IoRate", 1), params.getBoolean("op4IoFix", false), params.getInt("op4KeyStateSize", 1)))
+                    .flatMap(new DumbStatefulMap(params.getLong("op4Delay", 100), params.getInt("op4IoRate", 1), params.getBoolean("op4IoFix", true), params.getInt("op4KeyStateSize", 1)))
                     .disableChaining()
                     .name("FlatMap 4")
                     .uid("op4")
@@ -157,7 +157,7 @@ public class MicroBench {
         }
 
         SingleOutputStreamOperator<Tuple3<String, Long, Long>> leng2 = leng1.keyBy(0)
-                .flatMap(new DumbStatefulMap(params.getLong("op3Delay", 100), params.getInt("op3IoRate", 1), params.getBoolean("op3IoFix", false), params.getInt("op3KeyStateSize", 1)))
+                .flatMap(new DumbStatefulMap(params.getLong("op3Delay", 100), params.getInt("op3IoRate", 1), params.getBoolean("op3IoFix", true), params.getInt("op3KeyStateSize", 1)))
                 .disableChaining()
                 .name("FlatMap 3")
                 .uid("op3")
