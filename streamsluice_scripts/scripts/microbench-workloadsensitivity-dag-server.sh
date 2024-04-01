@@ -293,10 +293,12 @@ run_scale_test(){
 #    IOFixFlag=false
 
     printf "EPOCH\n" >> workload_result.txt
-    for epoch in 25 200 400; do # 50 250
+    for epoch in 400; do # 50 250 25 200
+      L=2000
       run_one_exp
       printf "${EXP_NAME}\n" >> workload_result.txt
     done
+    L=1500
     epoch=100
 
     printf "TOPOLOGY\n" >> workload_result.txt
