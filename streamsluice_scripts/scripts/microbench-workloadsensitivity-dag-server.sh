@@ -293,7 +293,7 @@ run_scale_test(){
 #    IOFixFlag=false
 
     printf "EPOCH\n" >> workload_result.txt
-    for epoch in 50 250 500 1000; do
+    for epoch in 25 200 400; do # 50 250
       run_one_exp
       printf "${EXP_NAME}\n" >> workload_result.txt
     done
