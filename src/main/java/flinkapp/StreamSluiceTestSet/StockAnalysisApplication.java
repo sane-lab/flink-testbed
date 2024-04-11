@@ -52,7 +52,7 @@ public class StockAnalysisApplication {
                 .setParallelism(params.getInt("p2", 1))
                 .setMaxParallelism(params.getInt("mp2", 8))
                 .slotSharingGroup("g2");
-        DataStream<Tuple4<String, Double, Long, Long>> split1 = up
+        DataStream<Tuple5<String, Double, Integer, Long, Long>> split1 = up
                 .keyBy(0)
                 .flatMap(new PriceAnalysis(params.getInt("op3Delay", 4000)))
                 .disableChaining()
@@ -61,7 +61,7 @@ public class StockAnalysisApplication {
                 .setParallelism(params.getInt("p3", 1))
                 .setMaxParallelism(params.getInt("mp3", 8))
                 .slotSharingGroup("g3");
-        DataStream<Tuple4<String, Double, Long, Long>> split2 = up
+        DataStream<Tuple5<String, Double, Integer, Long, Long>> split2 = up
                 .keyBy(0)
                 .flatMap(new VolumeFiltering(params.getInt("op4Delay", 1000)))
                 .disableChaining()
@@ -78,19 +78,28 @@ public class StockAnalysisApplication {
                 .setParallelism(params.getInt("p5", 1))
                 .setMaxParallelism(params.getInt( "mp5", 8))
                 .slotSharingGroup("g5");
-
-        DataStream<Tuple5<String, Double, Double, Long, Long>> joined = ((SingleOutputStreamOperator)(split1
-                .join(split2)
-                .where((KeySelector<Tuple4<String, Double, Long, Long>, Long>) p -> p.f3)
-                .equalTo((KeySelector<Tuple4<String, Double, Long, Long>, Long>) p -> p.f3)
-                .window(TumblingEventTimeWindows.of(Time.milliseconds(1000)))
-                .apply(new JoinMap())))
+        DataStream<Tuple5<String, Double, Integer, Long, Long>> unionStream =  split1.union(split2);
+        DataStream<Tuple5<String, Double, Double, Long, Long>> joined = unionStream.keyBy(0)
+                .map(new JoinMap())
                 .disableChaining()
                 .name("Join")
                 .uid("op6")
                 .setParallelism(params.getInt("p6", 1))
                 .setMaxParallelism(params.getInt("mp6", 8))
                 .slotSharingGroup("g6");
+
+//        DataStream<Tuple5<String, Double, Double, Long, Long>> joined = ((SingleOutputStreamOperator)(split1
+//                .join(split2)
+//                .where((KeySelector<Tuple4<String, Double, Long, Long>, Long>) p -> p.f3)
+//                .equalTo((KeySelector<Tuple4<String, Double, Long, Long>, Long>) p -> p.f3)
+//                .window(TumblingEventTimeWindows.of(Time.milliseconds(1000)))
+//                .apply(new JoinMap())))
+//                .disableChaining()
+//                .name("Join")
+//                .uid("op6")
+//                .setParallelism(params.getInt("p6", 1))
+//                .setMaxParallelism(params.getInt("mp6", 8))
+//                .slotSharingGroup("g6");
 
         joined.keyBy(0)
                 .map(new Analysis(params.getInt("op7Delay", 3000)))
@@ -127,7 +136,7 @@ public class StockAnalysisApplication {
         }
     }
 
-    public static final class PriceAnalysis extends RichFlatMapFunction<Tuple5<String, Double, Double, Long, Long>, Tuple4<String, Double, Long, Long>> {
+    public static final class PriceAnalysis extends RichFlatMapFunction<Tuple5<String, Double, Double, Long, Long>, Tuple5<String, Double, Integer, Long, Long>> {
         private RandomDataGenerator randomGen = new RandomDataGenerator();
         private transient MapState<String, Double> lastPrice;
         private int averageDelay; // Microsecond
@@ -135,7 +144,7 @@ public class StockAnalysisApplication {
             this.averageDelay = _averageDelay;
         }
         @Override
-        public void flatMap(Tuple5<String, Double, Double, Long, Long> input, Collector<Tuple4<String, Double, Long, Long>> out) throws Exception {
+        public void flatMap(Tuple5<String, Double, Double, Long, Long> input, Collector<Tuple5<String, Double, Integer, Long, Long>> out) throws Exception {
             String s = input.f0;
             double difference;
             if(lastPrice.contains(s)){
@@ -144,7 +153,7 @@ public class StockAnalysisApplication {
                 difference = 0;
             }
             lastPrice.put(s, input.f2);
-            out.collect(new Tuple4<String, Double, Long, Long>(s, difference, input.f3, input.f4));
+            out.collect(new Tuple5<String, Double, Integer, Long, Long>(s, difference, 0, input.f3, input.f4));
             delay(averageDelay);
         }
         private void delay(long interval) {
@@ -195,7 +204,7 @@ public class StockAnalysisApplication {
         }
     }
 
-    public static final class VolumeAggregation extends RichFlatMapFunction<Tuple4<String, Double, Long, Long>, Tuple4<String, Double, Long, Long>> {
+    public static final class VolumeAggregation extends RichFlatMapFunction<Tuple4<String, Double, Long, Long>, Tuple5<String, Double, Integer, Long, Long>> {
 
         private int averageDelay; // Microsecond
         private RandomDataGenerator randomGen = new RandomDataGenerator();
@@ -205,7 +214,7 @@ public class StockAnalysisApplication {
         }
 
         @Override
-        public void flatMap(Tuple4<String, Double, Long, Long> input, Collector<Tuple4<String, Double, Long, Long>> out) throws Exception {
+        public void flatMap(Tuple4<String, Double, Long, Long> input, Collector<Tuple5<String, Double, Integer, Long, Long>> out) throws Exception {
             String s = input.f0;
             double totalVolume = 0;
             if(last5Volume.contains(s)){
@@ -238,7 +247,7 @@ public class StockAnalysisApplication {
             }
             totalVolume += input.f1;
             last1Volume.put(s, input.f1);
-            out.collect(new Tuple4<String, Double, Long, Long>(s, totalVolume, input.f2, input.f3));
+            out.collect(new Tuple5<String, Double, Integer, Long, Long>(s, totalVolume, 1, input.f2, input.f3));
             delay(averageDelay);
         }
 
@@ -267,8 +276,32 @@ public class StockAnalysisApplication {
         }
     }
 
-    private static class JoinMap implements FlatJoinFunction<Tuple4<String, Double, Long, Long>, Tuple4<String, Double, Long, Long>, Tuple5<String, Double, Double, Long, Long>>{
+//    private static class JoinMap implements FlatJoinFunction<Tuple4<String, Double, Long, Long>, Tuple4<String, Double, Long, Long>, Tuple5<String, Double, Double, Long, Long>>{
+//        private RandomDataGenerator randomGen = new RandomDataGenerator();
+//        JoinMap(){
+//        }
+//        private void delay(long interval) {
+//            Double ranN = randomGen.nextGaussian(interval, 1);
+//            ranN = ranN*1000;
+//            long delay = ranN.intValue();
+//            if (delay < 0) delay = interval * 1000;
+//            Long start = System.nanoTime();
+//            while (System.nanoTime() - start < delay) {}
+//        }
+//        @Override
+//        public void join(Tuple4<String, Double, Long, Long> split1_tuple, Tuple4<String, Double, Long, Long> split2_tuple, Collector<Tuple5<String, Double, Double, Long, Long>> collector) throws Exception {
+//            if(Objects.equals(split1_tuple.f3, split2_tuple.f3)) {
+//                collector.collect(new Tuple5<>(split1_tuple.f0, split1_tuple.f1, split2_tuple.f1, Math.min(split1_tuple.f2, split2_tuple.f2), split1_tuple.f3));
+//            }
+//            delay(100);
+//        }
+//    }
+
+
+    private static class JoinMap extends RichFlatMapFunction<Tuple5<String, Double, Integer, Long, Long>, Tuple5<String, Double, Double, Long, Long>>{
         private RandomDataGenerator randomGen = new RandomDataGenerator();
+        private transient MapState<Long, Double> dataFromSplit1,  dataFromSplit2;
+        private transient MapState<Long, Long> timeFromSplit1, timeFromSplit2;
         JoinMap(){
         }
         private void delay(long interval) {
@@ -280,15 +313,48 @@ public class StockAnalysisApplication {
             while (System.nanoTime() - start < delay) {}
         }
         @Override
-        public void join(Tuple4<String, Double, Long, Long> split1_tuple, Tuple4<String, Double, Long, Long> split2_tuple, Collector<Tuple5<String, Double, Double, Long, Long>> collector) throws Exception {
-            if(Objects.equals(split1_tuple.f3, split2_tuple.f3)) {
-                collector.collect(new Tuple5<>(split1_tuple.f0, split1_tuple.f1, split2_tuple.f1, Math.min(split1_tuple.f2, split2_tuple.f2), split1_tuple.f3));
+        public void flatMap(Tuple5<String, Double, Integer, Long, Long> input, Collector<Tuple5<String, Double, Double, Long, Long>> out) throws Exception {
+            String s = input.f0;
+            int type = input.f2;
+            if (type == 0){ // From Split 1
+                 if(dataFromSplit2.contains(input.f4)){
+                     double value = dataFromSplit2.get(input.f4);
+                     long time = timeFromSplit2.get(input.f4);
+                     out.collect(new Tuple5<>(s, input.f1, value, Math.min(input.f3, time), input.f4));
+                     dataFromSplit2.remove(input.f4);
+                     timeFromSplit2.remove(input.f4);
+                 }else{
+                     dataFromSplit1.put(input.f4, input.f1);
+                     timeFromSplit1.put(input.f4, input.f3);
+                 }
+            }else{ // From Split 2
+                if(dataFromSplit1.contains(input.f4)){
+                    double value = dataFromSplit1.get(input.f4);
+                    long time = timeFromSplit1.get(input.f4);
+                    out.collect(new Tuple5<>(s, value, input.f1, Math.min(input.f3, time), input.f4));
+                    dataFromSplit1.remove(input.f4);
+                    timeFromSplit1.remove(input.f4);
+                }else{
+                    dataFromSplit2.put(input.f4, input.f1);
+                    timeFromSplit2.put(input.f4, input.f3);
+                }
             }
             delay(100);
         }
+        @Override
+        public void open(Configuration config) {
+            MapStateDescriptor<Long, Double> descriptor =
+                    new MapStateDescriptor<>("join-map-1", Long.class, Double.class);
+            dataFromSplit1 = getRuntimeContext().getMapState(descriptor);
+            descriptor = new MapStateDescriptor<>("join-map-2", Long.class, Double.class);
+            dataFromSplit2 = getRuntimeContext().getMapState(descriptor);
+            MapStateDescriptor<Long, Long> descriptor1 =
+                    new MapStateDescriptor<>("join-map-3", Long.class, Long.class);
+            timeFromSplit1 = getRuntimeContext().getMapState(descriptor1);
+            descriptor1 = new MapStateDescriptor<>("join-map-4", Long.class, Long.class);
+            timeFromSplit2 = getRuntimeContext().getMapState(descriptor1);
+        }
     }
-
-
 
     public static final class Analysis extends RichMapFunction<Tuple5<String, Double, Double, Long, Long>, Tuple4<String, String, Long, Long>> {
 
