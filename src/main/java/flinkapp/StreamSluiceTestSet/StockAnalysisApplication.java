@@ -80,7 +80,7 @@ public class StockAnalysisApplication {
                 .slotSharingGroup("g5");
         DataStream<Tuple5<String, Double, Integer, Long, Long>> unionStream =  split1.union(split2);
         DataStream<Tuple5<String, Double, Double, Long, Long>> joined = unionStream.keyBy(0)
-                .map(new JoinMap())
+                .flatMap(new JoinMap())
                 .disableChaining()
                 .name("Join")
                 .uid("op6")
