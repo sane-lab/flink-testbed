@@ -86,11 +86,18 @@ init() {
   LP6=1
   LP7=20
 
+  P2=2
+  P3=6
+  P4=3
+  P5=4
+  P6=1
+  P7=5
+
   DELAY2=500
-  DELAY3=4000
+  DELAY3=5000
   DELAY4=1000
-  DELAY5=2000
-  DELAY7=3000
+  DELAY5=3000
+  DELAY7=4000
 }
 
 # run applications
@@ -121,36 +128,5 @@ run_stock_test(){
     printf "" > stock_result.txt
     run_one_exp
     printf "${EXP_NAME}\n" >> stock_result.txt
-
-
-#    is_treat=false
-#    run_one_exp
-#    printf "${EXP_NAME}\n" >> stock_result.txt
-#    is_treat=false
-#    P2=4
-#    P3=6
-#    P4=12
-#    P5=9
-#    run_one_exp
-#    printf "${EXP_NAME}\n" >> stock_result.txt
-#    is_treat=true
-
-#    P2=2
-#    P3=3
-#    P4=6
-#    P5=4
-#    whether_type="ds2"
-#    how_type="ds2"
-#    scalein_type="ds2"
-#    migration_interval=2500
-#    run_one_exp
-#    printf "${EXP_NAME}\n" >> stock_result.txt
-#
-#    whether_type="streamswitch"
-#    how_type="streamswitch"
-#    scalein_type="streamswitch"
-#    migration_interval=1000
-#    run_one_exp
-#    printf "${EXP_NAME}\n" >> stock_result.txt
 }
 run_stock_test
