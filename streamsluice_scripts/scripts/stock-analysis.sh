@@ -67,7 +67,7 @@ init() {
   epoch=100
   # app level
   JAR="${FLINK_APP_DIR}/target/testbed-1.0-SNAPSHOT.jar"
-  job="flinkapp.StreamSluiceTestSet.StockTest"
+  job="flinkapp.StreamSluiceTestSet.StockAnalysisApplication"
   # set in Flink app
   stock_path="/home/samza/SSE_data/"
   stock_file_name="sb-4hr-50ms.txt"
