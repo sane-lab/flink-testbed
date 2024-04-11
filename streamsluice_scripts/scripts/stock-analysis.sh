@@ -22,7 +22,7 @@ function analyze() {
 }
 
 run_one_exp() {
-  EXP_NAME=stock-server-${topology}-${stock_file_name}-${whether_type}-${how_type}-${runtime}-${warmup_time}-${warmup_rate}-${skip_interval}-${P2}-${DELAY2}-${IO2}-${STATE_SIZE2}-${P3}-${DELAY3}-${IO3}-${STATE_SIZE3}-${P4}-${DELAY4}-${IO4}-${STATE_SIZE4}-${P5}-${DELAY5}-${STATE_SIZE5}-${L}-${epoch}-${is_treat}-${errorcase_number}-${calibrate_selectivity}-${repeat}
+  EXP_NAME=stock_analysis-${whether_type}-${how_type}-${runtime}-${warmup_time}-${warmup_rate}-${skip_interval}-${P2}-${DELAY2}-${P3}-${DELAY3}-${P4}-${DELAY4}-${P5}-${DELAY5}-${P6}-${P7}-${DELAY7}-${L}-${epoch}-${is_treat}-${errorcase_number}-${calibrate_selectivity}-${repeat}
 
   echo "INFO: run exp ${EXP_NAME}"
   configFlink
@@ -71,7 +71,7 @@ init() {
   # set in Flink app
   stock_path="/home/samza/SSE_data/"
   stock_file_name="sb-4hr-50ms.txt"
-
+  MP1=1
   MP2=128
   MP3=128
   MP4=128
@@ -86,6 +86,7 @@ init() {
   LP6=1
   LP7=20
 
+  P1=1
   P2=2
   P3=6
   P4=3
