@@ -47,7 +47,7 @@ public class StockAnalysisApplication {
                 .keyBy(0)
                 .flatMap(new StockPreprocess(params.getInt("op2Delay", 1000)))
                 .disableChaining()
-                .name("Splitter")
+                .name("Preprocess")
                 .uid("op2")
                 .setParallelism(params.getInt("p2", 1))
                 .setMaxParallelism(params.getInt("mp2", 8))

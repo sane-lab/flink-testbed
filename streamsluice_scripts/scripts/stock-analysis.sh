@@ -129,5 +129,41 @@ run_stock_test(){
     printf "" > stock_result.txt
     run_one_exp
     printf "${EXP_NAME}\n" >> stock_result.txt
+
+#    is_treat=false
+#    run_one_exp
+#    printf "${EXP_NAME}\n" >> stock_result.txt
+#    P1=1
+#    P2=2
+#    P3=6
+#    P4=3
+#    P5=4
+#    P6=1
+#    P7=5
+#    is_treat=false
+#    run_one_exp
+#    printf "${EXP_NAME}\n" >> stock_result.txt
+#    is_treat=true
+
+    P1=1
+    P2=2
+    P3=6
+    P4=3
+    P5=4
+    P6=1
+    P7=5
+    whether_type="ds2"
+    how_type="ds2"
+    scalein_type="ds2"
+    migration_interval=2500
+    run_one_exp
+    printf "${EXP_NAME}\n" >> stock_result.txt
+
+    whether_type="streamswitch"
+    how_type="streamswitch"
+    scalein_type="streamswitch"
+    migration_interval=1000
+    run_one_exp
+    printf "${EXP_NAME}\n" >> stock_result.txt
 }
 run_stock_test

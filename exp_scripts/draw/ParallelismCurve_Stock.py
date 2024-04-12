@@ -28,6 +28,8 @@ OPERATOR_NAMING = {
     "eabd4c11f6c6fbdf011f0f1fc42097b1": "OP3",
     "d01047f852abd5702a0dabeedac99ff5": "OP4",
     "d2336f79a0d60b5a4b16c8769ec82e47": "OP5",
+    "36fcfcb61a35d065e60ee34fccb0541a": "OP6",
+    "c395b989724fa728d0a2640c6ccdb8a1": "OP7",
     "TOTAL": "TOTAL",
 }
 COLOR = {
@@ -41,7 +43,8 @@ COLOR = {
     "OP5": "orange",
 }
 
-APP_NAMING = ["TF", "PA", "VA", "TA"]
+#APP_NAMING = ["TF", "PA", "VA", "TA"]
+APP_NAMING = ["PP", "PA", "VF", "VA", "Join", "AN"]
 
 SMALL_SIZE = 25
 MEDIUM_SIZE = 30
@@ -268,7 +271,7 @@ def draw(rawDir, outputDir, exps):
 
     figName = "Parallelism"
     nJobs = len(parallelismsPerJob.keys())
-    jobList = ["a84740bacf923e828852cc4966f2247c", "eabd4c11f6c6fbdf011f0f1fc42097b1", "d01047f852abd5702a0dabeedac99ff5", "d2336f79a0d60b5a4b16c8769ec82e47"]
+    jobList = ["a84740bacf923e828852cc4966f2247c", "eabd4c11f6c6fbdf011f0f1fc42097b1", "d01047f852abd5702a0dabeedac99ff5", "d2336f79a0d60b5a4b16c8769ec82e47", "36fcfcb61a35d065e60ee34fccb0541a", "c395b989724fa728d0a2640c6ccdb8a1"]
 
     avgParallelismPerExp = {}
     for expindex in range(0, len(exps)):
@@ -567,8 +570,12 @@ exps = [
     # ["StreamSwitch",
     #  "stock-server-split_join-sb-4hr-50ms.txt-streamswitch-streamswitch-3990-30-1000-20-2-1000-1-500-3-2000-1-500-6-5000-1-500-4-1666-500-2000-100-true-1",
     #  "green", "p"],
+    # ["Sluice",
+    #  "stock-server-split_join-sb-4hr-50ms.txt-streamsluice-streamsluice-3990-30-1000-20-2-1000-1-500-3-2000-1-500-6-5000-1-500-4-1666-500-2000-100-true-3-true-1",
+    #  "blue", "o"],
+
     ["Sluice",
-     "stock-server-split_join-sb-4hr-50ms.txt-streamsluice-streamsluice-3990-30-1000-20-2-1000-1-500-3-2000-1-500-6-5000-1-500-4-1666-500-2000-100-true-3-true-1",
+     "stock_analysis-streamsluice-streamsluice-3990-30-1000-20-2-500-6-5000-3-1000-4-3000-1-5-4000-2000-100-true-3-true-1",
      "blue", "o"],
 ]
 windowSize=1000
