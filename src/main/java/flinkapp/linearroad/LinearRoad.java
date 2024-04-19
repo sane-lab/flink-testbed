@@ -516,7 +516,13 @@ public class LinearRoad {
                 int totalTime = 0;
                 for(int i = start_seg; i <= end_seg; i++){
                     if(speedPerSeg.contains(i)) {
-                        int time = 3600 / speedPerSeg.get(i);
+                        int speed = speedPerSeg.get(i);
+                        int time;
+                        if(speed == 0){
+                            time = 86400;
+                        }else {
+                            time = 3600 / speedPerSeg.get(i);
+                        }
                         totalTime += time;
                     }
                 }
