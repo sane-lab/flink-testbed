@@ -50,7 +50,7 @@ init() {
   scalein_type="streamsluice"
   L=2000
   runtime=3990 #
-  skip_interval=20 # skip seconds
+  skip_interval=0 # skip seconds
   warmup=10000
   warmup_time=30
   warmup_rate=1000
@@ -78,27 +78,36 @@ init() {
   MP5=128
   MP6=128
   MP7=128
+  MP8=128
+  MP9=128
 
-  LP2=5
-  LP3=20
-  LP4=10
-  LP5=20
-  LP6=1
-  LP7=20
+  LP2=15
+  LP3=15
+  LP4=15
+  LP5=1
+  LP6=15
+  LP7=15
+  LP8=15
+  LP9=15
 
-  P1=1
-  P2=2
-  P3=6
+  P1=3
+  P2=3
+  P3=3
   P4=3
-  P5=4
-  P6=1
-  P7=5
+  P5=1
+  P6=3
+  P7=3
+  P8=3
+  P9=3
 
-  DELAY2=500
-  DELAY3=5000
-  DELAY4=1000
-  DELAY5=3000
-  DELAY7=4000
+  DELAY2=2500
+  DELAY3=4000
+  DELAY4=3333
+  DELAY5=200
+  DELAY6=3000
+  DELAY7=2000
+  DELAY8=2500
+  DELAY9=5000
 }
 
 # run applications
@@ -109,8 +118,10 @@ function runApp() {
     -p3 ${P3} -mp3 ${MP3} -op3Delay ${DELAY3} \
     -p4 ${P4} -mp4 ${MP4} -op4Delay ${DELAY4} \
     -p5 ${P5} -mp5 ${MP5} -op5Delay ${DELAY5} \
-    -p6 ${P6} -mp6 ${MP6} \
+    -p6 ${P6} -mp6 ${MP6} -op6Delay ${DELAY6} \
     -p7 ${P7} -mp7 ${MP7} -op7Delay ${DELAY7} \
+    -p8 ${P8} -mp8 ${MP8} -op8Delay ${DELAY8} \
+    -p9 ${P9} -mp9 ${MP9} -op9Delay ${DELAY9} \
     -file_name ${stock_path}${stock_file_name} -warmup_rate ${warmup_rate} -warmup_time ${warmup_time} -skip_interval ${skip_interval} &"
     ${FLINK_DIR}/bin/flink run -c ${job} ${JAR} \
         -p1 ${P1} -mp1 ${MP1} \
@@ -118,8 +129,10 @@ function runApp() {
         -p3 ${P3} -mp3 ${MP3} -op3Delay ${DELAY3} \
         -p4 ${P4} -mp4 ${MP4} -op4Delay ${DELAY4} \
         -p5 ${P5} -mp5 ${MP5} -op5Delay ${DELAY5} \
-        -p6 ${P6} -mp6 ${MP6} \
+        -p6 ${P6} -mp6 ${MP6} -op6Delay ${DELAY6} \
         -p7 ${P7} -mp7 ${MP7} -op7Delay ${DELAY7} \
+        -p8 ${P8} -mp8 ${MP8} -op8Delay ${DELAY8} \
+        -p9 ${P9} -mp9 ${MP9} -op9Delay ${DELAY9} \
         -file_name ${stock_path}${stock_file_name} -warmup_rate ${warmup_rate} -warmup_time ${warmup_time} -skip_interval ${skip_interval} &
 }
 
