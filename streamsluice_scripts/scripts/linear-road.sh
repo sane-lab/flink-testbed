@@ -67,10 +67,10 @@ init() {
   epoch=100
   # app level
   JAR="${FLINK_APP_DIR}/target/testbed-1.0-SNAPSHOT.jar"
-  job="flinkapp.StreamSluiceTestSet.StockAnalysisApplication"
+  job="flinkapp.linearroad.LinearRoad"
   # set in Flink app
-  stock_path="/home/samza/SSE_data/"
-  stock_file_name="sb-4hr-50ms.txt"
+  stock_path="/home/samza/LR_data/"
+  stock_file_name="3hr-50ms.txt"
   MP1=1
   MP2=128
   MP3=128
@@ -124,9 +124,9 @@ function runApp() {
 }
 
 run_stock_test(){
-    echo "Run overall test..."
+    echo "Run linear road experiments..."
     init
-    printf "" > stock_result.txt
+    printf "" > lr_result.txt
 
     for repeat in 2 3 4 5; do
         run_one_exp
