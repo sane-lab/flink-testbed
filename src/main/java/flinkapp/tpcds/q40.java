@@ -67,6 +67,7 @@ public class q40 {
             int noRecSleepCnt = 0;
             int sleepCnt = 0;
 
+            // warmup
             long startTime = System.currentTimeMillis();
             System.out.println("Warmup start at: " + startTime);
             while (System.currentTimeMillis() - startTime < warmup) {
@@ -78,8 +79,8 @@ public class q40 {
                 }
                 Util.pause(emitStartTime);
             }
-//        Thread.sleep(60000);
 
+            // real start
             try {
                 stream = new FileReader(FILE);
                 br = new BufferedReader(stream);
