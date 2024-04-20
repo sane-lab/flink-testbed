@@ -1,6 +1,6 @@
 #!/bin/bash
 
-source config-server.sh
+source config-server-lr.sh
 
 # dump data
 function analyze() {
@@ -50,7 +50,7 @@ init() {
   scalein_type="streamsluice"
   L=2000
   runtime=3990 #
-  skip_interval=0 # skip seconds
+  skip_interval=1 # skip seconds
   warmup=10000
   warmup_time=30
   warmup_rate=1000
