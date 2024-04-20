@@ -73,22 +73,22 @@ init() {
   stock_file_name="3hr-50ms.txt"
   MP1=1
   MP2=128
-  MP3=128
-  MP4=128
-  MP5=128
-  MP6=128
-  MP7=128
+  MP3=32
+  MP4=32
+  MP5=32
+  MP6=32
+  MP7=32
   MP8=128
   MP9=128
 
-  LP2=15
+  LP2=10
   LP3=15
   LP4=15
   LP5=1
   LP6=15
-  LP7=15
-  LP8=15
-  LP9=15
+  LP7=10
+  LP8=20
+  LP9=20
 
   P1=3
   P2=3
@@ -106,7 +106,7 @@ init() {
   DELAY5=200
   DELAY6=3000
   DELAY7=2000
-  DELAY8=2500
+  DELAY8=6666
   DELAY9=5000
 }
 
