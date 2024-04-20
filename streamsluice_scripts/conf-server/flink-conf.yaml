@@ -286,6 +286,10 @@ model.max_parallelism.a84740bacf923e828852cc4966f2247c: 21
 model.max_parallelism.eabd4c11f6c6fbdf011f0f1fc42097b1: 21
 model.max_parallelism.d01047f852abd5702a0dabeedac99ff5: 21
 model.max_parallelism.d2336f79a0d60b5a4b16c8769ec82e47: 21
+model.max_parallelism.36fcfcb61a35d065e60ee34fccb0541a: 21
+model.max_parallelism.c395b989724fa728d0a2640c6ccdb8a1: 21
+model.max_parallelism.8e0d1d377d577c52511ad507bf0ce330: 21
+model.max_parallelism.2019e6125f7b4867f5fd448be51e3519: 21
 
 streamsluice.system.metrics_interval: 100
 
