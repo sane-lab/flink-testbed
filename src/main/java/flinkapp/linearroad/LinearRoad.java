@@ -180,7 +180,7 @@ public class LinearRoad {
                 long emitStartTime = System.currentTimeMillis();
                 for (int i = 0; i < warmp_rate / 20; i++) {
                     int car_id = count % 1000000;
-                    int seg = count % 100;
+                    int seg = r;
                     ctx.collect(Tuple18.of(0, car_id, 0, 0, 0, 0, seg, 0, 0, 0, 0, 0, 0, 0, 0, 0, System.currentTimeMillis(), (long) count));
                     count++;
                 }
@@ -204,8 +204,9 @@ public class LinearRoad {
                         // System.out.println("output rate: " + counter);
                         if (sleepCnt <= skipCount) {
                             for (int i = 0; i < warmp_rate / 20; i++) {
-                                int key = count % 1000000;
-                                ctx.collect(Tuple18.of(key, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, System.currentTimeMillis(), (long) count));
+                                int car_id = count % 1000000;
+                                int seg = count % 1000000;
+                                ctx.collect(Tuple18.of(0, car_id, 0, 0, 0, 0, seg, 0, 0, 0, 0, 0, 0, 0, 0, 0, System.currentTimeMillis(), (long) count));
                                 count++;
                             }
                         }
