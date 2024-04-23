@@ -99,6 +99,7 @@ public class LinearRoad {
                 .setMaxParallelism(params.getInt("mp5", 8))
                 .slotSharingGroup("g5");
 
+
         DataStream<Tuple19<String, Integer, String, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Long, Long>> afterCountVehicles = afterDispatcher
                 .keyBy(LinearRoadSource.Car_ID) // .keyBy(LinearRoadSource.Seg_ID)
                 .flatMap(new CountVehicles(params.getInt("op6Delay", 1000)))
@@ -109,7 +110,7 @@ public class LinearRoad {
                 .setMaxParallelism(params.getInt("mp6", 8))
                 .slotSharingGroup("g6");
 
-        DataStream<Tuple19<String, Integer, String, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Long, Long>> afterTollNotification = afterAccidentDetection.union(afterAverageSpeed).union(afterCountVehicles) // .union(afterDispatcher)
+        DataStream<Tuple19<String, Integer, String, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Long, Long>> afterTollNotification = afterAccidentDetection.union(afterLastAverageSpeed).union(afterCountVehicles) // .union(afterDispatcher)
                 .keyBy(LinearRoadSource.Car_ID) // .keyBy(LinearRoadSource.Seg_ID)
                 .flatMap(new TollNotification(params.getInt("op7Delay", 1000)))
                 .disableChaining()
