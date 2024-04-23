@@ -59,7 +59,7 @@ public class LinearRoad {
                 .setMaxParallelism(params.getInt("mp2", 8))
                 .slotSharingGroup("g2");
         afterAccidentDetection.union(source)
-                .keyBy(LinearRoadSource.Seg)
+                .keyBy(LinearRoadSource.Seg_ID)
                 .map(new AccidentNotification(params.getInt("op3Delay", 1000)))
                 .disableChaining()
                 .name("Accident Notification")
@@ -69,7 +69,7 @@ public class LinearRoad {
                 .slotSharingGroup("g3");
 
         DataStream<Tuple19<String, Integer, String, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Long, Long>> afterAverageSpeed = source
-                .keyBy(LinearRoadSource.Seg)
+                .keyBy(LinearRoadSource.Seg_ID)
                 .flatMap(new AverageSpeed(params.getInt("op4Delay", 1000)))
                 .disableChaining()
                 .name("Average Speed")
@@ -90,7 +90,7 @@ public class LinearRoad {
                 .slotSharingGroup("g5");
 
         DataStream<Tuple19<String, Integer, String, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Long, Long>> afterCountVehicles = source
-                .keyBy(LinearRoadSource.Seg)
+                .keyBy(LinearRoadSource.Seg_ID)
                 .flatMap(new CountVehicles(params.getInt("op6Delay", 1000)))
                 .disableChaining()
                 .name("Count Vehicles")
@@ -100,7 +100,7 @@ public class LinearRoad {
                 .slotSharingGroup("g6");
 
         DataStream<Tuple19<String, Integer, String, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Long, Long>> afterTollNotification = source.union(afterAccidentDetection).union(afterLastAverageSpeed).union(afterCountVehicles)
-                .keyBy(LinearRoadSource.Seg)
+                .keyBy(LinearRoadSource.Seg_ID)
                 .flatMap(new TollNotification(params.getInt("op7Delay", 1000)))
                 .disableChaining()
                 .name("Toll Notification")
