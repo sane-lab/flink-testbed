@@ -67,67 +67,67 @@ public class LinearRoad {
                 .setParallelism(params.getInt("p3", 1))
                 .setMaxParallelism(params.getInt("mp3", 8))
                 .slotSharingGroup("g3");
-
-        DataStream<Tuple19<String, Integer, String, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Long, Long>> afterAverageSpeed = source
-                .keyBy(LinearRoadSource.Seg_ID)
-                .flatMap(new AverageSpeed(params.getInt("op4Delay", 1000)))
-                .disableChaining()
-                .name("Average Speed")
-                .uid("op4")
-                .setParallelism(params.getInt("p4", 1))
-                .setMaxParallelism(params.getInt("mp4", 8))
-                .slotSharingGroup("g4");
-
-        // Centralized to predict travel time
-        DataStream<Tuple19<String, Integer, String, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Long, Long>> afterLastAverageSpeed = afterAverageSpeed
-                .keyBy(LinearRoadSource.Query_ID)
-                .flatMap(new LastAverageSpeed(params.getInt("op5Delay", 1000)))
-                .disableChaining()
-                .name("Last Average Speed")
-                .uid("op5")
-                .setParallelism(params.getInt("p5", 1))
-                .setMaxParallelism(params.getInt("mp5", 8))
-                .slotSharingGroup("g5");
-
-        DataStream<Tuple19<String, Integer, String, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Long, Long>> afterCountVehicles = source
-                .keyBy(LinearRoadSource.Seg_ID)
-                .flatMap(new CountVehicles(params.getInt("op6Delay", 1000)))
-                .disableChaining()
-                .name("Count Vehicles")
-                .uid("op6")
-                .setParallelism(params.getInt("p6", 1))
-                .setMaxParallelism(params.getInt("mp6", 8))
-                .slotSharingGroup("g6");
-
-        DataStream<Tuple19<String, Integer, String, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Long, Long>> afterTollNotification = source.union(afterAccidentDetection).union(afterLastAverageSpeed).union(afterCountVehicles)
-                .keyBy(LinearRoadSource.Seg_ID)
-                .flatMap(new TollNotification(params.getInt("op7Delay", 1000)))
-                .disableChaining()
-                .name("Toll Notification")
-                .uid("op7")
-                .setParallelism(params.getInt("p7", 1))
-                .setMaxParallelism(params.getInt("mp7", 8))
-                .slotSharingGroup("g7");
-
-        DataStream<Tuple19<String, Integer, String, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Long, Long>> afterAccountBalance = source.union(afterTollNotification)
-                .keyBy(LinearRoadSource.Car_ID)
-                .flatMap(new AccountBalance(params.getInt("op8Delay", 1000)))
-                .disableChaining()
-                .name("Account Balance")
-                .uid("op8")
-                .setParallelism(params.getInt("p8", 1))
-                .setMaxParallelism(params.getInt("mp8", 8))
-                .slotSharingGroup("g8");
-
-        source.union(afterAccountBalance)
-                .keyBy(LinearRoadSource.Car_ID)
-                .flatMap(new DailyExpense(params.getInt("op9Delay", 1000)))
-                .disableChaining()
-                .name("Daily Expense")
-                .uid("op9")
-                .setParallelism(params.getInt("p9", 1))
-                .setMaxParallelism(params.getInt("mp9", 8))
-                .slotSharingGroup("g9");
+//
+//        DataStream<Tuple19<String, Integer, String, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Long, Long>> afterAverageSpeed = source
+//                .keyBy(LinearRoadSource.Seg_ID)
+//                .flatMap(new AverageSpeed(params.getInt("op4Delay", 1000)))
+//                .disableChaining()
+//                .name("Average Speed")
+//                .uid("op4")
+//                .setParallelism(params.getInt("p4", 1))
+//                .setMaxParallelism(params.getInt("mp4", 8))
+//                .slotSharingGroup("g4");
+//
+//        // Centralized to predict travel time
+//        DataStream<Tuple19<String, Integer, String, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Long, Long>> afterLastAverageSpeed = afterAverageSpeed
+//                .keyBy(LinearRoadSource.Query_ID)
+//                .flatMap(new LastAverageSpeed(params.getInt("op5Delay", 1000)))
+//                .disableChaining()
+//                .name("Last Average Speed")
+//                .uid("op5")
+//                .setParallelism(params.getInt("p5", 1))
+//                .setMaxParallelism(params.getInt("mp5", 8))
+//                .slotSharingGroup("g5");
+//
+//        DataStream<Tuple19<String, Integer, String, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Long, Long>> afterCountVehicles = source
+//                .keyBy(LinearRoadSource.Seg_ID)
+//                .flatMap(new CountVehicles(params.getInt("op6Delay", 1000)))
+//                .disableChaining()
+//                .name("Count Vehicles")
+//                .uid("op6")
+//                .setParallelism(params.getInt("p6", 1))
+//                .setMaxParallelism(params.getInt("mp6", 8))
+//                .slotSharingGroup("g6");
+//
+//        DataStream<Tuple19<String, Integer, String, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Long, Long>> afterTollNotification = source.union(afterAccidentDetection).union(afterLastAverageSpeed).union(afterCountVehicles)
+//                .keyBy(LinearRoadSource.Seg_ID)
+//                .flatMap(new TollNotification(params.getInt("op7Delay", 1000)))
+//                .disableChaining()
+//                .name("Toll Notification")
+//                .uid("op7")
+//                .setParallelism(params.getInt("p7", 1))
+//                .setMaxParallelism(params.getInt("mp7", 8))
+//                .slotSharingGroup("g7");
+//
+//        DataStream<Tuple19<String, Integer, String, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Long, Long>> afterAccountBalance = source.union(afterTollNotification)
+//                .keyBy(LinearRoadSource.Car_ID)
+//                .flatMap(new AccountBalance(params.getInt("op8Delay", 1000)))
+//                .disableChaining()
+//                .name("Account Balance")
+//                .uid("op8")
+//                .setParallelism(params.getInt("p8", 1))
+//                .setMaxParallelism(params.getInt("mp8", 8))
+//                .slotSharingGroup("g8");
+//
+//        source.union(afterAccountBalance)
+//                .keyBy(LinearRoadSource.Car_ID)
+//                .flatMap(new DailyExpense(params.getInt("op9Delay", 1000)))
+//                .disableChaining()
+//                .name("Daily Expense")
+//                .uid("op9")
+//                .setParallelism(params.getInt("p9", 1))
+//                .setMaxParallelism(params.getInt("mp9", 8))
+//                .slotSharingGroup("g9");
 
         env.execute();
     }
