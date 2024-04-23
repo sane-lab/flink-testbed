@@ -310,7 +310,28 @@ public class LinearRoad {
                             input.f0,
                             input.f1,
                             car_id,
-                            input.f3,
+                            1,
+                            input.f4,
+                            input.f5,
+                            input.f6,
+                            input.f7,
+                            input.f8,
+                            input.f9,
+                            input.f10,
+                            input.f11,
+                            input.f12,
+                            input.f13,
+                            input.f14,
+                            input.f15,
+                            AccidentDetection_Output,
+                            input.f17,
+                            input.f18));
+                }else{
+                    out.collect(new Tuple19<>(
+                            input.f0,
+                            input.f1,
+                            car_id,
+                            0,
                             input.f4,
                             input.f5,
                             input.f6,
@@ -329,6 +350,26 @@ public class LinearRoad {
                 }
                 carStayLength.put(car_id, stayLength);
             } else {
+                out.collect(new Tuple19<>(
+                        input.f0,
+                        input.f1,
+                        car_id,
+                        0,
+                        input.f4,
+                        input.f5,
+                        input.f6,
+                        input.f7,
+                        input.f8,
+                        input.f9,
+                        input.f10,
+                        input.f11,
+                        input.f12,
+                        input.f13,
+                        input.f14,
+                        input.f15,
+                        AccidentDetection_Output,
+                        input.f17,
+                        input.f18));
                 carLastPos.put(car_id, pos);
                 carStayLength.put(car_id, 1);
             }
@@ -372,21 +413,24 @@ public class LinearRoad {
                 // TODO: record cars in each seg
             } else if (input.f16 == AccidentDetection_Output) {
                 int dir = input.f6, seg = input.f7, pos = input.f8;
-                if (dir == 0) {
-                    notification_l = seg - 4;
-                    if (notification_l < 0) {
-                        notification_l = 0;
+                int accident_flag = input.f3;
+                if(accident_flag == 1) {
+                    if (dir == 0) {
+                        notification_l = seg - 4;
+                        if (notification_l < 0) {
+                            notification_l = 0;
+                        }
+                        notification_r = seg;
+                    } else {
+                        notification_r = seg + 4;
+                        if (notification_r >= 100) {
+                            notification_r = 99;
+                        }
+                        notification_l = seg;
                     }
-                    notification_r = seg;
-                } else {
-                    notification_r = seg + 4;
-                    if (notification_r >= 100) {
-                        notification_r = 99;
-                    }
-                    notification_l = seg;
+                    System.out.println("Accident Notification for Seg: " + notification_l + "-" + notification_r);
+                    // TODO: info the cars in the segs
                 }
-                System.out.println("Accident Notification for Seg: " + notification_l + "-" + notification_r);
-                // TODO: info the cars in the segs
             }
             delay(averageDelay);
             long currentTime = System.currentTimeMillis();
@@ -706,7 +750,10 @@ public class LinearRoad {
             String car_id = input.f2;
             int seg = input.f7, source = input.f16, time = input.f9;
             if (source == AccidentDetection_Output){
-                segLastAccident.put(seg, time);
+                int accident_flag = input.f3;
+                if(accident_flag == 1) {
+                    segLastAccident.put(seg, time);
+                }
                 long currentTime = System.currentTimeMillis();
                 System.out.println("GT: " + input.f0 + "-" + input.f2 + ", " + currentTime + ", " + (currentTime - input.f17) + ", " + input.f18);
             }else if(source == LastAverageSpeed_Output){
@@ -866,7 +913,7 @@ public class LinearRoad {
         public void flatMap(Tuple19<String, Integer, String, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Long, Long> input, Collector<Tuple19<String, Integer, String, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Long, Long>> out) throws Exception {
             String car_id = input.f2;
             int source = input.f16, time = input.f9;
-            if (source == AccidentDetection_Output){
+            if (source == AccountBalance_Output){
                 if(dayPerCar.contains(car_id) && time - dayPerCar.get(car_id) >= 86400){
                     dayPerCar.put(car_id, time);
                     dailyExpensePerCar.remove(car_id);
