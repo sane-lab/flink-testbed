@@ -59,7 +59,7 @@ public class LinearRoad {
                 .setMaxParallelism(params.getInt("mp2", 8))
                 .slotSharingGroup("g2");
         afterAccidentDetection.union(source)
-                .keyBy(LinearRoadSource.Seg_ID)
+                .keyBy(LinearRoadSource.Car_ID) //.keyBy(LinearRoadSource.Seg_ID)
                 .map(new AccidentNotification(params.getInt("op3Delay", 1000)))
                 .disableChaining()
                 .name("Accident Notification")
