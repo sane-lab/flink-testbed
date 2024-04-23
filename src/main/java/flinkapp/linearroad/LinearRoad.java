@@ -68,15 +68,15 @@ public class LinearRoad {
                 .setParallelism(params.getInt("p2", 1))
                 .setMaxParallelism(params.getInt("mp2", 8))
                 .slotSharingGroup("g2");
-        afterAccidentDetection//.union(afterDispatcher)
-                .keyBy(LinearRoadSource.Car_ID) //.keyBy(LinearRoadSource.Seg_ID)
-                .map(new AccidentNotification(params.getInt("op3Delay", 1000)))
-                .disableChaining()
-                .name("Accident Notification")
-                .uid("op3")
-                .setParallelism(params.getInt("p3", 1))
-                .setMaxParallelism(params.getInt("mp3", 8))
-                .slotSharingGroup("g3");
+//        afterAccidentDetection//.union(afterDispatcher)
+//                .keyBy(LinearRoadSource.Car_ID) //.keyBy(LinearRoadSource.Seg_ID)
+//                .map(new AccidentNotification(params.getInt("op3Delay", 1000)))
+//                .disableChaining()
+//                .name("Accident Notification")
+//                .uid("op3")
+//                .setParallelism(params.getInt("p3", 1))
+//                .setMaxParallelism(params.getInt("mp3", 8))
+//                .slotSharingGroup("g3");
 
         DataStream<Tuple19<String, Integer, String, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Long, Long>> afterAverageSpeed = afterDispatcher
                 .keyBy(LinearRoadSource.Car_ID) // .keyBy(LinearRoadSource.Seg_ID)
@@ -89,15 +89,15 @@ public class LinearRoad {
                 .slotSharingGroup("g4");
 
         // Centralized to predict travel time
-//        DataStream<Tuple19<String, Integer, String, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Long, Long>> afterLastAverageSpeed = afterAverageSpeed
-//                .keyBy(LinearRoadSource.Car_ID) // .keyBy(LinearRoadSource.Query_ID)
-//                .flatMap(new LastAverageSpeed(params.getInt("op5Delay", 1000)))
-//                .disableChaining()
-//                .name("Last Average Speed")
-//                .uid("op5")
-//                .setParallelism(params.getInt("p5", 1))
-//                .setMaxParallelism(params.getInt("mp5", 8))
-//                .slotSharingGroup("g5");
+        DataStream<Tuple19<String, Integer, String, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Long, Long>> afterLastAverageSpeed = afterAverageSpeed
+                .keyBy(LinearRoadSource.Car_ID) // .keyBy(LinearRoadSource.Query_ID)
+                .flatMap(new LastAverageSpeed(params.getInt("op5Delay", 1000)))
+                .disableChaining()
+                .name("Last Average Speed")
+                .uid("op5")
+                .setParallelism(params.getInt("p5", 1))
+                .setMaxParallelism(params.getInt("mp5", 8))
+                .slotSharingGroup("g5");
 
         DataStream<Tuple19<String, Integer, String, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Long, Long>> afterCountVehicles = afterDispatcher
                 .keyBy(LinearRoadSource.Car_ID) // .keyBy(LinearRoadSource.Seg_ID)
