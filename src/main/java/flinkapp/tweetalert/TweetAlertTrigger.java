@@ -54,5 +54,7 @@ public class TweetAlertTrigger {
 //                .slotSharingGroup("g3");
         env.execute();
     }
+
+
 }
 

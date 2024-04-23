@@ -83,10 +83,10 @@ init() {
 
   LP2=10
   LP3=1
-  LP4=15
+  LP4=20
   LP5=1
   LP6=10
-  LP7=50
+  LP7=60
   LP8=1
   LP9=1
 
@@ -96,7 +96,7 @@ init() {
   P4=7
   P5=1
   P6=4
-  P7=20
+  P7=15
   P8=1
   P9=1
 
@@ -105,7 +105,7 @@ init() {
   DELAY4=3333
   DELAY5=200
   DELAY6=2000
-  DELAY7=5000
+  DELAY7=4000
   DELAY8=200
   DELAY9=200
 }
