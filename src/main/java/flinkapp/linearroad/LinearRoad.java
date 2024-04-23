@@ -109,7 +109,7 @@ public class LinearRoad {
                 .setMaxParallelism(params.getInt("mp6", 8))
                 .slotSharingGroup("g6");
 
-        DataStream<Tuple19<String, Integer, String, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Long, Long>> afterTollNotification = afterDispatcher.union(afterAccidentDetection).union(afterLastAverageSpeed).union(afterCountVehicles)
+        DataStream<Tuple19<String, Integer, String, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Long, Long>> afterTollNotification = afterAccidentDetection.union(afterLastAverageSpeed).union(afterCountVehicles) // .union(afterDispatcher)
                 .keyBy(LinearRoadSource.Car_ID) // .keyBy(LinearRoadSource.Seg_ID)
                 .flatMap(new TollNotification(params.getInt("op7Delay", 1000)))
                 .disableChaining()
@@ -119,7 +119,7 @@ public class LinearRoad {
                 .setMaxParallelism(params.getInt("mp7", 8))
                 .slotSharingGroup("g7");
 
-        DataStream<Tuple19<String, Integer, String, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Long, Long>> afterAccountBalance = afterDispatcher.union(afterTollNotification)
+        DataStream<Tuple19<String, Integer, String, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Long, Long>> afterAccountBalance = afterTollNotification // .union(afterDispatcher)
                 .keyBy(LinearRoadSource.Car_ID)
                 .flatMap(new AccountBalance(params.getInt("op8Delay", 1000)))
                 .disableChaining()
@@ -819,9 +819,9 @@ public class LinearRoad {
                 System.out.println("GT: " + input.f0 + "-" + input.f2 + ", " + currentTime + ", " + (currentTime - input.f17) + ", " + input.f18);
             }else if(source == CountVehicles_Output){
                 segCarCounts.put(seg, input.f3);
-                long currentTime = System.currentTimeMillis();
-                System.out.println("GT: " + input.f0 + "-" + input.f2 + ", " + currentTime + ", " + (currentTime - input.f17) + ", " + input.f18);
-            }else if(source == Source_Output){
+            //    long currentTime = System.currentTimeMillis();
+            //    System.out.println("GT: " + input.f0 + "-" + input.f2 + ", " + currentTime + ", " + (currentTime - input.f17) + ", " + input.f18);
+            // }else if(source == Source_Output){
                 int price = 0, carCounts = 0, averageSpeed = 50;
                 if (segCarCounts.contains(seg)){
                     carCounts = segCarCounts.get(seg);
@@ -922,7 +922,7 @@ public class LinearRoad {
                         AccountBalance_Output,
                         input.f17,
                         input.f18));
-            }else if(source == Source_Output){
+            // }else if(source == Source_Output){
                 if (input.f1 == 2) {
                     int balance = 0;
                     if (balancePerCar.contains(car_id)){
@@ -982,14 +982,14 @@ public class LinearRoad {
                 dailyExpensePerCar.put(car_id, old_expense + input.f3);
                 long currentTime = System.currentTimeMillis();
                 System.out.println("GT: " + input.f0 + "-" + input.f2 + ", " + currentTime + ", " + (currentTime - input.f17) + ", " + input.f18);
-            }else if(source == Source_Output){
+            // }else if(source == Source_Output){
                 if (input.f1 == 3) {
                     int expense = 0;
                     if (dailyExpensePerCar.contains(car_id)){
                         expense = dailyExpensePerCar.get(car_id);
                     }
                     System.out.println("Daily Expense: car " + car_id + " expense " + expense);
-                    long currentTime = System.currentTimeMillis();
+                    currentTime = System.currentTimeMillis();
                     System.out.println("GT: " + input.f0 + "-" + input.f2 + ", " + currentTime + ", " + (currentTime - input.f17) + ", " + input.f18);
                 }
             }
