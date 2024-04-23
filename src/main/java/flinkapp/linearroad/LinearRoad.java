@@ -49,7 +49,17 @@ public class LinearRoad {
                                 params.getLong("skip_interval", 0L) * 20))
                         .setParallelism(params.getInt("p1", 1));
 
-        DataStream<Tuple19<String, Integer, String, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Long, Long>> afterAccidentDetection = source
+        DataStream<Tuple19<String, Integer, String, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Long, Long>> afterDispatcher = source
+                .keyBy(LinearRoadSource.Car_ID)
+                .flatMap(new Dispatcher(10))
+                .disableChaining()
+                .name("Dispatcher")
+                .uid("op1")
+                .setParallelism(params.getInt("p1", 1))
+                .setMaxParallelism(params.getInt("mp1", 1))
+                .slotSharingGroup("g1");
+
+        DataStream<Tuple19<String, Integer, String, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Long, Long>> afterAccidentDetection = afterDispatcher
                 .keyBy(LinearRoadSource.Car_ID)
                 .flatMap(new AccidentDetection(params.getInt("op2Delay", 1000)))
                 .disableChaining()
@@ -58,7 +68,7 @@ public class LinearRoad {
                 .setParallelism(params.getInt("p2", 1))
                 .setMaxParallelism(params.getInt("mp2", 8))
                 .slotSharingGroup("g2");
-        afterAccidentDetection//.union(source)
+        afterAccidentDetection.union(afterDispatcher)
                 .keyBy(LinearRoadSource.Car_ID) //.keyBy(LinearRoadSource.Seg_ID)
                 .map(new AccidentNotification(params.getInt("op3Delay", 1000)))
                 .disableChaining()
@@ -284,6 +294,53 @@ public class LinearRoad {
         @Override
         public void cancel() {
             running = false;
+        }
+    }
+
+    public static final class Dispatcher extends RichFlatMapFunction<
+            Tuple19<String, Integer, String, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Long, Long>,
+            Tuple19<String, Integer, String, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Long, Long>> {
+
+        private RandomDataGenerator randomGen = new RandomDataGenerator();
+        private int averageDelay; // Microsecond
+
+        public Dispatcher(int _averageDelay) {
+            this.averageDelay = _averageDelay;
+        }
+
+        @Override
+        public void flatMap(Tuple19<String, Integer, String, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Long, Long> input, Collector<Tuple19<String, Integer, String, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Long, Long>> out) throws Exception {
+            out.collect(new Tuple19<>(
+                    input.f0,
+                    input.f1,
+                    input.f2,
+                    input.f3,
+                    input.f4,
+                    input.f5,
+                    input.f6,
+                    input.f7,
+                    input.f8,
+                    input.f9,
+                    input.f10,
+                    input.f11,
+                    input.f12,
+                    input.f13,
+                    input.f14,
+                    input.f15,
+                    Source_Output,
+                    input.f17,
+                    input.f18));
+            delay(averageDelay);
+        }
+
+        private void delay(long interval) {
+            Double ranN = randomGen.nextGaussian(interval, 1);
+            ranN = ranN * 1000;
+            long delay = ranN.intValue();
+            if (delay < 0) delay = interval * 1000;
+            Long start = System.nanoTime();
+            while (System.nanoTime() - start < delay) {
+            }
         }
     }
 
