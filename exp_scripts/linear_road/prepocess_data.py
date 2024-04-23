@@ -27,5 +27,5 @@ with open(linear_road_raw_path) as f:
                         fw.write(output_line + "\n")
                     fw.write("END\n")
             lines_this_second = []
-                lastTime = int(split[1])
+            lastTime = int(split[1])
 fw.close()
