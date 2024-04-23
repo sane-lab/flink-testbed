@@ -56,7 +56,7 @@ public class LinearRoad {
                 .name("Dispatcher")
                 .uid("op1")
                 .setParallelism(params.getInt("p1", 1))
-                .setMaxParallelism(params.getInt("mp1", 1))
+                .setMaxParallelism(params.getInt("mp1", 64))
                 .slotSharingGroup("g1");
 
         DataStream<Tuple19<String, Integer, String, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Long, Long>> afterAccidentDetection = afterDispatcher
