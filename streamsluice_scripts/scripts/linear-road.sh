@@ -72,14 +72,14 @@ init() {
   stock_path="/home/samza/LR_data/"
   stock_file_name="3hr-50ms.txt"
   MP1=1
-  MP2=128
-  MP3=32
-  MP4=32
-  MP5=32
-  MP6=32
-  MP7=32
-  MP8=128
-  MP9=128
+  MP2=64
+  MP3=64
+  MP4=64
+  MP5=64
+  MP6=64
+  MP7=64
+  MP8=64
+  MP9=64
 
   LP2=10
   LP3=10
