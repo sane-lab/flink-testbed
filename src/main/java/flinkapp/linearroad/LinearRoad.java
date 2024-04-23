@@ -58,7 +58,7 @@ public class LinearRoad {
                 .setParallelism(params.getInt("p2", 1))
                 .setMaxParallelism(params.getInt("mp2", 8))
                 .slotSharingGroup("g2");
-        afterAccidentDetection.union(source)
+        afterAccidentDetection//.union(source)
                 .keyBy(LinearRoadSource.Car_ID) //.keyBy(LinearRoadSource.Seg_ID)
                 .map(new AccidentNotification(params.getInt("op3Delay", 1000)))
                 .disableChaining()
@@ -194,7 +194,7 @@ public class LinearRoad {
                 long emitStartTime = System.currentTimeMillis();
                 for (int i = 0; i < warmp_rate / 20; i++) {
                     int car_id = count % 1000000;
-                    int seg = count % 1000;
+                    int seg = count % 100;
                     String seg_ID = getSegID(seg);
                     ctx.collect(Tuple19.of(seg_ID, 0, getCarID(car_id), 0, 0, 0, 0, seg, 0, 0, 0, 0, 0, 0, 0, 0, 0, System.currentTimeMillis(), (long) count));
                     count++;
@@ -220,7 +220,7 @@ public class LinearRoad {
                         if (sleepCnt <= skipCount) {
                             for (int i = 0; i < warmp_rate / 20; i++) {
                                 int car_id = count % 1000000;
-                                int seg = count % 1000;
+                                int seg = count % 100;
                                 String seg_ID = getSegID(seg);
                                 ctx.collect(Tuple19.of(seg_ID, 0, getCarID(car_id), 0, 0, 0, 0, seg, 0, 0, 0, 0, 0, 0, 0, 0, 0, System.currentTimeMillis(), (long) count));
                                 count++;
