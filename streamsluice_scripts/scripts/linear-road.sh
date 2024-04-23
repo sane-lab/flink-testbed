@@ -91,7 +91,7 @@ init() {
   LP9=20
 
   P1=3
-  P2=3
+  P2=5
   P3=3
   P4=3
   P5=1
@@ -101,7 +101,7 @@ init() {
   P9=3
 
   DELAY2=2500
-  DELAY3=4000
+  DELAY3=2000
   DELAY4=3333
   DELAY5=200
   DELAY6=3000
