@@ -50,7 +50,7 @@ init() {
   scalein_type="streamsluice"
   L=4000
   runtime=3990 #
-  skip_interval=300 # skip seconds
+  skip_interval=0 # skip seconds
   warmup=10000
   warmup_time=30
   warmup_rate=1000
@@ -79,27 +79,27 @@ init() {
   MP6=128
   MP7=128
 
-  LP2=10
-  LP3=1
-  LP4=20
+  LP2=40
+  LP3=20
+  LP4=10
   LP5=1
-  LP6=10
-  LP7=60
+  LP6=30
+  LP7=5
 
   P1=1
-  P2=3
-  P3=1
-  P4=7
+  P2=10
+  P3=4
+  P4=3
   P5=1
-  P6=4
-  P7=15
+  P6=8
+  P7=1
 
-  DELAY2=1000
-  DELAY3=1000
-  DELAY4=3333
+  DELAY2=5000
+  DELAY3=2000
+  DELAY4=1000
   DELAY5=100
-  DELAY6=2000
-  DELAY7=4000
+  DELAY6=4000
+  DELAY7=500
 }
 
 # run applications
