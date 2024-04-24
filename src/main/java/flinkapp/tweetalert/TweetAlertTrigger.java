@@ -22,9 +22,7 @@ import org.apache.flink.util.Collector;
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
+import java.util.*;
 
 public class TweetAlertTrigger {
     private static final int Source_Output = 0;
@@ -239,13 +237,34 @@ public class TweetAlertTrigger {
 
         private RandomDataGenerator randomGen = new RandomDataGenerator();
         private int averageDelay; // Microsecond
-
+        private Map<String, Double> sentimentDict;
         public SentimentAnalysis(int _averageDelay) {
             this.averageDelay = _averageDelay;
+            sentimentDict = new HashMap<>();
+            sentimentDict.put("good", 1.0);
+            sentimentDict.put("excellent", 1.0);
+            sentimentDict.put("well", 1.0);
+            sentimentDict.put("wonderful", 1.0);
+            sentimentDict.put("nice", 1.0);
+            sentimentDict.put("bad", -1.0);
+            sentimentDict.put("terrible", -1.0);
+            sentimentDict.put("awful", -1.0);
+            sentimentDict.put("worse", -1.0);
+            sentimentDict.put("ugly", -1.0);
         }
 
         private double getSentiment(String text){
-            return 0.1;
+            // TODO: replace with NLP model
+            double sentiment = 0;
+            int n = 0;
+            for(String word: text.split(" ")){
+                sentiment += sentimentDict.getOrDefault(word, randomGen.nextUniform(-1.0, 1.0));
+                n++;
+            }
+            if(n==0){
+                return 0.0;
+            }
+            return sentiment/n;
         }
         @Override
         public void flatMap(Tuple7<String, String, String, Integer, Integer, Long, Long> input, Collector<Tuple10<String, String, String, Integer, Integer, Integer, Double, String, Long, Long>> out) throws Exception {
@@ -288,7 +307,7 @@ public class TweetAlertTrigger {
         }
 
         private double getInfluenceScore(String userId, int follower_count){
-            return 0.1;
+            return Math.log(follower_count);
         }
         @Override
         public void flatMap(Tuple7<String, String, String, Integer, Integer, Long, Long> input, Collector<Tuple10<String, String, String, Integer, Integer, Integer, Double, String, Long, Long>> out) throws Exception {
@@ -331,6 +350,7 @@ public class TweetAlertTrigger {
         }
 
         private String getTopic(String text) {
+            // TODO: replace with topic model
             return text.split(" ")[0];
         }
 
