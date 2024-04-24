@@ -143,11 +143,11 @@ run_stock_test(){
 
     for repeat in 1; do #2 3 4 5
         run_one_exp
-        printf "${EXP_NAME}\n" >> stock_result.txt
+        printf "${EXP_NAME}\n" >> lr_result.txt
 
 #        is_treat=false
 #        run_one_exp
-#        printf "${EXP_NAME}\n" >> stock_result.txt
+#        printf "${EXP_NAME}\n" >> lr_result.txt
 #        P1=2
 #        P2=3
 #        P3=9
@@ -157,7 +157,7 @@ run_stock_test(){
 #        P7=8
 #        is_treat=false
 #        run_one_exp
-#        printf "${EXP_NAME}\n" >> stock_result.txt
+#        printf "${EXP_NAME}\n" >> lr_result.txt
 #        is_treat=true
 
 #        P1=1
@@ -172,14 +172,14 @@ run_stock_test(){
 #        scalein_type="ds2"
 #        migration_interval=2500
 #        run_one_exp
-#        printf "${EXP_NAME}\n" >> stock_result.txt
+#        printf "${EXP_NAME}\n" >> lr_result.txt
 #
 #        whether_type="streamswitch"
 #        how_type="streamswitch"
 #        scalein_type="streamswitch"
 #        migration_interval=1000
 #        run_one_exp
-#        printf "${EXP_NAME}\n" >> stock_result.txt
+#        printf "${EXP_NAME}\n" >> lr_result.txt
     done
 }
 run_stock_test
