@@ -530,9 +530,6 @@ public class TweetAlertTrigger {
         private RandomDataGenerator randomGen = new RandomDataGenerator();
         private int averageDelay; // Microsecond
 
-        private transient MapState<String, Double> tweetSentiment, tweetInfluence;
-        private transient MapState<String, String> tweetTopic;
-
         public AlertTrigger(int _averageDelay) {
             this.averageDelay = _averageDelay;
         }
