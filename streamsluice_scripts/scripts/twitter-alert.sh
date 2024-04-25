@@ -51,8 +51,8 @@ init() {
   L=4000
   runtime=3990 #
   skip_interval=1 # skip seconds
-  warmup=20000
-  warmup_time=40
+  warmup=10000
+  warmup_time=30
   warmup_rate=1000
   repeat=1
   spike_estimation="linear_regression"
@@ -84,7 +84,7 @@ init() {
   LP4=20
   LP5=1
   LP6=30
-  LP7=5
+  LP7=1
 
   P1=1
   P2=10
@@ -99,7 +99,7 @@ init() {
   DELAY4=2000
   DELAY5=100
   DELAY6=4000
-  DELAY7=500
+  DELAY7=100
 }
 
 # run applications

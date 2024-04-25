@@ -6,7 +6,6 @@ import org.apache.flink.api.common.functions.RichFlatMapFunction;
 import org.apache.flink.api.common.state.MapState;
 import org.apache.flink.api.common.state.MapStateDescriptor;
 import org.apache.flink.api.java.tuple.Tuple10;
-import org.apache.flink.api.java.tuple.Tuple19;
 import org.apache.flink.api.java.tuple.Tuple7;
 import org.apache.flink.api.java.tuple.Tuple9;
 import org.apache.flink.api.java.utils.ParameterTool;
@@ -79,7 +78,7 @@ public class TweetAlertTrigger {
                 .setMaxParallelism(params.getInt("mp4", 8))
                 .slotSharingGroup("g4");
         DataStream<Tuple10<String, String, String, Integer, Integer, Double, Double, String, Long, Long>> afterJoin = afterSentimentAnalysis.union(afterInfluenceScoring).union(afterContentCategorization)
-                .keyBy(TweetSource.Tweet_ID) //.keyBy(LinearRoadSource.Seg_ID)
+                .keyBy(TweetSource.Tweet_ID)
                 .flatMap(new TweetJoin(params.getInt("op5Delay", 1000)))
                 .disableChaining()
                 .name("Join")
@@ -88,7 +87,7 @@ public class TweetAlertTrigger {
                 .setMaxParallelism(params.getInt("mp5", 8))
                 .slotSharingGroup("g5");
         DataStream<Tuple10<String, String, String, Integer, Integer, Double, Double, String, Long, Long>> afterAggregate = afterJoin
-                .keyBy(TweetSource.Tweet_ID) //.keyBy(LinearRoadSource.Seg_ID)
+                .keyBy(TweetSource.Tweet_ID)
                 .flatMap(new TweetAggregate(params.getInt("op6Delay", 1000)))
                 .disableChaining()
                 .name("Aggregate")
@@ -97,7 +96,7 @@ public class TweetAlertTrigger {
                 .setMaxParallelism(params.getInt("mp6", 8))
                 .slotSharingGroup("g6");
         afterAggregate
-                .keyBy(TweetSource.Tweet_ID) //.keyBy(LinearRoadSource.Seg_ID)
+                .keyBy(TweetSource.Tweet_ID)
                 .flatMap(new AlertTrigger(params.getInt("op7Delay", 1000)))
                 .disableChaining()
                 .name("Alert Trigger")
@@ -293,6 +292,10 @@ public class TweetAlertTrigger {
             while (System.nanoTime() - start < delay) {
             }
         }
+
+        @Override
+        public void open(Configuration config) {
+        }
     }
 
     public static final class InfluenceScoring extends RichFlatMapFunction<
@@ -335,6 +338,10 @@ public class TweetAlertTrigger {
             Long start = System.nanoTime();
             while (System.nanoTime() - start < delay) {
             }
+        }
+
+        @Override
+        public void open(Configuration config) {
         }
     }
 
@@ -385,6 +392,10 @@ public class TweetAlertTrigger {
             Long start = System.nanoTime();
             while (System.nanoTime() - start < delay) {
             }
+        }
+
+        @Override
+        public void open(Configuration config) {
         }
     }
 
@@ -567,6 +578,9 @@ public class TweetAlertTrigger {
             Long start = System.nanoTime();
             while (System.nanoTime() - start < delay) {
             }
+        }
+        @Override
+        public void open(Configuration config) {
         }
     }
 
