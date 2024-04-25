@@ -192,7 +192,7 @@ public class TweetAlertTrigger {
 //                    start = System.currentTimeMillis();
                     }
 
-                    if (sCurrentLine.split(",").length < 10) {
+                    if (sCurrentLine.split(",").length < 5) {
                         continue;
                     }
 
@@ -258,7 +258,7 @@ public class TweetAlertTrigger {
             double sentiment = 0;
             int n = 0;
             for(String word: text.split(" ")){
-                sentiment += sentimentDict.getOrDefault(word, randomGen.nextUniform(-1.0, 1.0));
+                sentiment += sentimentDict.getOrDefault(word, randomGen.nextUniform(-0.5, 0.5));
                 n++;
             }
             if(n==0){

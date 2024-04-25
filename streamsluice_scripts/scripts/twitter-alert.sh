@@ -50,7 +50,7 @@ init() {
   scalein_type="streamsluice"
   L=4000
   runtime=3990 #
-  skip_interval=0 # skip seconds
+  skip_interval=1 # skip seconds
   warmup=20000
   warmup_time=40
   warmup_rate=1000
@@ -125,7 +125,7 @@ function runApp() {
 }
 
 run_stock_test(){
-    echo "Run linear road experiments..."
+    echo "Run twitter alert experiments..."
     init
     printf "" > tweet_result.txt
 

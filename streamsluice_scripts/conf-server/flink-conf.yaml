@@ -297,6 +297,8 @@ streamsluice.system.true_arrival_calibrated: false
 
 model.warmup: 10000
 
+model.metrics.warmup:
+
 streamsluice.system.migration_interval: 500
 
 streamsluice.requirement.latency: 3000
