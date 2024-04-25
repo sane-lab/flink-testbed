@@ -75,7 +75,7 @@ def read_raw_data(raw_election_path, raw_bitcoin_path):
 def generate_data(generated_data_path: str, user_ids: list[str], contents: list[str], rate_per_second: list[float]):
     f_out = open(generated_data_path, "w", newline="")
     interval = 50
-    tweet_id = 0
+    tweet_id = 1000000000000
     for i in range(0, len(rate_per_second)):
         number = rate_per_second[i]
         if(i % 300 == 0):
@@ -83,6 +83,7 @@ def generate_data(generated_data_path: str, user_ids: list[str], contents: list[
         for interval_index in range(0, int(1000/interval)):
             interval_number = int(number / (1000/interval))
             for j in range(0, interval_number):
+                tweet_id += 1
                 user_id = user_ids[random.randint(0, len(user_ids) - 1)]
                 content = contents[random.randint(0, len(contents) - 1)]
                 time_stamp = i

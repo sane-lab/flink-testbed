@@ -121,7 +121,7 @@ public class TweetAlertTrigger {
         private final long warmup, warmp_rate, skipCount;
 
         public static String getTweetID(int tweet_ID){
-            return "A" + tweet_ID;
+            return "Tweet_" + tweet_ID;
         }
 
 
