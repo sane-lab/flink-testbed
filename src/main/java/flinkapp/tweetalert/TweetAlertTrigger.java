@@ -351,7 +351,12 @@ public class TweetAlertTrigger {
 
         private String getTopic(String text) {
             // TODO: replace with topic model
-            return text.split(" ")[0];
+            String [] splits = text.split(" ");
+            if (splits.length > 0) {
+                return splits[0];
+            }else{
+                return "Empty";
+            }
         }
 
         @Override
