@@ -66,7 +66,8 @@ def read_raw_data(raw_election_path, raw_bitcoin_path):
     for row in reader2:
         if(len(row) > 8):
             exist_user_id.append(row[0])
-            exist_content.append(row[8])
+            if(len(row[8]) > 0):
+                exist_content.append(row[8])
     f2_in.close()
 
     return exist_user_id, exist_content
@@ -86,9 +87,18 @@ def generate_data(generated_data_path: str, user_ids: list[str], contents: list[
                 content = contents[random.randint(0, len(contents) - 1)]
                 time_stamp = i
                 follower_count = random.randint(0, len(user_ids))
-                f_out.write(str(tweet_id) + "," + user_id + "," + content.replace("\r", "  ").replace("\n", "  ").replace(",", "") + "," + str(time_stamp) + "," + str(follower_count) + "\n")
-        f_out.write("END\n")
+                f_out.write(str(tweet_id) + "," + user_id + "," + content.replace("\r", "  ").replace("\n", "  ").replace(",", " ") + "," + str(time_stamp) + "," + str(follower_count) + "\n")
+            f_out.write("END\n")
     f_out.close()
+
+def check_data(generated_data_path: str):
+    f_in = open(generated_data_path, newline="")
+    for row in f_in:
+        splits = row.rstrip("\n").split(",")
+        if(len(splits) < 5 and splits[0] != "END"):
+            print("!!!! error " + row)
+        if(len(splits) == 5 and (len(splits[0]) == 0 or len(splits[1]) == 0 or len(splits[2]) == 0 or len(splits[3]) == 0 or len(splits[4]) == 0)):
+            print("!!!! error " + row)
 
 
 
@@ -99,4 +109,4 @@ generated_data_path = "/Users/swrrt/Workplace/BacklogDelayPaper/experiments/twee
 user_ids, contents = read_raw_data(raw_election_path, raw_bitcoin_path)
 rate_per_minute = generate_rate_per_second()
 generate_data(generated_data_path, user_ids, contents, rate_per_minute)
-
+check_data(generated_data_path)

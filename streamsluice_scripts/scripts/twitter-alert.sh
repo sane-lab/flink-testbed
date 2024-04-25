@@ -51,8 +51,8 @@ init() {
   L=4000
   runtime=3990 #
   skip_interval=0 # skip seconds
-  warmup=10000
-  warmup_time=30
+  warmup=20000
+  warmup_time=40
   warmup_rate=1000
   repeat=1
   spike_estimation="linear_regression"
