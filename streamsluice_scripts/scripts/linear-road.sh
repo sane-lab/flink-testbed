@@ -61,7 +61,7 @@ init() {
   errorcase_number=3
   #calibrate_selectivity=false
   calibrate_selectivity=true
-  vertex_id="a84740bacf923e828852cc4966f2247c,d01047f852abd5702a0dabeedac99ff5,d2336f79a0d60b5a4b16c8769ec82e47,36fcfcb61a35d065e60ee34fccb0541a,c395b989724fa728d0a2640c6ccdb8a1,8e0d1d377d577c52511ad507bf0ce330,2019e6125f7b4867f5fd448be51e3519,feccfb8648621345be01b71938abfb72" # eabd4c11f6c6fbdf011f0f1fc42097b1,
+  vertex_id="a84740bacf923e828852cc4966f2247c,d01047f852abd5702a0dabeedac99ff5,d2336f79a0d60b5a4b16c8769ec82e47,36fcfcb61a35d065e60ee34fccb0541a,c395b989724fa728d0a2640c6ccdb8a1,8e0d1d377d577c52511ad507bf0ce330,feccfb8648621345be01b71938abfb72" # eabd4c11f6c6fbdf011f0f1fc42097b1,
   is_treat=true
   migration_interval=500
   epoch=100
@@ -83,28 +83,28 @@ init() {
 
   LP2=8
   LP3=1
-  LP4=28
+  LP4=25
   LP5=1
-  LP6=20
-  LP7=40
+  LP6=15
+  LP7=50
   LP8=1
 #  LP9=1
 
   P1=1
   P2=8
   P3=1
-  P4=28
+  P4=25
   P5=1
-  P6=20
-  P7=40
+  P6=15
+  P7=50
   P8=1
 #  P9=1
 
-  DELAY2=1000
+  DELAY2=500
   DELAY3=1000
-  DELAY4=3333
+  DELAY4=2500
   DELAY5=100
-  DELAY6=2000
+  DELAY6=1000
   DELAY7=2000
   DELAY8=100
 #  DELAY9=100
