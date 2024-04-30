@@ -17,8 +17,8 @@ def generate_rate_per_second():
     # c4 = 32.3
     c1 = 0.34
     c2 = 13
-    c3 = -0.05
-    c4 = 69
+    c3 = -0.07
+    c4 = 34
 
     average_base_rate = 2000
 
@@ -111,7 +111,7 @@ raw_election_path = "/Users/swrrt/Workplace/BacklogDelayPaper/experiments/tweet/
 raw_bitcoin_path = "/Users/swrrt/Workplace/BacklogDelayPaper/experiments/tweet/tweet_data/bitcoin.csv"
 generated_data_path = "/Users/swrrt/Workplace/BacklogDelayPaper/experiments/tweet/tweet_data/3hr.txt"
 
-# user_ids, contents = read_raw_data(raw_election_path, raw_bitcoin_path)
+user_ids, contents = read_raw_data(raw_election_path, raw_bitcoin_path)
 rate_per_minute = generate_rate_per_second()
-# generate_data(generated_data_path, user_ids, contents, rate_per_minute)
-# check_data(generated_data_path)
+generate_data(generated_data_path, user_ids, contents, rate_per_minute)
+check_data(generated_data_path)
