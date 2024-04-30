@@ -61,7 +61,7 @@ init() {
   errorcase_number=3
   #calibrate_selectivity=false
   calibrate_selectivity=true
-  vertex_id="a84740bacf923e828852cc4966f2247c,eabd4c11f6c6fbdf011f0f1fc42097b1,d01047f852abd5702a0dabeedac99ff5,d2336f79a0d60b5a4b16c8769ec82e47,36fcfcb61a35d065e60ee34fccb0541a,c395b989724fa728d0a2640c6ccdb8a1"
+  vertex_id="a84740bacf923e828852cc4966f2247c,eabd4c11f6c6fbdf011f0f1fc42097b1,d01047f852abd5702a0dabeedac99ff5,d2336f79a0d60b5a4b16c8769ec82e47,36fcfcb61a35d065e60ee34fccb0541a" #,c395b989724fa728d0a2640c6ccdb8a1"
   is_treat=true
   migration_interval=500
   epoch=100
@@ -80,26 +80,23 @@ init() {
   MP7=128
 
   LP2=40
-  LP3=10
-  LP4=20
-  LP5=1
-  LP6=30
-  LP7=1
+  LP3=20
+  LP4=1
+  LP5=30
+  LP6=1
 
   P1=1
   P2=10
-  P3=4
-  P4=3
-  P5=1
-  P6=8
-  P7=1
+  P3=6
+  P4=1
+  P5=8
+  P6=1
 
   DELAY2=5000
-  DELAY3=1000
-  DELAY4=2000
-  DELAY5=100
-  DELAY6=4000
-  DELAY7=100
+  DELAY3=3333
+  DELAY4=100
+  DELAY5=4000
+  DELAY6=100
 }
 
 # run applications
