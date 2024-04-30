@@ -28,6 +28,7 @@ public class TweetAlertTrigger {
     private static final int SentimentAnalysis_Output = 1;
     private static final int InfluenceScoring_Output = 2;
     private static final int ContentCategorization_Output = 3;
+    private static final int InfluenceScoringAndContentCategorization_Output = 2;
     private static final int Join_Output = 4;
     private static final int Aggregation_Output = 5;
     private static final int AlertTrigger_Output = 6;
@@ -59,51 +60,61 @@ public class TweetAlertTrigger {
                 .setParallelism(params.getInt("p2", 1))
                 .setMaxParallelism(params.getInt("mp2", 8))
                 .slotSharingGroup("g2");
+
+//        DataStream<Tuple10<String, String, String, Integer, Integer, Integer, Double, String, Long, Long>> afterInfluenceScoring = source
+//                .keyBy(TweetSource.Tweet_ID)
+//                .flatMap(new InfluenceScoring(params.getInt("op3Delay", 1000)))
+//                .disableChaining()
+//                .name("Influence Scoring")
+//                .uid("op3")
+//                .setParallelism(params.getInt("p3", 1))
+//                .setMaxParallelism(params.getInt("mp3", 8))
+//                .slotSharingGroup("g3");
+//        DataStream<Tuple10<String, String, String, Integer, Integer, Integer, Double, String, Long, Long>> afterContentCategorization = source
+//                .keyBy(TweetSource.Tweet_ID)
+//                .flatMap(new ContentCategorization(params.getInt("op4Delay", 1000)))
+//                .disableChaining()
+//                .name("Content Categorization")
+//                .uid("op4")
+//                .setParallelism(params.getInt("p4", 1))
+//                .setMaxParallelism(params.getInt("mp4", 8))
+//                .slotSharingGroup("g4");
         DataStream<Tuple10<String, String, String, Integer, Integer, Integer, Double, String, Long, Long>> afterInfluenceScoring = source
                 .keyBy(TweetSource.Tweet_ID)
-                .flatMap(new InfluenceScoring(params.getInt("op3Delay", 1000)))
+                .flatMap(new InfluenceScoringAndContentCategorization(params.getInt("op3Delay", 1000)))
                 .disableChaining()
-                .name("Influence Scoring")
+                .name("Influence Scoring And Content Categorization")
                 .uid("op3")
                 .setParallelism(params.getInt("p3", 1))
                 .setMaxParallelism(params.getInt("mp3", 8))
                 .slotSharingGroup("g3");
-        DataStream<Tuple10<String, String, String, Integer, Integer, Integer, Double, String, Long, Long>> afterContentCategorization = source
+        DataStream<Tuple10<String, String, String, Integer, Integer, Double, Double, String, Long, Long>> afterJoin = afterSentimentAnalysis.union(afterInfluenceScoring)
                 .keyBy(TweetSource.Tweet_ID)
-                .flatMap(new ContentCategorization(params.getInt("op4Delay", 1000)))
+                .flatMap(new TweetJoin(params.getInt("op4Delay", 1000)))
                 .disableChaining()
-                .name("Content Categorization")
+                .name("Join")
                 .uid("op4")
                 .setParallelism(params.getInt("p4", 1))
                 .setMaxParallelism(params.getInt("mp4", 8))
                 .slotSharingGroup("g4");
-        DataStream<Tuple10<String, String, String, Integer, Integer, Double, Double, String, Long, Long>> afterJoin = afterSentimentAnalysis.union(afterInfluenceScoring).union(afterContentCategorization)
+        DataStream<Tuple10<String, String, String, Integer, Integer, Double, Double, String, Long, Long>> afterAggregate = afterJoin
                 .keyBy(TweetSource.Tweet_ID)
-                .flatMap(new TweetJoin(params.getInt("op5Delay", 1000)))
+                .flatMap(new TweetAggregate(params.getInt("op5Delay", 1000)))
                 .disableChaining()
-                .name("Join")
+                .name("Aggregate")
                 .uid("op5")
                 .setParallelism(params.getInt("p5", 1))
                 .setMaxParallelism(params.getInt("mp5", 8))
                 .slotSharingGroup("g5");
-        DataStream<Tuple10<String, String, String, Integer, Integer, Double, Double, String, Long, Long>> afterAggregate = afterJoin
+        afterAggregate
                 .keyBy(TweetSource.Tweet_ID)
-                .flatMap(new TweetAggregate(params.getInt("op6Delay", 1000)))
+                .flatMap(new AlertTrigger(params.getInt("op6Delay", 1000)))
                 .disableChaining()
-                .name("Aggregate")
+                .name("Alert Trigger")
                 .uid("op6")
                 .setParallelism(params.getInt("p6", 1))
                 .setMaxParallelism(params.getInt("mp6", 8))
                 .slotSharingGroup("g6");
-        afterAggregate
-                .keyBy(TweetSource.Tweet_ID)
-                .flatMap(new AlertTrigger(params.getInt("op7Delay", 1000)))
-                .disableChaining()
-                .name("Alert Trigger")
-                .uid("op7")
-                .setParallelism(params.getInt("p7", 1))
-                .setMaxParallelism(params.getInt("mp7", 8))
-                .slotSharingGroup("g7");
         env.execute();
     }
     public static final class TweetSource extends RichParallelSourceFunction<Tuple7<String, String, String, Integer, Integer, Long, Long>> {
@@ -399,6 +410,66 @@ public class TweetAlertTrigger {
         }
     }
 
+    public static final class InfluenceScoringAndContentCategorization extends RichFlatMapFunction<
+            Tuple7<String, String, String, Integer, Integer, Long, Long>,
+            Tuple10<String, String, String, Integer, Integer, Integer, Double, String, Long, Long>> {
+
+        private RandomDataGenerator randomGen = new RandomDataGenerator();
+        private int averageDelay; // Microsecond
+
+        public InfluenceScoringAndContentCategorization(int _averageDelay) {
+            this.averageDelay = _averageDelay;
+        }
+
+        private double getInfluenceScore(String userId, int follower_count){
+            return Math.log(follower_count);
+        }
+
+        private String getTopic(String text) {
+            // TODO: replace with topic model
+            String [] splits = text.split(" ");
+            if (splits.length > 0) {
+                return splits[0];
+            }else{
+                return "Empty";
+            }
+        }
+
+        @Override
+        public void flatMap(Tuple7<String, String, String, Integer, Integer, Long, Long> input, Collector<Tuple10<String, String, String, Integer, Integer, Integer, Double, String, Long, Long>> out) throws Exception {
+            double influence = getInfluenceScore(input.f1, input.f4);
+            String topic = getTopic(input.f2);
+            delay(averageDelay);
+            out.collect(new Tuple10<>(
+                    input.f0,
+                    input.f1,
+                    input.f2,
+                    input.f3,
+                    input.f4,
+                    InfluenceScoringAndContentCategorization_Output,
+                    influence,
+                    topic,
+                    input.f5,
+                    input.f6
+            ));
+        }
+
+        private void delay(long interval) {
+            Double ranN = randomGen.nextGaussian(interval, 1);
+            ranN = ranN * 1000;
+            long delay = ranN.intValue();
+            if (delay < 0) delay = interval * 1000;
+            Long start = System.nanoTime();
+            while (System.nanoTime() - start < delay) {
+            }
+        }
+
+        @Override
+        public void open(Configuration config) {
+        }
+    }
+
+
     public static final class TweetJoin extends RichFlatMapFunction<
             Tuple10<String, String, String, Integer, Integer, Integer, Double, String, Long, Long>,
             Tuple10<String, String, String, Integer, Integer, Double, Double, String, Long, Long>> {
@@ -420,13 +491,19 @@ public class TweetAlertTrigger {
             if(type == SentimentAnalysis_Output){
                 double sentiment = input.f6;
                 tweetSentiment.put(tweetId, sentiment);
-            }else if(type == InfluenceScoring_Output){
+            }else if(type == InfluenceScoringAndContentCategorization_Output){
                 double influence = input.f6;
-                tweetInfluence.put(tweetId, influence);
-            }else if(type == ContentCategorization_Output){
                 String topic = input.f7;
+                tweetInfluence.put(tweetId, influence);
                 tweetTopic.put(tweetId, topic);
             }
+//            else if(type == InfluenceScoring_Output){
+//                double influence = input.f6;
+//                tweetInfluence.put(tweetId, influence);
+//            }else if(type == ContentCategorization_Output){
+//                String topic = input.f7;
+//                tweetTopic.put(tweetId, topic);
+//            }
             if(tweetSentiment.contains(tweetId) && tweetTopic.contains(tweetId) && tweetInfluence.contains(tweetId)) {
                 double sentiment = tweetSentiment.get(tweetId), influence = tweetInfluence.get(tweetId);
                 String topic = tweetTopic.get(tweetId);
