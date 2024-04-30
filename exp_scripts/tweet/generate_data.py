@@ -11,10 +11,14 @@ def generate_rate_per_second():
     average_rate_per_second = []
 
     # Generate curve
-    c1 = 0.43
+    # c1 = 0.43
+    # c2 = 13
+    # c3 = -0.32
+    # c4 = 32.3
+    c1 = 0.34
     c2 = 13
-    c3 = -0.32
-    c4 = 32.3
+    c3 = -0.05
+    c4 = 69
 
     average_base_rate = 2000
 
@@ -37,12 +41,12 @@ def generate_rate_per_second():
         average_rate = (base_rate * (1 + noise/30.0) + spike) * average_base_rate
         average_rate_per_second.append(average_rate)
 
-    # print(average_rate_per_second)
-    # import matplotlib
-    # #matplotlib.use('Agg')
-    # import matplotlib.pyplot as plt
-    # plt.plot(np.arange(0, total_hour * 60 * 60), average_rate_per_second, "*")
-    # plt.show()
+    print(average_rate_per_second)
+    import matplotlib
+    #matplotlib.use('Agg')
+    import matplotlib.pyplot as plt
+    plt.plot(np.arange(0, total_hour * 60 * 60), average_rate_per_second, "*")
+    plt.show()
     return average_rate_per_second
 
 def read_raw_data(raw_election_path, raw_bitcoin_path):
@@ -107,7 +111,7 @@ raw_election_path = "/Users/swrrt/Workplace/BacklogDelayPaper/experiments/tweet/
 raw_bitcoin_path = "/Users/swrrt/Workplace/BacklogDelayPaper/experiments/tweet/tweet_data/bitcoin.csv"
 generated_data_path = "/Users/swrrt/Workplace/BacklogDelayPaper/experiments/tweet/tweet_data/3hr.txt"
 
-user_ids, contents = read_raw_data(raw_election_path, raw_bitcoin_path)
+# user_ids, contents = read_raw_data(raw_election_path, raw_bitcoin_path)
 rate_per_minute = generate_rate_per_second()
-generate_data(generated_data_path, user_ids, contents, rate_per_minute)
-check_data(generated_data_path)
+# generate_data(generated_data_path, user_ids, contents, rate_per_minute)
+# check_data(generated_data_path)

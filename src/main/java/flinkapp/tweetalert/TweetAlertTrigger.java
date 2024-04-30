@@ -1,13 +1,12 @@
 package flinkapp.tweetalert;
 
 import Nexmark.sources.Util;
+import flinkapp.StreamSluiceTestSet.StockAnalysisApplication;
 import org.apache.commons.math3.random.RandomDataGenerator;
 import org.apache.flink.api.common.functions.RichFlatMapFunction;
 import org.apache.flink.api.common.state.MapState;
 import org.apache.flink.api.common.state.MapStateDescriptor;
-import org.apache.flink.api.java.tuple.Tuple10;
-import org.apache.flink.api.java.tuple.Tuple7;
-import org.apache.flink.api.java.tuple.Tuple9;
+import org.apache.flink.api.java.tuple.*;
 import org.apache.flink.api.java.utils.ParameterTool;
 import org.apache.flink.configuration.Configuration;
 import org.apache.flink.runtime.state.memory.MemoryStateBackend;
@@ -51,7 +50,17 @@ public class TweetAlertTrigger {
                                 params.getLong("skip_interval", 0L) * 20))
                         .setParallelism(params.getInt("p1", 1));
 
-        DataStream<Tuple10<String, String, String, Integer, Integer, Integer, Double, String, Long, Long>> afterSentimentAnalysis = source
+        DataStream<Tuple7<String, String, String, Integer, Integer, Long, Long>> afterPreprocess = source
+                .keyBy(TweetSource.Tweet_ID)
+                .flatMap(new TweetPreprocess(params.getInt("op1Delay", 100)))
+                .disableChaining()
+                .name("Preprocess")
+                .uid("op1")
+                .setParallelism(params.getInt("p1", 1))
+                .setMaxParallelism(params.getInt("mp1", 1))
+                .slotSharingGroup("g1");
+
+        DataStream<Tuple10<String, String, String, Integer, Integer, Integer, Double, String, Long, Long>> afterSentimentAnalysis = afterPreprocess
                 .keyBy(TweetSource.Tweet_ID)
                 .flatMap(new SentimentAnalysis(params.getInt("op2Delay", 1000)))
                 .disableChaining()
@@ -79,7 +88,7 @@ public class TweetAlertTrigger {
 //                .setParallelism(params.getInt("p4", 1))
 //                .setMaxParallelism(params.getInt("mp4", 8))
 //                .slotSharingGroup("g4");
-        DataStream<Tuple10<String, String, String, Integer, Integer, Integer, Double, String, Long, Long>> afterInfluenceScoring = source
+        DataStream<Tuple10<String, String, String, Integer, Integer, Integer, Double, String, Long, Long>> afterInfluenceScoring = afterPreprocess
                 .keyBy(TweetSource.Tweet_ID)
                 .flatMap(new InfluenceScoringAndContentCategorization(params.getInt("op3Delay", 1000)))
                 .disableChaining()
@@ -88,6 +97,7 @@ public class TweetAlertTrigger {
                 .setParallelism(params.getInt("p3", 1))
                 .setMaxParallelism(params.getInt("mp3", 8))
                 .slotSharingGroup("g3");
+
         DataStream<Tuple10<String, String, String, Integer, Integer, Double, Double, String, Long, Long>> afterJoin = afterSentimentAnalysis.union(afterInfluenceScoring)
                 .keyBy(TweetSource.Tweet_ID)
                 .flatMap(new TweetJoin(params.getInt("op4Delay", 1000)))
@@ -248,6 +258,29 @@ public class TweetAlertTrigger {
         @Override
         public void cancel() {
             running = false;
+        }
+    }
+
+    public static final class TweetPreprocess extends RichFlatMapFunction<Tuple7<String, String, String, Integer, Integer, Long, Long>, Tuple7<String, String, String, Integer, Integer, Long, Long>> {
+        private RandomDataGenerator randomGen = new RandomDataGenerator();
+        private int averageDelay; // Microsecond
+        public TweetPreprocess(int _averageDelay){
+            this.averageDelay = _averageDelay;
+        }
+
+        @Override
+        public void flatMap(Tuple7<String, String, String, Integer, Integer, Long, Long> input, Collector<Tuple7<String, String, String, Integer, Integer, Long, Long>> out) throws Exception {
+            out.collect(new Tuple7<String, String, String, Integer, Integer, Long, Long>(input.f0, input.f1, input.f2, input.f3, input.f4, input.f5, input.f6));
+            delay(averageDelay);
+        }
+
+        private void delay(long interval) {
+            Double ranN = randomGen.nextGaussian(interval, 1);
+            ranN = ranN*1000;
+            long delay = ranN.intValue();
+            if (delay < 0) delay = interval * 1000;
+            Long start = System.nanoTime();
+            while (System.nanoTime() - start < delay) {}
         }
     }
 
