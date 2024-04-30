@@ -22,7 +22,7 @@ function analyze() {
 }
 
 run_one_exp() {
-  EXP_NAME=tweet_alert-${whether_type}-${how_type}-${runtime}-${warmup_time}-${warmup_rate}-${skip_interval}-${P2}-${DELAY2}-${P3}-${DELAY3}-${P4}-${DELAY4}-${P5}-${DELAY5}-${P6}-${DELAY6}-${P7}-${DELAY7}-${L}-${epoch}-${is_treat}-${errorcase_number}-${calibrate_selectivity}-${repeat}
+  EXP_NAME=tweet_alert-${whether_type}-${how_type}-${runtime}-${warmup_time}-${warmup_rate}-${skip_interval}-${P2}-${DELAY2}-${P3}-${DELAY3}-${P4}-${DELAY4}-${P5}-${DELAY5}-${L}-${epoch}-${is_treat}-${errorcase_number}-${calibrate_selectivity}-${repeat}
 
   echo "INFO: run exp ${EXP_NAME}"
   configFlink
@@ -83,20 +83,20 @@ init() {
   LP3=25
   LP4=1
   LP5=30
-  LP6=1
+  #LP6=1
 
   P1=1
   P2=45
   P3=25
   P4=1
   P5=30
-  P6=1
+  #P6=1
 
   DELAY2=5000
   DELAY3=3333
   DELAY4=100
   DELAY5=4000
-  DELAY6=100
+  #DELAY6=100
 }
 
 # run applications
@@ -107,8 +107,6 @@ function runApp() {
     -p3 ${P3} -mp3 ${MP3} -op3Delay ${DELAY3} \
     -p4 ${P4} -mp4 ${MP4} -op4Delay ${DELAY4} \
     -p5 ${P5} -mp5 ${MP5} -op5Delay ${DELAY5} \
-    -p6 ${P6} -mp6 ${MP6} -op6Delay ${DELAY6} \
-    -p7 ${P7} -mp7 ${MP7} -op7Delay ${DELAY7} \
     -file_name ${stock_path}${stock_file_name} -warmup_rate ${warmup_rate} -warmup_time ${warmup_time} -skip_interval ${skip_interval} &"
     ${FLINK_DIR}/bin/flink run -c ${job} ${JAR} \
         -p1 ${P1} -mp1 ${MP1} \
@@ -116,8 +114,6 @@ function runApp() {
         -p3 ${P3} -mp3 ${MP3} -op3Delay ${DELAY3} \
         -p4 ${P4} -mp4 ${MP4} -op4Delay ${DELAY4} \
         -p5 ${P5} -mp5 ${MP5} -op5Delay ${DELAY5} \
-        -p6 ${P6} -mp6 ${MP6} -op6Delay ${DELAY6} \
-        -p7 ${P7} -mp7 ${MP7} -op7Delay ${DELAY7} \
         -file_name ${stock_path}${stock_file_name} -warmup_rate ${warmup_rate} -warmup_time ${warmup_time} -skip_interval ${skip_interval} &
 }
 

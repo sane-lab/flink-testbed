@@ -97,24 +97,34 @@ public class TweetAlertTrigger {
                 .setParallelism(params.getInt("p4", 1))
                 .setMaxParallelism(params.getInt("mp4", 8))
                 .slotSharingGroup("g4");
-        DataStream<Tuple10<String, String, String, Integer, Integer, Double, Double, String, Long, Long>> afterAggregate = afterJoin
+        afterJoin
                 .keyBy(TweetSource.Tweet_ID)
-                .flatMap(new TweetAggregate(params.getInt("op5Delay", 1000)))
+                .flatMap(new TweetAggregateAndAlertTrigger(params.getInt("op5Delay", 1000)))
                 .disableChaining()
                 .name("Aggregate")
                 .uid("op5")
                 .setParallelism(params.getInt("p5", 1))
                 .setMaxParallelism(params.getInt("mp5", 8))
                 .slotSharingGroup("g5");
-        afterAggregate
-                .keyBy(TweetSource.Tweet_ID)
-                .flatMap(new AlertTrigger(params.getInt("op6Delay", 1000)))
-                .disableChaining()
-                .name("Alert Trigger")
-                .uid("op6")
-                .setParallelism(params.getInt("p6", 1))
-                .setMaxParallelism(params.getInt("mp6", 8))
-                .slotSharingGroup("g6");
+
+//        DataStream<Tuple10<String, String, String, Integer, Integer, Double, Double, String, Long, Long>> afterAggregate = afterJoin
+//                .keyBy(TweetSource.Tweet_ID)
+//                .flatMap(new TweetAggregate(params.getInt("op5Delay", 1000)))
+//                .disableChaining()
+//                .name("Aggregate")
+//                .uid("op5")
+//                .setParallelism(params.getInt("p5", 1))
+//                .setMaxParallelism(params.getInt("mp5", 8))
+//                .slotSharingGroup("g5");
+//        afterAggregate
+//                .keyBy(TweetSource.Tweet_ID)
+//                .flatMap(new AlertTrigger(params.getInt("op6Delay", 1000)))
+//                .disableChaining()
+//                .name("Alert Trigger")
+//                .uid("op6")
+//                .setParallelism(params.getInt("p6", 1))
+//                .setMaxParallelism(params.getInt("mp6", 8))
+//                .slotSharingGroup("g6");
         env.execute();
     }
     public static final class TweetSource extends RichParallelSourceFunction<Tuple7<String, String, String, Integer, Integer, Long, Long>> {
@@ -658,6 +668,75 @@ public class TweetAlertTrigger {
         }
         @Override
         public void open(Configuration config) {
+        }
+    }
+
+    public static final class TweetAggregateAndAlertTrigger extends RichFlatMapFunction<
+            Tuple10<String, String, String, Integer, Integer, Double, Double, String, Long, Long>,
+            Tuple10<String, String, String, Integer, Integer, Double, Double, String, Long, Long>> {
+
+        private RandomDataGenerator randomGen = new RandomDataGenerator();
+        private int averageDelay; // Microsecond
+
+        private transient MapState<String, Double> topicTotalSentiment, topicTotalInfluence;
+
+        public TweetAggregateAndAlertTrigger(int _averageDelay) {
+            this.averageDelay = _averageDelay;
+        }
+
+        @Override
+        public void flatMap(Tuple10<String, String, String, Integer, Integer, Double, Double, String, Long, Long> input, Collector<Tuple10<String, String, String, Integer, Integer, Double, Double, String, Long, Long>> out) throws Exception {
+            String tweetId = input.f0;
+            String topic = input.f7;
+            double old_sentiment = 0.0, old_influence = 0.0;
+            if(topicTotalSentiment.contains(topic)){
+                old_sentiment = topicTotalSentiment.get(topic);
+            }
+            if(topicTotalInfluence.contains(topic)){
+                old_influence = topicTotalInfluence.get(topic);
+            }
+            double sentiment = old_sentiment + input.f5, influence = old_influence + input.f6;
+            topicTotalSentiment.put(topic, sentiment);
+            topicTotalInfluence.put(topic, influence);
+            delay(averageDelay);
+
+            if(Math.abs(sentiment) > 10.0 && influence >= 10.0){
+                System.out.println("Topic Alert: " + topic + " sentiment=" + sentiment + " influence=" + influence);
+            }
+            long currentTime = System.currentTimeMillis();
+            System.out.println("GT: " + input.f0 + ", " + currentTime + ", " + (currentTime - input.f8) + ", " + input.f9);
+            out.collect(new Tuple10<>(
+                    input.f0,
+                    input.f1,
+                    input.f2,
+                    input.f3,
+                    input.f4,
+                    input.f5,
+                    input.f6,
+                    input.f7,
+                    input.f8,
+                    input.f9
+            ));
+
+        }
+
+        private void delay(long interval) {
+            Double ranN = randomGen.nextGaussian(interval, 1);
+            ranN = ranN * 1000;
+            long delay = ranN.intValue();
+            if (delay < 0) delay = interval * 1000;
+            Long start = System.nanoTime();
+            while (System.nanoTime() - start < delay) {
+            }
+        }
+
+        @Override
+        public void open(Configuration config) {
+            MapStateDescriptor<String, Double> descriptor =
+                    new MapStateDescriptor<>("aggregate-alert-sentiment", String.class, Double.class);
+            topicTotalSentiment = getRuntimeContext().getMapState(descriptor);
+            descriptor = new MapStateDescriptor<>("aggregate-alert-influence", String.class, Double.class);
+            topicTotalInfluence = getRuntimeContext().getMapState(descriptor);
         }
     }
 
