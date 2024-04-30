@@ -53,7 +53,7 @@ init() {
   skip_interval=1 # skip seconds
   warmup=10000
   warmup_time=30
-  warmup_rate=1000
+  warmup_rate=1500
   repeat=1
   spike_estimation="linear_regression"
   spike_slope=0.75
@@ -63,7 +63,7 @@ init() {
   calibrate_selectivity=true
   vertex_id="a84740bacf923e828852cc4966f2247c,eabd4c11f6c6fbdf011f0f1fc42097b1,d01047f852abd5702a0dabeedac99ff5,d2336f79a0d60b5a4b16c8769ec82e47,36fcfcb61a35d065e60ee34fccb0541a" #,c395b989724fa728d0a2640c6ccdb8a1"
   is_treat=true
-  migration_interval=3000
+  migration_interval=500
   epoch=100
   # app level
   JAR="${FLINK_APP_DIR}/target/testbed-1.0-SNAPSHOT.jar"
@@ -79,17 +79,17 @@ init() {
   MP6=128
   MP7=128
 
-  LP2=40
-  LP3=20
+  LP2=45
+  LP3=25
   LP4=1
   LP5=30
   LP6=1
 
   P1=1
-  P2=10
-  P3=6
+  P2=45
+  P3=25
   P4=1
-  P5=8
+  P5=30
   P6=1
 
   DELAY2=5000
