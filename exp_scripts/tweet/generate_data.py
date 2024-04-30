@@ -3,6 +3,7 @@ import os
 import pandas as pd
 import numpy as np
 
+
 total_hour = 3
 import random
 random.seed(12345)
@@ -41,12 +42,12 @@ def generate_rate_per_second():
         average_rate = (base_rate * (1 + noise/30.0) + spike) * average_base_rate
         average_rate_per_second.append(average_rate)
 
-    print(average_rate_per_second)
-    import matplotlib
-    #matplotlib.use('Agg')
-    import matplotlib.pyplot as plt
-    plt.plot(np.arange(0, total_hour * 60 * 60), average_rate_per_second, "*")
-    plt.show()
+    # print(average_rate_per_second)
+    # import matplotlib
+    # #matplotlib.use('Agg')
+    # import matplotlib.pyplot as plt
+    # plt.plot(np.arange(0, total_hour * 60 * 60), average_rate_per_second, "*")
+    # plt.show()
     return average_rate_per_second
 
 def read_raw_data(raw_election_path, raw_bitcoin_path):
@@ -62,16 +63,27 @@ def read_raw_data(raw_election_path, raw_bitcoin_path):
     reader2 = csv.reader(f2_in, delimiter=';')
 
     print("Reading election data...")
+    N=1000000
     for row in reader1:
-        exist_user_id.append(row[1])
+        coded_id = row[1].encode("ascii", errors="ignore").decode()
+        exist_user_id.append(coded_id)
+        if N <= 0:
+            break
+        N-=1
     f1_in.close()
 
     print("Reading bitcoin data...")
+    N=10000000
     for row in reader2:
+        if(N<=0):
+            break
+        N-=1
         if(len(row) > 8):
-            exist_user_id.append(row[0])
-            if(len(row[8]) > 0):
-                exist_content.append(row[8])
+            coded_id = row[0].encode("ascii", errors="ignore").decode()
+            exist_user_id.append(coded_id)
+            coded_content = row[8].encode("ascii", errors="ignore").decode()
+            if(len(coded_content) > 0):
+                exist_content.append(coded_content)
     f2_in.close()
 
     return exist_user_id, exist_content

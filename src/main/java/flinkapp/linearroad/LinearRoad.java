@@ -122,7 +122,7 @@ public class LinearRoad {
 
         DataStream<Tuple19<String, Integer, String, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Long, Long>> afterAccountBalance = afterTollNotification // .union(afterDispatcher)
                 .keyBy(LinearRoadSource.Car_ID)
-                .flatMap(new AccountBalance(params.getInt("op8Delay", 1000)))
+                .flatMap(new AccountBalanceAndDailyExpense(params.getInt("op8Delay", 1000)))
                 .disableChaining()
                 .name("Account Balance")
                 .uid("op8")
@@ -130,15 +130,15 @@ public class LinearRoad {
                 .setMaxParallelism(params.getInt("mp8", 8))
                 .slotSharingGroup("g8");
 
-        afterAccountBalance
-                .keyBy(LinearRoadSource.Car_ID)
-                .flatMap(new DailyExpense(params.getInt("op9Delay", 1000)))
-                .disableChaining()
-                .name("Daily Expense")
-                .uid("op9")
-                .setParallelism(params.getInt("p9", 1))
-                .setMaxParallelism(params.getInt("mp9", 8))
-                .slotSharingGroup("g9");
+//        afterAccountBalance
+//                .keyBy(LinearRoadSource.Car_ID)
+//                .flatMap(new DailyExpense(params.getInt("op9Delay", 1000)))
+//                .disableChaining()
+//                .name("Daily Expense")
+//                .uid("op9")
+//                .setParallelism(params.getInt("p9", 1))
+//                .setMaxParallelism(params.getInt("mp9", 8))
+//                .slotSharingGroup("g9");
 
         env.execute();
     }
@@ -954,6 +954,84 @@ public class LinearRoad {
             balancePerCar = getRuntimeContext().getMapState(descriptor);
         }
     }
+
+    public static final class AccountBalanceAndDailyExpense extends RichFlatMapFunction<
+            Tuple19<String, Integer, String, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Long, Long>,
+            Tuple19<String, Integer, String, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Long, Long>> {
+
+        private RandomDataGenerator randomGen = new RandomDataGenerator();
+        private transient MapState<String, Integer> balancePerCar, dailyExpensePerCar, dayPerCar;
+        private int averageDelay; // Microsecond
+
+        public AccountBalanceAndDailyExpense(int _averageDelay) {
+            this.averageDelay = _averageDelay;
+        }
+
+        @Override
+        public void flatMap(Tuple19<String, Integer, String, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Long, Long> input, Collector<Tuple19<String, Integer, String, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Long, Long>> out) throws Exception {
+            String car_id = input.f2;
+            int source = input.f16, time = input.f9;;
+            if (source == TollNotification_Output){
+                int old_balance = 0;
+                if(balancePerCar.contains(car_id)){
+                    old_balance = balancePerCar.get(car_id);
+                }
+                balancePerCar.put(car_id, old_balance + input.f3);
+                if (input.f1 == 2) {
+                    int balance = 0;
+                    if (balancePerCar.contains(car_id)){
+                        balance = balancePerCar.get(car_id);
+                    }
+                    System.out.println("Account Balance: car " + car_id + " balance " + balance);
+                    long currentTime = System.currentTimeMillis();
+                    System.out.println("GT: " + input.f0 + "-" + input.f2 + ", " + currentTime + ", " + (currentTime - input.f17) + ", " + input.f18);
+                }else{
+                    if(dayPerCar.contains(car_id) && time - dayPerCar.get(car_id) >= 86400){
+                        dayPerCar.put(car_id, time);
+                        dailyExpensePerCar.remove(car_id);
+                    }
+                    int old_expense = 0;
+                    if(dailyExpensePerCar.contains(car_id)){
+                        old_expense = dailyExpensePerCar.get(car_id);
+                    }
+                    dailyExpensePerCar.put(car_id, old_expense + input.f3);
+                    long currentTime = System.currentTimeMillis();
+                    System.out.println("GT: " + input.f0 + "-" + input.f2 + ", " + currentTime + ", " + (currentTime - input.f17) + ", " + input.f18);
+                    // }else if(source == Source_Output){
+                    if (input.f1 == 3) {
+                        int expense = 0;
+                        if (dailyExpensePerCar.contains(car_id)){
+                            expense = dailyExpensePerCar.get(car_id);
+                        }
+                        System.out.println("Daily Expense: car " + car_id + " expense " + expense);
+                    }
+                }
+            }
+            delay(averageDelay);
+        }
+
+        private void delay(long interval) {
+            Double ranN = randomGen.nextGaussian(interval, 1);
+            ranN = ranN * 1000;
+            long delay = ranN.intValue();
+            if (delay < 0) delay = interval * 1000;
+            Long start = System.nanoTime();
+            while (System.nanoTime() - start < delay) {
+            }
+        }
+
+        @Override
+        public void open(Configuration config) {
+            MapStateDescriptor<String, Integer> descriptor =
+                    new MapStateDescriptor<>("account-balance-daily-expense-carbalance", String.class, Integer.class);
+            balancePerCar = getRuntimeContext().getMapState(descriptor);
+            descriptor = new MapStateDescriptor<>("account-balance-daily-expense-carexpense", String.class, Integer.class);
+            dailyExpensePerCar = getRuntimeContext().getMapState(descriptor);
+            descriptor = new MapStateDescriptor<>("account-balance-daily-expense-carday", String.class, Integer.class);
+            dayPerCar = getRuntimeContext().getMapState(descriptor);
+        }
+    }
+
 
     public static final class DailyExpense extends RichFlatMapFunction<
             Tuple19<String, Integer, String, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Long, Long>,

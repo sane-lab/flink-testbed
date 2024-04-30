@@ -79,7 +79,7 @@ init() {
   MP6=128
   MP7=128
   MP8=128
-  MP9=128
+#  MP9=128
 
   LP2=8
   LP3=1
@@ -88,7 +88,7 @@ init() {
   LP6=20
   LP7=40
   LP8=1
-  LP9=1
+#  LP9=1
 
   P1=1
   P2=8
@@ -98,16 +98,16 @@ init() {
   P6=20
   P7=40
   P8=1
-  P9=1
+#  P9=1
 
   DELAY2=1000
   DELAY3=1000
   DELAY4=3333
   DELAY5=100
   DELAY6=2000
-  DELAY7=4000
+  DELAY7=2000
   DELAY8=100
-  DELAY9=100
+#  DELAY9=100
 }
 
 # run applications
