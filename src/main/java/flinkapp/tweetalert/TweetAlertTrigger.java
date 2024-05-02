@@ -52,7 +52,7 @@ public class TweetAlertTrigger {
 
         DataStream<Tuple7<String, String, String, Integer, Integer, Long, Long>> afterPreprocess = source
                 .keyBy(TweetSource.Tweet_ID)
-                .flatMap(new TweetPreprocess(params.getInt("op1Delay", 100)))
+                .flatMap(new TweetPreprocess(params.getInt("op1Delay", 10)))
                 .disableChaining()
                 .name("Preprocess")
                 .uid("op1")
