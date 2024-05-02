@@ -1,7 +1,6 @@
 import sys
 import numpy as np
 import matplotlib
-from fontTools.misc.py23 import xrange
 
 matplotlib.use('Agg')
 import matplotlib.pyplot as plt
@@ -59,40 +58,10 @@ def drawAverageLatency(workload_avg_latency: dict):
     plt.legend()
     plt.xticks(range(0, len(workload_labels) * 3, 3), workload_labels)
     plt.xlim(-3, len(workload_labels)*3)
-    plt.ylim(0, 20000)
-    plt.tight_layout()
-    plt.savefig(output_directory+figName)
-
-def drawAverageLatency(workload_avg_latency: dict):
-    # Plot average latency
-    print("Draw average latency")
-    data_controller = {}
-    workload_labels = []
-    for workload in sorted(workload_avg_latency.keys()):
-        for controller in workload_avg_latency[workload].keys():
-            if controller not in data_controller:
-                data_controller[controller] = [[], [], []]
-            data_controller[controller][workload] = workload_avg_latency[workload][controller]
-        workload_labels.append(workload_index[workload])
-
-    print(data_controller)
-    print(workload_labels)
-    def set_box_color(bp, color):
-        plt.setp(bp['boxes'], color=color)
-        plt.setp(bp['whiskers'], color=color)
-        plt.setp(bp['caps'], color=color)
-        plt.setp(bp['medians'], color=color)
-
-    fig, axs = plt.subplots(1, 1, figsize=(8, 4), layout='constrained') #(24, 9)
-    figName = "Overall_average_latency.jpg"
-    for controller in range(0, 3):
-        bp = plt.boxplot(data_controller[controller], positions=np.array(range(len(data_controller[controller]))) * 3.0 - 0.4 + controller * 0.4, sym='', widths=0.6)
-        set_box_color(bp, controller_color[controller])
-        plt.plot([], c=controller_color[controller], label=controller_index[controller])
-    plt.legend()
-    plt.xticks(range(0, len(workload_labels) * 3, 3), workload_labels)
-    plt.xlim(-3, len(workload_labels)*3)
-    plt.ylim(0, 20000)
+    plt.ylim(100, 100000)
+    for workload in range(0, len(workload_labels)):
+        plt.plot([workload * 3 - 1.5, workload * 3 + 1.5], [workload_limit[workload_labels[workload]],workload_limit[workload_labels[workload]]], color="red")
+    plt.yscale("log")
     plt.tight_layout()
     plt.savefig(output_directory+figName)
 
@@ -124,7 +93,11 @@ def drawP99Latency(workload_p99_latency: dict):
     plt.legend()
     plt.xticks(range(0, len(workload_labels) * 3, 3), workload_labels)
     plt.xlim(-3, len(workload_labels)*3)
-    plt.ylim(0, 20000)
+    for workload in range(0, len(workload_labels)):
+        plt.plot([workload * 3 - 1.5, workload * 3 + 1.5],
+                 [workload_limit[workload_labels[workload]], workload_limit[workload_labels[workload]]], color="red")
+    plt.ylim(100, 100000)
+    plt.yscale("log")
     plt.tight_layout()
     plt.savefig(output_directory+figName)
 
@@ -157,7 +130,7 @@ def drawSuccessRate(workload_success_rate: dict):
     plt.xticks(range(0, len(workload_labels) * 3, 3), workload_labels)
     plt.plot([-3, len(workload_labels) * 3], [0.99, 0.99], color="red")
     plt.xlim(-3, len(workload_labels)*3)
-    plt.ylim(0.2, 1.1)
+    plt.ylim(0.2, 1.0)
     plt.tight_layout()
     plt.savefig(output_directory+figName)
 
