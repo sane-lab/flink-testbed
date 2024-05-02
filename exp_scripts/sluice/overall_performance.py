@@ -109,7 +109,7 @@ def drawSuccessRate(workload_success_rate: dict):
         for controller in workload_success_rate[workload].keys():
             if controller not in data_controller:
                 data_controller[controller] = [[], [], []]
-            data_controller[controller][workload] = workload_success_rate[workload][controller]
+            data_controller[controller][workload] = [1 - x for x in workload_success_rate[workload][controller]]
         workload_labels.append(workload_index[workload])
 
     print(data_controller)
@@ -128,9 +128,13 @@ def drawSuccessRate(workload_success_rate: dict):
         plt.plot([], c=controller_color[controller], label=controller_index[controller])
     plt.legend()
     plt.xticks(range(0, len(workload_labels) * 3, 3), workload_labels)
-    plt.plot([-3, len(workload_labels) * 3], [0.99, 0.99], color="red")
+    plt.plot([-3, len(workload_labels) * 3], [0.01, 0.01], color="red")
     plt.xlim(-3, len(workload_labels)*3)
-    plt.ylim(0.2, 1.0)
+    plt.ylim(0.0001, 1.0)
+    plt.yscale("log")
+    plt.gca().set_yticks([1, 0.5, 0.1, 0.01, 0.001, 0.0001])
+    plt.gca().invert_yaxis()
+    plt.gca().set_yticklabels(1 - plt.gca().get_yticks())
     plt.tight_layout()
     plt.savefig(output_directory+figName)
 

@@ -83,29 +83,29 @@ init() {
 
   LP2=15
   LP3=1
-  LP4=15
+  LP4=10
   LP5=1
-  LP6=15
-  LP7=55
+  LP6=10
+  LP7=65
   LP8=1
 #  LP9=1
 
   P1=1
   P2=15
   P3=1
-  P4=15
+  P4=10
   P5=1
-  P6=15
-  P7=55
+  P6=10
+  P7=65
   P8=1
 #  P9=1
 
   DELAY2=500
   DELAY3=1000
-  DELAY4=500
+  DELAY4=200
   DELAY5=100
-  DELAY6=500
-  DELAY7=2000
+  DELAY6=200
+  DELAY7=1000
   DELAY8=100
 #  DELAY9=100
 }
@@ -167,19 +167,19 @@ run_stock_test(){
 #        P5=4
 #        P6=1
 #        P7=5
-#        whether_type="ds2"
-#        how_type="ds2"
-#        scalein_type="ds2"
-#        migration_interval=2500
-#        run_one_exp
-#        printf "${EXP_NAME}\n" >> lr_result.txt
-#
-#        whether_type="streamswitch"
-#        how_type="streamswitch"
-#        scalein_type="streamswitch"
-#        migration_interval=1000
-#        run_one_exp
-#        printf "${EXP_NAME}\n" >> lr_result.txt
+        whether_type="ds2"
+        how_type="ds2"
+        scalein_type="ds2"
+        migration_interval=2500
+        run_one_exp
+        printf "${EXP_NAME}\n" >> lr_result.txt
+
+        whether_type="streamswitch"
+        how_type="streamswitch"
+        scalein_type="streamswitch"
+        migration_interval=1000
+        run_one_exp
+        printf "${EXP_NAME}\n" >> lr_result.txt
     done
 }
 run_stock_test

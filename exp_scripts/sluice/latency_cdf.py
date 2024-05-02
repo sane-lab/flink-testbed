@@ -140,14 +140,17 @@ def extractLatency(raw_dir: str, exp: str):
 def drawCDF(workload_label:str, latencys: dict):
     figName = "CDF_" + workload_label + ".jpg"
     fig, axs = plt.subplots(1, 1, figsize=(8, 4), layout='constrained')  # (24, 9)
-    sample_size = 1000
     for controller in latencys.keys():
         latency = latencys[controller]
-        plt.ecdf(latency, color=controller_color[controller], label=controller_index[controller])
+        plt.ecdf(latency, complementary=True, color=controller_color[controller], label=controller_index[controller])
     plt.legend()
     plt.xscale("log")
     plt.xlim(1, 100000)
-    plt.yticks([0, 0.2, 0.4, 0.6, 0.8, 0.9, 0.99, 1.0])
+    plt.ylim(0.001, 1.0)
+    plt.yscale("log")
+    plt.gca().set_yticks([1.0, 0.5, 0.2, 0.1, 0.05, 0.01, 0.001])
+    plt.gca().invert_yaxis()
+    plt.gca().set_yticklabels(1 - plt.gca().get_yticks())
     plt.plot([workload_limit[workload_label], workload_limit[workload_label]], [0.0, 1.0], color="red")
     plt.grid(True)
     plt.savefig(output_directory+figName)
