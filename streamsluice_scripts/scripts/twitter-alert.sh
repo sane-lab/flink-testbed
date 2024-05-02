@@ -57,7 +57,7 @@ init() {
   repeat=1
   spike_estimation="linear_regression"
   spike_slope=0.75
-  spike_intercept=1 000
+  spike_intercept=1000
   errorcase_number=3
   #calibrate_selectivity=false
   calibrate_selectivity=true
