@@ -128,7 +128,7 @@ run_stock_test(){
     init
     printf "" > stock_result.txt
 
-    for repeat in 3 4 5; do
+    for repeat in 1 2 3 4 5; do
         run_one_exp
         printf "${EXP_NAME}\n" >> stock_result.txt
 

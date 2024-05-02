@@ -122,7 +122,7 @@ run_stock_test(){
     init
     printf "" > tweet_result.txt
 
-    for repeat in 1; do #2 3 4 5
+    for repeat in 1 2 3 4 5; do
         run_one_exp
         printf "${EXP_NAME}\n" >> tweet_result.txt
 
