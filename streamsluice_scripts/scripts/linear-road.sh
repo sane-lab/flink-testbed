@@ -81,30 +81,30 @@ init() {
   MP8=128
 #  MP9=128
 
-  LP2=8
+  LP2=15
   LP3=1
-  LP4=25
+  LP4=15
   LP5=1
   LP6=15
-  LP7=50
+  LP7=55
   LP8=1
 #  LP9=1
 
   P1=1
-  P2=8
+  P2=15
   P3=1
-  P4=25
+  P4=15
   P5=1
   P6=15
-  P7=50
+  P7=55
   P8=1
 #  P9=1
 
   DELAY2=500
   DELAY3=1000
-  DELAY4=2500
+  DELAY4=500
   DELAY5=100
-  DELAY6=1000
+  DELAY6=500
   DELAY7=2000
   DELAY8=100
 #  DELAY9=100

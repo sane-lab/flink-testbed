@@ -1,1 +1,9 @@
-tweet_alert-streamsluice-streamsluice-3990-30-1000-1-10-5000-6-3333-1-100-8-4000-1-100---4000-100-true-3-true-1
+tweet_alert-streamsluice-streamsluice-3990-30-1500-1-45-5000-25-3333-1-100-30-4000-4000-100-true-3-true-2
+tweet_alert-streamsluice-streamsluice-3990-30-1500-1-45-5000-25-3333-1-100-30-4000-4000-100-true-3-true-3
+tweet_alert-streamsluice-streamsluice-3990-30-1500-1-45-5000-25-3333-1-100-30-4000-4000-100-true-3-true-4
+tweet_alert-streamsluice-streamsluice-3990-30-1500-1-45-5000-25-3333-1-100-30-4000-4000-100-true-3-true-5
+tweet_alert-streamsluice-streamsluice-3990-30-1500-1-45-5000-25-3333-1-100-30-4000-4000-100-true-3-true-6
+tweet_alert-streamsluice-streamsluice-3990-30-1500-1-45-5000-25-3333-1-100-30-4000-4000-100-true-3-true-7
+tweet_alert-streamsluice-streamsluice-3990-30-1500-1-45-5000-25-3333-1-100-30-4000-4000-100-true-3-true-8
+tweet_alert-streamsluice-streamsluice-3990-30-1500-1-45-5000-25-3333-1-100-30-4000-4000-100-true-3-true-9
+tweet_alert-streamsluice-streamsluice-3990-30-1500-1-45-5000-25-3333-1-100-30-4000-4000-100-true-3-true-10
