@@ -79,23 +79,23 @@ init() {
   MP6=128
   MP7=128
 
-  LP2=45
-  LP3=25
+  LP2=50
+  LP3=20
   LP4=1
   LP5=30
   #LP6=1
 
   P1=1
-  P2=45
-  P3=25
+  P2=50
+  P3=20
   P4=1
   P5=30
   #P6=1
 
   DELAY2=5000
-  DELAY3=3333
+  DELAY3=1000
   DELAY4=100
-  DELAY5=4000
+  DELAY5=3000
   #DELAY6=100
 }
 
