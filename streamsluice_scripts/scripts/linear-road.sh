@@ -81,32 +81,32 @@ init() {
   MP8=128
 #  MP9=128
 
-  LP2=15
+  LP2=40
   LP3=1
-  LP4=10
+  LP4=1
   LP5=1
-  LP6=10
-  LP7=65
+  LP6=1
+  LP7=60
   LP8=1
 #  LP9=1
 
   P1=1
   P2=15
   P3=1
-  P4=10
+  P4=1
   P5=1
-  P6=10
+  P6=1
   P7=65
   P8=1
 #  P9=1
 
-  DELAY2=500
+  DELAY2=1000
   DELAY3=1000
-  DELAY4=200
-  DELAY5=100
-  DELAY6=200
-  DELAY7=1000
-  DELAY8=100
+  DELAY4=10
+  DELAY5=10
+  DELAY6=10
+  DELAY7=500
+  DELAY8=10
 #  DELAY9=100
 }
 
@@ -142,6 +142,9 @@ run_stock_test(){
     printf "" > lr_result.txt
 
     for repeat in 1 2 3 4 5; do
+        whether_type="streamsluice"
+        how_type="streamsluice"
+        scalein_type="streamsluice"
         run_one_exp
         printf "${EXP_NAME}\n" >> lr_result.txt
 

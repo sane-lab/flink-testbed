@@ -80,22 +80,22 @@ init() {
   MP7=128
 
   LP2=50
-  LP3=20
+  LP3=5
   LP4=1
-  LP5=30
+  LP5=45
   #LP6=1
 
   P1=1
   P2=50
-  P3=20
+  P3=5
   P4=1
-  P5=30
+  P5=45
   #P6=1
 
-  DELAY2=5000
-  DELAY3=1000
-  DELAY4=100
-  DELAY5=3000
+  DELAY2=4000
+  DELAY3=500
+  DELAY4=50
+  DELAY5=2000
   #DELAY6=100
 }
 
@@ -123,6 +123,10 @@ run_stock_test(){
     printf "" > tweet_result.txt
 
     for repeat in 1 2 3 4 5; do
+        whether_type="streamsluice"
+        how_type="streamsluice"
+        scalein_type="streamsluice"
+
         run_one_exp
         printf "${EXP_NAME}\n" >> tweet_result.txt
 

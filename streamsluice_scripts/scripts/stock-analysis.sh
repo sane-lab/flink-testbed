@@ -129,6 +129,9 @@ run_stock_test(){
     printf "" > stock_result.txt
 
     for repeat in 1 2 3 4 5; do
+        whether_type="streamsluice"
+        how_type="streamsluice"
+        scalein_type="streamsluice"
         run_one_exp
         printf "${EXP_NAME}\n" >> stock_result.txt
 
