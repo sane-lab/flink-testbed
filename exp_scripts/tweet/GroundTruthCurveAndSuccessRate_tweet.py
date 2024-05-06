@@ -170,7 +170,7 @@ outputDir = "/Users/swrrt/Workplace/BacklogDelayPaper/experiments/results/"
 import sys
 exps = [
     ["Sluice1",
-     "tweet_alert-streamsluice-streamsluice-3990-30-1500-1-50-5000-20-1000-1-100-30-3000-2000-100-true-3-true-1",
+     "tweet_alert-streamsluice-streamsluice-3990-30-1500-1-50-4000-5-500-1-50-45-2000-2000-100-true-3-true-1",
      "purple", "d"],
     # ["Sluice2",
     #  "linear_road-streamsluice-streamsluice-3990-30-1000-300-3-1000-1-1000-7-3333-1-100-4-2000-15-4000-1-100-1-100-4000-100-true-3-true-2",
