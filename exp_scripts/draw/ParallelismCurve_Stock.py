@@ -587,14 +587,11 @@ exps = [
     #   "stock_analysis-streamsluice-streamsluice-3990-30-1000-20-2-500-6-5000-3-1000-4-3000-1-5-4000-2000-100-true-3-true-1",
     #   "blue", "o"],
     ["Sluice",
-     "tweet_alert-streamsluice-streamsluice-3990-30-1500-1-60-4000-20-500-1-50-1-50-2000-100-true-3-true-2",
-     "blue", "o"],
-    ["Sluice",
-     "tweet_alert-streamsluice-streamsluice-3990-30-1500-1-60-4000-20-500-1-50-1-50-2000-100-true-3-true-3",
+     "tweet_alert-streamsluice-streamsluice-1290-30-1500-1-80-5000-20-1000-1-50-1-50-2000-100-true-3-true-1",
      "blue", "o"],
 ]
 windowSize=1000
-startTime=30+300 #30
+startTime=30 #30+300 #30
 perOperatorFlag = False
 weightedTotalParallelismFlag = False
 parallelismWeight = {

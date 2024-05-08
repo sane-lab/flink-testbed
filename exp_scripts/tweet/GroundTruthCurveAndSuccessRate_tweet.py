@@ -170,11 +170,8 @@ outputDir = "/Users/swrrt/Workplace/BacklogDelayPaper/experiments/results/"
 import sys
 exps = [
     ["Sluice1",
-     "tweet_alert-streamsluice-streamsluice-3990-30-1500-1-60-4000-20-500-1-50-1-50-2000-100-true-3-true-2",
+     "tweet_alert-streamsluice-streamsluice-1290-30-1500-1-80-5000-20-1000-1-50-1-50-2000-100-true-3-true-1",
      "purple", "d"],
-    ["Sluice2",
-     "tweet_alert-streamsluice-streamsluice-3990-30-1500-1-60-4000-20-500-1-50-1-50-2000-100-true-3-true-3",
-     "green", "p"],
     # ["Sluice3",
     #   "linear_road-streamsluice-streamsluice-3990-30-1000-300-3-1000-1-1000-7-3333-1-100-4-2000-15-4000-1-100-1-100-4000-100-true-3-true-3",
     #   "blue", "o"],
@@ -185,7 +182,7 @@ if len(sys.argv) > 1:
 windowSize = 500
 latencyLimit = 4000 #1000
 endTime = 270 #150 #630
-startTime=30+600 #30
+startTime=30 #30+600 #30
 isSingleOperator = False #True
 expName = [exp[1] for exp in exps if exp[0] == "StreamSluice" or exp[0].startswith("Sluice")][0]
 print(expName)

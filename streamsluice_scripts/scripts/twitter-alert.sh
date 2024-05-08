@@ -48,16 +48,16 @@ init() {
   whether_type="streamsluice"
   how_type="streamsluice"
   scalein_type="streamsluice"
-  L=2000
+  L=4000
   runtime=3990 #
   skip_interval=1 # skip seconds
   warmup=10000
   warmup_time=30
-  warmup_rate=1500
+  warmup_rate=1800
   repeat=1
   spike_estimation="linear_regression"
   spike_slope=0.75
-  spike_intercept=1000
+  spike_intercept=2500
   errorcase_number=3
   #calibrate_selectivity=false
   calibrate_selectivity=true
@@ -86,8 +86,8 @@ init() {
   #LP6=1
 
   P1=1
-  P2=80
-  P3=20
+  P2=40
+  P3=10
   P4=1
   P5=1
   #P6=1

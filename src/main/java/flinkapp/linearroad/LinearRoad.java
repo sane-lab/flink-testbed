@@ -78,57 +78,77 @@ public class LinearRoad {
 //                .setMaxParallelism(params.getInt("mp3", 8))
 //                .slotSharingGroup("g3");
 
+//        DataStream<Tuple19<String, Integer, String, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Long, Long>> afterAverageSpeed = afterDispatcher
+//                .keyBy(LinearRoadSource.Car_ID) // .keyBy(LinearRoadSource.Seg_ID)
+//                .flatMap(new AverageSpeed(params.getInt("op4Delay", 1000)))
+//                .disableChaining()
+//                .name("Average Speed")
+//                .uid("op4")
+//                .setParallelism(params.getInt("p4", 1))
+//                .setMaxParallelism(params.getInt("mp4", 8))
+//                .slotSharingGroup("g4");
+//
+//        // Centralized to predict travel time
+//        DataStream<Tuple19<String, Integer, String, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Long, Long>> afterLastAverageSpeed = afterAverageSpeed
+//                .keyBy(LinearRoadSource.Car_ID) // .keyBy(LinearRoadSource.Query_ID)
+//                .flatMap(new LastAverageSpeed(params.getInt("op5Delay", 1000)))
+//                .disableChaining()
+//                .name("Last Average Speed")
+//                .uid("op5")
+//                .setParallelism(params.getInt("p5", 1))
+//                .setMaxParallelism(params.getInt("mp5", 8))
+//                .slotSharingGroup("g5");
         DataStream<Tuple19<String, Integer, String, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Long, Long>> afterAverageSpeed = afterDispatcher
                 .keyBy(LinearRoadSource.Car_ID) // .keyBy(LinearRoadSource.Seg_ID)
-                .flatMap(new AverageSpeed(params.getInt("op4Delay", 1000)))
+                .flatMap(new AverageSpeedAndLastAverageSpeed(params.getInt("op3Delay", 1000)))
                 .disableChaining()
-                .name("Average Speed")
+                .name("Average Speed and Last Average Speed")
+                .uid("op3")
+                .setParallelism(params.getInt("p3", 1))
+                .setMaxParallelism(params.getInt("mp3", 8))
+                .slotSharingGroup("g3");
+
+
+        DataStream<Tuple19<String, Integer, String, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Long, Long>> afterCountVehicles = afterDispatcher
+                .keyBy(LinearRoadSource.Car_ID) // .keyBy(LinearRoadSource.Seg_ID)
+                .flatMap(new CountVehicles(params.getInt("op4Delay", 1000)))
+                .disableChaining()
+                .name("Count Vehicles")
                 .uid("op4")
                 .setParallelism(params.getInt("p4", 1))
                 .setMaxParallelism(params.getInt("mp4", 8))
                 .slotSharingGroup("g4");
 
-        // Centralized to predict travel time
-        DataStream<Tuple19<String, Integer, String, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Long, Long>> afterLastAverageSpeed = afterAverageSpeed
-                .keyBy(LinearRoadSource.Car_ID) // .keyBy(LinearRoadSource.Query_ID)
-                .flatMap(new LastAverageSpeed(params.getInt("op5Delay", 1000)))
+//        DataStream<Tuple19<String, Integer, String, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Long, Long>> afterTollNotification = afterAccidentDetection.union(afterLastAverageSpeed).union(afterCountVehicles) // .union(afterDispatcher)
+//                .keyBy(LinearRoadSource.Car_ID) // .keyBy(LinearRoadSource.Seg_ID)
+//                .flatMap(new TollNotification(params.getInt("op7Delay", 1000)))
+//                .disableChaining()
+//                .name("Toll Notification")
+//                .uid("op7")
+//                .setParallelism(params.getInt("p7", 1))
+//                .setMaxParallelism(params.getInt("mp7", 8))
+//                .slotSharingGroup("g7");
+//
+//        DataStream<Tuple19<String, Integer, String, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Long, Long>> afterAccountBalance = afterTollNotification // .union(afterDispatcher)
+//                .keyBy(LinearRoadSource.Car_ID)
+//                .flatMap(new AccountBalanceAndDailyExpense(params.getInt("op8Delay", 1000)))
+//                .disableChaining()
+//                .name("Account Balance")
+//                .uid("op8")
+//                .setParallelism(params.getInt("p8", 1))
+//                .setMaxParallelism(params.getInt("mp8", 8))
+//                .slotSharingGroup("g8");
+
+        DataStream<Tuple19<String, Integer, String, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Long, Long>> afterTollNotification = afterAccidentDetection.union(afterAverageSpeed).union(afterCountVehicles) // .union(afterDispatcher)
+                .keyBy(LinearRoadSource.Car_ID) // .keyBy(LinearRoadSource.Seg_ID)
+                .flatMap(new TollNotificationAndAccountBalanceAndDailyExpense(params.getInt("op5Delay", 1000)))
                 .disableChaining()
-                .name("Last Average Speed")
+                .name("Toll Notification and Account Balance")
                 .uid("op5")
                 .setParallelism(params.getInt("p5", 1))
                 .setMaxParallelism(params.getInt("mp5", 8))
                 .slotSharingGroup("g5");
 
-
-        DataStream<Tuple19<String, Integer, String, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Long, Long>> afterCountVehicles = afterDispatcher
-                .keyBy(LinearRoadSource.Car_ID) // .keyBy(LinearRoadSource.Seg_ID)
-                .flatMap(new CountVehicles(params.getInt("op6Delay", 1000)))
-                .disableChaining()
-                .name("Count Vehicles")
-                .uid("op6")
-                .setParallelism(params.getInt("p6", 1))
-                .setMaxParallelism(params.getInt("mp6", 8))
-                .slotSharingGroup("g6");
-
-        DataStream<Tuple19<String, Integer, String, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Long, Long>> afterTollNotification = afterAccidentDetection.union(afterLastAverageSpeed).union(afterCountVehicles) // .union(afterDispatcher)
-                .keyBy(LinearRoadSource.Car_ID) // .keyBy(LinearRoadSource.Seg_ID)
-                .flatMap(new TollNotification(params.getInt("op7Delay", 1000)))
-                .disableChaining()
-                .name("Toll Notification")
-                .uid("op7")
-                .setParallelism(params.getInt("p7", 1))
-                .setMaxParallelism(params.getInt("mp7", 8))
-                .slotSharingGroup("g7");
-
-        DataStream<Tuple19<String, Integer, String, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Long, Long>> afterAccountBalance = afterTollNotification // .union(afterDispatcher)
-                .keyBy(LinearRoadSource.Car_ID)
-                .flatMap(new AccountBalanceAndDailyExpense(params.getInt("op8Delay", 1000)))
-                .disableChaining()
-                .name("Account Balance")
-                .uid("op8")
-                .setParallelism(params.getInt("p8", 1))
-                .setMaxParallelism(params.getInt("mp8", 8))
-                .slotSharingGroup("g8");
 
 //        afterAccountBalance
 //                .keyBy(LinearRoadSource.Car_ID)
@@ -698,6 +718,142 @@ public class LinearRoad {
         }
     }
 
+    public static final class AverageSpeedAndLastAverageSpeed extends RichFlatMapFunction<
+            Tuple19<String, Integer, String, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Long, Long>,
+            Tuple19<String, Integer, String, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Long, Long>> {
+
+        private RandomDataGenerator randomGen = new RandomDataGenerator();
+        private transient MapState<Integer, Integer> totalSpeedPerSeg, totalCarsPerSeg, speedPerSeg;
+        private transient MapState<String, Integer> carSpeed, carSeg;
+        private int averageDelay; // Microsecond
+
+        public AverageSpeedAndLastAverageSpeed(int _averageDelay) {
+            this.averageDelay = _averageDelay;
+        }
+
+        @Override
+        public void flatMap(Tuple19<String, Integer, String, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Long, Long> input, Collector<Tuple19<String, Integer, String, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Long, Long>> out) throws Exception {
+            String car_id = input.f2;
+            int seg = input.f7, speed = input.f3;
+            if (carSeg.contains(car_id)) {
+                int old_seg = carSeg.get(car_id);
+                int old_speed = carSpeed.get(car_id);
+                int old_cars = totalCarsPerSeg.get(old_seg);
+                totalCarsPerSeg.put(old_seg, old_cars - 1);
+                int old_totalspeed = totalSpeedPerSeg.get(old_seg);
+                totalSpeedPerSeg.put(old_seg, old_totalspeed - old_speed);
+                int old_seg_avgSpeed = 0;
+                if (old_cars > 1) {
+                    old_seg_avgSpeed = (old_totalspeed - old_speed) / (old_cars - 1);
+                }
+                speedPerSeg.put(old_seg, old_seg_avgSpeed);
+
+                out.collect(new Tuple19<>(
+                        LinearRoadSource.getSegID(old_seg),
+                        input.f1,
+                        car_id,
+                        old_seg_avgSpeed,
+                        input.f4,
+                        input.f5,
+                        input.f6,
+                        old_seg,
+                        input.f8,
+                        input.f9,
+                        input.f10,
+                        input.f11,
+                        input.f12,
+                        input.f13,
+                        input.f14,
+                        input.f15,
+                        LastAverageSpeed_Output,
+                        input.f17,
+                        input.f18));
+            }
+            carSeg.put(car_id, seg);
+            carSpeed.put(car_id, speed);
+            if (!totalSpeedPerSeg.contains(seg)) {
+                totalSpeedPerSeg.put(seg, speed);
+                totalCarsPerSeg.put(seg, 1);
+            } else {
+                int old_cars = totalCarsPerSeg.get(seg);
+                int old_totalspeed = totalSpeedPerSeg.get(seg);
+                totalSpeedPerSeg.put(seg, old_totalspeed + speed);
+                totalCarsPerSeg.put(seg, old_cars + 1);
+            }
+            int avg_speed = totalSpeedPerSeg.get(seg) / totalCarsPerSeg.get(seg);
+            speedPerSeg.put(seg, avg_speed);
+
+            if (input.f1 == 4){
+                int start_seg = input.f11, end_seg = input.f12;
+                if(start_seg > end_seg){
+                    int t = start_seg;
+                    start_seg = end_seg;
+                    end_seg = t;
+                }
+                int totalTime = 0;
+                for(int i = start_seg; i <= end_seg; i++){
+                    if(speedPerSeg.contains(i)) {
+                        int now_speed = speedPerSeg.get(i);
+                        int time;
+                        if(now_speed == 0){
+                            time = 86400;
+                        }else {
+                            time = 3600 / now_speed;
+                        }
+                        totalTime += time;
+                    }
+                }
+                System.out.println("Travel Time Estimation from " + start_seg + " to "  + end_seg + " is " + totalTime + ".");
+            }
+            out.collect(new Tuple19<>(
+                    LinearRoadSource.getSegID(seg),
+                    input.f1,
+                    car_id,
+                    avg_speed,
+                    input.f4,
+                    input.f5,
+                    input.f6,
+                    seg,
+                    input.f8,
+                    input.f9,
+                    input.f10,
+                    input.f11,
+                    input.f12,
+                    input.f13,
+                    input.f14,
+                    input.f15,
+                    LastAverageSpeed_Output,
+                    input.f17,
+                    input.f18));
+            delay(averageDelay);
+        }
+
+        private void delay(long interval) {
+            Double ranN = randomGen.nextGaussian(interval, 1);
+            ranN = ranN * 1000;
+            long delay = ranN.intValue();
+            if (delay < 0) delay = interval * 1000;
+            Long start = System.nanoTime();
+            while (System.nanoTime() - start < delay) {
+            }
+        }
+
+        @Override
+        public void open(Configuration config) {
+            MapStateDescriptor<String, Integer> descriptor =
+                    new MapStateDescriptor<>("average-speed-carseg", String.class, Integer.class);
+            carSeg = getRuntimeContext().getMapState(descriptor);
+            descriptor = new MapStateDescriptor<>("average-speed-carspeed", String.class, Integer.class);
+            carSpeed = getRuntimeContext().getMapState(descriptor);
+            MapStateDescriptor<Integer, Integer> descriptor1 = new MapStateDescriptor<>("average-speed-segcars", Integer.class, Integer.class);
+            totalCarsPerSeg = getRuntimeContext().getMapState(descriptor1);
+            descriptor1 = new MapStateDescriptor<>("average-speed-segspeed", Integer.class, Integer.class);
+            totalSpeedPerSeg = getRuntimeContext().getMapState(descriptor1);
+            descriptor1 = new MapStateDescriptor<>("last-average-speed-per-seg", Integer.class, Integer.class);
+            speedPerSeg = getRuntimeContext().getMapState(descriptor1);
+        }
+    }
+
     public static final class CountVehicles extends RichFlatMapFunction<
             Tuple19<String, Integer, String, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Long, Long>,
             Tuple19<String, Integer, String, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Long, Long>> {
@@ -881,6 +1037,119 @@ public class LinearRoad {
         }
     }
 
+    public static final class TollNotificationAndAccountBalanceAndDailyExpense extends RichFlatMapFunction<
+            Tuple19<String, Integer, String, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Long, Long>,
+            Tuple19<String, Integer, String, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Long, Long>> {
+
+        private RandomDataGenerator randomGen = new RandomDataGenerator();
+        private transient MapState<Integer, Integer> segAverageSpeed, segLastAccident, segCarCounts;
+        private transient MapState<String, Integer> balancePerCar, dailyExpensePerCar, dayPerCar;
+        private int averageDelay; // Microsecond
+
+        public TollNotificationAndAccountBalanceAndDailyExpense(int _averageDelay) {
+            this.averageDelay = _averageDelay;
+        }
+
+        @Override
+        public void flatMap(Tuple19<String, Integer, String, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Long, Long> input, Collector<Tuple19<String, Integer, String, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Long, Long>> out) throws Exception {
+            String car_id = input.f2;
+            int seg = input.f7, source = input.f16, time = input.f9;
+            if (source == AccidentDetection_Output){
+                int accident_flag = input.f3;
+                if(accident_flag == 1) {
+                    segLastAccident.put(seg, time);
+                }
+                long currentTime = System.currentTimeMillis();
+                System.out.println("GT: " + input.f0 + "-" + input.f2 + ", " + currentTime + ", " + (currentTime - input.f17) + ", " + input.f18);
+            }else if(source == LastAverageSpeed_Output){
+                segAverageSpeed.put(seg, input.f3);
+                long currentTime = System.currentTimeMillis();
+                System.out.println("GT: " + input.f0 + "-" + input.f2 + ", " + currentTime + ", " + (currentTime - input.f17) + ", " + input.f18);
+            }else if(source == CountVehicles_Output) {
+                segCarCounts.put(seg, input.f3);
+                //    long currentTime = System.currentTimeMillis();
+                //    System.out.println("GT: " + input.f0 + "-" + input.f2 + ", " + currentTime + ", " + (currentTime - input.f17) + ", " + input.f18);
+                // }else if(source == Source_Output){
+                int price = 0, carCounts = 0, averageSpeed = 50;
+                if (segCarCounts.contains(seg)) {
+                    carCounts = segCarCounts.get(seg);
+                }
+                if (segAverageSpeed.contains(seg)) {
+                    averageSpeed = segAverageSpeed.get(seg);
+                }
+                price = carCounts * 5 + (100 - averageSpeed);
+                if (segLastAccident.contains(seg) && segLastAccident.get(seg) >= time - 300) {
+                    price /= 2;
+                }
+                System.out.println("Toll Notification: car " + car_id + " enter seg " + seg + " price " + price);
+
+                int old_balance = 0;
+                if (balancePerCar.contains(car_id)) {
+                    old_balance = balancePerCar.get(car_id);
+                }
+                balancePerCar.put(car_id, old_balance + price);
+                if (input.f1 == 2) {
+                    int balance = 0;
+                    if (balancePerCar.contains(car_id)) {
+                        balance = balancePerCar.get(car_id);
+                    }
+                    System.out.println("Account Balance: car " + car_id + " balance " + balance);
+                    long currentTime = System.currentTimeMillis();
+                    System.out.println("GT: " + input.f0 + "-" + input.f2 + ", " + currentTime + ", " + (currentTime - input.f17) + ", " + input.f18);
+                } else {
+                    if (dayPerCar.contains(car_id) && time - dayPerCar.get(car_id) >= 86400) {
+                        dayPerCar.put(car_id, time);
+                        dailyExpensePerCar.remove(car_id);
+                    }
+                    int old_expense = 0;
+                    if (dailyExpensePerCar.contains(car_id)) {
+                        old_expense = dailyExpensePerCar.get(car_id);
+                    }
+                    dailyExpensePerCar.put(car_id, old_expense + input.f3);
+                    long currentTime = System.currentTimeMillis();
+                    System.out.println("GT: " + input.f0 + "-" + input.f2 + ", " + currentTime + ", " + (currentTime - input.f17) + ", " + input.f18);
+                    // }else if(source == Source_Output){
+                    if (input.f1 == 3) {
+                        int expense = 0;
+                        if (dailyExpensePerCar.contains(car_id)) {
+                            expense = dailyExpensePerCar.get(car_id);
+                        }
+                        System.out.println("Daily Expense: car " + car_id + " expense " + expense);
+                    }
+                }
+            }
+            delay(averageDelay);
+        }
+
+        private void delay(long interval) {
+            Double ranN = randomGen.nextGaussian(interval, 1);
+            ranN = ranN * 1000;
+            long delay = ranN.intValue();
+            if (delay < 0) delay = interval * 1000;
+            Long start = System.nanoTime();
+            while (System.nanoTime() - start < delay) {
+            }
+        }
+
+        @Override
+        public void open(Configuration config) {
+            MapStateDescriptor<Integer, Integer> descriptor =
+                    new MapStateDescriptor<>("toll-notification-segspeed", Integer.class, Integer.class);
+            segAverageSpeed = getRuntimeContext().getMapState(descriptor);
+            descriptor = new MapStateDescriptor<>("toll-notification-segaccident", Integer.class, Integer.class);
+            segLastAccident = getRuntimeContext().getMapState(descriptor);
+            descriptor = new MapStateDescriptor<>("toll-notification-segcars", Integer.class, Integer.class);
+            segCarCounts = getRuntimeContext().getMapState(descriptor);
+            MapStateDescriptor<String, Integer> descriptor1 =
+                    new MapStateDescriptor<>("account-balance-daily-expense-carbalance", String.class, Integer.class);
+            balancePerCar = getRuntimeContext().getMapState(descriptor1);
+            descriptor1 = new MapStateDescriptor<>("account-balance-daily-expense-carexpense", String.class, Integer.class);
+            dailyExpensePerCar = getRuntimeContext().getMapState(descriptor1);
+            descriptor1 = new MapStateDescriptor<>("account-balance-daily-expense-carday", String.class, Integer.class);
+            dayPerCar = getRuntimeContext().getMapState(descriptor1);
+        }
+    }
+
     public static final class AccountBalance extends RichFlatMapFunction<
             Tuple19<String, Integer, String, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Long, Long>,
             Tuple19<String, Integer, String, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Long, Long>> {
@@ -1031,7 +1300,6 @@ public class LinearRoad {
             dayPerCar = getRuntimeContext().getMapState(descriptor);
         }
     }
-
 
     public static final class DailyExpense extends RichFlatMapFunction<
             Tuple19<String, Integer, String, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Long, Long>,

@@ -1,3 +1,1 @@
-linear_road-streamsluice-streamsluice-1290-30-1000-300-15-1000-1-1000-1-10-1-10-1-10-65-500-1-10---4000-100-true-3-true-1
-linear_road-ds2-ds2-1290-30-1000-300-15-1000-1-1000-1-10-1-10-1-10-65-500-1-10---4000-100-true-3-true-1
-linear_road-streamswitch-streamswitch-1290-30-1000-300-15-1000-1-1000-1-10-1-10-1-10-65-500-1-10---4000-100-true-3-true-1
+tweet_alert-streamsluice-streamsluice-1290-30-1500-1-80-5000-20-1000-1-50-1-50-2000-100-true-3-true-1
