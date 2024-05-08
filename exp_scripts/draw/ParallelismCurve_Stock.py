@@ -587,7 +587,7 @@ exps = [
     #   "stock_analysis-streamsluice-streamsluice-3990-30-1000-20-2-500-6-5000-3-1000-4-3000-1-5-4000-2000-100-true-3-true-1",
     #   "blue", "o"],
     ["Sluice",
-     "tweet_alert-streamsluice-streamsluice-1290-30-1500-1-80-5000-20-1000-1-50-1-50-2000-100-true-3-true-1",
+     "tweet_alert-streamsluice-streamsluice-3990-30-1500-1-15-5000-2-500-1-50-10-2000-4000-100-true-3-true-2",
      "blue", "o"],
 ]
 windowSize=1000

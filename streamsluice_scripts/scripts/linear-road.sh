@@ -22,7 +22,7 @@ function analyze() {
 }
 
 run_one_exp() {
-  EXP_NAME=linear_road-${whether_type}-${how_type}-${runtime}-${warmup_time}-${warmup_rate}-${skip_interval}-${P2}-${DELAY2}-${P3}-${DELAY3}-${P4}-${DELAY4}-${P5}-${DELAY5}-${P6}-${DELAY6}-${P7}-${DELAY7}-${P8}-${DELAY8}-${P9}-${DELAY9}-${L}-${epoch}-${is_treat}-${errorcase_number}-${calibrate_selectivity}-${repeat}
+  EXP_NAME=linear_road-${whether_type}-${how_type}-${runtime}-${warmup_time}-${warmup_rate}-${skip_interval}-${P2}-${DELAY2}-${P3}-${DELAY3}-${P4}-${DELAY4}-${P5}-${DELAY5}-${L}-${epoch}-${is_treat}-${errorcase_number}-${calibrate_selectivity}-${repeat}
 
   echo "INFO: run exp ${EXP_NAME}"
   configFlink
@@ -76,37 +76,37 @@ init() {
   MP3=128
   MP4=128
   MP5=128
-  MP6=128
-  MP7=128
-  MP8=128
+#  MP6=128
+#  MP7=128
+#  MP8=128
 #  MP9=128
 
-  LP2=40
-  LP3=1
-  LP4=1
-  LP5=1
-  LP6=1
-  LP7=60
-  LP8=1
+  LP2=20
+  LP3=30
+  LP4=5
+  LP5=50
+#  LP6=1
+#  LP7=60
+#  LP8=1
 #  LP9=1
 
   P1=1
-  P2=15
-  P3=1
+  P2=10
+  P3=20
   P4=1
-  P5=1
-  P6=1
-  P7=65
-  P8=1
+  P5=40
+#  P6=1
+#  P7=65
+#  P8=1
 #  P9=1
 
   DELAY2=1000
-  DELAY3=1000
-  DELAY4=10
-  DELAY5=10
-  DELAY6=10
-  DELAY7=500
-  DELAY8=10
+  DELAY3=2000
+  DELAY4=100
+  DELAY5=5000
+#  DELAY6=10
+#  DELAY7=500
+#  DELAY8=10
 #  DELAY9=100
 }
 

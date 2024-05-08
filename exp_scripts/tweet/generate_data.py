@@ -4,7 +4,7 @@ import pandas as pd
 import numpy as np
 
 
-total_hour = 3
+total_hour = 2 #3
 import random
 random.seed(12345)
 
@@ -12,30 +12,35 @@ def generate_rate_per_second():
     average_rate_per_second = []
 
     # Generate curve
-    # c1 = 0.43
+    # c1 = 0.34
     # c2 = 13
-    # c3 = -0.32
-    # c4 = 32.3
-    c1 = 0.34
+    # c3 = -0.14
+    # c4 = 34
+    c1 = 0.41 * 2
     c2 = 13
-    c3 = -0.14
-    c4 = 34
+    c3 = -0.31 * 2
+    c4 = 31
+    c5 = 0.23
+    c6 = 97
+    c7 = -0.17
+    c8 = 127
 
     average_base_rate = 500
 
-    print(c1, c2, c3, c4)
     # Generate per minute number
     for i in range(0, total_hour * 60 * 60):
         # add curve
-        base_rate = c1 * math.sin(c2 * i / (total_hour * 60.0 * 60)) + c3 * math.cos(c4 * i / (total_hour * 60.0 * 60)) + 4
+        base_rate = (c1 * math.sin(c2 * i / (total_hour * 60.0 * 60)) + c3 * math.cos(c4 * i / (total_hour * 60.0 * 60))
+                     + c5 * math.sin(c6 * i/ (total_hour * 60.0 * 60)) + c7 * math.cos(c8 * i / (total_hour * 60.0 * 60))
+                     + 4)
 
         # add noise
-        noise = np.random.normal(0, 0.15) * random.randint(0, 100)/50.0
+        noise = np.random.normal(0, 0.3) * random.randint(0, 100)/50.0
 
         # add spike
         spike = 0
         if random.randint(0, 2000) <= 2:
-            spike = random.randint(100, 200)/100.0
+            spike = random.randint(50, 150)/100.0
 
         if noise <= -10:
             noise = -9.9
@@ -121,9 +126,9 @@ def check_data(generated_data_path: str):
 
 raw_election_path = "/Users/swrrt/Workplace/BacklogDelayPaper/experiments/tweet/tweet_data/uselection_tweets_1jul_11nov.csv"
 raw_bitcoin_path = "/Users/swrrt/Workplace/BacklogDelayPaper/experiments/tweet/tweet_data/bitcoin.csv"
-generated_data_path = "/Users/swrrt/Workplace/BacklogDelayPaper/experiments/tweet/tweet_data/3hr-smooth.txt"
+generated_data_path = "/Users/swrrt/Workplace/BacklogDelayPaper/experiments/tweet/tweet_data/2hr-smooth.txt"
 
-#user_ids, contents = read_raw_data(raw_election_path, raw_bitcoin_path)
+user_ids, contents = read_raw_data(raw_election_path, raw_bitcoin_path)
 rate_per_minute = generate_rate_per_second()
-#generate_data(generated_data_path, user_ids, contents, rate_per_minute)
-#check_data(generated_data_path)
+generate_data(generated_data_path, user_ids, contents, rate_per_minute)
+check_data(generated_data_path)

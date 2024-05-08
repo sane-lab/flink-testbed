@@ -4,6 +4,7 @@ import Nexmark.sources.Util;
 import flinkapp.StreamSluiceTestSet.StockAnalysisApplication;
 import org.apache.commons.math3.random.RandomDataGenerator;
 import org.apache.flink.api.common.functions.RichFlatMapFunction;
+import org.apache.flink.api.common.functions.RichMapFunction;
 import org.apache.flink.api.common.state.MapState;
 import org.apache.flink.api.common.state.MapStateDescriptor;
 import org.apache.flink.api.java.tuple.*;
@@ -109,7 +110,7 @@ public class TweetAlertTrigger {
                 .slotSharingGroup("g4");
         afterJoin
                 .keyBy(TweetSource.Tweet_ID)
-                .flatMap(new TweetAggregateAndAlertTrigger(params.getInt("op5Delay", 1000)))
+                .map(new TweetAggregateAndAlertTrigger(params.getInt("op5Delay", 1000)))
                 .disableChaining()
                 .name("Aggregate")
                 .uid("op5")
@@ -540,13 +541,7 @@ public class TweetAlertTrigger {
                 tweetInfluence.put(tweetId, influence);
                 tweetTopic.put(tweetId, topic);
             }
-//            else if(type == InfluenceScoring_Output){
-//                double influence = input.f6;
-//                tweetInfluence.put(tweetId, influence);
-//            }else if(type == ContentCategorization_Output){
-//                String topic = input.f7;
-//                tweetTopic.put(tweetId, topic);
-//            }
+
             if(tweetSentiment.contains(tweetId) && tweetTopic.contains(tweetId) && tweetInfluence.contains(tweetId)) {
                 double sentiment = tweetSentiment.get(tweetId), influence = tweetInfluence.get(tweetId);
                 String topic = tweetTopic.get(tweetId);
@@ -704,7 +699,7 @@ public class TweetAlertTrigger {
         }
     }
 
-    public static final class TweetAggregateAndAlertTrigger extends RichFlatMapFunction<
+    public static final class TweetAggregateAndAlertTrigger extends RichMapFunction<
             Tuple10<String, String, String, Integer, Integer, Double, Double, String, Long, Long>,
             Tuple10<String, String, String, Integer, Integer, Double, Double, String, Long, Long>> {
 
@@ -718,7 +713,7 @@ public class TweetAlertTrigger {
         }
 
         @Override
-        public void flatMap(Tuple10<String, String, String, Integer, Integer, Double, Double, String, Long, Long> input, Collector<Tuple10<String, String, String, Integer, Integer, Double, Double, String, Long, Long>> out) throws Exception {
+        public Tuple10<String, String, String, Integer, Integer, Double, Double, String, Long, Long> map(Tuple10<String, String, String, Integer, Integer, Double, Double, String, Long, Long> input) throws Exception {
             String tweetId = input.f0;
             String topic = input.f7;
             double old_sentiment = 0.0, old_influence = 0.0;
@@ -731,6 +726,7 @@ public class TweetAlertTrigger {
             double sentiment = old_sentiment + input.f5, influence = old_influence + input.f6;
             topicTotalSentiment.put(topic, sentiment);
             topicTotalInfluence.put(topic, influence);
+
             delay(averageDelay);
 
             if(Math.abs(sentiment) > 10.0 && influence >= 10.0){
@@ -738,7 +734,7 @@ public class TweetAlertTrigger {
             }
             long currentTime = System.currentTimeMillis();
             System.out.println("GT: " + input.f0 + ", " + currentTime + ", " + (currentTime - input.f8) + ", " + input.f9);
-            out.collect(new Tuple10<>(
+            return new Tuple10<>(
                     input.f0,
                     input.f1,
                     input.f2,
@@ -749,7 +745,7 @@ public class TweetAlertTrigger {
                     input.f7,
                     input.f8,
                     input.f9
-            ));
+            );
 
         }
 
