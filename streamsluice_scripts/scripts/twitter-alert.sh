@@ -70,7 +70,7 @@ init() {
   job="flinkapp.tweetalert.TweetAlertTrigger"
   # set in Flink app
   stock_path="/home/samza/Tweet_data/"
-  stock_file_name="3hr-smooth.txt" #"3hr-50ms.txt"
+  stock_file_name="2hr-smooth.txt" #"3hr-50ms.txt"
   MP1=1
   MP2=128
   MP3=128
