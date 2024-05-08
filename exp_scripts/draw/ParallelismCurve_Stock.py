@@ -371,20 +371,23 @@ def draw(rawDir, outputDir, exps):
         # else:
         #     ax1.set_ylim(0, 15)
         #     ax1.set_yticks(np.arange(0, 18, 3))
-        if jobIndex == 0:
-            ax1.set_ylim(0, 6)
-            ax1.set_yticks(np.arange(0, 9, 3))
-        elif jobIndex == 1:
-            ax1.set_ylim(0, 8)
-            ax1.set_yticks(np.arange(0, 12, 4))
-        elif jobIndex == 2:
-            ax1.set_ylim(0, 20)
-            ax1.set_yticks(np.arange(0, 30, 10))
-        else:
-            #ax1.set_ylim(0, 12)
-            #ax1.set_yticks(np.arange(0, 15, 4))
-            ax1.set_ylim(0, 15)
-            ax1.set_yticks(np.arange(0, 18, 3))
+
+        ax1.set_ylim(0, 40)
+        ax1.set_yticks(np.arange(0, 50, 10))
+        # if jobIndex == 0:
+        #     ax1.set_ylim(0, 6)
+        #     ax1.set_yticks(np.arange(0, 9, 3))
+        # elif jobIndex == 1:
+        #     ax1.set_ylim(0, 8)
+        #     ax1.set_yticks(np.arange(0, 12, 4))
+        # elif jobIndex == 2:
+        #     ax1.set_ylim(0, 20)
+        #     ax1.set_yticks(np.arange(0, 30, 10))
+        # else:
+        #     #ax1.set_ylim(0, 12)
+        #     #ax1.set_yticks(np.arange(0, 15, 4))
+        #     ax1.set_ylim(0, 15)
+        #     ax1.set_yticks(np.arange(0, 18, 3))
         ax1.grid(True)
 
 
@@ -584,7 +587,10 @@ exps = [
     #   "stock_analysis-streamsluice-streamsluice-3990-30-1000-20-2-500-6-5000-3-1000-4-3000-1-5-4000-2000-100-true-3-true-1",
     #   "blue", "o"],
     ["Sluice",
-     "tweet_alert-streamsluice-streamsluice-3990-30-1500-1-50-4000-5-500-1-50-45-2000-2000-100-true-3-true-1",
+     "tweet_alert-streamsluice-streamsluice-3990-30-1500-1-60-4000-20-500-1-50-1-50-2000-100-true-3-true-2",
+     "blue", "o"],
+    ["Sluice",
+     "tweet_alert-streamsluice-streamsluice-3990-30-1500-1-60-4000-20-500-1-50-1-50-2000-100-true-3-true-3",
      "blue", "o"],
 ]
 windowSize=1000

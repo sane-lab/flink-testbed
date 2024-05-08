@@ -18,23 +18,23 @@ def generate_rate_per_second():
     # c4 = 32.3
     c1 = 0.34
     c2 = 13
-    c3 = -0.07
+    c3 = -0.14
     c4 = 34
 
-    average_base_rate = 2000
+    average_base_rate = 500
 
     print(c1, c2, c3, c4)
     # Generate per minute number
     for i in range(0, total_hour * 60 * 60):
         # add curve
-        base_rate = c1 * math.sin(c2 * i / (total_hour * 60.0 * 60)) + c3 * math.cos(c4 * i / (total_hour * 60.0 * 60)) + 1
+        base_rate = c1 * math.sin(c2 * i / (total_hour * 60.0 * 60)) + c3 * math.cos(c4 * i / (total_hour * 60.0 * 60)) + 4
 
         # add noise
-        noise = np.random.normal(0, 1) * random.randint(0, 100)/50.0
+        noise = np.random.normal(0, 0.15) * random.randint(0, 100)/50.0
 
         # add spike
         spike = 0
-        if random.randint(0, 1000) <= 2:
+        if random.randint(0, 2000) <= 2:
             spike = random.randint(100, 200)/100.0
 
         if noise <= -10:
@@ -42,12 +42,12 @@ def generate_rate_per_second():
         average_rate = (base_rate * (1 + noise/30.0) + spike) * average_base_rate
         average_rate_per_second.append(average_rate)
 
-    # print(average_rate_per_second)
-    # import matplotlib
-    # #matplotlib.use('Agg')
-    # import matplotlib.pyplot as plt
-    # plt.plot(np.arange(0, total_hour * 60 * 60), average_rate_per_second, "*")
-    # plt.show()
+    print(average_rate_per_second)
+    import matplotlib
+    #matplotlib.use('Agg')
+    import matplotlib.pyplot as plt
+    plt.plot(np.arange(0, total_hour * 60 * 60), average_rate_per_second, "*")
+    plt.show()
     return average_rate_per_second
 
 def read_raw_data(raw_election_path, raw_bitcoin_path):
@@ -121,9 +121,9 @@ def check_data(generated_data_path: str):
 
 raw_election_path = "/Users/swrrt/Workplace/BacklogDelayPaper/experiments/tweet/tweet_data/uselection_tweets_1jul_11nov.csv"
 raw_bitcoin_path = "/Users/swrrt/Workplace/BacklogDelayPaper/experiments/tweet/tweet_data/bitcoin.csv"
-generated_data_path = "/Users/swrrt/Workplace/BacklogDelayPaper/experiments/tweet/tweet_data/3hr.txt"
+generated_data_path = "/Users/swrrt/Workplace/BacklogDelayPaper/experiments/tweet/tweet_data/3hr-smooth.txt"
 
-user_ids, contents = read_raw_data(raw_election_path, raw_bitcoin_path)
+#user_ids, contents = read_raw_data(raw_election_path, raw_bitcoin_path)
 rate_per_minute = generate_rate_per_second()
-generate_data(generated_data_path, user_ids, contents, rate_per_minute)
-check_data(generated_data_path)
+#generate_data(generated_data_path, user_ids, contents, rate_per_minute)
+#check_data(generated_data_path)

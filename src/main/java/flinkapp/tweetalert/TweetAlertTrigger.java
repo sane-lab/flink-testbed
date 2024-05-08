@@ -50,17 +50,17 @@ public class TweetAlertTrigger {
                                 params.getLong("skip_interval", 0L) * 20))
                         .setParallelism(params.getInt("p1", 1));
 
-        DataStream<Tuple7<String, String, String, Integer, Integer, Long, Long>> afterPreprocess = source
-                .keyBy(TweetSource.Tweet_ID)
-                .flatMap(new TweetPreprocess(params.getInt("op1Delay", 10)))
-                .disableChaining()
-                .name("Preprocess")
-                .uid("op1")
-                .setParallelism(params.getInt("p1", 1))
-                .setMaxParallelism(params.getInt("mp1", 1))
-                .slotSharingGroup("g1");
+//        DataStream<Tuple7<String, String, String, Integer, Integer, Long, Long>> afterPreprocess = source
+//                .keyBy(TweetSource.Tweet_ID)
+//                .flatMap(new TweetPreprocess(params.getInt("op1Delay", 10)))
+//                .disableChaining()
+//                .name("Preprocess")
+//                .uid("op1")
+//                .setParallelism(params.getInt("p1", 1))
+//                .setMaxParallelism(params.getInt("mp1", 1))
+//                .slotSharingGroup("g1");
 
-        DataStream<Tuple10<String, String, String, Integer, Integer, Integer, Double, String, Long, Long>> afterSentimentAnalysis = afterPreprocess
+        DataStream<Tuple10<String, String, String, Integer, Integer, Integer, Double, String, Long, Long>> afterSentimentAnalysis = source
                 .keyBy(TweetSource.Tweet_ID)
                 .flatMap(new SentimentAnalysis(params.getInt("op2Delay", 1000)))
                 .disableChaining()
@@ -88,7 +88,7 @@ public class TweetAlertTrigger {
 //                .setParallelism(params.getInt("p4", 1))
 //                .setMaxParallelism(params.getInt("mp4", 8))
 //                .slotSharingGroup("g4");
-        DataStream<Tuple10<String, String, String, Integer, Integer, Integer, Double, String, Long, Long>> afterInfluenceScoring = afterPreprocess
+        DataStream<Tuple10<String, String, String, Integer, Integer, Integer, Double, String, Long, Long>> afterInfluenceScoring = source
                 .keyBy(TweetSource.Tweet_ID)
                 .flatMap(new InfluenceScoringAndContentCategorization(params.getInt("op3Delay", 1000)))
                 .disableChaining()

@@ -61,7 +61,7 @@ init() {
   errorcase_number=3
   #calibrate_selectivity=false
   calibrate_selectivity=true
-  vertex_id="feccfb8648621345be01b71938abfb72,a84740bacf923e828852cc4966f2247c,eabd4c11f6c6fbdf011f0f1fc42097b1,d01047f852abd5702a0dabeedac99ff5,d2336f79a0d60b5a4b16c8769ec82e47" #,36fcfcb61a35d065e60ee34fccb0541a" #,c395b989724fa728d0a2640c6ccdb8a1"
+  vertex_id="a84740bacf923e828852cc4966f2247c,eabd4c11f6c6fbdf011f0f1fc42097b1,d01047f852abd5702a0dabeedac99ff5,d2336f79a0d60b5a4b16c8769ec82e47" #feccfb8648621345be01b71938abfb72,36fcfcb61a35d065e60ee34fccb0541a" #,c395b989724fa728d0a2640c6ccdb8a1"
   is_treat=true
   migration_interval=500
   epoch=100
@@ -70,7 +70,7 @@ init() {
   job="flinkapp.tweetalert.TweetAlertTrigger"
   # set in Flink app
   stock_path="/home/samza/Tweet_data/"
-  stock_file_name="3hr-50ms.txt"
+  stock_file_name="3hr-smooth.txt" #"3hr-50ms.txt"
   MP1=1
   MP2=128
   MP3=128
@@ -79,21 +79,21 @@ init() {
   MP6=128
   MP7=128
 
-  LP2=60
+  LP2=80
   LP3=20
   LP4=1
   LP5=1
   #LP6=1
 
   P1=1
-  P2=60
+  P2=80
   P3=20
   P4=1
   P5=1
   #P6=1
 
-  DELAY2=4000
-  DELAY3=500
+  DELAY2=5000
+  DELAY3=1000
   DELAY4=50
   DELAY5=50
   #DELAY6=100
