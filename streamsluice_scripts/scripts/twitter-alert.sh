@@ -15,7 +15,7 @@ function analyze() {
     mv ${EXP_DIR}/streamsluice/ ${EXP_DIR}/raw/${EXP_NAME}
     mkdir ${EXP_DIR}/streamsluice/
 
-    for host in "dragon" "eagle" "flamingo" "giraffe"; do
+    for host in "dragon" "eagle" "flamingo"; do #"giraffe"
       scp ${host}:${FLINK_DIR}/log/* ${EXP_DIR}/raw/${EXP_NAME}/
       ssh ${host} "rm ${FLINK_DIR}/log/*"
     done
@@ -79,8 +79,8 @@ init() {
   MP6=128
   MP7=128
 
-  LP2=45
-  LP3=10
+  LP2=60
+  LP3=20
   LP4=1
   LP5=1
   #LP6=1
@@ -92,8 +92,8 @@ init() {
   P5=1
   #P6=1
 
-  DELAY2=3500
-  DELAY3=800
+  DELAY2=5000
+  DELAY3=1000
   DELAY4=50
   DELAY5=100
   #DELAY6=100
