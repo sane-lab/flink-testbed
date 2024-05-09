@@ -50,14 +50,14 @@ init() {
   scalein_type="streamsluice"
   L=4000
   runtime=1090 #3990
-  skip_interval=300 # skip seconds
+  skip_interval=120 # skip seconds
   warmup=10000
   warmup_time=30
   warmup_rate=1000
   repeat=1
   spike_estimation="linear_regression"
   spike_slope=0.75
-  spike_intercept=2000
+  spike_intercept=2500
   errorcase_number=3
   #calibrate_selectivity=false
   calibrate_selectivity=true
@@ -81,17 +81,17 @@ init() {
 #  MP8=128
 #  MP9=128
 
-  LP2=10
-  LP3=60
+  LP2=1
+  LP3=50
   LP4=5
-  LP5=20
+  LP5=40
 #  LP6=1
 #  LP7=60
 #  LP8=1
 #  LP9=1
 
   P1=1
-  P2=5
+  P2=1
   P3=20
   P4=1
   P5=10
@@ -100,10 +100,10 @@ init() {
 #  P8=1
 #  P9=1
 
-  DELAY2=1000
+  DELAY2=100
   DELAY3=5000
   DELAY4=100
-  DELAY5=1000
+  DELAY5=2000
 #  DELAY6=10
 #  DELAY7=500
 #  DELAY8=10

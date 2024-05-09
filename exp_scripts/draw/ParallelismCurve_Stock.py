@@ -297,7 +297,8 @@ def draw(rawDir, outputDir, exps):
                 if x0 < x1:
                     totalParallelismInRange += y0 * (x1 - x0)
                     totalTime += (x1 - x0)
-            avgParallelismPerExp[exps[expindex][0]] += [totalParallelismInRange / float(totalTime)]
+            if (totalTime > 0):
+                avgParallelismPerExp[exps[expindex][0]] += [totalParallelismInRange / float(totalTime)]
     print(avgParallelismPerExp)
 
     # fig, axs = plt.subplots(nJobs, 1, figsize=(24, 5 * nJobs), layout='constrained')
@@ -587,8 +588,14 @@ exps = [
     #   "stock_analysis-streamsluice-streamsluice-3990-30-1000-20-2-500-6-5000-3-1000-4-3000-1-5-4000-2000-100-true-3-true-1",
     #   "blue", "o"],
     ["Sluice",
-     "tweet_alert-streamsluice-streamsluice-3990-30-1800-1-30-5000-10-1000-1-50-1-100-4000-100-true-3-true-1",
-     "blue", "o"],
+     "linear_road-streamsluice-streamsluice-1090-30-1000-300-5-1000-20-5000-1-100-10-1000-4000-100-true-3-true-1",
+     "blue", "d"],
+    ["ds2",
+      "linear_road-ds2-ds2-1090-30-1000-300-5-1000-20-5000-1-100-10-1000-4000-100-true-3-true-1",
+      "purple", "o"],
+    ["streamswitch",
+     "linear_road-streamswitch-streamswitch-1090-30-1000-300-5-1000-20-5000-1-100-10-1000-4000-100-true-3-true-1",
+     "yellow", "o"],
 ]
 windowSize=1000
 startTime=30 #30+300 #30

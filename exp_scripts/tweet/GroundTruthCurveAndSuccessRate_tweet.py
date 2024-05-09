@@ -169,12 +169,16 @@ outputDir = "/Users/swrrt/Workplace/BacklogDelayPaper/experiments/results/"
 #expName = "stock-sb-4hr-50ms.txt-streamsluice-streamsluice-3690-30-2000-20-3-1000-1-100-5-2000-1-100-12-5000-1-100-2000-100-true-1"
 import sys
 exps = [
-    ["Sluice1",
-     "tweet_alert-streamsluice-streamsluice-3990-30-1800-1-30-5000-10-1000-1-50-1-100-4000-100-true-3-true-1",
-     "purple", "d"],
-    # ["Sluice3",
-    #   "linear_road-streamsluice-streamsluice-3990-30-1000-300-3-1000-1-1000-7-3333-1-100-4-2000-15-4000-1-100-1-100-4000-100-true-3-true-3",
-    #   "blue", "o"],
+    ["Sluice",
+     "linear_road-streamsluice-streamsluice-1090-30-1000-300-5-1000-20-5000-1-100-10-1000-4000-100-true-3-true-1",
+     "blue", "d"],
+    ["ds2",
+      "linear_road-ds2-ds2-1090-30-1000-300-5-1000-20-5000-1-100-10-1000-4000-100-true-3-true-1",
+      "purple", "o"],
+    ["streamswitch",
+     "linear_road-streamswitch-streamswitch-1090-30-1000-300-5-1000-20-5000-1-100-10-1000-4000-100-true-3-true-1",
+     "yellow", "o"],
+
 ]
 if len(sys.argv) > 1:
     expName = sys.argv[1].split("/")[-1]
