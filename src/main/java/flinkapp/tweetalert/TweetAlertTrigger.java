@@ -473,7 +473,11 @@ public class TweetAlertTrigger {
             // TODO: replace with topic model
             String [] splits = text.split(" ");
             if (splits.length > 0) {
-                return splits[0];
+                if(splits[0].length() > 5){
+                    return splits[0].substring(0, 5);
+                }else {
+                    return splits[0];
+                }
             }else{
                 return "Empty";
             }
