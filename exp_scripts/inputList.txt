@@ -1,1 +1,1 @@
-tweet_alert-streamsluice-streamsluice-3990-30-1800-1-30-3500-10-800-1-50-1-100-4000-100-true-3-true-1
+tweet_alert-streamsluice-streamsluice-3990-30-1800-1-30-5000-10-1000-1-50-1-100-4000-100-true-3-true-1

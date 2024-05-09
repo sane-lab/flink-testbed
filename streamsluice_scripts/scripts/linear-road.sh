@@ -49,7 +49,7 @@ init() {
   how_type="streamsluice"
   scalein_type="streamsluice"
   L=4000
-  runtime=3990 #
+  runtime=1090 #3990
   skip_interval=300 # skip seconds
   warmup=10000
   warmup_time=30
@@ -81,29 +81,29 @@ init() {
 #  MP8=128
 #  MP9=128
 
-  LP2=20
-  LP3=30
+  LP2=10
+  LP3=60
   LP4=5
-  LP5=50
+  LP5=20
 #  LP6=1
 #  LP7=60
 #  LP8=1
 #  LP9=1
 
   P1=1
-  P2=10
+  P2=5
   P3=20
   P4=1
-  P5=40
+  P5=10
 #  P6=1
 #  P7=65
 #  P8=1
 #  P9=1
 
   DELAY2=1000
-  DELAY3=2000
+  DELAY3=5000
   DELAY4=100
-  DELAY5=5000
+  DELAY5=1000
 #  DELAY6=10
 #  DELAY7=500
 #  DELAY8=10
@@ -141,7 +141,7 @@ run_stock_test(){
     init
     printf "" > lr_result.txt
 
-    for repeat in 1 2 3 4 5; do
+    for repeat in 1 2; do
         whether_type="streamsluice"
         how_type="streamsluice"
         scalein_type="streamsluice"
