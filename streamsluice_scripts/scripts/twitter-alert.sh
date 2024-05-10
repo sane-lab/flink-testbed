@@ -48,7 +48,7 @@ init() {
   whether_type="streamsluice"
   how_type="streamsluice"
   scalein_type="streamsluice"
-  L=2000 #4000
+  L=4000
   runtime=3990 #
   skip_interval=1 # skip seconds
   warmup=10000
@@ -57,7 +57,7 @@ init() {
   repeat=1
   spike_estimation="linear_regression"
   spike_slope=0.75
-  spike_intercept=1000 #2500
+  spike_intercept=2500
   errorcase_number=3
   #calibrate_selectivity=false
   calibrate_selectivity=true
@@ -155,7 +155,7 @@ run_stock_test(){
         whether_type="ds2"
         how_type="ds2"
         scalein_type="ds2"
-        migration_interval=2500
+        migration_interval=1000
         run_one_exp
         printf "${EXP_NAME}\n" >> tweet_result.txt
 
