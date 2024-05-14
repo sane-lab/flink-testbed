@@ -193,7 +193,7 @@ public class LinearRoad {
         }
 
         public static String getCarID(int car_ID){
-            return String.format("A%6d",car_ID);
+            return String.format("A%06d",car_ID);
         }
 
 

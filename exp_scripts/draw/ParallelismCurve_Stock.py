@@ -133,11 +133,13 @@ def readParallelism(rawDir, expName):
                     completedTime = int(split[2].rstrip(","))
                     latency = int(split[3].rstrip(","))
                     arrivedTime = completedTime - latency
+                    if (arrivedTime < 0):
+                        print("!!!! " + str(i) + "  " + line)
                     if (initialTime == -1 or initialTime > arrivedTime):
                         initialTime = arrivedTime
                     if (lastTime < completedTime):
                         lastTime = completedTime
-    print(lastTime)
+    print("init time=" + str(initialTime) + " last time=" + str(lastTime))
 
     streamsluiceOutput = "flink-samza-standalonesession-0-eagle-sane.out"
     import os
@@ -330,6 +332,7 @@ def draw(rawDir, outputDir, exps):
         for expindex in range(0, len(exps)):
             print("Draw exps " + exps[expindex][0] + " curve...")
             Parallelism = parallelismsPerJob[job][expindex]
+            print(job + " " + str(expindex) + " " + str(Parallelism))
             legend += [exps[expindex][0]]
             line = [[], []]
             for i in range(0, len(Parallelism[0])):
@@ -588,7 +591,7 @@ exps = [
     #   "stock_analysis-streamsluice-streamsluice-3990-30-1000-20-2-500-6-5000-3-1000-4-3000-1-5-4000-2000-100-true-3-true-1",
     #   "blue", "o"],
     ["Sluice",
-     "linear_road-streamsluice-streamsluice-1290-30-1000-300-1-100-25-5000-1-100-20-2000-4000-100-true-3-true-1",
+     "linear_road-streamsluice-streamsluice-690-30-1000-120-1-100-25-5000-1-100-20-2000-4000-100-true-3-true-1",
      "blue", "d"],
     # ["ds2",
     #   "tweet_alert-ds2-ds2-3990-30-1800-1-30-5000-10-1000-1-50-1-100-2000-100-true-3-true-1",
