@@ -48,7 +48,7 @@ init() {
   whether_type="streamsluice"
   how_type="streamsluice"
   scalein_type="streamsluice"
-  L=4000
+  L=2000
   runtime=690 #1290 #3990
   skip_interval=120 #300 # skip seconds
   warmup=10000
@@ -57,7 +57,7 @@ init() {
   repeat=1
   spike_estimation="linear_regression"
   spike_slope=0.75
-  spike_intercept=2500
+  spike_intercept=1000
   errorcase_number=3
   #calibrate_selectivity=false
   calibrate_selectivity=true
@@ -92,7 +92,7 @@ init() {
 
   P1=1
   P2=1
-  P3=25
+  P3=2
   P4=1
   P5=20
 #  P6=1
@@ -101,7 +101,7 @@ init() {
 #  P9=1
 
   DELAY2=100
-  DELAY3=5000
+  DELAY3=100
   DELAY4=100
   DELAY5=2000
 #  DELAY6=10
