@@ -748,26 +748,26 @@ public class LinearRoad {
                 }
                 speedPerSeg.put(old_seg, old_seg_avgSpeed);
 
-                out.collect(new Tuple19<>(
-                        LinearRoadSource.getSegID(old_seg),
-                        input.f1,
-                        car_id,
-                        old_seg_avgSpeed,
-                        input.f4,
-                        input.f5,
-                        input.f6,
-                        old_seg,
-                        input.f8,
-                        input.f9,
-                        input.f10,
-                        input.f11,
-                        input.f12,
-                        input.f13,
-                        input.f14,
-                        input.f15,
-                        LastAverageSpeed_Output,
-                        input.f17,
-                        input.f18));
+//                out.collect(new Tuple19<>(
+//                        LinearRoadSource.getSegID(old_seg),
+//                        input.f1,
+//                        car_id,
+//                        old_seg_avgSpeed,
+//                        input.f4,
+//                        input.f5,
+//                        input.f6,
+//                        old_seg,
+//                        input.f8,
+//                        input.f9,
+//                        input.f10,
+//                        input.f11,
+//                        input.f12,
+//                        input.f13,
+//                        input.f14,
+//                        input.f15,
+//                        LastAverageSpeed_Output,
+//                        input.f17,
+//                        input.f18));
             }
             carSeg.put(car_id, seg);
             carSpeed.put(car_id, speed);
@@ -875,26 +875,26 @@ public class LinearRoad {
                 int old_seg = carSeg.get(car_id);
                 int old_cars = totalCarsPerSeg.get(old_seg);
                 totalCarsPerSeg.put(old_seg, old_cars - 1);
-                out.collect(new Tuple19<>(
-                        LinearRoadSource.getSegID(old_seg),
-                        input.f1,
-                        car_id,
-                        old_cars - 1,
-                        input.f4,
-                        input.f5,
-                        input.f6,
-                        old_seg,
-                        input.f8,
-                        input.f9,
-                        input.f10,
-                        input.f11,
-                        input.f12,
-                        input.f13,
-                        input.f14,
-                        input.f15,
-                        CountVehicles_Output,
-                        input.f17,
-                        input.f18));
+//                out.collect(new Tuple19<>(
+//                        LinearRoadSource.getSegID(old_seg),
+//                        input.f1,
+//                        car_id,
+//                        old_cars - 1,
+//                        input.f4,
+//                        input.f5,
+//                        input.f6,
+//                        old_seg,
+//                        input.f8,
+//                        input.f9,
+//                        input.f10,
+//                        input.f11,
+//                        input.f12,
+//                        input.f13,
+//                        input.f14,
+//                        input.f15,
+//                        CountVehicles_Output,
+//                        input.f17,
+//                        input.f18));
             }
             carSeg.put(car_id, seg);
             int old_cars;
@@ -1118,6 +1118,27 @@ public class LinearRoad {
                     }
                 }
             }
+            out.collect(new Tuple19<>(
+                    input.f0,
+                    input.f1,
+                    car_id,
+                    input.f3,
+                    input.f4,
+                    input.f5,
+                    input.f6,
+                    seg,
+                    input.f8,
+                    input.f9,
+                    input.f10,
+                    input.f11,
+                    input.f12,
+                    input.f13,
+                    input.f14,
+                    input.f15,
+                    TollNotification_Output,
+                    input.f17,
+                    input.f18
+            ));
             delay(averageDelay);
         }
 
