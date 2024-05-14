@@ -49,17 +49,17 @@ public class LinearRoad {
                                 params.getLong("skip_interval", 0L) * 20))
                         .setParallelism(params.getInt("p1", 1));
 
-        DataStream<Tuple19<String, Integer, String, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Long, Long>> afterDispatcher = source
-                .keyBy(LinearRoadSource.Car_ID)
-                .flatMap(new Dispatcher(10))
-                .disableChaining()
-                .name("Dispatcher")
-                .uid("op1")
-                .setParallelism(params.getInt("p1", 1))
-                .setMaxParallelism(params.getInt("mp1", 64))
-                .slotSharingGroup("g1");
+//        DataStream<Tuple19<String, Integer, String, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Long, Long>> afterDispatcher = source
+//                .keyBy(LinearRoadSource.Car_ID)
+//                .flatMap(new Dispatcher(10))
+//                .disableChaining()
+//                .name("Dispatcher")
+//                .uid("op1")
+//                .setParallelism(params.getInt("p1", 1))
+//                .setMaxParallelism(params.getInt("mp1", 64))
+//                .slotSharingGroup("g1");
 
-        DataStream<Tuple19<String, Integer, String, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Long, Long>> afterAccidentDetection = afterDispatcher
+        DataStream<Tuple19<String, Integer, String, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Long, Long>> afterAccidentDetection = source
                 .keyBy(LinearRoadSource.Car_ID)
                 .flatMap(new AccidentDetection(params.getInt("op2Delay", 1000)))
                 .disableChaining()
@@ -98,7 +98,7 @@ public class LinearRoad {
 //                .setParallelism(params.getInt("p5", 1))
 //                .setMaxParallelism(params.getInt("mp5", 8))
 //                .slotSharingGroup("g5");
-        DataStream<Tuple19<String, Integer, String, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Long, Long>> afterAverageSpeed = afterDispatcher
+        DataStream<Tuple19<String, Integer, String, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Long, Long>> afterAverageSpeed = source //afterDispatcher
                 .keyBy(LinearRoadSource.Car_ID) // .keyBy(LinearRoadSource.Seg_ID)
                 .flatMap(new AverageSpeedAndLastAverageSpeed(params.getInt("op3Delay", 1000)))
                 .disableChaining()
@@ -109,7 +109,7 @@ public class LinearRoad {
                 .slotSharingGroup("g3");
 
 
-        DataStream<Tuple19<String, Integer, String, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Long, Long>> afterCountVehicles = afterDispatcher
+        DataStream<Tuple19<String, Integer, String, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Long, Long>> afterCountVehicles = source //afterDispatcher
                 .keyBy(LinearRoadSource.Car_ID) // .keyBy(LinearRoadSource.Seg_ID)
                 .flatMap(new CountVehicles(params.getInt("op4Delay", 1000)))
                 .disableChaining()
