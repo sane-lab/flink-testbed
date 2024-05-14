@@ -49,8 +49,8 @@ init() {
   how_type="streamsluice"
   scalein_type="streamsluice"
   L=4000
-  runtime=1290 #3990
-  skip_interval=300 # skip seconds
+  runtime=690 #1290 #3990
+  skip_interval=120 #300 # skip seconds
   warmup=10000
   warmup_time=30
   warmup_rate=1000
@@ -61,7 +61,7 @@ init() {
   errorcase_number=3
   #calibrate_selectivity=false
   calibrate_selectivity=true
-  vertex_id="a84740bacf923e828852cc4966f2247c,d01047f852abd5702a0dabeedac99ff5,d2336f79a0d60b5a4b16c8769ec82e47,36fcfcb61a35d065e60ee34fccb0541a,c395b989724fa728d0a2640c6ccdb8a1,8e0d1d377d577c52511ad507bf0ce330,feccfb8648621345be01b71938abfb72" # eabd4c11f6c6fbdf011f0f1fc42097b1,
+  vertex_id="a84740bacf923e828852cc4966f2247c,eabd4c11f6c6fbdf011f0f1fc42097b1,d01047f852abd5702a0dabeedac99ff5,d2336f79a0d60b5a4b16c8769ec82e47,36fcfcb61a35d065e60ee34fccb0541a,c395b989724fa728d0a2640c6ccdb8a1,8e0d1d377d577c52511ad507bf0ce330,feccfb8648621345be01b71938abfb72" # ,
   is_treat=true
   migration_interval=500
   epoch=100

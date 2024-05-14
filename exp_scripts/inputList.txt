@@ -1,1 +1,1 @@
-tweet_alert-streamsluice-streamsluice-2190-30-1800-1-30-5000-10-1000-1-50-1-100-4000-100-true-3-true-1
+linear_road-streamsluice-streamsluice-1290-30-1000-300-1-100-25-5000-1-100-20-2000-4000-100-true-3-true-1
