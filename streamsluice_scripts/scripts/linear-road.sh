@@ -82,9 +82,9 @@ init() {
 #  MP9=128
 
   LP2=1
-  LP3=50
+  LP3=10
   LP4=5
-  LP5=40
+  LP5=80
 #  LP6=1
 #  LP7=60
 #  LP8=1
@@ -94,16 +94,16 @@ init() {
   P2=1
   P3=2
   P4=1
-  P5=20
+  P5=40
 #  P6=1
 #  P7=65
 #  P8=1
 #  P9=1
 
   DELAY2=100
-  DELAY3=100
+  DELAY3=500
   DELAY4=100
-  DELAY5=2000
+  DELAY5=1000
 #  DELAY6=10
 #  DELAY7=500
 #  DELAY8=10

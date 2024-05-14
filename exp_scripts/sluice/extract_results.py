@@ -240,11 +240,11 @@ with open(input_file) as fin:
     for i in range(0, len(lines)):
         line = lines[i]
         if line.startswith("tweet"):
-            limit = 4000
+            limit = 2000
         elif line.startswith("stock"):
             limit = 2000
         elif line.startswith("linear"):
-            limit = 4000
+            limit = 2000
         results = extract(raw_dir, line.rstrip("\n").rstrip("\r"), start_time, end_time, limit)
         fout.write(line.rstrip("\n").rstrip("\r") + " " + " ".join([str(x) for x in results]) + "\n")
 fout.close()

@@ -591,7 +591,7 @@ exps = [
     #   "stock_analysis-streamsluice-streamsluice-3990-30-1000-20-2-500-6-5000-3-1000-4-3000-1-5-4000-2000-100-true-3-true-1",
     #   "blue", "o"],
     ["Sluice",
-     "linear_road-streamsluice-streamsluice-1290-30-1000-120-1-100-25-5000-1-100-20-2000-4000-100-true-3-true-1",
+     "linear_road-streamsluice-streamsluice-690-30-1000-120-1-100-2-100-1-100-20-2000-2000-100-true-3-true-1",
      "blue", "d"],
     # ["ds2",
     #   "linear_road-ds2-ds2-1290-30-1000-120-1-100-25-5000-1-100-20-2000-4000-100-true-3-true-1",
