@@ -170,10 +170,10 @@ outputDir = "/Users/swrrt/Workplace/BacklogDelayPaper/experiments/results/"
 import sys
 exps = [
     ["Sluice",
-     "linear_road-streamsluice-streamsluice-690-30-1000-120-1-100-2-100-1-100-20-2000-2000-100-true-3-true-1",
+     "linear_road-streamsluice-streamsluice-690-30-1000-120-1-100-2-500-1-100-40-1000-2000-100-true-3-true-1",
      "blue", "d"],
     # ["ds2",
-    #   "linear_road-ds2-ds2-1290-30-1000-120-1-100-25-5000-1-100-20-2000-4000-100-true-3-true-1",
+    #   "linear_road-ds2-ds2-690-30-1000-120-1-100-2-500-1-100-40-1000-2000-100-true-3-true-1",
     #   "purple", "o"],
     # ["streamswitch",
     # "linear_road-streamswitch-streamswitch-1290-30-1000-120-1-100-25-5000-1-100-20-2000-4000-100-true-3-true-1",
