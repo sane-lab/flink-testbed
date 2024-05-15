@@ -170,14 +170,14 @@ outputDir = "/Users/swrrt/Workplace/BacklogDelayPaper/experiments/results/"
 import sys
 exps = [
     ["Sluice",
-     "linear_road-streamsluice-streamsluice-2190-30-1000-10-1-100-6-2000-1-100-20-1500-2000-100-true-3-true-1",
+     "linear_road-streamsluice-streamsluice-990-30-1000-10-2-100-20-2000-4-100-70-1500-2000-100-true-3-true-1",
      "blue", "d"],
-    ["ds2",
-      "linear_road-ds2-ds2-2190-30-1000-10-1-100-6-2000-1-100-20-1500-2000-100-true-3-true-1",
-      "purple", "o"],
-    ["streamswitch",
-    "linear_road-streamswitch-streamswitch-2190-30-1000-10-1-100-6-2000-1-100-20-1500-2000-100-true-3-true-1",
-    "yellow", "o"],
+    # ["ds2",
+    #   "linear_road-ds2-ds2-2190-30-1000-10-1-100-6-2000-1-100-20-1500-2000-100-true-3-true-1",
+    #   "purple", "o"],
+    # ["streamswitch",
+    # "linear_road-streamswitch-streamswitch-2190-30-1000-10-1-100-6-2000-1-100-20-1500-2000-100-true-3-true-1",
+    # "yellow", "o"],
 
 ]
 if len(sys.argv) > 1:

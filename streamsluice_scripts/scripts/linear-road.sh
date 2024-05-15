@@ -49,7 +49,7 @@ init() {
   how_type="streamsluice"
   scalein_type="streamsluice"
   L=2000
-  runtime=990 #1290 #3990
+  runtime=2190 #1290 #3990
   skip_interval=10 #120 #300 # skip seconds
   warmup=10000
   warmup_time=30
@@ -141,7 +141,7 @@ run_stock_test(){
     init
     printf "" > lr_result.txt
 
-    for repeat in 1; do
+    for repeat in 1 2 3 4 5; do
         whether_type="streamsluice"
         how_type="streamsluice"
         scalein_type="streamsluice"
@@ -170,19 +170,19 @@ run_stock_test(){
 #        P5=4
 #        P6=1
 #        P7=5
-#        whether_type="ds2"
-#        how_type="ds2"
-#        scalein_type="ds2"
-#        migration_interval=2500
-#        run_one_exp
-#        printf "${EXP_NAME}\n" >> lr_result.txt
-#
-#        whether_type="streamswitch"
-#        how_type="streamswitch"
-#        scalein_type="streamswitch"
-#        migration_interval=1000
-#        run_one_exp
-#        printf "${EXP_NAME}\n" >> lr_result.txt
+        whether_type="ds2"
+        how_type="ds2"
+        scalein_type="ds2"
+        migration_interval=2500
+        run_one_exp
+        printf "${EXP_NAME}\n" >> lr_result.txt
+
+        whether_type="streamswitch"
+        how_type="streamswitch"
+        scalein_type="streamswitch"
+        migration_interval=1000
+        run_one_exp
+        printf "${EXP_NAME}\n" >> lr_result.txt
     done
 }
 run_stock_test
