@@ -8,10 +8,16 @@ def generate_rate(avg_rate, stage_length):
         rate = int(random.randint(75, 125) / 100.0 * avg_rate)
         rate_per_stage.append(rate)
     rate_per_second = []
+    last_stage_rate = rate_per_stage[0]
     for stage_rate in rate_per_stage:
-        for i in range(0, stage_length):
+        change_phase = int(stage_length / 3)
+        for i in range(0, change_phase):
+            rate = int((stage_rate - last_stage_rate)/change_phase * i + last_stage_rate + random.randint(-20, 20) / 100.0 * (avg_rate / 10))
+            rate_per_second.append(rate)
+        for i in range(0, stage_length - change_phase):
             rate = int(random.randint(-50, 50) / 100.0 * (avg_rate / 10) + stage_rate)
             rate_per_second.append(rate)
+        last_stage_rate = stage_rate
     return rate_per_second
 
 

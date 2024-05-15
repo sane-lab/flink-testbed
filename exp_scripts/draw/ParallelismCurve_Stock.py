@@ -591,13 +591,13 @@ exps = [
     #   "stock_analysis-streamsluice-streamsluice-3990-30-1000-20-2-500-6-5000-3-1000-4-3000-1-5-4000-2000-100-true-3-true-1",
     #   "blue", "o"],
     ["Sluice",
-     "tweet_alert-streamsluice-streamsluice-2190-30-1800-1-30-5000-10-1000-1-50-1-100-2000-100-true-3-true-1",
+     "linear_road-streamsluice-streamsluice-2190-30-1000-10-1-100-6-2000-1-100-20-1500-2000-100-true-3-true-1",
      "blue", "d"],
     ["ds2",
-      "tweet_alert-ds2-ds2-2190-30-1800-1-30-5000-10-1000-1-50-1-100-2000-100-true-3-true-1",
+      "linear_road-ds2-ds2-2190-30-1000-10-1-100-6-2000-1-100-20-1500-2000-100-true-3-true-1",
       "purple", "o"],
     ["streamswitch",
-    "tweet_alert-streamswitch-streamswitch-2190-30-1800-1-30-5000-10-1000-1-50-1-100-2000-100-true-3-true-1",
+    "linear_road-streamswitch-streamswitch-2190-30-1000-10-1-100-6-2000-1-100-20-1500-2000-100-true-3-true-1",
     "yellow", "o"],
 ]
 windowSize=1000
