@@ -50,7 +50,7 @@ init() {
   scalein_type="streamsluice"
   L=2000
   runtime=990 #1290 #3990
-  skip_interval=120 #300 # skip seconds
+  skip_interval=10 #120 #300 # skip seconds
   warmup=10000
   warmup_time=30
   warmup_rate=1000
@@ -70,7 +70,7 @@ init() {
   job="flinkapp.linearroad.LinearRoad"
   # set in Flink app
   stock_path="/home/samza/LR_data/"
-  stock_file_name="3hr-50ms.txt"
+  stock_file_name="3hr-our-rate.txt" #"3hr-50ms.txt"
   MP1=1
   MP2=128
   MP3=128
