@@ -88,10 +88,10 @@ init() {
   per_task_rate=5000
   parallelism=8
   max_parallelism=1024
-  key_set=16384
+  key_set=32768
   per_key_state_size=32768 # byte
   checkpoint_interval=1000 # by default checkpoint in frequent, trigger only when necessary
-  state_access_ratio=10
+  state_access_ratio=2
   order_function="default"
   zipf_skew=0
 

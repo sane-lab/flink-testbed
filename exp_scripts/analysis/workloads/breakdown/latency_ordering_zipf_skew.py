@@ -7,12 +7,12 @@ from analysis.config.general_utilities import DrawFigureV4, breakdown_total
 
 
 def ReadFile(repeat_num = 1):
-    w, h = 5, 3
+    w, h = 5, 2
     y = [[] for y in range(h)]
     # y = []
 
     # replicate_keys_filter = 0
-    sync_keys = 16
+    sync_keys = 32
     state_access_ratio = 100
     per_task_rate = 5000
     # parallelism = 2
@@ -20,9 +20,9 @@ def ReadFile(repeat_num = 1):
 
     for repeat in range(1, repeat_num + 1):
         # for zipf_skew in [0, 0.25, 0.5, 0.75, 1]:
-        for zipf_skew in [0.2, 0.4, 0.6]:
+        for zipf_skew in [0.25, 0.5, 0.75]:
             latency_dict = {}
-            for order_function in ["default", "random", "reverse"]:
+            for order_function in ["default", "reverse"]:
                 col = []
                 coly = []
                 start_ts = float('inf')
@@ -69,10 +69,10 @@ def draw():
 
     # parallelism
     # x_values = [0, 0.25, 0.5, 0.75, 1]
-    x_values = [0.2, 0.4, 0.6]
+    x_values = [0.25, 0.5, 0.75]
     y_values = ReadFile(repeat_num = 1)
 
-    legend_labels = ["hotkey-first", "random", "coldkey-first"]
+    legend_labels = ["hotkey-first", "random"]
 
     print(y_values)
 

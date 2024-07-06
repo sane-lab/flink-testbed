@@ -62,6 +62,8 @@ def ReadFile():
         coly = []
         start_ts = float('inf')
         temp_dict = {}
+        print(FILE_FOLER + "/spector-{}-{}-{}-{}-{}"
+                        .format(per_key_state_size, sync_keys, replicate_keys_filter, affected_keys, affected_tasks))
         for tid in range(0, 8):
             # f = open(FILE_FOLER + "/spector-{}-{}-{}-{}-{}/Splitter FlatMap-{}.output"
             #          .format(per_task_rate, per_key_state_size, sync_keys, replicate_keys_filter, order_function, tid))

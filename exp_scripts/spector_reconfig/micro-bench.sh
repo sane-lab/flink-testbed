@@ -152,11 +152,16 @@ run_overview() {
 run_fluid_study() {
   # Fluid Migration
   init
+  # max_parallelism=16384
+  # key_set=1048576
+  # per_key_state_size=1024
   replicate_keys_filter=0
   checkpoint_interval=10000000
   state_access_ratio=100
-#  for sync_keys in 1 2 4 8 16 32 64 128 256; do
-  for sync_keys in 1 2 4 8 16 32 64 128; do
+  affected_keys=`expr ${max_parallelism} \/ 2` # `expr ${max_parallelism} \/ 4`
+ for sync_keys in 1 2 4 8 16 32 64; do
+  # for sync_keys in `expr ${max_parallelism} \/ 8 \/ 1` `expr ${max_parallelism} \/ 8 \/ 2` `expr ${max_parallelism} \/ 8 \/ 4` `expr ${max_parallelism} \/ 8 \/ 8` `expr ${max_parallelism} \/ 8 \/ 16` `expr ${max_parallelism} \/ 8 \/ 32` `expr ${max_parallelism} \/ 8 \/ 64`; do #  2 4 8 16 32 64 128
+  # for sync_keys in `expr ${max_parallelism} \/ 8 \/ 64`; do #  2 4 8 16 32 64 128
     run_one_exp
   done
 }
@@ -164,10 +169,17 @@ run_fluid_study() {
 run_replication_study() {
   # Proactive State replication
   init
-  sync_keys=0
-  per_key_state_size=32768
-  # state_access_ratio=2
-  for replicate_keys_filter in 1 2 4 8; do # 1 2 4 8
+  # max_parallelism=16384
+  # key_set=1048576
+  # per_key_state_size=1024
+  # replicate_keys_filter=0
+  # checkpoint_interval=1000
+  # sync_keys=0
+  checkpoint_interval=1000
+  state_access_ratio=2
+  key_set=32768
+  affected_keys=`expr ${max_parallelism}` # `expr ${max_parallelism} \/ 4`
+  for replicate_keys_filter in 0 1 2 4 8; do # 1 2 4 8
 #  for replicate_keys_filter in 1; do
     run_one_exp
   done
@@ -216,7 +228,7 @@ run_access_ratio() {
 #run_test
 #run_replication_overhead
 run_fluid_study
-# run_replication_study
+run_replication_study
 
 # dump the statistics when all exp are finished
 # in the future, we will draw the intuitive figures

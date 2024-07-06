@@ -6,7 +6,7 @@ from analysis.config.general_utilities import DrawFigureV4, breakdown_total
 
 
 def ReadFile(repeat_num = 1):
-    w, h = 6, 3
+    w, h = 3, 3
     y = [[] for y in range(h)]
     # y = []
 
@@ -19,14 +19,15 @@ def ReadFile(repeat_num = 1):
     # max_parallelism = 512
 
     for repeat in range(1, repeat_num + 1):
-        for per_key_state_size in [1024, 2048, 4096, 8192, 16384, 32768]:
+        for per_key_state_size in [512, 4096, 32768]:
             i = 0
             w, h = 3, 3
             col_y = [[0 for x in range(w)] for y in range(h)]
             # for sync_keys in [1, int(max_parallelism / 16), int(max_parallelism / 2)]:
-            for sync_keys in [1, 8, int(max_parallelism / parallelism / 2)]:
+            for sync_keys in [1, 16, int(max_parallelism / parallelism / 2)]:
                 exp = FILE_FOLER + '/workloads/spector-{}-{}-{}-{}-{}-{}-{}'\
                     .format(per_task_rate, parallelism, max_parallelism, per_key_state_size, sync_keys, replicate_keys_filter, state_access_ratio)
+                print(exp)
                 file_path = os.path.join(exp, "timer.output")
                 # try:
                 stats = breakdown_total(open(file_path).readlines())
@@ -64,11 +65,11 @@ def draw():
 
     # parallelism
     # x_values = [1024, 10240, 20480, 40960]
-    # x_values = [1024, 2048, 4096, 8192, 16384, 32768]
-    x_values = ["32K", "64K", "128K", "256K", "512K", "1024K"]
+    x_values = ["32K", "256K", "1024K"]
+    # x_values = ["256K", "512K", "1024K"]
     y_values = ReadFile(repeat_num = 1)
 
-    legend_labels = ["Chunk-1", "Chunk-8", "All-at-Once"]
+    legend_labels = ["Chunk-1", "Chunk-16", "All-at-Once"]
 
     print(y_values)
 

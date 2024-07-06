@@ -43,17 +43,18 @@ def ReadFile():
     x_axis = []
     y_axis = []
 
-    w, h = 3, 3
+    w, h = 2, 3
     y = [[0 for x in range(w)] for y in range(h)]
 
     # repeat_num = 1
     # per_key_state_size = 32768
     # replicate_keys_filter = 0
-    sync_keys = 16
+    sync_keys = 32
     # per_task_rate = 5000
     # parallelism = 8
 
-    keys = ["default", "random", "reverse"]
+    # keys = ["default", "random", "reverse"]
+    keys = ["default", "reverse"]
 
     completion_time_dict = {}
     latency_dict = {}
@@ -65,6 +66,8 @@ def ReadFile():
         temp_dict = {}
         for tid in range(0, parallelism):
             f = open(FILE_FOLER + "/spector-{}-{}-{}-{}-{}/Splitter FlatMap-{}.output"
+                     .format(per_task_rate, per_key_state_size, sync_keys, replicate_keys_filter, order_function, tid))
+            print (FILE_FOLER + "/spector-{}-{}-{}-{}-{}/Splitter FlatMap-{}.output"
                      .format(per_task_rate, per_key_state_size, sync_keys, replicate_keys_filter, order_function, tid))
             read = f.readlines()
             for r in read:
@@ -187,11 +190,11 @@ def DrawFigure(xvalues, yvalues, legend_labels, x_label, y_label, y_label_2, fil
     #                             label=FIGURE_LABEL[0],
     #                             markeredgewidth=1, markeredgecolor='k',
     #                             markevery=50)
-    lines[0] = ax1.bar(index - width / 2, y_values[0], width, hatch=PATTERNS[0], color=LINE_COLORS[0],
+    lines[0] = ax1.bar(index - width / 4, y_values[0], width / 2, hatch=PATTERNS[0], color=LINE_COLORS[0],
                       label=FIGURE_LABEL[0], bottom=bottom_base, edgecolor='black', linewidth=3, align="edge")
     print(y_values[0], np.array(list(y_values[0])), bottom_base)
     bottom_base = np.array(list(y_values[0])) + bottom_base
-    lines[1] = ax1.bar(index - width / 2, y_values[1], width, hatch=PATTERNS[1], color=LINE_COLORS[1],
+    lines[1] = ax1.bar(index - width / 4, y_values[1], width / 2, hatch=PATTERNS[1], color=LINE_COLORS[1],
                        label=FIGURE_LABEL[1], bottom=bottom_base, edgecolor='black', linewidth=3, align="edge")
     lines[2], = ax2.plot(x_values[2], y_values[2], color=LINE_COLORS[3],
              linewidth=LINE_WIDTH,
@@ -217,7 +220,8 @@ def DrawFigure(xvalues, yvalues, legend_labels, x_label, y_label, y_label_2, fil
 
     # plt.xticks(index + 0.5 * width, x_values[0])
     # plt.xscale('log')
-    plt.xticks(x_values[0], ["hotkey-first", "random", "coldkey-first"])
+    # plt.xticks(x_values[0], ["hotkey-first", "random", "coldkey-first"])
+    plt.xticks(x_values[0], ["Hotkey-first", "Random"])
     # plt.grid()
     ax1.ticklabel_format(axis="y", style="sci", scilimits=(0, 0))
     ax2.ticklabel_format(axis="y", style="sci", scilimits=(0, 0))

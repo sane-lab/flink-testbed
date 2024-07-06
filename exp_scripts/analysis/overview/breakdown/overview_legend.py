@@ -155,7 +155,7 @@ def draw():
     x_values = [1, 2, 3]
     y_values = ReadFile(repeat_num = 1)
 
-    legend_labels = ["Spacker", "All-at-once", "Fluid", "Replication"]
+    legend_labels = ["Spacker", "All-at-once", "Progressive", "Replication"]
 
     print(y_values)
 

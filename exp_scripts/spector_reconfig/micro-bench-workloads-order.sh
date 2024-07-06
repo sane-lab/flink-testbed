@@ -100,12 +100,12 @@ run_order_input_rate() {
   per_task_rate=5000
   replicate_keys_filter=0
   checkpoint_interval=10000000
-  sync_keys=16
-  zipf_skew=0.5
-  runtime=60
+  sync_keys=32
+  zipf_skew=0.6
+  # runtime=60
   state_access_ratio=100
-  for per_task_rate in 1000 2000; do # 1000 2000 3000 4000 5000 6000 
-    for order_function in default reverse random; do
+  for per_task_rate in 1000 2000 3000 4000 5000 6000 7000; do # 1000 2000 3000 4000 5000 6000 
+    for order_function in default reverse; do
       run_one_exp
     done
   done
@@ -119,11 +119,11 @@ run_order_zipf_skew() {
   per_task_rate=5000
   replicate_keys_filter=0
   checkpoint_interval=10000000
-  sync_keys=16
+  sync_keys=32
   # runtime=60
   state_access_ratio=100
-  for zipf_skew in 0.2 0.4 0.6; do #  0 0.1 0.2 0.3 0.4 0.5 0.6 0.7 0.8 0.9 1  0 0.25 0.5 0.75 1
-    for order_function in default reverse random; do
+  for zipf_skew in 0.25 0.5 0.75; do #  0 0.1 0.2 0.3 0.4 0.5 0.6 0.7 0.8 0.9 1  0 0.25 0.5 0.75 1
+    for order_function in default reverse; do
       run_one_exp
     done
   done

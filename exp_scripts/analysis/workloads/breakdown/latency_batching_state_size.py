@@ -7,15 +7,15 @@ from analysis.config.general_utilities import DrawFigureV4, breakdown_total
 
 
 def ReadFile(repeat_num = 1):
-    w, h = 6, 3
+    w, h = 3, 3
     y = [[] for y in range(h)]
     # y = []
 
     for repeat in range(1, repeat_num + 1):
-        for per_key_state_size in [1024, 2048, 4096, 8192, 16384, 32768]:
+        for per_key_state_size in [512, 4096, 32768]:
             latency_dict = {}
             # for sync_keys in [1, int(max_parallelism / 16), int(max_parallelism / 2)]:
-            for sync_keys in [1, 8, int(max_parallelism / parallelism / 2)]:
+            for sync_keys in [1, 16, int(max_parallelism / parallelism / 2)]:
                 col = []
                 coly = []
                 start_ts = float('inf')
@@ -63,8 +63,8 @@ def draw():
     # parallelism
     # x_values = [1024, 10240, 20480, 40960]
     # x_values = [1000, 2000, 4000, 5000, 6000]
-    # x_values = [1024, 2048, 4096, 8192, 16384, 32768]
-    x_values = ["32K", "64K", "128K", "256K", "512K", "1024K"]
+    # x_values = [512, 4096, 32768]
+    x_values = ["32K", "256K", "1024K"]
     y_values = ReadFile(repeat_num = 1)
 
     legend_labels = ["Chunk-1", "Chunk-8", "All-at-Once"]

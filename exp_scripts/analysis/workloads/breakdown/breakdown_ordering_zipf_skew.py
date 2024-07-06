@@ -6,12 +6,12 @@ from analysis.config.general_utilities import DrawFigureV4, DrawFigureV5, breakd
 
 
 def ReadFile(repeat_num = 1):
-    w, h = 5, 3
+    w, h = 5, 2
     y = [[] for y in range(h)]
     # y = []
 
     # replicate_keys_filter = 0
-    sync_keys = 16
+    sync_keys = 32
     state_access_ratio = 100
     per_task_rate = 5000
     # parallelism = 2
@@ -20,11 +20,11 @@ def ReadFile(repeat_num = 1):
     for repeat in range(1, repeat_num + 1):
         # for zipf_skew in [0, 0.25, 0.5, 0.75, 1]:
         # for zipf_skew in [0.5, 0.75, 1]:
-        for zipf_skew in [0.2, 0.4, 0.6]:
+        for zipf_skew in [0.25, 0.5, 0.75]:
             i = 0
-            w, h = 3, 3
+            w, h = 2, 3
             col_y = [[0 for x in range(w)] for y in range(h)]
-            for order_function in ["default", "random", "reverse"]:
+            for order_function in ["default", "reverse"]:
                 exp = FILE_FOLER + '/workloads/spector-{}-{}-{}-{}-{}-{}-{}-{}-{}'\
                     .format(per_task_rate, parallelism, max_parallelism, per_key_state_size, \
                              sync_keys, replicate_keys_filter, state_access_ratio, order_function, zipf_skew)
@@ -65,11 +65,11 @@ def draw():
 
     # parallelism
     # x_values = [0, 0.25, 0.5, 0.75, 1]
-    x_values = [0.2, 0.4, 0.6]
+    x_values = [0.25, 0.5, 0.75]
     # x_values = [0.5, 0.75, 1]
     y_values = ReadFile(repeat_num = 1)
 
-    legend_labels = ["hotkey-first", "random", "coldkey-first"]
+    legend_labels = ["hotkey-first", "random"]
 
     print(y_values)
 

@@ -63,11 +63,11 @@ public class MicroBenchmark {
                 stateAccessRatio
         )).setParallelism(params.getInt("p1", 1));
         DataStream<String> counts = source
-                .slotSharingGroup("g1")
+                // .slotSharingGroup("g1")
                 .keyBy(0)
                 .map(new MyStatefulMap(perKeyStateSize))
                 .disableChaining()
-                .slotSharingGroup("g2")
+                // .slotSharingGroup("g2")
 //            .filter(input -> {
 //                return Integer.parseInt(input.split(" ")[1]) >= MAX;
 //            })
@@ -96,7 +96,7 @@ public class MicroBenchmark {
 
         @Override
         public String map(Tuple2<String, String> input) throws Exception {
-            delay(100_000);
+            // delay(100_000);
 
             String s = input.f0;
             boolean isAccessState = Boolean.parseBoolean(input.f1);
@@ -145,6 +145,7 @@ public class MicroBenchmark {
         private final FastZipfGenerator fastZipfGenerator;
         private final Map<Integer, List<String>> keyGroupMapping = new HashMap<>();
         private final int subKeyGroupSize;
+        private final Random random;
 
         MySource(int runtime, int nTuples, int nKeys, int maxParallelism, double zipfSkew, int stateAccessRatio) {
             this.runtime = runtime;
@@ -154,7 +155,7 @@ public class MicroBenchmark {
             this.maxParallelism = maxParallelism;
             this.fastZipfGenerator = new FastZipfGenerator(maxParallelism, zipfSkew, 0, 12345678);
             this.subKeyGroupSize = maxParallelism * stateAccessRatio / 100;
-
+            this.random = new Random(123456789);
 
             // Another functionality test
             for (int i = 0; i < nKeys; i++) {
@@ -198,7 +199,7 @@ public class MicroBenchmark {
 
             long emitStartTime;
 
-            Set<Integer> stateAccessKeySet = Util.selectKeyGroups(subKeyGroupSize, keyGroupMapping);
+            Set<Integer> stateAccessKeySet = Util.selectKeyGroups(subKeyGroupSize, keyGroupMapping, random);
 
             while (isRunning && count < nTuples) {
 

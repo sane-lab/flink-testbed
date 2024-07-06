@@ -65,13 +65,13 @@ init() {
 #  job="flinkapp.MicroBenchmark"
   runtime=100
   source_p=1
-  per_task_rate=5000
-  parallelism=2
-  max_parallelism=512
-  key_set=16384
-  per_key_state_size=32768 # byte
+  per_task_rate=8000
+  parallelism=8
+  max_parallelism=1024
+  key_set=65536
+  per_key_state_size=65536 # byte
   checkpoint_interval=1000 # by default checkpoint in frequent, trigger only when necessary
-  state_access_ratio=2
+  state_access_ratio=5
   order_function="default"
   zipf_skew=1.5
 
@@ -80,7 +80,7 @@ init() {
   reconfig_start=50000
   reconfig_interval=10000000
 #  frequency=1 # deprecated
-  affected_tasks=2
+  affected_tasks=${parallelism}
   affected_keys=`expr ${max_parallelism} \/ 2` # `expr ${max_parallelism} \/ 4`
   sync_keys=0 # disable fluid state migration
   replicate_keys_filter=0 # replicate those key%filter = 0, 1 means replicate all keys

@@ -145,15 +145,15 @@ def ReadFile():
     y_axis = []
 
     parallelism = 8
-    max_parallelism = 512
-    per_key_state_size = 16384
+    max_parallelism = 1024
+    per_key_state_size = 32768
     # max_parallelism = 1024
     # per_key_state_size = 32768
     replicate_keys_filter = 0
     sync_keys = 0
     per_task_rate = 5000
     zipf_skew = 1
-    state_access_ratio = 2
+    state_access_ratio = 1
     configScenario = "dynamic"
 
     col = []
@@ -218,7 +218,7 @@ def ReadFile():
 
     configScenario = "static"
     replicate_keys_filter = 0
-    sync_keys = 1
+    sync_keys = 2
 
     col = []
     coly = []
@@ -289,6 +289,6 @@ def ReadFile():
 
 if __name__ == '__main__':
     x_axis, y_axis = ReadFile()
-    legend_labels = ["Spacker", "All-at-once", "Fluid", "Replication"]
+    legend_labels = ["Spacker", "All-at-once", "Progressive", "Replication"]
     legend = True
     DrawFigure(x_axis, y_axis, legend_labels, "Elapsed Time (s)", "P99 Latency (ms)", "latency_curve_overview", legend)

@@ -6,11 +6,11 @@ from analysis.config.general_utilities import DrawFigureV4, breakdown
 
 
 def ReadFile(repeat_num = 1):
-    w, h = 6, 3
+    w, h = 3, 3
     y = [[] for y in range(h)]
     # y = []
 
-    per_key_state_size = 4096
+    per_key_state_size = 32768
     # replicate_keys_filter = 0
     # sync_keys = 1
     # state_access_ratio = 2
@@ -20,7 +20,7 @@ def ReadFile(repeat_num = 1):
 
     for repeat in range(1, repeat_num + 1):
         # for state_access_ratio in [1, 2, 4, 8, 50]:
-        for state_access_ratio in [1, 10, 100]:
+        for state_access_ratio in [1, 5, 100]:
             i = 0
             w, h = 3, 3
 

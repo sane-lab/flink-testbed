@@ -57,6 +57,7 @@ run_one_exp() {
 
 run_multi_sources() {
   init
+  state_access_ratio=2
   checkpoint_interval=10000000
   replicate_keys_filter=0
   sync_keys=0
@@ -65,6 +66,7 @@ run_multi_sources() {
   run_one_exp
 
   init
+  state_access_ratio=2
   checkpoint_interval=10000000
   replicate_keys_filter=0
   sync_keys=0
@@ -73,6 +75,7 @@ run_multi_sources() {
   run_one_exp
 
   init
+  state_access_ratio=2
   checkpoint_interval=10000000
   replicate_keys_filter=0
   sync_keys=0

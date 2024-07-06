@@ -77,13 +77,13 @@ init() {
   job="flinkapp.MicroBenchmark"
   runtime=100
   source_p=1
-  per_task_rate=5000
+  per_task_rate=8000
   parallelism=8
-  max_parallelism=512
-  key_set=16384
+  max_parallelism=1024
+  key_set=65536
   per_key_state_size=32768 # byte
   checkpoint_interval=1000 # by default checkpoint in frequent, trigger only when necessary
-  state_access_ratio=2
+  state_access_ratio=5
   order_function="default"
   zipf_skew=0.5
 
@@ -92,7 +92,7 @@ init() {
   reconfig_start=50000
   reconfig_interval=10000000
 #  frequency=1 # deprecated
-  affected_tasks=2
+  affected_tasks=${parallelism}
   affected_keys=`expr ${max_parallelism} \/ 2` # `expr ${max_parallelism} \/ 4`
   sync_keys=0 # disable fluid state migration
   replicate_keys_filter=0 # replicate those key%filter = 0, 1 means replicate all keys
@@ -201,7 +201,7 @@ run_fluid_study() {
   checkpoint_interval=10000000
   state_access_ratio=100
 #  for sync_keys in 1 2 4 8 16 32 64 128 256; do
-  for sync_keys in 1 2 4 8 16 32 64 128 256; do
+  for sync_keys in 1 2 4 8 16 32 64 128; do
     run_one_exp
   done
 }
@@ -299,9 +299,9 @@ run_order_zipf_study() {
 #run_overview
 #run_test
 #run_replication_overhead
-# run_fluid_study
+run_fluid_study
 # run_replication_study
-run_order_zipf_study
+# run_order_zipf_study
 
 # dump the statistics when all exp are finished
 # in the future, we will draw the intuitive figures

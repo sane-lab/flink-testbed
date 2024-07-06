@@ -7,14 +7,14 @@ from analysis.config.general_utilities import DrawFigureV4, breakdown_total
 
 
 def ReadFile(repeat_num = 1):
-    w, h = 6, 3
+    w, h = 3, 3
     y = [[] for y in range(h)]
     # y = []
 
     state_access_ratio = 2
 
     for repeat in range(1, repeat_num + 1):
-        for per_key_state_size in [1024, 2048, 4096, 8192, 16384, 32768]:
+        for per_key_state_size in [8192, 16384, 32768]:
             latency_dict = {}
             for replicate_keys_filter in [1, 2, 4]:
                 col = []
@@ -64,7 +64,7 @@ def draw():
     # parallelism
     # x_values = [1024, 10240, 20480, 40960]
     # x_values = [1000, 2000, 4000, 5000, 6000]
-    x_values = ["32K", "64K", "128K", "256K", "512K", "1024K"]
+    x_values = ["256K", "512K", "1024K"]
     y_values = ReadFile(repeat_num = 1)
 
     legend_labels = ["Repl-100%", "Repl-50%", "Repl-25%"]

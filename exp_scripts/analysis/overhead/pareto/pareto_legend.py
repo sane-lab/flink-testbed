@@ -296,7 +296,7 @@ if __name__ == "__main__":
     x_axis, y_axis = ReadFile()
 
     print(x_axis, y_axis)
-    legend_labels = ["Sync Time", "Update Time", "Latency Spike"]
+    legend_labels = ["Synchronization", "Redistribution", "Latency Spike"]
     legend = True
     # DrawFigure(x_axis, y_axis, legend_labels, "Chunk Size", "Completion Time (ms)", "P99 Latency Spike (ms)", "pareto_curve_batching", legend)
     DrawLegend(x_axis, y_axis, legend_labels, "Chunk Size", "Completion Time (ms)", "P99 Latency Spike (ms)", "pareto_legend", legend)

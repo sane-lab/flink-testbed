@@ -13,7 +13,7 @@ def ReadFile(repeat_num = 1):
     parallelism = 8
     # max_parallelism = 512
     # per_key_state_size = 16384
-    max_parallelism = 1024
+    max_parallelism = 512
     per_key_state_size = 32768
     replicate_keys_filter = 0
     sync_keys = 0
@@ -162,7 +162,7 @@ def draw():
     print(y_values)
 
     DrawFigureV6(x_values, y_values, legend_labels,
-                         'Phase', 'Periodical Checkpoint Time (ms)',
+                         'Phase', 'Periodic Chkpt Time (ms)',
                          'breakdown_replication_time_overview', False)
 
 if __name__ == '__main__': 

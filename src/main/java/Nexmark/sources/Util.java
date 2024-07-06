@@ -57,4 +57,15 @@ public class Util {
         }
         return selectedKeyGroups;
     }
+
+    public static Set<Integer> selectKeyGroups(int subKeyGroupSize, Map<Integer, List<String>> keyGroupMapping, Random random) {
+        subKeyGroupSize = Math.min(subKeyGroupSize, keyGroupMapping.size());
+        Set<Integer> selectedKeyGroups = new HashSet<>();
+        List<Integer> allKeyGroups = new ArrayList<>(keyGroupMapping.keySet());
+        Collections.shuffle(allKeyGroups, random);
+        for (int i = 0; i < subKeyGroupSize; i++) {
+            selectedKeyGroups.add(allKeyGroups.get(i));
+        }
+        return selectedKeyGroups;
+    }
 }

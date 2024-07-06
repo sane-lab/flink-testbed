@@ -19,7 +19,7 @@
 package Nexmark.queries;
 
 import Nexmark.sinks.DummyLatencyCountingSink;
-import Nexmark.sources.BidSourceFunction;
+import NexmarkDS2.sources.BidSourceFunction;
 import org.apache.beam.sdk.nexmark.model.Bid;
 import org.apache.flink.api.common.functions.AggregateFunction;
 import org.apache.flink.api.common.functions.ReduceFunction;
@@ -30,8 +30,10 @@ import org.apache.flink.api.java.functions.KeySelector;
 import org.apache.flink.api.java.tuple.Tuple2;
 import org.apache.flink.api.java.typeutils.GenericTypeInfo;
 import org.apache.flink.api.java.utils.ParameterTool;
+import org.apache.flink.runtime.state.memory.MemoryStateBackend;
 import org.apache.flink.streaming.api.TimeCharacteristic;
 import org.apache.flink.streaming.api.datastream.DataStream;
+import org.apache.flink.streaming.api.datastream.SingleOutputStreamOperator;
 import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
 import org.apache.flink.streaming.api.functions.AssignerWithPeriodicWatermarks;
 import org.apache.flink.streaming.api.watermark.Watermark;
@@ -58,15 +60,21 @@ public class Query11 {
         final StreamExecutionEnvironment env = StreamExecutionEnvironment.getExecutionEnvironment();
 
         env.setStreamTimeCharacteristic(TimeCharacteristic.EventTime);
-        env.getConfig().setAutoWatermarkInterval(1000);
+        env.enableCheckpointing(params.getInt("interval", 1000));
+
+        env.setStateBackend(new MemoryStateBackend(100000000));
 
         // enable latency tracking
-        env.getConfig().setLatencyTrackingInterval(5000);
+        // env.getConfig().setLatencyTrackingInterval(5000);
 
         final int srcRate = params.getInt("srcRate", 100000);
+        final int srcCycle = params.getInt("srcCycle", 60);
+        final int srcBase = params.getInt("srcBase", 0);
+        final int srcWarmUp = params.getInt("srcWarmUp", 100);
 
-        DataStream<Bid> bids = env.addSource(new BidSourceFunction(srcRate))
+        DataStream<Bid> bids = env.addSource(new BidSourceFunction(srcBase))
                 .setParallelism(params.getInt("p-bid-source", 1))
+                .setMaxParallelism(params.getInt("mp2", 128))
                 .assignTimestampsAndWatermarks(new BidTimestampAssigner());
 
         DataStream<Tuple2<Long, Long>> windowed = bids.keyBy(new KeySelector<Bid, Long>() {
@@ -78,7 +86,12 @@ public class Query11 {
                 .window(EventTimeSessionWindows.withGap(Time.seconds(10)))
                 .trigger(new MaxLogEventsTrigger())
                 .aggregate(new CountBidsPerSession()).setParallelism(params.getInt("p-window", 1))
-                .name("Session Window");
+                .name("window");
+
+        ((SingleOutputStreamOperator<Tuple2<Long, Long>>) windowed).disableChaining();
+        ((SingleOutputStreamOperator<Tuple2<Long, Long>>) windowed).setMaxParallelism(params.getInt("mp2", 128));
+        ((SingleOutputStreamOperator<Tuple2<Long, Long>>) windowed).setParallelism(params.getInt("p2",  1));
+        ((SingleOutputStreamOperator<Tuple2<Long, Long>>) windowed).name("window");
 
         GenericTypeInfo<Object> objectTypeInfo = new GenericTypeInfo<>(Object.class);
         windowed.transform("DummyLatencySink", objectTypeInfo, new DummyLatencyCountingSink<>(logger))

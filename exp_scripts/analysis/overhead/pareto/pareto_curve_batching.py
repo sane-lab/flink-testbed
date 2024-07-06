@@ -45,6 +45,10 @@ def ReadFile():
     x_axis = []
     y_axis = []
 
+    # per_key_state_size = 16384
+    # per_key_state_size = 1024
+    # max_parallelism = 16384
+
     w, h = 7, 3
     y = [[0 for x in range(w)] for y in range(h)]
 
@@ -54,17 +58,23 @@ def ReadFile():
 
     latency_dict = {}
 
+    # for sync_keys in keys:
     for sync_keys in keys:
+        # sync_keys = int(max_parallelism / 8 / sync_keys)
         col = []
         coly = []
         start_ts = float('inf')
         temp_dict = {}
         for tid in range(0, 8):
+            print(FILE_FOLER + "/spector-{}-{}-{}/Splitter FlatMap-{}.output"
+                     .format(per_key_state_size, sync_keys, replicate_keys_filter, tid))
+
             # f = open(FILE_FOLER + "/spector-{}-{}-{}-{}-{}/Splitter FlatMap-{}.output"
             #          .format(per_task_rate, per_key_state_size, sync_keys, replicate_keys_filter, order_function, tid))
             if not os.path.isfile(FILE_FOLER + "/spector-{}-{}-{}/Splitter FlatMap-{}.output"
                      .format(per_key_state_size, sync_keys, replicate_keys_filter, tid)):
                continue 
+            
             f = open(FILE_FOLER + "/spector-{}-{}-{}/Splitter FlatMap-{}.output"
                      .format(per_key_state_size, sync_keys, replicate_keys_filter, tid))
             read = f.readlines()
@@ -98,6 +108,8 @@ def ReadFile():
     for repeat in range(1, repeat_num + 1):
         i = 0
         for sync_keys in keys:
+            # sync_keys = int(max_parallelism / 8 / sync_keys)
+
             exp = FILE_FOLER + '/spector-{}-{}-{}'.format(per_key_state_size, sync_keys,
                                                                     replicate_keys_filter)
             file_path = os.path.join(exp, "timer.output")
@@ -219,6 +231,7 @@ def DrawFigure(xvalues, yvalues, legend_labels, x_label, y_label, y_label_2, fil
     # plt.xticks(index + 0.5 * width, x_values[0])
     plt.xscale('log')
     # plt.xticks(x_values[0], [1, 2, 4, 8, 16, 32, 64, 128])
+    # plt.xticks(x_values[0], [1, 2, 4, 8, 16, 32, 64])
     plt.xticks(x_values[0], [1, 2, 4, 8, 16, 32, 64])
     # plt.grid()
     ax1.ticklabel_format(axis="y", style="sci", scilimits=(0, 0))

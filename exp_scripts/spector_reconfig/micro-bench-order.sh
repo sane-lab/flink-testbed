@@ -87,6 +87,7 @@ run_one_exp() {
 run_order_study() {
   # Fluid Migration with prioritized rules
   init
+  job="flinkapp.MicroBenchmarkOrder"
 #  per_task_rate=6000
   per_task_rate=5000
   replicate_keys_filter=0
@@ -100,17 +101,17 @@ run_order_study() {
 run_order_zipf_study() {
   # Fluid Migration with prioritized rules
   init
-  # job="flinkapp.StatefulDemoLongRunKeyRateZipfControlled"
+  job="flinkapp.MicroBenchmarkOrder"
   reconfig_scenario="load_balance_zipf"
 #  per_task_rate=6000
-  per_task_rate=4000
-  parallelism=4
-  max_parallelism=512
+  per_task_rate=5000
+  parallelism=8
+  max_parallelism=1024
   replicate_keys_filter=0
   checkpoint_interval=10000000
-  sync_keys=1
-  zipf_skew=0.5
-  for order_function in default reverse random; do # default reverse
+  sync_keys=32
+  zipf_skew=0.6
+  for order_function in default reverse; do # default reverse
     run_one_exp
   done
 }

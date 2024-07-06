@@ -6,25 +6,25 @@ from analysis.config.general_utilities import DrawFigureV4, DrawFigureV5, breakd
 
 
 def ReadFile(repeat_num = 1):
-    w, h = 5, 3
+    w, h = 3, 2
     y = [[] for y in range(h)]
     # y = []
 
     # replicate_keys_filter = 0
-    sync_keys = 16
-    zipf_skew = 0.5
+    sync_keys = 32
+    zipf_skew = 0.6
     state_access_ratio = 100
     # per_task_rate = 5000
     # parallelism = 2
     # max_parallelism = 256
 
     for repeat in range(1, repeat_num + 1):
-        for per_task_rate in [1000, 2000, 3000, 4000, 5000, 6000]:
+        for per_task_rate in [2000, 4000, 6000]:
         # for per_task_rate in [1000, 2000, 3000, 4000]:
             i = 0
-            w, h = 3, 3
+            w, h = 2, 3
             col_y = [[0 for x in range(w)] for y in range(h)]
-            for order_function in ["default", "random", "reverse"]:
+            for order_function in ["default", "reverse"]:
                 exp = FILE_FOLER + '/workloads/spector-{}-{}-{}-{}-{}-{}-{}-{}-{}'\
                     .format(per_task_rate, parallelism, max_parallelism, per_key_state_size, \
                              sync_keys, replicate_keys_filter, state_access_ratio, order_function, zipf_skew)
@@ -64,11 +64,11 @@ def draw():
     # runtime, per_task_rate, parallelism, key_set, per_key_state_size, reconfig_interval, reconfig_type, affected_tasks, repeat_num = val
 
     # parallelism
-    x_values = [1000, 2000, 3000, 4000, 5000, 6000]
+    x_values = [2000, 4000, 6000]
     # x_values = [1000, 2000, 3000, 4000]
     y_values = ReadFile(repeat_num = 1)
 
-    legend_labels = ["hotkey-first", "random", "coldkey-first"]
+    legend_labels = ["hotkey-first", "random"]
 
     print(y_values)
 

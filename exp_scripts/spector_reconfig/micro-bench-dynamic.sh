@@ -69,11 +69,11 @@ init() {
   source_p=1
   per_task_rate=5000
   parallelism=8
-  max_parallelism=512
-  key_set=16384
-  per_key_state_size=16384 # byte
+  max_parallelism=1024
+  key_set=32768
+  per_key_state_size=32768 # byte
   checkpoint_interval=1000 # by default checkpoint in frequent, trigger only when necessary
-  state_access_ratio=2
+  state_access_ratio=1
   order_function="reverse"
   zipf_skew=1
 
@@ -84,7 +84,7 @@ init() {
   # affected_tasks=2
   # affected_keys=`expr ${max_parallelism} \/ 4` # `expr ${max_parallelism} \/ 4`
   affected_tasks=8
-  affected_keys=`expr ${max_parallelism} \/ 2` # `expr ${max_parallelism} \/ 4`
+  affected_keys=`expr ${max_parallelism} \/ 1` # `expr ${max_parallelism} \/ 4`
   sync_keys=0 # disable fluid state migration
   replicate_keys_filter=0 # replicate those key%filter = 0, 1 means replicate all keys
   repeat=1
@@ -119,7 +119,7 @@ run_dynamic() {
   init
   reconfig_scenario="static"
   replicate_keys_filter=0
-  sync_keys=1
+  sync_keys=2
   run_one_exp
 }
 

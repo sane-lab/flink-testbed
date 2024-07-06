@@ -51,7 +51,7 @@ def ReadFile():
     repeat_num = 1
     # per_key_state_size = 16384
 
-    keys = [1, 2, 4, 8]
+    keys = [1, 2, 4, 0]
 
     latency_dict = {}
     completion_time_dict = {}
@@ -137,7 +137,7 @@ def ReadFile():
     # for key in latency_dict:
     #     curve[completion_time_dict[key]] = latency_dict[key]
 
-    x_value = ["Repl-100%", "Repl-50%", "Repl-25%", "Repl-12.5%"]
+    x_value = ["Repl-100%", "Repl-50%", "Repl-25%", "Repl-0%"]
 
     x_axis.append(x_value)
     # x_axis.append(x_value)
@@ -225,7 +225,7 @@ def DrawFigure(xvalues, yvalues, legend_labels, x_label, y_label, y_label_2, fil
 
     # plt.xticks(index + 0.5 * width, x_values[0])
     # plt.xscale('log')
-    plt.xticks(x_values[0], ["Repl-100%", "Repl-50%", "Repl-25%", "Repl-12.5%"])
+    plt.xticks(x_values[0], ["Repl-100%", "Repl-50%", "Repl-25%", "Repl-0%"])
     # plt.grid()
     ax1.ticklabel_format(axis="y", style="sci", scilimits=(0, 0))
     ax2.ticklabel_format(axis="y", style="sci", scilimits=(0, 0))

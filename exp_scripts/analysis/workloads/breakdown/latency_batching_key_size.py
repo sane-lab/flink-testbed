@@ -15,7 +15,7 @@ def ReadFile(repeat_num = 1):
         for max_parallelism in [256, 512, 1024]:
             latency_dict = {}
             # for sync_keys in [1, int(max_parallelism / 16), int(max_parallelism / 2)]:
-            for sync_keys in [1, 8, int(max_parallelism / parallelism / 2)]:
+            for sync_keys in [1, 16, int(max_parallelism / parallelism / 2)]:
                 col = []
                 coly = []
                 start_ts = float('inf')

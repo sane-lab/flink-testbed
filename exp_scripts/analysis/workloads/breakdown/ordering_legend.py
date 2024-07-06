@@ -155,7 +155,8 @@ def draw():
     x_values = [1, 2, 3]
     y_values = ReadFile(repeat_num = 1)
 
-    legend_labels = ["Hotkey-first", "Random", "Coldkey-first"]
+    # legend_labels = ["Hotkey-first", "Random", "Coldkey-first"]
+    legend_labels = ["Hotkey-first", "Random"]
 
     print(y_values)
 

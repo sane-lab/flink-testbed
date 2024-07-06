@@ -155,7 +155,7 @@ def draw():
     x_values = [1, 2, 3]
     y_values = ReadFile(repeat_num = 1)
 
-    legend_labels = ["Chunk-1", "Chunk-8", "All-at-Once"]
+    legend_labels = ["Chunk-1", "Chunk-16", "Batch-all"]
 
     print(y_values)
 

@@ -77,7 +77,7 @@ init() {
   runtime=50
   source_p=1
   parallelism=8
-  max_parallelism=512
+  max_parallelism=32768
   # per_task_rate=1000
   per_task_rate=2500
   checkpoint_interval=10000 # by default checkpoint in frequent, trigger only when necessary
@@ -86,7 +86,7 @@ init() {
 
   # system level
   operator="Mapper"
-  reconfig_start=25000
+  reconfig_start=50000
   reconfig_interval=10000000
 #  frequency=1 # deprecated
   affected_tasks=8
@@ -140,28 +140,28 @@ run_query11() {
 nexmark_overview() {
   for query_id in 8; do # 1 2 5 8 11
   
-#    # Migrate at once
-#    init
-#    replicate_keys_filter=0
-#    sync_keys=0
-# #    per_task_rate=5000
-#    checkpoint_interval=10000000
-#    run_query${query_id}
+   # Migrate at once
+   init
+   replicate_keys_filter=0
+   sync_keys=0
+#    per_task_rate=5000
+   checkpoint_interval=10000000
+   run_query${query_id}
 
-#    # Fluid Migration
-#    init
-#    replicate_keys_filter=0
-#    sync_keys=1
-# #    per_task_rate=20000
-#    checkpoint_interval=10000000
-#    run_query${query_id}
+   # Fluid Migration
+   init
+   replicate_keys_filter=0
+   sync_keys=1
+#    per_task_rate=20000
+   checkpoint_interval=10000000
+   run_query${query_id}
 
-#     # Proactive State replication
-#     init
-#     replicate_keys_filter=1
-#     sync_keys=0
-# #    per_task_rate=20000
-#     run_query${query_id}
+    # Proactive State replication
+    init
+    replicate_keys_filter=1
+    sync_keys=0
+#    per_task_rate=20000
+    run_query${query_id}
 
     # Spacker
    init
