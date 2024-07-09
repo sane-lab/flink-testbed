@@ -49,7 +49,7 @@ init() {
   how_type="streamsluice"
   scalein_type="streamsuice"
   L=2000
-  runtime=3990 #
+  runtime=2190 #3990 #
   skip_interval=20 # skip seconds
   warmup=10000
   warmup_time=30
@@ -129,14 +129,11 @@ run_stock_test(){
     init
     printf "" > stock_result.txt
 
-#    for repeat in 1 2 3 4 5; do
-#        whether_type="streamsluice"
-#        how_type="streamsluice"
-#        scalein_type="streamsluice"
-#        run_one_exp
-#        printf "${EXP_NAME}\n" >> stock_result.txt
-
-#        is_treat=false
+    for repeat in 1; do # 2 3 4 5; do
+        whether_type="streamsluice"
+        how_type="streamsluice"
+        scalein_type="streamsluice"
+        is_treat=true
 #        run_one_exp
 #        printf "${EXP_NAME}\n" >> stock_result.txt
 #        is_treat=false
@@ -150,7 +147,38 @@ run_stock_test(){
 #        migration_interval=2500
 #        run_one_exp
 #        printf "${EXP_NAME}\n" >> stock_result.txt
-#
+
+        whether_type="streamswitch"
+        how_type="streamswitch"
+        scalein_type="streamswitch"
+        migration_interval=2000
+        run_one_exp
+        printf "${EXP_NAME}\n" >> stock_result.txt
+    done
+
+    # Change rate
+#    for DELAY3 in 2500 3750 7500 10000; do
+#        P3=6
+#        LP3=20
+#        if [[ ${DELAY3} == 7500 ]]; then
+#          P3=9
+#          LP3=30
+#        fi
+#        if [[ ${DELAY3} == 10000 ]]; then
+#          P3=12
+#          LP3=40
+#        fi
+#        whether_type="streamsluice"
+#        how_type="streamsluice"
+#        scalein_type="streamsluice"
+#        run_one_exp
+#        printf "${EXP_NAME}\n" >> stock_result.txt
+#        whether_type="ds2"
+#        how_type="ds2"
+#        scalein_type="ds2"
+#        migration_interval=2500
+#        run_one_exp
+#        printf "${EXP_NAME}\n" >> stock_result.txt
 #        whether_type="streamswitch"
 #        how_type="streamswitch"
 #        scalein_type="streamswitch"
@@ -158,36 +186,5 @@ run_stock_test(){
 #        run_one_exp
 #        printf "${EXP_NAME}\n" >> stock_result.txt
 #    done
-
-    # Change rate
-    for DELAY3 in 2500 3750 7500 10000; do
-        P3=6
-        LP3=20
-        if [[ ${DELAY3} == 7500 ]]; then
-          P3=9
-          LP3=30
-        fi
-        if [[ ${DELAY3} == 10000 ]]; then
-          P3=12
-          LP3=40
-        fi
-        whether_type="streamsluice"
-        how_type="streamsluice"
-        scalein_type="streamsluice"
-        run_one_exp
-        printf "${EXP_NAME}\n" >> stock_result.txt
-        whether_type="ds2"
-        how_type="ds2"
-        scalein_type="ds2"
-        migration_interval=2500
-        run_one_exp
-        printf "${EXP_NAME}\n" >> stock_result.txt
-        whether_type="streamswitch"
-        how_type="streamswitch"
-        scalein_type="streamswitch"
-        migration_interval=1000
-        run_one_exp
-        printf "${EXP_NAME}\n" >> stock_result.txt
-    done
 }
 run_stock_test
