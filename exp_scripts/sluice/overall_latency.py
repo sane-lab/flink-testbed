@@ -115,7 +115,6 @@ def readGroundTruthLatency(rawDir, expName, windowSize):
     return [averageGroundTruthLatency, initialTime]
 
 def draw(rawDir, outputDir, exps, windowSize):
-
     averageGroundTruthLatencies = []
     for i in range(0, len(exps)):
         expFile = exps[i][1]
@@ -132,9 +131,14 @@ def draw(rawDir, outputDir, exps, windowSize):
                               averageGroundTruthLatencies[i][0][x] >= startTime * 1000 and
                               averageGroundTruthLatencies[i][0][x] <= (startTime + 1800) * 1000])
         successRatePerExps[exps[i][0]] = totalSuccess / float(totalWindows)
+
+        overall_latency[app][i] = [averageGroundTruthLatencies[i][1][x] for x in range(0, len(averageGroundTruthLatencies[i][0])) if
+                              averageGroundTruthLatencies[i][0][x] >= startTime * 1000 and
+                              averageGroundTruthLatencies[i][0][x] <= (startTime + 1800) * 1000]
+
     print(successRatePerExps)
-    #fig = plt.figure(figsize=(24, 6))
-    fig = plt.figure(figsize=(24, 3))
+    #fig = plt.figure(figsize=(24, 3))
+    fig = plt.figure(figsize=(12, 9))
     print("Draw ground truth curve...")
     legend = []
     for i in range(0, len(exps)):
@@ -159,8 +163,68 @@ def draw(rawDir, outputDir, exps, windowSize):
     if not os.path.exists(outputDir):
         os.makedirs(outputDir)
     #plt.savefig(outputDir + 'ground_truth_latency_curves.png', bbox_inches='tight')
-    plt.savefig(outputDir + 'ground_truth_latency_curves.pdf', bbox_inches='tight')
+    plt.savefig(outputDir + 'ground_truth_latency_curves.png', bbox_inches='tight')
     plt.close(fig)
+
+
+workload_label = {
+    0: "Stock",
+    1: "Twitter",
+    2: "Linear_Road",
+    3: "Spam_Detection",
+}
+controller_label = {
+    0: "DS2",
+    1: "StreamSwitch",
+    2: "Sluice",
+}
+controller_color = {
+    0: "#fdae61",
+    1: "#abdda4",
+    2: "#2b83ba",
+}
+def drawOverallLatency(output_directory: str, workload_latency: dict):
+    print("Draw latency")
+    data_controller = {}
+    workload_labels = []
+    for workload_index in range(0, len(workload_latency.keys())):
+        workload = sorted(workload_latency.keys())[workload_index]
+        for controller_index in range(0, len(workload_latency[workload].keys())):
+            controller = sorted(workload_latency[workload].keys())[controller_index]
+            if controller_index not in data_controller:
+                data_controller[controller] = [[], [], []]
+            data_controller[controller_index][workload_index] = workload_latency[workload][controller]
+        workload_labels.append(workload)
+
+    #print(data_controller)
+    print(workload_labels)
+    def set_box_color(bp, color):
+        plt.setp(bp['boxes'], color=color)
+        plt.setp(bp['whiskers'], color=color)
+        plt.setp(bp['caps'], color=color)
+        plt.setp(bp['medians'], color='r') #color)
+
+    fig, axs = plt.subplots(1, 1, figsize=(12, 9), layout='constrained') #(24, 9)
+    figName = "Overall_latency.png"
+    for controller in range(0, 3):
+        bp = plt.boxplot(data_controller[controller], positions=np.array(range(len(data_controller[controller]))) * 3.0 - 0.4 + controller * 0.4, sym='+', widths=0.4)
+        set_box_color(bp, controller_color[controller])
+        plt.plot([], c=controller_color[controller], label=controller_label[controller])
+    plt.legend()
+    plt.xticks(range(0, len(workload_labels) * 3, 3), workload_labels)
+    plt.plot([-3, len(workload_labels) * 3], [0.01, 0.01], color="red")
+    plt.xlim(-3, len(workload_labels)*3)
+    plt.ylim(100, 200000)
+    plt.yscale("log")
+    plt.gca().set_yticks([100, 1000, 10000, 100000])
+    plt.xlabel("Workload")
+    plt.ylabel("Latency(ms)")
+    #plt.gca().invert_yaxis()
+    #plt.gca().set_yticklabels(1 - plt.gca().get_yticks())
+    plt.tight_layout()
+    plt.savefig(output_directory+figName)
+
+
 
 
 rawDir = "/Users/swrrt/Workplace/BacklogDelayPaper/experiments/raw/"
@@ -172,6 +236,7 @@ exps = {
          "purple", "d"],
         ["StreamSwitch",
          "stock_analysis-streamswitch-streamswitch-3990-30-1000-20-2-500-6-5000-3-1000-4-3000-1-5-4000-2000-100-true-3-true-5",
+         #"stock_analysis-streamswitch-streamswitch-2190-30-1000-20-2-500-6-5000-3-1000-4-3000-1-5-4000-2000-100-true-3-true-2",
          "green", "p"],
         ["Sluice",
           "stock_analysis-streamsluice-streamsluice-3990-30-1000-20-2-500-6-5000-3-1000-4-3000-1-5-4000-2000-100-true-3-true-1",
@@ -205,12 +270,15 @@ import sys
 if len(sys.argv) > 1:
     expName = sys.argv[1].split("/")[-1]
 
+overall_latency = {}
 for app in exps.keys():
     windowSize = 500
     latencyLimit = 2000 #1000
-    endTime = 1800 #150 #630
     startTime=30+300 #30
     isSingleOperator = False #True
     expName = [exp[1] for exp in exps[app] if exp[0] == "StreamSluice" or exp[0] == "Sluice"][0]
     print(expName)
+    overall_latency[app] = {}
     draw(rawDir, outputDir + expName + "/", exps[app], windowSize)
+drawOverallLatency(outputDir + expName + "/", overall_latency)
+

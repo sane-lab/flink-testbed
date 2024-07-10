@@ -46,7 +46,9 @@ public class LinearRoad {
                 env.addSource(new LinearRoadSource(params.get("file_name", "/home/samza/LR_data/3hr.txt"),
                                 params.getLong("warmup_time", 30L) * 1000,
                                 params.getLong("warmup_rate", 1500L),
-                                params.getLong("skip_interval", 0L) * 20))
+                                params.getLong("skip_interval", 0L) * 20,
+                                        params.getLong("input_rate_factor", 1L))
+                                )
                         .setParallelism(params.getInt("p1", 1));
 
 //        DataStream<Tuple19<String, Integer, String, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Long, Long>> afterDispatcher = source
@@ -186,7 +188,7 @@ public class LinearRoad {
         private static final int Tuple_Number = 18;
 
         private final String FILE;
-        private final long warmup, warmp_rate, skipCount;
+        private final long warmup, warmp_rate, skipCount, input_rate_factor;
 
         public static String getSegID(int seg){
             return "A" + seg;
@@ -197,11 +199,12 @@ public class LinearRoad {
         }
 
 
-        public LinearRoadSource(String FILE, long warmup, long warmup_rate, long skipCount) {
+        public LinearRoadSource(String FILE, long warmup, long warmup_rate, long skipCount, long input_rate_factor) {
             this.FILE = FILE;
             this.warmup = warmup;
             this.warmp_rate = warmup_rate;
             this.skipCount = skipCount;
+            this.input_rate_factor = input_rate_factor;
         }
 
         @Override
@@ -227,8 +230,10 @@ public class LinearRoad {
                     int car_id = count % 1000000;
                     int seg = count % 100;
                     String seg_ID = getSegID(seg);
-                    ctx.collect(Tuple19.of(seg_ID, 0, getCarID(car_id), 0, 0, 0, 0, seg, 0, 0, 0, 0, 0, 0, 0, 0, 0, System.currentTimeMillis(), (long) count));
-                    count++;
+                    for(int rep = 0; rep < input_rate_factor; rep ++) {
+                        ctx.collect(Tuple19.of(seg_ID, 0, getCarID(car_id), 0, 0, 0, 0, seg, 0, 0, 0, 0, 0, 0, 0, 0, 0, System.currentTimeMillis(), (long) count));
+                        count++;
+                    }
                 }
                 Util.pause(emitStartTime);
             }
@@ -253,8 +258,10 @@ public class LinearRoad {
                                 int car_id = count % 1000000;
                                 int seg = count % 100;
                                 String seg_ID = getSegID(seg);
-                                ctx.collect(Tuple19.of(seg_ID, 0, getCarID(car_id), 0, 0, 0, 0, seg, 0, 0, 0, 0, 0, 0, 0, 0, 0, System.currentTimeMillis(), (long) count));
-                                count++;
+                                for(int rep = 0; rep < input_rate_factor; rep ++) {
+                                    ctx.collect(Tuple19.of(seg_ID, 0, getCarID(car_id), 0, 0, 0, 0, seg, 0, 0, 0, 0, 0, 0, 0, 0, 0, System.currentTimeMillis(), (long) count));
+                                    count++;
+                                }
                             }
                         }
                         counter = 0;
@@ -276,25 +283,27 @@ public class LinearRoad {
                         String msg = sCurrentLine;
                         List<String> stockArr = Arrays.asList(msg.split(","));
                         int seg = Integer.parseInt(stockArr.get(Seg - 1)), car_id = Integer.parseInt(stockArr.get(Car_ID - 1));
-                        ctx.collect(new Tuple19<>(
-                                getSegID(seg),
-                                Integer.parseInt(stockArr.get(0)),
-                                getCarID(car_id),
-                                Integer.parseInt(stockArr.get(2)),
-                                Integer.parseInt(stockArr.get(3)),
-                                Integer.parseInt(stockArr.get(4)),
-                                Integer.parseInt(stockArr.get(5)),
-                                Integer.parseInt(stockArr.get(6)),
-                                Integer.parseInt(stockArr.get(7)),
-                                Integer.parseInt(stockArr.get(8)),
-                                Integer.parseInt(stockArr.get(9)),
-                                Integer.parseInt(stockArr.get(10)),
-                                Integer.parseInt(stockArr.get(11)),
-                                Integer.parseInt(stockArr.get(12)),
-                                Integer.parseInt(stockArr.get(13)),
-                                Integer.parseInt(stockArr.get(14)),
-                                0, ts, (long) count));
-                        count++;
+                        for(int rep = 0; rep < input_rate_factor; rep++){
+                            ctx.collect(new Tuple19<>(
+                                    getSegID(seg),
+                                    Integer.parseInt(stockArr.get(0)),
+                                    getCarID(car_id),
+                                    Integer.parseInt(stockArr.get(2)),
+                                    Integer.parseInt(stockArr.get(3)),
+                                    Integer.parseInt(stockArr.get(4)),
+                                    Integer.parseInt(stockArr.get(5)),
+                                    Integer.parseInt(stockArr.get(6)),
+                                    Integer.parseInt(stockArr.get(7)),
+                                    Integer.parseInt(stockArr.get(8)),
+                                    Integer.parseInt(stockArr.get(9)),
+                                    Integer.parseInt(stockArr.get(10)),
+                                    Integer.parseInt(stockArr.get(11)),
+                                    Integer.parseInt(stockArr.get(12)),
+                                    Integer.parseInt(stockArr.get(13)),
+                                    Integer.parseInt(stockArr.get(14)),
+                                    0, ts, (long) count));
+                            count++;
+                        }
                     }
                     counter++;
                 }

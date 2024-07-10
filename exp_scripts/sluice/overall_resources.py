@@ -265,6 +265,17 @@ def draw(rawDir, outputDir, exps):
         for job in parallelisms.keys():
             if job == "TOTAL":
                 totalParallelismPerExps[expindex] = parallelisms[job]
+                overall_resource[app][expindex] = []
+                for i in range(0, len(parallelisms[job][1])):
+                    l = 0
+                    r = 0
+                    if (i + 1 < len(parallelisms[job][0])):
+                        r = parallelisms[job][0][i + 1]
+                    l = max(parallelisms[job][0][i], startTime * 1000)
+                    r = min(r, (startTime + exp_length) * 1000)
+                    if (l < r):
+                        for j in range(0, r - l):
+                            overall_resource[app][expindex] += [parallelisms[job][1][i]]
                 continue
             if job not in parallelismsPerJob:
                 parallelismsPerJob[job] = []
@@ -273,6 +284,7 @@ def draw(rawDir, outputDir, exps):
             totalArrivalRatesPerJob[job] += [totalArrivalRates[job]]
     print("Draw total figure...")
     print("TOTAL parallelism: " + str(totalParallelismPerExps))
+
     figName = "Parallelism"
     nJobs = len(parallelismsPerJob.keys())
     jobList = ["a84740bacf923e828852cc4966f2247c", "eabd4c11f6c6fbdf011f0f1fc42097b1", "d01047f852abd5702a0dabeedac99ff5", "d2336f79a0d60b5a4b16c8769ec82e47", "feccfb8648621345be01b71938abfb72"]
@@ -342,8 +354,65 @@ def draw(rawDir, outputDir, exps):
         os.makedirs(outputDir)
 
     # plt.savefig(outputDir + figName + ".png", bbox_inches='tight')
-    plt.savefig(outputDir + figName + ".pdf", bbox_inches='tight')
+    plt.savefig(outputDir + figName + ".png", bbox_inches='tight')
     plt.close(fig)
+
+workload_label = {
+    0: "Stock",
+    1: "Twitter",
+    2: "Linear_Road",
+    3: "Spam_Detection",
+}
+controller_label = {
+    0: "DS2",
+    1: "StreamSwitch",
+    2: "Sluice",
+}
+controller_color = {
+    0: "#fdae61",
+    1: "#abdda4",
+    2: "#2b83ba",
+}
+def drawOverallResource(output_directory: str, workload_latency: dict):
+    print("Draw resource")
+    data_controller = {}
+    workload_labels = []
+    for workload_index in range(0, len(workload_latency.keys())):
+        workload = sorted(workload_latency.keys())[workload_index]
+        for controller_index in range(0, len(workload_latency[workload].keys())):
+            controller = sorted(workload_latency[workload].keys())[controller_index]
+            if controller_index not in data_controller:
+                data_controller[controller] = [[], [], []]
+            data_controller[controller_index][workload_index] = workload_latency[workload][controller]
+        workload_labels.append(workload)
+
+    print(data_controller)
+    print(workload_labels)
+    def set_box_color(bp, color):
+        plt.setp(bp['boxes'], color=color)
+        plt.setp(bp['whiskers'], color=color)
+        plt.setp(bp['caps'], color=color)
+        plt.setp(bp['medians'], color='r') #color)
+
+    fig, axs = plt.subplots(1, 1, figsize=(12, 9), layout='constrained') #(24, 9)
+    figName = "Overall_resource.png"
+    for controller in range(0, 3):
+        bp = plt.boxplot(data_controller[controller], whis=1.5, positions=np.array(range(len(data_controller[controller]))) * 3.0 - 0.4 + controller * 0.4, sym='+', widths=0.4)
+        set_box_color(bp, controller_color[controller])
+        plt.plot([], c=controller_color[controller], label=controller_label[controller])
+    plt.legend()
+    plt.xticks(range(0, len(workload_labels) * 3, 3), workload_labels)
+    plt.plot([-3, len(workload_labels) * 3], [0.01, 0.01], color="red")
+    plt.xlim(-3, len(workload_labels)*3)
+    plt.ylim(0, 50)
+    #plt.yscale("log")
+    plt.gca().set_yticks(np.arange(0, 50, 10))
+    #plt.gca().invert_yaxis()
+    #plt.gca().set_yticklabels(1 - plt.gca().get_yticks())
+    plt.xlabel("Workload")
+    plt.ylabel("Latency(ms)")
+    plt.tight_layout()
+    plt.savefig(output_directory+figName)
 
 
 
@@ -359,6 +428,7 @@ exps = {
          "stock_analysis-ds2-ds2-3990-30-1000-20-2-500-6-5000-3-1000-4-3000-1-5-4000-2000-100-true-3-true-1",
          "purple", "d"],
         ["StreamSwitch",
+         #"stock_analysis-streamswitch-streamswitch-2190-30-1000-20-2-500-6-5000-3-1000-4-3000-1-5-4000-2000-100-true-3-true-2",
          "stock_analysis-streamswitch-streamswitch-3990-30-1000-20-2-500-6-5000-3-1000-4-3000-1-5-4000-2000-100-true-3-true-2",
          "green", "p"],
         ["Sluice",
@@ -386,7 +456,7 @@ exps = {
         ["Sluice",
           "linear_road-streamsluice-streamsluice-2190-30-1000-10-2-100-20-2000-4-100-70-1500-2000-100-true-3-true-3",
           "blue", "o"],
-    ]
+    ],
 }
 windowSize=1000
 startTime=30 #30+300 #30
@@ -413,10 +483,12 @@ arrivalrate_ylim_app = {
     "Tweet": 4500,
     "Linear_Road": 3000,
 }
+overall_resource = {}
 for app in exps.keys():
     expName = [exp[1] for exp in exps[app] if exp[0] == "StreamSluice" or exp[0] == "Sluice"][0]
     exp_length = 1800
     startTime = 30 + 300
     print(expName)
+    overall_resource[app] = {}
     draw(rawDir, outputDir + expName + "/", exps[app])
-
+drawOverallResource(outputDir + expName + "/", overall_resource)

@@ -122,6 +122,7 @@ function runApp() {
     -p7 ${P7} -mp7 ${MP7} -op7Delay ${DELAY7} \
     -p8 ${P8} -mp8 ${MP8} -op8Delay ${DELAY8} \
     -p9 ${P9} -mp9 ${MP9} -op9Delay ${DELAY9} \
+    -input_rate_factor ${input_rate_factor} \
     -file_name ${stock_path}${stock_file_name} -warmup_rate ${warmup_rate} -warmup_time ${warmup_time} -skip_interval ${skip_interval} &"
     ${FLINK_DIR}/bin/flink run -c ${job} ${JAR} \
         -p1 ${P1} -mp1 ${MP1} \
@@ -133,6 +134,7 @@ function runApp() {
         -p7 ${P7} -mp7 ${MP7} -op7Delay ${DELAY7} \
         -p8 ${P8} -mp8 ${MP8} -op8Delay ${DELAY8} \
         -p9 ${P9} -mp9 ${MP9} -op9Delay ${DELAY9} \
+        -input_rate_factor ${input_rate_factor} \
         -file_name ${stock_path}${stock_file_name} -warmup_rate ${warmup_rate} -warmup_time ${warmup_time} -skip_interval ${skip_interval} &
 }
 
@@ -141,48 +143,66 @@ run_stock_test(){
     init
     printf "" > lr_result.txt
 
-    for repeat in 1 2 3 4 5; do
+    for repeat in 1; do # 2 3 4 5; do
         whether_type="streamsluice"
         how_type="streamsluice"
         scalein_type="streamsluice"
-        run_one_exp
-        printf "${EXP_NAME}\n" >> lr_result.txt
-
-#        is_treat=false
 #        run_one_exp
 #        printf "${EXP_NAME}\n" >> lr_result.txt
-#        P1=2
-#        P2=3
-#        P3=9
-#        P4=5
-#        P5=6
-#        P6=2
-#        P7=8
-#        is_treat=false
+#
+##        is_treat=false
+##        run_one_exp
+##        printf "${EXP_NAME}\n" >> lr_result.txt
+##        P1=2
+##        P2=3
+##        P3=9
+##        P4=5
+##        P5=6
+##        P6=2
+##        P7=8
+##        is_treat=false
+##        run_one_exp
+##        printf "${EXP_NAME}\n" >> lr_result.txt
+##        is_treat=true
+#
+##        P1=1
+##        P2=2
+##        P3=6
+##        P4=3
+##        P5=4
+##        P6=1
+##        P7=5
+#        whether_type="ds2"
+#        how_type="ds2"
+#        scalein_type="ds2"
+#        migration_interval=2500
 #        run_one_exp
 #        printf "${EXP_NAME}\n" >> lr_result.txt
-#        is_treat=true
+#
+#        whether_type="streamswitch"
+#        how_type="streamswitch"
+#        scalein_type="streamswitch"
+#        migration_interval=1000
+#        run_one_exp
+#        printf "${EXP_NAME}\n" >> lr_result.txt
+    done
 
-#        P1=1
-#        P2=2
-#        P3=6
-#        P4=3
-#        P5=4
-#        P6=1
-#        P7=5
-        whether_type="ds2"
-        how_type="ds2"
-        scalein_type="ds2"
-        migration_interval=2500
+#       Part 2 experiment
+    migration_interval=500
+    DELAY2=100
+    DELAY3=2000 #2000
+    DELAY4=100
+    DELAY5=1500 #1500
+    for input_rate_factor in 2 3 4 5; do
         run_one_exp
         printf "${EXP_NAME}\n" >> lr_result.txt
-
-        whether_type="streamswitch"
-        how_type="streamswitch"
-        scalein_type="streamswitch"
-        migration_interval=1000
-        run_one_exp
-        printf "${EXP_NAME}\n" >> lr_result.txt
+    done
+    input_rate_factor=1
+    for process_factor in 2 3 5 6; do
+      DELAY3=$((${process_factor} * 500))$
+      DELAY5=$(((${process_factor}-1) * 500))$
+      run_one_exp
+      printf "${EXP_NAME}\n" >> lr_result.txt
     done
 }
 run_stock_test
