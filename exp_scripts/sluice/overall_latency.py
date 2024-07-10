@@ -138,13 +138,22 @@ def draw(rawDir, outputDir, exps, windowSize):
 
     print(successRatePerExps)
     #fig = plt.figure(figsize=(24, 3))
-    fig = plt.figure(figsize=(12, 9))
+    fig = plt.figure(figsize=(8, 4))
     print("Draw ground truth curve...")
     legend = []
     for i in range(0, len(exps)):
         legend += [exps[i][0]]
         averageGroundTruthLatency = averageGroundTruthLatencies[i]
-        plt.plot(averageGroundTruthLatency[0], averageGroundTruthLatency[1], 'o', color=exps[i][2], markersize=2)
+
+        sample_factor = 5
+        sampledLatency = [[], []]
+        sampledLatency[0] = [averageGroundTruthLatency[0][i] for i in range(0, len(averageGroundTruthLatency[0]), sample_factor)]
+        sampledLatency[1] = [max([averageGroundTruthLatency[1][y] for y in range(x, min(x + sample_factor, len(averageGroundTruthLatency[1])))]) for x in range(0, len(averageGroundTruthLatency[0]), sample_factor)]
+
+        #plt.plot(averageGroundTruthLatency[0], averageGroundTruthLatency[1], 'o-', color=exps[i][2], markersize=2, linewidth=2)
+        plt.plot(sampledLatency[0], sampledLatency[1], 'o-', color=exps[i][2], markersize=4,
+                 linewidth=2)
+
     legend += ["Limit"]
     addLatencyLimitMarker(plt)
     plt.legend(legend, bbox_to_anchor=(0.5, 1.3), loc='upper center', ncol=6, markerscale=4.)

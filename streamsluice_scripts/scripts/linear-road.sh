@@ -22,7 +22,7 @@ function analyze() {
 }
 
 run_one_exp() {
-  EXP_NAME=linear_road-${whether_type}-${how_type}-${runtime}-${warmup_time}-${warmup_rate}-${skip_interval}-${P2}-${DELAY2}-${P3}-${DELAY3}-${P4}-${DELAY4}-${P5}-${DELAY5}-${L}-${epoch}-${is_treat}-${errorcase_number}-${calibrate_selectivity}-${repeat}
+  EXP_NAME=linear_road-${whether_type}-${how_type}-${runtime}-${warmup_time}-${warmup_rate}-${skip_interval}-${P2}-${DELAY2}-${P3}-${DELAY3}-${P4}-${DELAY4}-${P5}-${DELAY5}-${L}-${epoch}-${input_rate_factor}-${is_treat}-${errorcase_number}-${calibrate_selectivity}-${repeat}
 
   echo "INFO: run exp ${EXP_NAME}"
   configFlink
@@ -204,5 +204,9 @@ run_stock_test(){
       run_one_exp
       printf "${EXP_NAME}\n" >> lr_result.txt
     done
+    DELAY2=100
+    DELAY3=2000
+    DELAY4=100
+    DELAY5=1500
 }
 run_stock_test
