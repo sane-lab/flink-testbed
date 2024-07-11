@@ -138,7 +138,7 @@ def draw(rawDir, outputDir, exps, windowSize):
 
     print(successRatePerExps)
     #fig = plt.figure(figsize=(24, 3))
-    fig = plt.figure(figsize=(8, 4))
+    fig = plt.figure(figsize=(10, 5))
     print("Draw ground truth curve...")
     legend = []
     for i in range(0, len(exps)):
