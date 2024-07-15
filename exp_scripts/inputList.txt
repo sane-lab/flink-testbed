@@ -1,8 +1,4 @@
-linear_road-streamsluice-streamsluice-2190-30-1000-10-2-100-20-2000-4-100-70-1500-2000-100-2-true-3-true-1
-linear_road-streamsluice-streamsluice-2190-30-1000-10-2-100-20-2000-4-100-70-1500-2000-100-3-true-3-true-1
-linear_road-streamsluice-streamsluice-2190-30-1000-10-2-100-20-2000-4-100-70-1500-2000-100-4-true-3-true-1
-linear_road-streamsluice-streamsluice-2190-30-1000-10-2-100-20-2000-4-100-70-1500-2000-100-5-true-3-true-1
-linear_road-streamsluice-streamsluice-2190-30-1000-10-2-100-20-1000$-4-100-70-500$-2000-100-1-true-3-true-1
-linear_road-streamsluice-streamsluice-2190-30-1000-10-2-100-20-1500$-4-100-70-1000$-2000-100-1-true-3-true-1
-linear_road-streamsluice-streamsluice-2190-30-1000-10-2-100-20-2500$-4-100-70-2000$-2000-100-1-true-3-true-1
-linear_road-streamsluice-streamsluice-2190-30-1000-10-2-100-20-3000$-4-100-70-2500$-2000-100-1-true-3-true-1
+linear_road-streamsluice-streamsluice-2190-30-1000-10-2-100-20-1000-4-100-70-500-2000-100-1-true-3-true-1
+linear_road-streamsluice-streamsluice-2190-30-1000-10-2-100-20-1500-4-100-70-1000-2000-100-1-true-3-true-1
+linear_road-streamsluice-streamsluice-2190-30-1000-10-2-100-20-2500-4-100-70-2000-2000-100-1-true-3-true-1
+linear_road-streamsluice-streamsluice-2190-30-1000-10-2-100-20-3000-4-100-70-2500-2000-100-1-true-3-true-1

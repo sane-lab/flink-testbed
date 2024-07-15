@@ -47,7 +47,7 @@ public class LinearRoad {
                                 params.getLong("warmup_time", 30L) * 1000,
                                 params.getLong("warmup_rate", 1500L),
                                 params.getLong("skip_interval", 0L) * 20,
-                                        params.getLong("input_rate_factor", 1L))
+                                        params.getDouble("input_rate_factor", 1.0))
                                 )
                         .setParallelism(params.getInt("p1", 1));
 
@@ -188,7 +188,8 @@ public class LinearRoad {
         private static final int Tuple_Number = 18;
 
         private final String FILE;
-        private final long warmup, warmp_rate, skipCount, input_rate_factor;
+        private final long warmup, warmp_rate, skipCount;
+        double input_rate_factor;
 
         public static String getSegID(int seg){
             return "A" + seg;
@@ -199,7 +200,7 @@ public class LinearRoad {
         }
 
 
-        public LinearRoadSource(String FILE, long warmup, long warmup_rate, long skipCount, long input_rate_factor) {
+        public LinearRoadSource(String FILE, long warmup, long warmup_rate, long skipCount, double input_rate_factor) {
             this.FILE = FILE;
             this.warmup = warmup;
             this.warmp_rate = warmup_rate;
@@ -217,7 +218,7 @@ public class LinearRoad {
             int sent_sentences = 0;
             long cur = 0;
             long start = 0;
-            int counter = 0, count = 0;
+            int counter = 0, count = 0, input_factor_count = 0;
 
             int noRecSleepCnt = 0;
             int sleepCnt = 0;
@@ -226,14 +227,14 @@ public class LinearRoad {
             System.out.println("Warmup start at: " + startTime);
             while (System.currentTimeMillis() - startTime < warmup) {
                 long emitStartTime = System.currentTimeMillis();
-                for (int i = 0; i < warmp_rate / 20; i++) {
+                for (int i = 0; i < warmp_rate * input_rate_factor / 20; i++) {
                     int car_id = count % 1000000;
                     int seg = count % 100;
                     String seg_ID = getSegID(seg);
-                    for(int rep = 0; rep < input_rate_factor; rep ++) {
+                    //for(int rep = 0; rep < input_rate_factor; rep ++) {
                         ctx.collect(Tuple19.of(seg_ID, 0, getCarID(car_id), 0, 0, 0, 0, seg, 0, 0, 0, 0, 0, 0, 0, 0, 0, System.currentTimeMillis(), (long) count));
                         count++;
-                    }
+                    //}
                 }
                 Util.pause(emitStartTime);
             }
@@ -244,7 +245,6 @@ public class LinearRoad {
                 br = new BufferedReader(stream);
 
                 start = System.currentTimeMillis();
-
                 while ((sCurrentLine = br.readLine()) != null) {
                     if (sCurrentLine.equals("END")) {
                         sleepCnt++;
@@ -254,17 +254,18 @@ public class LinearRoad {
                         }
                         // System.out.println("output rate: " + counter);
                         if (sleepCnt <= skipCount) {
-                            for (int i = 0; i < warmp_rate / 20; i++) {
+                            for (int i = 0; i < warmp_rate * input_rate_factor / 20; i++) {
                                 int car_id = count % 1000000;
                                 int seg = count % 100;
                                 String seg_ID = getSegID(seg);
-                                for(int rep = 0; rep < input_rate_factor; rep ++) {
+                                // for(int rep = 0; rep < input_rate_factor; rep ++) {
                                     ctx.collect(Tuple19.of(seg_ID, 0, getCarID(car_id), 0, 0, 0, 0, seg, 0, 0, 0, 0, 0, 0, 0, 0, 0, System.currentTimeMillis(), (long) count));
                                     count++;
-                                }
+                                // }
                             }
                         }
                         counter = 0;
+                        input_factor_count = 0;
                         cur = System.currentTimeMillis();
                         if (cur < sleepCnt * 50 + start) {
                             Thread.sleep((sleepCnt * 50 + start) - cur);
@@ -283,7 +284,7 @@ public class LinearRoad {
                         String msg = sCurrentLine;
                         List<String> stockArr = Arrays.asList(msg.split(","));
                         int seg = Integer.parseInt(stockArr.get(Seg - 1)), car_id = Integer.parseInt(stockArr.get(Car_ID - 1));
-                        for(int rep = 0; rep < input_rate_factor; rep++){
+                        if(input_rate_factor >= 1.0 - 1e-9) {
                             ctx.collect(new Tuple19<>(
                                     getSegID(seg),
                                     Integer.parseInt(stockArr.get(0)),
@@ -303,6 +304,57 @@ public class LinearRoad {
                                     Integer.parseInt(stockArr.get(14)),
                                     0, ts, (long) count));
                             count++;
+                            input_factor_count++;
+
+                            int new_input = (int) ((input_rate_factor - 1.0) * input_factor_count + 1e-9);
+                            if (new_input > 0) {
+                                for (int rep = 0; rep < new_input; rep++) {
+                                    ctx.collect(new Tuple19<>(
+                                            getSegID(seg),
+                                            Integer.parseInt(stockArr.get(0)),
+                                            getCarID(car_id),
+                                            Integer.parseInt(stockArr.get(2)),
+                                            Integer.parseInt(stockArr.get(3)),
+                                            Integer.parseInt(stockArr.get(4)),
+                                            Integer.parseInt(stockArr.get(5)),
+                                            Integer.parseInt(stockArr.get(6)),
+                                            Integer.parseInt(stockArr.get(7)),
+                                            Integer.parseInt(stockArr.get(8)),
+                                            Integer.parseInt(stockArr.get(9)),
+                                            Integer.parseInt(stockArr.get(10)),
+                                            Integer.parseInt(stockArr.get(11)),
+                                            Integer.parseInt(stockArr.get(12)),
+                                            Integer.parseInt(stockArr.get(13)),
+                                            Integer.parseInt(stockArr.get(14)),
+                                            0, ts, (long) count));
+                                    count++;
+                                }
+                                input_factor_count = 0;
+                            }
+                        }else{
+                            count++;
+                            int new_input = (int) (input_rate_factor * count + 1e-9);
+                            while(new_input > input_factor_count){
+                                ctx.collect(new Tuple19<>(
+                                        getSegID(seg),
+                                        Integer.parseInt(stockArr.get(0)),
+                                        getCarID(car_id),
+                                        Integer.parseInt(stockArr.get(2)),
+                                        Integer.parseInt(stockArr.get(3)),
+                                        Integer.parseInt(stockArr.get(4)),
+                                        Integer.parseInt(stockArr.get(5)),
+                                        Integer.parseInt(stockArr.get(6)),
+                                        Integer.parseInt(stockArr.get(7)),
+                                        Integer.parseInt(stockArr.get(8)),
+                                        Integer.parseInt(stockArr.get(9)),
+                                        Integer.parseInt(stockArr.get(10)),
+                                        Integer.parseInt(stockArr.get(11)),
+                                        Integer.parseInt(stockArr.get(12)),
+                                        Integer.parseInt(stockArr.get(13)),
+                                        Integer.parseInt(stockArr.get(14)),
+                                        0, ts, (long) count));
+                                input_factor_count++;
+                            }
                         }
                     }
                     counter++;

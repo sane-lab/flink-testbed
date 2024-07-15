@@ -164,8 +164,10 @@ def draw(rawDir, outputDir, exps, windowSize):
     axes.set_xlim(startTime * 1000, (startTime + 1800) * 1000)
     axes.set_xticks(np.arange(startTime * 1000, (startTime + 1800) * 1000 + 300000, 300000))
     axes.set_xticklabels([int((x - startTime * 1000) / 60000) for x in np.arange(startTime * 1000, (startTime + 1800) * 1000 + 300000, 300000)])
-    axes.set_ylim(0, 5000)
-    axes.set_yticks(np.arange(0, 6000, 1000))
+    #axes.set_ylim(0, 5000)
+    #axes.set_yticks(np.arange(0, 6000, 1000))
+    axes.set_ylim(0, 10000)
+    axes.set_yticks(np.arange(0, 12000, 2000))
     # axes.set_yscale('log')
     plt.grid(True)
     import os
@@ -239,39 +241,42 @@ def drawOverallLatency(output_directory: str, workload_latency: dict):
 rawDir = "/Users/swrrt/Workplace/BacklogDelayPaper/experiments/raw/"
 outputDir = "/Users/swrrt/Workplace/BacklogDelayPaper/experiments/results/"
 exps = {
-    "Stock": [
-        ["DS2",
-         "stock_analysis-ds2-ds2-3990-30-1000-20-2-500-6-5000-3-1000-4-3000-1-5-4000-2000-100-true-3-true-1",
-         "purple", "d"],
-        ["StreamSwitch",
-         "stock_analysis-streamswitch-streamswitch-3990-30-1000-20-2-500-6-5000-3-1000-4-3000-1-5-4000-2000-100-true-3-true-5",
-         #"stock_analysis-streamswitch-streamswitch-2190-30-1000-20-2-500-6-5000-3-1000-4-3000-1-5-4000-2000-100-true-3-true-2",
-         "green", "p"],
-        ["Sluice",
-          "stock_analysis-streamsluice-streamsluice-3990-30-1000-20-2-500-6-5000-3-1000-4-3000-1-5-4000-2000-100-true-3-true-1",
-          "blue", "o"],
-    ],
-    "Tweet": [
-        ["DS2",
-         "tweet_alert-ds2-ds2-2190-30-1800-1-30-5000-10-1000-1-50-1-100-2000-100-true-3-true-1",
-         "purple", "d"],
-        ["StreamSwitch",
-         "tweet_alert-streamswitch-streamswitch-2190-30-1800-1-30-5000-10-1000-1-50-1-100-2000-100-true-3-true-1",
-         "green", "p"],
-        ["Sluice",
-          "tweet_alert-streamsluice-streamsluice-2190-30-1800-1-30-5000-10-1000-1-50-1-100-2000-100-true-3-true-2",
-          "blue", "o"],
-    ],
+    # "Stock": [
+    #     ["DS2",
+    #      "stock_analysis-ds2-ds2-3990-30-1000-20-2-500-6-5000-3-1000-4-3000-1-5-4000-2000-100-true-3-true-1",
+    #      "purple", "d"],
+    #     ["StreamSwitch",
+    #      "stock_analysis-streamswitch-streamswitch-3990-30-1000-20-2-500-6-5000-3-1000-4-3000-1-5-4000-2000-100-true-3-true-5",
+    #      #"stock_analysis-streamswitch-streamswitch-2190-30-1000-20-2-500-6-5000-3-1000-4-3000-1-5-4000-2000-100-true-3-true-2",
+    #      "green", "p"],
+    #     ["Sluice",
+    #       "stock_analysis-streamsluice-streamsluice-3990-30-1000-20-2-500-6-5000-3-1000-4-3000-1-5-4000-2000-100-true-3-true-1",
+    #       "blue", "o"],
+    # ],
+    # "Tweet": [
+    #     ["DS2",
+    #      "tweet_alert-ds2-ds2-2190-30-1800-1-30-5000-10-1000-1-50-1-100-2000-100-true-3-true-1",
+    #      "purple", "d"],
+    #     ["StreamSwitch",
+    #      "tweet_alert-streamswitch-streamswitch-2190-30-1800-1-30-5000-10-1000-1-50-1-100-2000-100-true-3-true-1",
+    #      "green", "p"],
+    #     ["Sluice",
+    #       "tweet_alert-streamsluice-streamsluice-2190-30-1800-1-30-5000-10-1000-1-50-1-100-2000-100-true-3-true-2",
+    #       "blue", "o"],
+    # ],
     "Linear_Road": [
-        ["DS2",
-         "linear_road-ds2-ds2-2190-30-1000-10-2-100-20-2000-4-100-70-1500-2000-100-true-3-true-2",
-         "purple", "d"],
-        ["StreamSwitch",
-         "linear_road-streamswitch-streamswitch-2190-30-1000-10-2-100-20-2000-4-100-70-1500-2000-100-true-3-true-2",
-         "green", "p"],
+        # ["DS2",
+        #  "linear_road-ds2-ds2-2190-30-1000-10-2-100-20-2000-4-100-70-1500-2000-100-true-3-true-2",
+        #  "purple", "d"],
+        # ["StreamSwitch",
+        #  "linear_road-streamswitch-streamswitch-2190-30-1000-10-2-100-20-2000-4-100-70-1500-2000-100-true-3-true-2",
+        #  "green", "p"],
+        # ["Sluice",
+        #   "linear_road-streamsluice-streamsluice-2190-30-1000-10-2-100-20-2000-4-100-70-1500-2000-100-true-3-true-3",
+        #   "blue", "o"],
         ["Sluice",
-          "linear_road-streamsluice-streamsluice-2190-30-1000-10-2-100-20-2000-4-100-70-1500-2000-100-true-3-true-3",
-          "blue", "o"],
+         "linear_road-streamsluice-streamsluice-2190-30-1000-10-2-100-20-3000-4-100-70-2500-2000-100-1-true-3-true-1",
+         "orange", "o"],
     ]
 }
 
@@ -289,5 +294,5 @@ for app in exps.keys():
     print(expName)
     overall_latency[app] = {}
     draw(rawDir, outputDir + expName + "/", exps[app], windowSize)
-drawOverallLatency(outputDir + expName + "/", overall_latency)
+#drawOverallLatency(outputDir + expName + "/", overall_latency)
 

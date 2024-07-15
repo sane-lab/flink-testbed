@@ -423,39 +423,42 @@ outputDir = "/Users/swrrt/Workplace/BacklogDelayPaper/experiments/results/"
 #expName = "streamsluice-scaletest-400-600-500-5-2000-1000-100-1"
 #expName = "autotune_4op-false-390-10000-12500-60-15000-60-12500-60-1-0-2-125-1-5000-2-120-1-5000-3-250-1-5000-6-500-5000-2000-1500-100-true-1"
 exps = {
-    "Stock": [
-        ["DS2",
-         "stock_analysis-ds2-ds2-3990-30-1000-20-2-500-6-5000-3-1000-4-3000-1-5-4000-2000-100-true-3-true-1",
-         "purple", "d"],
-        ["StreamSwitch",
-         #"stock_analysis-streamswitch-streamswitch-2190-30-1000-20-2-500-6-5000-3-1000-4-3000-1-5-4000-2000-100-true-3-true-2",
-         "stock_analysis-streamswitch-streamswitch-3990-30-1000-20-2-500-6-5000-3-1000-4-3000-1-5-4000-2000-100-true-3-true-2",
-         "green", "p"],
-        ["Sluice",
-          "stock_analysis-streamsluice-streamsluice-3990-30-1000-20-2-500-6-5000-3-1000-4-3000-1-5-4000-2000-100-true-3-true-1",
-          "blue", "o"],
-    ],
-    "Tweet": [
-        ["DS2",
-         "tweet_alert-ds2-ds2-2190-30-1800-1-30-5000-10-1000-1-50-1-100-2000-100-true-3-true-1",
-         "purple", "d"],
-        ["StreamSwitch",
-         "tweet_alert-streamswitch-streamswitch-2190-30-1800-1-30-5000-10-1000-1-50-1-100-2000-100-true-3-true-1",
-         "green", "p"],
-        ["Sluice",
-          "tweet_alert-streamsluice-streamsluice-2190-30-1800-1-30-5000-10-1000-1-50-1-100-2000-100-true-3-true-2",
-          "blue", "o"],
-    ],
+    # "Stock": [
+    #     ["DS2",
+    #      "stock_analysis-ds2-ds2-3990-30-1000-20-2-500-6-5000-3-1000-4-3000-1-5-4000-2000-100-true-3-true-1",
+    #      "purple", "d"],
+    #     ["StreamSwitch",
+    #      #"stock_analysis-streamswitch-streamswitch-2190-30-1000-20-2-500-6-5000-3-1000-4-3000-1-5-4000-2000-100-true-3-true-2",
+    #      "stock_analysis-streamswitch-streamswitch-3990-30-1000-20-2-500-6-5000-3-1000-4-3000-1-5-4000-2000-100-true-3-true-2",
+    #      "green", "p"],
+    #     ["Sluice",
+    #       "stock_analysis-streamsluice-streamsluice-3990-30-1000-20-2-500-6-5000-3-1000-4-3000-1-5-4000-2000-100-true-3-true-1",
+    #       "blue", "o"],
+    # ],
+    # "Tweet": [
+    #     ["DS2",
+    #      "tweet_alert-ds2-ds2-2190-30-1800-1-30-5000-10-1000-1-50-1-100-2000-100-true-3-true-1",
+    #      "purple", "d"],
+    #     ["StreamSwitch",
+    #      "tweet_alert-streamswitch-streamswitch-2190-30-1800-1-30-5000-10-1000-1-50-1-100-2000-100-true-3-true-1",
+    #      "green", "p"],
+    #     ["Sluice",
+    #       "tweet_alert-streamsluice-streamsluice-2190-30-1800-1-30-5000-10-1000-1-50-1-100-2000-100-true-3-true-2",
+    #       "blue", "o"],
+    # ],
     "Linear_Road": [
-        ["DS2",
-         "linear_road-ds2-ds2-2190-30-1000-10-2-100-20-2000-4-100-70-1500-2000-100-true-3-true-2",
-         "purple", "d"],
-        ["StreamSwitch",
-         "linear_road-streamswitch-streamswitch-2190-30-1000-10-2-100-20-2000-4-100-70-1500-2000-100-true-3-true-2",
-         "green", "p"],
+        # ["DS2",
+        #  "linear_road-ds2-ds2-2190-30-1000-10-2-100-20-2000-4-100-70-1500-2000-100-true-3-true-2",
+        #  "purple", "d"],
+        # ["StreamSwitch",
+        #  "linear_road-streamswitch-streamswitch-2190-30-1000-10-2-100-20-2000-4-100-70-1500-2000-100-true-3-true-2",
+        #  "green", "p"],
+        # ["Sluice",
+        #   "linear_road-streamsluice-streamsluice-2190-30-1000-10-2-100-20-2000-4-100-70-1500-2000-100-true-3-true-3",
+        #   "blue", "o"],
         ["Sluice",
-          "linear_road-streamsluice-streamsluice-2190-30-1000-10-2-100-20-2000-4-100-70-1500-2000-100-true-3-true-3",
-          "blue", "o"],
+         "linear_road-streamsluice-streamsluice-2190-30-1000-10-2-100-20-3000-4-100-70-2500-2000-100-1-true-3-true-1",
+         "orange", "o"],
     ],
 }
 windowSize=1000
@@ -476,7 +479,7 @@ if len(sys.argv) > 1:
 slot_ylim_app = {
     "Stock": 45,
     "Tweet": 30,
-    "Linear_Road": 27,
+    "Linear_Road": 100, #27,
 }
 arrivalrate_ylim_app = {
     "Stock": 3000,
@@ -491,4 +494,4 @@ for app in exps.keys():
     print(expName)
     overall_resource[app] = {}
     draw(rawDir, outputDir + expName + "/", exps[app])
-drawOverallResource(outputDir + expName + "/", overall_resource)
+#drawOverallResource(outputDir + expName + "/", overall_resource)
