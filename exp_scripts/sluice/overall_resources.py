@@ -284,7 +284,6 @@ def draw(rawDir, outputDir, exps):
             totalArrivalRatesPerJob[job] += [totalArrivalRates[job]]
     print("Draw total figure...")
     print("TOTAL parallelism: " + str(totalParallelismPerExps))
-#    print("Average parallelism: " + str(sum([x for x in overall_resource[app][0]])/len(overall_resource[app][0])))
 
     figName = "Parallelism"
     nJobs = len(parallelismsPerJob.keys())
@@ -302,6 +301,7 @@ def draw(rawDir, outputDir, exps):
     legend = []
     for expindex in range(0, len(exps)):
         print("Draw exps " + exps[expindex][0] + " curve...")
+        totalParallelism = 0
         Parallelism = totalParallelismPerExps[expindex]
         # print(job + " " + str(expindex) + " " + str(Parallelism))
         legend += [exps[expindex][0]]
@@ -315,6 +315,11 @@ def draw(rawDir, outputDir, exps):
             else:
                 x1 = Parallelism[0][i + 1]
                 y1 = Parallelism[1][i + 1]
+            l = max(x0, startTime * 1000)
+            r = min(x1, (startTime + exp_length) * 1000)
+            if(l < r):
+                totalParallelism += (r - l) * y0
+
             line[0].append(x0)
             line[0].append(x1)
             line[1].append(y0)
@@ -324,6 +329,7 @@ def draw(rawDir, outputDir, exps):
             line[1].append(y0)
             line[1].append(y1)
         ax1.plot(line[0], line[1], color=exps[expindex][2], linewidth=LINEWIDTH)
+        print("Average parallelism " + exps[expindex][0] + " : " + str(totalParallelism / (exp_length * 1000)))
     ax1.legend(legend, loc='upper left', bbox_to_anchor=(0, 1.5), ncol=1, markerscale=4.)
     # ax1.set_ylabel('OP_'+str(jobIndex+1)+' Parallelism')
     ax1.set_ylim(0, slot_ylim_app[app])
