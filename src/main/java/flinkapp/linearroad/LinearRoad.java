@@ -102,7 +102,7 @@ public class LinearRoad {
 //                .slotSharingGroup("g5");
         DataStream<Tuple19<String, Integer, String, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Long, Long>> afterAverageSpeed = source //afterDispatcher
                 .keyBy(LinearRoadSource.Car_ID) // .keyBy(LinearRoadSource.Seg_ID)
-                .flatMap(new AverageSpeedAndLastAverageSpeed(params.getInt("op3Delay", 1000)))
+                .flatMap(new AverageSpeedAndLastAverageSpeed(params.getInt("op3Delay", 1000), params.getInt("payload", 0)))
                 .disableChaining()
                 .name("Average Speed and Last Average Speed")
                 .uid("op3")
@@ -143,7 +143,7 @@ public class LinearRoad {
 
         DataStream<Tuple19<String, Integer, String, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Long, Long>> afterTollNotification = afterAccidentDetection.union(afterAverageSpeed).union(afterCountVehicles) // .union(afterDispatcher)
                 .keyBy(LinearRoadSource.Car_ID) // .keyBy(LinearRoadSource.Seg_ID)
-                .flatMap(new TollNotificationAndAccountBalanceAndDailyExpense(params.getInt("op5Delay", 1000)))
+                .flatMap(new TollNotificationAndAccountBalanceAndDailyExpense(params.getInt("op5Delay", 1000), params.getInt("payload", 0)))
                 .disableChaining()
                 .name("Toll Notification and Account Balance")
                 .uid("op5")
@@ -760,10 +760,13 @@ public class LinearRoad {
         private RandomDataGenerator randomGen = new RandomDataGenerator();
         private transient MapState<Integer, Integer> totalSpeedPerSeg, totalCarsPerSeg, speedPerSeg;
         private transient MapState<String, Integer> carSpeed, carSeg;
-        private int averageDelay; // Microsecond
+        private transient MapState<String, String> extraLoadPerCar;
+        private final int averageDelay; // Microsecond
+        private final String payload;
 
-        public AverageSpeedAndLastAverageSpeed(int _averageDelay) {
+        public AverageSpeedAndLastAverageSpeed(int _averageDelay, int _payloadLength) {
             this.averageDelay = _averageDelay;
+            this.payload = new String(new char[_payloadLength]).replace("\0", "a");
         }
 
         @Override
@@ -806,6 +809,7 @@ public class LinearRoad {
             }
             carSeg.put(car_id, seg);
             carSpeed.put(car_id, speed);
+            extraLoadPerCar.put(car_id, new String(payload));
             if (!totalSpeedPerSeg.contains(seg)) {
                 totalSpeedPerSeg.put(seg, speed);
                 totalCarsPerSeg.put(seg, 1);
@@ -886,6 +890,8 @@ public class LinearRoad {
             totalSpeedPerSeg = getRuntimeContext().getMapState(descriptor1);
             descriptor1 = new MapStateDescriptor<>("last-average-speed-per-seg", Integer.class, Integer.class);
             speedPerSeg = getRuntimeContext().getMapState(descriptor1);
+            MapStateDescriptor<String, String> descriptor2 = new MapStateDescriptor<>("average-speed-extraload", String.class, String.class);
+            extraLoadPerCar = getRuntimeContext().getMapState(descriptor2);
         }
     }
 
@@ -1079,10 +1085,12 @@ public class LinearRoad {
         private RandomDataGenerator randomGen = new RandomDataGenerator();
         private transient MapState<Integer, Integer> segAverageSpeed, segLastAccident, segCarCounts;
         private transient MapState<String, Integer> balancePerCar, dailyExpensePerCar, dayPerCar;
-        private int averageDelay; // Microsecond
-
-        public TollNotificationAndAccountBalanceAndDailyExpense(int _averageDelay) {
+        private transient MapState<String, String> extraloadPerCar;
+        private final int averageDelay; // Microsecond
+        private final String payload;
+        public TollNotificationAndAccountBalanceAndDailyExpense(int _averageDelay, int _payloadLength) {
             this.averageDelay = _averageDelay;
+            this.payload = new String(new char[_payloadLength]).replace("\0", "a");
         }
 
         @Override
@@ -1123,6 +1131,7 @@ public class LinearRoad {
                     old_balance = balancePerCar.get(car_id);
                 }
                 balancePerCar.put(car_id, old_balance + price);
+                extraloadPerCar.put(car_id, new String(payload));
                 if (input.f1 == 2) {
                     int balance = 0;
                     if (balancePerCar.contains(car_id)) {
@@ -1141,6 +1150,7 @@ public class LinearRoad {
                         old_expense = dailyExpensePerCar.get(car_id);
                     }
                     dailyExpensePerCar.put(car_id, old_expense + input.f3);
+                    extraloadPerCar.put(car_id, new String(payload));
                     long currentTime = System.currentTimeMillis();
                     System.out.println("GT: " + input.f0 + "-" + input.f2 + ", " + currentTime + ", " + (currentTime - input.f17) + ", " + input.f18);
                     // }else if(source == Source_Output){
@@ -1203,6 +1213,9 @@ public class LinearRoad {
             dailyExpensePerCar = getRuntimeContext().getMapState(descriptor1);
             descriptor1 = new MapStateDescriptor<>("account-balance-daily-expense-carday", String.class, Integer.class);
             dayPerCar = getRuntimeContext().getMapState(descriptor1);
+            MapStateDescriptor<String, String> descriptor2 =
+                    new MapStateDescriptor<>("account-balance-daily-expense-payload", String.class, String.class);
+            extraloadPerCar = getRuntimeContext().getMapState(descriptor2);
         }
     }
 

@@ -84,7 +84,7 @@ init() {
   LP2=2
   LP3=20
   LP4=5
-  LP5=70
+  LP5=60
 #  LP6=1
 #  LP7=60
 #  LP8=1
@@ -94,7 +94,7 @@ init() {
   P2=2
   P3=20
   P4=4
-  P5=70
+  P5=60
 #  P6=1
 #  P7=65
 #  P8=1
@@ -108,6 +108,8 @@ init() {
 #  DELAY7=500
 #  DELAY8=10
 #  DELAY9=100
+
+  PAYLOAD=0 # about (100 + 2 * PAYLOAD) MB in every operator (1000000 keys, every key contains about 100 bytes)
 }
 
 # run applications
@@ -193,7 +195,7 @@ run_stock_test(){
     DELAY3=2000 #2000
     DELAY4=100
     DELAY5=1500 #1500
-    for input_rate_factor in 0.5 0.75 1.5; do
+    for input_rate_factor in 0.5 0.75 1.5 2.0; do
         run_one_exp
         printf "${EXP_NAME}\n" >> lr_result.txt
     done
