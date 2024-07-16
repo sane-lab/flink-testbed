@@ -192,7 +192,7 @@ public class LinearRoad {
         private final String FILE;
         private final long warmup, warmp_rate, skipCount;
         private final double input_rate_factor;
-        private final FastZipfGenerator fastZipfGenerator;
+        private FastZipfGenerator fastZipfGenerator;
         private final boolean isSkewed;
 
         public static String getSegID(int seg){
@@ -210,7 +210,9 @@ public class LinearRoad {
             this.skipCount = skipCount;
             this.input_rate_factor = input_rate_factor;
             this.isSkewed = (zipfSkew > 1e-10);
-            this.fastZipfGenerator = new FastZipfGenerator(1000000, zipfSkew, 0, 114514);
+            if (isSkewed) {
+                this.fastZipfGenerator = new FastZipfGenerator(1000000, zipfSkew, 0, 114514);
+            }
         }
 
         @Override

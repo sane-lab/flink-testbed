@@ -22,7 +22,7 @@ function analyze() {
 }
 
 run_one_exp() {
-  EXP_NAME=linear_road-${whether_type}-${how_type}-${runtime}-${warmup_time}-${warmup_rate}-${skip_interval}-${P2}-${DELAY2}-${P3}-${DELAY3}-${P4}-${DELAY4}-${P5}-${DELAY5}-${L}-${epoch}-${input_rate_factor}-${is_treat}-${errorcase_number}-${calibrate_selectivity}-${repeat}
+  EXP_NAME=linear_road-${whether_type}-${how_type}-${runtime}-${warmup_time}-${warmup_rate}-${skip_interval}-${P2}-${DELAY2}-${P3}-${DELAY3}-${P4}-${DELAY4}-${P5}-${DELAY5}-${L}-${epoch}-${input_rate_factor}-${PAYLOAD}-${SKEWNESS}-${is_treat}-${errorcase_number}-${calibrate_selectivity}-${repeat}
 
   echo "INFO: run exp ${EXP_NAME}"
   configFlink
@@ -110,6 +110,7 @@ init() {
 #  DELAY9=100
 
   PAYLOAD=0 # about (100 + 2 * PAYLOAD) MB in every operator (1000000 keys, every key contains about 100 bytes)
+  SKEWNESS=0.0 # ZIPF factor
 }
 
 # run applications
@@ -125,6 +126,7 @@ function runApp() {
     -p8 ${P8} -mp8 ${MP8} -op8Delay ${DELAY8} \
     -p9 ${P9} -mp9 ${MP9} -op9Delay ${DELAY9} \
     -input_rate_factor ${input_rate_factor} \
+    -payload ${PAYLOAD} -skew_factor ${SKEWNESS} \
     -file_name ${stock_path}${stock_file_name} -warmup_rate ${warmup_rate} -warmup_time ${warmup_time} -skip_interval ${skip_interval} &"
     ${FLINK_DIR}/bin/flink run -c ${job} ${JAR} \
         -p1 ${P1} -mp1 ${MP1} \
@@ -137,6 +139,7 @@ function runApp() {
         -p8 ${P8} -mp8 ${MP8} -op8Delay ${DELAY8} \
         -p9 ${P9} -mp9 ${MP9} -op9Delay ${DELAY9} \
         -input_rate_factor ${input_rate_factor} \
+        -payload ${PAYLOAD} -skew_factor ${SKEWNESS} \
         -file_name ${stock_path}${stock_file_name} -warmup_rate ${warmup_rate} -warmup_time ${warmup_time} -skip_interval ${skip_interval} &
 }
 
@@ -195,20 +198,33 @@ run_stock_test(){
     DELAY3=2000 #2000
     DELAY4=100
     DELAY5=1500 #1500
-    for input_rate_factor in 0.5 0.75 1.5 2.0; do
+    for input_rate_factor in 1.25 2.0; do # 0.5 0.75 1.5
         run_one_exp
         printf "${EXP_NAME}\n" >> lr_result.txt
     done
     input_rate_factor=1
-#    for process_factor in 2 3 5 6; do
-#      DELAY3=$((${process_factor} * 500))
-#      DELAY5=$(((${process_factor}-1) * 500))
-#      run_one_exp
-#      printf "${EXP_NAME}\n" >> lr_result.txt
-#    done
+
+    for process_factor in 2 3 5 6; do
+      #DELAY3=$((${process_factor} * 500))
+      DELAY5=$(((${process_factor}-1) * 500))
+      run_one_exp
+      printf "${EXP_NAME}\n" >> lr_result.txt
+    done
     DELAY2=100
     DELAY3=2000
     DELAY4=100
     DELAY5=1500
+
+    for PAYLOAD in 1 50 100 200; do
+      run_one_exp
+      printf "${EXP_NAME}\n" >> lr_result.txt
+    done
+    PAYLOAD=0
+
+    for SKEWNESS in 0.125 0.25 0.375 0.5; do
+      run_one_exp
+      printf "${EXP_NAME}\n" >> lr_result.txt
+    done
+    SKEWNESS=0.0
 }
 run_stock_test
