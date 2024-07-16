@@ -137,6 +137,7 @@ def draw(rawDir, outputDir, exps, windowSize):
                               averageGroundTruthLatencies[i][0][x] <= (startTime + 1800) * 1000]
 
     print(successRatePerExps)
+    #print(averageGroundTruthLatencies)
     #fig = plt.figure(figsize=(24, 3))
     fig = plt.figure(figsize=(10, 5))
     print("Draw ground truth curve...")
@@ -275,7 +276,7 @@ exps = {
         #   "linear_road-streamsluice-streamsluice-2190-30-1000-10-2-100-20-2000-4-100-70-1500-2000-100-true-3-true-3",
         #   "blue", "o"],
         ["Sluice",
-         "linear_road-streamsluice-streamsluice-2190-30-1000-10-2-100-20-3000-4-100-70-2500-2000-100-1-true-3-true-1",
+         "linear_road-streamsluice-streamsluice-2190-30-1000-10-2-100-20-2000-4-100-70-1500-2000-100-0.5-true-3-true-1",
          "orange", "o"],
     ]
 }

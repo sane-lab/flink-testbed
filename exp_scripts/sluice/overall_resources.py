@@ -284,6 +284,7 @@ def draw(rawDir, outputDir, exps):
             totalArrivalRatesPerJob[job] += [totalArrivalRates[job]]
     print("Draw total figure...")
     print("TOTAL parallelism: " + str(totalParallelismPerExps))
+#    print("Average parallelism: " + str(sum([x for x in overall_resource[app][0]])/len(overall_resource[app][0])))
 
     figName = "Parallelism"
     nJobs = len(parallelismsPerJob.keys())
@@ -457,7 +458,7 @@ exps = {
         #   "linear_road-streamsluice-streamsluice-2190-30-1000-10-2-100-20-2000-4-100-70-1500-2000-100-true-3-true-3",
         #   "blue", "o"],
         ["Sluice",
-         "linear_road-streamsluice-streamsluice-2190-30-1000-10-2-100-20-3000-4-100-70-2500-2000-100-1-true-3-true-1",
+         "linear_road-streamsluice-streamsluice-2190-30-1000-10-2-100-20-2000-4-100-70-1500-2000-100-0.5-true-3-true-1",
          "orange", "o"],
     ],
 }

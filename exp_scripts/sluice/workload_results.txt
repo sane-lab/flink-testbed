@@ -1,0 +1,13 @@
+Input_Rate
+
+
+Processing_Rate
+linear_road-streamsluice-streamsluice-2190-30-1000-10-2-100-20-3000-4-100-70-2500-2000-100-1-true-3-true-1 0.9173622704507512
+
+
+State_Size
+
+
+Skewness
+
+

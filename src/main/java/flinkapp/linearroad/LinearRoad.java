@@ -189,7 +189,7 @@ public class LinearRoad {
 
         private final String FILE;
         private final long warmup, warmp_rate, skipCount;
-        double input_rate_factor;
+        private final double input_rate_factor;
 
         public static String getSegID(int seg){
             return "A" + seg;
@@ -264,6 +264,7 @@ public class LinearRoad {
                                 // }
                             }
                         }
+                        System.out.println("!! C: " + counter + " A: " + input_factor_count + " F: " + input_rate_factor);
                         counter = 0;
                         input_factor_count = 0;
                         cur = System.currentTimeMillis();
@@ -283,8 +284,10 @@ public class LinearRoad {
                         Long ts = System.currentTimeMillis();
                         String msg = sCurrentLine;
                         List<String> stockArr = Arrays.asList(msg.split(","));
+                        counter++;
                         int seg = Integer.parseInt(stockArr.get(Seg - 1)), car_id = Integer.parseInt(stockArr.get(Car_ID - 1));
-                        if(input_rate_factor >= 1.0 - 1e-9) {
+                        int round_factor = (int)(input_rate_factor + 1e-9);
+                        for (int rep = 0; rep < round_factor; rep++){
                             ctx.collect(new Tuple19<>(
                                     getSegID(seg),
                                     Integer.parseInt(stockArr.get(0)),
@@ -304,60 +307,31 @@ public class LinearRoad {
                                     Integer.parseInt(stockArr.get(14)),
                                     0, ts, (long) count));
                             count++;
+                        }
+                        int new_input = (int) ((input_rate_factor - round_factor) * counter + 1e-9);
+                        if(new_input > input_factor_count){
                             input_factor_count++;
-
-                            int new_input = (int) ((input_rate_factor - 1.0) * input_factor_count + 1e-9);
-                            if (new_input > 0) {
-                                for (int rep = 0; rep < new_input; rep++) {
-                                    ctx.collect(new Tuple19<>(
-                                            getSegID(seg),
-                                            Integer.parseInt(stockArr.get(0)),
-                                            getCarID(car_id),
-                                            Integer.parseInt(stockArr.get(2)),
-                                            Integer.parseInt(stockArr.get(3)),
-                                            Integer.parseInt(stockArr.get(4)),
-                                            Integer.parseInt(stockArr.get(5)),
-                                            Integer.parseInt(stockArr.get(6)),
-                                            Integer.parseInt(stockArr.get(7)),
-                                            Integer.parseInt(stockArr.get(8)),
-                                            Integer.parseInt(stockArr.get(9)),
-                                            Integer.parseInt(stockArr.get(10)),
-                                            Integer.parseInt(stockArr.get(11)),
-                                            Integer.parseInt(stockArr.get(12)),
-                                            Integer.parseInt(stockArr.get(13)),
-                                            Integer.parseInt(stockArr.get(14)),
-                                            0, ts, (long) count));
-                                    count++;
-                                }
-                                input_factor_count = 0;
-                            }
-                        }else{
+                            ctx.collect(new Tuple19<>(
+                                    getSegID(seg),
+                                    Integer.parseInt(stockArr.get(0)),
+                                    getCarID(car_id),
+                                    Integer.parseInt(stockArr.get(2)),
+                                    Integer.parseInt(stockArr.get(3)),
+                                    Integer.parseInt(stockArr.get(4)),
+                                    Integer.parseInt(stockArr.get(5)),
+                                    Integer.parseInt(stockArr.get(6)),
+                                    Integer.parseInt(stockArr.get(7)),
+                                    Integer.parseInt(stockArr.get(8)),
+                                    Integer.parseInt(stockArr.get(9)),
+                                    Integer.parseInt(stockArr.get(10)),
+                                    Integer.parseInt(stockArr.get(11)),
+                                    Integer.parseInt(stockArr.get(12)),
+                                    Integer.parseInt(stockArr.get(13)),
+                                    Integer.parseInt(stockArr.get(14)),
+                                    0, ts, (long) count));
                             count++;
-                            int new_input = (int) (input_rate_factor * count + 1e-9);
-                            while(new_input > input_factor_count){
-                                ctx.collect(new Tuple19<>(
-                                        getSegID(seg),
-                                        Integer.parseInt(stockArr.get(0)),
-                                        getCarID(car_id),
-                                        Integer.parseInt(stockArr.get(2)),
-                                        Integer.parseInt(stockArr.get(3)),
-                                        Integer.parseInt(stockArr.get(4)),
-                                        Integer.parseInt(stockArr.get(5)),
-                                        Integer.parseInt(stockArr.get(6)),
-                                        Integer.parseInt(stockArr.get(7)),
-                                        Integer.parseInt(stockArr.get(8)),
-                                        Integer.parseInt(stockArr.get(9)),
-                                        Integer.parseInt(stockArr.get(10)),
-                                        Integer.parseInt(stockArr.get(11)),
-                                        Integer.parseInt(stockArr.get(12)),
-                                        Integer.parseInt(stockArr.get(13)),
-                                        Integer.parseInt(stockArr.get(14)),
-                                        0, ts, (long) count));
-                                input_factor_count++;
-                            }
                         }
                     }
-                    counter++;
                 }
             } catch (IOException e) {
                 e.printStackTrace();
