@@ -120,7 +120,7 @@ def draw(rawDir, outputDir, exps, windowSize):
         expFile = exps[i][1]
         result = readGroundTruthLatency(rawDir, expFile, windowSize)
         averageGroundTruthLatencies += [result[0]]
-    print("+++ " + str(averageGroundTruthLatencies))
+    # print("+++ " + str(averageGroundTruthLatencies))
 
     successRatePerExps = {}
     for i in range(0, len(exps)):
@@ -135,7 +135,11 @@ def draw(rawDir, outputDir, exps, windowSize):
         overall_latency[app][i] = [averageGroundTruthLatencies[i][1][x] for x in range(0, len(averageGroundTruthLatencies[i][0])) if
                               averageGroundTruthLatencies[i][0][x] >= startTime * 1000 and
                               averageGroundTruthLatencies[i][0][x] <= (startTime + 1800) * 1000]
-
+        print("Avg latencies: " + str(sum([averageGroundTruthLatencies[i][1][x] for x in range(0, len(averageGroundTruthLatencies[i][0])) if
+                              averageGroundTruthLatencies[i][0][x] >= startTime * 1000 and
+                              averageGroundTruthLatencies[i][0][x] <= (startTime + 1800) * 1000])/len([averageGroundTruthLatencies[i][1][x] for x in range(0, len(averageGroundTruthLatencies[i][0])) if
+                              averageGroundTruthLatencies[i][0][x] >= startTime * 1000 and
+                              averageGroundTruthLatencies[i][0][x] <= (startTime + 1800) * 1000])))
     print(successRatePerExps)
     #print(averageGroundTruthLatencies)
     #fig = plt.figure(figsize=(24, 3))
@@ -276,7 +280,7 @@ exps = {
         #   "linear_road-streamsluice-streamsluice-2190-30-1000-10-2-100-20-2000-4-100-70-1500-2000-100-true-3-true-3",
         #   "blue", "o"],
         ["Sluice",
-         "linear_road-streamsluice-streamsluice-690-30-1000-10-2-100-20-2000-4-100-60-1500-2000-100-1.5-true-3-true-1",
+         "linear_road-streamsluice-streamsluice-2190-30-1000-10-2-100-20-2000-4-100-60-1500-2000-100-1.5-true-3-true-1",
          "orange", "o"],
     ]
 }

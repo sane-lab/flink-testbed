@@ -1,6 +1,7 @@
 package flinkapp.linearroad;
 
 import Nexmark.sources.Util;
+import common.FastZipfGenerator;
 import org.apache.commons.math3.random.RandomDataGenerator;
 import org.apache.flink.api.common.functions.RichFlatMapFunction;
 import org.apache.flink.api.common.functions.RichMapFunction;
@@ -47,7 +48,8 @@ public class LinearRoad {
                                 params.getLong("warmup_time", 30L) * 1000,
                                 params.getLong("warmup_rate", 1500L),
                                 params.getLong("skip_interval", 0L) * 20,
-                                        params.getDouble("input_rate_factor", 1.0))
+                                        params.getDouble("input_rate_factor", 1.0),
+                                        params.getDouble("skew_factor", 0.0))
                                 )
                         .setParallelism(params.getInt("p1", 1));
 
@@ -190,6 +192,8 @@ public class LinearRoad {
         private final String FILE;
         private final long warmup, warmp_rate, skipCount;
         private final double input_rate_factor;
+        private final FastZipfGenerator fastZipfGenerator;
+        private final boolean isSkewed;
 
         public static String getSegID(int seg){
             return "A" + seg;
@@ -199,13 +203,14 @@ public class LinearRoad {
             return String.format("A%06d",car_ID);
         }
 
-
-        public LinearRoadSource(String FILE, long warmup, long warmup_rate, long skipCount, double input_rate_factor) {
+        public LinearRoadSource(String FILE, long warmup, long warmup_rate, long skipCount, double input_rate_factor, double zipfSkew) {
             this.FILE = FILE;
             this.warmup = warmup;
             this.warmp_rate = warmup_rate;
             this.skipCount = skipCount;
             this.input_rate_factor = input_rate_factor;
+            this.isSkewed = (zipfSkew > 1e-10);
+            this.fastZipfGenerator = new FastZipfGenerator(1000000, zipfSkew, 0, 114514);
         }
 
         @Override
@@ -229,6 +234,9 @@ public class LinearRoad {
                 long emitStartTime = System.currentTimeMillis();
                 for (int i = 0; i < warmp_rate * input_rate_factor / 20; i++) {
                     int car_id = count % 1000000;
+                    if(isSkewed){
+                        car_id = fastZipfGenerator.next();
+                    }
                     int seg = count % 100;
                     String seg_ID = getSegID(seg);
                     //for(int rep = 0; rep < input_rate_factor; rep ++) {
@@ -256,6 +264,9 @@ public class LinearRoad {
                         if (sleepCnt <= skipCount) {
                             for (int i = 0; i < warmp_rate * input_rate_factor / 20; i++) {
                                 int car_id = count % 1000000;
+                                if(isSkewed){
+                                    car_id = fastZipfGenerator.next();
+                                }
                                 int seg = count % 100;
                                 String seg_ID = getSegID(seg);
                                 // for(int rep = 0; rep < input_rate_factor; rep ++) {
@@ -286,6 +297,9 @@ public class LinearRoad {
                         List<String> stockArr = Arrays.asList(msg.split(","));
                         counter++;
                         int seg = Integer.parseInt(stockArr.get(Seg - 1)), car_id = Integer.parseInt(stockArr.get(Car_ID - 1));
+                        if(isSkewed){
+                            car_id = fastZipfGenerator.next();
+                        }
                         int round_factor = (int)(input_rate_factor + 1e-9);
                         for (int rep = 0; rep < round_factor; rep++){
                             ctx.collect(new Tuple19<>(
@@ -763,10 +777,17 @@ public class LinearRoad {
         private transient MapState<String, String> extraLoadPerCar;
         private final int averageDelay; // Microsecond
         private final String payload;
+        private final boolean payloadFlag;
 
         public AverageSpeedAndLastAverageSpeed(int _averageDelay, int _payloadLength) {
             this.averageDelay = _averageDelay;
-            this.payload = new String(new char[_payloadLength]).replace("\0", "a");
+            if(_payloadLength > 0) {
+                this.payloadFlag = true;
+                this.payload = new String(new char[_payloadLength]).replace("\0", "a");
+            }else{
+                this.payloadFlag = false;
+                this.payload = "";
+            }
         }
 
         @Override
@@ -809,7 +830,9 @@ public class LinearRoad {
             }
             carSeg.put(car_id, seg);
             carSpeed.put(car_id, speed);
-            extraLoadPerCar.put(car_id, new String(payload));
+            if(payloadFlag){
+                extraLoadPerCar.put(car_id, new String(payload));
+            }
             if (!totalSpeedPerSeg.contains(seg)) {
                 totalSpeedPerSeg.put(seg, speed);
                 totalCarsPerSeg.put(seg, 1);
@@ -890,8 +913,10 @@ public class LinearRoad {
             totalSpeedPerSeg = getRuntimeContext().getMapState(descriptor1);
             descriptor1 = new MapStateDescriptor<>("last-average-speed-per-seg", Integer.class, Integer.class);
             speedPerSeg = getRuntimeContext().getMapState(descriptor1);
-            MapStateDescriptor<String, String> descriptor2 = new MapStateDescriptor<>("average-speed-extraload", String.class, String.class);
-            extraLoadPerCar = getRuntimeContext().getMapState(descriptor2);
+            if(payloadFlag) {
+                MapStateDescriptor<String, String> descriptor2 = new MapStateDescriptor<>("average-speed-extraload", String.class, String.class);
+                extraLoadPerCar = getRuntimeContext().getMapState(descriptor2);
+            }
         }
     }
 
@@ -1088,9 +1113,16 @@ public class LinearRoad {
         private transient MapState<String, String> extraloadPerCar;
         private final int averageDelay; // Microsecond
         private final String payload;
+        private final boolean payloadFlag;
         public TollNotificationAndAccountBalanceAndDailyExpense(int _averageDelay, int _payloadLength) {
             this.averageDelay = _averageDelay;
-            this.payload = new String(new char[_payloadLength]).replace("\0", "a");
+            if(_payloadLength > 0) {
+                this.payloadFlag = true;
+                this.payload = new String(new char[_payloadLength]).replace("\0", "a");
+            }else{
+                this.payloadFlag = false;
+                this.payload = "";
+            }
         }
 
         @Override
@@ -1131,7 +1163,9 @@ public class LinearRoad {
                     old_balance = balancePerCar.get(car_id);
                 }
                 balancePerCar.put(car_id, old_balance + price);
-                extraloadPerCar.put(car_id, new String(payload));
+                if(payloadFlag){
+                    extraloadPerCar.put(car_id, new String(payload));
+                }
                 if (input.f1 == 2) {
                     int balance = 0;
                     if (balancePerCar.contains(car_id)) {
@@ -1150,7 +1184,9 @@ public class LinearRoad {
                         old_expense = dailyExpensePerCar.get(car_id);
                     }
                     dailyExpensePerCar.put(car_id, old_expense + input.f3);
-                    extraloadPerCar.put(car_id, new String(payload));
+                    if(payloadFlag){
+                        extraloadPerCar.put(car_id, new String(payload));
+                    }
                     long currentTime = System.currentTimeMillis();
                     System.out.println("GT: " + input.f0 + "-" + input.f2 + ", " + currentTime + ", " + (currentTime - input.f17) + ", " + input.f18);
                     // }else if(source == Source_Output){
@@ -1213,9 +1249,11 @@ public class LinearRoad {
             dailyExpensePerCar = getRuntimeContext().getMapState(descriptor1);
             descriptor1 = new MapStateDescriptor<>("account-balance-daily-expense-carday", String.class, Integer.class);
             dayPerCar = getRuntimeContext().getMapState(descriptor1);
-            MapStateDescriptor<String, String> descriptor2 =
-                    new MapStateDescriptor<>("account-balance-daily-expense-payload", String.class, String.class);
-            extraloadPerCar = getRuntimeContext().getMapState(descriptor2);
+            if(payloadFlag) {
+                MapStateDescriptor<String, String> descriptor2 =
+                        new MapStateDescriptor<>("account-balance-daily-expense-payload", String.class, String.class);
+                extraloadPerCar = getRuntimeContext().getMapState(descriptor2);
+            }
         }
     }
 

@@ -464,7 +464,7 @@ exps = {
         #   "linear_road-streamsluice-streamsluice-2190-30-1000-10-2-100-20-2000-4-100-70-1500-2000-100-true-3-true-3",
         #   "blue", "o"],
         ["Sluice",
-         "linear_road-streamsluice-streamsluice-690-30-1000-10-2-100-20-2000-4-100-60-1500-2000-100-1.5-true-3-true-1",
+         "linear_road-streamsluice-streamsluice-2190-30-1000-10-2-100-20-2000-4-100-60-1500-2000-100-1.5-true-3-true-1",
          "orange", "o"],
     ],
 }
