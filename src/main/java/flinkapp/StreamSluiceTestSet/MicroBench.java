@@ -52,8 +52,14 @@ public class MicroBench {
         final int nKeys = params.getInt("nkeys", 1000);
         final String GRAPH_TYPE = params.get("graph", "2op");
 
-        DataStreamSource<Tuple3<String, Long, Long>> source = env.addSource(new WhenSource(PHASE1_TIME, PHASE2_TIME, INTERMEDIATE_TIME, PHASE1_RATE, PHASE2_RATE, INTERMEDIATE_RATE, INTERMEDIATE_RANGE, INTERMEDIATE_PERIOD, params.getLong("macroInterAmplitude", 0), params.getLong("macroInterPeriod", 60) * 1000, params.getInt("mp2", 8), zipf_skew, nKeys, params.get("curve_type", "sine"), params.getInt("inter_delta", 0)))
-                .setParallelism(params.getInt("p1", 1));
+        DataStreamSource<Tuple3<String, Long, Long>> source;
+        if(GRAPH_TYPE.equals("")){
+            source = env.addSource(new WhenSource(PHASE1_TIME, PHASE2_TIME, INTERMEDIATE_TIME, PHASE1_RATE, PHASE2_RATE, INTERMEDIATE_RATE))
+                    .setParallelism(params.getInt("p1", 1));
+        }else{
+            source = env.addSource(new DynamicAvgRateSineSource(PHASE1_TIME, PHASE2_TIME, INTERMEDIATE_TIME, PHASE1_RATE, PHASE2_RATE, INTERMEDIATE_RATE, INTERMEDIATE_RANGE, INTERMEDIATE_PERIOD, params.getLong("macroInterAmplitude", 0), params.getLong("macroInterPeriod", 60) * 1000, params.getInt("mp2", 8), zipf_skew, nKeys, params.get("curve_type", "sine"), params.getInt("inter_delta", 0)))
+                    .setParallelism(params.getInt("p1", 1));
+        }
         if(GRAPH_TYPE.equals("1op")){
             source.keyBy(0)
                     .map(new DumbSink(params.getLong("op2Delay", 100), params.getInt("op2KeyStateSize", 1), params.getBoolean("outputGroundTruth", true)))
@@ -473,29 +479,26 @@ public class MicroBench {
         private long NORMAL_TIME, NORMAL_RATE, PHASE1_TIME, PHASE1_RATE, PHASE2_TIME, PHASE2_RATE;
         private int count = 0;
         private volatile boolean isRunning = true;
-
         private transient ListState<Integer> checkpointedCount;
-
         private int maxParallelism;
         private FastZipfGenerator fastZipfGenerator;
         private RandomDataGenerator randomGen = new RandomDataGenerator();
         private int nKeys;
-        private final String curve_type;
-
         private final Map<Integer, List<String>> keyGroupMapping = new HashMap<>();
 
         private final Map<Integer, Long> totalOutputNumbers = new HashMap<>();
 
-        public WhenSource(long PHASE1_TIME, long PHASE2_TIME, long INTERMEDIATE_TIME, long PHASE1_RATE, long PHASE2_RATE, long INTERMEDIATE_RATE, long INTERMEDIATE_RANGE, long INTERMEDIATE_PERIOD, long macro_amplitude, long macro_period, int maxParallelism, double zipfSkew, int nkeys, String curve_type, int delta){
+        public WhenSource(long PHASE1_TIME, long PHASE2_TIME, long NORMAL_TIME, long PHASE1_RATE, long PHASE2_RATE, long NORMAL_RATE){
             this.PHASE1_TIME = PHASE1_TIME;
             this.PHASE2_TIME = PHASE2_TIME;
+            this.NORMAL_TIME = NORMAL_TIME;
             this.PHASE1_RATE = PHASE1_RATE;
             this.PHASE2_RATE = PHASE2_RATE;
-            this.nKeys = nkeys;
-            this.maxParallelism = maxParallelism;
-            this.fastZipfGenerator = new FastZipfGenerator(maxParallelism, zipfSkew, 0, 114514);
-            this.curve_type = curve_type;
-            for (int i = 0; i < nkeys; i++) {
+            this.NORMAL_RATE = NORMAL_RATE;
+            this.nKeys = 1000;
+            this.maxParallelism = 128;
+            this.fastZipfGenerator = new FastZipfGenerator(maxParallelism, 0.0, 0, 114514);
+            for (int i = 0; i < this.nKeys; i++) {
                 String key = "A" + i;
                 int keygroup = MathUtils.murmurHash(key.hashCode()) % maxParallelism;
                 List<String> keys = keyGroupMapping.computeIfAbsent(keygroup, t -> new ArrayList<>());
@@ -571,7 +574,6 @@ public class MicroBench {
         private String getChar(int cur) {
             return "A" + (cur % nKeys);
         }
-
 
         private String getSubKeySetChar(int cur, List<String> subKeySet) {
             return subKeySet.get(cur % subKeySet.size());

@@ -212,8 +212,8 @@ public class LinearRoad {
             this.input_rate_factor = input_rate_factor;
             this.isSkewed = (zipfSkew > 1e-10);
             if (isSkewed) {
-                for (int i = 0; i < 1000000; i++) {
-                    String key = getCarID(i);
+                for (int i = 0; i < 1000; i++) {
+                    String key = getSegID(i);
                     int keygroup = MathUtils.murmurHash(key.hashCode()) % maxParallelism;
                     List<String> keys = keyGroupMapping.computeIfAbsent(keygroup, t -> new ArrayList<>());
                     keys.add(key);

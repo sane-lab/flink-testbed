@@ -49,7 +49,7 @@ init() {
   how_type="streamsluice"
   scalein_type="streamsluice"
   L=2000
-  runtime=2190 #1290 #3990
+  runtime=690 #2190 #1290 #3990
   skip_interval=10 #120 #300 # skip seconds
   warmup=10000
   warmup_time=30
@@ -216,15 +216,15 @@ run_stock_test(){
 #    DELAY4=100
 #    DELAY5=1500
 
-    for PAYLOAD in 25; do
-      run_one_exp
-      printf "${EXP_NAME}\n" >> lr_result.txt
-    done
-    PAYLOAD=0
+#    for PAYLOAD in 25; do
+#      run_one_exp
+#      printf "${EXP_NAME}\n" >> lr_result.txt
+#    done
+#    PAYLOAD=0
 
     P3=20
     P5=60
-    for SKEWNESS in 0.0125 0.025 0.05 0.1; do
+    for SKEWNESS in 0.0125 0.025; do #  0.05 0.1; do
       run_one_exp
       printf "${EXP_NAME}\n" >> lr_result.txt
     done
