@@ -520,48 +520,6 @@ public class MicroBench {
                 }
             }
         }
-
-        public void startInterPhase(long startTime, SourceContext<Tuple3<String, Long, Long>> ctx, String curve_type, long PHASE1_RATE, long INTERMEDIATE_RATE, long INTERMEDIATE_PERIOD, long INTERMEDIATE_TIME, long macroAmplitude, long macroPeriod, int delta) throws Exception {
-            long remainedNumber = (long) Math.floor(PHASE1_RATE * INTERVAL / 1000.0);
-            long AMPLITUDE = INTERMEDIATE_RANGE;
-            while (isRunning && System.currentTimeMillis() - startTime < INTERMEDIATE_TIME) {
-                if (remainedNumber <= 0) {
-                    long index = (System.currentTimeMillis() - startTime) / INTERVAL;
-                    long ntime = (index + 1) * INTERVAL + startTime;
-                    double macroTheta = Math.sin(Math.toRadians(index * INTERVAL * 360 / ((double) macroPeriod)));
-                    AMPLITUDE = (INTERMEDIATE_RANGE) + (long) Math.floor(macroTheta * macroAmplitude);
-                    double theta = 0.0;
-                    if (curve_type.equals("sine")) {
-                        theta = Math.sin(Math.toRadians(index * INTERVAL * 360 / ((double) INTERMEDIATE_PERIOD) + delta));
-                    } else if (curve_type.equals("gradient")) {
-                        theta = 1.0;
-                    } else if (curve_type.equals("linear")) {
-                        double x = index * INTERVAL - Math.floor(index * INTERVAL / ((double) INTERMEDIATE_PERIOD)) * INTERMEDIATE_PERIOD;
-                        if (x >= INTERMEDIATE_PERIOD / 2.0) {
-                            theta = 2.0 - x / (INTERMEDIATE_PERIOD / 2.0);
-                        } else {
-                            theta = x / (INTERMEDIATE_PERIOD / 2.0);
-                        }
-                        theta = theta * 2 - 1.0;
-                    }
-                    remainedNumber = (long) Math.floor((INTERMEDIATE_RATE + theta * AMPLITUDE) / 1000 * INTERVAL);
-                    long ctime = System.currentTimeMillis();
-                    if (ntime >= ctime) {
-                        Thread.sleep(ntime - ctime);
-                    }
-                }
-                synchronized (ctx.getCheckpointLock()) {
-                    int selectedKeygroup = fastZipfGenerator.next();
-                    List<String> subKeySet = keyGroupMapping.get(selectedKeygroup);
-                    totalOutputNumbers.put(selectedKeygroup, totalOutputNumbers.getOrDefault(selectedKeygroup, 0l) + 1);
-                    String key = getSubKeySetChar(count, subKeySet);
-                    ctx.collect(Tuple3.of(key, System.currentTimeMillis(), (long) count));
-                    remainedNumber--;
-                    count++;
-                }
-            }
-        }
-
         public void run(SourceContext<Tuple3<String, Long, Long>> ctx) throws Exception {
             List<String> subKeySet;
             long startTime = System.currentTimeMillis();
@@ -587,7 +545,7 @@ public class MicroBench {
             // Intermediate Phase
             startTime = System.currentTimeMillis();
             System.out.println("Intermediate phase start at: " + startTime);
-            startInterPhase(startTime, ctx, curve_type, PHASE1_RATE, INTERMEDIATE_RATE, INTERMEDIATE_PERIOD, INTERMEDIATE_TIME, macroAmplitude, macroPeriod, INTERMEDIATE_DELTA);
+            // startInterPhase(startTime, ctx, curve_type, PHASE1_RATE, INTERMEDIATE_RATE, INTERMEDIATE_PERIOD, INTERMEDIATE_TIME, macroAmplitude, macroPeriod, INTERMEDIATE_DELTA);
 
             if (!isRunning) {
                 return ;

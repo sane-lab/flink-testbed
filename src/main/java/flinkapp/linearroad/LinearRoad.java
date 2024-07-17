@@ -48,7 +48,7 @@ public class LinearRoad {
                                 params.getLong("warmup_rate", 1500L),
                                 params.getLong("skip_interval", 0L) * 20,
                                         params.getDouble("input_rate_factor", 1.0),
-                                        128,
+                                        params.getInt("mp2", 8),
                                         params.getDouble("skew_factor", 0.0))
                                 )
                         .setParallelism(params.getInt("p1", 1));
@@ -213,7 +213,7 @@ public class LinearRoad {
             this.isSkewed = (zipfSkew > 1e-10);
             if (isSkewed) {
                 for (int i = 0; i < 1000000; i++) {
-                    String key = getSegID(i);
+                    String key = getCarID(i);
                     int keygroup = MathUtils.murmurHash(key.hashCode()) % maxParallelism;
                     List<String> keys = keyGroupMapping.computeIfAbsent(keygroup, t -> new ArrayList<>());
                     keys.add(key);
