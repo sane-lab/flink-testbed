@@ -245,6 +245,7 @@ def drawOverallLatency(output_directory: str, workload_latency: dict):
 
 rawDir = "/Users/swrrt/Workplace/BacklogDelayPaper/experiments/raw/"
 outputDir = "/Users/swrrt/Workplace/BacklogDelayPaper/experiments/results/"
+
 exps = {
     # "Stock": [
     #     ["DS2",
@@ -280,11 +281,10 @@ exps = {
         #   "linear_road-streamsluice-streamsluice-2190-30-1000-10-2-100-20-2000-4-100-70-1500-2000-100-true-3-true-3",
         #   "blue", "o"],
         ["Sluice",
-         "linear_road-streamsluice-streamsluice-2190-30-1000-10-2-100-20-2000-4-100-70-1500-2000-100-true-3-true-3",
+         "linear_road-streamsluice-streamsluice-2190-30-1000-10-2-100-20-2000-4-100-60-1500-2000-100-1-0-0.25-true-3-true-1",
          "orange", "o"],
     ]
 }
-
 import sys
 if len(sys.argv) > 1:
     expName = sys.argv[1].split("/")[-1]

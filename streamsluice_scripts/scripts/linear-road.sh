@@ -198,33 +198,34 @@ run_stock_test(){
     DELAY3=2000 #2000
     DELAY4=100
     DELAY5=1500 #1500
-    for input_rate_factor in 1.25 2.0; do # 0.5 0.75 1.5
+    repeat=2
+    for input_rate_factor in 1.25 1.5; do # 0.5 0.75 1.5
         run_one_exp
         printf "${EXP_NAME}\n" >> lr_result.txt
     done
     input_rate_factor=1
 
-    for process_factor in 2 3 5 6; do
-      #DELAY3=$((${process_factor} * 500))
-      DELAY5=$(((${process_factor}-1) * 500))
-      run_one_exp
-      printf "${EXP_NAME}\n" >> lr_result.txt
-    done
-    DELAY2=100
-    DELAY3=2000
-    DELAY4=100
-    DELAY5=1500
+#    for process_factor in 2 3 5 6; do
+#      #DELAY3=$((${process_factor} * 500))
+#      DELAY5=$(((${process_factor}-1) * 500))
+#      run_one_exp
+#      printf "${EXP_NAME}\n" >> lr_result.txt
+#    done
+#    DELAY2=100
+#    DELAY3=2000
+#    DELAY4=100
+#    DELAY5=1500
 
-    for PAYLOAD in 1 50 100 200; do
+    for PAYLOAD in 1 25 75; do
       run_one_exp
       printf "${EXP_NAME}\n" >> lr_result.txt
     done
     PAYLOAD=0
 
-    for SKEWNESS in 0.125 0.25 0.375 0.5; do
-      run_one_exp
-      printf "${EXP_NAME}\n" >> lr_result.txt
-    done
-    SKEWNESS=0.0
+#    for SKEWNESS in 0.125 0.25 0.375 0.5; do
+#      run_one_exp
+#      printf "${EXP_NAME}\n" >> lr_result.txt
+#    done
+#    SKEWNESS=0.0
 }
 run_stock_test
