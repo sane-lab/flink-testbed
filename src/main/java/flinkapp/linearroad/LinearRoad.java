@@ -17,13 +17,12 @@ import org.apache.flink.streaming.api.datastream.DataStreamSource;
 import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
 import org.apache.flink.streaming.api.functions.source.RichParallelSourceFunction;
 import org.apache.flink.util.Collector;
+import org.apache.flink.util.MathUtils;
 
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
+import java.util.*;
 
 public class LinearRoad {
     private static final int Source_Output = 0;
@@ -49,6 +48,7 @@ public class LinearRoad {
                                 params.getLong("warmup_rate", 1500L),
                                 params.getLong("skip_interval", 0L) * 20,
                                         params.getDouble("input_rate_factor", 1.0),
+                                        128,
                                         params.getDouble("skew_factor", 0.0))
                                 )
                         .setParallelism(params.getInt("p1", 1));
@@ -194,6 +194,7 @@ public class LinearRoad {
         private final double input_rate_factor;
         private FastZipfGenerator fastZipfGenerator;
         private final boolean isSkewed;
+        private final Map<Integer, List<String>> keyGroupMapping = new HashMap<>();
 
         public static String getSegID(int seg){
             return "A" + seg;
@@ -203,7 +204,7 @@ public class LinearRoad {
             return String.format("A%06d",car_ID);
         }
 
-        public LinearRoadSource(String FILE, long warmup, long warmup_rate, long skipCount, double input_rate_factor, double zipfSkew) {
+        public LinearRoadSource(String FILE, long warmup, long warmup_rate, long skipCount, double input_rate_factor, int maxParallelism, double zipfSkew) {
             this.FILE = FILE;
             this.warmup = warmup;
             this.warmp_rate = warmup_rate;
@@ -211,14 +212,24 @@ public class LinearRoad {
             this.input_rate_factor = input_rate_factor;
             this.isSkewed = (zipfSkew > 1e-10);
             if (isSkewed) {
-                this.fastZipfGenerator = new FastZipfGenerator(1000000, zipfSkew, 0, 114514);
+                for (int i = 0; i < 1000000; i++) {
+                    String key = getSegID(i);
+                    int keygroup = MathUtils.murmurHash(key.hashCode()) % maxParallelism;
+                    List<String> keys = keyGroupMapping.computeIfAbsent(keygroup, t -> new ArrayList<>());
+                    keys.add(key);
+                }
+                this.fastZipfGenerator = new FastZipfGenerator(maxParallelism, zipfSkew, 0, 114514);
             }
+        }
+
+        private String getSubKeySetChar(int cur, List<String> subKeySet) {
+            return subKeySet.get(cur % subKeySet.size());
         }
 
         @Override
         public void run(SourceContext<Tuple19<String, Integer, String, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Long, Long>> ctx) throws Exception {
             String sCurrentLine;
-            List<String> textList = new ArrayList<>();
+            List<String> subKeySet;
             FileReader stream = null;
             // // for loop to generate message
             BufferedReader br = null;
@@ -236,13 +247,16 @@ public class LinearRoad {
                 long emitStartTime = System.currentTimeMillis();
                 for (int i = 0; i < warmp_rate * input_rate_factor / 20; i++) {
                     int car_id = count % 1000000;
+                    String key = getCarID(car_id);
                     if(isSkewed){
-                        car_id = fastZipfGenerator.next();
+                        int selectedKeygroup = fastZipfGenerator.next();
+                        subKeySet = keyGroupMapping.get(selectedKeygroup);
+                        key = getSubKeySetChar(count, subKeySet);
                     }
                     int seg = count % 100;
                     String seg_ID = getSegID(seg);
                     //for(int rep = 0; rep < input_rate_factor; rep ++) {
-                        ctx.collect(Tuple19.of(seg_ID, 0, getCarID(car_id), 0, 0, 0, 0, seg, 0, 0, 0, 0, 0, 0, 0, 0, 0, System.currentTimeMillis(), (long) count));
+                        ctx.collect(Tuple19.of(seg_ID, 0, key, 0, 0, 0, 0, seg, 0, 0, 0, 0, 0, 0, 0, 0, 0, System.currentTimeMillis(), (long) count));
                         count++;
                     //}
                 }
@@ -266,13 +280,16 @@ public class LinearRoad {
                         if (sleepCnt <= skipCount) {
                             for (int i = 0; i < warmp_rate * input_rate_factor / 20; i++) {
                                 int car_id = count % 1000000;
+                                String key = getCarID(car_id);
                                 if(isSkewed){
-                                    car_id = fastZipfGenerator.next();
+                                    int selectedKeygroup = fastZipfGenerator.next();
+                                    subKeySet = keyGroupMapping.get(selectedKeygroup);
+                                    key = getSubKeySetChar(count, subKeySet);
                                 }
                                 int seg = count % 100;
                                 String seg_ID = getSegID(seg);
                                 // for(int rep = 0; rep < input_rate_factor; rep ++) {
-                                    ctx.collect(Tuple19.of(seg_ID, 0, getCarID(car_id), 0, 0, 0, 0, seg, 0, 0, 0, 0, 0, 0, 0, 0, 0, System.currentTimeMillis(), (long) count));
+                                    ctx.collect(Tuple19.of(seg_ID, 0, key, 0, 0, 0, 0, seg, 0, 0, 0, 0, 0, 0, 0, 0, 0, System.currentTimeMillis(), (long) count));
                                     count++;
                                 // }
                             }
@@ -299,15 +316,18 @@ public class LinearRoad {
                         List<String> stockArr = Arrays.asList(msg.split(","));
                         counter++;
                         int seg = Integer.parseInt(stockArr.get(Seg - 1)), car_id = Integer.parseInt(stockArr.get(Car_ID - 1));
+                        String key = getCarID(car_id);
                         if(isSkewed){
-                            car_id = fastZipfGenerator.next();
+                            int selectedKeygroup = fastZipfGenerator.next();
+                            subKeySet = keyGroupMapping.get(selectedKeygroup);
+                            key = getSubKeySetChar(count, subKeySet);
                         }
                         int round_factor = (int)(input_rate_factor + 1e-9);
                         for (int rep = 0; rep < round_factor; rep++){
                             ctx.collect(new Tuple19<>(
                                     getSegID(seg),
                                     Integer.parseInt(stockArr.get(0)),
-                                    getCarID(car_id),
+                                    key,
                                     Integer.parseInt(stockArr.get(2)),
                                     Integer.parseInt(stockArr.get(3)),
                                     Integer.parseInt(stockArr.get(4)),
@@ -330,7 +350,7 @@ public class LinearRoad {
                             ctx.collect(new Tuple19<>(
                                     getSegID(seg),
                                     Integer.parseInt(stockArr.get(0)),
-                                    getCarID(car_id),
+                                    key,
                                     Integer.parseInt(stockArr.get(2)),
                                     Integer.parseInt(stockArr.get(3)),
                                     Integer.parseInt(stockArr.get(4)),
