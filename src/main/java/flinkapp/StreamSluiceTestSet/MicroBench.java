@@ -564,8 +564,8 @@ public class MicroBench {
 
         public void run(SourceContext<Tuple3<String, Long, Long>> ctx) throws Exception {
             List<String> subKeySet;
-            // Phase 1
             long startTime = System.currentTimeMillis();
+
             System.out.println("Phase 1 start at: " + startTime);
             while (isRunning && System.currentTimeMillis() - startTime < PHASE1_TIME) {
                 long emitStartTime = System.currentTimeMillis();
