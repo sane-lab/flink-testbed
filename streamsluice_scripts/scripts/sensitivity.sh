@@ -1,6 +1,6 @@
 #!/bin/bash
 
-source config-server-twitter.sh
+source config-server-systemsensitivity.sh
 
 # dump data
 function analyze() {
@@ -15,14 +15,14 @@ function analyze() {
     mv ${EXP_DIR}/streamsluice/ ${EXP_DIR}/raw/${EXP_NAME}
     mkdir ${EXP_DIR}/streamsluice/
 
-    for host in "dragon" "eagle" "flamingo"; do #
+    for host in "dragon" "flamingo"; do
       scp ${host}:${FLINK_DIR}/log/* ${EXP_DIR}/raw/${EXP_NAME}/
       ssh ${host} "rm ${FLINK_DIR}/log/*"
     done
 }
 
 run_one_exp() {
-  EXP_NAME=tweet_alert-${whether_type}-${how_type}-${runtime}-${warmup_time}-${warmup_rate}-${skip_interval}-${P2}-${DELAY2}-${P3}-${DELAY3}-${P4}-${DELAY4}-${P5}-${DELAY5}-${L}-${epoch}-${is_treat}-${errorcase_number}-${calibrate_selectivity}-${repeat}
+  EXP_NAME=microbench-system-server-${whether_type}-${how_type}-${CURVE_TYPE}-${GRAPH}-${runtime}-${RATE1}-${RATE2}-${RATE_I}-${RANGE_I}-${PERIOD_I}-${P1}-${ZIPF_SKEW}-${P2}-${DELAY2}-${IO2}-${STATE_SIZE2}-${P3}-${DELAY3}-${IO3}-${STATE_SIZE3}-${P4}-${DELAY4}-${IO4}-${STATE_SIZE4}-${P5}-${DELAY5}-${STATE_SIZE5}-${L}-${migration_interval}-${epoch}-${decision_interval}-${is_treat}-${repeat}
 
   echo "INFO: run exp ${EXP_NAME}"
   configFlink
@@ -47,124 +47,124 @@ init() {
   controller_type=StreamSluice
   whether_type="streamsluice"
   how_type="streamsluice"
-  scalein_type="streamsluice"
-  L=2000 #4000
-  runtime=2190 #3990 #
-  skip_interval=1 # skip seconds
-  warmup=10000
-  warmup_time=30
-  warmup_rate=1800
-  repeat=1
-  spike_estimation="linear_regression"
-  spike_slope=0.75
-  spike_intercept=1000 #2500
-  errorcase_number=3
-  #calibrate_selectivity=false
-  calibrate_selectivity=true
-  vertex_id="a84740bacf923e828852cc4966f2247c,eabd4c11f6c6fbdf011f0f1fc42097b1,d01047f852abd5702a0dabeedac99ff5,d2336f79a0d60b5a4b16c8769ec82e47" #feccfb8648621345be01b71938abfb72,36fcfcb61a35d065e60ee34fccb0541a" #,c395b989724fa728d0a2640c6ccdb8a1"
-  is_treat=true
+  vertex_id="a84740bacf923e828852cc4966f2247c,eabd4c11f6c6fbdf011f0f1fc42097b1,d01047f852abd5702a0dabeedac99ff5"
+  L=1000
   migration_interval=500
   epoch=100
   # app level
   JAR="${FLINK_APP_DIR}/target/testbed-1.0-SNAPSHOT.jar"
-  job="flinkapp.tweetalert.TweetAlertTrigger"
+  job="flinkapp.StreamSluiceTestSet.MicroBench"
+  # only used in script
+  runtime=300
   # set in Flink app
-  stock_path="/home/samza/Tweet_data/"
-  stock_file_name="2hr-smooth.txt" #"3hr-50ms.txt"
-  MP1=1
-  MP2=128
-  MP3=128
-  MP4=128
-  MP5=128
-  MP6=128
-  MP7=128
-
-  LP2=60
-  LP3=20
-  LP4=1
-  LP5=1
-  #LP6=1
-
+  GRAPH=3op
+  ZIPF_SKEW=0
+  NKEYS=1000
   P1=1
-  P2=30
-  P3=10
-  P4=1
-  P5=1
-  #P6=1
+  MP1=1
 
-  DELAY2=5000
-  DELAY3=1000
-  DELAY4=50
-  DELAY5=100
-  #DELAY6=100
+  P2=3
+  MP2=128
+  DELAY2=444
+  IO2=1
+  STATE_SIZE2=1000
+
+  P3=3
+  MP3=128
+  DELAY3=444
+  IO3=1
+  STATE_SIZE3=1000
+
+  P4=3
+  MP4=128
+  DELAY4=444
+  IO4=1
+  STATE_SIZE4=1000
+
+  P5=5
+  MP5=128
+  DELAY5=500
+  STATE_SIZE5=1000
+
+  spike_estimation="linear_regression"
+  spike_slope=0.65
+  spike_intercept=250
+  is_treat=true
+  repeat=1
+  warmup=10000
 }
 
 # run applications
 function runApp() {
     echo "INFO: ${FLINK_DIR}/bin/flink run -c ${job} ${JAR} \
-    -p1 ${P1} -mp1 ${MP1} \
-    -p2 ${P2} -mp2 ${MP2} -op2Delay ${DELAY2} \
-    -p3 ${P3} -mp3 ${MP3} -op3Delay ${DELAY3} \
-    -p4 ${P4} -mp4 ${MP4} -op4Delay ${DELAY4} \
-    -p5 ${P5} -mp5 ${MP5} -op5Delay ${DELAY5} \
-    -file_name ${stock_path}${stock_file_name} -warmup_rate ${warmup_rate} -warmup_time ${warmup_time} -skip_interval ${skip_interval} &"
+    -graph ${GRAPH} \
+    -p1 ${P1} -mp1 ${MP1} -p2 ${P2} -mp2 ${MP2} -op2Delay ${DELAY2} -op2IoRate ${IO2} -op2KeyStateSize ${STATE_SIZE2} \
+    -p3 ${P3} -mp3 ${MP3} -op3Delay ${DELAY3} -op3IoRate ${IO3} -op3KeyStateSize ${STATE_SIZE3} \
+    -p4 ${P4} -mp4 ${MP4} -op4Delay ${DELAY4} -op4IoRate ${IO4} -op4KeyStateSize ${STATE_SIZE4} \
+    -nkeys ${NKEYS} -phase1Time ${TIME1} -phase1Rate ${RATE1} -phase2Time ${TIME2} \
+    -phase2Rate ${RATE2} -interTime ${TIME_I} -interRate ${RATE_I} -interRange ${RANGE_I} -interPeriod ${PERIOD_I} -inter_delta ${DELTA_I} \
+    -zipf_skew ${ZIPF_SKEW} -curve_type ${CURVE_TYPE} &"
     ${FLINK_DIR}/bin/flink run -c ${job} ${JAR} \
-        -p1 ${P1} -mp1 ${MP1} \
-        -p2 ${P2} -mp2 ${MP2} -op2Delay ${DELAY2} \
-        -p3 ${P3} -mp3 ${MP3} -op3Delay ${DELAY3} \
-        -p4 ${P4} -mp4 ${MP4} -op4Delay ${DELAY4} \
-        -p5 ${P5} -mp5 ${MP5} -op5Delay ${DELAY5} \
-        -file_name ${stock_path}${stock_file_name} -warmup_rate ${warmup_rate} -warmup_time ${warmup_time} -skip_interval ${skip_interval} &
+    -graph ${GRAPH} \
+    -p1 ${P1} -mp1 ${MP1} -p2 ${P2} -mp2 ${MP2} -op2Delay ${DELAY2} -op2IoRate ${IO2} -op2KeyStateSize ${STATE_SIZE2} \
+    -p3 ${P3} -mp3 ${MP3} -op3Delay ${DELAY3} -op3IoRate ${IO3} -op3KeyStateSize ${STATE_SIZE3} \
+    -p4 ${P4} -mp4 ${MP4} -op4Delay ${DELAY4} -op4IoRate ${IO4} -op4KeyStateSize ${STATE_SIZE4} \
+    -p5 ${P5} -mp5 ${MP5} -op5Delay ${DELAY5} -op5KeyStateSize ${STATE_SIZE5} \
+    -nkeys ${NKEYS} -phase1Time ${TIME1} -phase1Rate ${RATE1} -phase2Time ${TIME2} \
+    -phase2Rate ${RATE2} -interTime ${TIME_I} -interRate ${RATE_I} -interRange ${RANGE_I} -interPeriod ${PERIOD_I} -inter_delta ${DELTA_I} \
+    -zipf_skew ${ZIPF_SKEW} -curve_type ${CURVE_TYPE} &
 }
 
-run_stock_test(){
-    echo "Run twitter alert experiments..."
+run_scale_test(){
+    echo "Run micro bench system sensitivity..."
     init
-    printf "" > tweet_result.txt
+    #L=1000
+    #is_treat=false
+    #repeat=1
+    #run_one_exp
 
-    for repeat in 1 2 3 4 5; do
-        whether_type="streamsluice"
-        how_type="streamsluice"
-        scalein_type="streamsluice"
 
-        run_one_exp
-        printf "${EXP_NAME}\n" >> tweet_result.txt
+    # Different cases
+    GRAPH="1split2join1"
+    vertex_id="a84740bacf923e828852cc4966f2247c,eabd4c11f6c6fbdf011f0f1fc42097b1,d01047f852abd5702a0dabeedac99ff5,d2336f79a0d60b5a4b16c8769ec82e47"
+    autotune=false
+    epoch=100
+    decision_interval=10
+    snapshot_size=3
 
-#        is_treat=false
-#        run_one_exp
-#        printf "${EXP_NAME}\n" >> tweet_result.txt
-#        P1=2
-#        P2=3
-#        P3=9
-#        P4=5
-#        P5=6
-#        P6=2
-#        P7=8
-#        is_treat=false
-#        run_one_exp
-#        printf "${EXP_NAME}\n" >> tweet_result.txt
-#        is_treat=true
+    L=2500
+    migration_interval=2000
+    spike_slope=0.7
+    #spike_intercept=200
+    #STATE_SIZE2=1000
+    #STATE_SIZE3=1000
+    #STATE_SIZE4=1000
+    spike_intercept=1500 #1200 #750
 
-#        P1=1
-#        P2=2
-#        P3=6
-#        P4=3
-#        P5=4
-#        P6=1
-#        P7=5
-        whether_type="ds2"
-        how_type="ds2"
-        scalein_type="ds2"
-        migration_interval=1000
-        run_one_exp
-        printf "${EXP_NAME}\n" >> tweet_result.txt
+    STATE_SIZE2=10000
+    STATE_SIZE3=10000
+    STATE_SIZE4=10000
+    STATE_SIZE5=10000
+    runtime=60
+    DELTA_I=270
+    LP2=5
+    LP3=5
+    LP4=5
+    LP5=13
+    TIME_I=10
+    RATE1=4000
+    TIME1=30
+    RATE2=6000
+    TIME2=120
+    RATE_I=5000
+    RANGE_I=1000
+    PERIOD_I=20
+    TIME_I=10
+    printf "" > whetherhow_result.txt
 
-        whether_type="streamswitch"
-        how_type="streamswitch"
-        scalein_type="streamswitch"
-        migration_interval=1000
-        run_one_exp
-        printf "${EXP_NAME}\n" >> tweet_result.txt
-    done
+    # Curve 1
+
 }
-run_stock_test
+
+run_scale_test
+
