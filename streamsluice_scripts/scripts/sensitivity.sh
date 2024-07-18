@@ -81,7 +81,7 @@ init() {
   IO4=1
   STATE_SIZE4=1000
 
-  P5=5
+  P5=6
   MP5=128
   DELAY5=510
   STATE_SIZE5=1000
@@ -156,7 +156,7 @@ run_scale_test(){
     LP4=2
     LP5=13
 
-    RATE1=5000
+    RATE1=6000
     TIME1=30
     RATE2=3000
     TIME2=30
@@ -170,8 +170,8 @@ run_scale_test(){
     printf "${EXP_NAME}\n" >> whetherhow_result.txt
 
     SOURCE_TYPE="how"
-    run_one_exp
-    printf "${EXP_NAME}\n" >> whetherhow_result.txt
+    #run_one_exp
+    #printf "${EXP_NAME}\n" >> whetherhow_result.txt
 }
 
 run_scale_test
