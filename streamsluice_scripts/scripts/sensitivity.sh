@@ -83,7 +83,7 @@ init() {
 
   P5=5
   MP5=128
-  DELAY5=500
+  DELAY5=510
   STATE_SIZE5=1000
 
   spike_estimation="linear_regression"

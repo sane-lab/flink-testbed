@@ -332,14 +332,14 @@ def draw(rawDir, outputDir, exps):
         print("Average parallelism " + exps[expindex][0] + " : " + str(totalParallelism / (exp_length * 1000)))
     ax1.legend(legend, loc='upper left', bbox_to_anchor=(0, 1.5), ncol=1, markerscale=4.)
     # ax1.set_ylabel('OP_'+str(jobIndex+1)+' Parallelism')
-    ax1.set_ylim(0, slot_ylim_app[app])
-    ax1.set_yticks(np.arange(0, slot_ylim_app[app] + slot_ylim_app[app] / 3, slot_ylim_app[app] / 3))
+    ax1.set_ylim(6, 20)
+    ax1.set_yticks(np.arange(6, 22, 2))
 
     ax1.set_xlim(startTime * 1000, (startTime + exp_length) * 1000)
-    ax1.set_xticks(np.arange(startTime * 1000, (startTime + exp_length) * 1000 + 300000, 300000))
-    ax1.set_xticklabels([int((x - startTime * 1000) / 60000) for x in
-                         np.arange(startTime * 1000, (startTime + exp_length) * 1000 + 300000, 300000)])
-    ax1.set_xlabel("Time (minute)")
+    ax1.set_xticks(np.arange(startTime * 1000, (startTime + exp_length) * 1000 + 60000, 60000))
+    ax1.set_xticklabels([int((x - startTime * 1000) / 1000) for x in
+                         np.arange(startTime * 1000, (startTime + exp_length) * 1000 + 60000, 60000)])
+    ax1.set_xlabel("Time (s)")
 
     job = jobList[0]
     ax = sorted(totalArrivalRatesPerJob[job][0].keys())
@@ -380,48 +380,6 @@ controller_color = {
     1: "#abdda4",
     2: "#2b83ba",
 }
-def drawOverallResource(output_directory: str, workload_latency: dict):
-    print("Draw resource")
-    data_controller = {}
-    workload_labels = []
-    for workload_index in range(0, len(workload_latency.keys())):
-        workload = sorted(workload_latency.keys())[workload_index]
-        for controller_index in range(0, len(workload_latency[workload].keys())):
-            controller = sorted(workload_latency[workload].keys())[controller_index]
-            if controller_index not in data_controller:
-                data_controller[controller] = [[], [], []]
-            data_controller[controller_index][workload_index] = workload_latency[workload][controller]
-        workload_labels.append(workload)
-
-    print(data_controller)
-    print(workload_labels)
-    def set_box_color(bp, color):
-        plt.setp(bp['boxes'], color=color)
-        plt.setp(bp['whiskers'], color=color)
-        plt.setp(bp['caps'], color=color)
-        plt.setp(bp['medians'], color='r') #color)
-
-    fig, axs = plt.subplots(1, 1, figsize=(12, 9), layout='constrained') #(24, 9)
-    figName = "Overall_resource.png"
-    for controller in range(0, 3):
-        bp = plt.boxplot(data_controller[controller], whis=1.5, positions=np.array(range(len(data_controller[controller]))) * 3.0 - 0.4 + controller * 0.4, sym='+', widths=0.4)
-        set_box_color(bp, controller_color[controller])
-        plt.plot([], c=controller_color[controller], label=controller_label[controller])
-    plt.legend()
-    plt.xticks(range(0, len(workload_labels) * 3, 3), workload_labels)
-    plt.plot([-3, len(workload_labels) * 3], [0.01, 0.01], color="red")
-    plt.xlim(-3, len(workload_labels)*3)
-    plt.ylim(0, 50)
-    #plt.yscale("log")
-    plt.gca().set_yticks(np.arange(0, 50, 10))
-    #plt.gca().invert_yaxis()
-    #plt.gca().set_yticklabels(1 - plt.gca().get_yticks())
-    plt.xlabel("Workload")
-    plt.ylabel("Latency(ms)")
-    plt.tight_layout()
-    plt.savefig(output_directory+figName)
-
-
 
 
 
@@ -464,7 +422,7 @@ exps = {
         #   "linear_road-streamsluice-streamsluice-2190-30-1000-10-2-100-20-2000-4-100-70-1500-2000-100-true-3-true-3",
         #   "blue", "o"],
         ["Sluice",
-         "systemsensitivity-streamsluice-streamsluice-how-1split2join1-330-5000-3000-4000-1-0-3-444-1-10000-3-444-1-10000-3-444-1-10000-5-500-10000-2500-2000-100-10-true-1",
+         "systemsensitivity-streamsluice-streamsluice-when-1split2join1-330-5000-3000-4000-1-0-2-300-1-10000-2-300-1-10000-2-300-1-10000-5-500-10000-2500-2000-100-10-true-1",
          "orange", "o"],
     ],
 }

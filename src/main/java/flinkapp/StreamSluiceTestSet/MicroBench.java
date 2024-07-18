@@ -544,6 +544,9 @@ public class MicroBench {
         public void run(SourceContext<Tuple3<String, Long, Long>> ctx) throws Exception {
             long startTime = System.currentTimeMillis();
             System.out.println("Source start at: " + startTime);
+            System.out.println("Source warm up...");
+            startPhase(ctx, NORMAL_RATE, 20 * 1000, startTime);
+            startTime = System.currentTimeMillis();
             long round = 0;
             while (isRunning && System.currentTimeMillis() - startTime < TOTAL_TIME) {
                 round++;
@@ -712,6 +715,9 @@ public class MicroBench {
         public void run(SourceContext<Tuple3<String, Long, Long>> ctx) throws Exception {
             long startTime = System.currentTimeMillis();
             System.out.println("Source start at: " + startTime);
+            System.out.println("Source warm up...");
+            startPhase(ctx, NORMAL_RATE, 20 * 1000, startTime);
+            startTime = System.currentTimeMillis();
             long round = 0;
             while (isRunning && System.currentTimeMillis() - startTime < TOTAL_TIME) {
                 round++;
