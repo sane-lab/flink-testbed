@@ -132,14 +132,6 @@ def draw(rawDir, outputDir, exps, windowSize):
                               averageGroundTruthLatencies[i][0][x] <= (startTime + 1800) * 1000])
         successRatePerExps[exps[i][0]] = totalSuccess / float(totalWindows)
 
-        overall_latency[app][i] = [averageGroundTruthLatencies[i][1][x] for x in range(0, len(averageGroundTruthLatencies[i][0])) if
-                              averageGroundTruthLatencies[i][0][x] >= startTime * 1000 and
-                              averageGroundTruthLatencies[i][0][x] <= (startTime + 1800) * 1000]
-        print("Avg latencies: " + str(sum([averageGroundTruthLatencies[i][1][x] for x in range(0, len(averageGroundTruthLatencies[i][0])) if
-                              averageGroundTruthLatencies[i][0][x] >= startTime * 1000 and
-                              averageGroundTruthLatencies[i][0][x] <= (startTime + 1800) * 1000])/len([averageGroundTruthLatencies[i][1][x] for x in range(0, len(averageGroundTruthLatencies[i][0])) if
-                              averageGroundTruthLatencies[i][0][x] >= startTime * 1000 and
-                              averageGroundTruthLatencies[i][0][x] <= (startTime + 1800) * 1000])))
     print(successRatePerExps)
     #print(averageGroundTruthLatencies)
     #fig = plt.figure(figsize=(24, 3))
@@ -166,9 +158,9 @@ def draw(rawDir, outputDir, exps, windowSize):
     plt.ylabel('Latency (ms)')
     #plt.title('Latency Curves')
     axes = plt.gca()
-    axes.set_xlim(startTime * 1000, (startTime + 600) * 1000)
-    axes.set_xticks(np.arange(startTime * 1000, (startTime + 600) * 1000 + 300000, 300000))
-    axes.set_xticklabels([int((x - startTime * 1000) / 60000) for x in np.arange(startTime * 1000, (startTime + 600) * 1000 + 300000, 300000)])
+    axes.set_xlim(startTime * 1000, (startTime + expLength) * 1000)
+    axes.set_xticks(np.arange(startTime * 1000, (startTime + expLength) * 1000 + 60000, 60000))
+    axes.set_xticklabels([int((x - startTime * 1000) / 1000) for x in np.arange(startTime * 1000, (startTime + expLength) * 1000 + 60000, 60000)])
     #axes.set_ylim(0, 5000)
     #axes.set_yticks(np.arange(0, 6000, 1000))
     axes.set_ylim(0, 10000)
@@ -185,7 +177,11 @@ def draw(rawDir, outputDir, exps, windowSize):
 rawDir = "/Users/swrrt/Workplace/BacklogDelayPaper/experiments/raw/"
 outputDir = "/Users/swrrt/Workplace/BacklogDelayPaper/experiments/results/"
 
-exps = ["systemsensitivity-streamsluice-streamsluice-when-1split2join1-330-6000-4000-5000-1-0-3-444-1-10000-3-444-1-10000-3-444-1-10000-5-500-10000-2500-2000-100-10-true-1"]
+exps = [
+    ["Sluice",
+     "systemsensitivity-streamsluice-streamsluice-how-1split2join1-400-5000-3000-4000-1-0-2-300-1-10000-2-300-1-10000-2-300-1-10000-5-510-10000-2500-2000-100-10-true-1",
+     "blue", "o"],
+]
 
 import sys
 if len(sys.argv) > 1:
@@ -196,8 +192,9 @@ for exp in exps:
     windowSize = 500
     latencyLimit = 2500 #1000
     startTime=20 #+300 #30
+    expLength= 360
     isSingleOperator = False #True
-    expName = exp
+    expName = exp[1]
     print(expName)
-    draw(rawDir, outputDir + expName + "/", exp, windowSize)
+    draw(rawDir, outputDir + expName + "/", exps, windowSize)
 

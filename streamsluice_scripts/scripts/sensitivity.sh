@@ -137,7 +137,7 @@ run_scale_test(){
     snapshot_size=3
 
     L=2500
-    migration_interval=2000
+    migration_interval=3000
     spike_slope=0.7
     #spike_intercept=200
     #STATE_SIZE2=1000
@@ -170,8 +170,8 @@ run_scale_test(){
     printf "${EXP_NAME}\n" >> whetherhow_result.txt
 
 
-    P5=5
-    RATE1=5000
+    P5=6
+    RATE1=6000
     RATE2=3000
     RATE_I=4000
     SOURCE_TYPE="how"

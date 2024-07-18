@@ -422,7 +422,7 @@ exps = {
         #   "linear_road-streamsluice-streamsluice-2190-30-1000-10-2-100-20-2000-4-100-70-1500-2000-100-true-3-true-3",
         #   "blue", "o"],
         ["Sluice",
-         "systemsensitivity-streamsluice-streamsluice-when-1split2join1-330-6000-3000-4000-1-0-2-300-1-10000-2-300-1-10000-2-300-1-10000-6-510-10000-2500-2000-100-10-true-1",
+         "systemsensitivity-streamsluice-streamsluice-how-1split2join1-400-5000-3000-4000-1-0-2-300-1-10000-2-300-1-10000-2-300-1-10000-5-510-10000-2500-2000-100-10-true-1",
          "orange", "o"],
     ],
 }
@@ -454,8 +454,8 @@ arrivalrate_ylim_app = {
 overall_resource = {}
 for app in exps.keys():
     expName = [exp[1] for exp in exps[app] if exp[0] == "StreamSluice" or exp[0] == "Sluice"][0]
-    exp_length = 600 #1800
-    startTime = 30# + 300
+    exp_length = 360 #1800
+    startTime = 30 # + 300
     print(expName)
     overall_resource[app] = {}
     draw(rawDir, outputDir + expName + "/", exps[app])
