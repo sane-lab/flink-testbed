@@ -63,21 +63,21 @@ init() {
   P1=1
   MP1=1
 
-  P2=3
+  P2=2
   MP2=128
-  DELAY2=444
+  DELAY2=300
   IO2=1
   STATE_SIZE2=1000
 
-  P3=3
+  P3=2
   MP3=128
-  DELAY3=444
+  DELAY3=300
   IO3=1
   STATE_SIZE3=1000
 
-  P4=3
+  P4=2
   MP4=128
-  DELAY4=444
+  DELAY4=300
   IO4=1
   STATE_SIZE4=1000
 
@@ -112,7 +112,7 @@ function runApp() {
     -p4 ${P4} -mp4 ${MP4} -op4Delay ${DELAY4} -op4IoRate ${IO4} -op4KeyStateSize ${STATE_SIZE4} \
     -p5 ${P5} -mp5 ${MP5} -op5Delay ${DELAY5} -op5KeyStateSize ${STATE_SIZE5} \
     -nkeys ${NKEYS} -phase1Time ${TIME1} -phase1Rate ${RATE1} -phase2Time ${TIME2} \
-    -phase2Rate ${RATE2} -interTime ${TIME_I} -interRate ${RATE_I} \
+    -phase2Rate ${RATE2} -interTime ${TIME_I} -interRate ${RATE_I}\
     -source ${SOURCE_TYPE} \
     -zipf_skew ${ZIPF_SKEW} &
 }
@@ -151,9 +151,9 @@ run_scale_test(){
     STATE_SIZE5=10000
     runtime=330
     DELTA_I=270
-    LP2=5
-    LP3=5
-    LP4=5
+    LP2=2
+    LP3=2
+    LP4=2
     LP5=13
 
     RATE1=5000
