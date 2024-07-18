@@ -163,11 +163,15 @@ run_scale_test(){
     RATE_I=5000
     TIME_I=30
     printf "" > whetherhow_result.txt
+
     # Curve 1
     SOURCE_TYPE="when"
     run_one_exp
+    printf "${EXP_NAME}\n" >> lr_result.txt
+
     SOURCE_TYPE="how"
     run_one_exp
+    printf "${EXP_NAME}\n" >> lr_result.txt
 }
 
 run_scale_test
