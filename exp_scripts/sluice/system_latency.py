@@ -179,7 +179,7 @@ outputDir = "/Users/swrrt/Workplace/BacklogDelayPaper/experiments/results/"
 
 exps = [
     ["Sluice",
-     "systemsensitivity-streamsluice-streamsluice-how-1split2join1-400-5000-3000-4000-1-0-2-300-1-10000-2-300-1-10000-2-300-1-10000-5-510-10000-2500-2000-100-10-true-1",
+     "systemsensitivity-streamsluice-streamsluice-how-1split2join1-400-6000-3000-4000-1-0-2-300-1-10000-2-300-1-10000-2-300-1-10000-6-510-10000-2500-3000-100-10-true-1",
      "blue", "o"],
 ]
 
