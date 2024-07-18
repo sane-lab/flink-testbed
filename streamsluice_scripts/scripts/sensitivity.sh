@@ -156,11 +156,11 @@ run_scale_test(){
     LP4=5
     LP5=13
 
-    RATE1=6000
+    RATE1=5000
     TIME1=30
-    RATE2=4000
+    RATE2=3000
     TIME2=30
-    RATE_I=5000
+    RATE_I=4000
     TIME_I=30
     printf "" > whetherhow_result.txt
 
@@ -170,8 +170,8 @@ run_scale_test(){
     printf "${EXP_NAME}\n" >> whetherhow_result.txt
 
     SOURCE_TYPE="how"
-    #run_one_exp
-    #printf "${EXP_NAME}\n" >> whetherhow_result.txt
+    run_one_exp
+    printf "${EXP_NAME}\n" >> whetherhow_result.txt
 }
 
 run_scale_test

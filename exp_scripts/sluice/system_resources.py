@@ -346,8 +346,8 @@ def draw(rawDir, outputDir, exps):
     ay = [totalArrivalRatesPerJob[job][0][x] / (windowSize / 100) for x in ax]
     ax2.plot(ax, ay, 'o-', color='red', markersize=MARKERSIZE / 2, label="Arrival Rate")
     #ax2.set_ylabel('Rate (tps)')
-    ax2.set_ylim(0, 20000)
-    ax2.set_yticks(np.arange(0, 22000, 2000))
+    ax2.set_ylim(0, 8000)
+    ax2.set_yticks(np.arange(0, 9000, 1000))
     # legend = ["OP_" + str(jobIndex + 1) +"Arrival Rate"]
     legend = ["Arrival Rate"]
     # ax2.set_xlim(startTime * 1000, (startTime + exp_length) * 1000)
@@ -464,7 +464,7 @@ exps = {
         #   "linear_road-streamsluice-streamsluice-2190-30-1000-10-2-100-20-2000-4-100-70-1500-2000-100-true-3-true-3",
         #   "blue", "o"],
         ["Sluice",
-         "systemsensitivity-streamsluice-streamsluice-when-1split2join1-60-6000-4000-5000-1-0-3-444-1-10000-3-444-1-10000-3-444-1-10000-5-500-10000-2500-2000-100-10-true-1",
+         "systemsensitivity-streamsluice-streamsluice-when-1split2join1-330-6000-4000-5000-1-0-3-444-1-10000-3-444-1-10000-3-444-1-10000-5-500-10000-2500-2000-100-10-true-1",
          "orange", "o"],
     ],
 }

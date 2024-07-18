@@ -281,7 +281,7 @@ exps = {
         #   "linear_road-streamsluice-streamsluice-2190-30-1000-10-2-100-20-2000-4-100-70-1500-2000-100-true-3-true-3",
         #   "blue", "o"],
         ["Sluice",
-         "systemsensitivity-streamsluice-streamsluice-when-1split2join1-60-6000-4000-5000-1-0-3-444-1-10000-3-444-1-10000-3-444-1-10000-5-500-10000-2500-2000-100-10-true-1",
+         "systemsensitivity-streamsluice-streamsluice-when-1split2join1-330-6000-4000-5000-1-0-3-444-1-10000-3-444-1-10000-3-444-1-10000-5-500-10000-2500-2000-100-10-true-1",
          "orange", "o"],
     ]
 }
