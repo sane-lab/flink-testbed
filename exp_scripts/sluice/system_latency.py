@@ -182,24 +182,6 @@ def draw(rawDir, outputDir, exps, windowSize):
     plt.savefig(outputDir + 'ground_truth_latency_curves.png', bbox_inches='tight')
     plt.close(fig)
 
-
-workload_label = {
-    0: "Stock",
-    1: "Twitter",
-    2: "Linear_Road",
-    3: "Spam_Detection",
-}
-controller_label = {
-    0: "DS2",
-    1: "StreamSwitch",
-    2: "Sluice",
-}
-controller_color = {
-    0: "#fdae61",
-    1: "#abdda4",
-    2: "#2b83ba",
-}
-
 rawDir = "/Users/swrrt/Workplace/BacklogDelayPaper/experiments/raw/"
 outputDir = "/Users/swrrt/Workplace/BacklogDelayPaper/experiments/results/"
 
@@ -213,7 +195,7 @@ overall_latency = {}
 for exp in exps:
     windowSize = 500
     latencyLimit = 2500 #1000
-    startTime=30#+300 #30
+    startTime=20 #+300 #30
     isSingleOperator = False #True
     expName = exp
     print(expName)

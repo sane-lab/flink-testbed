@@ -149,7 +149,7 @@ run_scale_test(){
     STATE_SIZE3=10000
     STATE_SIZE4=10000
     STATE_SIZE5=10000
-    runtime=330
+    runtime=400
     DELTA_I=270
     LP2=2
     LP3=2
@@ -169,9 +169,14 @@ run_scale_test(){
     run_one_exp
     printf "${EXP_NAME}\n" >> whetherhow_result.txt
 
+
+    P5=5
+    RATE1=5000
+    RATE2=3000
+    RATE_I=4000
     SOURCE_TYPE="how"
-    #run_one_exp
-    #printf "${EXP_NAME}\n" >> whetherhow_result.txt
+    run_one_exp
+    printf "${EXP_NAME}\n" >> whetherhow_result.txt
 }
 
 run_scale_test
