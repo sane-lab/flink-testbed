@@ -199,105 +199,23 @@ controller_color = {
     1: "#abdda4",
     2: "#2b83ba",
 }
-def drawOverallLatency(output_directory: str, workload_latency: dict):
-    print("Draw latency")
-    data_controller = {}
-    workload_labels = []
-    for workload_index in range(0, len(workload_latency.keys())):
-        workload = sorted(workload_latency.keys())[workload_index]
-        for controller_index in range(0, len(workload_latency[workload].keys())):
-            controller = sorted(workload_latency[workload].keys())[controller_index]
-            if controller_index not in data_controller:
-                data_controller[controller] = [[], [], []]
-            data_controller[controller_index][workload_index] = workload_latency[workload][controller]
-        workload_labels.append(workload)
-
-    #print(data_controller)
-    print(workload_labels)
-    def set_box_color(bp, color):
-        plt.setp(bp['boxes'], color=color)
-        plt.setp(bp['whiskers'], color=color)
-        plt.setp(bp['caps'], color=color)
-        plt.setp(bp['medians'], color='r') #color)
-
-    fig, axs = plt.subplots(1, 1, figsize=(12, 9), layout='constrained') #(24, 9)
-    figName = "Overall_latency.png"
-    for controller in range(0, 3):
-        bp = plt.boxplot(data_controller[controller], positions=np.array(range(len(data_controller[controller]))) * 3.0 - 0.4 + controller * 0.4, sym='+', widths=0.4)
-        set_box_color(bp, controller_color[controller])
-        plt.plot([], c=controller_color[controller], label=controller_label[controller])
-    plt.legend()
-    plt.xticks(range(0, len(workload_labels) * 3, 3), workload_labels)
-    plt.plot([-3, len(workload_labels) * 3], [0.01, 0.01], color="red")
-    plt.xlim(-3, len(workload_labels)*3)
-    plt.ylim(100, 200000)
-    plt.yscale("log")
-    plt.gca().set_yticks([100, 1000, 10000, 100000])
-    plt.xlabel("Workload")
-    plt.ylabel("Latency(ms)")
-    #plt.gca().invert_yaxis()
-    #plt.gca().set_yticklabels(1 - plt.gca().get_yticks())
-    plt.tight_layout()
-    plt.savefig(output_directory+figName)
-
-
-
 
 rawDir = "/Users/swrrt/Workplace/BacklogDelayPaper/experiments/raw/"
 outputDir = "/Users/swrrt/Workplace/BacklogDelayPaper/experiments/results/"
 
-exps = {
-    # "Stock": [
-    #     ["DS2",
-    #      "stock_analysis-ds2-ds2-3990-30-1000-20-2-500-6-5000-3-1000-4-3000-1-5-4000-2000-100-true-3-true-1",
-    #      "purple", "d"],
-    #     ["StreamSwitch",
-    #      "stock_analysis-streamswitch-streamswitch-3990-30-1000-20-2-500-6-5000-3-1000-4-3000-1-5-4000-2000-100-true-3-true-5",
-    #      #"stock_analysis-streamswitch-streamswitch-2190-30-1000-20-2-500-6-5000-3-1000-4-3000-1-5-4000-2000-100-true-3-true-2",
-    #      "green", "p"],
-    #     ["Sluice",
-    #       "stock_analysis-streamsluice-streamsluice-3990-30-1000-20-2-500-6-5000-3-1000-4-3000-1-5-4000-2000-100-true-3-true-1",
-    #       "blue", "o"],
-    # ],
-    # "Tweet": [
-    #     ["DS2",
-    #      "tweet_alert-ds2-ds2-2190-30-1800-1-30-5000-10-1000-1-50-1-100-2000-100-true-3-true-1",
-    #      "purple", "d"],
-    #     ["StreamSwitch",
-    #      "tweet_alert-streamswitch-streamswitch-2190-30-1800-1-30-5000-10-1000-1-50-1-100-2000-100-true-3-true-1",
-    #      "green", "p"],
-    #     ["Sluice",
-    #       "tweet_alert-streamsluice-streamsluice-2190-30-1800-1-30-5000-10-1000-1-50-1-100-2000-100-true-3-true-2",
-    #       "blue", "o"],
-    # ],
-    "Linear_Road": [
-        # ["DS2",
-        #  "linear_road-ds2-ds2-2190-30-1000-10-2-100-20-2000-4-100-70-1500-2000-100-true-3-true-2",
-        #  "purple", "d"],
-        # ["StreamSwitch",
-        #  "linear_road-streamswitch-streamswitch-2190-30-1000-10-2-100-20-2000-4-100-70-1500-2000-100-true-3-true-2",
-        #  "green", "p"],
-        # ["Sluice",
-        #   "linear_road-streamsluice-streamsluice-2190-30-1000-10-2-100-20-2000-4-100-70-1500-2000-100-true-3-true-3",
-        #   "blue", "o"],
-        ["Sluice",
-         "systemsensitivity-streamsluice-streamsluice-when-1split2join1-330-6000-4000-5000-1-0-3-444-1-10000-3-444-1-10000-3-444-1-10000-5-500-10000-2500-2000-100-10-true-1",
-         "orange", "o"],
-    ]
-}
+exps = ["systemsensitivity-streamsluice-streamsluice-when-1split2join1-330-6000-4000-5000-1-0-3-444-1-10000-3-444-1-10000-3-444-1-10000-5-500-10000-2500-2000-100-10-true-1"]
+
 import sys
 if len(sys.argv) > 1:
     expName = sys.argv[1].split("/")[-1]
 
 overall_latency = {}
-for app in exps.keys():
+for exp in exps:
     windowSize = 500
     latencyLimit = 2500 #1000
     startTime=30#+300 #30
     isSingleOperator = False #True
-    expName = [exp[1] for exp in exps[app] if exp[0] == "StreamSluice" or exp[0] == "Sluice"][0]
+    expName = exp
     print(expName)
-    overall_latency[app] = {}
-    draw(rawDir, outputDir + expName + "/", exps[app], windowSize)
-#drawOverallLatency(outputDir + expName + "/", overall_latency)
+    draw(rawDir, outputDir + expName + "/", exp, windowSize)
 

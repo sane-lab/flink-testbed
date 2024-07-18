@@ -112,7 +112,7 @@ function runApp() {
     -p4 ${P4} -mp4 ${MP4} -op4Delay ${DELAY4} -op4IoRate ${IO4} -op4KeyStateSize ${STATE_SIZE4} \
     -p5 ${P5} -mp5 ${MP5} -op5Delay ${DELAY5} -op5KeyStateSize ${STATE_SIZE5} \
     -nkeys ${NKEYS} -phase1Time ${TIME1} -phase1Rate ${RATE1} -phase2Time ${TIME2} \
-    -phase2Rate ${RATE2} -interTime ${TIME_I} -interRate ${RATE_I}\
+    -phase2Rate ${RATE2} -interTime ${TIME_I} -interRate ${RATE_I} \
     -source ${SOURCE_TYPE} \
     -zipf_skew ${ZIPF_SKEW} &
 }

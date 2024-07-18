@@ -55,10 +55,10 @@ public class MicroBench {
 
         DataStreamSource<Tuple3<String, Long, Long>> source;
         if(SOURCE_TYPE.equals("when")){
-            source = env.addSource(new WhenSource(PHASE1_TIME, PHASE2_TIME, INTERMEDIATE_TIME, PHASE1_RATE, PHASE2_RATE, INTERMEDIATE_RATE, params.getLong("round", 4))).
+            source = env.addSource(new WhenSource(PHASE1_TIME, PHASE2_TIME, INTERMEDIATE_TIME, PHASE1_RATE, PHASE2_RATE, INTERMEDIATE_RATE, params.getLong("run_time", 510))).
                     setParallelism(params.getInt("p1", 1));
         }else if(SOURCE_TYPE.equals("how")) {
-            source = env.addSource(new HowSource(PHASE1_TIME, PHASE2_TIME, INTERMEDIATE_TIME, PHASE1_RATE, PHASE2_RATE, INTERMEDIATE_RATE, params.getLong("round", 1)));
+            source = env.addSource(new HowSource(PHASE1_TIME, PHASE2_TIME, INTERMEDIATE_TIME, PHASE1_RATE, PHASE2_RATE, INTERMEDIATE_RATE, params.getLong("run_time", 510)));
         }else {
             source = env.addSource(new DynamicAvgRateSineSource(PHASE1_TIME, PHASE2_TIME, INTERMEDIATE_TIME, PHASE1_RATE, PHASE2_RATE, INTERMEDIATE_RATE, INTERMEDIATE_RANGE, INTERMEDIATE_PERIOD, params.getLong("macroInterAmplitude", 0), params.getLong("macroInterPeriod", 60) * 1000, params.getInt("mp2", 8), zipf_skew, nKeys, params.get("curve_type", "sine"), params.getInt("inter_delta", 0)))
                     .setParallelism(params.getInt("p1", 1));
@@ -490,14 +490,14 @@ public class MicroBench {
 
         private final Map<Integer, Long> totalOutputNumbers = new HashMap<>();
 
-        public WhenSource(long PHASE1_TIME, long PHASE2_TIME, long NORMAL_TIME, long PHASE1_RATE, long PHASE2_RATE, long NORMAL_RATE, long round){
+        public WhenSource(long PHASE1_TIME, long PHASE2_TIME, long NORMAL_TIME, long PHASE1_RATE, long PHASE2_RATE, long NORMAL_RATE, long runtime){
             this.PHASE1_TIME = PHASE1_TIME;
             this.PHASE2_TIME = PHASE2_TIME;
             this.NORMAL_TIME = NORMAL_TIME;
             this.PHASE1_RATE = PHASE1_RATE;
             this.PHASE2_RATE = PHASE2_RATE;
             this.NORMAL_RATE = NORMAL_RATE;
-            this.TOTAL_TIME = round * (NORMAL_TIME * 2 + PHASE1_TIME + PHASE2_TIME);
+            this.TOTAL_TIME = runtime;
             this.nKeys = 1000;
             this.maxParallelism = 128;
             this.fastZipfGenerator = new FastZipfGenerator(maxParallelism, 0.0, 0, 114514);
@@ -604,14 +604,14 @@ public class MicroBench {
 
         private final Map<Integer, Long> totalOutputNumbers = new HashMap<>();
 
-        public HowSource(long PHASE1_TIME, long PHASE2_TIME, long NORMAL_TIME, long PHASE1_RATE, long PHASE2_RATE, long NORMAL_RATE, long round){
+        public HowSource(long PHASE1_TIME, long PHASE2_TIME, long NORMAL_TIME, long PHASE1_RATE, long PHASE2_RATE, long NORMAL_RATE, long runtime){
             this.PHASE1_TIME = PHASE1_TIME;
             this.PHASE2_TIME = PHASE2_TIME;
             this.NORMAL_TIME = NORMAL_TIME;
             this.PHASE1_RATE = PHASE1_RATE;
             this.PHASE2_RATE = PHASE2_RATE;
             this.NORMAL_RATE = NORMAL_RATE;
-            this.TOTAL_TIME = round * (NORMAL_TIME * 2 + PHASE1_TIME + PHASE2_TIME);
+            this.TOTAL_TIME = runtime;
             this.nKeys = 1000;
             this.maxParallelism = 128;
             this.fastZipfGenerator = new FastZipfGenerator(maxParallelism, 0.0, 0, 114514);
