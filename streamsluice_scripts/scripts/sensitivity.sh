@@ -22,7 +22,7 @@ function analyze() {
 }
 
 run_one_exp() {
-  EXP_NAME=microbench-system-server-${whether_type}-${how_type}-${CURVE_TYPE}-${GRAPH}-${runtime}-${RATE1}-${RATE2}-${RATE_I}-${RANGE_I}-${PERIOD_I}-${P1}-${ZIPF_SKEW}-${P2}-${DELAY2}-${IO2}-${STATE_SIZE2}-${P3}-${DELAY3}-${IO3}-${STATE_SIZE3}-${P4}-${DELAY4}-${IO4}-${STATE_SIZE4}-${P5}-${DELAY5}-${STATE_SIZE5}-${L}-${migration_interval}-${epoch}-${decision_interval}-${is_treat}-${repeat}
+  EXP_NAME=microbench-system-server-${whether_type}-${how_type}-${SOURCE_TYPE}-${GRAPH}-${runtime}-${RATE1}-${RATE2}-${RATE_I}-${RANGE_I}-${PERIOD_I}-${P1}-${ZIPF_SKEW}-${P2}-${DELAY2}-${IO2}-${STATE_SIZE2}-${P3}-${DELAY3}-${IO3}-${STATE_SIZE3}-${P4}-${DELAY4}-${IO4}-${STATE_SIZE4}-${P5}-${DELAY5}-${STATE_SIZE5}-${L}-${migration_interval}-${epoch}-${decision_interval}-${is_treat}-${repeat}
 
   echo "INFO: run exp ${EXP_NAME}"
   configFlink
@@ -103,6 +103,7 @@ function runApp() {
     -p4 ${P4} -mp4 ${MP4} -op4Delay ${DELAY4} -op4IoRate ${IO4} -op4KeyStateSize ${STATE_SIZE4} \
     -nkeys ${NKEYS} -phase1Time ${TIME1} -phase1Rate ${RATE1} -phase2Time ${TIME2} \
     -phase2Rate ${RATE2} -interTime ${TIME_I} -interRate ${RATE_I} -interRange ${RANGE_I} -interPeriod ${PERIOD_I} -inter_delta ${DELTA_I} \
+    -source ${SOURCE_TYPE} \
     -zipf_skew ${ZIPF_SKEW} -curve_type ${CURVE_TYPE} &"
     ${FLINK_DIR}/bin/flink run -c ${job} ${JAR} \
     -graph ${GRAPH} \
@@ -112,6 +113,7 @@ function runApp() {
     -p5 ${P5} -mp5 ${MP5} -op5Delay ${DELAY5} -op5KeyStateSize ${STATE_SIZE5} \
     -nkeys ${NKEYS} -phase1Time ${TIME1} -phase1Rate ${RATE1} -phase2Time ${TIME2} \
     -phase2Rate ${RATE2} -interTime ${TIME_I} -interRate ${RATE_I} -interRange ${RANGE_I} -interPeriod ${PERIOD_I} -inter_delta ${DELTA_I} \
+    -source ${SOURCE_TYPE} \
     -zipf_skew ${ZIPF_SKEW} -curve_type ${CURVE_TYPE} &
 }
 
@@ -126,6 +128,7 @@ run_scale_test(){
 
     # Different cases
     GRAPH="1split2join1"
+    SOURCE_TYPE="when"
     vertex_id="a84740bacf923e828852cc4966f2247c,eabd4c11f6c6fbdf011f0f1fc42097b1,d01047f852abd5702a0dabeedac99ff5,d2336f79a0d60b5a4b16c8769ec82e47"
     autotune=false
     epoch=100
@@ -151,19 +154,19 @@ run_scale_test(){
     LP3=5
     LP4=5
     LP5=13
-    TIME_I=10
-    RATE1=4000
+
+    RATE1=6000
     TIME1=30
-    RATE2=6000
-    TIME2=120
+    RATE2=4000
+    TIME2=30
     RATE_I=5000
-    RANGE_I=1000
-    PERIOD_I=20
-    TIME_I=10
+    TIME_I=30
     printf "" > whetherhow_result.txt
-
     # Curve 1
-
+    SOURCE_TYPE="when"
+    run_one_exp
+    SOURCE_TYPE="how"
+    run_one_exp
 }
 
 run_scale_test

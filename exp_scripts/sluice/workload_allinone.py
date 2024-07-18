@@ -27,9 +27,9 @@ with open("./workload_results.txt") as f:
     for i in range(0, len(lines)):
         line = lines[i]
         split = line.rstrip().split()
-        if len(split) > 0 and split[0].startswith("linear_road"):
+        if len(split) > 4 and split[0].startswith("linear_road"):
             expName = split[0]
-            exps[currentType][split[0]] = [split[1], float(split[2]), float(split[3]), float(split[4])]
+            exps[currentType][split[0]] = [split[1], float(split[2]) * 100, float(split[3]), float(split[4])]
         elif len(split) == 1 and len(split[0]) > 5:
             currentType = split[0]
             exps[currentType] = {}
@@ -43,7 +43,7 @@ for exp_type in exps.keys():
     elif exp_type == "Processing_Rate":
         xlabel = "Process Rate Ratio"
     elif exp_type == "State_Size":
-        xlabel = "State Size"
+        xlabel = "State Size (MB)"
     elif exp_type == "Skewness":
         xlabel = "Skewness Factor"
     xticks_label = []
@@ -58,18 +58,25 @@ for exp_type in exps.keys():
 
     print(success_rate)
     print(average_latency)
-    fig, axs = plt.subplots(1, 1, figsize=(12, 9), layout='constrained')  # (24, 9)
+    fig, axs = plt.subplots(1, 1, figsize=(10, 6), layout='constrained')  # (24, 9)
     fig.tight_layout(rect=[0.02, 0, 0.953, 1])
     ax1 = axs
     ax2 = ax1.twinx()
-    ax1.plot(range(1, len(xticks_label) + 1), success_rate, "d", color="blue")
-    ax2.plot(range(1, len(xticks_label) + 1), average_latency, "o-", color="red")
+    ax1.plot(range(1, len(xticks_label) + 1), success_rate, "d", color="blue", markersize=8, linewidth=2)
+    ax2.plot(range(1, len(xticks_label) + 1), average_latency, "o-", color="red", markersize=8, linewidth=2)
+    axs.grid(True)
     ax1.set_ylabel("Success Rate")
     ax2.set_ylabel("Average Latency (ms)")
     legend = ["Success Rate"]
-    ax1.legend(legend, loc='upper left', bbox_to_anchor=(0, 1.5), ncol=1, markerscale=4.)
+    ax1.legend(legend, loc='upper left', bbox_to_anchor=(0.5, 1.2), ncol=1, markerscale=4.)
     legend = ["Average Latency"]
-    ax2.legend(legend, loc='upper right', bbox_to_anchor=(0, 1.5), ncol=1, markerscale=4.)
+    ax2.legend(legend, loc='upper right', bbox_to_anchor=(0.5, 1.2), ncol=1, markerscale=4.)
+    ax1.set_yscale('log')
+    ax1.set_ylim(40, 105)
+    ax1.set_yticks([40, 60, 80, 90, 99])
+    ax1.get_yaxis().set_major_formatter(matplotlib.ticker.ScalarFormatter())
+    ax2.set_ylim(0, 5000)
+    ax2.set_yticks([0, 1000, 2000, 3000, 4000, 5000])
     ax1.set_xticks(np.arange(0, len(xticks_label) + 2, 1))
     ax1.set_xticklabels([""] + xticks_label + [""])
     ax1.set_xlabel(xlabel)
@@ -79,14 +86,17 @@ for exp_type in exps.keys():
     plt.savefig(outputDir + filename + "_latency.png", bbox_inches='tight')
     plt.close(fig)
 
-    fig, axs = plt.subplots(1, 1, figsize=(12, 9), layout='constrained')  # (24, 9)
+    fig, axs = plt.subplots(1, 1, figsize=(8, 6), layout='constrained')  # (24, 9)
     fig.tight_layout(rect=[0.02, 0, 0.953, 1])
     ax1 = axs
+    axs.grid(True)
     ax1.bar(xticks_label, average_resource, color="blue")
     ax1.set_ylabel("Average Slots Used")
     legend = ["Slots Used"]
-    ax1.legend(legend, loc='upper left', bbox_to_anchor=(0, 1.5), ncol=1, markerscale=4.)
+    ax1.legend(legend, loc='upper left') #, bbox_to_anchor=(0, 1.5), ncol=1, markerscale=4.)
     ax1.set_xlabel(xlabel)
+    ax1.set_ylim(0, 40)
+    ax1.set_yticks(np.arange(0, 45, 10))
     import os
     if not os.path.exists(outputDir):
         os.makedirs(outputDir)

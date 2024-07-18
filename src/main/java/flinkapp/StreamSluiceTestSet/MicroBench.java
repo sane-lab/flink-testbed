@@ -51,12 +51,15 @@ public class MicroBench {
         final double zipf_skew = params.getDouble("zipf_skew", 0);
         final int nKeys = params.getInt("nkeys", 1000);
         final String GRAPH_TYPE = params.get("graph", "2op");
+        final String SOURCE_TYPE = params.get("source", "normal");
 
         DataStreamSource<Tuple3<String, Long, Long>> source;
-        if(GRAPH_TYPE.equals("")){
-            source = env.addSource(new WhenSource(PHASE1_TIME, PHASE2_TIME, INTERMEDIATE_TIME, PHASE1_RATE, PHASE2_RATE, INTERMEDIATE_RATE))
-                    .setParallelism(params.getInt("p1", 1));
-        }else{
+        if(SOURCE_TYPE.equals("when")){
+            source = env.addSource(new WhenSource(PHASE1_TIME, PHASE2_TIME, INTERMEDIATE_TIME, PHASE1_RATE, PHASE2_RATE, INTERMEDIATE_RATE, params.getLong("round", 4))).
+                    setParallelism(params.getInt("p1", 1));
+        }else if(SOURCE_TYPE.equals("how")) {
+            source = env.addSource(new HowSource(PHASE1_TIME, PHASE2_TIME, INTERMEDIATE_TIME, PHASE1_RATE, PHASE2_RATE, INTERMEDIATE_RATE, params.getLong("round", 1)));
+        }else {
             source = env.addSource(new DynamicAvgRateSineSource(PHASE1_TIME, PHASE2_TIME, INTERMEDIATE_TIME, PHASE1_RATE, PHASE2_RATE, INTERMEDIATE_RATE, INTERMEDIATE_RANGE, INTERMEDIATE_PERIOD, params.getLong("macroInterAmplitude", 0), params.getLong("macroInterPeriod", 60) * 1000, params.getInt("mp2", 8), zipf_skew, nKeys, params.get("curve_type", "sine"), params.getInt("inter_delta", 0)))
                     .setParallelism(params.getInt("p1", 1));
         }
@@ -203,7 +206,6 @@ public class MicroBench {
     }
 
     public static final class DumbStatefulMap extends RichFlatMapFunction<Tuple3<String, Long, Long>, Tuple3<String, Long, Long>> {
-
         private RandomDataGenerator randomGen = new RandomDataGenerator();
         private transient MapState<String, String> countMap;
         private int ioRatio;
@@ -476,7 +478,7 @@ public class MicroBench {
         }
     }
     public static final class WhenSource implements SourceFunction<Tuple3<String, Long, Long>>, CheckpointedFunction {
-        private long NORMAL_TIME, NORMAL_RATE, PHASE1_TIME, PHASE1_RATE, PHASE2_TIME, PHASE2_RATE;
+        private long NORMAL_TIME, NORMAL_RATE, PHASE1_TIME, PHASE1_RATE, PHASE2_TIME, PHASE2_RATE, TOTAL_TIME;
         private int count = 0;
         private volatile boolean isRunning = true;
         private transient ListState<Integer> checkpointedCount;
@@ -488,13 +490,14 @@ public class MicroBench {
 
         private final Map<Integer, Long> totalOutputNumbers = new HashMap<>();
 
-        public WhenSource(long PHASE1_TIME, long PHASE2_TIME, long NORMAL_TIME, long PHASE1_RATE, long PHASE2_RATE, long NORMAL_RATE){
+        public WhenSource(long PHASE1_TIME, long PHASE2_TIME, long NORMAL_TIME, long PHASE1_RATE, long PHASE2_RATE, long NORMAL_RATE, long round){
             this.PHASE1_TIME = PHASE1_TIME;
             this.PHASE2_TIME = PHASE2_TIME;
             this.NORMAL_TIME = NORMAL_TIME;
             this.PHASE1_RATE = PHASE1_RATE;
             this.PHASE2_RATE = PHASE2_RATE;
             this.NORMAL_RATE = NORMAL_RATE;
+            this.TOTAL_TIME = round * (NORMAL_TIME * 2 + PHASE1_TIME + PHASE2_TIME);
             this.nKeys = 1000;
             this.maxParallelism = 128;
             this.fastZipfGenerator = new FastZipfGenerator(maxParallelism, 0.0, 0, 114514);
@@ -523,51 +526,236 @@ public class MicroBench {
                 }
             }
         }
+        void startPhase(SourceContext<Tuple3<String, Long, Long>> ctx, long rate, long time, long phaseStartTime)throws Exception {
+            while (isRunning && System.currentTimeMillis() - phaseStartTime < time) {
+                long emitStartTime = System.currentTimeMillis();
+                for (int i = 0; i < rate / 20; i++) {
+                    int selectedKeygroup = fastZipfGenerator.next();
+                    List<String> subKeySet = keyGroupMapping.get(selectedKeygroup);
+                    totalOutputNumbers.put(selectedKeygroup, totalOutputNumbers.getOrDefault(selectedKeygroup, 0l) + 1);
+                    String key = getSubKeySetChar(count, subKeySet);
+                    ctx.collect(Tuple3.of(key, System.currentTimeMillis(), (long) count));
+                    count++;
+                }
+                Util.pause(emitStartTime);
+            }
+        }
+
         public void run(SourceContext<Tuple3<String, Long, Long>> ctx) throws Exception {
-            List<String> subKeySet;
             long startTime = System.currentTimeMillis();
+            System.out.println("Source start at: " + startTime);
+            long round = 0;
+            while (isRunning && System.currentTimeMillis() - startTime < TOTAL_TIME) {
+                round++;
+                long roundStartTime = System.currentTimeMillis();
+                System.out.println("Round " + round + " normal phase start at: " + roundStartTime);
+                startPhase(ctx, NORMAL_RATE, NORMAL_TIME, roundStartTime);
 
-            System.out.println("Phase 1 start at: " + startTime);
-            while (isRunning && System.currentTimeMillis() - startTime < PHASE1_TIME) {
+                if (!isRunning) {
+                    return;
+                }
+
+                roundStartTime = System.currentTimeMillis();
+                System.out.println("Round " + round + " phase 1 start at: " + roundStartTime);
+                startPhase(ctx, PHASE1_RATE, PHASE1_TIME, roundStartTime);
+                if (!isRunning) {
+                    return;
+                }
+
+                roundStartTime = System.currentTimeMillis();
+                System.out.println("Round " + round + " normal phase start at: " + roundStartTime);
+                startPhase(ctx, NORMAL_RATE, NORMAL_TIME, roundStartTime);
+                if (!isRunning) {
+                    return;
+                }
+
+                roundStartTime = System.currentTimeMillis();
+                System.out.println("Round " + round + " phase 2 start at: " + roundStartTime);
+                startPhase(ctx, PHASE2_RATE, PHASE2_TIME, roundStartTime);
+                if (!isRunning) {
+                    return;
+                }
+            }
+        }
+
+        private String getChar(int cur) {
+            return "A" + (cur % nKeys);
+        }
+
+        private String getSubKeySetChar(int cur, List<String> subKeySet) {
+            return subKeySet.get(cur % subKeySet.size());
+        }
+
+        @Override
+        public void cancel() {
+            isRunning = false;
+        }
+    }
+    public static final class HowSource implements SourceFunction<Tuple3<String, Long, Long>>, CheckpointedFunction {
+        private long NORMAL_TIME, NORMAL_RATE, PHASE1_TIME, PHASE1_RATE, PHASE2_TIME, PHASE2_RATE, TOTAL_TIME;
+        private int count = 0;
+        private volatile boolean isRunning = true;
+        private transient ListState<Integer> checkpointedCount;
+        private int maxParallelism;
+        private FastZipfGenerator fastZipfGenerator;
+        private RandomDataGenerator randomGen = new RandomDataGenerator();
+        private int nKeys;
+        private final Map<Integer, List<String>> keyGroupMapping = new HashMap<>();
+
+        private final Map<Integer, Long> totalOutputNumbers = new HashMap<>();
+
+        public HowSource(long PHASE1_TIME, long PHASE2_TIME, long NORMAL_TIME, long PHASE1_RATE, long PHASE2_RATE, long NORMAL_RATE, long round){
+            this.PHASE1_TIME = PHASE1_TIME;
+            this.PHASE2_TIME = PHASE2_TIME;
+            this.NORMAL_TIME = NORMAL_TIME;
+            this.PHASE1_RATE = PHASE1_RATE;
+            this.PHASE2_RATE = PHASE2_RATE;
+            this.NORMAL_RATE = NORMAL_RATE;
+            this.TOTAL_TIME = round * (NORMAL_TIME * 2 + PHASE1_TIME + PHASE2_TIME);
+            this.nKeys = 1000;
+            this.maxParallelism = 128;
+            this.fastZipfGenerator = new FastZipfGenerator(maxParallelism, 0.0, 0, 114514);
+            for (int i = 0; i < this.nKeys; i++) {
+                String key = "A" + i;
+                int keygroup = MathUtils.murmurHash(key.hashCode()) % maxParallelism;
+                List<String> keys = keyGroupMapping.computeIfAbsent(keygroup, t -> new ArrayList<>());
+                keys.add(key);
+            }
+        }
+        @Override
+        public void snapshotState(FunctionSnapshotContext functionSnapshotContext) throws Exception {
+            this.checkpointedCount.clear();
+            this.checkpointedCount.add(count);
+        }
+
+        @Override
+        public void initializeState(FunctionInitializationContext context) throws Exception {
+            this.checkpointedCount = context
+                    .getOperatorStateStore()
+                    .getListState(new ListStateDescriptor<>("checkpointedCount", Integer.class));
+
+            if (context.isRestored()) {
+                for (Integer count : this.checkpointedCount.get()) {
+                    this.count = count;
+                }
+            }
+        }
+        void startPhase(SourceContext<Tuple3<String, Long, Long>> ctx, long rate, long time, long phaseStartTime)throws Exception {
+            while (isRunning && System.currentTimeMillis() - phaseStartTime < time) {
                 long emitStartTime = System.currentTimeMillis();
-                for (int i = 0; i < PHASE1_RATE / 20; i++) {
+                for (int i = 0; i < rate / 20; i++) {
                     int selectedKeygroup = fastZipfGenerator.next();
-                    subKeySet = keyGroupMapping.get(selectedKeygroup);
-                    totalOutputNumbers.put(selectedKeygroup, totalOutputNumbers.getOrDefault(selectedKeygroup, 0l)+1);
+                    List<String> subKeySet = keyGroupMapping.get(selectedKeygroup);
+                    totalOutputNumbers.put(selectedKeygroup, totalOutputNumbers.getOrDefault(selectedKeygroup, 0l) + 1);
                     String key = getSubKeySetChar(count, subKeySet);
-                    ctx.collect(Tuple3.of(key, System.currentTimeMillis(), (long)count));
+                    ctx.collect(Tuple3.of(key, System.currentTimeMillis(), (long) count));
                     count++;
                 }
                 Util.pause(emitStartTime);
             }
+        }
 
-            if (!isRunning) {
-                return ;
-            }
-
-            // Intermediate Phase
-            startTime = System.currentTimeMillis();
-            System.out.println("Intermediate phase start at: " + startTime);
-            // startInterPhase(startTime, ctx, curve_type, PHASE1_RATE, INTERMEDIATE_RATE, INTERMEDIATE_PERIOD, INTERMEDIATE_TIME, macroAmplitude, macroPeriod, INTERMEDIATE_DELTA);
-
-            if (!isRunning) {
-                return ;
-            }
-
-            // Phase 2
-            startTime = System.currentTimeMillis();
-            System.out.println("Phase 2 start at: " + startTime);
-            while (isRunning && System.currentTimeMillis() - startTime < PHASE2_TIME) {
-                long emitStartTime = System.currentTimeMillis();
-                for (int i = 0; i < PHASE2_RATE / 20; i++) {
+        void startLinearPhase(SourceContext<Tuple3<String, Long, Long>> ctx, long rate, long time, long phaseStartTime, long normalRate)throws Exception {
+            long remainedNumber = (long) Math.floor(PHASE1_RATE * 50 / 1000.0);
+            while (isRunning && System.currentTimeMillis() - phaseStartTime < time) {
+                if(remainedNumber <= 0) {
+                    long index = (System.currentTimeMillis() - phaseStartTime) / 50;
+                    long ntime = (index + 1) * 50 + phaseStartTime;
+                    if(index < time / 2 / 50 ){
+                        remainedNumber = (long) Math.floor((index * (rate - normalRate) / (time / 2.0 / 50.0) + normalRate) / 1000.0 * 50);
+                    }else {
+                        remainedNumber = (long) Math.floor((rate - (index - time / 2.0 / 50.0) * (rate - normalRate) / (time / 2.0 / 50.0)) / 1000.0 * 50);
+                    }
+                    long ctime = System.currentTimeMillis();
+                    if (ntime >= ctime) {
+                        Thread.sleep(ntime - ctime);
+                    }
+                }
+                synchronized (ctx.getCheckpointLock()){
                     int selectedKeygroup = fastZipfGenerator.next();
-                    subKeySet = keyGroupMapping.get(selectedKeygroup);
-                    totalOutputNumbers.put(selectedKeygroup, totalOutputNumbers.getOrDefault(selectedKeygroup, 0l)+1);
+                    List<String> subKeySet = keyGroupMapping.get(selectedKeygroup);
+                    totalOutputNumbers.put(selectedKeygroup, totalOutputNumbers.getOrDefault(selectedKeygroup, 0l) + 1);
                     String key = getSubKeySetChar(count, subKeySet);
-                    ctx.collect(Tuple3.of(key, System.currentTimeMillis(), (long)count));
+                    ctx.collect(Tuple3.of(key, System.currentTimeMillis(), (long) count));
+                    remainedNumber --;
                     count++;
                 }
-                Util.pause(emitStartTime);
+            }
+        }
+
+        void startSinePhase(SourceContext<Tuple3<String, Long, Long>> ctx, long rate, long time, long phaseStartTime, long normalRate)throws Exception {
+            long remainedNumber = (long) Math.floor(PHASE1_RATE * 50 / 1000.0);
+            while (isRunning && System.currentTimeMillis() - phaseStartTime < time) {
+                if(remainedNumber <= 0) {
+                    long index = (System.currentTimeMillis() - phaseStartTime) / 50;
+                    long ntime = (index + 1) * 50 + phaseStartTime;
+                    double delta = Math.sin(Math.toRadians(index * 50 * 360.0 / (time * 2)));
+                    remainedNumber = (long) Math.floor((delta * (rate - normalRate) + normalRate) / 1000.0 * 50);
+                    long ctime = System.currentTimeMillis();
+                    if (ntime >= ctime) {
+                        Thread.sleep(ntime - ctime);
+                    }
+                }
+                synchronized (ctx.getCheckpointLock()){
+                    int selectedKeygroup = fastZipfGenerator.next();
+                    List<String> subKeySet = keyGroupMapping.get(selectedKeygroup);
+                    totalOutputNumbers.put(selectedKeygroup, totalOutputNumbers.getOrDefault(selectedKeygroup, 0l) + 1);
+                    String key = getSubKeySetChar(count, subKeySet);
+                    ctx.collect(Tuple3.of(key, System.currentTimeMillis(), (long) count));
+                    remainedNumber --;
+                    count++;
+                }
+            }
+        }
+
+
+        public void run(SourceContext<Tuple3<String, Long, Long>> ctx) throws Exception {
+            long startTime = System.currentTimeMillis();
+            System.out.println("Source start at: " + startTime);
+            long round = 0;
+            while (isRunning && System.currentTimeMillis() - startTime < TOTAL_TIME) {
+                round++;
+                long roundStartTime = System.currentTimeMillis();
+                System.out.println("Round " + round + " normal phase start at: " + roundStartTime);
+                startPhase(ctx, NORMAL_RATE, NORMAL_TIME, roundStartTime);
+
+                if (!isRunning) {
+                    return;
+                }
+
+                roundStartTime = System.currentTimeMillis();
+                System.out.println("Round " + round + " phase 1 start at: " + roundStartTime);
+                if(round % 3 == 1){
+                    startPhase(ctx, PHASE1_RATE, PHASE1_TIME, roundStartTime);
+                }else if(round % 3 == 2){
+                    startLinearPhase(ctx, PHASE1_RATE, PHASE1_TIME, roundStartTime, NORMAL_RATE);
+                }else {
+                    startSinePhase(ctx, PHASE1_RATE, PHASE1_TIME, roundStartTime, NORMAL_RATE);
+                }
+
+                if (!isRunning) {
+                    return;
+                }
+
+                roundStartTime = System.currentTimeMillis();
+                System.out.println("Round " + round + " normal phase start at: " + roundStartTime);
+                startPhase(ctx, NORMAL_RATE, NORMAL_TIME, roundStartTime);
+                if (!isRunning) {
+                    return;
+                }
+
+                roundStartTime = System.currentTimeMillis();
+                System.out.println("Round " + round + " phase 2 start at: " + roundStartTime);
+                if(round % 3 == 1){
+                    startPhase(ctx, PHASE2_RATE, PHASE2_TIME, roundStartTime);
+                }else if(round % 3 == 2){
+                    startLinearPhase(ctx, PHASE2_RATE, PHASE2_TIME, roundStartTime, NORMAL_RATE);
+                }else {
+                    startSinePhase(ctx, PHASE2_RATE, PHASE2_TIME, roundStartTime, NORMAL_RATE);
+                }
+                if (!isRunning) {
+                    return;
+                }
             }
         }
 
