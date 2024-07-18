@@ -1,6 +1,6 @@
 #!/bin/bash
 
-source config-server-systemsensitivity.sh
+source config-systemsensitivity.sh
 
 # dump data
 function analyze() {
