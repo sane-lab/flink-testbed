@@ -149,7 +149,7 @@ run_scale_test(){
     STATE_SIZE3=10000
     STATE_SIZE4=10000
     STATE_SIZE5=10000
-    runtime=60
+    runtime=330
     DELTA_I=270
     LP2=5
     LP3=5
@@ -167,11 +167,11 @@ run_scale_test(){
     # Curve 1
     SOURCE_TYPE="when"
     run_one_exp
-    printf "${EXP_NAME}\n" >> lr_result.txt
+    printf "${EXP_NAME}\n" >> whetherhow_result.txt
 
     SOURCE_TYPE="how"
-    run_one_exp
-    printf "${EXP_NAME}\n" >> lr_result.txt
+    #run_one_exp
+    #printf "${EXP_NAME}\n" >> whetherhow_result.txt
 }
 
 run_scale_test

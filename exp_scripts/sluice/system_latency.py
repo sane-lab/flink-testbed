@@ -166,9 +166,9 @@ def draw(rawDir, outputDir, exps, windowSize):
     plt.ylabel('Latency (ms)')
     #plt.title('Latency Curves')
     axes = plt.gca()
-    axes.set_xlim(startTime * 1000, (startTime + 1800) * 1000)
-    axes.set_xticks(np.arange(startTime * 1000, (startTime + 1800) * 1000 + 300000, 300000))
-    axes.set_xticklabels([int((x - startTime * 1000) / 60000) for x in np.arange(startTime * 1000, (startTime + 1800) * 1000 + 300000, 300000)])
+    axes.set_xlim(startTime * 1000, (startTime + 600) * 1000)
+    axes.set_xticks(np.arange(startTime * 1000, (startTime + 600) * 1000 + 300000, 300000))
+    axes.set_xticklabels([int((x - startTime * 1000) / 60000) for x in np.arange(startTime * 1000, (startTime + 600) * 1000 + 300000, 300000)])
     #axes.set_ylim(0, 5000)
     #axes.set_yticks(np.arange(0, 6000, 1000))
     axes.set_ylim(0, 10000)
@@ -292,8 +292,8 @@ if len(sys.argv) > 1:
 overall_latency = {}
 for app in exps.keys():
     windowSize = 500
-    latencyLimit = 2000 #1000
-    startTime=30+300 #30
+    latencyLimit = 2500 #1000
+    startTime=30#+300 #30
     isSingleOperator = False #True
     expName = [exp[1] for exp in exps[app] if exp[0] == "StreamSluice" or exp[0] == "Sluice"][0]
     print(expName)

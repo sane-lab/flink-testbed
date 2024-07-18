@@ -346,8 +346,8 @@ def draw(rawDir, outputDir, exps):
     ay = [totalArrivalRatesPerJob[job][0][x] / (windowSize / 100) for x in ax]
     ax2.plot(ax, ay, 'o-', color='red', markersize=MARKERSIZE / 2, label="Arrival Rate")
     #ax2.set_ylabel('Rate (tps)')
-    ax2.set_ylim(0, 4500)
-    ax2.set_yticks(np.arange(0, 6000, 1500))
+    ax2.set_ylim(0, 20000)
+    ax2.set_yticks(np.arange(0, 22000, 2000))
     # legend = ["OP_" + str(jobIndex + 1) +"Arrival Rate"]
     legend = ["Arrival Rate"]
     # ax2.set_xlim(startTime * 1000, (startTime + exp_length) * 1000)
@@ -489,15 +489,15 @@ slot_ylim_app = {
     "Linear_Road": 100, #27,
 }
 arrivalrate_ylim_app = {
-    "Stock": 3000,
-    "Tweet": 4500,
-    "Linear_Road": 3000,
+    "Stock": 10000,
+    "Tweet": 10000,
+    "Linear_Road": 10000,
 }
 overall_resource = {}
 for app in exps.keys():
     expName = [exp[1] for exp in exps[app] if exp[0] == "StreamSluice" or exp[0] == "Sluice"][0]
-    exp_length = 1800
-    startTime = 30 + 300
+    exp_length = 600 #1800
+    startTime = 30# + 300
     print(expName)
     overall_resource[app] = {}
     draw(rawDir, outputDir + expName + "/", exps[app])
