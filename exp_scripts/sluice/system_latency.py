@@ -135,7 +135,7 @@ def draw(rawDir, outputDir, exps, windowSize):
     print(successRatePerExps)
     #print(averageGroundTruthLatencies)
     #fig = plt.figure(figsize=(24, 3))
-    fig = plt.figure(figsize=(10, 5))
+    fig = plt.figure(figsize=(9, 5))
     print("Draw ground truth curve...")
     legend = []
     for i in range(0, len(exps)):
@@ -163,8 +163,8 @@ def draw(rawDir, outputDir, exps, windowSize):
     axes.set_xticklabels([int((x - startTime * 1000) / 1000) for x in np.arange(startTime * 1000, (startTime + expLength) * 1000 + 60000, 60000)])
     #axes.set_ylim(0, 5000)
     #axes.set_yticks(np.arange(0, 6000, 1000))
-    axes.set_ylim(0, 10000)
-    axes.set_yticks(np.arange(0, 12000, 2000))
+    axes.set_ylim(0, 4000)
+    axes.set_yticks(np.arange(0, 5000, 1000))
     # axes.set_yscale('log')
     plt.grid(True)
     import os
@@ -179,7 +179,7 @@ outputDir = "/Users/swrrt/Workplace/BacklogDelayPaper/experiments/results/"
 
 exps = [
     ["Sluice",
-     "systemsensitivity-streamsluice-streamsluice-how-1split2join1-400-6000-3000-4000-1-0-2-300-1-10000-2-300-1-10000-2-300-1-10000-6-510-10000-2500-3000-100-10-true-1",
+     "systemsensitivity-streamsluice-streamsluice-when-1split2join1-400-6000-3000-4000-1-0-2-300-1-10000-2-300-1-10000-2-300-1-10000-6-510-10000-2500-3000-100-10-true-1",
      "blue", "o"],
 ]
 

@@ -198,12 +198,11 @@ run_stock_test(){
     DELAY3=2000 #2000
     DELAY4=100
     DELAY5=1500 #1500
-    repeat=3
-    for input_rate_factor in 2; do # 0.5 0.75 1.5
-        run_one_exp
-        printf "${EXP_NAME}\n" >> lr_result.txt
-    done
-    input_rate_factor=1
+#    for input_rate_factor in 2; do # 0.5 0.75 1.5
+#        run_one_exp
+#        printf "${EXP_NAME}\n" >> lr_result.txt
+#    done
+#    input_rate_factor=1
 
 #    for process_factor in 2 3 5 6; do
 #      #DELAY3=$((${process_factor} * 500))
@@ -216,13 +215,13 @@ run_stock_test(){
 #    DELAY4=100
 #    DELAY5=1500
 
-    for PAYLOAD in 50 75 100 200; do
-      for repeat in 1 2 3 4 5; do
-        run_one_exp
-        printf "${EXP_NAME}\n" >> lr_result.txt
-      done
-    done
-    PAYLOAD=0
+#    for PAYLOAD in 50 75 100 200; do
+#      for repeat in 1 2 3 4 5; do
+#        run_one_exp
+#        printf "${EXP_NAME}\n" >> lr_result.txt
+#      done
+#    done
+#    PAYLOAD=0
 
 #    P3=20
 #    P5=60

@@ -109,6 +109,7 @@ def readParallelism(rawDir, expName):
     arrivalRatePerTask = {}
     ParallelismPerJob = {}
     scalingMarkerByOperator = {}
+    scalings = []
 
     taskExecutors = [] #"flink-samza-taskexecutor-0-eagle-sane.out"
     import os
@@ -151,6 +152,7 @@ def readParallelism(rawDir, expName):
     streamSluiceOutputPath = rawDir + expName + "/" + streamsluiceOutput
     print("Reading streamsluice output:" + streamSluiceOutputPath)
     counter = 0
+
     with open(streamSluiceOutputPath) as f:
         lines = f.readlines()
         for i in range(0, len(lines)):
@@ -173,6 +175,7 @@ def readParallelism(rawDir, expName):
                         scalingMarkerByOperator[operator] = []
                     scalingMarkerByOperator[operator] += [[time - initialTime, type]]
                 mapping = parseMapping(split[12:])
+                scalings.append(time - initialTime)
 
             if (len(split) >= 8 and split[0] == "+++" and split[1] == "[CONTROL]" and split[4] == "all" and split[
                 5] == "scaling" and split[6] == "plan" and split[7] == "deployed."):
@@ -187,6 +190,7 @@ def readParallelism(rawDir, expName):
                 for job in mapping:
                     ParallelismPerJob[job][0].append(time - initialTime)
                     ParallelismPerJob[job][1].append(len(mapping[job].keys()))
+
 
             if (split[0] == "+++" and split[1] == "[METRICS]" and split[4] == "task" and split[5] == "backlog:"):
                 time = int(split[3])
@@ -251,7 +255,7 @@ def readParallelism(rawDir, expName):
             else:
                 totalArrivalRatePerJob[job][index] += ay
     print(expName, ParallelismPerJob.keys())
-    return [ParallelismPerJob, totalArrivalRatePerJob, initialTime]
+    return [ParallelismPerJob, totalArrivalRatePerJob, initialTime, scalings]
 
 def draw(rawDir, outputDir, exps):
     parallelismsPerJob = {}
@@ -262,6 +266,7 @@ def draw(rawDir, outputDir, exps):
         result = readParallelism(rawDir, expFile)
         parallelisms = result[0]
         totalArrivalRates = result[1]
+        scalings = result[3]
         for job in parallelisms.keys():
             if job == "TOTAL":
                 totalParallelismPerExps[expindex] = parallelisms[job]
@@ -288,17 +293,37 @@ def draw(rawDir, outputDir, exps):
     figName = "Parallelism"
     nJobs = len(parallelismsPerJob.keys())
     jobList = ["a84740bacf923e828852cc4966f2247c", "eabd4c11f6c6fbdf011f0f1fc42097b1", "d01047f852abd5702a0dabeedac99ff5", "d2336f79a0d60b5a4b16c8769ec82e47", "feccfb8648621345be01b71938abfb72"]
-    fig, axs = plt.subplots(1, 1, figsize=(12, 6), layout='constrained')
+    fig, axs = plt.subplots(1, 1, figsize=(9, 5), layout='constrained')
 
     # Add super label
     #fig.supylabel('# of Slots')
     #supylabel2(fig, "Arrival Rate (tps)")
     fig.tight_layout(rect=[0.02, 0, 0.953, 1])
+    axs.grid(True)
     ax1 = axs
     ax2 = ax1.twinx()
     ax1.set_ylabel("# of Slots")
     ax2.set_ylabel("Arrival Rate (tps)")
+
+    job = jobList[0]
+    ax = sorted(totalArrivalRatesPerJob[job][0].keys())
+    ay = [totalArrivalRatesPerJob[job][0][x] / (windowSize / 100) for x in ax]
+    ax2.plot(ax, ay, 'o-', color='red', markersize=MARKERSIZE / 2, label="Arrival Rate")
+    #ax2.set_ylabel('Rate (tps)')
+    ax2.set_ylim(0, 10000)
+    ax2.set_yticks(np.arange(0, 11000, 1000))
+    # legend = ["OP_" + str(jobIndex + 1) +"Arrival Rate"]
+    legend = ["Arrival Rate"]
+    # ax2.set_xlim(startTime * 1000, (startTime + exp_length) * 1000)
+    # ax2.set_xticks(np.arange(startTime * 1000, (startTime + exp_length) * 1000 + 300000, 300000))
+    # ax2.set_xticklabels([int((x - startTime * 1000) / 60000) for x in
+    #                      np.arange(startTime * 1000, (startTime + 3600) * 1000 + 300000, 300000)])
+    ax2.legend(legend, loc='upper right', bbox_to_anchor=(1, 1.5), ncol=1)
+
+
+
     legend = []
+    scalingPoints = [[], []]
     for expindex in range(0, len(exps)):
         print("Draw exps " + exps[expindex][0] + " curve...")
         totalParallelism = 0
@@ -319,7 +344,10 @@ def draw(rawDir, outputDir, exps):
             r = min(x1, (startTime + exp_length) * 1000)
             if(l < r):
                 totalParallelism += (r - l) * y0
-
+                for scalingTime in scalings:
+                    if scalingTime >= l and scalingTime <= r:
+                        scalingPoints[0] += [scalingTime]
+                        scalingPoints[1] += [y0]
             line[0].append(x0)
             line[0].append(x1)
             line[1].append(y0)
@@ -330,10 +358,11 @@ def draw(rawDir, outputDir, exps):
             line[1].append(y1)
         ax1.plot(line[0], line[1], color=exps[expindex][2], linewidth=LINEWIDTH)
         print("Average parallelism " + exps[expindex][0] + " : " + str(totalParallelism / (exp_length * 1000)))
+    ax1.plot(scalingPoints[0], scalingPoints[1], 'o', color="orange", mfc='none', markersize=MARKERSIZE * 2, label="Scaling")
     ax1.legend(legend, loc='upper left', bbox_to_anchor=(0, 1.5), ncol=1, markerscale=4.)
     # ax1.set_ylabel('OP_'+str(jobIndex+1)+' Parallelism')
-    ax1.set_ylim(6, 20)
-    ax1.set_yticks(np.arange(6, 22, 2))
+    ax1.set_ylim(7, 17)
+    ax1.set_yticks(np.arange(7, 18, 1))
 
     ax1.set_xlim(startTime * 1000, (startTime + exp_length) * 1000)
     ax1.set_xticks(np.arange(startTime * 1000, (startTime + exp_length) * 1000 + 60000, 60000))
@@ -341,20 +370,7 @@ def draw(rawDir, outputDir, exps):
                          np.arange(startTime * 1000, (startTime + exp_length) * 1000 + 60000, 60000)])
     ax1.set_xlabel("Time (s)")
 
-    job = jobList[0]
-    ax = sorted(totalArrivalRatesPerJob[job][0].keys())
-    ay = [totalArrivalRatesPerJob[job][0][x] / (windowSize / 100) for x in ax]
-    ax2.plot(ax, ay, 'o-', color='red', markersize=MARKERSIZE / 2, label="Arrival Rate")
-    #ax2.set_ylabel('Rate (tps)')
-    ax2.set_ylim(0, 8000)
-    ax2.set_yticks(np.arange(0, 9000, 1000))
-    # legend = ["OP_" + str(jobIndex + 1) +"Arrival Rate"]
-    legend = ["Arrival Rate"]
-    # ax2.set_xlim(startTime * 1000, (startTime + exp_length) * 1000)
-    # ax2.set_xticks(np.arange(startTime * 1000, (startTime + exp_length) * 1000 + 300000, 300000))
-    # ax2.set_xticklabels([int((x - startTime * 1000) / 60000) for x in
-    #                      np.arange(startTime * 1000, (startTime + 3600) * 1000 + 300000, 300000)])
-    ax2.legend(legend, loc='upper right', bbox_to_anchor=(1, 1.5), ncol=1)
+
 
     import os
     if not os.path.exists(outputDir):
@@ -422,8 +438,8 @@ exps = {
         #   "linear_road-streamsluice-streamsluice-2190-30-1000-10-2-100-20-2000-4-100-70-1500-2000-100-true-3-true-3",
         #   "blue", "o"],
         ["Sluice",
-         "systemsensitivity-streamsluice-streamsluice-how-1split2join1-400-6000-3000-4000-1-0-2-300-1-10000-2-300-1-10000-2-300-1-10000-6-510-10000-2500-3000-100-10-true-1",
-         "orange", "o"],
+         "systemsensitivity-streamsluice-streamsluice-when-1split2join1-400-6000-3000-4000-1-0-2-300-1-10000-2-300-1-10000-2-300-1-10000-6-510-10000-2500-3000-100-10-true-1",
+         "blue", "o"],
     ],
 }
 windowSize=1000
