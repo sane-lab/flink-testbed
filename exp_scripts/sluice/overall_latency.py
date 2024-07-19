@@ -291,7 +291,7 @@ if len(sys.argv) > 1:
 
 overall_latency = {}
 for app in exps.keys():
-    windowSize = 500
+    windowSize = 2000 #500
     latencyLimit = 2000 #1000
     startTime=30+300 #30
     isSingleOperator = False #True
