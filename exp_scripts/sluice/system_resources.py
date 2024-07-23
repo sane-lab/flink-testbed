@@ -325,6 +325,8 @@ def draw(rawDir, outputDir, exps):
     legend = []
     scalingPoints = [[], []]
     for expindex in range(0, len(exps)):
+        if(exps[expindex][0] == "Static"):
+            continue
         print("Draw exps " + exps[expindex][0] + " curve...")
         totalParallelism = 0
         Parallelism = totalParallelismPerExps[expindex]
@@ -432,22 +434,27 @@ exps = {
     #       "blue", "o"],
     # ],
     "Linear_Road": [
-        # ["Earlier",
-        #  "systemsensitivity-streamsluice_earlier-streamsluice-when-1split2join1-400-6000-3000-4000-1-0-2-300-1-10000-2-300-1-10000-2-300-1-10000-6-510-10000-2500-3000-100-10-true-1",
-        #  "green", "o"],
-        # ["Later",
-        #  "systemsensitivity-streamsluice_later-streamsluice-when-1split2join1-400-6000-3000-4000-1-0-2-300-1-10000-2-300-1-10000-2-300-1-10000-6-510-10000-2500-3000-100-10-true-1",
+        ["Static",
+         "systemsensitivity-streamsluice-streamsluice-when-1split2join1-400-6000-3000-4000-1-0-2-300-1-10000-2-300-1-10000-2-300-1-10000-6-510-10000-2500-3000-100-10-false-1",
+         "green", "o"],
+        ["Earlier",
+         "systemsensitivity-streamsluice_earlier-streamsluice-when-1split2join1-400-6000-3000-4000-1-0-2-300-1-10000-2-300-1-10000-2-300-1-10000-6-510-10000-2500-3000-100-10-true-1",
+         "green", "o"],
+        ["Later",
+         "systemsensitivity-streamsluice_later-streamsluice-when-1split2join1-400-6000-3000-4000-1-0-2-300-1-10000-2-300-1-10000-2-300-1-10000-6-510-10000-2500-3000-100-10-true-1",
+         "orange", "o"],
+        ["Sluice",
+         "systemsensitivity-streamsluice-streamsluice-when-1split2join1-400-6000-3000-4000-1-0-2-300-1-10000-2-300-1-10000-2-300-1-10000-6-510-10000-2500-3000-100-10-true-1",
+         "blue", "o"],
+
+        # ["Static",
+        #  "systemsensitivity-streamsluice-streamsluice-how-1split2join1-400-6000-3000-4000-1-0-2-300-1-10000-2-300-1-10000-2-300-1-10000-6-510-10000-2500-3000-100-10-false-1",
+        #  "purple", "o"],
+        # ["Not_Bottleneck",
+        #  "systemsensitivity-streamsluice-streamsluice_not_bottleneck-how-1split2join1-400-6000-3000-4000-1-0-2-300-1-10000-2-300-1-10000-2-300-1-10000-6-510-10000-2500-3000-100-10-true-1",
         #  "orange", "o"],
-        # ["Sluice",
-        #  "systemsensitivity-streamsluice-streamsluice-when-1split2join1-400-6000-3000-4000-1-0-2-300-1-10000-2-300-1-10000-2-300-1-10000-6-510-10000-2500-3000-100-10-true-1",
-        #  "blue", "o"],
-
-
-        ["No_Balance",
-         "systemsensitivity-streamsluice-streamsluice_no_balance-how-1split2join1-400-6000-3000-4000-1-0-2-300-1-10000-2-300-1-10000-2-300-1-10000-6-510-10000-2500-3000-100-10-true-1",
-         "purple", "o"],
-        # ["Minus_one",
-        #  "systemsensitivity-streamsluice-streamsluice_minus_one-how-1split2join1-400-6000-3000-4000-1-0-2-300-1-10000-2-300-1-10000-2-300-1-10000-6-510-10000-2500-3000-100-10-true-1",
+        # ["No_Balance",
+        #  "systemsensitivity-streamsluice-streamsluice_no_balance-how-1split2join1-400-6000-3000-4000-1-0-2-300-1-10000-2-300-1-10000-2-300-1-10000-6-510-10000-2500-3000-100-10-true-1",
         #  "purple", "o"],
         # ["More",
         #  "systemsensitivity-streamsluice-streamsluice_more-how-1split2join1-400-6000-3000-4000-1-0-2-300-1-10000-2-300-1-10000-2-300-1-10000-6-510-10000-2500-3000-100-10-true-1",
@@ -455,9 +462,9 @@ exps = {
         # ["Less",
         #  "systemsensitivity-streamsluice-streamsluice_less-how-1split2join1-400-6000-3000-4000-1-0-2-300-1-10000-2-300-1-10000-2-300-1-10000-6-510-10000-2500-3000-100-10-true-1",
         #  "orange", "o"],
-        ["Sluice",
-         "systemsensitivity-streamsluice-streamsluice-how-1split2join1-400-6000-3000-4000-1-0-2-300-1-10000-2-300-1-10000-2-300-1-10000-6-510-10000-2500-3000-100-10-true-1",
-         "blue", "o"],
+        # ["Sluice",
+        #  "systemsensitivity-streamsluice-streamsluice-how-1split2join1-400-6000-3000-4000-1-0-2-300-1-10000-2-300-1-10000-2-300-1-10000-6-510-10000-2500-3000-100-10-true-1",
+        #  "blue", "o"],
     ],
 }
 windowSize=1000

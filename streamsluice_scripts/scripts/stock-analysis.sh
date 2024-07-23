@@ -133,13 +133,13 @@ run_stock_test(){
         whether_type="streamsluice"
         how_type="streamsluice"
         scalein_type="streamsluice"
-        is_treat=true
-#        run_one_exp
-#        printf "${EXP_NAME}\n" >> stock_result.txt
-#        is_treat=false
-#        run_one_exp
-#        printf "${EXP_NAME}\n" >> stock_result.txt
 #        is_treat=true
+#        run_one_exp
+#        printf "${EXP_NAME}\n" >> stock_result.txt
+        is_treat=false
+        run_one_exp
+        printf "${EXP_NAME}\n" >> stock_result.txt
+        is_treat=true
 
 #        whether_type="ds2"
 #        how_type="ds2"
@@ -148,12 +148,12 @@ run_stock_test(){
 #        run_one_exp
 #        printf "${EXP_NAME}\n" >> stock_result.txt
 
-        whether_type="streamswitch"
-        how_type="streamswitch"
-        scalein_type="streamswitch"
-        migration_interval=2000
-        run_one_exp
-        printf "${EXP_NAME}\n" >> stock_result.txt
+#        whether_type="streamswitch"
+#        how_type="streamswitch"
+#        scalein_type="streamswitch"
+#        migration_interval=2000
+#        run_one_exp
+#        printf "${EXP_NAME}\n" >> stock_result.txt
     done
 
     # Change rate

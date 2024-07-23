@@ -155,9 +155,9 @@ run_stock_test(){
 #        run_one_exp
 #        printf "${EXP_NAME}\n" >> lr_result.txt
 #
-##        is_treat=false
-##        run_one_exp
-##        printf "${EXP_NAME}\n" >> lr_result.txt
+        is_treat=false
+        run_one_exp
+        printf "${EXP_NAME}\n" >> lr_result.txt
 ##        P1=2
 ##        P2=3
 ##        P3=9

@@ -157,7 +157,7 @@ def draw(rawDir, outputDir, exps, windowSize):
 
     legend += ["Limit"]
     addLatencyLimitMarker(plt)
-    plt.legend(legend, bbox_to_anchor=(0.45, 1.3), loc='upper center', ncol=4, markerscale=4.)
+    plt.legend(legend, bbox_to_anchor=(0.45, 1.4), loc='upper center', ncol=3, markerscale=4.)
     #plt.xlabel('Time (min)')
     plt.ylabel('Latency (ms)')
     #plt.title('Latency Curves')
@@ -192,11 +192,11 @@ exps = [
     #  "systemsensitivity-streamsluice-streamsluice-when-1split2join1-400-6000-3000-4000-1-0-2-300-1-10000-2-300-1-10000-2-300-1-10000-6-510-10000-2500-3000-100-10-true-1",
     #  "blue", "o"],
 
-    # ["No_Balance",
-    #  "systemsensitivity-streamsluice-streamsluice_no_balance-how-1split2join1-400-6000-3000-4000-1-0-2-300-1-10000-2-300-1-10000-2-300-1-10000-6-510-10000-2500-3000-100-10-true-1",
-    #  "purple", "o"],
-    ["Minus_one",
-     "systemsensitivity-streamsluice-streamsluice_minus_one-how-1split2join1-400-6000-3000-4000-1-0-2-300-1-10000-2-300-1-10000-2-300-1-10000-6-510-10000-2500-3000-100-10-true-1",
+    # ["Not_Bottleneck",
+    #  "systemsensitivity-streamsluice-streamsluice_not_bottleneck-how-1split2join1-400-6000-3000-4000-1-0-2-300-1-10000-2-300-1-10000-2-300-1-10000-6-510-10000-2500-3000-100-10-true-1",
+    #  "orange", "o"],
+    ["No_Balance",
+     "systemsensitivity-streamsluice-streamsluice_no_balance-how-1split2join1-400-6000-3000-4000-1-0-2-300-1-10000-2-300-1-10000-2-300-1-10000-6-510-10000-2500-3000-100-10-true-1",
      "purple", "o"],
     ["More",
      "systemsensitivity-streamsluice-streamsluice_more-how-1split2join1-400-6000-3000-4000-1-0-2-300-1-10000-2-300-1-10000-2-300-1-10000-6-510-10000-2500-3000-100-10-true-1",
