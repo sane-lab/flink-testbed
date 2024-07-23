@@ -27,6 +27,7 @@ def readGroundTruthLatency(rawDir, expName, windowSize):
 
     groundTruthLatencyPerTuple = {}
     groundTruthLatency = []
+    scalings = []
 
     taskExecutors = []  # "flink-samza-taskexecutor-0-eagle-sane.out"
     import os
@@ -94,6 +95,7 @@ def readGroundTruthLatency(rawDir, expName, windowSize):
                 if (initialTime == -1 or initialTime > estimateTime):
                     initialTime = estimateTime
 
+
     aggregatedGroundTruthLatency = {}
     for pair in groundTruthLatency:
         index = int((pair[0] - initialTime) / windowSize)
@@ -112,7 +114,7 @@ def readGroundTruthLatency(rawDir, expName, windowSize):
             y = sortedLatency[target]
             averageGroundTruthLatency[0] += [x]
             averageGroundTruthLatency[1] += [y]
-    return [averageGroundTruthLatency, initialTime]
+    return [averageGroundTruthLatency, initialTime, scalings]
 
 def draw(rawDir, outputDir, exps, windowSize):
     averageGroundTruthLatencies = []
@@ -156,8 +158,12 @@ def draw(rawDir, outputDir, exps, windowSize):
         sampledLatency[1] = [max([averageGroundTruthLatency[1][y] for y in range(x, min(x + sample_factor, len(averageGroundTruthLatency[1])))]) for x in range(0, len(averageGroundTruthLatency[0]), sample_factor)]
 
         #plt.plot(averageGroundTruthLatency[0], averageGroundTruthLatency[1], 'o-', color=exps[i][2], markersize=2, linewidth=2)
-        plt.plot(sampledLatency[0], sampledLatency[1], 'o-', color=exps[i][2], markersize=4,
-                 linewidth=2)
+        if exps[i][0] == 'Sluice':
+            markerfactor = 1.0
+        else:
+            markerfactor = 0.5
+        plt.plot(sampledLatency[0], sampledLatency[1], '-', color=exps[i][2], markersize=4 * markerfactor,
+                 linewidth=2 * markerfactor)
 
     legend += ["Limit"]
     addLatencyLimitMarker(plt)
@@ -169,17 +175,17 @@ def draw(rawDir, outputDir, exps, windowSize):
     axes.set_xlim(startTime * 1000, (startTime + 1800) * 1000)
     axes.set_xticks(np.arange(startTime * 1000, (startTime + 1800) * 1000 + 300000, 300000))
     axes.set_xticklabels([int((x - startTime * 1000) / 60000) for x in np.arange(startTime * 1000, (startTime + 1800) * 1000 + 300000, 300000)])
-    #axes.set_ylim(0, 5000)
-    #axes.set_yticks(np.arange(0, 6000, 1000))
-    axes.set_ylim(0, 10000)
-    axes.set_yticks(np.arange(0, 12000, 2000))
+    axes.set_ylim(0, 5000)
+    axes.set_yticks(np.arange(0, 6000, 1000))
+    # axes.set_ylim(0, 10000)
+    # axes.set_yticks(np.arange(0, 12000, 2000))
     # axes.set_yscale('log')
     plt.grid(True)
     import os
     if not os.path.exists(outputDir):
         os.makedirs(outputDir)
     #plt.savefig(outputDir + 'ground_truth_latency_curves.png', bbox_inches='tight')
-    plt.savefig(outputDir + 'ground_truth_latency_curves.png', bbox_inches='tight')
+    plt.savefig(outputDir + 'ground_truth_latency_curves.pdf', bbox_inches='tight')
     plt.close(fig)
 
 
@@ -210,10 +216,15 @@ def drawOverallLatency(output_directory: str, workload_latency: dict):
             if controller_index not in data_controller:
                 data_controller[controller] = [[], [], []]
             data_controller[controller_index][workload_index] = workload_latency[workload][controller]
+            print(workload + " " + controller_label[controller] + ", avg=" + str(sum(data_controller[controller_index][workload_index])/len(data_controller[controller_index][workload_index]))
+                  + ", min=" + str(min(data_controller[controller_index][workload_index]))
+                  + ", max=" + str(max(data_controller[controller_index][workload_index]))
+                  )
         workload_labels.append(workload)
 
+
     #print(data_controller)
-    print(workload_labels)
+    #print(workload_labels)
     def set_box_color(bp, color):
         plt.setp(bp['boxes'], color=color)
         plt.setp(bp['whiskers'], color=color)
@@ -299,5 +310,5 @@ for app in exps.keys():
     print(expName)
     overall_latency[app] = {}
     draw(rawDir, outputDir + expName + "/", exps[app], windowSize)
-#drawOverallLatency(outputDir + expName + "/", overall_latency)
+drawOverallLatency(outputDir + expName + "/", overall_latency)
 

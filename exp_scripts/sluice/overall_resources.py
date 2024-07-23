@@ -294,6 +294,7 @@ def draw(rawDir, outputDir, exps):
     #fig.supylabel('# of Slots')
     #supylabel2(fig, "Arrival Rate (tps)")
     fig.tight_layout(rect=[0.02, 0, 0.953, 1])
+    axs.grid(True)
     ax1 = axs
     ax2 = ax1.twinx()
     ax1.set_ylabel("# of Slots")
@@ -328,7 +329,11 @@ def draw(rawDir, outputDir, exps):
             line[0].append(x1)
             line[1].append(y0)
             line[1].append(y1)
-        ax1.plot(line[0], line[1], color=exps[expindex][2], linewidth=LINEWIDTH)
+        if exps[expindex][0] == "Sluice":
+            markerfactor = 1.0
+        else:
+            markerfactor = 0.5
+        ax1.plot(line[0], line[1], color=exps[expindex][2], linewidth=LINEWIDTH * markerfactor)
         print("Average parallelism " + exps[expindex][0] + " : " + str(totalParallelism / (exp_length * 1000)))
     ax1.legend(legend, loc='upper left', bbox_to_anchor=(0, 1.5), ncol=1, markerscale=4.)
     # ax1.set_ylabel('OP_'+str(jobIndex+1)+' Parallelism')
@@ -354,14 +359,14 @@ def draw(rawDir, outputDir, exps):
     # ax2.set_xticks(np.arange(startTime * 1000, (startTime + exp_length) * 1000 + 300000, 300000))
     # ax2.set_xticklabels([int((x - startTime * 1000) / 60000) for x in
     #                      np.arange(startTime * 1000, (startTime + 3600) * 1000 + 300000, 300000)])
-    ax2.legend(legend, loc='upper right', bbox_to_anchor=(1, 1.5), ncol=1)
+    ax2.legend(legend, loc='upper right', bbox_to_anchor=(1, 1.5), ncol=2)
 
     import os
     if not os.path.exists(outputDir):
         os.makedirs(outputDir)
 
     # plt.savefig(outputDir + figName + ".png", bbox_inches='tight')
-    plt.savefig(outputDir + figName + ".png", bbox_inches='tight')
+    plt.savefig(outputDir + figName + ".pdf", bbox_inches='tight')
     plt.close(fig)
 
 workload_label = {
@@ -391,10 +396,16 @@ def drawOverallResource(output_directory: str, workload_latency: dict):
             if controller_index not in data_controller:
                 data_controller[controller] = [[], [], []]
             data_controller[controller_index][workload_index] = workload_latency[workload][controller]
+            print(workload + " " + controller_label[controller] + ", avg=" + str(
+                sum(data_controller[controller_index][workload_index]) / len(
+                    data_controller[controller_index][workload_index]))
+                  + ", min=" + str(min(data_controller[controller_index][workload_index]))
+                  + ", max=" + str(max(data_controller[controller_index][workload_index]))
+                  )
         workload_labels.append(workload)
 
-    print(data_controller)
-    print(workload_labels)
+    #print(data_controller)
+    #print(workload_labels)
     def set_box_color(bp, color):
         plt.setp(bp['boxes'], color=color)
         plt.setp(bp['whiskers'], color=color)
@@ -486,7 +497,7 @@ if len(sys.argv) > 1:
 slot_ylim_app = {
     "Stock": 45,
     "Tweet": 30,
-    "Linear_Road": 100, #27,
+    "Linear_Road": 30, #27,
 }
 arrivalrate_ylim_app = {
     "Stock": 3000,

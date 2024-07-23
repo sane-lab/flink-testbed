@@ -135,7 +135,7 @@ def draw(rawDir, outputDir, exps, windowSize):
     print(successRatePerExps)
     #print(averageGroundTruthLatencies)
     #fig = plt.figure(figsize=(24, 3))
-    fig = plt.figure(figsize=(9, 5))
+    fig = plt.figure(figsize=(12, 5))
     print("Draw ground truth curve...")
     legend = []
     for i in range(0, len(exps)):
@@ -148,12 +148,16 @@ def draw(rawDir, outputDir, exps, windowSize):
         sampledLatency[1] = [max([averageGroundTruthLatency[1][y] for y in range(x, min(x + sample_factor, len(averageGroundTruthLatency[1])))]) for x in range(0, len(averageGroundTruthLatency[0]), sample_factor)]
 
         #plt.plot(averageGroundTruthLatency[0], averageGroundTruthLatency[1], 'o-', color=exps[i][2], markersize=2, linewidth=2)
-        plt.plot(sampledLatency[0], sampledLatency[1], 'o-', color=exps[i][2], markersize=4,
-                 linewidth=2)
+        if exps[i][0] == 'Sluice':
+            linewidth = 3
+        else:
+            linewidth = 3 / 2.0
+        plt.plot(sampledLatency[0], sampledLatency[1], '-', color=exps[i][2], markersize=4,
+                 linewidth=linewidth)
 
     legend += ["Limit"]
     addLatencyLimitMarker(plt)
-    plt.legend(legend, bbox_to_anchor=(0.5, 1.3), loc='upper center', ncol=6, markerscale=4.)
+    plt.legend(legend, bbox_to_anchor=(0.45, 1.3), loc='upper center', ncol=4, markerscale=4.)
     #plt.xlabel('Time (min)')
     plt.ylabel('Latency (ms)')
     #plt.title('Latency Curves')
@@ -171,38 +175,38 @@ def draw(rawDir, outputDir, exps, windowSize):
     if not os.path.exists(outputDir):
         os.makedirs(outputDir)
     #plt.savefig(outputDir + 'ground_truth_latency_curves.png', bbox_inches='tight')
-    plt.savefig(outputDir + 'ground_truth_latency_curves.png', bbox_inches='tight')
+    plt.savefig(outputDir + 'ground_truth_latency_curves.pdf', bbox_inches='tight')
     plt.close(fig)
 
 rawDir = "/Users/swrrt/Workplace/BacklogDelayPaper/experiments/raw/"
 outputDir = "/Users/swrrt/Workplace/BacklogDelayPaper/experiments/results/"
 
 exps = [
-    # ["Earlier",
-    #  "systemsensitivity-streamsluice_earlier-streamsluice-when-1split2join1-400-6000-3000-4000-1-0-2-300-1-10000-2-300-1-10000-2-300-1-10000-6-510-10000-2500-3000-100-10-true-1",
+    ["Earlier",
+     "systemsensitivity-streamsluice_earlier-streamsluice-when-1split2join1-400-6000-3000-4000-1-0-2-300-1-10000-2-300-1-10000-2-300-1-10000-6-510-10000-2500-3000-100-10-true-1",
+     "green", "o"],
+    ["Later",
+     "systemsensitivity-streamsluice_later-streamsluice-when-1split2join1-400-6000-3000-4000-1-0-2-300-1-10000-2-300-1-10000-2-300-1-10000-6-510-10000-2500-3000-100-10-true-1",
+     "orange", "o"],
+    ["Sluice",
+     "systemsensitivity-streamsluice-streamsluice-when-1split2join1-400-6000-3000-4000-1-0-2-300-1-10000-2-300-1-10000-2-300-1-10000-6-510-10000-2500-3000-100-10-true-1",
+     "blue", "o"],
+
+    # ["No_Balance",
+    #  "systemsensitivity-streamsluice-streamsluice_no_balance-how-1split2join1-400-6000-3000-4000-1-0-2-300-1-10000-2-300-1-10000-2-300-1-10000-6-510-10000-2500-3000-100-10-true-1",
+    #  "purple", "o"],
+    # ["Minus_one",
+    #  "systemsensitivity-streamsluice-streamsluice_minus_one-how-1split2join1-400-6000-3000-4000-1-0-2-300-1-10000-2-300-1-10000-2-300-1-10000-6-510-10000-2500-3000-100-10-true-1",
+    #  "purple", "o"],
+    # ["More",
+    #  "systemsensitivity-streamsluice-streamsluice_more-how-1split2join1-400-6000-3000-4000-1-0-2-300-1-10000-2-300-1-10000-2-300-1-10000-6-510-10000-2500-3000-100-10-true-1",
     #  "green", "o"],
-    # ["Later",
-    #  "systemsensitivity-streamsluice_later-streamsluice-when-1split2join1-400-6000-3000-4000-1-0-2-300-1-10000-2-300-1-10000-2-300-1-10000-6-510-10000-2500-3000-100-10-true-1",
+    # ["Less",
+    #  "systemsensitivity-streamsluice-streamsluice_less-how-1split2join1-400-6000-3000-4000-1-0-2-300-1-10000-2-300-1-10000-2-300-1-10000-6-510-10000-2500-3000-100-10-true-1",
     #  "orange", "o"],
     # ["Sluice",
-    #  "systemsensitivity-streamsluice-streamsluice-when-1split2join1-400-6000-3000-4000-1-0-2-300-1-10000-2-300-1-10000-2-300-1-10000-6-510-10000-2500-3000-100-10-true-1",
+    #  "systemsensitivity-streamsluice-streamsluice-how-1split2join1-400-6000-3000-4000-1-0-2-300-1-10000-2-300-1-10000-2-300-1-10000-6-510-10000-2500-3000-100-10-true-1",
     #  "blue", "o"],
-
-    ["No_Balance",
-     "systemsensitivity-streamsluice-streamsluice_no_balance-how-1split2join1-400-6000-3000-4000-1-0-2-300-1-10000-2-300-1-10000-2-300-1-10000-6-510-10000-2500-3000-100-10-true-1",
-     "purple", "o"],
-    ["Minus_one",
-     "systemsensitivity-streamsluice-streamsluice_minus_one-how-1split2join1-400-6000-3000-4000-1-0-2-300-1-10000-2-300-1-10000-2-300-1-10000-6-510-10000-2500-3000-100-10-true-1",
-     "orange", "o"],
-    ["More",
-     "systemsensitivity-streamsluice-streamsluice_more-how-1split2join1-400-6000-3000-4000-1-0-2-300-1-10000-2-300-1-10000-2-300-1-10000-6-510-10000-2500-3000-100-10-true-1",
-     "green", "o"],
-    ["Less",
-     "systemsensitivity-streamsluice-streamsluice_less-how-1split2join1-400-6000-3000-4000-1-0-2-300-1-10000-2-300-1-10000-2-300-1-10000-6-510-10000-2500-3000-100-10-true-1",
-     "brown", "o"],
-    ["Sluice",
-     "systemsensitivity-streamsluice-streamsluice-how-1split2join1-400-6000-3000-4000-1-0-2-300-1-10000-2-300-1-10000-2-300-1-10000-6-510-10000-2500-3000-100-10-true-1",
-     "blue", "o"],
 ]
 
 import sys
@@ -210,13 +214,13 @@ if len(sys.argv) > 1:
     expName = sys.argv[1].split("/")[-1]
 
 overall_latency = {}
-for exp in exps:
-    windowSize = 500
-    latencyLimit = 2500 #1000
-    startTime=20 #+300 #30
-    expLength= 360
-    isSingleOperator = False #True
-    expName = exp[1]
-    print(expName)
-    draw(rawDir, outputDir + expName + "/", exps, windowSize)
+
+windowSize = 500
+latencyLimit = 2500 #1000
+startTime=20 #+300 #30
+expLength= 360
+isSingleOperator = False #True
+expName = exps[0][1]
+print(expName)
+draw(rawDir, outputDir + expName + "/", exps, windowSize)
 

@@ -293,7 +293,7 @@ def draw(rawDir, outputDir, exps):
     figName = "Parallelism"
     nJobs = len(parallelismsPerJob.keys())
     jobList = ["a84740bacf923e828852cc4966f2247c", "eabd4c11f6c6fbdf011f0f1fc42097b1", "d01047f852abd5702a0dabeedac99ff5", "d2336f79a0d60b5a4b16c8769ec82e47", "feccfb8648621345be01b71938abfb72"]
-    fig, axs = plt.subplots(1, 1, figsize=(9, 5), layout='constrained')
+    fig, axs = plt.subplots(1, 1, figsize=(12, 5), layout='constrained')
 
     # Add super label
     #fig.supylabel('# of Slots')
@@ -308,7 +308,7 @@ def draw(rawDir, outputDir, exps):
     job = jobList[0]
     ax = sorted(totalArrivalRatesPerJob[job][0].keys())
     ay = [totalArrivalRatesPerJob[job][0][x] / (windowSize / 100) for x in ax]
-    ax2.plot(ax, ay, 'o-', color='red', markersize=MARKERSIZE / 2, label="Arrival Rate")
+    ax2.plot(ax, ay, '-', color='red', markersize=MARKERSIZE / 2, label="Arrival Rate")
     #ax2.set_ylabel('Rate (tps)')
     ax2.set_ylim(0, 10000)
     ax2.set_yticks(np.arange(0, 11000, 1000))
@@ -318,7 +318,7 @@ def draw(rawDir, outputDir, exps):
     # ax2.set_xticks(np.arange(startTime * 1000, (startTime + exp_length) * 1000 + 300000, 300000))
     # ax2.set_xticklabels([int((x - startTime * 1000) / 60000) for x in
     #                      np.arange(startTime * 1000, (startTime + 3600) * 1000 + 300000, 300000)])
-    ax2.legend(legend, loc='upper right', bbox_to_anchor=(1, 1.5), ncol=1)
+    ax2.legend(legend, loc='upper right', bbox_to_anchor=(1.1, 1.3), ncol=1)
 
 
 
@@ -342,7 +342,7 @@ def draw(rawDir, outputDir, exps):
                 y1 = Parallelism[1][i + 1]
             l = max(x0, startTime * 1000)
             r = min(x1, (startTime + exp_length) * 1000)
-            if(l < r):
+            if(exps[expindex][0] == 'Sluice' and l < r):
                 totalParallelism += (r - l) * y0
                 for scalingTime in scalings:
                     if scalingTime >= l and scalingTime <= r:
@@ -356,10 +356,14 @@ def draw(rawDir, outputDir, exps):
             line[0].append(x1)
             line[1].append(y0)
             line[1].append(y1)
-        ax1.plot(line[0], line[1], color=exps[expindex][2], linewidth=LINEWIDTH)
+        if exps[expindex][0] == 'Sluice':
+            linewidth = LINEWIDTH
+        else:
+            linewidth = LINEWIDTH / 2.0
+        ax1.plot(line[0], line[1], color=exps[expindex][2], linewidth=linewidth)
         print("Average parallelism " + exps[expindex][0] + " : " + str(totalParallelism / (exp_length * 1000)))
     ax1.plot(scalingPoints[0], scalingPoints[1], 'o', color="orange", mfc='none', markersize=MARKERSIZE * 2, label="Scaling")
-    ax1.legend(legend, loc='upper left', bbox_to_anchor=(0, 1.5), ncol=1, markerscale=4.)
+    ax1.legend(legend, loc='upper left', bbox_to_anchor=(-0.1, 1.3), ncol=3, markerscale=4.)
     # ax1.set_ylabel('OP_'+str(jobIndex+1)+' Parallelism')
     ax1.set_ylim(7, 17)
     ax1.set_yticks(np.arange(7, 18, 1))
@@ -377,7 +381,7 @@ def draw(rawDir, outputDir, exps):
         os.makedirs(outputDir)
 
     # plt.savefig(outputDir + figName + ".png", bbox_inches='tight')
-    plt.savefig(outputDir + figName + ".png", bbox_inches='tight')
+    plt.savefig(outputDir + figName + ".pdf", bbox_inches='tight')
     plt.close(fig)
 
 workload_label = {
@@ -442,15 +446,15 @@ exps = {
         ["No_Balance",
          "systemsensitivity-streamsluice-streamsluice_no_balance-how-1split2join1-400-6000-3000-4000-1-0-2-300-1-10000-2-300-1-10000-2-300-1-10000-6-510-10000-2500-3000-100-10-true-1",
          "purple", "o"],
-        ["Minus_one",
-         "systemsensitivity-streamsluice-streamsluice_minus_one-how-1split2join1-400-6000-3000-4000-1-0-2-300-1-10000-2-300-1-10000-2-300-1-10000-6-510-10000-2500-3000-100-10-true-1",
-         "orange", "o"],
-        ["More",
-         "systemsensitivity-streamsluice-streamsluice_more-how-1split2join1-400-6000-3000-4000-1-0-2-300-1-10000-2-300-1-10000-2-300-1-10000-6-510-10000-2500-3000-100-10-true-1",
-         "green", "o"],
-        ["Less",
-         "systemsensitivity-streamsluice-streamsluice_less-how-1split2join1-400-6000-3000-4000-1-0-2-300-1-10000-2-300-1-10000-2-300-1-10000-6-510-10000-2500-3000-100-10-true-1",
-         "brown", "o"],
+        # ["Minus_one",
+        #  "systemsensitivity-streamsluice-streamsluice_minus_one-how-1split2join1-400-6000-3000-4000-1-0-2-300-1-10000-2-300-1-10000-2-300-1-10000-6-510-10000-2500-3000-100-10-true-1",
+        #  "purple", "o"],
+        # ["More",
+        #  "systemsensitivity-streamsluice-streamsluice_more-how-1split2join1-400-6000-3000-4000-1-0-2-300-1-10000-2-300-1-10000-2-300-1-10000-6-510-10000-2500-3000-100-10-true-1",
+        #  "green", "o"],
+        # ["Less",
+        #  "systemsensitivity-streamsluice-streamsluice_less-how-1split2join1-400-6000-3000-4000-1-0-2-300-1-10000-2-300-1-10000-2-300-1-10000-6-510-10000-2500-3000-100-10-true-1",
+        #  "orange", "o"],
         ["Sluice",
          "systemsensitivity-streamsluice-streamsluice-how-1split2join1-400-6000-3000-4000-1-0-2-300-1-10000-2-300-1-10000-2-300-1-10000-6-510-10000-2500-3000-100-10-true-1",
          "blue", "o"],

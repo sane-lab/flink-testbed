@@ -168,6 +168,10 @@ run_scale_test(){
     SOURCE_TYPE="when"
     #run_one_exp
     #printf "${EXP_NAME}\n" >> whetherhow_result.txt
+    is_treat=false
+    run_one_exp
+    printf "${EXP_NAME}\n" >> whetherhow_result.txt
+    is_treat=true
 #    whether_early="streamsluice_earlier"
 #    whether_late="streamsluice_later"
 #    for whether_type in ${whether_early} ${whether_late}; do
@@ -183,11 +187,15 @@ run_scale_test(){
     SOURCE_TYPE="how"
 #    run_one_exp
 #    printf "${EXP_NAME}\n" >> whetherhow_result.txt
-    for how_type in "streamsluice_minus_one" "streamsluice_less"; do #"streamsluice_no_balance"  "streamsluice_more"  "streamsluice_not_bottleneck"; do
-      run_one_exp
-      printf "${EXP_NAME}\n" >> whetherhow_result.txt
-    done
-    how_type="streamsluice"
+    is_treat=false
+    run_one_exp
+    printf "${EXP_NAME}\n" >> whetherhow_result.txt
+    is_treat=true
+#    for how_type in "streamsluice_minus_one" "streamsluice_less"; do #"streamsluice_no_balance"  "streamsluice_more"  "streamsluice_not_bottleneck"; do
+#      run_one_exp
+#      printf "${EXP_NAME}\n" >> whetherhow_result.txt
+#    done
+#    how_type="streamsluice"
 }
 
 run_scale_test

@@ -90,7 +90,8 @@ for exp_type in exps.keys():
     import os
     if not os.path.exists(outputDir):
         os.makedirs(outputDir)
-    plt.savefig(outputDir + filename + "_latency.png", bbox_inches='tight')
+    #plt.savefig(outputDir + filename + "_latency.png", bbox_inches='tight')
+    plt.savefig(outputDir + filename + "_latency.pdf", bbox_inches='tight')
     plt.close(fig)
 
     fig, axs = plt.subplots(1, 1, figsize=(8, 4), layout='constrained')  # (24, 9)
@@ -110,7 +111,8 @@ for exp_type in exps.keys():
     import os
     if not os.path.exists(outputDir):
         os.makedirs(outputDir)
-    plt.savefig(outputDir + filename + "_resource.png", bbox_inches='tight')
+    #plt.savefig(outputDir + filename + "_resource.png", bbox_inches='tight')
+    plt.savefig(outputDir + filename + "_resource.pdf", bbox_inches='tight')
     plt.close(fig)
 
 
