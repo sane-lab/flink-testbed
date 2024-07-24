@@ -143,12 +143,17 @@ run_scale_test(){
     #STATE_SIZE2=1000
     #STATE_SIZE3=1000
     #STATE_SIZE4=1000
-    spike_intercept=1500 #1200 #750
+    #spike_intercept=1500 #1200 #750
 
-    STATE_SIZE2=10000
-    STATE_SIZE3=10000
-    STATE_SIZE4=10000
-    STATE_SIZE5=10000
+#    STATE_SIZE2=10000
+#    STATE_SIZE3=10000
+#    STATE_SIZE4=10000
+#    STATE_SIZE5=10000
+    STATE_SIZE2=7500
+    STATE_SIZE3=7500
+    STATE_SIZE4=7500
+    STATE_SIZE5=7500
+    spike_intercept=1000
     runtime=400
     DELTA_I=270
     LP2=2
@@ -172,14 +177,14 @@ run_scale_test(){
 #    run_one_exp
 #    printf "${EXP_NAME}\n" >> whetherhow_result.txt
 #    is_treat=true
-    whether_early="streamsluice_earlier"
-    whether_late="streamsluice_later"
-    for whether_type in ${whether_early} ${whether_late}; do
-      #how_type="streamsluice"
-      run_one_exp
-      printf "${EXP_NAME}\n" >> whetherhow_result.txt
-    done
-    whether_type="streamsluice"
+#    whether_early="streamsluice_earlier"
+#    whether_late="streamsluice_later"
+#    for whether_type in ${whether_early} ${whether_late}; do
+#      #how_type="streamsluice"
+#      run_one_exp
+#      printf "${EXP_NAME}\n" >> whetherhow_result.txt
+#    done
+#    whether_type="streamsluice"
 
     RATE1=6000
     RATE2=3000
@@ -191,11 +196,11 @@ run_scale_test(){
 #    run_one_exp
 #    printf "${EXP_NAME}\n" >> whetherhow_result.txt
 #    is_treat=true
-    for how_type in "streamsluice_not_bottleneck" "streamsluice_less" "streamsluice_no_balance"  "streamsluice_more"; do #"streamsluice_minus_one" ; do #  "streamsluice_not_bottleneck"; do
-      run_one_exp
-      printf "${EXP_NAME}\n" >> whetherhow_result.txt
-    done
-    how_type="streamsluice"
+#    for how_type in "streamsluice_not_bottleneck" "streamsluice_less" "streamsluice_no_balance"  "streamsluice_more"; do #"streamsluice_minus_one" ; do #  "streamsluice_not_bottleneck"; do
+#      run_one_exp
+#      printf "${EXP_NAME}\n" >> whetherhow_result.txt
+#    done
+#    how_type="streamsluice"
 }
 
 run_scale_test
