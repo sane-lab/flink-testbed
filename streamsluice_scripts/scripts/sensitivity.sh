@@ -136,7 +136,7 @@ run_scale_test(){
     decision_interval=10
     snapshot_size=3
 
-    L=2500
+    L=2000 #2500
     migration_interval=3000
     spike_slope=0.7
     #spike_intercept=200
@@ -166,32 +166,32 @@ run_scale_test(){
 
     # Curve 1
     SOURCE_TYPE="when"
-    #run_one_exp
-    #printf "${EXP_NAME}\n" >> whetherhow_result.txt
+    run_one_exp
+    printf "${EXP_NAME}\n" >> whetherhow_result.txt
 #    is_treat=false
 #    run_one_exp
 #    printf "${EXP_NAME}\n" >> whetherhow_result.txt
 #    is_treat=true
-#    whether_early="streamsluice_earlier"
-#    whether_late="streamsluice_later"
-#    for whether_type in ${whether_early} ${whether_late}; do
-#      #how_type="streamsluice"
-#      run_one_exp
-#      printf "${EXP_NAME}\n" >> whetherhow_result.txt
-#    done
-#    whether_type="streamsluice"
+    whether_early="streamsluice_earlier"
+    whether_late="streamsluice_later"
+    for whether_type in ${whether_early} ${whether_late}; do
+      #how_type="streamsluice"
+      run_one_exp
+      printf "${EXP_NAME}\n" >> whetherhow_result.txt
+    done
+    whether_type="streamsluice"
 
     RATE1=6000
     RATE2=3000
     RATE_I=4000
     SOURCE_TYPE="how"
-#    run_one_exp
-#    printf "${EXP_NAME}\n" >> whetherhow_result.txt
+    run_one_exp
+    printf "${EXP_NAME}\n" >> whetherhow_result.txt
 #    is_treat=false
 #    run_one_exp
 #    printf "${EXP_NAME}\n" >> whetherhow_result.txt
 #    is_treat=true
-    for how_type in "streamsluice_not_bottleneck"; do #"streamsluice_minus_one" "streamsluice_less"; do #"streamsluice_no_balance"  "streamsluice_more"  "streamsluice_not_bottleneck"; do
+    for how_type in "streamsluice_not_bottleneck" "streamsluice_less" "streamsluice_no_balance"  "streamsluice_more"; do #"streamsluice_minus_one" ; do #  "streamsluice_not_bottleneck"; do
       run_one_exp
       printf "${EXP_NAME}\n" >> whetherhow_result.txt
     done
