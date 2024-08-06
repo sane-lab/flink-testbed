@@ -49,8 +49,8 @@ taskmanager.heap.size: 10240m
 
 # The number of task slots that each TaskManager offers. Each slot runs one parallel pipeline.
 
-taskmanager.hostname: camel
-taskmanager.numberOfTaskSlots: 23 # 63
+#taskmanager.hostname: camel
+taskmanager.numberOfTaskSlots: 16 # 63
 #taskmanager.rpc.port: 33033
 #taskmanager.data.port: 33034
 
