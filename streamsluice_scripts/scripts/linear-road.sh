@@ -152,31 +152,14 @@ run_stock_test(){
         whether_type="streamsluice"
         how_type="streamsluice"
         scalein_type="streamsluice"
-#        run_one_exp
-#        printf "${EXP_NAME}\n" >> lr_result.txt
-#
-        is_treat=false
         run_one_exp
         printf "${EXP_NAME}\n" >> lr_result.txt
-##        P1=2
-##        P2=3
-##        P3=9
-##        P4=5
-##        P5=6
-##        P6=2
-##        P7=8
-##        is_treat=false
-##        run_one_exp
-##        printf "${EXP_NAME}\n" >> lr_result.txt
-##        is_treat=true
-#
-##        P1=1
-##        P2=2
-##        P3=6
-##        P4=3
-##        P5=4
-##        P6=1
-##        P7=5
+
+#        is_treat=false
+#        run_one_exp
+#        printf "${EXP_NAME}\n" >> lr_result.txt
+#        is_treat=true
+
 #        whether_type="ds2"
 #        how_type="ds2"
 #        scalein_type="ds2"

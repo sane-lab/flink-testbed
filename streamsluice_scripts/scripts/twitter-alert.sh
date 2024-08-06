@@ -127,12 +127,12 @@ run_stock_test(){
         how_type="streamsluice"
         scalein_type="streamsluice"
 
-#        run_one_exp
-#        printf "${EXP_NAME}\n" >> tweet_result.txt
-
-        is_treat=false
         run_one_exp
         printf "${EXP_NAME}\n" >> tweet_result.txt
+
+#        is_treat=false
+#        run_one_exp
+#        printf "${EXP_NAME}\n" >> tweet_result.txt
 #        P1=2
 #        P2=3
 #        P3=9

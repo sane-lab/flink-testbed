@@ -133,12 +133,12 @@ run_stock_test(){
         whether_type="streamsluice"
         how_type="streamsluice"
         scalein_type="streamsluice"
-#        is_treat=true
-#        run_one_exp
-#        printf "${EXP_NAME}\n" >> stock_result.txt
-        is_treat=false
+        is_treat=true
         run_one_exp
         printf "${EXP_NAME}\n" >> stock_result.txt
+#        is_treat=false
+#        run_one_exp
+#        printf "${EXP_NAME}\n" >> stock_result.txt
         is_treat=true
 
 #        whether_type="ds2"
