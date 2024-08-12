@@ -1,6 +1,3 @@
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import java.util.*;
 
 
@@ -243,7 +240,6 @@ class StreamGraph {
 
 
 class LatencyEstimationModel {
-    private static final Logger LOG = LoggerFactory.getLogger(LatencyEstimationModel.class);
 
     final StreamGraph graph;
     protected class Metrics{
@@ -424,7 +420,6 @@ class LatencyEstimationModel {
         for(int key: mappedKeys){
             arrivalRate += metrics.arrivalRatePerKey.get(operator).get(key);
         }
-        LOG.info("+++ [MODEL] task rate " + task + " (arrival, service): " + arrivalRate + ", " + serviceRate);
         return arrivalRate > serviceRate * conservativeFactor;
     }
 
@@ -442,7 +437,6 @@ class LatencyEstimationModel {
                 startTimePerOperator.put(operator, startTime);
                 completeTimePerOperator.put(operator, completeTime);
             }
-            LOG.info("Operators' start and complete time: " + startTimePerOperator + "   " + completeTimePerOperator);
 
             List<String> reverseOrder = new ArrayList<String>(graph.getOrderedOperator());
             Collections.reverse(reverseOrder);
