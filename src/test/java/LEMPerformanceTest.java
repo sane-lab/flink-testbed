@@ -78,12 +78,11 @@ public class LEMPerformanceTest {
         }
         StreamGraph graph = new StreamGraph(operatorLinks);
 
-        // Configuration
-        ArrayList<String> tasks = new ArrayList<>();
-
         // Metrics
         Map<String, Map<Integer, Double>> arrivalRatesPerKey = new HashMap<>();
         Map<String, Map<Integer, Double>> backlogPerKey = new HashMap<>();
+        Map<String, Double> serviceRatesPerTask = new HashMap<>();
+        Map<String, Double> waitingTimePerTask = new HashMap<>();
         for(int index = 0; index < n_operator; index ++){
             String operator = operators.get(index);
             Map<Integer, Double> arrivalRates = new HashMap<>(), backlogs = new HashMap<>();
@@ -94,15 +93,14 @@ public class LEMPerformanceTest {
                 arrivalRates.put(k, arrivalRate);
                 backlogs.put(k, backlog);
             }
+            for(int j = 0; j < n_task; j++){
+                String task = operator + "_" + j;
+                double serviceRate = 2.5 + rng.nextDouble() * (1.0 - 0.0), waitingTime = 0.0;
+                serviceRatesPerTask.put(task, serviceRate);
+                waitingTimePerTask.put(task, waitingTime);
+            }
         }
-        Map<String, Double> serviceRatesPerTask = new HashMap<>();
-        Map<String, Double> waitingTimePerTask = new HashMap<>();
-        for(int index = 0; index < n_task; index ++){
-            String task = tasks.get(index);
-            double serviceRate = 2.5 + rng.nextDouble() * (1.0 - 0.0), waitingTime = 0.0;
-            serviceRatesPerTask.put(task, serviceRate);
-            waitingTimePerTask.put(task, waitingTime);
-         }
+
         // Populate these maps with some dummy data
         // This is just placeholder data for testing purposes
         double conservativeFactor = 0.875;
@@ -111,8 +109,8 @@ public class LEMPerformanceTest {
         // Testing
         // Measure the time taken for estimateTaskLatency
         for(int i = 0; i < 100; i++){
-            String task = tasks.get(rng.nextInt(n_task * n_operator));
-            String operator = task.split("_")[0];
+            String operator = operators.get(rng.nextInt(n_operator));
+            String task = operator + "_" + rng.nextInt(n_task);
             List<Integer> mappedKeys = generateMappedKeys(n_key);
             double time = 0.0 + rng.nextInt(2) * rng.nextDouble() * (1000.0 - 0.0);
             long startTime = System.nanoTime();

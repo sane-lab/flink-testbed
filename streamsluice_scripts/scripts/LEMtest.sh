@@ -1,2 +1,3 @@
-javac src/test/java/LEMPerformanceTest.java
-java src/test/java/LEMPerformanceTest
+cd ../../src/test/java/ || exit
+javac LEMPerformanceTest.java
+java LEMPerformanceTest
