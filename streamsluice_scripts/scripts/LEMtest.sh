@@ -1,3 +1,3 @@
 cd ../../src/test/java/ || exit
 javac LEMPerformanceTest.java
-java LEMPerformanceTest
+cat java LEMPerformanceTest > LEMPerformanceTest_result.txt
