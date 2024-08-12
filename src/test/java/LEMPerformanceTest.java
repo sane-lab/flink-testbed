@@ -30,7 +30,7 @@ public class LEMPerformanceTest {
             mapping.put(task, new ArrayList<>());
         }
         for (int key: keys){
-            String task = operator + "_" + rng.nextInt(n_keys);
+            String task = operator + "_" + rng.nextInt(n_task);
             mapping.get(task).add(key);
         }
         return mapping;
