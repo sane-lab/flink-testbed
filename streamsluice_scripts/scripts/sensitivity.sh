@@ -171,6 +171,7 @@ run_scale_test(){
 
     # Curve 1
     SOURCE_TYPE="when"
+    is_treat=false
     run_one_exp
     printf "${EXP_NAME}\n" >> whetherhow_result.txt
 #    is_treat=false
@@ -186,12 +187,12 @@ run_scale_test(){
 #    done
 #    whether_type="streamsluice"
 
-#    RATE1=6000
-#    RATE2=3000
-#    RATE_I=4000
-#    SOURCE_TYPE="how"
-#    run_one_exp
-#    printf "${EXP_NAME}\n" >> whetherhow_result.txt
+    RATE1=6000
+    RATE2=3000
+    RATE_I=4000
+    SOURCE_TYPE="how"
+    run_one_exp
+    printf "${EXP_NAME}\n" >> whetherhow_result.txt
 #    is_treat=false
 #    run_one_exp
 #    printf "${EXP_NAME}\n" >> whetherhow_result.txt
