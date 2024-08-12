@@ -6,93 +6,147 @@ import java.util.*;
 
 public class LEMPerformanceTest {
     static Random rng = new Random(114514);
+
+    static List<Integer> generateMappedKeys(int n_keys){
+        List<Integer> keys = new ArrayList<>();
+        int m_key = 1 + rng.nextInt(n_keys - 1);
+        List<Integer> choose = new ArrayList<>();
+        for(int i = 0; i < n_keys; i++){
+            keys.add(i);
+        }
+        Collections.shuffle(keys);
+        for(int i = 0; i < m_key; i ++){
+            choose.add(keys.get(i));
+        }
+        return choose;
+    }
+
+    static Map<String, List<Integer>> generateMapping(String operator, int n_task, int n_keys){
+        Map<String, List<Integer>> mapping = new HashMap<>();
+        ArrayList<Integer> keys = new ArrayList<>();
+        for(int i = 0; i < n_keys; i++){
+            keys.add(i);
+        }
+        Collections.shuffle(keys);
+        for (int i = 0; i < n_task; i++) {
+            String task = operator + "_" + i;
+            mapping.put(task, new ArrayList<>());
+        }
+        for (int key: keys){
+            String task = operator + "_" + rng.nextInt(n_keys);
+            mapping.get(task).add(key);
+        }
+        return mapping;
+    }
+
+    static Map<String, Map<String, List<Integer>>> generateConfiguration(List<String> operators, int n_operator, int n_task, int n_key){
+        Map<String, Map<String, List<Integer>>> config = new HashMap<>();
+        for(int index = 0; index < n_operator; index++) {
+            String operatorId = operators.get(index);
+            config.put(operatorId, generateMapping(operatorId, n_task, n_key));
+//            Map<String, List<Integer>> mapping = new HashMap<>();
+//            config.put(operatorId, mapping);
+//            int current_k = 0, average = n_key / n_task, remainder = n_key % n_task;
+//            for (int j = 0; j < n_task; j++) {
+//                String task = operatorId + "_" + j;
+//                tasks.add(task);
+//                List<Integer> keys = new ArrayList<>();
+//                mapping.put(task, keys);
+//                int end_k = current_k + average;
+//                if(j < remainder){
+//                    end_k ++;
+//                }
+//                for(int k = current_k; k < end_k; k++){
+//                    keys.add(k);
+//                }
+//                current_k = end_k;
+//            }
+        }
+        return config;
+    }
     public static void main(String[] args) {
         System.out.println("LEM performance testing start...");
         int n_operator = 4, n_key = 128, n_task = 20;
 
         // Create a dummy StreamGraph and metrics for testing
-        ArrayList<String> jobs = new ArrayList<>();
-        Map<String, List<String>> jobLinks = new HashMap<>();
+        ArrayList<String> operators = new ArrayList<>();
+        Map<String, List<String>> operatorLinks = new HashMap<>();
         for(int index = 0; index < n_operator; index++){
             String operatorId = java.util.UUID.randomUUID().toString();
-            jobs.add(operatorId);
-            jobLinks.put(operatorId, new ArrayList<>());
+            operators.add(operatorId);
+            operatorLinks.put(operatorId, new ArrayList<>());
             for(int j = 0; j < index; j++){
-                jobLinks.get(jobs.get(j)).add(operatorId);
+                operatorLinks.get(operators.get(j)).add(operatorId);
             }
         }
-        StreamGraph graph = new StreamGraph(jobLinks);
+        StreamGraph graph = new StreamGraph(operatorLinks);
 
         // Configuration
         ArrayList<String> tasks = new ArrayList<>();
-        Map<String, Map<String, List<Integer>>> config = new HashMap<>();
-        for(int index = 0; index < n_operator; index++) {
-            String operatorId = jobs.get(index);
-            Map<String, List<Integer>> mapping = new HashMap<>();
-            config.put(operatorId, mapping);
-            int current_k = 0, average = n_key / n_task, remainder = n_key % n_task;
-            for (int j = 0; j < n_task; j++) {
-                String task = operatorId + "_" + j;
-                tasks.add(task);
-                List<Integer> keys = new ArrayList<>();
-                mapping.put(task, keys);
-                int end_k = current_k + average;
-                if(j < remainder){
-                    end_k ++;
-                }
-                for(int k = current_k; k < end_k; k++){
-                    keys.add(k);
-                }
-                current_k = end_k;
-            }
-        }
 
         // Metrics
         Map<String, Map<Integer, Double>> arrivalRatesPerKey = new HashMap<>();
         Map<String, Map<Integer, Double>> backlogPerKey = new HashMap<>();
         for(int index = 0; index < n_operator; index ++){
-            Map<Integer, Double>
+            String operator = operators.get(index);
+            Map<Integer, Double> arrivalRates = new HashMap<>(), backlogs = new HashMap<>();
+            arrivalRatesPerKey.put(operator, arrivalRates);
+            backlogPerKey.put(operator, backlogs);
+            for(int k = 0; k < n_key; k++){
+                double arrivalRate = 0.0 + rng.nextDouble() * (0.5 - 0.0), backlog = 0.0 + rng.nextDouble() * (1000.0 - 0.0);
+                arrivalRates.put(k, arrivalRate);
+                backlogs.put(k, backlog);
+            }
         }
         Map<String, Double> serviceRatesPerTask = new HashMap<>();
         Map<String, Double> waitingTimePerTask = new HashMap<>();
+        for(int index = 0; index < n_task; index ++){
+            String task = tasks.get(index);
+            double serviceRate = 2.5 + rng.nextDouble() * (1.0 - 0.0), waitingTime = 0.0;
+            serviceRatesPerTask.put(task, serviceRate);
+            waitingTimePerTask.put(task, waitingTime);
+         }
         // Populate these maps with some dummy data
         // This is just placeholder data for testing purposes
-
         double conservativeFactor = 0.875;
         LatencyEstimationModel lem = new LatencyEstimationModel(graph, arrivalRatesPerKey, backlogPerKey, serviceRatesPerTask, waitingTimePerTask, conservativeFactor);
 
-        // Example task, operator, and config for testing
-        String task = "task1";
-        String operator = "operator1";
-        List<Integer> mappedKeys = Arrays.asList(0, 1);
-        double time = 10.0;
-
+        // Testing
         // Measure the time taken for estimateTaskLatency
-        long startTime = System.nanoTime();
-        double taskLatency = lem.estimateTaskLatency(time, task, operator, mappedKeys);
-        long endTime = System.nanoTime();
-        System.out.println("Task Latency: " + taskLatency);
-        System.out.println("Time taken for estimateTaskLatency: " + (endTime - startTime) / 1_000_000.0 + " ms");
+        for(int i = 0; i < 100; i++){
+            String task = tasks.get(rng.nextInt(n_task * n_operator));
+            String operator = task.split("_")[0];
+            List<Integer> mappedKeys = generateMappedKeys(n_key);
+            double time = 0.0 + rng.nextInt(2) * rng.nextDouble() * (1000.0 - 0.0);
+            long startTime = System.nanoTime();
+            double taskLatency = lem.estimateTaskLatency(time, task, operator, mappedKeys);
+            long endTime = System.nanoTime();
+            System.out.println("Task Latency: " + taskLatency);
+            System.out.println("Time taken for estimateTaskLatency: " + (endTime - startTime) / 1_000_000.0 + " ms");
+        }
 
         // Measure the time taken for estimateOperatorLatency
-        Map<String, List<Integer>> operatorConfig = new HashMap<>();
-        operatorConfig.put(task, mappedKeys);
-
-        startTime = System.nanoTime();
-        double operatorLatency = lem.estimateOperatorLatency(time, operator, operatorConfig);
-        endTime = System.nanoTime();
-        System.out.println("Operator Latency: " + operatorLatency);
-        System.out.println("Time taken for estimateOperatorLatency: " + (endTime - startTime) / 1_000_000.0 + " ms");
+        for(int i = 0; i < 100; i++) {
+            String operator = operators.get(rng.nextInt(n_operator));
+            Map<String, List<Integer>> mapping = generateMapping(operator, n_task, n_key);
+            double time = 0.0 + rng.nextInt(2) * rng.nextDouble() * (1000.0 - 0.0);
+            double startTime = System.nanoTime();
+            double operatorLatency = lem.estimateOperatorLatency(time, operator, mapping);
+            double endTime = System.nanoTime();
+            System.out.println("Operator Latency: " + operatorLatency);
+            System.out.println("Time taken for estimateOperatorLatency: " + (endTime - startTime) / 1_000_000.0 + " ms");
+        }
 
         // Measure the time taken for estimateEndToEndLatency
-        Map<String, Map<String, List<Integer>>> endToEndConfig = new HashMap<>();
-        endToEndConfig.put(operator, operatorConfig);
-
-        startTime = System.nanoTime();
-        double endToEndLatency = lem.estimateEndToEndLatency(time, endToEndConfig);
-        endTime = System.nanoTime();
-        System.out.println("End-to-End Latency: " + endToEndLatency);
-        System.out.println("Time taken for estimateEndToEndLatency: " + (endTime - startTime) / 1_000_000.0 + " ms");
+        for(int i = 0; i < 100; i++) {
+            Map<String, Map<String, List<Integer>>> config = generateConfiguration(operators, n_operator, n_task, n_key);
+            double time = 0.0 + rng.nextInt(2) * rng.nextDouble() * (1000.0 - 0.0);
+            double startTime = System.nanoTime();
+            double endToEndLatency = lem.estimateEndToEndLatency(time, config);
+            double endTime = System.nanoTime();
+            System.out.println("End-to-End Latency: " + endToEndLatency);
+            System.out.println("Time taken for estimateEndToEndLatency: " + (endTime - startTime) / 1_000_000.0 + " ms");
+        }
     }
 }
 
