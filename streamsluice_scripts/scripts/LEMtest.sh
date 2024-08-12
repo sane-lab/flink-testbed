@@ -1,3 +1,3 @@
 cd ../../src/test/java/ || exit
 javac LEMPerformanceTest.java
-cat java LEMPerformanceTest > LEMPerformanceTest_result.txt
+java LEMPerformanceTest > ../../../streamsluice_scripts/scripts/LEMPerformanceTest_result.txt
