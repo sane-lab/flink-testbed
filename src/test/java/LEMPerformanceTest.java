@@ -108,7 +108,7 @@ public class LEMPerformanceTest {
 
         // Testing
         // Measure the time taken for estimateTaskLatency
-        for(int i = 0; i < 100; i++){
+        for(int i = 0; i < 10000; i++){
             String operator = operators.get(rng.nextInt(n_operator));
             String task = operator + "_" + rng.nextInt(n_task);
             List<Integer> mappedKeys = generateMappedKeys(n_key);
@@ -121,7 +121,7 @@ public class LEMPerformanceTest {
         }
 
         // Measure the time taken for estimateOperatorLatency
-        for(int i = 0; i < 100; i++) {
+        for(int i = 0; i < 10000; i++) {
             String operator = operators.get(rng.nextInt(n_operator));
             Map<String, List<Integer>> mapping = generateMapping(operator, n_task, n_key);
             double time = 0.0 + rng.nextInt(2) * rng.nextDouble() * (1000.0 - 0.0);
@@ -133,7 +133,7 @@ public class LEMPerformanceTest {
         }
 
         // Measure the time taken for estimateEndToEndLatency
-        for(int i = 0; i < 100; i++) {
+        for(int i = 0; i < 10000; i++) {
             Map<String, Map<String, List<Integer>>> config = generateConfiguration(operators, n_operator, n_task, n_key);
             double time = 0.0 + rng.nextInt(2) * rng.nextDouble() * (1000.0 - 0.0);
             double startTime = System.nanoTime();
