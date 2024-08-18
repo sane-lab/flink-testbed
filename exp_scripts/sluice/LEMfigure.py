@@ -4,23 +4,46 @@ import random
 matplotlib.use('Agg')
 import matplotlib.pyplot as plt
 
-def estimateTaskLatency(t:float, backlogs:[float], arrivals:list[float], service:float, keys:list[int]) -> float:
-    arrival = sum([arrivals[key] for key in keys])
-    backlog = sum([backlogs[key] for key in keys])
-    project_backlog = max(backlog + (arrival - service) * t, 0.0)
-    return project_backlog / service
+def estimateTaskLatency(tau_j:float, backlogs:list[float], arrival_rates:list[float], service_rate:float, keys:list[int], wait_time:float) -> float:
+    # Estimate backlog as per the formula for \(\beta^{j}_{i}\)
+    aggregate_arrival_rate = sum([arrival_rates[key] for key in keys])
+    aggregate_backlog = sum([backlogs[key] for key in keys])
+    projected_backlog = max(aggregate_backlog + (aggregate_arrival_rate - service_rate) * tau_j, 0.0)
+    # Calculate task latency as per the formula \(l^{j}_{i}(\tau^j, \mathcal{C})\)
+    task_latency = (projected_backlog + 1) / service_rate + wait_time
+    return task_latency
 
-def estimateOperatorLatency(t:float, backlogs:list[float], arrivals:list[float], services:dict[str, float], mapping:dict[str, list[int]]) -> float:
-    return max([estimateTaskLatency(t, backlogs, arrivals, services[task], mapping[task]) for task in services.keys()])
+def estimateOperatorLatency(tau_j: float, backlogs: list[float], arrivals: list[float], services: dict[str, float], mapping: dict[str, list[int]], wait_times: dict[str, float]) -> float:
+    # Estimate operator latency as the maximum task latency
+    task_latencies = [
+        estimateTaskLatency(tau_j, backlogs, arrivals, services[task], mapping[task], wait_times[task])
+        for task in mapping.keys()
+    ]
+    return max(task_latencies)
 
-def estimateEndToEndLatency(t:float, sorted_operators:list[str], in_neighbors:dict[str:list[str]], backlogs_per_operator:dict[str,list[float]], arrivals_per_operator:dict[str,list[float]], services_per_operator:dict[str,dict[str,float]], config:dict[str,dict[str, list[int]]]) -> float:
-    l = {}
+
+def estimateEndToEndLatency(t: float, sorted_operators: list[str], in_neighbors: dict[str, list[str]],
+                            backlogs_per_operator: dict[str, list[float]],
+                            arrivals_per_operator: dict[str, list[float]],
+                            services_per_operator: dict[str, dict[str, float]], config: dict[str, dict[str, list[int]]],
+                            wait_times_per_task: dict[str, dict[str, float]]) -> float:
+    tau = {}  # Arrival times \(\tau_j\) at each operator
+    l = {}  # Latency \(l^j(\tau^j, \mathcal{C})\) for each operator
+
     for operator in sorted_operators:
-        pl = t
-        if len(in_neighbors[operator]) > 0:
-            pl = max([l[po] for po in in_neighbors[operator]])
-        l[operator] = pl + estimateOperatorLatency(pl, backlogs_per_operator[operator], arrivals_per_operator[operator], services_per_operator[operator], config[operator])
-    return max(l.values()) - t
+        if not in_neighbors[operator]:
+            tau[operator] = t  # Set initial arrival time for sources
+        else:
+            # Compute \(\tau_j\) as the maximum arrival time from the predecessors plus their latency
+            tau[operator] = max((tau[po] + l[po]) for po in in_neighbors[operator])
+
+        # Estimate the operator's latency using its tasks' latencies
+        l[operator] = estimateOperatorLatency(tau[operator], backlogs_per_operator[operator],
+                                              arrivals_per_operator[operator], services_per_operator[operator],
+                                              config[operator], wait_times_per_task[operator])
+
+    # Return the maximum end-to-end latency minus the initial time
+    return max((tau[operator] + l[operator]) for operator in sorted_operators) - t
 
 
 
@@ -531,6 +554,12 @@ def emulateOnSetting(setting, flags):
     init_arrival = setting["arrival"]
     init_service = setting["service"]
     config = setting["config"]
+    if "wait_time" not in setting:
+        wait_times = {}
+        for operator, tasks in init_service.items():
+            wait_times[operator] = {task: 0.0 for task in tasks}
+    else:
+        wait_times = setting["wait_time"]
 
     arrival = {}
     service = {}
@@ -565,7 +594,6 @@ def emulateOnSetting(setting, flags):
                 if is_remained_backlog_flag and new_backlog < int(sum([init_arrival[operator][key] for key in config[operator][task]]) * 10 + 1e-9):
                     new_backlog = int(sum([init_arrival[operator][key] for key in config[operator][task]]) * 10 + 1e-9)
                 evenly_reduce_backlogs(new_backlogs[operator], new_backlog, config[operator][task])
-                #print(new_backlogs)
                 if task not in arrival[operator]:
                     arrival[operator][task] = []
                     backlog[operator][task] = []
@@ -574,14 +602,11 @@ def emulateOnSetting(setting, flags):
                 service[operator][task] += [init_service[operator][task]]
                 backlog[operator][task] += [new_backlog]
 
-
-        #print(new_backlogs["op1"])
-        #print(new_backlogs["op2"])
         y = []
         x = []
         for ts in range(0, time_times):
             x += [emulate_time * emulation_epoch + ts * time_epoch]
-            y += [estimateEndToEndLatency(ts * time_epoch, sorted_operators, in_neighbors, new_backlogs, init_arrival, init_service, config)]
+            y += [estimateEndToEndLatency(ts * time_epoch, sorted_operators, in_neighbors, new_backlogs, init_arrival, init_service, config, wait_times)]
         plt.plot(x, y, '-', markersize=2, linewidth=1)
         plt.xlabel("t(ms)")
         plt.ylabel("l(t,C)(ms)")
@@ -630,11 +655,11 @@ def emulateOnSetting(setting, flags):
                     ax1 = row
                 ax2 = ax1.twinx()
                 if emulation_times == 1:
-                    ax1.plot([0, 60000], arrival[operator][task],
+                    ax1.plot([0, 60000], arrival[operator][task] + arrival[operator][task],
                              color="red", linewidth=1)
-                    ax1.plot([0, 60000], service[operator][task],
+                    ax1.plot([0, 60000], service[operator][task] + service[operator][task],
                              color="blue", linewidth=1)
-                    ax2.plot([0, 60000], backlog[operator][task],
+                    ax2.plot([0, 60000], backlog[operator][task] + backlog[operator][task],
                              color="black", linewidth=1)
                 else:
                     ax1.plot(np.arange(0, emulation_times * emulation_epoch, emulation_epoch), arrival[operator][task], color="red", linewidth=2)
@@ -667,7 +692,7 @@ def emulateOnSetting(setting, flags):
         return 3
     return 0
 
-def moveOutBottleneckKey(sorted_operators: list[str], in_neighbors: dict[str, list[str]], init_backlog: dict[str, list[float]], init_arrival: dict[str, list[float]], new_service: dict[str, dict[str,float]], current_config: dict[str, dict[str, list[int]]]) -> bool:
+def moveOutBottleneckKey(sorted_operators: list[str], in_neighbors: dict[str, list[str]], init_backlog: dict[str, list[float]], init_arrival: dict[str, list[float]], new_service: dict[str, dict[str,float]], current_config: dict[str, dict[str, list[int]]], wait_times: dict[str, dict[str,float]]) -> bool:
     bestOperator = ""
     bestKey = -1
     bestl = 1000000000.0
@@ -683,7 +708,7 @@ def moveOutBottleneckKey(sorted_operators: list[str], in_neighbors: dict[str, li
                     current_config[operator][new_task] = [key]
                     current_config[operator][task].pop(0)
                     l = estimateEndToEndLatency(0, sorted_operators, in_neighbors, init_backlog, init_arrival,
-                                                new_service, current_config)
+                                                new_service, current_config, wait_times)
                     if bestKey == -1 or l < bestl:
                         bestl = l
                         bestKey = key
@@ -716,6 +741,13 @@ def emulateMoveConfiguration(setting, flags):
     init_arrival = setting["arrival"]
     init_service = setting["service"]
     config = setting["config"]
+    if "wait_time" not in setting:
+        wait_times = {}
+        for operator, tasks in init_service.items():
+            wait_times[operator] = {task: 0.0 for task in tasks}
+    else:
+        wait_times = setting["wait_time"]
+
 
     current_config = config.copy()
     latencys = []
@@ -733,8 +765,8 @@ def emulateMoveConfiguration(setting, flags):
         backlog[operator] = {}
     index = 0
     while True:
-        l0 = estimateEndToEndLatency(0, sorted_operators, in_neighbors, init_backlog, init_arrival, new_service, current_config)
-        lf = estimateEndToEndLatency(1000000, sorted_operators, in_neighbors, init_backlog, init_arrival, new_service, current_config)
+        l0 = estimateEndToEndLatency(0, sorted_operators, in_neighbors, init_backlog, init_arrival, new_service, current_config, wait_times)
+        lf = estimateEndToEndLatency(1000000, sorted_operators, in_neighbors, init_backlog, init_arrival, new_service, current_config, wait_times)
         latencys.append(l0)
         latency_trend.append(lf - l0)
         for operator in sorted_operators:
@@ -752,7 +784,7 @@ def emulateMoveConfiguration(setting, flags):
                 service[operator][task][0].append(index)
                 service[operator][task][1].append(init_service[operator][task])
         index += 1
-        if not moveOutBottleneckKey(sorted_operators, in_neighbors, init_backlog, init_arrival, new_service, current_config):
+        if not moveOutBottleneckKey(sorted_operators, in_neighbors, init_backlog, init_arrival, new_service, current_config, wait_times):
             break
 
     move_times = index
@@ -902,6 +934,6 @@ def analyzeLEM_Configuration():
         setting = getManualSetting(setting_name)
         emulateMoveConfiguration(setting, flags)
 
-#analyzeLEM_time()
-analyzeLEM_Configuration()
+analyzeLEM_time()
+#analyzeLEM_Configuration()
 #testScalingDecisionStrategy()
