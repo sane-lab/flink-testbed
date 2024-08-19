@@ -43,13 +43,15 @@ def estimateEndToEndLatency(t: float, sorted_operators: list[str], in_neighbors:
                                               config[operator], wait_times_per_task[operator])
 
     # Return the maximum end-to-end latency minus the initial time
-    return max((tau[operator] + l[operator]) for operator in sorted_operators) - t
+    return max((tau[operator] + l[operator] - t) for operator in sorted_operators)
 
 
 
 outputDir = "/Users/swrrt/Workplace/BacklogDelayPaper/experiments/LEM/"
 random_seed = 114514
 random.seed(random_seed)
+
+type_name = ["steady", "changing", "linear", "bursty"]
 
 def generateSetting(name, flags):
     max_operator_num = flags["max_operator_num"]
@@ -60,7 +62,8 @@ def generateSetting(name, flags):
 
     setting = {}
     setting["name"] = name
-    setting_type = random.randint(0, 0)
+    #setting_type = random.randint(0, 0)
+    setting_type = flags["type"]
     setting["type"] = setting_type
     num_operator = random.randint(1, max_operator_num)
     sorted_operators = ["op" + str(x) for x in range(1, num_operator + 1)]
@@ -69,8 +72,10 @@ def generateSetting(name, flags):
     arrivals = {}
     services = {}
     backlogs = {}
-    delta_arrivals = {}
     config = {}
+    arrival_change_period = random.randint(5 * 1000, 10 * 1000)
+    arrival_change_ratio = random.randint(0, 50) / 100.0
+    arrival_change_delta = random.randint(0, 1000) / 1000.0 * arrival_change_period
     for index in range(0, num_operator):
         operator = sorted_operators[index]
         if index == 0:
@@ -108,6 +113,9 @@ def generateSetting(name, flags):
     setting["service"] = services
     setting["arrival"] = arrivals
     setting["backlog"] = backlogs
+    setting["arrival_period"] = arrival_change_period
+    setting["arrival_ratio"] = arrival_change_ratio
+    setting["arrival_delta"] = arrival_change_delta
     return setting
 def getManualSetting(name):
     setting = {}
@@ -533,7 +541,45 @@ def evenly_reduce_backlogs(backlogs, new_sum, keys):
     return backlogs
 
 
-def emulateOnSetting(setting, flags):
+def get_arrival_rate(initial_arrival, period, ratio, delta, pattern_type: int, time):
+    """
+    Calculate the arrival rate based on the given pattern and ratio of initial arrival rate.
+
+    :param initial_arrival: Initial arrival rate.
+    :param period: The period of the arrival rate change.
+    :param ratio: The ratio of the initial arrival rate to be used as amplitude.
+    :param delta: The phase shift for the pattern.
+    :param pattern_type: The type of change pattern (0: steady, 1: linear, 2: sine, 3: bursty).
+    :param time: The current time (epoch).
+    :return: The computed arrival rate.
+    """
+    amplitude = initial_arrival * ratio
+    adjusted_time = int(time + delta)
+    if pattern_type == 0:
+        # Steady pattern
+        return initial_arrival
+
+    elif pattern_type == 1:
+        # Periodic linear increase and decrease
+        phase = (adjusted_time % period) / period
+        if phase < 0.5:
+            return initial_arrival + 2 * amplitude * phase
+        else:
+            return initial_arrival + 2 * amplitude * (1 - phase)
+
+    elif pattern_type == 2:
+        # Sine wave pattern
+        return initial_arrival + amplitude * np.sin(2 * np.pi * adjusted_time / period)
+
+    elif pattern_type == 3:
+        # Bursty pattern - alternates between low and high values
+        if adjusted_time % period < period / 2:
+            return initial_arrival - amplitude
+        else:
+            return initial_arrival + amplitude
+
+    return initial_arrival
+def emulateMoveTime(setting, flags):
     is_remained_backlog_flag = flags["is_remained_backlog_flag"]
     time_epoch = flags["time_epoch"]
     time_times = flags["time_times"]
@@ -542,8 +588,6 @@ def emulateOnSetting(setting, flags):
     latency_spike = flags["latency_spike"]
     latency_bound = flags["latency_bound"]
     rate_flag = flags["rate_flag"]
-
-
 
     setting_name = setting["name"]
     sorted_operators = setting["operators"]
@@ -564,12 +608,6 @@ def emulateOnSetting(setting, flags):
     arrival = {}
     service = {}
     backlog = {}
-    first_so = -1
-    first_so_l = 0
-    need_so = False
-    need_so_time = 0
-    need_so_l = 0
-    last_y0 = -1000
 
     fig = plt.figure(figsize=(7, 4))
     # Have a look at the colormaps here and decide which one you'd like:
@@ -611,19 +649,215 @@ def emulateOnSetting(setting, flags):
         plt.xlabel("t(ms)")
         plt.ylabel("l(t,C)(ms)")
         # legend += ["l(t,C)" + str(emulate_time * emulation_epoch / 1000) + "s"]
-        if (not need_so) and last_y0 != -1000 and last_y0 < y[0] and y[0] > latency_bound:
-            need_so = True
-            need_so_time = emulate_time * emulation_epoch
-            need_so_l = y[0]
-        if first_so < 0 and y[0] < y[1] and y[1] + latency_spike > latency_bound:
-            first_so = emulate_time * emulation_epoch
-            first_so_l = y[0]
-        last_y0 = y[0]
-    if need_so:
-        plt.plot([need_so_time], [need_so_l], 'o', color='red', markersize=4)
-    if first_so >= 0:
-        plt.plot([first_so], [first_so_l], 'o', color='blue', markersize=4)
+
     plt.legend(legend, ncol=5, loc='upper left')
+    plt.grid(True)
+    axes = plt.gca()
+    axes.set_xlim(0, emulation_times * emulation_epoch + time_times * time_epoch)
+    # axes.set_xticks(np.arange(0, emulation_times * emulation_epoch + time_times * time_epoch, 2000.0))
+
+    import os
+    if not os.path.exists(outputDir + setting_name):
+        os.makedirs(outputDir + setting_name)
+    plt.savefig(outputDir + setting_name + "/" + "LEM_" + "t" + '.png', bbox_inches='tight')
+    plt.close(fig)
+
+    if rate_flag:
+        task_column = 1
+        for operator in sorted_operators:
+            if len(arrival[operator]) > task_column:
+                task_column = len(arrival[operator])
+        fig, axs = plt.subplots(len(sorted_operators), task_column, figsize=(7, 4), layout='constrained')
+        for index in range(0, len(sorted_operators)):
+            operator = sorted_operators[index]
+            for sec_index in range(0, len(arrival[operator])):
+                task = operator + "_t" + str(sec_index + 1)
+                if len(sorted_operators) > 1:
+                    row = axs[index]
+                else:
+                    row = axs
+                if task_column > 1:
+                    ax1 = row[sec_index]
+                else:
+                    ax1 = row
+                ax2 = ax1.twinx()
+                if emulation_times == 1:
+                    ax1.plot([0, 60000], arrival[operator][task] + arrival[operator][task],
+                             color="red", linewidth=1)
+                    ax1.plot([0, 60000], service[operator][task] + service[operator][task],
+                             color="blue", linewidth=1)
+                    ax2.plot([0, 60000], backlog[operator][task] + backlog[operator][task],
+                             color="black", linewidth=1)
+                else:
+                    ax1.plot(np.arange(0, emulation_times * emulation_epoch, emulation_epoch), arrival[operator][task],
+                             color="red", linewidth=2)
+                    ax1.plot(np.arange(0, emulation_times * emulation_epoch, emulation_epoch), service[operator][task],
+                             color="blue", linewidth=2)
+                    ax2.plot(np.arange(0, emulation_times * emulation_epoch, emulation_epoch), backlog[operator][task],
+                             color="black", linewidth=2)
+                ax1.legend(["arrival rate", "service rate"], loc="upper left", ncol=2)
+                ax2.legend(["backlog"], loc="upper right")
+                ax1.set_ylabel(operator)
+                ax1.set_xlim(0, emulation_times * emulation_epoch + time_times * time_epoch)
+                ax1.set_xlabel(task)
+                # ax1.set_xticks(np.arange(0, emulation_times * emulation_epoch + time_times * time_epoch, 2000.0))
+                ax1.set_ylim(0.0, 2.0)
+                ax2.set_ylim(0, 2050)
+                # if(operator == "op4"):
+                #     ax2.set_ylim(0, 100)
+                # else:
+                #     ax2.set_ylim(0, 4)
+        import os
+        if not os.path.exists(outputDir + setting_name):
+            os.makedirs(outputDir + setting_name)
+        plt.savefig(outputDir + setting_name + "/" + "LEM_" + "metrics" + '.png', bbox_inches='tight')
+        plt.close(fig)
+
+    return 0
+
+def emulateOnSetting(setting, flags):
+    is_remained_backlog_flag = flags["is_remained_backlog_flag"]
+    time_epoch = flags["time_epoch"]
+    time_times = flags["time_times"]
+    emulation_epoch = flags["emulation_epoch"]
+    emulation_times = flags["emulation_times"]
+    latency_spike = flags["latency_spike"]
+    latency_bound = flags["latency_bound"]
+    rate_flag = flags["rate_flag"]
+    check_scale_type = flags["scale_type"]
+
+    setting_name = setting["name"]
+    sorted_operators = setting["operators"]
+    in_neighbors = setting["in_neighbors"]
+    setting_type = setting["type"]
+    arrival_change_period = setting["arrival_period"]
+    arrival_change_ratio = setting["arrival_ratio"]
+    arrival_change_delta = setting["arrival_delta"]
+    init_backlog = setting["backlog"]
+    init_arrival = setting["arrival"]
+    init_service = setting["service"]
+    config = setting["config"]
+    if "wait_time" not in setting:
+        wait_times = {}
+        for operator, tasks in init_service.items():
+            wait_times[operator] = {task: 0.0 for task in tasks}
+    else:
+        wait_times = setting["wait_time"]
+
+    arrival = {}
+    service = {}
+    backlog = {}
+
+    # Record
+    first_so = -1
+    first_so_l = 0
+    need_so = False
+    need_so_time = 0
+    need_so_l = 0
+    can_si = False
+    can_si_time = 0
+    can_si_l = 0
+    first_si = -1
+    first_si_l = 0
+
+    last_y0 = -1000
+
+
+    new_backlogs = init_backlog.copy()
+    new_arrivals = init_arrival.copy()
+    task_backlog_increments = {operator: {task: 0.0 for task in mapping} for operator, mapping in init_service.items()}
+    x = []
+    y = []
+    for emulate_time in range(0, emulation_times):
+        for operator in init_backlog.keys():
+            if operator not in arrival:
+                arrival[operator] = {}
+                service[operator] = {}
+                backlog[operator] = {}
+            new_arrivals[operator] = [get_arrival_rate(init_arrival[operator][key], arrival_change_period, arrival_change_ratio, arrival_change_delta, setting_type, emulate_time * emulation_epoch) for key in range(0, len(new_arrivals[operator]))]
+            for task in init_service[operator].keys():
+                # Integrate the arrival rate over time to compute backlog
+                for t in range(emulate_time * emulation_epoch, (emulate_time + 1) * emulation_epoch, 10):
+                    current_arrival_rate = sum([
+                        get_arrival_rate(init_arrival[operator][key], arrival_change_period, arrival_change_ratio, arrival_change_delta, setting_type, t)
+                        for key in config[operator][task]
+                    ])
+                    # Add to backlog based on difference between arrival and service rate during this small time epoch
+                    task_backlog_increments[operator][task] += (current_arrival_rate - init_service[operator][task]) * 10
+                new_backlog = sum([init_backlog[operator][key] for key in config[operator][task]]) + int(task_backlog_increments[operator][task])
+                #new_backlog = sum([init_backlog[operator][key] for key in config[operator][task]]) + int((sum([init_arrival[operator][key] for key in config[operator][task]]) - init_service[operator][task] + 1e-9) * emulate_time * emulation_epoch)
+                if new_backlog < 0:
+                    new_backlog = 0
+                if is_remained_backlog_flag and new_backlog < int(sum([init_arrival[operator][key] for key in config[operator][task]]) * 10 + 1e-9):
+                    new_backlog = int(sum([init_arrival[operator][key] for key in config[operator][task]]) * 10 + 1e-9)
+                evenly_reduce_backlogs(new_backlogs[operator], new_backlog, config[operator][task])
+
+
+
+                # For drawing figure
+                if task not in arrival[operator]:
+                    arrival[operator][task] = []
+                    backlog[operator][task] = []
+                    service[operator][task] = []
+                arrival[operator][task] += [sum([new_arrivals[operator][key] for key in config[operator][task]])]
+                service[operator][task] += [init_service[operator][task]]
+                backlog[operator][task] += [new_backlog]
+        l0 = estimateEndToEndLatency(0, sorted_operators, in_neighbors, new_backlogs, new_arrivals,
+                                      init_service, config, wait_times)
+        l1 = estimateEndToEndLatency(emulation_epoch, sorted_operators, in_neighbors, new_backlogs, new_arrivals,
+                                      init_service, config, wait_times)
+        lT = estimateEndToEndLatency(1000000, sorted_operators, in_neighbors, new_backlogs, new_arrivals,
+                                     init_service, config, wait_times)
+        x += [emulate_time * emulation_epoch]
+        y += [l0]
+        if check_scale_type == "scale out":
+            if (not need_so) and last_y0 != -1000 and last_y0 < l0 and l0 > latency_bound:
+                need_so = True
+                need_so_time = emulate_time * emulation_epoch
+                need_so_l = l0
+            if first_so < 0 and l0 < lT and l1 + latency_spike > latency_bound:
+                first_so = emulate_time * emulation_epoch
+                first_so_l = l0
+        elif check_scale_type == "scale in":
+            if (not can_si) and last_y0 != -1000 and last_y0 >= l0 and l0 + latency_spike < latency_bound:
+                can_si = True
+                can_si_time = emulate_time * emulation_epoch
+                can_si_l = l0
+            if can_si and l0 > latency_bound:
+                can_si = False
+            if first_si < 0 and l0 >= lT and l0 + latency_spike < latency_bound:
+                first_si = emulate_time * emulation_epoch
+                first_si_l = l0
+        last_y0 = l0
+    fig = plt.figure(figsize=(5, 3))
+    # Have a look at the colormaps here and decide which one you'd like:
+    # http://matplotlib.org/1.2.1/examples/pylab_examples/show_colormaps.html
+    num_plots = emulation_times
+    #colormap = plt.cm.gist_ncar
+    #plt.gca().set_prop_cycle(plt.cycler('color', plt.cm.jet(np.linspace(0, 1, num_plots))))
+    plt.plot(x, y, '-', color='blue', linewidth=2)
+    plt.plot([0, emulation_times * emulation_epoch + time_times * time_epoch], [latency_bound, latency_bound], '--', color='red', linewidth=1)
+    legend = ["latency curve", "limit"]
+    if check_scale_type == "scale out":
+        if need_so:
+            legend += ["need scale point"]
+            plt.plot([need_so_time], [need_so_l], 's', color='red', markersize=4)
+        if first_so >= 0:
+            legend += ["strategy scale point", "strategy scale point plus spike"]
+            plt.plot([first_so], [first_so_l], 'd', color='blue', markersize=4)
+            plt.plot([first_so], [first_so_l + latency_spike], 'd', color='black', markersize=4)
+            plt.plot([first_so, first_so], [first_so_l, first_so_l + latency_spike], '-', color='black', linewidth=1)
+    elif check_scale_type == "scale in":
+        if can_si:
+            legend += ["need scale point"]
+            plt.plot([can_si_time], [can_si_l], 's', color='red', markersize=4)
+        if first_si >= 0:
+            legend += ["strategy scale point", "strategy scale point plus spike"]
+            plt.plot([first_si], [first_si_l], 'd', color='blue', markersize=4)
+            plt.plot([first_si], [first_si_l + latency_spike], 'd', color='black', markersize=4)
+            plt.plot([first_si, first_si], [first_si_l, first_si_l + latency_spike], '-', color='black', linewidth=1)
+    plt.ylim(0, 20000)
+    plt.legend(legend, ncol=2, loc='upper left')
     plt.grid(True)
     axes = plt.gca()
     axes.set_xlim(0, emulation_times * emulation_epoch + time_times * time_epoch)
@@ -654,19 +888,22 @@ def emulateOnSetting(setting, flags):
                 else:
                     ax1 = row
                 ax2 = ax1.twinx()
-                if emulation_times == 1:
-                    ax1.plot([0, 60000], arrival[operator][task] + arrival[operator][task],
-                             color="red", linewidth=1)
-                    ax1.plot([0, 60000], service[operator][task] + service[operator][task],
-                             color="blue", linewidth=1)
-                    ax2.plot([0, 60000], backlog[operator][task] + backlog[operator][task],
-                             color="black", linewidth=1)
-                else:
-                    ax1.plot(np.arange(0, emulation_times * emulation_epoch, emulation_epoch), arrival[operator][task], color="red", linewidth=2)
-                    ax1.plot(np.arange(0, emulation_times * emulation_epoch, emulation_epoch), service[operator][task], color="blue", linewidth=2)
-                    ax2.plot(np.arange(0, emulation_times * emulation_epoch, emulation_epoch), backlog[operator][task], color="black", linewidth=2)
-                ax1.legend(["arrival rate", "service rate"], loc="upper left", ncol=2)
-                ax2.legend(["backlog"], loc="upper right")
+                legend1 = ["arrival rate", "service rate"]
+                legend2 = ["backlog"]
+                ax1.plot(np.arange(0, emulation_times * emulation_epoch, emulation_epoch), arrival[operator][task], color="red", linewidth=2)
+                ax1.plot(np.arange(0, emulation_times * emulation_epoch, emulation_epoch), service[operator][task], color="blue", linewidth=2)
+                if check_scale_type == "scale out":
+                    if first_so >= 0:
+                        legend1 += ["strategy scale point"]
+                        ax1.plot([first_so, first_so], [0, 10000], '--', color='red', markersize=4, linewidth=2)
+                elif check_scale_type == "scale in":
+                    if first_si >= 0:
+                        legend1 += ["strategy scale point"]
+                        ax1.plot([first_si, first_si], [0, 10000], '--', color='red', markersize=4, linewidth=2)
+                ax2.plot(np.arange(0, emulation_times * emulation_epoch, emulation_epoch), backlog[operator][task], color="black", linewidth=2)
+                if index == 0 and sec_index == 0:
+                    ax1.legend(legend1, loc="upper left", ncol=1)
+                    ax2.legend(legend2, loc="lower right")
                 ax1.set_ylabel(operator)
                 ax1.set_xlim(0, emulation_times * emulation_epoch + time_times * time_epoch)
                 ax1.set_xlabel(task)
@@ -683,50 +920,61 @@ def emulateOnSetting(setting, flags):
         plt.savefig(outputDir + setting_name + "/" + "LEM_" + "metrics" + '.png', bbox_inches='tight')
         plt.close(fig)
 
-
-    if not need_so and first_so >= 0:
-        return 1
-    if need_so and first_so < 0:
-        return 2
-    if need_so_time < first_so:
-        return 3
+    if check_scale_type == "scale out":
+        if not need_so and first_so >= 0:
+            return 1
+        if need_so and first_so < 0:
+            return 2
+        if need_so and need_so_time < first_so:
+            return 3
+    elif check_scale_type == "scale in":
+        if not can_si and first_si >= 0:
+            return 1
+        if can_si and first_si < 0:
+            return 2
+        if can_si and can_si_time > first_si:
+            return 3
     return 0
 
-def moveOutBottleneckKey(sorted_operators: list[str], in_neighbors: dict[str, list[str]], init_backlog: dict[str, list[float]], init_arrival: dict[str, list[float]], new_service: dict[str, dict[str,float]], current_config: dict[str, dict[str, list[int]]], wait_times: dict[str, dict[str,float]]) -> bool:
-    bestOperator = ""
-    bestKey = -1
-    bestl = 1000000000.0
-    for operator in sorted_operators:
-        new_task = operator + "_t" + str(len(current_config[operator].keys()) + 1)
-        current_config[operator][new_task] = []
-        new_service[operator][new_task] = sum(new_service[operator].values())/len(new_service[operator].keys())
-        for task in current_config[operator].keys():
-            if len(current_config[operator][task]) > 1:
-                n = len(current_config[operator][task])
-                for index in range(0, n):
-                    key = current_config[operator][task][0]
-                    current_config[operator][new_task] = [key]
-                    current_config[operator][task].pop(0)
-                    l = estimateEndToEndLatency(0, sorted_operators, in_neighbors, init_backlog, init_arrival,
-                                                new_service, current_config, wait_times)
-                    if bestKey == -1 or l < bestl:
-                        bestl = l
-                        bestKey = key
-                        bestOperator = operator
-                    current_config[operator][task].append(key)
-        del current_config[operator][new_task]
-        del new_service[operator][new_task]
-    if bestKey < 0:
-        return False
-    new_task = bestOperator + "_t" + str(len(current_config[bestOperator].keys()) + 1)
-    for task in current_config[bestOperator].keys():
-        if bestKey in current_config[bestOperator][task]:
-            current_config[bestOperator][task].remove(bestKey)
-    current_config[bestOperator][new_task] = [bestKey]
-    new_service[bestOperator][new_task] = sum(new_service[bestOperator].values())/len(new_service[bestOperator].keys())
-    return True
 
 def emulateMoveConfiguration(setting, flags):
+    def moveOutBottleneckKey(sorted_operators: list[str], in_neighbors: dict[str, list[str]],
+                             init_backlog: dict[str, list[float]], init_arrival: dict[str, list[float]],
+                             new_service: dict[str, dict[str, float]], current_config: dict[str, dict[str, list[int]]],
+                             wait_times: dict[str, dict[str, float]]) -> bool:
+        bestOperator = ""
+        bestKey = -1
+        bestl = 1000000000.0
+        for operator in sorted_operators:
+            new_task = operator + "_t" + str(len(current_config[operator].keys()) + 1)
+            current_config[operator][new_task] = []
+            new_service[operator][new_task] = sum(new_service[operator].values()) / len(new_service[operator].keys())
+            for task in current_config[operator].keys():
+                if len(current_config[operator][task]) > 1:
+                    n = len(current_config[operator][task])
+                    for index in range(0, n):
+                        key = current_config[operator][task][0]
+                        current_config[operator][new_task] = [key]
+                        current_config[operator][task].pop(0)
+                        l = estimateEndToEndLatency(0, sorted_operators, in_neighbors, init_backlog, init_arrival,
+                                                    new_service, current_config, wait_times)
+                        if bestKey == -1 or l < bestl:
+                            bestl = l
+                            bestKey = key
+                            bestOperator = operator
+                        current_config[operator][task].append(key)
+            del current_config[operator][new_task]
+            del new_service[operator][new_task]
+        if bestKey < 0:
+            return False
+        new_task = bestOperator + "_t" + str(len(current_config[bestOperator].keys()) + 1)
+        for task in current_config[bestOperator].keys():
+            if bestKey in current_config[bestOperator][task]:
+                current_config[bestOperator][task].remove(bestKey)
+        current_config[bestOperator][new_task] = [bestKey]
+        new_service[bestOperator][new_task] = sum(new_service[bestOperator].values()) / len(
+            new_service[bestOperator].keys())
+        return True
     emulation_times = flags["emulation_times"]
     latency_spike = flags["latency_spike"]
     latency_bound = flags["latency_bound"]
@@ -747,7 +995,6 @@ def emulateMoveConfiguration(setting, flags):
             wait_times[operator] = {task: 0.0 for task in tasks}
     else:
         wait_times = setting["wait_time"]
-
 
     current_config = config.copy()
     latencys = []
@@ -866,38 +1113,70 @@ def testScalingDecisionStrategy():
     flags["is_remained_backlog_flag"] = True  # False
     flags["time_epoch"] = 1  # ms
     flags["time_times"] = 1000  # 1000
-    flags["emulation_epoch"] = 2000  # ms
-    flags["emulation_times"] = 10
+    flags["emulation_epoch"] = 100  # ms
+    flags["emulation_times"] = 300
     flags["latency_spike"] = 500
     flags["latency_bound"] = 2000
     flags["max_task_num"] = 3
     flags["rate_flag"] = True
-    flags["arrival_ranges"] = [[250, 800], [801, 950], [951, 1050], [1050, 1200], [1200, 2000]]
+    flags["arrival_ranges"] = [[250, 500], [501, 800], [801, 950], [951, 1050], [1050, 2000]]
     flags["backlog_ranges"] = [[0, 10], [11, 200], [201, 1000], [1001, 2000], [2001, 10000]]
     flags["max_operator_num"] = 4
     flags["max_key_num"] = 3
 
-    late_scaleout = []
-    miss_scaleout = []
-    no_needscaleout = []
-    setting_num = 1
+    print("Start scale out timely test...")
+    late_scaleout = {i:[] for i in range(0, 4)}
+    miss_scaleout = {i:[] for i in range(0, 4)}
+    no_needscaleout = {i:[] for i in range(0, 4)}
+
+    setting_num = 100
     for i in range(0, setting_num):
-        print("Start setting " + str(i))
-        if i > 0:
-            setting = generateSetting("set_" + str(i), flags)
-        else:
-            setting = getManualSetting("special")
+        print("Start scale out setting " + str(i))
+        flags["scale_type"] = "scale out"
+        flags["type"] = i % 4
+        setting = generateSetting("so_set_" + str(i), flags)
+        #    setting = getManualSetting("special")
         ret = emulateOnSetting(setting, flags)
         if ret == 1:
-            no_needscaleout += [i]
+            no_needscaleout[flags["type"]] += [i]
         elif ret == 2:
-            miss_scaleout += [i]
+            miss_scaleout[flags["type"]] += [i]
         elif ret == 3:
-            late_scaleout += [i]
-    print("OK setting: " + str(setting_num - len(late_scaleout) - len(miss_scaleout) - len(no_needscaleout)) + "/" + str(setting_num))
-    print("Miss scale out: " + str(miss_scaleout))
-    print("Late scale out: " + str(late_scaleout))
-    print("Unnecessary scale out: " + str(no_needscaleout))
+            late_scaleout[flags["type"]] += [i]
+    print("OK setting: " + str(setting_num - sum([len(x) for x in late_scaleout.values()]) - sum([len(x) for x in miss_scaleout.values()]) - sum([len(x) for x in no_needscaleout.values()])) + "/" + str(setting_num))
+    print("Miss scale out: " + str([str(len(y)) for x, y in miss_scaleout.items()]) + " , " + str(miss_scaleout.values()))
+    print("Late scale out: " + str([str(len(y)) for x, y in late_scaleout.items()]) + " , " + str(late_scaleout.values()))
+    print("Unnecessary scale out: " + str([str(len(y)) for x, y in no_needscaleout.items()]) + " , " + str(no_needscaleout.values()))
+
+    print("Start scale in timely test...")
+    early_scalein = {i: [] for i in range(0, 4)}
+    miss_scalein = {i: [] for i in range(0, 4)}
+    cannot_scalein = {i: [] for i in range(0, 4)}
+
+    setting_num = 100
+    for i in range(0, setting_num):
+        print("Start scale in setting " + str(i))
+        flags["scale_type"] = "scale in"
+        flags["type"] = i % 4
+        setting = generateSetting("si_set_" + str(i), flags)
+        #    setting = getManualSetting("special")
+        ret = emulateOnSetting(setting, flags)
+        if ret == 1:
+            cannot_scalein[flags["type"]] += [i]
+        elif ret == 2:
+            miss_scalein[flags["type"]] += [i]
+        elif ret == 3:
+            early_scalein[flags["type"]] += [i]
+    print("OK setting: " + str(setting_num - sum([len(x) for x in cannot_scalein.values()]) - sum(
+        [len(x) for x in miss_scalein.values()]) - sum([len(x) for x in early_scalein.values()])) + "/" + str(
+        setting_num))
+    print("Cannot scale in: " + str([str(len(y)) for x, y in cannot_scalein.items()]) + " , " + str(
+        cannot_scalein.values()))
+    print(
+        "Miss scale in: " + str([str(len(y)) for x, y in miss_scalein.items()]) + " , " + str(miss_scalein.values()))
+    print(
+        "Early scale in: " + str([str(len(y)) for x, y in early_scalein.items()]) + " , " + str(early_scalein.values()))
+
 
 def analyzeLEM_time():
     flags = {}
@@ -915,7 +1194,7 @@ def analyzeLEM_time():
     for setting_name in setting_list:
         print("Start setting " + setting_name)
         setting = getManualSetting(setting_name)
-        ret = emulateOnSetting(setting, flags)
+        ret = emulateMoveTime(setting, flags)
 
 def analyzeLEM_Configuration():
     flags = {}
@@ -934,6 +1213,6 @@ def analyzeLEM_Configuration():
         setting = getManualSetting(setting_name)
         emulateMoveConfiguration(setting, flags)
 
-analyzeLEM_time()
+#analyzeLEM_time()
 #analyzeLEM_Configuration()
-#testScalingDecisionStrategy()
+testScalingDecisionStrategy()
