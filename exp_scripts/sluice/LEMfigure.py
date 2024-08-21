@@ -59,13 +59,20 @@ def generateSetting(name, flags):
     max_key_num = flags["max_key_num"]
     arrival_ranges = flags["arrival_ranges"]
     backlog_ranges = flags["backlog_ranges"]
+    service_ranges = flags["service_ranges"]
+    arrival_change_period_ranges = flags["arrival_period_range"]
+    arrival_change_ratio_ranges = flags["arrival_ratio_range"]
+    arrival_change_delta_ranges = flags["arrival_delta_range"]
 
     setting = {}
     setting["name"] = name
     #setting_type = random.randint(0, 0)
     setting_type = flags["type"]
     setting["type"] = setting_type
-    num_operator = random.randint(1, max_operator_num)
+    if flags["graph_fixed"]:
+        num_operator = max_operator_num
+    else:
+        num_operator = random.randint(1, max_operator_num)
     sorted_operators = ["op" + str(x) for x in range(1, num_operator + 1)]
     setting["operators"] = sorted_operators
     in_neighbors = {}
@@ -73,27 +80,40 @@ def generateSetting(name, flags):
     services = {}
     backlogs = {}
     config = {}
-    arrival_change_period = random.randint(5 * 1000, 10 * 1000)
-    arrival_change_ratio = random.randint(0, 50) / 100.0
-    arrival_change_delta = random.randint(0, 1000) / 1000.0 * arrival_change_period
+    period_interval = random.randint(0, len(arrival_change_period_ranges) - 1)
+    arrival_change_period = random.randint(arrival_change_period_ranges[period_interval][0], arrival_change_period_ranges[period_interval][1])  # random.randint(5 * 1000, 10 * 1000)
+    ratio_interval = random.randint(0, len(arrival_change_ratio_ranges) - 1)
+    arrival_change_ratio = random.randint(arrival_change_ratio_ranges[ratio_interval][0], arrival_change_ratio_ranges[ratio_interval][1]) / 100.0 # random.randint(0, 50) / 100.0
+    delta_interval = random.randint(0, len(arrival_change_delta_ranges) - 1)
+    arrival_change_delta = random.randint(arrival_change_delta_ranges[delta_interval][0], arrival_change_delta_ranges[delta_interval][1]) / 1000.0 * arrival_change_period # random.randint(0, 1000) / 1000.0 * arrival_change_period
     for index in range(0, num_operator):
         operator = sorted_operators[index]
         if index == 0:
             in_neighbors[operator] = []
         else:
-            n_in = random.randint(1, index)
-            shuffled = [y for y in range(0, index)]
-            in_neighbors[operator] = [sorted_operators[x] for x in shuffled[0: n_in]]
+            if flags["graph_fixed"]:
+                in_neighbors[operator] = [sorted_operators[index - 1]]
+            else:
+                n_in = random.randint(1, index)
+                shuffled = [y for y in range(0, index)]
+                in_neighbors[operator] = [sorted_operators[x] for x in shuffled[0: n_in]]
         services[operator] = {}
         arrivals[operator] = []
         backlogs[operator] = []
-        task_num = random.randint(1, max_task_num)
+        if flags["graph_fixed"]:
+            task_num = max_task_num
+        else:
+            task_num = random.randint(1, max_task_num)
         mapping = {}
         key_total_num = 0
         for j in range(1, task_num + 1):
             task = operator + "_t" + str(j)
-            services[operator][task] = random.randint(950, 1050) / 1000.0
-            key_number = random.randint(1, max_key_num)
+            service_interval = random.randint(0, len(service_ranges) - 1)
+            services[operator][task] = random.randint(service_ranges[service_interval][0], service_ranges[service_interval][1]) / 1000.0 #random.randint(950, 1050) / 1000.0
+            if flags["graph_fixed"]:
+                key_number = max_key_num
+            else:
+                key_number = random.randint(1, max_key_num)
             mapping[task] = range(key_total_num, key_total_num + key_number)
             config[operator] = mapping
             key_total_num += key_number
@@ -500,6 +520,172 @@ def getManualSetting(name):
         setting["in_neighbors"] = in_neighbors
         setting["name"] = setting_name
         setting["type"] = 0
+    elif name.startswith("so_one_"):
+        setting_name = name
+        sorted_operators = ["op1", "op2", "op3", "op4"]
+        in_neighbors = {
+            "op1": [],
+            "op2": ["op1"],
+            "op3": ["op2"],
+            "op4": ["op3"],
+        }
+        config = {
+            "op1": {
+                "op1_t1": [0, 1, 2],
+                "op1_t2": [3, 4, 5]
+            },
+            "op2": {
+                "op2_t1": [0, 1, 2],
+                "op2_t2": [3, 4, 5]
+            },
+            "op3": {
+                "op3_t1": [0, 1, 2],
+                "op3_t2": [3, 4, 5]
+            },
+            "op4": {
+                "op4_t1": [0, 1, 2],
+                "op4_t2": [3, 4, 5]
+            }
+        }
+        init_backlog = {
+            "op1": [0, 0, 0, 0, 0, 0],
+            "op2": [0, 0, 0, 0, 0, 0],
+            "op3": [0, 0, 0, 0, 0, 0],
+            "op4": [0, 0, 0, 0, 0, 0],
+        }
+        init_service = {
+            "op1": {
+                "op1_t1": 1.0,
+                "op1_t2": 1.0
+            },
+            "op2": {
+                "op2_t1": 1.0,
+                "op2_t2": 1.0
+            },
+            "op3": {
+                "op3_t1": 1.0,
+                "op3_t2": 1.0
+            },
+            "op4": {
+                "op4_t1": 1.0,
+                "op4_t2": 1.0
+            }
+        }
+        type = int(name.split("_")[2])
+        case = int(name.split("_")[3])
+        if type == 0:
+            task_arrival = {
+                "op1": {
+                    "op1_t1": 0.5,
+                    "op1_t2": 0.5,
+                },
+                "op2": {
+                    "op2_t1": 0.5,
+                    "op2_t2": 1.25 + (case - 1) * 0.05
+                },
+                "op3": {
+                    "op3_t1": 0.5,
+                    "op3_t2": 0.5
+                },
+                "op4": {
+                    "op4_t1": 0.5,
+                    "op4_t2": 1.25 + (case - 1) * 0.025
+                }
+            }
+            arrival_change_period = 5000
+            arrival_change_ratio = 0.25
+            arrival_change_delta = 0.25 * arrival_change_period
+        elif type == 1:
+            task_arrival = {
+                "op1": {
+                    "op1_t1": 0.6,
+                    "op1_t2": 0.6,
+                },
+                "op2": {
+                    "op2_t1": 0.6,
+                    "op2_t2": 0.6,
+                },
+                "op3": {
+                    "op3_t1": 1.25,
+                    "op3_t2": 0.6
+                },
+                "op4": {
+                    "op4_t1": 1.25,
+                    "op4_t2": 0.6
+                }
+            }
+            arrival_change_period = 5000
+            arrival_change_ratio = 1.0 / (4 - case)
+            arrival_change_delta = 0.25 * arrival_change_period
+        elif type == 2:
+            task_arrival = {
+                "op1": {
+                    "op1_t1": 0.6,
+                    "op1_t2": 0.6,
+                },
+                "op2": {
+                    "op2_t1": 0.6,
+                    "op2_t2": 0.6,
+                },
+                "op3": {
+                    "op3_t1": 1.25,
+                    "op3_t2": 0.6
+                },
+                "op4": {
+                    "op4_t1": 1.25,
+                    "op4_t2": 0.6
+                }
+            }
+            arrival_change_period = 3333
+            arrival_change_ratio = 0.33
+            arrival_change_delta = 0.2 * case * arrival_change_period
+        elif type == 3:
+            task_arrival = {
+                "op1": {
+                    "op1_t1": 0.6,
+                    "op1_t2": 0.6,
+                },
+                "op2": {
+                    "op2_t1": 0.6,
+                    "op2_t2": 0.6,
+                },
+                "op3": {
+                    "op3_t1": 1.25,
+                    "op3_t2": 0.6
+                },
+                "op4": {
+                    "op4_t1": 1.25,
+                    "op4_t2": 0.6
+                }
+            }
+            arrival_change_period = 2000 + 500 * case
+            arrival_change_ratio = 0.20
+            arrival_change_delta = 0.2 * arrival_change_period
+
+        def divide_arrival_rates(init_arrival, config):
+            key_arrival_rates = {}
+            for operator, tasks in init_arrival.items():
+                key_arrival_rates[operator] = []
+                for task, arrival_rate in tasks.items():
+                    num_keys = len(config[operator][task])
+                    rate_per_key = arrival_rate / num_keys
+                    key_arrival_rates[operator].extend([rate_per_key] * num_keys)
+
+            return key_arrival_rates
+
+        init_arrival = divide_arrival_rates(task_arrival, config)
+        setting["arrival"] = init_arrival
+        setting["service"] = init_service
+        setting["backlog"] = init_backlog
+        setting["config"] = config
+        setting["operators"] = sorted_operators
+        setting["in_neighbors"] = in_neighbors
+        setting["name"] = setting_name
+        setting["type"] = type
+        setting["arrival_period"] = arrival_change_period
+        setting["arrival_ratio"] = arrival_change_ratio
+        setting["arrival_delta"] = arrival_change_delta
+
     return setting
 
 
@@ -560,12 +746,11 @@ def get_arrival_rate(initial_arrival, period, ratio, delta, pattern_type: int, t
         return initial_arrival
 
     elif pattern_type == 1:
-        # Periodic linear increase and decrease
-        phase = (adjusted_time % period) / period
+        phase = (adjusted_time % (period / 2)) / (period / 2)
         if phase < 0.5:
-            return initial_arrival + 2 * amplitude * phase
+            return initial_arrival - amplitude + 4 * amplitude * phase
         else:
-            return initial_arrival + 2 * amplitude * (1 - phase)
+            return initial_arrival + amplitude - 4 * amplitude * (phase - 0.5)
 
     elif pattern_type == 2:
         # Sine wave pattern
@@ -720,7 +905,7 @@ def emulateOnSetting(setting, flags):
     time_epoch = flags["time_epoch"]
     time_times = flags["time_times"]
     emulation_epoch = flags["emulation_epoch"]
-    emulation_times = flags["emulation_times"]
+    emulation_times = flags["emulation_times"] + 1
     latency_spike = flags["latency_spike"]
     latency_bound = flags["latency_bound"]
     rate_flag = flags["rate_flag"]
@@ -751,6 +936,8 @@ def emulateOnSetting(setting, flags):
     # Record
     first_so = -1
     first_so_l = 0
+    first_so_ll = 0
+    first_so_nl = 0
     need_so = False
     need_so_time = 0
     need_so_l = 0
@@ -759,12 +946,35 @@ def emulateOnSetting(setting, flags):
     can_si_l = 0
     first_si = -1
     first_si_l = 0
-
     last_y0 = -1000
+    def drawGraph():
+        import networkx as nx
+        fig = plt.figure()#figsize=(3, 2))
+        ax = plt.subplot(111)
+        G = nx.DiGraph()
+        edges = []
+        for operator in sorted_operators:
+            for x in in_neighbors[operator]:
+                edges += [(x, operator)]
+        G.add_edges_from(edges)
+        for layer, nodes in enumerate(nx.topological_generations(G)):
+            # `multipartite_layout` expects the layer as a node attribute, so add the
+            # numeric layer value as a node attribute
+            for node in nodes:
+                G.nodes[node]["layer"] = layer
 
+        # Compute the multipartite_layout using the "layer" node attribute
+        pos = nx.multipartite_layout(G, subset_key="layer")
+        nx.draw_networkx(G, pos=pos, ax=ax, node_size=1600, font_size=20)
+        import os
+        if not os.path.exists(outputDir + setting_name):
+            os.makedirs(outputDir + setting_name)
+        plt.savefig(outputDir + setting_name + "/" + "graph.png", bbox_inches='tight')
+        plt.close(fig)
 
-    new_backlogs = init_backlog.copy()
-    new_arrivals = init_arrival.copy()
+    drawGraph()
+    new_backlogs = {x:y.copy() for x, y in init_backlog.items()}
+    new_arrivals = {x:y.copy() for x, y in init_arrival.items()}
     task_backlog_increments = {operator: {task: 0.0 for task in mapping} for operator, mapping in init_service.items()}
     x = []
     y = []
@@ -792,8 +1002,6 @@ def emulateOnSetting(setting, flags):
                     new_backlog = int(sum([init_arrival[operator][key] for key in config[operator][task]]) * 10 + 1e-9)
                 evenly_reduce_backlogs(new_backlogs[operator], new_backlog, config[operator][task])
 
-
-
                 # For drawing figure
                 if task not in arrival[operator]:
                     arrival[operator][task] = []
@@ -815,9 +1023,12 @@ def emulateOnSetting(setting, flags):
                 need_so = True
                 need_so_time = emulate_time * emulation_epoch
                 need_so_l = l0
-            if first_so < 0 and l0 < lT and l1 + latency_spike > latency_bound:
+            if first_so < 0 and l0 < lT and l1 + latency_spike > latency_bound and emulate_time * emulation_epoch % 100 == 0:
                 first_so = emulate_time * emulation_epoch
                 first_so_l = l0
+                first_so_ll = last_y0
+            if first_so >= 0 and first_so == emulate_time * emulation_epoch - 100 and emulate_time * emulation_epoch % 100 == 0:
+                first_so_nl = l0
         elif check_scale_type == "scale in":
             if (not can_si) and last_y0 != -1000 and last_y0 >= l0 and l0 + latency_spike < latency_bound:
                 can_si = True
@@ -825,7 +1036,7 @@ def emulateOnSetting(setting, flags):
                 can_si_l = l0
             if can_si and l0 > latency_bound:
                 can_si = False
-            if first_si < 0 and l0 >= lT and l0 + latency_spike < latency_bound:
+            if first_si < 0 and l0 >= lT and l0 + latency_spike < latency_bound and emulate_time * emulation_epoch % 100 == 0:
                 first_si = emulate_time * emulation_epoch
                 first_si_l = l0
         last_y0 = l0
@@ -840,27 +1051,30 @@ def emulateOnSetting(setting, flags):
     legend = ["latency curve", "limit"]
     if check_scale_type == "scale out":
         if need_so:
-            legend += ["need scale point"]
-            plt.plot([need_so_time], [need_so_l], 's', color='red', markersize=4)
+            legend += ["violation point"]
+            plt.plot([need_so_time], [need_so_l], 's', color='red', markersize=6)
         if first_so >= 0:
-            legend += ["strategy scale point", "strategy scale point plus spike"]
-            plt.plot([first_so], [first_so_l], 'd', color='blue', markersize=4)
-            plt.plot([first_so], [first_so_l + latency_spike], 'd', color='black', markersize=4)
+            legend += ["decision time", "add scaling spike", "decision next epoch", "add scaling spike"]
+            plt.plot([first_so], [first_so_l], 'd', color='blue', markersize=6)
+            plt.plot([first_so], [first_so_l + latency_spike], 's', color='blue', markersize=6)
+            plt.plot([first_so + 100], [first_so_nl], 'd', color='orange', markersize=6)
+            plt.plot([first_so + 100], [first_so_nl + latency_spike], 's', color='orange', markersize=6)
             plt.plot([first_so, first_so], [first_so_l, first_so_l + latency_spike], '-', color='black', linewidth=1)
+            plt.plot([first_so + 100, first_so + 100], [first_so_nl, first_so_nl + latency_spike], '-', color='black', linewidth=1)
     elif check_scale_type == "scale in":
         if can_si:
-            legend += ["need scale point"]
+            legend += ["violation point"]
             plt.plot([can_si_time], [can_si_l], 's', color='red', markersize=4)
         if first_si >= 0:
-            legend += ["strategy scale point", "strategy scale point plus spike"]
+            legend += ["decision made", "latency + spike"]
             plt.plot([first_si], [first_si_l], 'd', color='blue', markersize=4)
             plt.plot([first_si], [first_si_l + latency_spike], 'd', color='black', markersize=4)
             plt.plot([first_si, first_si], [first_si_l, first_si_l + latency_spike], '-', color='black', linewidth=1)
-    plt.ylim(0, 20000)
+    plt.ylim(0, 10000)
     plt.legend(legend, ncol=2, loc='upper left')
     plt.grid(True)
     axes = plt.gca()
-    axes.set_xlim(0, emulation_times * emulation_epoch + time_times * time_epoch)
+    axes.set_xlim(0, (emulation_times - 1) * emulation_epoch + time_times * time_epoch)
     # axes.set_xticks(np.arange(0, emulation_times * emulation_epoch + time_times * time_epoch, 2000.0))
 
     import os
@@ -874,7 +1088,7 @@ def emulateOnSetting(setting, flags):
         for operator in sorted_operators:
             if len(arrival[operator]) > task_column:
                 task_column = len(arrival[operator])
-        fig, axs = plt.subplots(len(sorted_operators), task_column, figsize=(7, 4), layout='constrained')
+        fig, axs = plt.subplots(len(sorted_operators), task_column, figsize=(7, 4), layout='constrained',sharex=True, sharey=True)
         for index in range(0, len(sorted_operators)):
             operator = sorted_operators[index]
             for sec_index in range(0, len(arrival[operator])):
@@ -888,32 +1102,42 @@ def emulateOnSetting(setting, flags):
                 else:
                     ax1 = row
                 ax2 = ax1.twinx()
-                legend1 = ["arrival rate", "service rate"]
-                legend2 = ["backlog"]
-                ax1.plot(np.arange(0, emulation_times * emulation_epoch, emulation_epoch), arrival[operator][task], color="red", linewidth=2)
-                ax1.plot(np.arange(0, emulation_times * emulation_epoch, emulation_epoch), service[operator][task], color="blue", linewidth=2)
+                # legend1 = ["arrival rate", "service rate", "strategy scale point"]
+                # legend2 = ["backlog"]
+
+                ax1.plot(np.arange(0, emulation_times * emulation_epoch, emulation_epoch), [x * 1000 for x in arrival[operator][task]], label="arrival rate", color="red", linewidth=2)
+                ax1.plot(np.arange(0, emulation_times * emulation_epoch, emulation_epoch), [x * 1000 for x in service[operator][task]], label="service rate", color="blue", linewidth=2)
                 if check_scale_type == "scale out":
                     if first_so >= 0:
-                        legend1 += ["strategy scale point"]
-                        ax1.plot([first_so, first_so], [0, 10000], '--', color='red', markersize=4, linewidth=2)
+                        ax1.plot([first_so, first_so], [0, 10000], '--', label="strategy scale point",  color='red', markersize=4, linewidth=2)
                 elif check_scale_type == "scale in":
                     if first_si >= 0:
-                        legend1 += ["strategy scale point"]
-                        ax1.plot([first_si, first_si], [0, 10000], '--', color='red', markersize=4, linewidth=2)
-                ax2.plot(np.arange(0, emulation_times * emulation_epoch, emulation_epoch), backlog[operator][task], color="black", linewidth=2)
+                        ax1.plot([first_si, first_si], [0, 10000], '--', label="strategy scale point", color='red', markersize=4, linewidth=2)
+                ax2.plot(np.arange(0, emulation_times * emulation_epoch, emulation_epoch), backlog[operator][task], label="backlog", color="black", linewidth=2)
                 if index == 0 and sec_index == 0:
-                    ax1.legend(legend1, loc="upper left", ncol=1)
-                    ax2.legend(legend2, loc="lower right")
-                ax1.set_ylabel(operator)
-                ax1.set_xlim(0, emulation_times * emulation_epoch + time_times * time_epoch)
-                ax1.set_xlabel(task)
+                    lines_labels = [ax1.get_legend_handles_labels()]
+                    lines_labels2 = [ax2.get_legend_handles_labels()]
+                    #ax1.legend(legend1, loc="upper left", ncol=3, )
+                    #ax2.legend(legend2, loc="lower right")
+
+                ax1.set_title(task)
+                #ax1.set_ylabel(operator)
+                ax1.set_xlim(0, (emulation_times - 1) * emulation_epoch + time_times * time_epoch)
+                #ax1.set_xlabel(task)
                 # ax1.set_xticks(np.arange(0, emulation_times * emulation_epoch + time_times * time_epoch, 2000.0))
-                ax1.set_ylim(0.0, 2.0)
-                ax2.set_ylim(0, 2050)
+                ax1.set_ylim(0, 2000)
+                ax2.set_ylim(0, 5000)
+
                 # if(operator == "op4"):
                 #     ax2.set_ylim(0, 100)
                 # else:
                 #     ax2.set_ylim(0, 4)
+        lines, labels = [sum(lol, []) for lol in zip(*lines_labels)]
+        lines2, labels2 = [sum(lol, []) for lol in zip(*lines_labels2)]
+        plt.tick_params(labelcolor='none', which='both', top=False, bottom=False, left=False, right=False)
+        fig.supxlabel('Time')
+        fig.supylabel('Rate/Backlog')
+        fig.legend(lines + lines2, labels + labels2, loc='upper center', bbox_to_anchor=(0.5, 1.07), ncol=4)
         import os
         if not os.path.exists(outputDir + setting_name):
             os.makedirs(outputDir + setting_name)
@@ -1117,65 +1341,135 @@ def testScalingDecisionStrategy():
     flags["emulation_times"] = 300
     flags["latency_spike"] = 500
     flags["latency_bound"] = 2000
-    flags["max_task_num"] = 3
-    flags["rate_flag"] = True
-    flags["arrival_ranges"] = [[250, 500], [501, 800], [801, 950], [951, 1050], [1050, 2000]]
-    flags["backlog_ranges"] = [[0, 10], [11, 200], [201, 1000], [1001, 2000], [2001, 10000]]
     flags["max_operator_num"] = 4
+    flags["max_task_num"] = 3
+    flags["graph_fixed"] = False
     flags["max_key_num"] = 3
+
+    flags["rate_flag"] = True
+    flags["arrival_ranges"] = [[250, 500], [250, 500], [501, 800], [501, 800], [801, 950], [801, 950], [951, 1050], [1050, 1250]]
+    flags["backlog_ranges"] = [[0, 10], [11, 200], [201, 1000], [1001, 2000]]
+    flags["service_ranges"] = [[950, 1050]]
+    flags["arrival_period_range"] = [[2500, 5000], [5000, 7500], [7500, 12500], [12500, 15000]]
+    flags["arrival_ratio_range"] = [[10, 15], [15, 20], [20, 25], [25, 30], [30, 50]]
+    flags["arrival_delta_range"] = [[0, 1000]]
 
     print("Start scale out timely test...")
     late_scaleout = {i:[] for i in range(0, 4)}
     miss_scaleout = {i:[] for i in range(0, 4)}
     no_needscaleout = {i:[] for i in range(0, 4)}
 
-    setting_num = 100
-    for i in range(0, setting_num):
-        print("Start scale out setting " + str(i))
-        flags["scale_type"] = "scale out"
-        flags["type"] = i % 4
-        setting = generateSetting("so_set_" + str(i), flags)
-        #    setting = getManualSetting("special")
-        ret = emulateOnSetting(setting, flags)
-        if ret == 1:
-            no_needscaleout[flags["type"]] += [i]
-        elif ret == 2:
-            miss_scaleout[flags["type"]] += [i]
-        elif ret == 3:
-            late_scaleout[flags["type"]] += [i]
-    print("OK setting: " + str(setting_num - sum([len(x) for x in late_scaleout.values()]) - sum([len(x) for x in miss_scaleout.values()]) - sum([len(x) for x in no_needscaleout.values()])) + "/" + str(setting_num))
-    print("Miss scale out: " + str([str(len(y)) for x, y in miss_scaleout.items()]) + " , " + str(miss_scaleout.values()))
-    print("Late scale out: " + str([str(len(y)) for x, y in late_scaleout.items()]) + " , " + str(late_scaleout.values()))
-    print("Unnecessary scale out: " + str([str(len(y)) for x, y in no_needscaleout.items()]) + " , " + str(no_needscaleout.values()))
+    ## Scale out
+    flags["scale_type"] = "scale out"
+    flags["graph_fixed"] = True
+    flags["emulation_times"] = 500
+    flags["emulation_epoch"] = 10
+    flags["time_times"] = 0
+    # One dimension test
+    # flags["backlog_ranges"] = [[0, 0]]
+    # flags["service_ranges"] = [[1000, 1000]]
+    # flags["arrival_ranges"] = [[501, 800], [951, 1050]]
+    # flags["arrival_period_range"] = [[5000, 5000]]
+    # flags["arrival_ratio_range"] = [[25, 25]]
+    # flags["arrival_delta_range"] = [[0, 0]]
+    # flags["type"] = 0
+    for type in range(0, 4):
+        for case in range(0, 3):
+            print("Test so_one_"+ str(type) + "_" + str(case) + "...")
+            setting = getManualSetting("so_one_"+ str(type) + "_" + str(case))
+            ret = emulateOnSetting(setting, flags)
 
-    print("Start scale in timely test...")
-    early_scalein = {i: [] for i in range(0, 4)}
-    miss_scalein = {i: [] for i in range(0, 4)}
-    cannot_scalein = {i: [] for i in range(0, 4)}
+    # flags["arrival_ranges"] = [[501, 800], [800, 950], [951, 1250]]
+    # flags["arrival_period_range"] = [[5000, 5000]]
+    # flags["arrival_ratio_range"] = [[25, 25]]
+    # flags["arrival_delta_range"] = [[250, 250]]
+    flags["type"] = 1
+    setting = generateSetting("so_one_1", flags)
+    ret = emulateOnSetting(setting, flags)
 
-    setting_num = 100
-    for i in range(0, setting_num):
-        print("Start scale in setting " + str(i))
-        flags["scale_type"] = "scale in"
-        flags["type"] = i % 4
-        setting = generateSetting("si_set_" + str(i), flags)
-        #    setting = getManualSetting("special")
-        ret = emulateOnSetting(setting, flags)
-        if ret == 1:
-            cannot_scalein[flags["type"]] += [i]
-        elif ret == 2:
-            miss_scalein[flags["type"]] += [i]
-        elif ret == 3:
-            early_scalein[flags["type"]] += [i]
-    print("OK setting: " + str(setting_num - sum([len(x) for x in cannot_scalein.values()]) - sum(
-        [len(x) for x in miss_scalein.values()]) - sum([len(x) for x in early_scalein.values()])) + "/" + str(
-        setting_num))
-    print("Cannot scale in: " + str([str(len(y)) for x, y in cannot_scalein.items()]) + " , " + str(
-        cannot_scalein.values()))
-    print(
-        "Miss scale in: " + str([str(len(y)) for x, y in miss_scalein.items()]) + " , " + str(miss_scalein.values()))
-    print(
-        "Early scale in: " + str([str(len(y)) for x, y in early_scalein.items()]) + " , " + str(early_scalein.values()))
+    flags["arrival_ranges"] = [[501, 800], [800, 950], [951, 1150]]
+    flags["arrival_period_range"] = [[3333, 3333]]
+    flags["arrival_ratio_range"] = [[33, 33]]
+    flags["arrival_delta_range"] = [[500, 500]]
+    flags["type"] = 2
+    setting = generateSetting("so_one_2", flags)
+    ret = emulateOnSetting(setting, flags)
+
+    flags["arrival_ranges"] = [[501, 800], [800, 950], [951, 1050]]
+    flags["arrival_period_range"] = [[4000, 4000]]
+    flags["arrival_ratio_range"] = [[20, 20]]
+    flags["arrival_delta_range"] = [[200, 200]]
+    flags["type"] = 3
+    setting = generateSetting("so_one_3", flags)
+    ret = emulateOnSetting(setting, flags)
+
+    flags["is_remained_backlog_flag"] = True  # False
+    flags["time_epoch"] = 1  # ms
+    flags["time_times"] = 0  # 1000
+    flags["emulation_epoch"] = 100  # ms
+    flags["emulation_times"] = 300
+    flags["latency_spike"] = 500
+    flags["latency_bound"] = 2000
+    flags["max_operator_num"] = 4
+    flags["max_task_num"] = 3
+    flags["graph_fixed"] = False
+    flags["max_key_num"] = 3
+
+    flags["rate_flag"] = True
+    flags["arrival_ranges"] = [[250, 500], [250, 500], [501, 800], [501, 800], [801, 950], [801, 950], [951, 1050],
+                               [1050, 1250]]
+    flags["backlog_ranges"] = [[0, 10], [11, 200], [201, 1000], [1001, 2000]]
+    flags["service_ranges"] = [[950, 1050]]
+    flags["arrival_period_range"] = [[2500, 5000], [5000, 7500], [7500, 12500], [12500, 15000]]
+    flags["arrival_ratio_range"] = [[10, 15], [15, 20], [20, 25], [25, 30], [30, 50]]
+    flags["arrival_delta_range"] = [[0, 1000]]
+    # setting_num = 100
+    # for i in range(0, setting_num):
+    #     print("Start scale out setting " + str(i))
+    #     flags["scale_type"] = "scale out"
+    #     flags["type"] = i % 4
+    #     setting = generateSetting("so_set_" + str(i), flags)
+    #     #    setting = getManualSetting("special")
+    #     ret = emulateOnSetting(setting, flags)
+    #     if ret == 1:
+    #         no_needscaleout[flags["type"]] += [i]
+    #     elif ret == 2:
+    #         miss_scaleout[flags["type"]] += [i]
+    #     elif ret == 3:
+    #         late_scaleout[flags["type"]] += [i]
+    # print("OK setting: " + str(setting_num - sum([len(x) for x in late_scaleout.values()]) - sum([len(x) for x in miss_scaleout.values()]) - sum([len(x) for x in no_needscaleout.values()])) + "/" + str(setting_num))
+    # print("Miss scale out: " + str([str(len(y)) for x, y in miss_scaleout.items()]) + " , " + str(miss_scaleout.values()))
+    # print("Late scale out: " + str([str(len(y)) for x, y in late_scaleout.items()]) + " , " + str(late_scaleout.values()))
+    # print("Unnecessary scale out: " + str([str(len(y)) for x, y in no_needscaleout.items()]) + " , " + str(no_needscaleout.values()))
+
+    # print("Start scale in timely test...")
+    # early_scalein = {i: [] for i in range(0, 4)}
+    # miss_scalein = {i: [] for i in range(0, 4)}
+    # cannot_scalein = {i: [] for i in range(0, 4)}
+    #
+    # setting_num = 100
+    # for i in range(0, setting_num):
+    #     print("Start scale in setting " + str(i))
+    #     flags["scale_type"] = "scale in"
+    #     flags["type"] = i % 4
+    #     setting = generateSetting("si_set_" + str(i), flags)
+    #     #    setting = getManualSetting("special")
+    #     ret = emulateOnSetting(setting, flags)
+    #     if ret == 1:
+    #         cannot_scalein[flags["type"]] += [i]
+    #     elif ret == 2:
+    #         miss_scalein[flags["type"]] += [i]
+    #     elif ret == 3:
+    #         early_scalein[flags["type"]] += [i]
+    # print("OK setting: " + str(setting_num - sum([len(x) for x in cannot_scalein.values()]) - sum(
+    #     [len(x) for x in miss_scalein.values()]) - sum([len(x) for x in early_scalein.values()])) + "/" + str(
+    #     setting_num))
+    # print("Cannot scale in: " + str([str(len(y)) for x, y in cannot_scalein.items()]) + " , " + str(
+    #     cannot_scalein.values()))
+    # print(
+    #     "Miss scale in: " + str([str(len(y)) for x, y in miss_scalein.items()]) + " , " + str(miss_scalein.values()))
+    # print(
+    #     "Early scale in: " + str([str(len(y)) for x, y in early_scalein.items()]) + " , " + str(early_scalein.values()))
 
 
 def analyzeLEM_time():

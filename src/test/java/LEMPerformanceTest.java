@@ -268,7 +268,7 @@ class LatencyEstimationModel {
         metrics = new Metrics(arrivalRatesPerKey, backlogPerKey, serviceRatesPerTask, waitingTimePerTask);
     }
 
-    public double estimateTaskLatency(double time, String task, String operator, List<Integer> mappedKeys){
+    public double estimateTaskLatency(double time, String task, Str ing operator, List<Integer> mappedKeys){
         // long estimationStartTime = System.nanoTime();
         // LOG.info("+++ [MODEL] task start nanotime: " + estimationStartTime);
         double serviceRate;
