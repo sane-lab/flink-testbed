@@ -317,6 +317,12 @@ controller.whether.type: streamsluice
 
 controller.how.type: streamsluice
 
+controller.how.stage: false
+
+controller.how.optimizaiton: false
+
+controller.how.conservative: false
+
 controller.scale_in.type: streamsluice
 
 streamsluice.system.errorcase_number: 5
