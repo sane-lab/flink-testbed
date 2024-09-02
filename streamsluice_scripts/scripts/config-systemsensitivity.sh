@@ -57,7 +57,7 @@ function configFlink() {
     sed 's/^\(\s*model.max_parallelism.d2336f79a0d60b5a4b16c8769ec82e47\s*:\s*\).*/\1'"$LP5"'/' tmp20 > tmp21
     sed 's/^\(\s*streamsluice.model.decision_interval\s*:\s*\).*/\1'"$decision_interval"'/' tmp21 > tmp22
     sed 's/^\(\s*streamsluice.metrics.snapshot_size\s*:\s*\).*/\1'"$snapshot_size"'/' tmp22 > tmp23
-    sed 's/^\(\s*controller.how.stage\s*:\s*\).*/\1'"$how_stage_flag"'/' tmp23 > tmp24
+    sed 's/^\(\s*controller.how.more_optimizaiton\s*:\s*\).*/\1'"$how_more_optimization_flag"'/' tmp23 > tmp24
     sed 's/^\(\s*controller.how.optimizaiton\s*:\s*\).*/\1'"$how_optimization_flag"'/' tmp24 > tmp25
     sed 's/^\(\s*controller.how.conservative\s*:\s*\).*/\1'"$how_conservative_flag"'/' tmp25 > tmp26
     sed 's/^\(\s*controller.scale_in.type\s*:\s*\).*/\1'"$scalein_type"'/' tmp26 > ${FLINK_CONF_DIR}/flink-conf.yaml

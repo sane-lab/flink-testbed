@@ -71,6 +71,39 @@ def findBottleneck(sorted_operators: list[str], in_neighbors: dict[str, list[str
     # Return the maximum end-to-end latency minus the initial time
     return bottleneck_l_operator[1], tau
 
+def getWorstTaskAndKey(sorted_operators: list[str], in_neighbors: dict[str, list[str]],
+                            backlogs_per_operator: dict[str, list[float]],
+                            arrivals_per_operator: dict[str, list[float]],
+                            services_per_operator: dict[str, dict[str, float]], config: dict[str, dict[str, list[int]]],
+                            wait_times_per_task: dict[str, dict[str, float]], bottleneck_operator:str) -> [str, int]:
+    tau = {}  # Arrival times \(\tau_j\) at each operator
+    l = {}  # Latency \(l^j(\tau^j, \mathcal{C})\) for each operator
+    worst_task = ""
+    worst_key = 0
+    for operator in sorted_operators:
+        if not in_neighbors[operator]:
+            tau[operator] = 1000000  # Set initial arrival time for sources
+        else:
+            # Compute \(\tau_j\) as the maximum arrival time from the predecessors plus their latency
+            max_tau_po = max((tau[po] + l[po], po) for po in in_neighbors[operator])
+            tau[operator] = max_tau_po[0]
+        # Estimate the operator's latency using its tasks' latencies
+        l[operator] = estimateOperatorLatency(tau[operator], backlogs_per_operator[operator],
+                                              arrivals_per_operator[operator], services_per_operator[operator],
+                                              config[operator], wait_times_per_task[operator])
+        if operator == bottleneck_operator:
+            worst_l_task = max((estimateTaskLatency(tau[operator],
+                                                 backlogs_per_operator[operator],
+                                                 arrivals_per_operator[operator],
+                                                 services_per_operator[operator][task] if task in services_per_operator[operator] else (sum(services_per_operator[operator].values())/len(services_per_operator[operator].values())),
+                                                 config[operator][task],
+                                                 wait_times_per_task[operator][task] if task in wait_times_per_task[operator] else 0), task) for task in config[operator])
+            worst_task = worst_l_task[1]
+            worst_b_key = max((backlogs_per_operator[operator][key] + tau[operator] * arrivals_per_operator[operator][key] ,key) for key in config[operator][worst_task])
+            worst_key = worst_b_key[1]
+    # Return the maximum end-to-end latency minus the initial time
+    return worst_task, worst_key
+
 
 outputDir = "/Users/swrrt/Workplace/BacklogDelayPaper/experiments/LEM/"
 random_seed = 114514
@@ -850,21 +883,21 @@ def getManualSetting(name):
         }
         config = {
             "op1": {
-                "op1_t1": [0, 1, 2, 3, 4, 5, 6, 7],
-                "op1_t2": [8, 9, 10, 11, 12, 13, 14, 15],
+                "op1_t1": list(range(0, 16)),
+                "op1_t2": list(range(16, 32)),
             },
             "op2": {
-                "op2_t1": [0, 1, 2, 3, 4, 5, 6, 7],
-                "op2_t2": [8, 9, 10, 11, 12, 13, 14, 15],
+                "op2_t1": list(range(0, 16)),
+                "op2_t2": list(range(16, 32)),
             },
             "op3": {
-                "op3_t1": [0, 1, 2, 3, 4, 5, 6, 7],
-                "op3_t2": [8, 9, 10, 11, 12, 13, 14, 15],
+                "op3_t1": list(range(0, 12)),
+                "op3_t2": list(range(12, 16)),
             },
         }
         init_backlog = {
-            "op1": [0] * 16,
-            "op2": [0] * 16,
+            "op1": [0] * 32,
+            "op2": [0] * 32,
             "op3": [0] * 16,
         }
         operator_service = {
@@ -877,13 +910,13 @@ def getManualSetting(name):
         if pattern == 0:
             source_arrival = 1.0 + case * 0.05
             key_distribution = {
-                "op1": [1] * 16,
-                "op2": [1] * 16,
-                "op3": [4] * 8 + [1] * 8,
+                "op1": [1] * 32,
+                "op2": [1] * 32,
+                "op3": [1] * 12 + [1] * 4,
             }
             operator_io = {
                 "op1": 1,
-                "op2": 5,
+                "op2": 4,
                 "op3": 1,
             }
 
@@ -891,46 +924,46 @@ def getManualSetting(name):
             arrival_change_ratio = 0.25
             arrival_change_delta = 0.25 * arrival_change_period
         elif pattern == 1:
-            source_arrival = 2.0 + case * 0.05
+            source_arrival = 0.9 + case * 0.05
             key_distribution = {
-                "op1": [1] * 16,
-                "op2": [1] * 16,
-                "op3": [3] * 8 + [1] * 8,
+                "op1": [1] * 32,
+                "op2": [1] * 32,
+                "op3": [1] * 24 + [1] * 8,
             }
             operator_io = {
-                "op1": 1.0,
-                "op2": 1.5,
-                "op3": 1.0,
+                "op1": 1,
+                "op2": 4,
+                "op3": 1,
             }
             arrival_change_period = 5000
             arrival_change_ratio = 1.0 / (4 - case)
             arrival_change_delta = 0.25 * arrival_change_period
         elif pattern == 2:
-            source_arrival = 2.0 + case * 0.05
+            source_arrival = 0.9 + case * 0.05
             key_distribution = {
-                "op1": [1] * 16,
-                "op2": [1] * 16,
-                "op3": [3] * 8 + [1] * 8,
+                "op1": [1] * 32,
+                "op2": [1] * 32,
+                "op3": [1] * 12 + [1] * 4,
             }
             operator_io = {
-                "op1": 1.0,
-                "op2": 1.5,
-                "op3": 1.0,
+                "op1": 1,
+                "op2": 4,
+                "op3": 1,
             }
             arrival_change_period = 3333
             arrival_change_ratio = 0.33
             arrival_change_delta = 0.2 * case * arrival_change_period
         elif pattern == 3:
-            source_arrival = 1.2
+            source_arrival = 0.9 + case * 0.05
             key_distribution = {
-                "op1": [1] * 16,
-                "op2": [1] * 16,
-                "op3": [3] * 8 + [1] * 8,
+                "op1": [1] * 32,
+                "op2": [1] * 32,
+                "op3": [1] * 24 + [1] * 8,
             }
             operator_io = {
-                "op1": 1.0,
-                "op2": 1.5,
-                "op3": 1.0,
+                "op1": 1,
+                "op2": 4,
+                "op3": 1,
             }
             arrival_change_period = 2000 + 500 * case
             arrival_change_ratio = 0.20
@@ -1207,10 +1240,14 @@ def scale_out_phase1_old(sorted_operators: list[str], in_neighbors: dict[str, li
                                      services_per_operator, suboptimal_config, wait_times_per_task)
         lT = estimateEndToEndLatency(1000000, sorted_operators, in_neighbors, backlogs_per_operator, arrivals_per_operator,
                                      services_per_operator, suboptimal_config, wait_times_per_task)
+        print("op3.{t1:" + str(suboptimal_config["op3"]["op3_t1"]) + ", t2:" + str(
+            suboptimal_config["op3"]["op3_t2"]) + "} " + str(moved_keys) + " - l(0,C)=" + str(
+            round(l0, 1)) + ", l(T,C)=" + str(round(lT, 1)))
+
         if (l0 < latency_bound and l0 + 1e-10 >= lT):
             break
         # Choose heaviest task and key
-        heaviest_l_task = max((estimateTaskLatency(tau[bottleneck_operator], backlogs_per_operator[bottleneck_operator], arrivals_per_operator[bottleneck_operator], services_per_operator[bottleneck_operator][task] if task in services_per_operator[bottleneck_operator] else (sum(services_per_operator[bottleneck_operator].values())/len(services_per_operator[bottleneck_operator].values())), suboptimal_config[bottleneck_operator][task], wait_times_per_task[bottleneck_operator][task] if task in wait_times_per_task[bottleneck_operator] else 0), task) for task in suboptimal_config[bottleneck_operator].keys())
+        heaviest_l_task = max((estimateTaskLatency(tau[bottleneck_operator], backlogs_per_operator[bottleneck_operator], arrivals_per_operator[bottleneck_operator], services_per_operator[bottleneck_operator][task] if task in services_per_operator[bottleneck_operator] else (sum(services_per_operator[bottleneck_operator].values())/len(services_per_operator[bottleneck_operator].values())), suboptimal_config[bottleneck_operator][task], wait_times_per_task[bottleneck_operator][task] if task in wait_times_per_task[bottleneck_operator] else 0), task) for task in suboptimal_config[bottleneck_operator].keys() if len(suboptimal_config[bottleneck_operator][task]) > 1)
         heaviest_task = heaviest_l_task[1]
         if len(suboptimal_config[bottleneck_operator][heaviest_task]) == 1:
             break
@@ -1234,7 +1271,6 @@ def scale_out_phase1_old(sorted_operators: list[str], in_neighbors: dict[str, li
     scale_result = Scale_result()
     scale_result.moved_keys = moved_keys
     scale_result.config_after_scale = suboptimal_config
-    print("!!!!" + str(scale_result.moved_keys))
     return scale_result
 
 def scale_out_phase1_new(sorted_operators: list[str], in_neighbors: dict[str, list[str]],
@@ -1253,9 +1289,15 @@ def scale_out_phase1_new(sorted_operators: list[str], in_neighbors: dict[str, li
     }
 
     moved_keys = []
+    print("!!!! new")
     while (True):
         l0 = estimateEndToEndLatency(0, sorted_operators, in_neighbors, backlogs_per_operator, arrivals_per_operator,
                                      services_per_operator, suboptimal_config, wait_times_per_task)
+        lT = estimateEndToEndLatency(1000000, sorted_operators, in_neighbors, backlogs_per_operator,
+                                     arrivals_per_operator,
+                                     services_per_operator, suboptimal_config, wait_times_per_task)
+        print("op3.{t1:" + str(suboptimal_config["op3"]["op3_t1"]) + ", t2:" + str(
+            suboptimal_config["op3"]["op3_t2"]) + "} " + str(moved_keys) + " - l(0,C)=" + str(round(l0, 1)) + ", l(T,C)=" + str(round(lT, 1)))
         if (l0 < latency_bound):
             break
         # Choose heaviest task and key
@@ -1287,16 +1329,23 @@ def scale_out_phase1_new(sorted_operators: list[str], in_neighbors: dict[str, li
         lT = estimateEndToEndLatency(1000000, sorted_operators, in_neighbors, backlogs_per_operator,
                                      arrivals_per_operator,
                                      services_per_operator, suboptimal_config, wait_times_per_task)
+        print("op3.{t1:" + str(suboptimal_config["op3"]["op3_t1"]) + ", t2:" + str(
+            suboptimal_config["op3"]["op3_t2"]) + "} " + str(moved_keys) + " - l(0,C)=" + str(
+            round(l0, 1)) + ", l(T,C)=" + str(round(lT, 1)))
         if (l0 + 1e-10 >= lT):
             break
-        # Choose heaviest task and key
-        heaviest_rate_task = max((sum([arrivals_per_operator[bottleneck_operator][key] for key in suboptimal_config[bottleneck_operator][task]]) - (services_per_operator[bottleneck_operator][task] if task in services_per_operator[bottleneck_operator] else (sum(services_per_operator[bottleneck_operator].values())/len(services_per_operator[bottleneck_operator].values()))) , task) for task in
-                              suboptimal_config[bottleneck_operator].keys())
-        heaviest_task = heaviest_rate_task[1]
+        # Choose heaviest task and key according to delta backlog
+        #heaviest_rate_task = max((sum([arrivals_per_operator[bottleneck_operator][key] for key in suboptimal_config[bottleneck_operator][task]]) - (services_per_operator[bottleneck_operator][task] if task in services_per_operator[bottleneck_operator] else (sum(services_per_operator[bottleneck_operator].values())/len(services_per_operator[bottleneck_operator].values()))) , task) for task in
+                              # suboptimal_config[bottleneck_operator].keys())
+        #heaviest_task = heaviest_rate_task[1]
+        heaviest_task, heaviest_key = getWorstTaskAndKey(sorted_operators, in_neighbors, backlogs_per_operator,
+                                     arrivals_per_operator,
+                                     services_per_operator, suboptimal_config, wait_times_per_task, bottleneck_operator)
         if len(suboptimal_config[bottleneck_operator][heaviest_task]) == 1:
             break
-        heaviest_rate_key = max((arrivals_per_operator[bottleneck_operator][key], key) for key in suboptimal_config[bottleneck_operator][heaviest_task])
-        move_key = heaviest_rate_key[1]
+        #heaviest_rate_key = max((arrivals_per_operator[bottleneck_operator][key], key) for key in suboptimal_config[bottleneck_operator][heaviest_task])
+        #move_key = heaviest_rate_key[1]
+        move_key = heaviest_key
         suboptimal_config[bottleneck_operator][heaviest_task].remove(move_key)
         new_task = find_next_task_id(suboptimal_config[bottleneck_operator].keys(), bottleneck_operator + "_t")
         suboptimal_config[bottleneck_operator][new_task] = [move_key]
@@ -1403,7 +1452,7 @@ def emulateOnSetting(setting, flags):
         key_observed_arrivals = {}
         task_services = {}
         new_key_backlogs = {operator : y.copy() for operator, y in current_key_backlogs.items()}
-        print(str(emulate_time) + " source ar " + str(new_source_arrival))
+        #print(str(emulate_time) + " source ar " + str(new_source_arrival))
         for operator in sorted_operators:
             # Calculate arrival rate
             if not in_neighbors[operator]:
@@ -1431,7 +1480,7 @@ def emulateOnSetting(setting, flags):
                 task_service = operator_service[operator]
                 task_services[operator][task] = task_service
                 task_true_output_rate = task_true_arrival * operator_io[operator]
-                print(task + " ob arrival " + str(task_observed_arrival))
+                #print(task + " ob arrival " + str(task_observed_arrival))
                 if task_observed_arrival >= task_service:
                     task_observed_output_rate = task_service * operator_io[operator]
                     new_task_backlog = max(task_backlog + (task_observed_arrival - task_service) * emulation_epoch, (task_true_arrival * 10 + 1e-9) if is_remained_backlog_flag else 0)
@@ -1441,7 +1490,7 @@ def emulateOnSetting(setting, flags):
                     else:
                         t = 0
                     task_observed_output_rate = (task_service * t + task_observed_arrival * (emulation_epoch - t)) / emulation_epoch * operator_io[operator]
-                    print(task + " t-epoch " + str(t)+"-"+str(emulation_epoch) + " ob_o " + str(task_observed_output_rate))
+                    #print(task + " t-epoch " + str(t)+"-"+str(emulation_epoch) + " ob_o " + str(task_observed_output_rate))
                     new_task_backlog = max((task_backlog + (task_observed_arrival - task_service) * emulation_epoch), (task_true_arrival * 10 + 1e-9) if is_remained_backlog_flag else 0)
                 def distribute_backlogs(backlogs, new_sum, keys, operator, key_distribution):
                     X = sum([backlogs[key] for key in keys]) - new_sum
@@ -1486,8 +1535,8 @@ def emulateOnSetting(setting, flags):
                 #print(task + " new backlog " + str(new_task_backlog))
                 #print(operator + " old backlog " + str(new_key_backlogs[operator]))
                 distribute_backlogs(new_key_backlogs[operator], new_task_backlog, config[operator][task], operator, key_distribution)
-                print(operator + " new backlog " + str(new_key_backlogs[operator]))
-                print(operator + " new backlogs: " + str(new_key_backlogs[operator]))
+                #print(operator + " new backlog " + str(new_key_backlogs[operator]))
+                #print(operator + " new backlogs: " + str(new_key_backlogs[operator]))
                 operator_true_output_rate[operator] += task_true_output_rate
                 operator_observed_output_rate[operator] += task_observed_output_rate
                 #print(task + " ob rate " + str(task_observed_output_rate))
@@ -1524,7 +1573,6 @@ def emulateOnSetting(setting, flags):
                 if config_explore_flag:
                     old_scale_config = scale_out_phase1_old(sorted_operators, in_neighbors, integer_backlogs, key_true_arrivals, task_services, config, wait_times, latency_bound - latency_spike)
                     new_scale_config = scale_out_phase1_new(sorted_operators, in_neighbors, integer_backlogs, key_true_arrivals, task_services, config, wait_times, latency_bound - latency_spike)
-                    break
 
             if first_so >= 0 and first_so == emulate_time * emulation_epoch - 100 and emulate_time * emulation_epoch % 100 == 0:
                 first_so_nl = l0
@@ -1640,7 +1688,7 @@ def emulateOnSetting(setting, flags):
                 ax1.set_xlim(0, (emulation_times - 1) * emulation_epoch + time_times * time_epoch)
                 # ax1.set_xlabel(task)
                 # ax1.set_xticks(np.arange(0, emulation_times * emulation_epoch + time_times * time_epoch, 2000.0))
-                ax1.set_ylim(0, 2000)
+                ax1.set_ylim(0, 4000)
                 ax2.set_ylim(0, 5000)
 
                 # if(operator == "op4"):
@@ -1711,6 +1759,8 @@ def emulateOnSetting(setting, flags):
             os.makedirs(outputDir + setting_name)
         plt.savefig(outputDir + setting_name + "/" + "LEM_" + "operator_metrics" + '.png', bbox_inches='tight')
         plt.close(fig)
+    if config_explore_flag:
+        return [len(old_scale_config.moved_keys), len(new_scale_config.moved_keys)]
     if check_scale_type == "scale out":
         if not need_so and first_so >= 0:
             return 1
@@ -2306,19 +2356,39 @@ def testConfigExplorationStrategy():
     flags["emulation_times"] = 500
     flags["emulation_epoch"] = 10
     flags["time_times"] = 0
-    # One dimension test
-    # flags["backlog_ranges"] = [[0, 0]]
-    # flags["service_ranges"] = [[1000, 1000]]
-    # flags["arrival_ranges"] = [[501, 800], [951, 1050]]
-    # flags["arrival_period_range"] = [[5000, 5000]]
-    # flags["arrival_ratio_range"] = [[25, 25]]
-    # flags["arrival_delta_range"] = [[0, 0]]
-    # flags["type"] = 0
-    for type in range(0, 4):
-        for case in range(0, 3):
-            print("Test so_one_"+ str(type) + "_" + str(case) + "...")
-            setting = getManualSetting("so_one_" + str(type) + "_" + str(case))
+
+    for type in range(0, 1):
+        result = [[], []]
+        for case in range(1, 2):
+            print("Test so_alg_"+ str(type) + "_" + str(case) + "...")
+            setting = getManualSetting("so_alg_" + str(type) + "_" + str(case))
             ret = emulateOnSetting(setting, flags)
+            result[0] += [ret[0]]
+            result[1] += [ret[1]]
+
+        # Number of runs
+        runs = [('Run ' + str(x)) for x in range(0, len(result[0]))]
+
+        # Position of bars on x-axis
+        x = np.arange(len(runs))
+        # Bar width
+        width = 0.35
+        # Creating the bar chart
+        fig, axs = plt.subplots(1, 1, figsize=(7, 4), layout='constrained', sharex=True,
+                                sharey=True)
+        bars1 = axs.bar(x - width / 2, result[0], width, label='Old Algorithm')
+        bars2 = axs.bar(x + width / 2, result[1], width, label='New Algorithm')
+        axs.set_xlabel('Runs')
+        axs.set_ylabel('Number of Moved Keys')
+        axs.set_title('Comparison of Moved Keys: Old vs New Algorithm')
+        axs.set_xticks(x)
+        axs.set_xticklabels(runs)
+        axs.legend()
+        import os
+        if not os.path.exists(outputDir + "type_"+str(type)):
+            os.makedirs(outputDir + "type_"+str(type))
+        plt.savefig(outputDir + "type_"+str(type) + "/" + 'moved_key_compare.png', bbox_inches='tight')
+        plt.close(fig)
 
 def analyzeLEM_time():
     flags = {}

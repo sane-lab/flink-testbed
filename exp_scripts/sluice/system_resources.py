@@ -367,8 +367,8 @@ def draw(rawDir, outputDir, exps):
     ax1.plot(scalingPoints[0], scalingPoints[1], 'o', color="orange", mfc='none', markersize=MARKERSIZE * 2, label="Scaling")
     ax1.legend(legend, loc='upper left', bbox_to_anchor=(-0.1, 1.3), ncol=3, markerscale=4.)
     # ax1.set_ylabel('OP_'+str(jobIndex+1)+' Parallelism')
-    ax1.set_ylim(7, 17)
-    ax1.set_yticks(np.arange(7, 18, 1))
+    ax1.set_ylim(7, 20) #17)
+    ax1.set_yticks(np.arange(7, 21, 1)) #18, 1))
 
     ax1.set_xlim(startTime * 1000, (startTime + exp_length) * 1000)
     ax1.set_xticks(np.arange(startTime * 1000, (startTime + exp_length) * 1000 + 60000, 60000))

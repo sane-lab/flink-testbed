@@ -28,6 +28,8 @@ def analyze_algorithm_time(rawDir, expName, outputDir):
     phase_2_ete_l_calls = [[]]
     phase_2_flag = False
 
+    reallocate_now = 0
+    try_n = 0
 
     with open(streamSluiceOutputPath) as f:
         lines = f.readlines()
@@ -66,13 +68,24 @@ def analyze_algorithm_time(rawDir, expName, outputDir):
                     phase_2_flag = True
                 if (len(split) >= 10 and split[7] == "prioritization" and split[8] == "nanotime:"):
                     prioritization_times[-1] += [int(split[9]) / 1000000.0]
+                if (len(split) >= 11 and split[7] == "base" and split[9] == "try"):
+                    if(len(phase_1_times) == 4):
+                        base = split[8]
+                        try_n = int(split[10][2:].rstrip())
+                        print(str(try_n) + " reallocate: " + str(reallocate_now))
+                        reallocate_now = 0
                 if (len(split) >= 11 and split[7] == "reallocate" and split[8] == "key" and split[9] == "nanotime:"):
                     reallocate_times[-1] += [int(split[10]) / 1000000.0]
+                    reallocate_now += 1
                 if (len(split) >= 10 and split[7] == "fit" and split[8] == "nanotime:"):
                     fit_times[-1] += [int(split[9]) / 1000000.0]
                 if (len(split) >= 12 and split[7] == "Phase" and split[8] == "2" and split[9] == "total" and split[
                     10] == "nano:"):
                     phase_2_times += [int(split[11]) / 1000000.0]
+
+                if (len(split) >= 12 and split[7] == "Best" and split[8] == "Mapping:"):
+                    if (len(phase_1_times) == 11):
+                        print(str(try_n) + " reallocate: " + str(reallocate_now))
                     choose_times += [[]]
                     prioritization_times += [[]]
                     reallocate_times += [[]]
@@ -80,6 +93,7 @@ def analyze_algorithm_time(rawDir, expName, outputDir):
                     trigger_times += [-1]
                     phase_2_flag = False
                     phase_2_ete_l_calls += [[]]
+                    reallocate_now = 0
 
     del trigger_times[-1]
     del choose_times[-1]
@@ -152,7 +166,7 @@ def analyze_algorithm_time(rawDir, expName, outputDir):
     figName = "time_ete_l_1run"
     fig, axs = plt.subplots(1, 1, figsize=(10, 6), layout='constrained')
     ax1 = axs
-    ax1.plot(np.arange(0, len(phase_2_ete_l_calls[10]), 1), phase_2_ete_l_calls[10], "o", label='ete l')
+    ax1.plot(np.arange(0, len(phase_2_ete_l_calls[4]), 1), phase_2_ete_l_calls[4], "o", label='ete l')
     ax1.set_xlabel('Occurrences')
     ax1.set_ylabel('Time (ms)')
     ax1.set_title('LEM estimate ete l time taken')
@@ -163,9 +177,9 @@ def analyze_algorithm_time(rawDir, expName, outputDir):
         os.makedirs(outputDir)
     plt.savefig(outputDir + figName + ".png", bbox_inches='tight')
     plt.close(fig)
-    print("Times for estimating ete_l: " + str(len(phase_2_ete_l_calls[10])))
-    print("Average time for estimating ete_l: " + str(sum(phase_2_ete_l_calls[10]) / len(phase_2_ete_l_calls[10])))
-    print("Max/min time for ete_l: " + str(max(phase_2_ete_l_calls[10])) + ", " + str(min(phase_2_ete_l_calls[10])))
+    print("Times for estimating ete_l: " + str(len(phase_2_ete_l_calls[4])))
+    print("Average time for estimating ete_l: " + str(sum(phase_2_ete_l_calls[4]) / len(phase_2_ete_l_calls[4])))
+    print("Max/min time for ete_l: " + str(max(phase_2_ete_l_calls[4])) + ", " + str(min(phase_2_ete_l_calls[4])))
 
     figName = "time_choose"
     fig, axs = plt.subplots(1, 1, figsize=(10, 6), layout='constrained')
@@ -175,7 +189,7 @@ def analyze_algorithm_time(rawDir, expName, outputDir):
     #     for xs in choose_times
     #     for x in xs
     # ]
-    flat_list = choose_times[10]
+    flat_list = choose_times[4]
     ax1.plot(np.arange(0, len(flat_list), 1), flat_list, "o", label='chooose time')
     ax1.set_xlabel('Occurrences')
     ax1.set_ylabel('Time (ms)')
@@ -190,7 +204,7 @@ def analyze_algorithm_time(rawDir, expName, outputDir):
     print("Average time for choose key: " + str(sum(flat_list) / len(flat_list)))
     print("Max/min time for choose key: " + str(max(flat_list)) + ", " + str(min(flat_list)))
     #print("Max/min choosing times: " + str(max([len(x) for x in choose_times])))
-    print("Max/min choosing times: " + str(len(choose_times[10])))
+    print("Max/min choosing times: " + str(len(choose_times[4])))
 
     figName = "time_reallocate"
     fig, axs = plt.subplots(1, 1, figsize=(10, 6), layout='constrained')
@@ -200,7 +214,7 @@ def analyze_algorithm_time(rawDir, expName, outputDir):
     #     for xs in reallocate_times
     #     for x in xs
     # ]
-    flat_list = reallocate_times[10]
+    flat_list = reallocate_times[4]
     ax1.plot(np.arange(0, len(flat_list), 1), flat_list, "o", label='reallocate time')
     ax1.set_xlabel('Occurrences')
     ax1.set_ylabel('Time (ms)')
@@ -215,7 +229,7 @@ def analyze_algorithm_time(rawDir, expName, outputDir):
     print("Average time for reallocate key: " + str(sum(flat_list) / len(flat_list)))
     print("Max/min time for reallocate key: " + str(max(flat_list)) + ", " + str(min(flat_list)))
     #print("Max/min reallocate times: " + str(max([len(x) for x in reallocate_times])))
-    print("Max/min reallocate times: " + str(len(reallocate_times[10])))
+    print("Max/min reallocate times: " + str(len(reallocate_times[4])))
 
 
 rawDir = "/Users/swrrt/Workplace/BacklogDelayPaper/experiments/raw/"

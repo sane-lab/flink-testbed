@@ -317,7 +317,7 @@ controller.whether.type: streamsluice
 
 controller.how.type: streamsluice
 
-controller.how.stage: false
+controller.how.more_optimizaiton: false
 
 controller.how.optimizaiton: false
 
