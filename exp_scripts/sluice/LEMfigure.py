@@ -1355,10 +1355,19 @@ def scale_out_phase2_old(sorted_operators: list[str], in_neighbors: dict[str, li
                             backlogs_per_operator: dict[str, list[float]],
                             arrivals_per_operator: dict[str, list[float]],
                             services_per_operator: dict[str, dict[str, float]], config: dict[str, dict[str, list[int]]],
-                            wait_times_per_task: dict[str, dict[str, float]], latency_bound: float) -> Scale_result:
+                            wait_times_per_task: dict[str, dict[str, float]], latency_bound: float, moved_keys: [int]) -> Scale_result:
+    # Sort keys
+    base_key = moved_keys[0]
+
+    sorted_keys = []
+    # Enumerate n
+    for n in range(0, len(sorted_keys)):
+        # Fit
 
 
-
+    scale_result = Scale_result()
+    scale_result.moved_keys = sorted_keys
+    scale_result.config_after_scale = optimal_config
     return scale_result
 
 def emulateOnSetting(setting, flags):

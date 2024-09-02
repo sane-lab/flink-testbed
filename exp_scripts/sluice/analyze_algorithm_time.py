@@ -4,7 +4,7 @@ matplotlib.use('Agg')
 import matplotlib.pyplot as plt
 from datetime import datetime
 
-def analyze_algorithm_time(rawDir, expName, outputDir):
+def analyze_algorithm_time(rawDir, expName, outputDir, focus_run:int):
     streamsluiceOutput = "flink-samza-standalonesession-0-eagle-sane.log"
     import os
     for file in os.listdir(rawDir + expName + "/"):
@@ -166,7 +166,7 @@ def analyze_algorithm_time(rawDir, expName, outputDir):
     figName = "time_ete_l_1run"
     fig, axs = plt.subplots(1, 1, figsize=(10, 6), layout='constrained')
     ax1 = axs
-    ax1.plot(np.arange(0, len(phase_2_ete_l_calls[4]), 1), phase_2_ete_l_calls[4], "o", label='ete l')
+    ax1.plot(np.arange(0, len(phase_2_ete_l_calls[focus_run]), 1), phase_2_ete_l_calls[focus_run], "o", label='ete l')
     ax1.set_xlabel('Occurrences')
     ax1.set_ylabel('Time (ms)')
     ax1.set_title('LEM estimate ete l time taken')
@@ -177,9 +177,9 @@ def analyze_algorithm_time(rawDir, expName, outputDir):
         os.makedirs(outputDir)
     plt.savefig(outputDir + figName + ".png", bbox_inches='tight')
     plt.close(fig)
-    print("Times for estimating ete_l: " + str(len(phase_2_ete_l_calls[4])))
-    print("Average time for estimating ete_l: " + str(sum(phase_2_ete_l_calls[4]) / len(phase_2_ete_l_calls[4])))
-    print("Max/min time for ete_l: " + str(max(phase_2_ete_l_calls[4])) + ", " + str(min(phase_2_ete_l_calls[4])))
+    print("Times for estimating ete_l: " + str(len(phase_2_ete_l_calls[focus_run])))
+    print("Average time for estimating ete_l: " + str(sum(phase_2_ete_l_calls[focus_run]) / len(phase_2_ete_l_calls[focus_run])))
+    print("Max/min time for ete_l: " + str(max(phase_2_ete_l_calls[focus_run])) + ", " + str(min(phase_2_ete_l_calls[focus_run])))
 
     figName = "time_choose"
     fig, axs = plt.subplots(1, 1, figsize=(10, 6), layout='constrained')
@@ -189,7 +189,7 @@ def analyze_algorithm_time(rawDir, expName, outputDir):
     #     for xs in choose_times
     #     for x in xs
     # ]
-    flat_list = choose_times[4]
+    flat_list = choose_times[focus_run]
     ax1.plot(np.arange(0, len(flat_list), 1), flat_list, "o", label='chooose time')
     ax1.set_xlabel('Occurrences')
     ax1.set_ylabel('Time (ms)')
@@ -204,7 +204,7 @@ def analyze_algorithm_time(rawDir, expName, outputDir):
     print("Average time for choose key: " + str(sum(flat_list) / len(flat_list)))
     print("Max/min time for choose key: " + str(max(flat_list)) + ", " + str(min(flat_list)))
     #print("Max/min choosing times: " + str(max([len(x) for x in choose_times])))
-    print("Max/min choosing times: " + str(len(choose_times[4])))
+    print("Max/min choosing times: " + str(len(choose_times[focus_run])))
 
     figName = "time_reallocate"
     fig, axs = plt.subplots(1, 1, figsize=(10, 6), layout='constrained')
@@ -214,7 +214,7 @@ def analyze_algorithm_time(rawDir, expName, outputDir):
     #     for xs in reallocate_times
     #     for x in xs
     # ]
-    flat_list = reallocate_times[4]
+    flat_list = reallocate_times[focus_run]
     ax1.plot(np.arange(0, len(flat_list), 1), flat_list, "o", label='reallocate time')
     ax1.set_xlabel('Occurrences')
     ax1.set_ylabel('Time (ms)')
@@ -229,12 +229,13 @@ def analyze_algorithm_time(rawDir, expName, outputDir):
     print("Average time for reallocate key: " + str(sum(flat_list) / len(flat_list)))
     print("Max/min time for reallocate key: " + str(max(flat_list)) + ", " + str(min(flat_list)))
     #print("Max/min reallocate times: " + str(max([len(x) for x in reallocate_times])))
-    print("Max/min reallocate times: " + str(len(reallocate_times[4])))
+    print("Max/min reallocate times: " + str(len(reallocate_times[focus_run])))
 
 
 rawDir = "/Users/swrrt/Workplace/BacklogDelayPaper/experiments/raw/"
 outputDir = "/Users/swrrt/Workplace/BacklogDelayPaper/experiments/results/"
 expName = "system-streamsluice-streamsluice-true-false-when-1split2join1-400-6000-3000-4000-1-0-2-300-1-5000-2-300-1-5000-2-300-1-5000-6-510-5000-2000-3000-100-10-true-1"
-analyze_algorithm_time(rawDir, expName, outputDir + expName + "/")
+focus_run = 0
+analyze_algorithm_time(rawDir, expName, outputDir + expName + "/", focus_run)
 
 
