@@ -1233,17 +1233,12 @@ def scale_out_phase1_old(sorted_operators: list[str], in_neighbors: dict[str, li
             for task, keys in mapping.items()
         } for operator, mapping in config.items()
     }
-
     moved_keys = []
     while(True):
         l0 = estimateEndToEndLatency(0, sorted_operators, in_neighbors, backlogs_per_operator, arrivals_per_operator,
                                      services_per_operator, suboptimal_config, wait_times_per_task)
         lT = estimateEndToEndLatency(1000000, sorted_operators, in_neighbors, backlogs_per_operator, arrivals_per_operator,
                                      services_per_operator, suboptimal_config, wait_times_per_task)
-        print("op3.{t1:" + str(suboptimal_config["op3"]["op3_t1"]) + ", t2:" + str(
-            suboptimal_config["op3"]["op3_t2"]) + "} " + str(moved_keys) + " - l(0,C)=" + str(
-            round(l0, 1)) + ", l(T,C)=" + str(round(lT, 1)))
-
         if (l0 < latency_bound and l0 + 1e-10 >= lT):
             break
         # Choose heaviest task and key
@@ -1354,6 +1349,16 @@ def scale_out_phase1_new(sorted_operators: list[str], in_neighbors: dict[str, li
     scale_result = Scale_result()
     scale_result.moved_keys = moved_keys
     scale_result.config_after_scale = suboptimal_config
+    return scale_result
+
+def scale_out_phase2_old(sorted_operators: list[str], in_neighbors: dict[str, list[str]],
+                            backlogs_per_operator: dict[str, list[float]],
+                            arrivals_per_operator: dict[str, list[float]],
+                            services_per_operator: dict[str, dict[str, float]], config: dict[str, dict[str, list[int]]],
+                            wait_times_per_task: dict[str, dict[str, float]], latency_bound: float) -> Scale_result:
+
+
+
     return scale_result
 
 def emulateOnSetting(setting, flags):

@@ -169,7 +169,7 @@ run_scale_test(){
     TIME_I=30
     printf "" > whetherhow_result.txt
     how_more_optimization_flag=false
-    how_optimization_flag=true
+    how_optimization_flag=false
     how_conservative_flag=true
     # Curve 1
     SOURCE_TYPE="when"
