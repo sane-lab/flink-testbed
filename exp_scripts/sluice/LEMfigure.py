@@ -1198,12 +1198,14 @@ def emulateMoveTime(setting, flags):
 
     return 0
 
-class Scale_result:
+class Algorithm_Result:
     moved_keys: list[int]
     config_after_scale: dict[str, dict[str, list[int]]]
+    bottleneck_operator: str
     def __init(self):
         self.moved_keys = []
         self.config_after_scale = {}
+        self.bottleneck_operator = ""
 
 
 import re
@@ -1224,7 +1226,7 @@ def scale_out_phase1_old(sorted_operators: list[str], in_neighbors: dict[str, li
                             backlogs_per_operator: dict[str, list[float]],
                             arrivals_per_operator: dict[str, list[float]],
                             services_per_operator: dict[str, dict[str, float]], config: dict[str, dict[str, list[int]]],
-                            wait_times_per_task: dict[str, dict[str, float]], latency_bound: float) -> Scale_result:
+                            wait_times_per_task: dict[str, dict[str, float]], latency_bound: float) -> Algorithm_Result:
     bottleneck_operator, tau = findBottleneck(sorted_operators, in_neighbors, backlogs_per_operator, arrivals_per_operator,
                                      services_per_operator, config, wait_times_per_task)
     suboptimal_config = {
@@ -1263,16 +1265,32 @@ def scale_out_phase1_old(sorted_operators: list[str], in_neighbors: dict[str, li
         suboptimal_config[bottleneck_operator][new_task] = [move_key]
         moved_keys += [move_key]
 
-    scale_result = Scale_result()
+    scale_result = Algorithm_Result()
     scale_result.moved_keys = moved_keys
     scale_result.config_after_scale = suboptimal_config
     return scale_result
+
+
+def scale_out_algorithm(sorted_operators: list[str], in_neighbors: dict[str, list[str]],
+                            backlogs_per_operator: dict[str, list[float]],
+                            arrivals_per_operator: dict[str, list[float]],
+                            services_per_operator: dict[str, dict[str, float]], config: dict[str, dict[str, list[int]]],
+                            wait_times_per_task: dict[str, dict[str, float]], latency_bound: float) -> Algorithm_Result:
+    scale_result = scale_out_phase1_new(sorted_operators, in_neighbors, backlogs_per_operator, arrivals_per_operator, services_per_operator, config, wait_times_per_task, latency_bound)
+    bottleneck_operator = scale_result.bottleneck_operator
+    key_original_task = {}
+    for task, keys in config[bottleneck_operator].items():
+        for key in keys:
+            key_original_task[key] = task
+    algorithm_result = scale_out_phase2_old(sorted_operators, in_neighbors, backlogs_per_operator, arrivals_per_operator, services_per_operator, scale_result.config_after_scale, wait_times_per_task, latency_bound, scale_result.moved_keys, bottleneck_operator, key_original_task, 0.8)
+    algorithm_result.bottleneck_operator = bottleneck_operator
+    return algorithm_result
 
 def scale_out_phase1_new(sorted_operators: list[str], in_neighbors: dict[str, list[str]],
                             backlogs_per_operator: dict[str, list[float]],
                             arrivals_per_operator: dict[str, list[float]],
                             services_per_operator: dict[str, dict[str, float]], config: dict[str, dict[str, list[int]]],
-                            wait_times_per_task: dict[str, dict[str, float]], latency_bound: float) -> Scale_result:
+                            wait_times_per_task: dict[str, dict[str, float]], latency_bound: float) -> Algorithm_Result:
     bottleneck_operator, tau = findBottleneck(sorted_operators, in_neighbors, backlogs_per_operator,
                                               arrivals_per_operator,
                                               services_per_operator, config, wait_times_per_task)
@@ -1346,26 +1364,80 @@ def scale_out_phase1_new(sorted_operators: list[str], in_neighbors: dict[str, li
         suboptimal_config[bottleneck_operator][new_task] = [move_key]
         moved_keys += [move_key]
 
-    scale_result = Scale_result()
+    scale_result = Algorithm_Result()
     scale_result.moved_keys = moved_keys
     scale_result.config_after_scale = suboptimal_config
+    scale_result.bottleneck_operator = bottleneck_operator
     return scale_result
 
 def scale_out_phase2_old(sorted_operators: list[str], in_neighbors: dict[str, list[str]],
                             backlogs_per_operator: dict[str, list[float]],
                             arrivals_per_operator: dict[str, list[float]],
                             services_per_operator: dict[str, dict[str, float]], config: dict[str, dict[str, list[int]]],
-                            wait_times_per_task: dict[str, dict[str, float]], latency_bound: float, moved_keys: [int]) -> Scale_result:
+                            wait_times_per_task: dict[str, dict[str, float]], latency_bound: float,
+                            moved_keys: list[int], bottleneck_operator: str, key_original_task: dict[int, str], conservative_factor:float) -> Algorithm_Result:
     # Sort keys
     base_key = moved_keys[0]
-
-    sorted_keys = []
+    base_arrival = arrivals_per_operator[bottleneck_operator][base_key]
+    base_backlog = backlogs_per_operator[bottleneck_operator][base_key]
+    moved_items = [((arrivals_per_operator[bottleneck_operator][key] * base_arrival + backlogs_per_operator[bottleneck_operator][key] * base_backlog), key) for key in range(0, len(moved_keys))]
+    sorted_keys = [key for value, key in sorted(moved_items)[::-1]]
+    optimal_config = config.copy()
     # Enumerate n
     for n in range(0, len(sorted_keys)):
         # Fit
-
-
-    scale_result = Scale_result()
+        optimal_mapping = {
+            task: keys.copy() for task, keys in config[bottleneck_operator].items()
+        }
+        for i in range(0, n):
+            missing_id = 1
+            new_task = bottleneck_operator + "_t" + str(missing_id)
+            while(new_task in optimal_mapping.keys()):
+                missing_id += 1
+                new_task = bottleneck_operator + "_t" + str(missing_id)
+            optimal_mapping[new_task] = [sorted_keys[i]]
+        optimal_config[bottleneck_operator] = optimal_mapping
+        for i in range(n, len(sorted_keys)):
+            key = sorted_keys[i]
+            # 1) Try original
+            task = key_original_task[key]
+            optimal_mapping[task] += [key]
+            l0 = estimateEndToEndLatency(0, sorted_operators, in_neighbors, backlogs_per_operator,
+                                         arrivals_per_operator,
+                                         services_per_operator, optimal_config, wait_times_per_task)
+            lT = estimateEndToEndLatency(1000000, sorted_operators, in_neighbors, backlogs_per_operator,
+                                         arrivals_per_operator,
+                                         services_per_operator, optimal_config, wait_times_per_task)
+            overloaded_task = [x for x in [sum([arrivals_per_operator[bottleneck_operator][key] for key in optimal_mapping[task]])
+                                           - (conservative_factor * services_per_operator[bottleneck_operator][task] if task in services_per_operator[bottleneck_operator] else (sum(services_per_operator[bottleneck_operator].values())/len(services_per_operator[bottleneck_operator].values()))) for task in optimal_mapping.keys()] if x >= 0.0]
+            if (l0 < latency_bound and l0 >= lT - 1e-10 and len(overloaded_task) == 0):
+                continue
+            del optimal_mapping[task][-1]
+            # 2) Try other task
+            task_found = False
+            for task in optimal_mapping.keys():
+                optimal_mapping[task] += [key]
+                l0 = estimateEndToEndLatency(0, sorted_operators, in_neighbors, backlogs_per_operator,
+                                             arrivals_per_operator,
+                                             services_per_operator, optimal_config, wait_times_per_task)
+                lT = estimateEndToEndLatency(1000000, sorted_operators, in_neighbors, backlogs_per_operator,
+                                             arrivals_per_operator,
+                                             services_per_operator, optimal_config, wait_times_per_task)
+                overloaded_task = [x for x in [
+                    sum([arrivals_per_operator[bottleneck_operator][key] for key in optimal_mapping[task]])
+                    - (conservative_factor * services_per_operator[bottleneck_operator][task] if task in
+                                                                                                 services_per_operator[
+                                                                                                     bottleneck_operator] else (
+                                sum(services_per_operator[bottleneck_operator].values()) / len(
+                            services_per_operator[bottleneck_operator].values()))) for task in optimal_mapping.keys()]
+                                   if x >= 0.0]
+                if (l0 < latency_bound and l0 >= lT - 1e-10 and len(overloaded_task) == 0):
+                    task_found = True
+                    break
+                del optimal_mapping[task][-1]
+            if (task_found):
+                break
+    scale_result = Algorithm_Result()
     scale_result.moved_keys = sorted_keys
     scale_result.config_after_scale = optimal_config
     return scale_result
@@ -1381,6 +1453,7 @@ def emulateOnSetting(setting, flags):
     rate_flag = flags["rate_flag"]
     check_scale_type = flags["scale_type"]
     config_explore_flag = flags["configuration_exploration_flag"]
+    emulate_spike_flag = True
 
 
     setting_name = setting["name"]
@@ -1406,6 +1479,7 @@ def emulateOnSetting(setting, flags):
     else:
         wait_times = setting["wait_time"]
 
+    fig_time = {operator:{} for operator in sorted_operators}
     fig_arrival = {operator:{} for operator in sorted_operators}
     fig_ob_arrival = {operator: {} for operator in sorted_operators}
     fig_service = {operator:{} for operator in sorted_operators}
@@ -1560,6 +1634,8 @@ def emulateOnSetting(setting, flags):
                     fig_ob_arrival[operator][task] = []
                     fig_backlog[operator][task] = []
                     fig_service[operator][task] = []
+                    fig_time[operator][task] = []
+                fig_time[operator][task] += [emulate_time * emulation_epoch]
                 fig_arrival[operator][task] += [task_true_arrival]
                 fig_ob_arrival[operator][task] += [task_observed_arrival]
                 fig_service[operator][task] += [task_service]
@@ -1585,8 +1661,17 @@ def emulateOnSetting(setting, flags):
                 first_so_l = l0
                 first_so_ll = last_y0
                 if config_explore_flag:
-                    old_scale_config = scale_out_phase1_old(sorted_operators, in_neighbors, integer_backlogs, key_true_arrivals, task_services, config, wait_times, latency_bound - latency_spike)
-                    new_scale_config = scale_out_phase1_new(sorted_operators, in_neighbors, integer_backlogs, key_true_arrivals, task_services, config, wait_times, latency_bound - latency_spike)
+                    algorithm_result = scale_out_algorithm(sorted_operators, in_neighbors, integer_backlogs, key_true_arrivals, task_services, config, wait_times, latency_bound - latency_spike)
+                    print("Scale out, new config: " + str(algorithm_result.config_after_scale))
+                    if (emulate_spike_flag):
+                        # Do scaling
+                        print("New backlog before scaling: " + str(new_key_backlogs[algorithm_result.bottleneck_operator]))
+                        # for operator, backlogs in new_key_backlogs.items():
+                        #     for key in range(0, len(backlogs)):
+                        #         backlogs[key] += latency_spike * key_observed_arrivals[operator][key]
+                        new_key_backlogs[algorithm_result.bottleneck_operator] = [new_key_backlogs[algorithm_result.bottleneck_operator][key] + latency_spike * key_observed_arrivals[algorithm_result.bottleneck_operator][key] for key in range(0, len(new_key_backlogs[algorithm_result.bottleneck_operator]))]
+                        print("New backlog after scaling: " + str(new_key_backlogs[algorithm_result.bottleneck_operator]))
+                    config = algorithm_result.config_after_scale
 
             if first_so >= 0 and first_so == emulate_time * emulation_epoch - 100 and emulate_time * emulation_epoch % 100 == 0:
                 first_so_nl = l0
@@ -1604,7 +1689,7 @@ def emulateOnSetting(setting, flags):
         current_key_backlogs = new_key_backlogs
 
     if config_explore_flag:
-        print("New: " + str(len(new_scale_config.moved_keys)) + " old: " + str(len(old_scale_config.moved_keys)))
+        print("New: " + str(len(algorithm_result.moved_keys)))
 
     fig = plt.figure(figsize=(5, 3))
     # Have a look at the colormaps here and decide which one you'd like:
@@ -1674,12 +1759,12 @@ def emulateOnSetting(setting, flags):
                 # legend1 = ["arrival rate", "service rate", "strategy scale point"]
                 # legend2 = ["backlog"]
 
-                ax1.plot(np.arange(0, emulation_times * emulation_epoch, emulation_epoch),
+                ax1.plot(fig_time[operator][task], #np.arange(0, emulation_times * emulation_epoch, emulation_epoch),
                          [x * 1000 for x in fig_arrival[operator][task]], label="true arrival rate", color="red", linewidth=2)
-                ax1.plot(np.arange(0, emulation_times * emulation_epoch, emulation_epoch),
+                ax1.plot(fig_time[operator][task], #np.arange(0, emulation_times * emulation_epoch, emulation_epoch),
                          [x * 1000 for x in fig_ob_arrival[operator][task]], label="observed arrival rate", color="orange",
                          linewidth=2)
-                ax1.plot(np.arange(0, emulation_times * emulation_epoch, emulation_epoch),
+                ax1.plot(fig_time[operator][task], #np.arange(0, emulation_times * emulation_epoch, emulation_epoch),
                          [x * 1000 for x in fig_service[operator][task]], label="service rate", color="blue", linewidth=2)
                 if check_scale_type == "scale out":
                     if first_so >= 0:
@@ -1689,7 +1774,8 @@ def emulateOnSetting(setting, flags):
                     if first_si >= 0:
                         ax1.plot([first_si, first_si], [0, 10000], '--', label="strategy scale point", color='red',
                                  markersize=4, linewidth=2)
-                ax2.plot(np.arange(0, emulation_times * emulation_epoch, emulation_epoch), fig_backlog[operator][task],
+                ax2.plot(fig_time[operator][task], #np.arange(0, emulation_times * emulation_epoch, emulation_epoch),
+                         fig_backlog[operator][task],
                          label="backlog", color="black", linewidth=2)
                 if index == 0 and sec_index == 0:
                     lines_labels = [ax1.get_legend_handles_labels()]
@@ -1774,7 +1860,7 @@ def emulateOnSetting(setting, flags):
         plt.savefig(outputDir + setting_name + "/" + "LEM_" + "operator_metrics" + '.png', bbox_inches='tight')
         plt.close(fig)
     if config_explore_flag:
-        return [len(old_scale_config.moved_keys), len(new_scale_config.moved_keys)]
+        return [len(algorithm_result.moved_keys), 0]
     if check_scale_type == "scale out":
         if not need_so and first_so >= 0:
             return 1
@@ -2346,7 +2432,7 @@ def testConfigExplorationStrategy():
     flags["time_times"] = 1000  # 1000
     flags["emulation_epoch"] = 100  # ms
     flags["emulation_times"] = 300
-    flags["latency_spike"] = 500
+    flags["latency_spike"] = 1500
     flags["latency_bound"] = 2000
     flags["max_operator_num"] = 4
     flags["max_task_num"] = 3

@@ -22,7 +22,7 @@ function analyze() {
 }
 
 run_one_exp() {
-  EXP_NAME=system-${whether_type}-${how_type}-${how_conservative_flag}-${how_steady_limit_flag}-${how_optimization_flag}-${SOURCE_TYPE}-${GRAPH}-${runtime}-${RATE1}-${RATE2}-${RATE_I}-${P1}-${ZIPF_SKEW}-${P2}-${DELAY2}-${IO2}-${STATE_SIZE2}-${P3}-${DELAY3}-${IO3}-${STATE_SIZE3}-${P4}-${DELAY4}-${IO4}-${STATE_SIZE4}-${P5}-${DELAY5}-${STATE_SIZE5}-${L}-${migration_interval}-${epoch}-${decision_interval}-${is_treat}-${repeat}
+  EXP_NAME=system-${whether_type}-${how_type}-${how_conservative_flag}-${how_steady_limit_flag}-${how_optimization_flag}-${SOURCE_TYPE}-${CURVE_TYPE}-${GRAPH}-${runtime}-${RATE1}-${RATE2}-${RATE_I}-${P1}-${ZIPF_SKEW}-${P2}-${DELAY2}-${IO2}-${STATE_SIZE2}-${P3}-${DELAY3}-${IO3}-${STATE_SIZE3}-${P4}-${DELAY4}-${IO4}-${STATE_SIZE4}-${P5}-${DELAY5}-${STATE_SIZE5}-${L}-${migration_interval}-${epoch}-${decision_interval}-${is_treat}-${repeat}
 
   echo "INFO: run exp ${EXP_NAME}"
   configFlink
@@ -103,7 +103,7 @@ function runApp() {
     -p4 ${P4} -mp4 ${MP4} -op4Delay ${DELAY4} -op4IoRate ${IO4} -op4KeyStateSize ${STATE_SIZE4} \
     -nkeys ${NKEYS} -phase1Time ${TIME1} -phase1Rate ${RATE1} -phase2Time ${TIME2} \
     -phase2Rate ${RATE2} -interTime ${TIME_I} -interRate ${RATE_I} \
-    -source ${SOURCE_TYPE} \
+    -source ${SOURCE_TYPE} -curve_type ${CURVE_TYPE} \
     -zipf_skew ${ZIPF_SKEW} &"
     ${FLINK_DIR}/bin/flink run -c ${job} ${JAR} \
     -graph ${GRAPH} \
@@ -113,7 +113,7 @@ function runApp() {
     -p5 ${P5} -mp5 ${MP5} -op5Delay ${DELAY5} -op5KeyStateSize ${STATE_SIZE5} \
     -nkeys ${NKEYS} -phase1Time ${TIME1} -phase1Rate ${RATE1} -phase2Time ${TIME2} \
     -phase2Rate ${RATE2} -interTime ${TIME_I} -interRate ${RATE_I}\
-    -source ${SOURCE_TYPE} \
+    -source ${SOURCE_TYPE} -curve_type ${CURVE_TYPE} \
     -zipf_skew ${ZIPF_SKEW} &
 }
 
@@ -129,11 +129,11 @@ run_scale_test(){
     # Different cases
     GRAPH="1split2join1"
     SOURCE_TYPE="when"
-    CURVE_TYPE="a"
+    CURVE_TYPE="mixed"
     vertex_id="a84740bacf923e828852cc4966f2247c,eabd4c11f6c6fbdf011f0f1fc42097b1,d01047f852abd5702a0dabeedac99ff5,d2336f79a0d60b5a4b16c8769ec82e47"
     autotune=false
     epoch=100
-    decision_interval=10
+    decision_interval=1 #10
     snapshot_size=3
 
     L=2000 #2500
@@ -154,7 +154,7 @@ run_scale_test(){
     STATE_SIZE4=5000
     STATE_SIZE5=5000
     spike_intercept=1000
-    runtime=400
+    runtime=520 #400
     DELTA_I=270
     LP2=2
     LP3=2
@@ -194,8 +194,8 @@ run_scale_test(){
     RATE2=3000
     RATE_I=4000
     SOURCE_TYPE="how"
-    run_one_exp
-    printf "${EXP_NAME}\n" >> whetherhow_result.txt
+#    run_one_exp
+#    printf "${EXP_NAME}\n" >> whetherhow_result.txt
 #    is_treat=false
 #    run_one_exp
 #    printf "${EXP_NAME}\n" >> whetherhow_result.txt

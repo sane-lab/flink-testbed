@@ -22,6 +22,10 @@ def addLatencyLimitMarker(plt):
     x = [0, 10000000]
     y = [latencyLimit, latencyLimit]
     plt.plot(x, y, color='red', linewidth=1.5)
+def addLatencyLimitWithSpikeMarker(plt):
+    x = [0, 10000000]
+    y = [latencyLimit + spike, latencyLimit + spike]
+    plt.plot(x, y, color='orange', linewidth=1.5)
 def readGroundTruthLatency(rawDir, expName, windowSize):
     initialTime = -1
 
@@ -157,6 +161,8 @@ def draw(rawDir, outputDir, exps, windowSize):
 
     legend += ["Limit"]
     addLatencyLimitMarker(plt)
+    legend += ["Limit + Spike"]
+    addLatencyLimitWithSpikeMarker(plt)
     # plt.legend(legend, bbox_to_anchor=(0.45, 1.3), loc='upper center', ncol=4, markerscale=4.)  # When
     # plt.legend(legend, bbox_to_anchor=(0.45, 1.3), loc='upper center', ncol=3, markerscale=4.)  # How1
     plt.legend(legend, bbox_to_anchor=(0.45, 1.4), loc='upper center', ncol=3, markerscale=4.) # How2
@@ -196,7 +202,7 @@ exps = [
     #  "blue", "o"],
     ["Sluice",
       #"systemsensitivity-streamsluice-streamsluice-when-1split2join1-400-6000-3000-4000-1-0-2-300-1-5000-2-300-1-5000-2-300-1-5000-6-510-5000-2000-3000-100-10-true-1",
-     "system-streamsluice-streamsluice-true-false-when-1split2join1-400-6000-3000-4000-1-0-2-300-1-5000-2-300-1-5000-2-300-1-5000-6-510-5000-2000-3000-100-10-true-1",
+     "system-streamsluice-streamsluice-true-true-false-when-1split2join1-400-6000-3000-4000-1-0-2-300-1-5000-2-300-1-5000-2-300-1-5000-6-510-5000-1000-3000-100-1-true-1",
       "blue", "o"],
 
 
@@ -225,12 +231,14 @@ if len(sys.argv) > 1:
 overall_latency = {}
 
 windowSize = 500
-latencyLimit = 2500 #1000
+latencyLimit = 1000
+spike = 1500
+#latencyLimit = 2500 #1000
 startTime=20 #+300 #30
 expLength= 360
 isSingleOperator = False #True
 expName = exps[0][1]
 print(expName)
-trickFlag = True
+trickFlag = False #True
 draw(rawDir, outputDir + expName + "/", exps, windowSize)
 

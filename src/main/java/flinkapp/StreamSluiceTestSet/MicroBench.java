@@ -55,7 +55,7 @@ public class MicroBench {
 
         DataStreamSource<Tuple3<String, Long, Long>> source;
         if(SOURCE_TYPE.equals("when")){
-            source = env.addSource(new WhenSource(PHASE1_TIME, PHASE2_TIME, INTERMEDIATE_TIME, PHASE1_RATE, PHASE2_RATE, INTERMEDIATE_RATE, params.getLong("run_time", 510) * 1000)).
+            source = env.addSource(new WhenSource(PHASE1_TIME, PHASE2_TIME, INTERMEDIATE_TIME, PHASE1_RATE, PHASE2_RATE, INTERMEDIATE_RATE, params.getLong("run_time", 510) * 1000, params.get("curve_type", "sine"))).
                     setParallelism(params.getInt("p1", 1));
         }else if(SOURCE_TYPE.equals("how")) {
             source = env.addSource(new HowSource(PHASE1_TIME, PHASE2_TIME, INTERMEDIATE_TIME, PHASE1_RATE, PHASE2_RATE, INTERMEDIATE_RATE, params.getLong("run_time", 510) * 1000));
@@ -480,6 +480,7 @@ public class MicroBench {
     public static final class WhenSource implements SourceFunction<Tuple3<String, Long, Long>>, CheckpointedFunction {
         private long NORMAL_TIME, NORMAL_RATE, PHASE1_TIME, PHASE1_RATE, PHASE2_TIME, PHASE2_RATE, TOTAL_TIME;
         private int count = 0;
+        private final int curve_type;
         private volatile boolean isRunning = true;
         private transient ListState<Integer> checkpointedCount;
         private int maxParallelism;
@@ -490,7 +491,7 @@ public class MicroBench {
 
         private final Map<Integer, Long> totalOutputNumbers = new HashMap<>();
 
-        public WhenSource(long PHASE1_TIME, long PHASE2_TIME, long NORMAL_TIME, long PHASE1_RATE, long PHASE2_RATE, long NORMAL_RATE, long runtime){
+        public WhenSource(long PHASE1_TIME, long PHASE2_TIME, long NORMAL_TIME, long PHASE1_RATE, long PHASE2_RATE, long NORMAL_RATE, long runtime, String curve_type){
             this.PHASE1_TIME = PHASE1_TIME;
             this.PHASE2_TIME = PHASE2_TIME;
             this.NORMAL_TIME = NORMAL_TIME;
@@ -498,6 +499,19 @@ public class MicroBench {
             this.PHASE2_RATE = PHASE2_RATE;
             this.NORMAL_RATE = NORMAL_RATE;
             this.TOTAL_TIME = runtime;
+            if(curve_type.equals("gradient")) {
+                this.curve_type = 0;
+            }else if(curve_type.equals("linear")){
+                this.curve_type = 1;
+            }else if(curve_type.equals("quarter-sine")) {
+                this.curve_type = 2;
+            }else if(curve_type.equals("sine")){
+                this.curve_type = 3;
+            }else if(curve_type.equals("mixed")) {
+                this.curve_type = 4;
+            }else{
+                this.curve_type = 0;
+            }
             this.nKeys = 1000;
             this.maxParallelism = 128;
             this.fastZipfGenerator = new FastZipfGenerator(maxParallelism, 0.0, 0, 114514);
@@ -526,7 +540,7 @@ public class MicroBench {
                 }
             }
         }
-        void startPhase(SourceContext<Tuple3<String, Long, Long>> ctx, long rate, long time, long phaseStartTime)throws Exception {
+        void startSteadyPhase(SourceContext<Tuple3<String, Long, Long>> ctx, long rate, long time, long phaseStartTime)throws Exception {
             while (isRunning && System.currentTimeMillis() - phaseStartTime < time) {
                 long emitStartTime = System.currentTimeMillis();
                 for (int i = 0; i < rate / 20; i++) {
@@ -540,43 +554,232 @@ public class MicroBench {
                 Util.pause(emitStartTime);
             }
         }
+        void startLinearPhase(SourceContext<Tuple3<String, Long, Long>> ctx, long rate1, long rate2, long time, long phaseStartTime)throws Exception {
+            long currentTime;
+            long elapsedTime;
+            long rate;
+
+            while (isRunning && (currentTime = System.currentTimeMillis()) - phaseStartTime < time) {
+                elapsedTime = currentTime - phaseStartTime;
+
+                // Calculate the current rate using linear interpolation between rate1 and rate2
+                rate = rate1 + ((rate2 - rate1) * elapsedTime) / time;
+
+                long emitStartTime = System.currentTimeMillis();
+
+                for (int i = 0; i < rate / 20; i++) {
+                    int selectedKeygroup = fastZipfGenerator.next();
+                    List<String> subKeySet = keyGroupMapping.get(selectedKeygroup);
+                    totalOutputNumbers.put(selectedKeygroup, totalOutputNumbers.getOrDefault(selectedKeygroup, 0L) + 1);
+                    String key = getSubKeySetChar(count, subKeySet);
+                    ctx.collect(Tuple3.of(key, System.currentTimeMillis(), (long) count));
+                    count++;
+                }
+
+                Util.pause(emitStartTime);
+            }
+        }
+
+        void startQuarterSinePhase(SourceContext<Tuple3<String, Long, Long>> ctx, long rate1, long rate2, long time, long phaseStartTime) throws Exception {
+            long currentTime;
+            long elapsedTime;
+            long rate;
+
+            while (isRunning && (currentTime = System.currentTimeMillis()) - phaseStartTime < time) {
+                elapsedTime = currentTime - phaseStartTime;
+
+                // Calculate the rate using the first 90 degrees of a sine function
+                double sineValue = Math.sin((Math.PI / 2) * ((double) elapsedTime / time));
+                rate = (long) (rate1 + (rate2 - rate1) * sineValue);
+
+                long emitStartTime = System.currentTimeMillis();
+
+                for (int i = 0; i < rate / 20; i++) {
+                    int selectedKeygroup = fastZipfGenerator.next();
+                    List<String> subKeySet = keyGroupMapping.get(selectedKeygroup);
+                    totalOutputNumbers.put(selectedKeygroup, totalOutputNumbers.getOrDefault(selectedKeygroup, 0L) + 1);
+                    String key = getSubKeySetChar(count, subKeySet);
+                    ctx.collect(Tuple3.of(key, System.currentTimeMillis(), (long) count));
+                    count++;
+                }
+
+                Util.pause(emitStartTime);
+            }
+        }
+
+        void startSinePhase(SourceContext<Tuple3<String, Long, Long>> ctx, long amplitude, long baseRate, long time, long phaseStartTime) throws Exception {
+            long currentTime;
+            long elapsedTime;
+            long rate;
+
+            while (isRunning && (currentTime = System.currentTimeMillis()) - phaseStartTime < time) {
+                elapsedTime = currentTime - phaseStartTime;
+
+                // Calculate the rate using a sine function
+                rate = (long) (baseRate + amplitude * Math.sin((2 * Math.PI * elapsedTime) / time));
+
+                long emitStartTime = System.currentTimeMillis();
+
+                for (int i = 0; i < rate / 20; i++) {
+                    int selectedKeygroup = fastZipfGenerator.next();
+                    List<String> subKeySet = keyGroupMapping.get(selectedKeygroup);
+                    totalOutputNumbers.put(selectedKeygroup, totalOutputNumbers.getOrDefault(selectedKeygroup, 0L) + 1);
+                    String key = getSubKeySetChar(count, subKeySet);
+                    ctx.collect(Tuple3.of(key, System.currentTimeMillis(), (long) count));
+                    count++;
+                }
+
+                Util.pause(emitStartTime);
+            }
+        }
 
         public void run(SourceContext<Tuple3<String, Long, Long>> ctx) throws Exception {
             long startTime = System.currentTimeMillis();
             System.out.println("Source start at: " + startTime);
             System.out.println("Source warm up...");
-            startPhase(ctx, NORMAL_RATE, 20 * 1000, startTime);
+            startSteadyPhase(ctx, NORMAL_RATE, 20 * 1000, startTime);
             startTime = System.currentTimeMillis();
             long round = 0;
             while (isRunning && System.currentTimeMillis() - startTime < TOTAL_TIME) {
                 round++;
-                long roundStartTime = System.currentTimeMillis();
-                System.out.println("Round " + round + " normal phase start at: " + roundStartTime);
-                startPhase(ctx, NORMAL_RATE, NORMAL_TIME, roundStartTime);
-
-                if (!isRunning) {
-                    return;
+                int this_round_curve;
+                if(curve_type != 4){
+                    this_round_curve = curve_type;
+                }else{
+                    this_round_curve = (int)(round % 4);
                 }
+                if(this_round_curve == 0) { // Gradient
+                    long roundStartTime = System.currentTimeMillis();
+                    System.out.println("Round " + round + " normal phase start at: " + roundStartTime);
+                    startSteadyPhase(ctx, NORMAL_RATE, NORMAL_TIME / 2, roundStartTime);
+                    if (!isRunning) {
+                        return;
+                    }
 
-                roundStartTime = System.currentTimeMillis();
-                System.out.println("Round " + round + " phase 1 start at: " + roundStartTime);
-                startPhase(ctx, PHASE1_RATE, PHASE1_TIME, roundStartTime);
-                if (!isRunning) {
-                    return;
-                }
+                    roundStartTime = System.currentTimeMillis();
+                    System.out.println("Round " + round + " phase 1 start at: " + roundStartTime);
+                    startSteadyPhase(ctx, PHASE1_RATE, PHASE1_TIME, roundStartTime);
 
-                roundStartTime = System.currentTimeMillis();
-                System.out.println("Round " + round + " normal phase start at: " + roundStartTime);
-                startPhase(ctx, NORMAL_RATE, NORMAL_TIME, roundStartTime);
-                if (!isRunning) {
-                    return;
-                }
+                    if (!isRunning) {
+                        return;
+                    }
 
-                roundStartTime = System.currentTimeMillis();
-                System.out.println("Round " + round + " phase 2 start at: " + roundStartTime);
-                startPhase(ctx, PHASE2_RATE, PHASE2_TIME, roundStartTime);
-                if (!isRunning) {
-                    return;
+                    roundStartTime = System.currentTimeMillis();
+                    System.out.println("Round " + round + " normal phase start at: " + roundStartTime);
+                    startSteadyPhase(ctx, NORMAL_RATE, NORMAL_TIME, roundStartTime);
+                    if (!isRunning) {
+                        return;
+                    }
+
+                    roundStartTime = System.currentTimeMillis();
+                    System.out.println("Round " + round + " phase 2 start at: " + roundStartTime);
+                    startSteadyPhase(ctx, PHASE2_RATE, PHASE2_TIME, roundStartTime);
+                    if (!isRunning) {
+                        return;
+                    }
+                    roundStartTime = System.currentTimeMillis();
+                    System.out.println("Round " + round + " normal phase start at: " + roundStartTime);
+                    startSteadyPhase(ctx, NORMAL_RATE, NORMAL_TIME / 2, roundStartTime);
+
+                    if (!isRunning) {
+                        return;
+                    }
+                }else if(this_round_curve == 1){ // Linear
+                    long roundStartTime = System.currentTimeMillis();
+                    System.out.println("Round " + round + " normal phase start at: " + roundStartTime);
+                    startSteadyPhase(ctx, NORMAL_RATE, NORMAL_TIME / 2, roundStartTime);
+                    if (!isRunning) {
+                        return;
+                    }
+
+                    roundStartTime = System.currentTimeMillis();
+                    System.out.println("Round " + round + " phase 1 start at: " + roundStartTime);
+                    startLinearPhase(ctx, NORMAL_RATE, PHASE1_RATE, PHASE1_TIME / 2, roundStartTime);
+                    startSteadyPhase(ctx, PHASE1_RATE, PHASE1_TIME / 2, roundStartTime);
+
+                    if (!isRunning) {
+                        return;
+                    }
+
+                    roundStartTime = System.currentTimeMillis();
+                    System.out.println("Round " + round + " normal phase start at: " + roundStartTime);
+                    startLinearPhase(ctx, PHASE1_RATE, NORMAL_RATE, NORMAL_TIME / 2, roundStartTime);
+                    startSteadyPhase(ctx, NORMAL_RATE, NORMAL_TIME / 2, roundStartTime);
+                    if (!isRunning) {
+                        return;
+                    }
+
+                    roundStartTime = System.currentTimeMillis();
+                    System.out.println("Round " + round + " phase 2 start at: " + roundStartTime);
+                    startLinearPhase(ctx, NORMAL_RATE, PHASE2_RATE, PHASE2_TIME / 2, roundStartTime);
+                    startSteadyPhase(ctx, PHASE2_RATE, PHASE2_TIME / 2, roundStartTime);
+                    if (!isRunning) {
+                        return;
+                    }
+                    roundStartTime = System.currentTimeMillis();
+                    System.out.println("Round " + round + " normal phase start at: " + roundStartTime);
+                    startLinearPhase(ctx, PHASE2_RATE, NORMAL_RATE, NORMAL_TIME / 2, roundStartTime);
+                    if (!isRunning) {
+                        return;
+                    }
+                }else if(this_round_curve == 2){ // Quarter sine
+                    long roundStartTime = System.currentTimeMillis();
+                    System.out.println("Round " + round + " normal phase start at: " + roundStartTime);
+                    startSteadyPhase(ctx, NORMAL_RATE, NORMAL_TIME / 2, roundStartTime);
+                    if (!isRunning) {
+                        return;
+                    }
+
+                    roundStartTime = System.currentTimeMillis();
+                    System.out.println("Round " + round + " phase 1 start at: " + roundStartTime);
+                    startQuarterSinePhase(ctx, NORMAL_RATE, PHASE1_RATE, PHASE1_TIME / 2, roundStartTime);
+                    startSteadyPhase(ctx, PHASE1_RATE, PHASE1_TIME / 2, roundStartTime);
+
+                    if (!isRunning) {
+                        return;
+                    }
+
+                    roundStartTime = System.currentTimeMillis();
+                    System.out.println("Round " + round + " normal phase start at: " + roundStartTime);
+                    startQuarterSinePhase(ctx, PHASE1_RATE, NORMAL_RATE, NORMAL_TIME / 2, roundStartTime);
+                    startSteadyPhase(ctx, NORMAL_RATE, NORMAL_TIME / 2, roundStartTime);
+                    if (!isRunning) {
+                        return;
+                    }
+
+                    roundStartTime = System.currentTimeMillis();
+                    System.out.println("Round " + round + " phase 2 start at: " + roundStartTime);
+                    startQuarterSinePhase(ctx, NORMAL_RATE, PHASE2_RATE, PHASE2_TIME / 2, roundStartTime);
+                    startSteadyPhase(ctx, PHASE2_RATE, PHASE2_TIME / 2, roundStartTime);
+                    if (!isRunning) {
+                        return;
+                    }
+                    roundStartTime = System.currentTimeMillis();
+                    System.out.println("Round " + round + " normal phase start at: " + roundStartTime);
+                    startQuarterSinePhase(ctx, PHASE2_RATE, NORMAL_RATE, NORMAL_TIME / 2, roundStartTime);
+                    if (!isRunning) {
+                        return;
+                    }
+                }else if(this_round_curve == 3){ // Sine
+                    long roundStartTime = System.currentTimeMillis();
+                    System.out.println("Round " + round + " normal phase start at: " + roundStartTime);
+                    startSteadyPhase(ctx, NORMAL_RATE, NORMAL_TIME / 2, roundStartTime);
+                    if (!isRunning) {
+                        return;
+                    }
+
+                    roundStartTime = System.currentTimeMillis();
+                    System.out.println("Round " + round + " phase 1 start at: " + roundStartTime);
+                    startSinePhase(ctx, PHASE1_RATE - NORMAL_RATE,  NORMAL_RATE, NORMAL_TIME + PHASE1_TIME + PHASE2_TIME, roundStartTime);
+                    if (!isRunning) {
+                        return;
+                    }
+                    roundStartTime = System.currentTimeMillis();
+                    System.out.println("Round " + round + " normal phase start at: " + roundStartTime);
+                    startQuarterSinePhase(ctx, PHASE2_RATE, NORMAL_RATE, NORMAL_TIME / 2, roundStartTime);
+                    if (!isRunning) {
+                        return;
+                    }
                 }
             }
         }
