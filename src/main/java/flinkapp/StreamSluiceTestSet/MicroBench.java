@@ -646,7 +646,7 @@ public class MicroBench {
                 if(curve_type != 4){
                     this_round_curve = curve_type;
                 }else{
-                    this_round_curve = (int)(round % 4);
+                    this_round_curve = (int)((round - 1) % 4);
                 }
                 if(this_round_curve == 0) { // Gradient
                     long roundStartTime = System.currentTimeMillis();
@@ -695,6 +695,7 @@ public class MicroBench {
                     roundStartTime = System.currentTimeMillis();
                     System.out.println("Round " + round + " phase 1 start at: " + roundStartTime);
                     startLinearPhase(ctx, NORMAL_RATE, PHASE1_RATE, PHASE1_TIME / 2, roundStartTime);
+                    roundStartTime = System.currentTimeMillis();
                     startSteadyPhase(ctx, PHASE1_RATE, PHASE1_TIME / 2, roundStartTime);
 
                     if (!isRunning) {
@@ -704,6 +705,7 @@ public class MicroBench {
                     roundStartTime = System.currentTimeMillis();
                     System.out.println("Round " + round + " normal phase start at: " + roundStartTime);
                     startLinearPhase(ctx, PHASE1_RATE, NORMAL_RATE, NORMAL_TIME / 2, roundStartTime);
+                    roundStartTime = System.currentTimeMillis();
                     startSteadyPhase(ctx, NORMAL_RATE, NORMAL_TIME / 2, roundStartTime);
                     if (!isRunning) {
                         return;
@@ -712,6 +714,7 @@ public class MicroBench {
                     roundStartTime = System.currentTimeMillis();
                     System.out.println("Round " + round + " phase 2 start at: " + roundStartTime);
                     startLinearPhase(ctx, NORMAL_RATE, PHASE2_RATE, PHASE2_TIME / 2, roundStartTime);
+                    roundStartTime = System.currentTimeMillis();
                     startSteadyPhase(ctx, PHASE2_RATE, PHASE2_TIME / 2, roundStartTime);
                     if (!isRunning) {
                         return;
@@ -733,6 +736,7 @@ public class MicroBench {
                     roundStartTime = System.currentTimeMillis();
                     System.out.println("Round " + round + " phase 1 start at: " + roundStartTime);
                     startQuarterSinePhase(ctx, NORMAL_RATE, PHASE1_RATE, PHASE1_TIME / 2, roundStartTime);
+                    roundStartTime = System.currentTimeMillis();
                     startSteadyPhase(ctx, PHASE1_RATE, PHASE1_TIME / 2, roundStartTime);
 
                     if (!isRunning) {
@@ -742,6 +746,7 @@ public class MicroBench {
                     roundStartTime = System.currentTimeMillis();
                     System.out.println("Round " + round + " normal phase start at: " + roundStartTime);
                     startQuarterSinePhase(ctx, PHASE1_RATE, NORMAL_RATE, NORMAL_TIME / 2, roundStartTime);
+                    roundStartTime = System.currentTimeMillis();
                     startSteadyPhase(ctx, NORMAL_RATE, NORMAL_TIME / 2, roundStartTime);
                     if (!isRunning) {
                         return;
@@ -750,6 +755,7 @@ public class MicroBench {
                     roundStartTime = System.currentTimeMillis();
                     System.out.println("Round " + round + " phase 2 start at: " + roundStartTime);
                     startQuarterSinePhase(ctx, NORMAL_RATE, PHASE2_RATE, PHASE2_TIME / 2, roundStartTime);
+                    roundStartTime = System.currentTimeMillis();
                     startSteadyPhase(ctx, PHASE2_RATE, PHASE2_TIME / 2, roundStartTime);
                     if (!isRunning) {
                         return;
@@ -776,7 +782,7 @@ public class MicroBench {
                     }
                     roundStartTime = System.currentTimeMillis();
                     System.out.println("Round " + round + " normal phase start at: " + roundStartTime);
-                    startQuarterSinePhase(ctx, PHASE2_RATE, NORMAL_RATE, NORMAL_TIME / 2, roundStartTime);
+                    startSteadyPhase(ctx, NORMAL_RATE, NORMAL_TIME / 2, roundStartTime);
                     if (!isRunning) {
                         return;
                     }
