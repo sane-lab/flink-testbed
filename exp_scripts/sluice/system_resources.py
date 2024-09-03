@@ -524,7 +524,7 @@ overall_resource = {}
 trickFlag = True
 for app in exps.keys():
     expName = [exp[1] for exp in exps[app] if exp[0] == "StreamSluice" or exp[0] == "Sluice"][0]
-    exp_length = 510 #360 #1800
+    exp_length = 540 #360 #1800
     startTime = 30 # + 300
     print(expName)
     overall_resource[app] = {}

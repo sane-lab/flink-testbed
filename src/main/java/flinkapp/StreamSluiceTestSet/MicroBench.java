@@ -560,12 +560,12 @@ public class MicroBench {
             long rate;
 
             while (isRunning && (currentTime = System.currentTimeMillis()) - phaseStartTime < time) {
+                long emitStartTime = System.currentTimeMillis();
                 elapsedTime = currentTime - phaseStartTime;
 
                 // Calculate the current rate using linear interpolation between rate1 and rate2
                 rate = rate1 + ((rate2 - rate1) * elapsedTime) / time;
 
-                long emitStartTime = System.currentTimeMillis();
 
                 for (int i = 0; i < rate / 20; i++) {
                     int selectedKeygroup = fastZipfGenerator.next();
@@ -586,13 +586,13 @@ public class MicroBench {
             long rate;
 
             while (isRunning && (currentTime = System.currentTimeMillis()) - phaseStartTime < time) {
+                long emitStartTime = System.currentTimeMillis();
                 elapsedTime = currentTime - phaseStartTime;
 
                 // Calculate the rate using the first 90 degrees of a sine function
                 double sineValue = Math.sin((Math.PI / 2) * ((double) elapsedTime / time));
                 rate = (long) (rate1 + (rate2 - rate1) * sineValue);
 
-                long emitStartTime = System.currentTimeMillis();
 
                 for (int i = 0; i < rate / 20; i++) {
                     int selectedKeygroup = fastZipfGenerator.next();
@@ -613,12 +613,12 @@ public class MicroBench {
             long rate;
 
             while (isRunning && (currentTime = System.currentTimeMillis()) - phaseStartTime < time) {
+                long emitStartTime = System.currentTimeMillis();
                 elapsedTime = currentTime - phaseStartTime;
 
                 // Calculate the rate using a sine function
                 rate = (long) (baseRate + amplitude * Math.sin((2 * Math.PI * elapsedTime) / time));
 
-                long emitStartTime = System.currentTimeMillis();
 
                 for (int i = 0; i < rate / 20; i++) {
                     int selectedKeygroup = fastZipfGenerator.next();
@@ -776,7 +776,8 @@ public class MicroBench {
 
                     roundStartTime = System.currentTimeMillis();
                     System.out.println("Round " + round + " phase 1 start at: " + roundStartTime);
-                    startSinePhase(ctx, PHASE1_RATE - NORMAL_RATE,  NORMAL_RATE, NORMAL_TIME + PHASE1_TIME + PHASE2_TIME, roundStartTime);
+                    startSinePhase(ctx, NORMAL_RATE - PHASE2_RATE,  NORMAL_RATE, NORMAL_TIME + PHASE1_TIME + PHASE2_TIME, roundStartTime);
+
                     if (!isRunning) {
                         return;
                     }
