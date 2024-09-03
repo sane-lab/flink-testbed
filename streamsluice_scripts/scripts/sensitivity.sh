@@ -103,7 +103,7 @@ function runApp() {
     -p4 ${P4} -mp4 ${MP4} -op4Delay ${DELAY4} -op4IoRate ${IO4} -op4KeyStateSize ${STATE_SIZE4} \
     -nkeys ${NKEYS} -phase1Time ${TIME1} -phase1Rate ${RATE1} -phase2Time ${TIME2} \
     -phase2Rate ${RATE2} -interTime ${TIME_I} -interRate ${RATE_I} \
-    -source ${SOURCE_TYPE} -curve_type ${CURVE_TYPE} \
+    -source ${SOURCE_TYPE} -curve_type ${CURVE_TYPE} -run_time ${runtime} \
     -zipf_skew ${ZIPF_SKEW} &"
     ${FLINK_DIR}/bin/flink run -c ${job} ${JAR} \
     -graph ${GRAPH} \
@@ -113,7 +113,7 @@ function runApp() {
     -p5 ${P5} -mp5 ${MP5} -op5Delay ${DELAY5} -op5KeyStateSize ${STATE_SIZE5} \
     -nkeys ${NKEYS} -phase1Time ${TIME1} -phase1Rate ${RATE1} -phase2Time ${TIME2} \
     -phase2Rate ${RATE2} -interTime ${TIME_I} -interRate ${RATE_I}\
-    -source ${SOURCE_TYPE} -curve_type ${CURVE_TYPE} \
+    -source ${SOURCE_TYPE} -curve_type ${CURVE_TYPE} -run_time ${runtime} \
     -zipf_skew ${ZIPF_SKEW} &
 }
 
@@ -178,6 +178,7 @@ run_scale_test(){
     is_treat=false
     how_type="ds2"
     run_one_exp
+    printf "${EXP_NAME}\n" >> whetherhow_result.txt
     is_treat=true
     how_type="streamsluice"
     for L in 2000 1000 750 500; do
