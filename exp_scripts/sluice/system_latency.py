@@ -243,7 +243,7 @@ exps = [
     #  "blue", "o"],
     ["Sluice",
       #"systemsensitivity-streamsluice-streamsluice-when-1split2join1-400-6000-3000-4000-1-0-2-300-1-5000-2-300-1-5000-2-300-1-5000-6-510-5000-2000-3000-100-10-true-1",
-     "system-streamsluice-streamsluice-true-true-false-when-mixed-1split2join1-520-6000-3000-4000-1-0-2-300-1-5000-2-300-1-5000-2-300-1-5000-6-510-5000-750-3000-100-1-true-1",
+     "system-streamsluice-streamsluice-true-true-false-when-mixed-1split2join1-520-6000-3000-4000-1-0-2-300-1-5000-2-300-1-5000-2-300-1-5000-6-510-5000-500-3000-100-1-true-1",
       "blue", "o"],
 
 
@@ -272,7 +272,7 @@ if len(sys.argv) > 1:
 overall_latency = {}
 
 windowSize = 500
-latencyLimit = 750
+latencyLimit = 500
 spike = 2500 #1500
 #latencyLimit = 2500 #1000
 startTime=20 #+300 #30

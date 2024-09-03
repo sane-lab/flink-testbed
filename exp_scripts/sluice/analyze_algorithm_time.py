@@ -234,7 +234,7 @@ def analyze_algorithm_time(rawDir, expName, outputDir, focus_run:int):
 
 rawDir = "/Users/swrrt/Workplace/BacklogDelayPaper/experiments/raw/"
 outputDir = "/Users/swrrt/Workplace/BacklogDelayPaper/experiments/results/"
-expName = "system-streamsluice-streamsluice-true-true-false-when-mixed-1split2join1-520-6000-3000-4000-1-0-2-300-1-5000-2-300-1-5000-2-300-1-5000-6-510-5000-750-3000-100-1-true-1"
+expName = "system-streamsluice-streamsluice-true-true-false-when-mixed-1split2join1-520-6000-3000-4000-1-0-2-300-1-5000-2-300-1-5000-2-300-1-5000-6-510-5000-500-3000-100-1-true-1"
 focus_run = 0
 analyze_algorithm_time(rawDir, expName, outputDir + expName + "/", focus_run)
 
