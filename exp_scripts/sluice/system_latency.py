@@ -276,7 +276,7 @@ latencyLimit = 500
 spike = 2500 #1500
 #latencyLimit = 2500 #1000
 startTime=20 #+300 #30
-expLength= 720 #480 #360
+expLength= 480 #480 #360
 isSingleOperator = False #True
 expName = exps[0][1]
 print(expName)
