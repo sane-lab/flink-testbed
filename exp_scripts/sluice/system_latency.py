@@ -118,12 +118,50 @@ def readGroundTruthLatency(rawDir, expName, windowSize):
             averageGroundTruthLatency[1] += [y]
     return [averageGroundTruthLatency, initialTime]
 
+def readLEMLatencyAndSpike(rawDir, expName) -> [list[int], list[float], list[float]]:
+
+    lem_latency = [[], [], []]
+
+    streamsluiceOutput = "flink-samza-standalonesession-0-eagle-sane.out"
+    import os
+    for file in os.listdir(rawDir + expName + "/"):
+        if file.endswith(".out"):
+            # print(os.path.join(rawDir + expName + "/", file))
+            if file.count("standalonesession") == 1:
+                streamsluiceOutput = file
+    streamSluiceOutputPath = rawDir + expName + "/" + streamsluiceOutput
+    print("Reading streamsluice output:" + streamSluiceOutputPath)
+    counter = 0
+    with open(streamSluiceOutputPath) as f:
+        lines = f.readlines()
+        for i in range(0, len(lines)):
+            line = lines[i]
+            split = line.rstrip().split()
+            counter += 1
+            if (counter % 5000 == 0):
+                print("Processed to line:" + str(counter))
+            if (len(split) >= 10 and split[0] == "+++" and split[1] == "[MODEL]" and split[6] == "cur_ete_l:" and split[
+                8] == "n_epoch_l:"):
+                time = int(split[3])
+                estimated_l = float(split[7])
+                estimated_spike = float(split[13]) - float(split[7])
+                lem_latency[0] += [time]
+                lem_latency[1] += [estimated_l]
+                lem_latency[2] += [estimated_spike]
+    print(lem_latency)
+    return lem_latency
+
 def draw(rawDir, outputDir, exps, windowSize):
     averageGroundTruthLatencies = []
+    lem_latencies = []
+    initial_times = []
     for i in range(0, len(exps)):
         expFile = exps[i][1]
         result = readGroundTruthLatency(rawDir, expFile, windowSize)
         averageGroundTruthLatencies += [result[0]]
+        initial_times += [result[1]]
+        result = readLEMLatencyAndSpike(rawDir, expFile)
+        lem_latencies += [result]
     # print("+++ " + str(averageGroundTruthLatencies))
 
     successRatePerExps = {}
@@ -146,7 +184,7 @@ def draw(rawDir, outputDir, exps, windowSize):
         legend += [exps[i][0]]
         averageGroundTruthLatency = averageGroundTruthLatencies[i]
 
-        sample_factor = 5
+        sample_factor = 1 #5
         sampledLatency = [[], []]
         sampledLatency[0] = [averageGroundTruthLatency[0][i] for i in range(0, len(averageGroundTruthLatency[0]), sample_factor)]
         sampledLatency[1] = [max([averageGroundTruthLatency[1][y] for y in range(x, min(x + sample_factor, len(averageGroundTruthLatency[1])))]) for x in range(0, len(averageGroundTruthLatency[0]), sample_factor)]
@@ -158,11 +196,14 @@ def draw(rawDir, outputDir, exps, windowSize):
             linewidth = 3 / 2.0
         plt.plot(sampledLatency[0], sampledLatency[1], '-', color=exps[i][2], markersize=4,
                  linewidth=linewidth)
-
+        plt.plot([x - initial_times[i] for x in lem_latencies[i][0]], lem_latencies[i][1], 'o', color="green", markersize=2, linewidth=linewidth)
+        legend += ['Estimated Latency']
+        # plt.plot([x - initial_times[i] for x in lem_latencies[i][0]], [lem_latencies[i][1][x] + lem_latencies[i][2][x] for x in range(0, len(lem_latencies[i][1]))], 'd', color="gray", markersize=2, linewidth=linewidth)
+        # legend += ['Estimated Latency Spike']
     legend += ["Limit"]
     addLatencyLimitMarker(plt)
-    legend += ["Limit + Spike"]
-    addLatencyLimitWithSpikeMarker(plt)
+    # legend += ["Limit + Spike"]
+    # addLatencyLimitWithSpikeMarker(plt)
     # plt.legend(legend, bbox_to_anchor=(0.45, 1.3), loc='upper center', ncol=4, markerscale=4.)  # When
     # plt.legend(legend, bbox_to_anchor=(0.45, 1.3), loc='upper center', ncol=3, markerscale=4.)  # How1
     plt.legend(legend, bbox_to_anchor=(0.45, 1.4), loc='upper center', ncol=3, markerscale=4.) # How2
@@ -202,7 +243,7 @@ exps = [
     #  "blue", "o"],
     ["Sluice",
       #"systemsensitivity-streamsluice-streamsluice-when-1split2join1-400-6000-3000-4000-1-0-2-300-1-5000-2-300-1-5000-2-300-1-5000-6-510-5000-2000-3000-100-10-true-1",
-     "system-streamsluice-streamsluice-true-true-false-when-mixed-1split2join1-540-6000-3000-4000-1-0-2-300-1-5000-2-300-1-5000-2-300-1-5000-6-510-5000-1000-3000-100-1-false-1",
+     "system-streamsluice-streamsluice-true-true-false-when-mixed-1split2join1-520-6000-3000-4000-1-0-2-300-1-5000-2-300-1-5000-2-300-1-5000-6-510-5000-750-3000-100-1-true-1",
       "blue", "o"],
 
 
@@ -231,11 +272,11 @@ if len(sys.argv) > 1:
 overall_latency = {}
 
 windowSize = 500
-latencyLimit = 1000
-spike = 1500
+latencyLimit = 750
+spike = 2500 #1500
 #latencyLimit = 2500 #1000
 startTime=20 #+300 #30
-expLength= 360
+expLength= 480 #360
 isSingleOperator = False #True
 expName = exps[0][1]
 print(expName)

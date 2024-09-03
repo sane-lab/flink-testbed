@@ -136,7 +136,7 @@ run_scale_test(){
     decision_interval=1 #10
     snapshot_size=3
 
-    L=2000 #2500
+    L=1000 #2000 #2500
     migration_interval=3000
     spike_slope=0.7
     #spike_intercept=200
@@ -154,7 +154,7 @@ run_scale_test(){
     STATE_SIZE4=5000
     STATE_SIZE5=5000
     spike_intercept=1000
-    runtime=520 #400
+    runtime=760 #520 #400
     DELTA_I=270
     LP2=2
     LP3=2
@@ -162,11 +162,11 @@ run_scale_test(){
     LP5=13
 
     RATE1=6000
-    TIME1=30
+    TIME1=45 #30
     RATE2=3000
-    TIME2=30
+    TIME2=45 #30
     RATE_I=4000
-    TIME_I=30
+    TIME_I=45 #30
     printf "" > whetherhow_result.txt
     how_more_optimization_flag=false
     how_optimization_flag=false
@@ -174,10 +174,16 @@ run_scale_test(){
     how_conservative_flag=true
     # Curve 1
     SOURCE_TYPE="when"
+    is_treat=true
     is_treat=false
     how_type="ds2"
     run_one_exp
-    printf "${EXP_NAME}\n" >> whetherhow_result.txt
+    is_treat=true
+    how_type="streamsluice"
+    for L in 2000 1000 750 500; do
+      run_one_exp
+      printf "${EXP_NAME}\n" >> whetherhow_result.txt
+    done
 #    is_treat=false
 #    run_one_exp
 #    printf "${EXP_NAME}\n" >> whetherhow_result.txt
