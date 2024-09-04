@@ -67,9 +67,10 @@ def readGroundTruthLatency(rawDir, expName, windowSize):
                             groundTruthLatencyPerTuple[tupleId][1] = latency
                     else:
                         groundTruthLatency += [[arrivedTime, latency]]
-        fileInitialTimes[taskExecutor] = fileInitialTime
-        if (initialTime == -1 or initialTime > fileInitialTime):
-            initialTime = fileInitialTime
+        if (fileInitialTime > 0):
+            fileInitialTimes[taskExecutor] = fileInitialTime
+            if (initialTime == -1 or initialTime > fileInitialTime):
+                initialTime = fileInitialTime
     print("FF: " + str(fileInitialTimes))
     if(not isSingleOperator):
         for value in groundTruthLatencyPerTuple.values():
@@ -216,8 +217,10 @@ def draw(rawDir, outputDir, exps, windowSize):
     axes.set_xticks(np.arange(startTime * 1000, (startTime + expLength) * 1000 + 60000, 60000))
     axes.set_xticklabels([int((x - startTime * 1000) / 1000) for x in np.arange(startTime * 1000, (startTime + expLength) * 1000 + 60000, 60000)])
     #axes.set_yticks(np.arange(0, 6000, 1000))
-    axes.set_ylim(0, 5000)
-    axes.set_yticks(np.arange(0, 6250, 1250))
+    # axes.set_ylim(0, 5000)
+    # axes.set_yticks(np.arange(0, 6250, 1250))
+    axes.set_ylim(0, 8000)
+    axes.set_yticks(np.arange(0, 8500, 500))
     if trickFlag:
         axes.set_yticklabels([int(x / 1250 * 1000) for x in np.arange(0, 6250, 1250)])
     # axes.set_yscale('log')
@@ -241,9 +244,9 @@ exps = [
     # ["Sluice",
     #  "systemsensitivity-streamsluice-streamsluice-when-1split2join1-400-6000-3000-4000-1-0-2-300-1-10000-2-300-1-10000-2-300-1-10000-6-510-10000-2500-3000-100-10-true-1",
     #  "blue", "o"],
-    ["Sluice",
+    ["GroundTruth",
       #"systemsensitivity-streamsluice-streamsluice-when-1split2join1-400-6000-3000-4000-1-0-2-300-1-5000-2-300-1-5000-2-300-1-5000-6-510-5000-2000-3000-100-10-true-1",
-     "system-streamsluice-ds2-true-true-false-when-gradient-6op-150-6000-4000-4000-1-0-2-300-1-5000-2-300-1-5000-2-300-1-5000-6-1050-5000-1000-3000-100-1-false-1",
+     "system-streamsluice-ds2-true-true-false-when-gradient-2op_line-170-6000-4000-4000-1-0-2-300-1-5000-2-300-1-5000-2-300-1-5000-6-1050-5000-1000-3000-100-1-false-1",
       "blue", "o"],
 
 
@@ -272,10 +275,10 @@ if len(sys.argv) > 1:
 overall_latency = {}
 
 windowSize = 500
-latencyLimit = 500
+latencyLimit = 50000
 spike = 2500 #1500
 #latencyLimit = 2500 #1000
-startTime=20 #+300 #30
+startTime=30 #+300 #30
 expLength= 120 #480 #480 #360
 isSingleOperator = False #True
 expName = exps[0][1]
