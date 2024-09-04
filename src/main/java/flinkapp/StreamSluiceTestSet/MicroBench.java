@@ -249,6 +249,7 @@ public class MicroBench {
             this.perKeyStateSize = perKeyStateSize;
             this.payload = StringUtils.repeat("A", perKeyStateSize);
             this.isOutput = false;
+            this.opName = "";
             if(!ioFixedFlag){
                 rand = new Random();
             }
