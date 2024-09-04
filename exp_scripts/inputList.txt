@@ -1,1 +1,8 @@
+system-streamsluice-ds2-true-true-false-when-gradient-1op-150-6000-4000-4000-1-0-2-300-1-5000-2-300-1-5000-2-300-1-5000-6-1050-5000-1000-3000-100-1-false-1
+system-streamsluice-ds2-true-true-false-when-gradient-2op-150-6000-4000-4000-1-0-2-300-1-5000-2-300-1-5000-2-300-1-5000-6-1050-5000-1000-3000-100-1-false-1
+system-streamsluice-ds2-true-true-false-when-gradient-3op-150-6000-4000-4000-1-0-2-300-1-5000-2-300-1-5000-2-300-1-5000-6-1050-5000-1000-3000-100-1-false-1
+system-streamsluice-ds2-true-true-false-when-gradient-4op-150-6000-4000-4000-1-0-2-300-1-5000-2-300-1-5000-2-300-1-5000-6-1050-5000-1000-3000-100-1-false-1
+system-streamsluice-ds2-true-true-false-when-gradient-5op-150-6000-4000-4000-1-0-2-300-1-5000-2-300-1-5000-2-300-1-5000-6-1050-5000-1000-3000-100-1-false-1
+system-streamsluice-ds2-true-true-false-when-gradient-6op-150-6000-4000-4000-1-0-2-300-1-5000-2-300-1-5000-2-300-1-5000-6-1050-5000-1000-3000-100-1-false-1
+system-streamsluice-ds2-true-true-false-when-gradient-7op-150-6000-4000-4000-1-0-2-300-1-5000-2-300-1-5000-2-300-1-5000-6-1050-5000-1000-3000-100-1-false-1
 system-streamsluice-ds2-true-true-false-when-gradient-8op-150-6000-4000-4000-1-0-2-300-1-5000-2-300-1-5000-2-300-1-5000-6-1050-5000-1000-3000-100-1-false-1

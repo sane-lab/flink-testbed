@@ -63,6 +63,30 @@ public class MicroBench {
             source = env.addSource(new DynamicAvgRateSineSource(PHASE1_TIME, PHASE2_TIME, INTERMEDIATE_TIME, PHASE1_RATE, PHASE2_RATE, INTERMEDIATE_RATE, INTERMEDIATE_RANGE, INTERMEDIATE_PERIOD, params.getLong("macroInterAmplitude", 0), params.getLong("macroInterPeriod", 60) * 1000, params.getInt("mp2", 8), zipf_skew, nKeys, params.get("curve_type", "sine"), params.getInt("inter_delta", 0)))
                     .setParallelism(params.getInt("p1", 1));
         }
+        if(GRAPH_TYPE.endsWith("line_op")){
+            int op_n = Integer.parseInt(GRAPH_TYPE.substring(0, GRAPH_TYPE.length() - 2));
+            SingleOutputStreamOperator<Tuple3<String, Long, Long>> leng_t = source;
+            for(int i = 1; i < op_n; i++){
+                leng_t = leng_t.keyBy(0)
+                        .flatMap(new DumbStatefulMap(params.getLong("op4Delay", 100), params.getInt("op4IoRate", 1), params.getBoolean("op4IoFix", true), params.getInt("op4KeyStateSize", 1)))
+                        .disableChaining()
+                        .name(String.format("FlatMap %d", i + 1))
+                        .uid(String.format("op%d", i + 1))
+                        .setParallelism(params.getInt("p4", 1))
+                        .setMaxParallelism(params.getInt("mp4", 8))
+                        .slotSharingGroup(String.format("g%d", i + 1));
+            }
+            leng_t.keyBy(0).map(new DumbSink(params.getLong("op5Delay", 100), params.getInt("op5KeyStateSize", 1), params.getBoolean("outputGroundTruth", true)))
+                    .disableChaining()
+                    .name(String.format("FlatMap %d", op_n + 1))
+                    .uid(String.format("op%d", op_n + 1))
+                    .setParallelism(params.getInt("p5", 1))
+                    .setMaxParallelism(params.getInt("mp5", 8))
+                    .slotSharingGroup(String.format("g%d", op_n + 1));
+            env.execute();
+            return ;
+        }
+        
         if(GRAPH_TYPE.equals("1op")){
             source.keyBy(0)
                     .map(new DumbSink(params.getLong("op2Delay", 100), params.getInt("op2KeyStateSize", 1), params.getBoolean("outputGroundTruth", true)))
@@ -199,29 +223,6 @@ public class MicroBench {
                     .setParallelism(params.getInt("p5", 1))
                     .setMaxParallelism(params.getInt("mp5", 8))
                     .slotSharingGroup("g5");
-            env.execute();
-            return ;
-        }
-        if(GRAPH_TYPE.endsWith("op")){
-            int op_n = Integer.parseInt(GRAPH_TYPE.substring(0, GRAPH_TYPE.length() - 2));
-            SingleOutputStreamOperator<Tuple3<String, Long, Long>> leng_t = leng2;
-            for(int i = 3; i < op_n; i++){
-                leng_t = leng_t.keyBy(0)
-                        .flatMap(new DumbStatefulMap(params.getLong("op4Delay", 100), params.getInt("op4IoRate", 1), params.getBoolean("op4IoFix", true), params.getInt("op4KeyStateSize", 1)))
-                        .disableChaining()
-                        .name(String.format("FlatMap %d", i + 1))
-                        .uid(String.format("op%d", i + 1))
-                        .setParallelism(params.getInt("p4", 1))
-                        .setMaxParallelism(params.getInt("mp4", 8))
-                        .slotSharingGroup(String.format("g%d", i + 1));
-            }
-            leng_t.keyBy(0).map(new DumbSink(params.getLong("op5Delay", 100), params.getInt("op5KeyStateSize", 1), params.getBoolean("outputGroundTruth", true)))
-                    .disableChaining()
-                    .name(String.format("FlatMap %d", op_n + 1))
-                    .uid(String.format("op%d", op_n + 1))
-                    .setParallelism(params.getInt("p5", 1))
-                    .setMaxParallelism(params.getInt("mp5", 8))
-                    .slotSharingGroup(String.format("g%d", op_n + 1));
             env.execute();
             return ;
         }
