@@ -63,7 +63,7 @@ public class MicroBench {
             source = env.addSource(new DynamicAvgRateSineSource(PHASE1_TIME, PHASE2_TIME, INTERMEDIATE_TIME, PHASE1_RATE, PHASE2_RATE, INTERMEDIATE_RATE, INTERMEDIATE_RANGE, INTERMEDIATE_PERIOD, params.getLong("macroInterAmplitude", 0), params.getLong("macroInterPeriod", 60) * 1000, params.getInt("mp2", 8), zipf_skew, nKeys, params.get("curve_type", "sine"), params.getInt("inter_delta", 0)))
                     .setParallelism(params.getInt("p1", 1));
         }
-        if(GRAPH_TYPE.endsWith("line_op")){
+        if(GRAPH_TYPE.endsWith("op_line")){
             int op_n = Integer.parseInt(GRAPH_TYPE.substring(0, GRAPH_TYPE.length() - 2));
             SingleOutputStreamOperator<Tuple3<String, Long, Long>> leng_t = source;
             for(int i = 1; i < op_n; i++){
@@ -86,7 +86,7 @@ public class MicroBench {
             env.execute();
             return ;
         }
-        
+
         if(GRAPH_TYPE.equals("1op")){
             source.keyBy(0)
                     .map(new DumbSink(params.getLong("op2Delay", 100), params.getInt("op2KeyStateSize", 1), params.getBoolean("outputGroundTruth", true)))
