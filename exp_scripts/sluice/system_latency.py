@@ -243,7 +243,7 @@ exps = [
     #  "blue", "o"],
     ["Sluice",
       #"systemsensitivity-streamsluice-streamsluice-when-1split2join1-400-6000-3000-4000-1-0-2-300-1-5000-2-300-1-5000-2-300-1-5000-6-510-5000-2000-3000-100-10-true-1",
-     "system-streamsluice-ds2-true-true-false-when-mixed-1split2join1-760-6000-3000-4000-1-0-2-300-1-5000-2-300-1-5000-2-300-1-5000-6-510-5000-1000-3000-100-1-false-1",
+     "system-streamsluice-ds2-true-true-false-when-gradient-8op-150-6000-4000-4000-1-0-2-300-1-5000-2-300-1-5000-2-300-1-5000-6-510-5000-1000-3000-100-1-false-1",
       "blue", "o"],
 
 
@@ -276,7 +276,7 @@ latencyLimit = 500
 spike = 2500 #1500
 #latencyLimit = 2500 #1000
 startTime=20 #+300 #30
-expLength= 480 #480 #360
+expLength= 150 #480 #480 #360
 isSingleOperator = False #True
 expName = exps[0][1]
 print(expName)

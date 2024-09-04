@@ -207,21 +207,21 @@ public class MicroBench {
             SingleOutputStreamOperator<Tuple3<String, Long, Long>> leng_t = leng2;
             for(int i = 3; i < op_n; i++){
                 leng_t = leng_t.keyBy(0)
-                        .flatMap(new DumbStatefulMap(params.getLong("op3Delay", 100), params.getInt("op3IoRate", 1), params.getBoolean("op3IoFix", true), params.getInt("op3KeyStateSize", 1)))
+                        .flatMap(new DumbStatefulMap(params.getLong("op4Delay", 100), params.getInt("op4IoRate", 1), params.getBoolean("op4IoFix", true), params.getInt("op4KeyStateSize", 1)))
                         .disableChaining()
                         .name(String.format("FlatMap %d", i + 1))
                         .uid(String.format("op%d", i + 1))
-                        .setParallelism(params.getInt("p3", 1))
-                        .setMaxParallelism(params.getInt("mp3", 8))
-                        .slotSharingGroup("g3");
+                        .setParallelism(params.getInt("p4", 1))
+                        .setMaxParallelism(params.getInt("mp4", 8))
+                        .slotSharingGroup(String.format("g%d", i + 1));
             }
-            leng_t.keyBy(0).map(new DumbSink(params.getLong("op4Delay", 100), params.getInt("op4KeyStateSize", 1), params.getBoolean("outputGroundTruth", true)))
+            leng_t.keyBy(0).map(new DumbSink(params.getLong("op5Delay", 100), params.getInt("op5KeyStateSize", 1), params.getBoolean("outputGroundTruth", true)))
                     .disableChaining()
                     .name(String.format("FlatMap %d", op_n + 1))
                     .uid(String.format("op%d", op_n + 1))
-                    .setParallelism(params.getInt("p4", 1))
-                    .setMaxParallelism(params.getInt("mp4", 8))
-                    .slotSharingGroup("g4");
+                    .setParallelism(params.getInt("p5", 1))
+                    .setMaxParallelism(params.getInt("mp5", 8))
+                    .slotSharingGroup(String.format("g%d", op_n + 1));
             env.execute();
             return ;
         }
