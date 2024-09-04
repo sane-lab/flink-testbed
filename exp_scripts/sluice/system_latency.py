@@ -21,7 +21,7 @@ MARKERSIZE=4
 def addLatencyLimitMarker(plt):
     x = [0, 10000000]
     y = [latencyLimit, latencyLimit]
-    plt.plot(x, y, color='red', linewidth=1.5)
+    plt.plot(x, y, label="Limit", color='red', linewidth=1.5)
 def addLatencyLimitWithSpikeMarker(plt):
     x = [0, 10000000]
     y = [latencyLimit + spike, latencyLimit + spike]
@@ -106,17 +106,21 @@ def readGroundTruthLatency(rawDir, expName, windowSize):
             aggregatedGroundTruthLatency[index] = []
         aggregatedGroundTruthLatency[index] += [pair[1]]
 
-    averageGroundTruthLatency = [[], []]
+    averageGroundTruthLatency = [[], [], []]
     for index in sorted(aggregatedGroundTruthLatency):
         time = index * windowSize
         x = int(time)
         if index in aggregatedGroundTruthLatency:
             sortedLatency = sorted(aggregatedGroundTruthLatency[index])
             size = len(sortedLatency)
+            # P99 latency
             target = min(math.ceil(size * 0.99), size) - 1
             y = sortedLatency[target]
             averageGroundTruthLatency[0] += [x]
             averageGroundTruthLatency[1] += [y]
+            y = sum(sortedLatency)/size
+            averageGroundTruthLatency[2] += [y]
+
     return [averageGroundTruthLatency, initialTime]
 
 def readLEMLatencyAndSpike(rawDir, expName) -> [list[int], list[float], list[float]]:
@@ -149,7 +153,6 @@ def readLEMLatencyAndSpike(rawDir, expName) -> [list[int], list[float], list[flo
                 lem_latency[0] += [time]
                 lem_latency[1] += [estimated_l]
                 lem_latency[2] += [estimated_spike]
-    print(lem_latency)
     return lem_latency
 
 def draw(rawDir, outputDir, exps, windowSize):
@@ -162,8 +165,11 @@ def draw(rawDir, outputDir, exps, windowSize):
         averageGroundTruthLatencies += [result[0]]
         initial_times += [result[1]]
         result = readLEMLatencyAndSpike(rawDir, expFile)
+        result[0] = [x - initial_times[i] for x in result[0]]
         lem_latencies += [result]
     # print("+++ " + str(averageGroundTruthLatencies))
+
+
 
     successRatePerExps = {}
     for i in range(0, len(exps)):
@@ -175,20 +181,39 @@ def draw(rawDir, outputDir, exps, windowSize):
                               averageGroundTruthLatencies[i][0][x] <= (startTime + 1800) * 1000])
         successRatePerExps[exps[i][0]] = totalSuccess / float(totalWindows)
 
+        # Calculate avg groundtruth latency and avg lem latency in warmup period
+        groundtruth_avg_latency_in_range = [averageGroundTruthLatencies[i][2][x] for x in
+                                        range(0, len(averageGroundTruthLatencies[i][0])) if
+                                        averageGroundTruthLatencies[i][0][x] >= startTime * 1000 and
+                                        averageGroundTruthLatencies[i][0][x] <= (
+                                                    startTime + avg_latency_calculateTime) * 1000]
+        groundtruth_P99_latency_in_range = [averageGroundTruthLatencies[i][1][x] for x in range(0, len(averageGroundTruthLatencies[i][0])) if
+                              averageGroundTruthLatencies[i][0][x] >= startTime * 1000 and averageGroundTruthLatencies[i][0][x] <= (startTime + avg_latency_calculateTime) * 1000]
+        lem_latency_in_range = [lem_latencies[i][1][x] for x in range(0, len(lem_latencies[i][0])) if
+                              lem_latencies[i][0][x] >= startTime * 1000 and lem_latencies[i][0][x] <= (startTime + avg_latency_calculateTime) * 1000]
+        print("in range ground truth P99 latency max:" + str(max(groundtruth_P99_latency_in_range)) + " avg: " + str(sum(groundtruth_P99_latency_in_range)/len(groundtruth_P99_latency_in_range)))
+        print("in range ground truth avg latency max:" + str(max(groundtruth_avg_latency_in_range)) + " avg: " + str(
+            sum(groundtruth_avg_latency_in_range) / len(groundtruth_avg_latency_in_range)))
+        print("in range lem latency max:" + str(max(lem_latency_in_range)) + " avg: " + str(
+            sum(lem_latency_in_range) / len(lem_latency_in_range)))
+
+
+    print("1800 seconds success rate")
     print(successRatePerExps)
     #print(averageGroundTruthLatencies)
     #fig = plt.figure(figsize=(24, 3))
     fig = plt.figure(figsize=(12, 5))
     print("Draw ground truth curve...")
-    legend = []
     for i in range(0, len(exps)):
-        legend += [exps[i][0]]
         averageGroundTruthLatency = averageGroundTruthLatencies[i]
 
         sample_factor = 1 #5
-        sampledLatency = [[], []]
+        sampledLatency = [[], [], []]
         sampledLatency[0] = [averageGroundTruthLatency[0][i] for i in range(0, len(averageGroundTruthLatency[0]), sample_factor)]
         sampledLatency[1] = [max([averageGroundTruthLatency[1][y] for y in range(x, min(x + sample_factor, len(averageGroundTruthLatency[1])))]) for x in range(0, len(averageGroundTruthLatency[0]), sample_factor)]
+        sampledLatency[2] = [max([averageGroundTruthLatency[2][y] for y in
+                                  range(x, min(x + sample_factor, len(averageGroundTruthLatency[2])))]) for x in
+                             range(0, len(averageGroundTruthLatency[0]), sample_factor)]
 
         #plt.plot(averageGroundTruthLatency[0], averageGroundTruthLatency[1], 'o-', color=exps[i][2], markersize=2, linewidth=2)
         if exps[i][0] == 'Sluice':
@@ -196,18 +221,18 @@ def draw(rawDir, outputDir, exps, windowSize):
         else:
             linewidth = 3 / 2.0
         plt.plot(sampledLatency[0], sampledLatency[1], '-', color=exps[i][2], markersize=4,
-                 linewidth=linewidth)
-        plt.plot([x - initial_times[i] for x in lem_latencies[i][0]], lem_latencies[i][1], 'o', color="green", markersize=2, linewidth=linewidth)
-        legend += ['Estimated Latency']
+                 linewidth=linewidth, label="Ground Truth P99") #exps[i][0])
+        if (show_avg_flag):
+            plt.plot(sampledLatency[0], sampledLatency[2], '-', color="orange", markersize=4,
+                     linewidth=linewidth, label="Ground Truth Average")
+        plt.plot(lem_latencies[i][0], lem_latencies[i][1], 'o', color="green", markersize=2, linewidth=linewidth, label='Estimated Latency')
         # plt.plot([x - initial_times[i] for x in lem_latencies[i][0]], [lem_latencies[i][1][x] + lem_latencies[i][2][x] for x in range(0, len(lem_latencies[i][1]))], 'd', color="gray", markersize=2, linewidth=linewidth)
-        # legend += ['Estimated Latency Spike']
-    legend += ["Limit"]
     addLatencyLimitMarker(plt)
     # legend += ["Limit + Spike"]
     # addLatencyLimitWithSpikeMarker(plt)
     # plt.legend(legend, bbox_to_anchor=(0.45, 1.3), loc='upper center', ncol=4, markerscale=4.)  # When
     # plt.legend(legend, bbox_to_anchor=(0.45, 1.3), loc='upper center', ncol=3, markerscale=4.)  # How1
-    plt.legend(legend, bbox_to_anchor=(0.45, 1.4), loc='upper center', ncol=3, markerscale=4.) # How2
+    plt.legend(bbox_to_anchor=(0.45, 1.4), loc='upper center', ncol=3, markerscale=4.) # How2
     #plt.xlabel('Time (min)')
     plt.ylabel('Latency (ms)')
     #plt.title('Latency Curves')
@@ -219,8 +244,10 @@ def draw(rawDir, outputDir, exps, windowSize):
     #axes.set_yticks(np.arange(0, 6000, 1000))
     # axes.set_ylim(0, 5000)
     # axes.set_yticks(np.arange(0, 6250, 1250))
-    axes.set_ylim(0, 8000)
-    axes.set_yticks(np.arange(0, 8500, 500))
+    # axes.set_ylim(0, 8000)
+    # axes.set_yticks(np.arange(0, 8500, 500))
+    axes.set_ylim(0, 1500)
+    axes.set_yticks(np.arange(0, 1600, 100))
     if trickFlag:
         axes.set_yticklabels([int(x / 1250 * 1000) for x in np.arange(0, 6250, 1250)])
     # axes.set_yscale('log')
@@ -246,7 +273,7 @@ exps = [
     #  "blue", "o"],
     ["GroundTruth",
       #"systemsensitivity-streamsluice-streamsluice-when-1split2join1-400-6000-3000-4000-1-0-2-300-1-5000-2-300-1-5000-2-300-1-5000-6-510-5000-2000-3000-100-10-true-1",
-     "system-streamsluice-ds2-true-true-false-when-gradient-8op_line-170-6000-4000-4000-1-0-2-300-1-5000-2-300-1-5000-2-300-1-5000-6-1050-5000-1000-3000-100-1-false-1",
+     "system-streamsluice-ds2-true-true-false-when-gradient-8op_line-170-4000-4000-4000-1-0-2-300-1-5000-2-300-1-5000-2-300-1-5000-6-1050-5000-1000-3000-100-1-false-1",
       "blue", "o"],
 
 
@@ -274,12 +301,16 @@ if len(sys.argv) > 1:
 
 overall_latency = {}
 
-windowSize = 500
+windowSize = 500 #500
 latencyLimit = 50000
 spike = 2500 #1500
 #latencyLimit = 2500 #1000
-startTime=30 #+300 #30
-expLength= 120 #480 #480 #360
+startTime = 30 #+300 #30
+expLength = 120 #480 #480 #360
+show_avg_flag = True
+
+avg_latency_calculateTime = 15
+
 isSingleOperator = False #True
 expName = exps[0][1]
 print(expName)

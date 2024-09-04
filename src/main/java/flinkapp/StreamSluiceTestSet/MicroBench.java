@@ -234,9 +234,11 @@ public class MicroBench {
         private transient MapState<String, String> countMap;
         private int ioRatio;
         private boolean ioFixedFlag;
+        private final boolean isOutput;
         private Random rand;
         private final int perKeyStateSize;
-        private long averageDelay = 1000; // micro second
+        private final long averageDelay; // micro second
+        private final String opName;
 
         private final String payload;
 
@@ -246,6 +248,19 @@ public class MicroBench {
             this.ioFixedFlag = ioFixedFlag;
             this.perKeyStateSize = perKeyStateSize;
             this.payload = StringUtils.repeat("A", perKeyStateSize);
+            this.isOutput = false;
+            if(!ioFixedFlag){
+                rand = new Random();
+            }
+        }
+        public DumbStatefulMap(long averageDelay, int ioRatio, boolean ioFixedFlag, int perKeyStateSize, boolean isOutput, String opName) {
+            this.averageDelay = averageDelay;
+            this.ioRatio = ioRatio;
+            this.ioFixedFlag = ioFixedFlag;
+            this.perKeyStateSize = perKeyStateSize;
+            this.payload = StringUtils.repeat("A", perKeyStateSize);
+            this.isOutput = isOutput;
+            this.opName = opName;
             if(!ioFixedFlag){
                 rand = new Random();
             }
@@ -253,13 +268,22 @@ public class MicroBench {
 
         @Override
         public void flatMap(Tuple3<String, Long, Long> input, Collector<Tuple3<String, Long, Long>> out) throws Exception {
+            if(isOutput) {
+                long currentTime = System.currentTimeMillis();
+                System.out.println("OP_IN " + this.opName + ": " + input.f0 + ", " + currentTime + ", " + (currentTime - input.f1) + ", " + input.f2);
+            }
             String s = input.f0;
             countMap.put(s, payload);
+            delay(averageDelay);
             if(ioFixedFlag) {
                 for (int i = 0; i < ioRatio; i++) {
                     long t = input.f1;
                     long id = input.f2;
                     out.collect(new Tuple3<String, Long, Long>(s, t, id));
+                    if(isOutput){
+                        long currentTime = System.currentTimeMillis();
+                        System.out.println("OP_OUT " + this.opName + ": " + input.f0 + ", " + currentTime + ", " + (currentTime - input.f1) + ", " + input.f2);
+                    }
                 }
             }else{
                 int numberOfOutput = rand.nextInt(ioRatio+1);
@@ -269,7 +293,6 @@ public class MicroBench {
                     out.collect(new Tuple3<String, Long, Long>(s, t, id));
                 }
             }
-            delay(averageDelay);
         }
 
         private void delay(long interval) {

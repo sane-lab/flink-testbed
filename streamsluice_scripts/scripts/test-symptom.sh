@@ -83,7 +83,7 @@ init() {
 
   P5=6
   MP5=128
-  DELAY5=1050 #510
+  DELAY5=510 #1050 #510
   STATE_SIZE5=1000
 
   spike_estimation="linear_regression"
@@ -181,10 +181,10 @@ run_scale_test(){
 #    vertex_id="a84740bacf923e828852cc4966f2247c,eabd4c11f6c6fbdf011f0f1fc42097b1,d01047f852abd5702a0dabeedac99ff5"
 #    run_one_exp
 #    printf "${EXP_NAME}\n" >> whetherhow_result.txt
-#    GRAPH="4op_line"
-#    vertex_id="a84740bacf923e828852cc4966f2247c,eabd4c11f6c6fbdf011f0f1fc42097b1,d01047f852abd5702a0dabeedac99ff5,d2336f79a0d60b5a4b16c8769ec82e47"
-#    run_one_exp
-#    printf "${EXP_NAME}\n" >> whetherhow_result.txt
+    GRAPH="4op_line"
+    vertex_id="a84740bacf923e828852cc4966f2247c,eabd4c11f6c6fbdf011f0f1fc42097b1,d01047f852abd5702a0dabeedac99ff5,d2336f79a0d60b5a4b16c8769ec82e47"
+    run_one_exp
+    printf "${EXP_NAME}\n" >> whetherhow_result.txt
 #    GRAPH="5op_line"
 #    vertex_id="a84740bacf923e828852cc4966f2247c,eabd4c11f6c6fbdf011f0f1fc42097b1,d01047f852abd5702a0dabeedac99ff5,d2336f79a0d60b5a4b16c8769ec82e47,36fcfcb61a35d065e60ee34fccb0541a"
 #    run_one_exp
