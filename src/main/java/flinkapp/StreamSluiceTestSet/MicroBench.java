@@ -209,16 +209,16 @@ public class MicroBench {
                 leng_t = leng_t.keyBy(0)
                         .flatMap(new DumbStatefulMap(params.getLong("op3Delay", 100), params.getInt("op3IoRate", 1), params.getBoolean("op3IoFix", true), params.getInt("op3KeyStateSize", 1)))
                         .disableChaining()
-                        .name("FlatMap 3")
-                        .uid("op3")
+                        .name(String.format("FlatMap %d", i + 1))
+                        .uid(String.format("op%d", i + 1))
                         .setParallelism(params.getInt("p3", 1))
                         .setMaxParallelism(params.getInt("mp3", 8))
                         .slotSharingGroup("g3");
             }
             leng_t.keyBy(0).map(new DumbSink(params.getLong("op4Delay", 100), params.getInt("op4KeyStateSize", 1), params.getBoolean("outputGroundTruth", true)))
                     .disableChaining()
-                    .name("FlatMap 4")
-                    .uid("op4")
+                    .name(String.format("FlatMap %d", op_n + 1))
+                    .uid(String.format("op%d", op_n + 1))
                     .setParallelism(params.getInt("p4", 1))
                     .setMaxParallelism(params.getInt("mp4", 8))
                     .slotSharingGroup("g4");

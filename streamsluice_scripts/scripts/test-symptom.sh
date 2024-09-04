@@ -168,31 +168,32 @@ run_scale_test(){
     how_optimization_flag=false
     how_steady_limit_flag=true
     how_conservative_flag=true
-    GRAPH="1op"
-    vertex_id="a84740bacf923e828852cc4966f2247c"
-    run_one_exp
-    printf "${EXP_NAME}\n" >> whetherhow_result.txt
-    GRAPH="2op"
-    vertex_id="a84740bacf923e828852cc4966f2247c,eabd4c11f6c6fbdf011f0f1fc42097b1"
-    run_one_exp
-    printf "${EXP_NAME}\n" >> whetherhow_result.txt
-    GRAPH="3op"
-    vertex_id="a84740bacf923e828852cc4966f2247c,eabd4c11f6c6fbdf011f0f1fc42097b1,d01047f852abd5702a0dabeedac99ff5"
-    run_one_exp
-    printf "${EXP_NAME}\n" >> whetherhow_result.txt
-    GRAPH="4op"
-    vertex_id="a84740bacf923e828852cc4966f2247c,eabd4c11f6c6fbdf011f0f1fc42097b1,d01047f852abd5702a0dabeedac99ff5,d2336f79a0d60b5a4b16c8769ec82e47"
-    run_one_exp
-    printf "${EXP_NAME}\n" >> whetherhow_result.txt
-    GRAPH="5op"
-    run_one_exp
-    printf "${EXP_NAME}\n" >> whetherhow_result.txt
-    GRAPH="6op"
-    run_one_exp
-    printf "${EXP_NAME}\n" >> whetherhow_result.txt
-    GRAPH="7op"
-    run_one_exp
-    printf "${EXP_NAME}\n" >> whetherhow_result.txt
+    printf "" > whetherhow_result.txt
+#    GRAPH="1op"
+#    vertex_id="a84740bacf923e828852cc4966f2247c"
+#    run_one_exp
+#    printf "${EXP_NAME}\n" >> whetherhow_result.txt
+#    GRAPH="2op"
+#    vertex_id="a84740bacf923e828852cc4966f2247c,eabd4c11f6c6fbdf011f0f1fc42097b1"
+#    run_one_exp
+#    printf "${EXP_NAME}\n" >> whetherhow_result.txt
+#    GRAPH="3op"
+#    vertex_id="a84740bacf923e828852cc4966f2247c,eabd4c11f6c6fbdf011f0f1fc42097b1,d01047f852abd5702a0dabeedac99ff5"
+#    run_one_exp
+#    printf "${EXP_NAME}\n" >> whetherhow_result.txt
+#    GRAPH="4op"
+#    vertex_id="a84740bacf923e828852cc4966f2247c,eabd4c11f6c6fbdf011f0f1fc42097b1,d01047f852abd5702a0dabeedac99ff5,d2336f79a0d60b5a4b16c8769ec82e47"
+#    run_one_exp
+#    printf "${EXP_NAME}\n" >> whetherhow_result.txt
+#    GRAPH="5op"
+#    run_one_exp
+#    printf "${EXP_NAME}\n" >> whetherhow_result.txt
+#    GRAPH="6op"
+#    run_one_exp
+#    printf "${EXP_NAME}\n" >> whetherhow_result.txt
+#    GRAPH="7op"
+#    run_one_exp
+#    printf "${EXP_NAME}\n" >> whetherhow_result.txt
     GRAPH="8op"
     run_one_exp
     printf "${EXP_NAME}\n" >> whetherhow_result.txt
