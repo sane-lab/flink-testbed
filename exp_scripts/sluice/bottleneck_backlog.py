@@ -99,7 +99,7 @@ def drawBacklog(rawDir, expName, outputDir):
     backlog_times = results[0]
     backlog_per_operator = results[1]
     # Calculate total backlog and maximum task backlog for the specific operator
-
+    print(backlog_per_operator[bottleneck_operator])
 
     total_backlogs = [sum(task_backlog.values()) for task_backlog in backlog_per_operator[bottleneck_operator]]
     max_task_backlogs = [max(task_backlog.values(), default=0) for task_backlog in backlog_per_operator[bottleneck_operator]]
@@ -136,6 +136,6 @@ exp_length = 480 #480 #360 #1800
 startTime = 30 # + 300
 rawDir = "/Users/swrrt/Workplace/BacklogDelayPaper/experiments/raw/"
 outputDir = "/Users/swrrt/Workplace/BacklogDelayPaper/experiments/results/"
-expName = "system-streamsluice-ds2-true-true-false-when-mixed-1split2join1-760-6000-3000-4000-1-0-2-300-1-5000-2-300-1-5000-2-300-1-5000-6-510-5000-1000-3000-100-1-false-1"
-bottleneck_operator = "d2336f79a0d60b5a4b16c8769ec82e47"
+expName = "system-streamsluice-ds2-true-true-false-when-gradient-8op-150-6000-4000-4000-1-0-2-300-1-5000-2-300-1-5000-2-300-1-5000-6-1050-5000-1000-3000-100-1-false-1"
+bottleneck_operator = "2019e6125f7b4867f5fd448be51e3519"
 drawBacklog(rawDir, expName, outputDir + expName + "/")
