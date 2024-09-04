@@ -243,7 +243,7 @@ exps = [
     #  "blue", "o"],
     ["Sluice",
       #"systemsensitivity-streamsluice-streamsluice-when-1split2join1-400-6000-3000-4000-1-0-2-300-1-5000-2-300-1-5000-2-300-1-5000-6-510-5000-2000-3000-100-10-true-1",
-     "system-streamsluice-ds2-true-true-false-when-gradient-1op-150-6000-4000-4000-1-0-2-300-1-5000-2-300-1-5000-2-300-1-5000-6-1050-5000-1000-3000-100-1-false-1",
+     "system-streamsluice-ds2-true-true-false-when-gradient-6op-150-6000-4000-4000-1-0-2-300-1-5000-2-300-1-5000-2-300-1-5000-6-1050-5000-1000-3000-100-1-false-1",
       "blue", "o"],
 
 

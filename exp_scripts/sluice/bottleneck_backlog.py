@@ -136,6 +136,6 @@ exp_length = 120 #480 #360 #1800
 startTime = 30 # + 300
 rawDir = "/Users/swrrt/Workplace/BacklogDelayPaper/experiments/raw/"
 outputDir = "/Users/swrrt/Workplace/BacklogDelayPaper/experiments/results/"
-expName = "system-streamsluice-ds2-true-true-false-when-gradient-1op-150-6000-4000-4000-1-0-2-300-1-5000-2-300-1-5000-2-300-1-5000-6-1050-5000-1000-3000-100-1-false-1"
-bottleneck_operator = "a84740bacf923e828852cc4966f2247c"
+expName = "system-streamsluice-ds2-true-true-false-when-gradient-6op-150-6000-4000-4000-1-0-2-300-1-5000-2-300-1-5000-2-300-1-5000-6-1050-5000-1000-3000-100-1-false-1"
+bottleneck_operator = "c395b989724fa728d0a2640c6ccdb8a1"
 drawBacklog(rawDir, expName, outputDir + expName + "/")

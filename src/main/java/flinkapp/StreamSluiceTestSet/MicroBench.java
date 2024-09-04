@@ -64,7 +64,7 @@ public class MicroBench {
                     .setParallelism(params.getInt("p1", 1));
         }
         if(GRAPH_TYPE.endsWith("op_line")){
-            int op_n = Integer.parseInt(GRAPH_TYPE.substring(0, GRAPH_TYPE.length() - 2));
+            int op_n = Integer.parseInt(GRAPH_TYPE.substring(0, GRAPH_TYPE.length() - 7));
             SingleOutputStreamOperator<Tuple3<String, Long, Long>> leng_t = source;
             for(int i = 1; i < op_n; i++){
                 leng_t = leng_t.keyBy(0)
