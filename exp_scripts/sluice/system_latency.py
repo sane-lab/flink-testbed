@@ -187,9 +187,9 @@ def readGroundTruthLatencyByMetricsManager(rawDir, expName, windowSize):
         index = int((pair[0] - initialTime) / windowSize)
         if index not in aggregatedGroundTruthLatency:
             aggregatedGroundTruthLatency[index] = []
-        aggregatedGroundTruthLatency[index] += [(pair[1], pair[2], pair[3])]
+        aggregatedGroundTruthLatency[index] += [(pair[1], pair[2], pair[3], pair[4])]
 
-    averageGroundTruthLatency = [[], [], [], []]
+    averageGroundTruthLatency = [[], [], [], [], []]
     for index in sorted(aggregatedGroundTruthLatency):
         time = index * windowSize
         x = int(time)
@@ -203,6 +203,7 @@ def readGroundTruthLatencyByMetricsManager(rawDir, expName, windowSize):
             averageGroundTruthLatency[1] += [y]
             averageGroundTruthLatency[2] += [sortedLatency[target][1]]
             averageGroundTruthLatency[3] += [sortedLatency[target][2]]
+            averageGroundTruthLatency[4] += [sortedLatency[target][3]]
 
     return [averageGroundTruthLatency, initialTime]
 
@@ -275,11 +276,21 @@ def draw(rawDir, outputDir, exps, windowSize):
                                             averageGroundTruthLatencies_FromMetricsManager[i][0][x] >= startTime * 1000 and
                                             averageGroundTruthLatencies_FromMetricsManager[i][0][x] <= (
                                                         startTime + avg_latency_calculateTime) * 1000]
+        groundtruth_P99_before_deserialization_in_range = [averageGroundTruthLatencies_FromMetricsManager[i][2][x] for x
+                                                           in
+                                                           range(0, len(
+                                                               averageGroundTruthLatencies_FromMetricsManager[i][0])) if
+                                                           averageGroundTruthLatencies_FromMetricsManager[i][0][
+                                                               x] >= startTime * 1000 and
+                                                           averageGroundTruthLatencies_FromMetricsManager[i][0][x] <= (
+                                                                   startTime + avg_latency_calculateTime) * 1000]
         lem_latency_in_range = [lem_latencies[i][1][x] for x in range(0, len(lem_latencies[i][0])) if
                               lem_latencies[i][0][x] >= startTime * 1000 and lem_latencies[i][0][x] <= (startTime + avg_latency_calculateTime) * 1000]
         print("in range ground truth P99 latency max:" + str(max(groundtruth_P99_latency_in_range)) + " avg: " + str(sum(groundtruth_P99_latency_in_range)/len(groundtruth_P99_latency_in_range)))
         print("in range ground truth MM latency max:" + str(max(groundtruth_P99_MM_latency_in_range)) + " avg: " + str(
             sum(groundtruth_P99_MM_latency_in_range) / len(groundtruth_P99_MM_latency_in_range)))
+        print("in range (Arrival - DeserializeStart) max:" + str(max(groundtruth_P99_before_deserialization_in_range)) + " avg: " + str(
+            sum(groundtruth_P99_before_deserialization_in_range) / len(groundtruth_P99_before_deserialization_in_range)))
         print("in range lem latency max:" + str(max(lem_latency_in_range)) + " avg: " + str(
             sum(lem_latency_in_range) / len(lem_latency_in_range)))
 
@@ -288,7 +299,7 @@ def draw(rawDir, outputDir, exps, windowSize):
     print(successRatePerExps)
     #print(averageGroundTruthLatencies)
     #fig = plt.figure(figsize=(24, 3))
-    fig = plt.figure(figsize=(12, 5))
+    fig, ax = plt.subplots(figsize=(12, 5))
     print("Draw ground truth curve...")
     for i in range(0, len(exps)):
         averageGroundTruthLatency = averageGroundTruthLatencies[i]
@@ -310,16 +321,26 @@ def draw(rawDir, outputDir, exps, windowSize):
                  linewidth=linewidth * 2, label="Ground Truth P99") #exps[i][0])
         #plt.plot(averageGroundTruthLatencies_FromMetricsManager[i][0], averageGroundTruthLatencies_FromMetricsManager[i][1], '-', color="orange", markersize=4,
         #         linewidth=1, label="Ground Truth P99 Metrics Manager")
-        plt.plot(averageGroundTruthLatencies_FromMetricsManager[i][0],
-                 averageGroundTruthLatencies_FromMetricsManager[i][2], '-', color="brown", markersize=4,
-                 linewidth=1, label="P99 (Deserialize start - Arrival)")
-        plt.plot(averageGroundTruthLatencies_FromMetricsManager[i][0],
-                 averageGroundTruthLatencies_FromMetricsManager[i][3], '-', color="red", markersize=4,
-                 linewidth=1, label="P99 (Deserialize)")
+        # plt.plot(averageGroundTruthLatencies_FromMetricsManager[i][0],
+        #          averageGroundTruthLatencies_FromMetricsManager[i][2], '-', color="orange", markersize=4,
+        #          linewidth=1.5, label="P99 (Deserialize start - Arrival)")
+        # plt.plot(averageGroundTruthLatencies_FromMetricsManager[i][0],
+        #          averageGroundTruthLatencies_FromMetricsManager[i][3], '-', color="brown", markersize=4,
+        #          linewidth=1.5, label="P99 (Deserialize)")
+        # plt.plot(averageGroundTruthLatencies_FromMetricsManager[i][0],
+        #          averageGroundTruthLatencies_FromMetricsManager[i][4], '-', color="purple", markersize=4,
+        #          linewidth=1.5, label="P99 (Processing)")
+
+        y = np.vstack([averageGroundTruthLatencies_FromMetricsManager[i][2], averageGroundTruthLatencies_FromMetricsManager[i][3], averageGroundTruthLatencies_FromMetricsManager[i][4]])
+        ax.stackplot(averageGroundTruthLatencies_FromMetricsManager[i][0],
+                     y,
+                     colors=['orange', 'purple', 'green'],
+                     labels=["Arrival - Deserialize Start", "Deserialize", "Processing"])
+
         if (show_avg_flag):
             plt.plot(sampledLatency[0], sampledLatency[2], '-', color="orange", markersize=4,
                      linewidth=linewidth, label="Ground Truth Average")
-        plt.plot(lem_latencies[i][0], lem_latencies[i][1], 'o', color="green", markersize=2, linewidth=linewidth, label='Estimated Latency')
+        #plt.plot(lem_latencies[i][0], lem_latencies[i][1], 'o', color="green", markersize=2, linewidth=linewidth, label='Estimated Latency')
         # plt.plot([x - initial_times[i] for x in lem_latencies[i][0]], [lem_latencies[i][1][x] + lem_latencies[i][2][x] for x in range(0, len(lem_latencies[i][1]))], 'd', color="gray", markersize=2, linewidth=linewidth)
     addLatencyLimitMarker(plt)
     # legend += ["Limit + Spike"]
@@ -367,7 +388,7 @@ exps = [
     #  "blue", "o"],
     ["GroundTruth",
       #"systemsensitivity-streamsluice-streamsluice-when-1split2join1-400-6000-3000-4000-1-0-2-300-1-5000-2-300-1-5000-2-300-1-5000-6-510-5000-2000-3000-100-10-true-1",
-     "system-streamsluice-ds2-true-true-false-when-gradient-1op_line-170-4000-4000-4000-1-0-2-300-1-5000-2-300-1-5000-2-300-1-5000-1-222-5000-1000-3000-100-1-false-2",
+     "system-streamsluice-ds2-true-true-false-when-gradient-1op_line-170-4000-4000-4000-1-0-2-300-1-5000-2-300-1-5000-2-300-1-5000-1-62-5000-1000-3000-100-1-false-2",
       "blue", "o"],
 
 
