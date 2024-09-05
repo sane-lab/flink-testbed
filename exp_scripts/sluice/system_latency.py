@@ -123,6 +123,90 @@ def readGroundTruthLatency(rawDir, expName, windowSize):
 
     return [averageGroundTruthLatency, initialTime]
 
+def readGroundTruthLatencyByMetricsManager(rawDir, expName, windowSize):
+    initialTime = -1
+    taskExecutors = []  # "flink-samza-taskexecutor-0-eagle-sane.out"
+    import os
+    for file in os.listdir(rawDir + expName + "/"):
+        if file.endswith(".out"):
+            # print(os.path.join(rawDir + expName + "/", file))
+            if file.count("taskexecutor") == 1:
+                taskExecutors += [file]
+    fileInitialTimes = {}
+    groundTruthLatency = []
+    for taskExecutor in taskExecutors:
+        groundTruthPath = rawDir + expName + "/" + taskExecutor
+        print("Reading ground truth file:" + groundTruthPath)
+        fileInitialTime = - 1
+        counter = 0
+        with open(groundTruthPath) as f:
+            lines = f.readlines()
+            for i in range(0, len(lines)):
+                line = lines[i]
+                split = line.rstrip().split()
+                counter += 1
+                if (counter % 5000 == 0):
+                    print("Processed to line:" + str(counter))
+                # if line.startswith("GroundTruth"):
+                #     try:
+                #         # Extract fields from the line
+                #         keygroup = int(split[3])  # keygroup: 40 -> 40
+                #         arrival_ts = int(split[5])  # arrival_ts: 1725453549506 -> 1725453549506
+                #         completion_ts = int(split[7])  # completion_ts: 1725453549625 -> 1725453549625
+                #         if (fileInitialTime == -1 or fileInitialTime > arrival_ts):
+                #             fileInitialTime = arrival_ts
+                #         # Calculate ground truth latency
+                #         latency = completion_ts - arrival_ts
+                #         groundTruthLatency.append([arrival_ts, latency])
+                if line.startswith("tupletime"):
+                    try:
+                        kg_index = 2
+                        while(split[kg_index] != "keygroup:"):
+                            kg_index += 1
+                        # Extract fields from the line
+                        keygroup = int(split[kg_index + 1])  # keygroup: 40 -> 40
+                        arrival_ts = int(split[kg_index + 3])  # arrival_ts: 1725453549506 -> 1725453549506
+                        deserialization_start_ts = int(split[kg_index + 5])
+                        deserialization_over_ts = int(split[kg_index + 7])
+                        completion_ts = int(split[kg_index + 9])  # completion_ts: 1725453549625 -> 1725453549625
+                        if (fileInitialTime == -1 or fileInitialTime > arrival_ts):
+                            fileInitialTime = arrival_ts
+                        # Calculate ground truth latency
+                        latency = completion_ts - arrival_ts
+                        groundTruthLatency.append([arrival_ts, latency, deserialization_start_ts - arrival_ts, deserialization_over_ts - deserialization_start_ts, completion_ts - deserialization_over_ts])
+
+                    except Exception as e:
+                        print(f"Error parsing line {i + 1}: {e}")
+                        continue
+        if (fileInitialTime > 0):
+            fileInitialTimes[taskExecutor] = fileInitialTime
+            if (initialTime == -1 or initialTime > fileInitialTime):
+                initialTime = fileInitialTime
+    aggregatedGroundTruthLatency = {}
+    for pair in groundTruthLatency:
+        index = int((pair[0] - initialTime) / windowSize)
+        if index not in aggregatedGroundTruthLatency:
+            aggregatedGroundTruthLatency[index] = []
+        aggregatedGroundTruthLatency[index] += [(pair[1], pair[2], pair[3])]
+
+    averageGroundTruthLatency = [[], [], [], []]
+    for index in sorted(aggregatedGroundTruthLatency):
+        time = index * windowSize
+        x = int(time)
+        if index in aggregatedGroundTruthLatency:
+            sortedLatency = sorted(aggregatedGroundTruthLatency[index])
+            size = len(sortedLatency)
+            # P99 latency
+            target = min(math.ceil(size * 0.99), size) - 1
+            y = sortedLatency[target][0]
+            averageGroundTruthLatency[0] += [x]
+            averageGroundTruthLatency[1] += [y]
+            averageGroundTruthLatency[2] += [sortedLatency[target][1]]
+            averageGroundTruthLatency[3] += [sortedLatency[target][2]]
+
+    return [averageGroundTruthLatency, initialTime]
+
+
 def readLEMLatencyAndSpike(rawDir, expName) -> [list[int], list[float], list[float]]:
 
     lem_latency = [[], [], []]
@@ -157,6 +241,7 @@ def readLEMLatencyAndSpike(rawDir, expName) -> [list[int], list[float], list[flo
 
 def draw(rawDir, outputDir, exps, windowSize):
     averageGroundTruthLatencies = []
+    averageGroundTruthLatencies_FromMetricsManager = []
     lem_latencies = []
     initial_times = []
     for i in range(0, len(exps)):
@@ -164,6 +249,8 @@ def draw(rawDir, outputDir, exps, windowSize):
         result = readGroundTruthLatency(rawDir, expFile, windowSize)
         averageGroundTruthLatencies += [result[0]]
         initial_times += [result[1]]
+        result = readGroundTruthLatencyByMetricsManager(rawDir, expFile, windowSize)
+        averageGroundTruthLatencies_FromMetricsManager += [result[0]]
         result = readLEMLatencyAndSpike(rawDir, expFile)
         result[0] = [x - initial_times[i] for x in result[0]]
         lem_latencies += [result]
@@ -181,19 +268,18 @@ def draw(rawDir, outputDir, exps, windowSize):
                               averageGroundTruthLatencies[i][0][x] <= (startTime + 1800) * 1000])
         successRatePerExps[exps[i][0]] = totalSuccess / float(totalWindows)
 
-        # Calculate avg groundtruth latency and avg lem latency in warmup period
-        groundtruth_avg_latency_in_range = [averageGroundTruthLatencies[i][2][x] for x in
-                                        range(0, len(averageGroundTruthLatencies[i][0])) if
-                                        averageGroundTruthLatencies[i][0][x] >= startTime * 1000 and
-                                        averageGroundTruthLatencies[i][0][x] <= (
-                                                    startTime + avg_latency_calculateTime) * 1000]
         groundtruth_P99_latency_in_range = [averageGroundTruthLatencies[i][1][x] for x in range(0, len(averageGroundTruthLatencies[i][0])) if
                               averageGroundTruthLatencies[i][0][x] >= startTime * 1000 and averageGroundTruthLatencies[i][0][x] <= (startTime + avg_latency_calculateTime) * 1000]
+        groundtruth_P99_MM_latency_in_range = [averageGroundTruthLatencies_FromMetricsManager[i][1][x] for x in
+                                            range(0, len(averageGroundTruthLatencies_FromMetricsManager[i][0])) if
+                                            averageGroundTruthLatencies_FromMetricsManager[i][0][x] >= startTime * 1000 and
+                                            averageGroundTruthLatencies_FromMetricsManager[i][0][x] <= (
+                                                        startTime + avg_latency_calculateTime) * 1000]
         lem_latency_in_range = [lem_latencies[i][1][x] for x in range(0, len(lem_latencies[i][0])) if
                               lem_latencies[i][0][x] >= startTime * 1000 and lem_latencies[i][0][x] <= (startTime + avg_latency_calculateTime) * 1000]
         print("in range ground truth P99 latency max:" + str(max(groundtruth_P99_latency_in_range)) + " avg: " + str(sum(groundtruth_P99_latency_in_range)/len(groundtruth_P99_latency_in_range)))
-        print("in range ground truth avg latency max:" + str(max(groundtruth_avg_latency_in_range)) + " avg: " + str(
-            sum(groundtruth_avg_latency_in_range) / len(groundtruth_avg_latency_in_range)))
+        print("in range ground truth MM latency max:" + str(max(groundtruth_P99_MM_latency_in_range)) + " avg: " + str(
+            sum(groundtruth_P99_MM_latency_in_range) / len(groundtruth_P99_MM_latency_in_range)))
         print("in range lem latency max:" + str(max(lem_latency_in_range)) + " avg: " + str(
             sum(lem_latency_in_range) / len(lem_latency_in_range)))
 
@@ -221,7 +307,15 @@ def draw(rawDir, outputDir, exps, windowSize):
         else:
             linewidth = 3 / 2.0
         plt.plot(sampledLatency[0], sampledLatency[1], '-', color=exps[i][2], markersize=4,
-                 linewidth=linewidth, label="Ground Truth P99") #exps[i][0])
+                 linewidth=linewidth * 2, label="Ground Truth P99") #exps[i][0])
+        #plt.plot(averageGroundTruthLatencies_FromMetricsManager[i][0], averageGroundTruthLatencies_FromMetricsManager[i][1], '-', color="orange", markersize=4,
+        #         linewidth=1, label="Ground Truth P99 Metrics Manager")
+        plt.plot(averageGroundTruthLatencies_FromMetricsManager[i][0],
+                 averageGroundTruthLatencies_FromMetricsManager[i][2], '-', color="brown", markersize=4,
+                 linewidth=1, label="P99 (Deserialize start - Arrival)")
+        plt.plot(averageGroundTruthLatencies_FromMetricsManager[i][0],
+                 averageGroundTruthLatencies_FromMetricsManager[i][3], '-', color="red", markersize=4,
+                 linewidth=1, label="P99 (Deserialize)")
         if (show_avg_flag):
             plt.plot(sampledLatency[0], sampledLatency[2], '-', color="orange", markersize=4,
                      linewidth=linewidth, label="Ground Truth Average")
@@ -246,8 +340,8 @@ def draw(rawDir, outputDir, exps, windowSize):
     # axes.set_yticks(np.arange(0, 6250, 1250))
     # axes.set_ylim(0, 8000)
     # axes.set_yticks(np.arange(0, 8500, 500))
-    axes.set_ylim(0, 1500)
-    axes.set_yticks(np.arange(0, 1600, 100))
+    axes.set_ylim(-1, 300)
+    axes.set_yticks(np.arange(0, 325, 25))
     if trickFlag:
         axes.set_yticklabels([int(x / 1250 * 1000) for x in np.arange(0, 6250, 1250)])
     # axes.set_yscale('log')
@@ -273,7 +367,7 @@ exps = [
     #  "blue", "o"],
     ["GroundTruth",
       #"systemsensitivity-streamsluice-streamsluice-when-1split2join1-400-6000-3000-4000-1-0-2-300-1-5000-2-300-1-5000-2-300-1-5000-6-510-5000-2000-3000-100-10-true-1",
-     "system-streamsluice-ds2-true-true-false-when-gradient-8op_line-170-4000-4000-4000-1-0-2-300-1-5000-2-300-1-5000-2-300-1-5000-6-510-5000-1000-3000-100-1-false-1",
+     "system-streamsluice-ds2-true-true-false-when-gradient-1op_line-170-4000-4000-4000-1-0-2-300-1-5000-2-300-1-5000-2-300-1-5000-1-222-5000-1000-3000-100-1-false-2",
       "blue", "o"],
 
 
@@ -307,7 +401,7 @@ spike = 2500 #1500
 #latencyLimit = 2500 #1000
 startTime = 30 #+300 #30
 expLength = 120 #480 #480 #360
-show_avg_flag = True
+show_avg_flag = False
 
 avg_latency_calculateTime = 15
 
