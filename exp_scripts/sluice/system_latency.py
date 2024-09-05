@@ -408,8 +408,15 @@ def draw(rawDir, outputDir, exps, windowSize):
             axes.set_xticks(np.arange(startTime * 1000, (startTime + expLength) * 1000 + 60000, 60000))
             axes.set_xticklabels([int((x - startTime * 1000) / 1000) for x in
                                   np.arange(startTime * 1000, (startTime + expLength) * 1000 + 60000, 60000)])
-            axes.set_ylim(-1, 300)
-            axes.set_yticks(np.arange(0, 325, 25))
+
+            if max(averageGroundTruthLatencies_FromMetricsManager[2]) <= 300:
+                axes.set_ylim(-1, 300)
+                axes.set_yticks(np.arange(0, 325, 25))
+            else:
+                axes.set_ylim(-1, 10000)
+                axes.set_yticks(np.arange(0, 11000, 1000))
+
+
             ax.set_ylabel(operator + ' latency (ms)')
             ax.grid(True)
             if index == 0:
@@ -435,7 +442,7 @@ exps = [
     #  "blue", "o"],
     ["GroundTruth",
       #"systemsensitivity-streamsluice-streamsluice-when-1split2join1-400-6000-3000-4000-1-0-2-300-1-5000-2-300-1-5000-2-300-1-5000-6-510-5000-2000-3000-100-10-true-1",
-     "system-streamsluice-ds2-true-true-false-when-gradient-1op_line-170-4000-4000-4000-1-0-2-300-1-5000-2-300-1-5000-2-300-1-5000-1-333-5000-1000-3000-100-1-false-1",
+     "system-streamsluice-ds2-true-true-false-when-gradient-2op_line-170-5000-4000-4000-1-0-2-300-1-5000-2-300-1-5000-2-50-1-5000-1-222-5000-1000-3000-100-1-false-1",
       "blue", "o"],
 
 
