@@ -173,16 +173,16 @@ run_scale_test(){
     # Different service rate
     P5=1
     LP5=1
-#    for DELAY5 in 222 200 166 125 62; do
-#      GRAPH="1op_line"
-#      vertex_id="a84740bacf923e828852cc4966f2247c"
-#      run_one_exp
-#      printf "${EXP_NAME}\n" >> whetherhow_result.txt
-#      GRAPH="8op_line"
-#      vertex_id="a84740bacf923e828852cc4966f2247c,eabd4c11f6c6fbdf011f0f1fc42097b1,d01047f852abd5702a0dabeedac99ff5,d2336f79a0d60b5a4b16c8769ec82e47,36fcfcb61a35d065e60ee34fccb0541a,c395b989724fa728d0a2640c6ccdb8a1,8e0d1d377d577c52511ad507bf0ce330,2019e6125f7b4867f5fd448be51e3519"
-#      run_one_exp
-#      printf "${EXP_NAME}\n" >> whetherhow_result.txt
-#    done
+    for DELAY5 in 250 333; do # 222 200 166 125 62
+      GRAPH="1op_line"
+      vertex_id="a84740bacf923e828852cc4966f2247c"
+      run_one_exp
+      printf "${EXP_NAME}\n" >> whetherhow_result.txt
+      GRAPH="8op_line"
+      vertex_id="a84740bacf923e828852cc4966f2247c,eabd4c11f6c6fbdf011f0f1fc42097b1,d01047f852abd5702a0dabeedac99ff5,d2336f79a0d60b5a4b16c8769ec82e47,36fcfcb61a35d065e60ee34fccb0541a,c395b989724fa728d0a2640c6ccdb8a1,8e0d1d377d577c52511ad507bf0ce330,2019e6125f7b4867f5fd448be51e3519"
+      run_one_exp
+      printf "${EXP_NAME}\n" >> whetherhow_result.txt
+    done
 
     # Different task number
 #    DELAY5=222
@@ -232,16 +232,16 @@ run_scale_test(){
 #    printf "${EXP_NAME}\n" >> whetherhow_result.txt
 
     # Different arrival curve
-    P5=1
-    LP5=1
-    P4=2
-    LP=2
-    GRAPH="1op_line"
-    vertex_id="a84740bacf923e828852cc4966f2247c"
-    for RATE1 in 2000 5000 5500 6000; do
-      run_one_exp
-      printf "${EXP_NAME}\n" >> whetherhow_result.txt
-    done
+#    P5=1
+#    LP5=1
+#    P4=2
+#    LP=2
+#    GRAPH="1op_line"
+#    vertex_id="a84740bacf923e828852cc4966f2247c"
+#    for RATE1 in 2000 5000 5500 6000; do
+#      run_one_exp
+#      printf "${EXP_NAME}\n" >> whetherhow_result.txt
+#    done
 
     is_treat=true
 }
