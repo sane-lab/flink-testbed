@@ -236,11 +236,11 @@ run_scale_test(){
     LP5=1
     P4=2
     LP=2
-#    GRAPH="1op_line"
-#    vertex_id="a84740bacf923e828852cc4966f2247c"
-    GRAPH="2op_line"
-    vertex_id="a84740bacf923e828852cc4966f2247c,eabd4c11f6c6fbdf011f0f1fc42097b1"
-    for RATE1 in 4300; do # 1000 2000 5000 5500
+    GRAPH="1op_line"
+    vertex_id="a84740bacf923e828852cc4966f2247c"
+#    GRAPH="2op_line"
+#    vertex_id="a84740bacf923e828852cc4966f2247c,eabd4c11f6c6fbdf011f0f1fc42097b1"
+    for RATE1 in 100; do # 1000 2000 5000 5500
       run_one_exp
       printf "${EXP_NAME}\n" >> whetherhow_result.txt
     done

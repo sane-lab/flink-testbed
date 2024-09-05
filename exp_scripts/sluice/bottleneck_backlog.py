@@ -4,6 +4,18 @@ import matplotlib
 matplotlib.use('Agg')
 import matplotlib.pyplot as plt
 
+SMALL_SIZE = 25
+MEDIUM_SIZE = 30
+BIGGER_SIZE = 35
+
+plt.rc('font', size=SMALL_SIZE)          # controls default text sizes
+plt.rc('axes', titlesize=SMALL_SIZE)     # fontsize of the axes title
+plt.rc('axes', labelsize=MEDIUM_SIZE)    # fontsize of the x and y labels
+plt.rc('xtick', labelsize=SMALL_SIZE)    # font-size of the tick labels
+plt.rc('ytick', labelsize=SMALL_SIZE)    # fontsize of the tick labels
+plt.rc('legend', fontsize=SMALL_SIZE)    # legend fontsize
+plt.rc('figure', titlesize=BIGGER_SIZE)  # fontsize of the figure title
+
 def parseBacklog(input_string:str) -> dict[str, dict[str, int]]:
     input_string.strip()
     input_string = input_string.replace(" ", "")
@@ -110,13 +122,13 @@ def drawBacklog(rawDir, expName, outputDir):
     fig.tight_layout(rect=[0.02, 0, 0.953, 1])
     axs.grid(True)
     ax1 = axs
-    plt.plot(backlog_times, total_backlogs, label='Total Backlog', color='blue')
+    #plt.plot(backlog_times, total_backlogs, label='Total Backlog', color='blue')
 
     # Plot the maximum task backlog curve
     plt.plot(backlog_times, max_task_backlogs, label='Max Task Backlog', color='red')
 
     # Add titles and labels
-    plt.title(f'Total and Maximum Task Backlog for Operator: {bottleneck_operator}')
+    plt.title(f'Maximum Task Backlog for Bottleneck Operator')
     plt.xlabel('Time')
     plt.ylabel('Backlog')
     plt.legend()
@@ -136,6 +148,7 @@ exp_length = 120 #480 #360 #1800
 startTime = 30 # + 300
 rawDir = "/Users/swrrt/Workplace/BacklogDelayPaper/experiments/raw/"
 outputDir = "/Users/swrrt/Workplace/BacklogDelayPaper/experiments/results/"
-expName = "system-streamsluice-ds2-true-true-false-when-gradient-2op_line-170-4500-4000-4000-1-0-2-300-1-5000-2-300-1-5000-2-50-1-5000-1-222-5000-1000-3000-100-1-false-1"
-bottleneck_operator = "eabd4c11f6c6fbdf011f0f1fc42097b1"
+expName = "system-streamsluice-ds2-true-true-false-when-gradient-1op_line-170-5500-4000-4000-1-0-2-300-1-5000-2-300-1-5000-2-50-1-5000-1-222-5000-1000-3000-100-1-false-1"
+
+bottleneck_operator = "a84740bacf923e828852cc4966f2247c"
 drawBacklog(rawDir, expName, outputDir + expName + "/")
