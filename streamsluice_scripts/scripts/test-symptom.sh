@@ -22,7 +22,7 @@ function analyze() {
 }
 
 run_one_exp() {
-  EXP_NAME=system-${whether_type}-${how_type}-${how_conservative_flag}-${how_steady_limit_flag}-${how_optimization_flag}-${SOURCE_TYPE}-${CURVE_TYPE}-${GRAPH}-${runtime}-${RATE1}-${RATE2}-${RATE_I}-${P1}-${ZIPF_SKEW}-${P2}-${DELAY2}-${IO2}-${STATE_SIZE2}-${P3}-${DELAY3}-${IO3}-${STATE_SIZE3}-${P4}-${DELAY4}-${IO4}-${STATE_SIZE4}-${P5}-${DELAY5}-${STATE_SIZE5}-${L}-${migration_interval}-${epoch}-${decision_interval}-${is_treat}-${repeat}
+  EXP_NAME=system-${whether_type}-${how_type}-${coordination_latency_flag}-${how_conservative_flag}-${how_steady_limit_flag}-${how_optimization_flag}-${SOURCE_TYPE}-${CURVE_TYPE}-${GRAPH}-${runtime}-${RATE1}-${RATE2}-${RATE_I}-${P1}-${ZIPF_SKEW}-${P2}-${DELAY2}-${IO2}-${STATE_SIZE2}-${P3}-${DELAY3}-${IO3}-${STATE_SIZE3}-${P4}-${DELAY4}-${IO4}-${STATE_SIZE4}-${P5}-${DELAY5}-${STATE_SIZE5}-${L}-${migration_interval}-${epoch}-${decision_interval}-${is_treat}-${repeat}
 
   echo "INFO: run exp ${EXP_NAME}"
   configFlink
@@ -168,6 +168,7 @@ run_scale_test(){
     how_optimization_flag=false
     how_steady_limit_flag=true
     how_conservative_flag=true
+    coordination_latency_flag=true
     printf "" > whetherhow_result.txt
 
     # Different service rate
@@ -232,17 +233,28 @@ run_scale_test(){
 #    printf "${EXP_NAME}\n" >> whetherhow_result.txt
 
     # Different arrival curve
-    P5=1
-    LP5=1
+    P5=2
+    LP5=2
+    DELAY5=444
     P4=2
     LP=2
     GRAPH="1op_line"
     vertex_id="a84740bacf923e828852cc4966f2247c"
 #    GRAPH="2op_line"
 #    vertex_id="a84740bacf923e828852cc4966f2247c,eabd4c11f6c6fbdf011f0f1fc42097b1"
-    for RATE1 in 100; do # 1000 2000 5000 5500
+    for RATE1 in 100 4000 4500; do #
+#      GRAPH="1op_line"
+#      vertex_id="a84740bacf923e828852cc4966f2247c"
+#      run_one_exp
+#      printf "${EXP_NAME}\n" >> whetherhow_result.txt
+      GRAPH="2op_line"
+      vertex_id="a84740bacf923e828852cc4966f2247c,eabd4c11f6c6fbdf011f0f1fc42097b1"
       run_one_exp
       printf "${EXP_NAME}\n" >> whetherhow_result.txt
+#      GRAPH="8op_line"
+#      vertex_id="a84740bacf923e828852cc4966f2247c,eabd4c11f6c6fbdf011f0f1fc42097b1,d01047f852abd5702a0dabeedac99ff5,d2336f79a0d60b5a4b16c8769ec82e47,36fcfcb61a35d065e60ee34fccb0541a,c395b989724fa728d0a2640c6ccdb8a1,8e0d1d377d577c52511ad507bf0ce330,2019e6125f7b4867f5fd448be51e3519"
+#      run_one_exp
+#      printf "${EXP_NAME}\n" >> whetherhow_result.txt
     done
 
     is_treat=true
