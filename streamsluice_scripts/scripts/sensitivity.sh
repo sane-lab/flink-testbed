@@ -176,7 +176,6 @@ run_scale_test(){
     # Curve 1
     SOURCE_TYPE="when"
     is_treat=true
-    is_treat=false
     how_type="ds2"
     run_one_exp
     printf "${EXP_NAME}\n" >> whetherhow_result.txt
