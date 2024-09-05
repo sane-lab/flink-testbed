@@ -186,12 +186,14 @@ run_scale_test(){
 
     # Different task number
     DELAY5=222
-    for P5 in 16; do # 2 4 8
-      LP5=${P5}
-      GRAPH="1op_line"
-      vertex_id="a84740bacf923e828852cc4966f2247c"
-      run_one_exp
-      printf "${EXP_NAME}\n" >> whetherhow_result.txt
+    for P5 in 1 2 4 8 16; do # 2 4 8
+      for repeat in 3 4 5 6; do
+        LP5=${P5}
+        GRAPH="1op_line"
+        vertex_id="a84740bacf923e828852cc4966f2247c"
+        run_one_exp
+        printf "${EXP_NAME}\n" >> whetherhow_result.txt
+      done
     done
 
     # Different op number
@@ -202,34 +204,34 @@ run_scale_test(){
     LP=2
     DELAY4=50
 
-    GRAPH="2op_line"
-    vertex_id="a84740bacf923e828852cc4966f2247c,eabd4c11f6c6fbdf011f0f1fc42097b1"
-    run_one_exp
-    printf "${EXP_NAME}\n" >> whetherhow_result.txt
-#    GRAPH="3op_line"
-#    vertex_id="a84740bacf923e828852cc4966f2247c,eabd4c11f6c6fbdf011f0f1fc42097b1,d01047f852abd5702a0dabeedac99ff5"
+#    GRAPH="2op_line"
+#    vertex_id="a84740bacf923e828852cc4966f2247c,eabd4c11f6c6fbdf011f0f1fc42097b1"
 #    run_one_exp
 #    printf "${EXP_NAME}\n" >> whetherhow_result.txt
-    GRAPH="4op_line"
-    vertex_id="a84740bacf923e828852cc4966f2247c,eabd4c11f6c6fbdf011f0f1fc42097b1,d01047f852abd5702a0dabeedac99ff5,d2336f79a0d60b5a4b16c8769ec82e47"
-    run_one_exp
-    printf "${EXP_NAME}\n" >> whetherhow_result.txt
-#    GRAPH="5op_line"
-#    vertex_id="a84740bacf923e828852cc4966f2247c,eabd4c11f6c6fbdf011f0f1fc42097b1,d01047f852abd5702a0dabeedac99ff5,d2336f79a0d60b5a4b16c8769ec82e47,36fcfcb61a35d065e60ee34fccb0541a"
+##    GRAPH="3op_line"
+##    vertex_id="a84740bacf923e828852cc4966f2247c,eabd4c11f6c6fbdf011f0f1fc42097b1,d01047f852abd5702a0dabeedac99ff5"
+##    run_one_exp
+##    printf "${EXP_NAME}\n" >> whetherhow_result.txt
+#    GRAPH="4op_line"
+#    vertex_id="a84740bacf923e828852cc4966f2247c,eabd4c11f6c6fbdf011f0f1fc42097b1,d01047f852abd5702a0dabeedac99ff5,d2336f79a0d60b5a4b16c8769ec82e47"
 #    run_one_exp
 #    printf "${EXP_NAME}\n" >> whetherhow_result.txt
-    GRAPH="6op_line"
-    vertex_id="a84740bacf923e828852cc4966f2247c,eabd4c11f6c6fbdf011f0f1fc42097b1,d01047f852abd5702a0dabeedac99ff5,d2336f79a0d60b5a4b16c8769ec82e47,36fcfcb61a35d065e60ee34fccb0541a,c395b989724fa728d0a2640c6ccdb8a1"
-    run_one_exp
-    printf "${EXP_NAME}\n" >> whetherhow_result.txt
-#    GRAPH="7op_line"
-#    vertex_id="a84740bacf923e828852cc4966f2247c,eabd4c11f6c6fbdf011f0f1fc42097b1,d01047f852abd5702a0dabeedac99ff5,d2336f79a0d60b5a4b16c8769ec82e47,36fcfcb61a35d065e60ee34fccb0541a,c395b989724fa728d0a2640c6ccdb8a1,8e0d1d377d577c52511ad507bf0ce330"
+##    GRAPH="5op_line"
+##    vertex_id="a84740bacf923e828852cc4966f2247c,eabd4c11f6c6fbdf011f0f1fc42097b1,d01047f852abd5702a0dabeedac99ff5,d2336f79a0d60b5a4b16c8769ec82e47,36fcfcb61a35d065e60ee34fccb0541a"
+##    run_one_exp
+##    printf "${EXP_NAME}\n" >> whetherhow_result.txt
+#    GRAPH="6op_line"
+#    vertex_id="a84740bacf923e828852cc4966f2247c,eabd4c11f6c6fbdf011f0f1fc42097b1,d01047f852abd5702a0dabeedac99ff5,d2336f79a0d60b5a4b16c8769ec82e47,36fcfcb61a35d065e60ee34fccb0541a,c395b989724fa728d0a2640c6ccdb8a1"
 #    run_one_exp
 #    printf "${EXP_NAME}\n" >> whetherhow_result.txt
-    GRAPH="8op_line"
-    vertex_id="a84740bacf923e828852cc4966f2247c,eabd4c11f6c6fbdf011f0f1fc42097b1,d01047f852abd5702a0dabeedac99ff5,d2336f79a0d60b5a4b16c8769ec82e47,36fcfcb61a35d065e60ee34fccb0541a,c395b989724fa728d0a2640c6ccdb8a1,8e0d1d377d577c52511ad507bf0ce330,2019e6125f7b4867f5fd448be51e3519"
-    run_one_exp
-    printf "${EXP_NAME}\n" >> whetherhow_result.txt
+##    GRAPH="7op_line"
+##    vertex_id="a84740bacf923e828852cc4966f2247c,eabd4c11f6c6fbdf011f0f1fc42097b1,d01047f852abd5702a0dabeedac99ff5,d2336f79a0d60b5a4b16c8769ec82e47,36fcfcb61a35d065e60ee34fccb0541a,c395b989724fa728d0a2640c6ccdb8a1,8e0d1d377d577c52511ad507bf0ce330"
+##    run_one_exp
+##    printf "${EXP_NAME}\n" >> whetherhow_result.txt
+#    GRAPH="8op_line"
+#    vertex_id="a84740bacf923e828852cc4966f2247c,eabd4c11f6c6fbdf011f0f1fc42097b1,d01047f852abd5702a0dabeedac99ff5,d2336f79a0d60b5a4b16c8769ec82e47,36fcfcb61a35d065e60ee34fccb0541a,c395b989724fa728d0a2640c6ccdb8a1,8e0d1d377d577c52511ad507bf0ce330,2019e6125f7b4867f5fd448be51e3519"
+#    run_one_exp
+#    printf "${EXP_NAME}\n" >> whetherhow_result.txt
 
     # TODO: Different arrival curve
 
