@@ -232,6 +232,10 @@ run_scale_test(){
 #    printf "${EXP_NAME}\n" >> whetherhow_result.txt
 
     # Different arrival curve
+    P5=1
+    LP5=1
+    P4=2
+    LP=2
     GRAPH="1op_line"
     vertex_id="a84740bacf923e828852cc4966f2247c"
     for RATE1 in 2000 5000 5500 6000; do

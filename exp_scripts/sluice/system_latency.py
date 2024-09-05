@@ -328,8 +328,17 @@ def draw(rawDir, outputDir, exps, windowSize):
             linewidth = 3 / 2.0
         plt.plot(sampledLatency[0], sampledLatency[1], '-', color=exps[i][2], markersize=4,
                  linewidth=linewidth * 2, label="Ground Truth P99") #exps[i][0])
-        #plt.plot(averageGroundTruthLatencies_FromMetricsManager[i][0], averageGroundTruthLatencies_FromMetricsManager[i][1], '-', color="orange", markersize=4,
+        # plt.plot(averageGroundTruthLatencies_FromMetricsManager[i][0], averageGroundTruthLatencies_FromMetricsManager[i][1], '-', color="orange", markersize=4,
         #         linewidth=1, label="Ground Truth P99 Metrics Manager")
+        averageGroundTruthLatencies_FromMetricsManager = averageGroundTruthLatencies_FromMetricsManager_PerOperator[i]["op-2"]
+        print(averageGroundTruthLatencies_FromMetricsManager_PerOperator[i])
+        y = np.vstack(
+            [averageGroundTruthLatencies_FromMetricsManager[2], averageGroundTruthLatencies_FromMetricsManager[3],
+             averageGroundTruthLatencies_FromMetricsManager[4]])
+        ax.stackplot(averageGroundTruthLatencies_FromMetricsManager[0],
+                     y,
+                     colors=['orange', 'purple', 'green'],
+                     labels=["Arrival - Deserialize Start", "Deserialize", "Processing"])
         # plt.plot(averageGroundTruthLatencies_FromMetricsManager[i][0],
         #          averageGroundTruthLatencies_FromMetricsManager[i][2], '-', color="orange", markersize=4,
         #          linewidth=1.5, label="P99 (Deserialize start - Arrival)")
@@ -375,6 +384,9 @@ def draw(rawDir, outputDir, exps, windowSize):
     #plt.savefig(outputDir + 'ground_truth_latency_curves.png', bbox_inches='tight')
     plt.savefig(outputDir + 'ground_truth_latency_curves.png', bbox_inches='tight')
     plt.close(fig)
+
+
+    # Print per operator
     for i in range(0, len(exps)):
         operator_num = len(averageGroundTruthLatencies_FromMetricsManager_PerOperator[i].keys())
         fig, axs = plt.subplots(operator_num, 1, figsize=(12, 5 * operator_num))
@@ -423,7 +435,7 @@ exps = [
     #  "blue", "o"],
     ["GroundTruth",
       #"systemsensitivity-streamsluice-streamsluice-when-1split2join1-400-6000-3000-4000-1-0-2-300-1-5000-2-300-1-5000-2-300-1-5000-6-510-5000-2000-3000-100-10-true-1",
-     "system-streamsluice-ds2-true-true-false-when-gradient-8op_line-170-4000-4000-4000-1-0-2-300-1-5000-2-300-1-5000-2-50-1-5000-2-222-5000-1000-3000-100-1-false-1",
+     "system-streamsluice-ds2-true-true-false-when-gradient-1op_line-170-5000-4000-4000-1-0-2-300-1-5000-2-300-1-5000-2-50-1-5000-2-222-5000-1000-3000-100-1-false-1",
       "blue", "o"],
 
 
