@@ -380,7 +380,10 @@ def draw(rawDir, outputDir, exps, windowSize):
         fig, axs = plt.subplots(operator_num, 1, figsize=(12, 5 * operator_num))
         index = 0
         for operator, averageGroundTruthLatencies_FromMetricsManager in averageGroundTruthLatencies_FromMetricsManager_PerOperator[i].items():
-            ax = axs[index]
+            if operator_num > 1:
+                ax = axs[index]
+            else:
+                ax = axs
             y = np.vstack(
                 [averageGroundTruthLatencies_FromMetricsManager[2], averageGroundTruthLatencies_FromMetricsManager[3],
                  averageGroundTruthLatencies_FromMetricsManager[4]])
@@ -420,7 +423,7 @@ exps = [
     #  "blue", "o"],
     ["GroundTruth",
       #"systemsensitivity-streamsluice-streamsluice-when-1split2join1-400-6000-3000-4000-1-0-2-300-1-5000-2-300-1-5000-2-300-1-5000-6-510-5000-2000-3000-100-10-true-1",
-     "system-streamsluice-ds2-true-true-false-when-gradient-4   op_line-170-4000-4000-4000-1-0-2-300-1-5000-2-300-1-5000-2-50-1-5000-2-222-5000-1000-3000-100-1-false-1",
+     "system-streamsluice-ds2-true-true-false-when-gradient-8op_line-170-4000-4000-4000-1-0-2-300-1-5000-2-300-1-5000-2-50-1-5000-2-222-5000-1000-3000-100-1-false-1",
       "blue", "o"],
 
 
@@ -456,7 +459,7 @@ startTime = 30 #+300 #30
 expLength = 120 #480 #480 #360
 show_avg_flag = False
 
-avg_latency_calculateTime = 15
+avg_latency_calculateTime = expLength
 
 isSingleOperator = False #True
 expName = exps[0][1]

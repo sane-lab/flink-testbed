@@ -226,13 +226,18 @@ run_scale_test(){
 #    vertex_id="a84740bacf923e828852cc4966f2247c,eabd4c11f6c6fbdf011f0f1fc42097b1,d01047f852abd5702a0dabeedac99ff5,d2336f79a0d60b5a4b16c8769ec82e47,36fcfcb61a35d065e60ee34fccb0541a,c395b989724fa728d0a2640c6ccdb8a1,8e0d1d377d577c52511ad507bf0ce330"
 #    run_one_exp
 #    printf "${EXP_NAME}\n" >> whetherhow_result.txt
-    for repeat in 2 3 4 5; do
-      GRAPH="8op_line"
-      vertex_id="a84740bacf923e828852cc4966f2247c,eabd4c11f6c6fbdf011f0f1fc42097b1,d01047f852abd5702a0dabeedac99ff5,d2336f79a0d60b5a4b16c8769ec82e47,36fcfcb61a35d065e60ee34fccb0541a,c395b989724fa728d0a2640c6ccdb8a1,8e0d1d377d577c52511ad507bf0ce330,2019e6125f7b4867f5fd448be51e3519"
+#    GRAPH="8op_line"
+#    vertex_id="a84740bacf923e828852cc4966f2247c,eabd4c11f6c6fbdf011f0f1fc42097b1,d01047f852abd5702a0dabeedac99ff5,d2336f79a0d60b5a4b16c8769ec82e47,36fcfcb61a35d065e60ee34fccb0541a,c395b989724fa728d0a2640c6ccdb8a1,8e0d1d377d577c52511ad507bf0ce330,2019e6125f7b4867f5fd448be51e3519"
+#    run_one_exp
+#    printf "${EXP_NAME}\n" >> whetherhow_result.txt
+
+    # Different arrival curve
+    GRAPH="1op_line"
+    vertex_id="a84740bacf923e828852cc4966f2247c"
+    for RATE1 in 2000 5000 5500 6000; do
       run_one_exp
       printf "${EXP_NAME}\n" >> whetherhow_result.txt
     done
-    # TODO: Different arrival curve
 
     is_treat=true
 }
