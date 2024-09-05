@@ -389,7 +389,7 @@ def draw(rawDir, outputDir, exps, windowSize):
     # Print per operator
     for i in range(0, len(exps)):
         operator_num = len(averageGroundTruthLatencies_FromMetricsManager_PerOperator[i].keys())
-        fig, axs = plt.subplots(operator_num, 1, figsize=(12, 5 * operator_num))
+        fig, axs = plt.subplots(1, operator_num, figsize=(10 * operator_num, 5))
         index = 0
         for operator, averageGroundTruthLatencies_FromMetricsManager in averageGroundTruthLatencies_FromMetricsManager_PerOperator[i].items():
             if operator_num > 1:
