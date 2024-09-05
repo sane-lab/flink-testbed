@@ -172,6 +172,7 @@ run_scale_test(){
     how_optimization_flag=false
     how_steady_limit_flag=true
     how_conservative_flag=true
+    coordination_latency_flag=true
     # Curve 1
     SOURCE_TYPE="when"
     is_treat=true
@@ -181,9 +182,11 @@ run_scale_test(){
     printf "${EXP_NAME}\n" >> whetherhow_result.txt
     is_treat=true
     how_type="streamsluice"
-    for L in 2000 1000 750 500; do
-      run_one_exp
-      printf "${EXP_NAME}\n" >> whetherhow_result.txt
+    for coordination_latency_flag in true false; do
+      for L in 2000 1000 750 500; do
+        run_one_exp
+        printf "${EXP_NAME}\n" >> whetherhow_result.txt
+      done
     done
 #    is_treat=false
 #    run_one_exp
