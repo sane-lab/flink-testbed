@@ -180,12 +180,15 @@ run_scale_test(){
     how_type="ds2"
 #    run_one_exp
 #    printf "${EXP_NAME}\n" >> whetherhow_result.txt
-    DELAY2=240
-    DELAY3=240
-    DELAY4=240
+    DELAY2=50
+    DELAY3=50
+    DELAY4=50
+    P2=1
+    P3=1
+    P4=1
     is_treat=true
     how_type="streamsluice"
-    for L in 500 750 1000 2000; do
+    for L in 500; do # 750 1000 2000; do
       conservative_service_rate_flag=false
       how_conservative_flag=true
       run_one_exp
