@@ -174,7 +174,7 @@ run_scale_test(){
     how_conservative_flag=true
     coordination_latency_flag=true
     conservative_service_rate_flag=false
-    smooth_backlog_flag=true
+    smooth_backlog_flag=false
     # Curve 1
     SOURCE_TYPE="when"
     is_treat=false
