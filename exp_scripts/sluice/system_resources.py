@@ -461,7 +461,7 @@ exps = {
         ["Sluice",
          #"systemsensitivity-streamsluice-streamsluice-when-1split2join1-400-6000-3000-4000-1-0-2-300-1-5000-2-300-1-5000-2-300-1-5000-6-510-5000-2000-3000-100-10-true-1",
          #"system-streamsluice-streamsluice-true-true-false-when-mixed-1split2join1-760-6000-3000-4000-1-0-2-300-1-5000-2-300-1-5000-2-300-1-5000-6-510-5000-2000-3000-100-1-true-1",
-         "system-true-streamsluice-streamsluice-true-true-false-when-mixed-1split2join1-520-6000-3000-4000-1-0-1-50-1-5000-1-50-1-5000-1-50-1-5000-6-510-5000-750-3000-100-1-true-1",
+         "system-streamsluice-ds2-true-true-true-true-when-gradient-2op_line-170-5000-4000-4000-1-0-2-300-1-5000-2-300-1-5000-2-50-1-5000-2-444-5000-1000-3000-100-1-false-1",
          "blue", "o"],
 
         # ["Static",
@@ -528,7 +528,7 @@ overall_resource = {}
 trickFlag = True
 for app in exps.keys():
     expName = [exp[1] for exp in exps[app] if exp[0] == "StreamSluice" or exp[0] == "Sluice"][0]
-    exp_length = 480 #480 #480 #360 #1800
+    exp_length = 120 #480 #480 #360 #1800
     startTime = 30 # + 300
     print(expName)
     overall_resource[app] = {}
