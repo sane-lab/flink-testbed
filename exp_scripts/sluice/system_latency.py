@@ -21,7 +21,7 @@ MARKERSIZE=4
 def addLatencyLimitMarker(plt):
     x = [0, 10000000]
     y = [latencyLimit, latencyLimit]
-    plt.plot(x, y, label="Limit", color='red', linewidth=1.5)
+    plt.plot(x, y, "--", label="Limit", color='red', linewidth=1.5)
 def addLatencyLimitWithSpikeMarker(plt):
     x = [0, 10000000]
     y = [latencyLimit + spike, latencyLimit + spike]
@@ -243,9 +243,59 @@ def readLEMLatencyAndSpike(rawDir, expName) -> [list[int], list[float], list[flo
                 lem_latency[2] += [estimated_spike]
     return lem_latency
 
+def retrieve_scaling_info(rawDir, expName):
+    scaling_info = []
+
+    streamsluiceOutput = "flink-samza-standalonesession-0-eagle-sane.out"
+    import os
+    for file in os.listdir(rawDir + expName + "/"):
+        if file.endswith(".out"):
+            # print(os.path.join(rawDir + expName + "/", file))
+            if file.count("standalonesession") == 1:
+                streamsluiceOutput = file
+    streamSluiceOutputPath = rawDir + expName + "/" + streamsluiceOutput
+    print("Reading streamsluice output:" + streamSluiceOutputPath)
+
+    import re
+    # Define regex patterns to match scaling start and complete lines
+    pattern_start = r"\+\+\+ \[CONTROL\] time: (\d+) .*scale (in|out) operator:"
+    pattern_complete = r"\+\+\+ \[CONTROL\] time: (\d+) .*all scaling plan deployed\. Scaling time: (\d+)"
+
+    # Variables to store ongoing scaling events
+    ongoing_scaling = None
+
+    # Open and read the log file
+    with open(streamSluiceOutputPath, 'r') as file:
+        for line in file:
+            # Check if it's a scaling start line
+            match_start = re.search(pattern_start, line)
+            if match_start:
+                # Extract scaling start time and type
+                scaling_time = int(match_start.group(1))
+                scaling_type = match_start.group(2)
+                ongoing_scaling = [scaling_time, scaling_type]
+
+            # Check if it's a scaling complete line
+            match_complete = re.search(pattern_complete, line)
+            if match_complete and ongoing_scaling:
+                # Extract the scaling complete time and the duration
+                complete_time = int(match_complete.group(1))
+                scaling_duration = int(match_complete.group(2))
+                # Finalize the scaling information
+                scaling_info.append([
+                    ongoing_scaling[0],  # Scaling start time
+                    complete_time,  # Scaling complete time
+                    ongoing_scaling[1],  # Scaling type (in or out)
+                ])
+                # Reset ongoing scaling to avoid duplicate matches
+                ongoing_scaling = None
+
+    return scaling_info
+
 def draw(rawDir, outputDir, exps, windowSize):
     averageGroundTruthLatencies = []
     averageGroundTruthLatencies_FromMetricsManager_PerOperator = []
+    scaling_infos = []
     lem_latencies = []
     initial_times = []
     for i in range(0, len(exps)):
@@ -253,11 +303,13 @@ def draw(rawDir, outputDir, exps, windowSize):
         result = readGroundTruthLatency(rawDir, expFile, windowSize)
         averageGroundTruthLatencies += [result[0]]
         initial_times += [result[1]]
-        result = readGroundTruthLatencyByMetricsManager(rawDir, expFile, windowSize)
-        averageGroundTruthLatencies_FromMetricsManager_PerOperator += [result[0]]
+        if ground_truth_component_flag:
+            result = readGroundTruthLatencyByMetricsManager(rawDir, expFile, windowSize)
+            averageGroundTruthLatencies_FromMetricsManager_PerOperator += [result[0]]
         result = readLEMLatencyAndSpike(rawDir, expFile)
         result[0] = [x - initial_times[i] for x in result[0]]
         lem_latencies += [result]
+        scaling_infos += [[[(scaling_info[0] - initial_times[i]), (scaling_info[1] - initial_times[i]), scaling_info[2]] for scaling_info in retrieve_scaling_info(rawDir, expName)]]
     # print("+++ " + str(averageGroundTruthLatencies))
 
 
@@ -279,27 +331,28 @@ def draw(rawDir, outputDir, exps, windowSize):
         print("in range ground truth P99 latency max:" + str(max(groundtruth_P99_latency_in_range)) + " avg: " + str(sum(groundtruth_P99_latency_in_range)/len(groundtruth_P99_latency_in_range)))
         print("in range lem latency max:" + str(max(lem_latency_in_range)) + " avg: " + str(
             sum(lem_latency_in_range) / len(lem_latency_in_range)))
-        for operator_name, averageGroundTruthLatencies_FromMetricsManager in averageGroundTruthLatencies_FromMetricsManager_PerOperator[i].items():
-            groundtruth_P99_MM_latency_in_range = [averageGroundTruthLatencies_FromMetricsManager[1][x] for x in
-                                               range(0, len(averageGroundTruthLatencies_FromMetricsManager[0])) if
-                                               averageGroundTruthLatencies_FromMetricsManager[0][
-                                                   x] >= startTime * 1000 and
-                                               averageGroundTruthLatencies_FromMetricsManager[0][x] <= (
-                                                       startTime + avg_latency_calculateTime) * 1000]
-            groundtruth_P99_except_process_in_range = [averageGroundTruthLatencies_FromMetricsManager[2][x] for x
-                                                           in
-                                                           range(0, len(
-                                                               averageGroundTruthLatencies_FromMetricsManager[0])) if
-                                                           averageGroundTruthLatencies_FromMetricsManager[0][
-                                                               x] >= startTime * 1000 and
-                                                           averageGroundTruthLatencies_FromMetricsManager[0][x] <= (
-                                                                   startTime + avg_latency_calculateTime) * 1000]
-            print("in range operator " + operator_name + " MM latency max:" + str(max(groundtruth_P99_MM_latency_in_range)) + " avg: " + str(
-                sum(groundtruth_P99_MM_latency_in_range) / len(groundtruth_P99_MM_latency_in_range)))
-            print("in range operator " + operator_name + " Except process max:" + str(
-                max(groundtruth_P99_except_process_in_range)) + " avg: " + str(
-                sum(groundtruth_P99_except_process_in_range) / len(
-                    groundtruth_P99_except_process_in_range)))
+        if ground_truth_component_flag:
+            for operator_name, averageGroundTruthLatencies_FromMetricsManager in averageGroundTruthLatencies_FromMetricsManager_PerOperator[i].items():
+                groundtruth_P99_MM_latency_in_range = [averageGroundTruthLatencies_FromMetricsManager[1][x] for x in
+                                                   range(0, len(averageGroundTruthLatencies_FromMetricsManager[0])) if
+                                                   averageGroundTruthLatencies_FromMetricsManager[0][
+                                                       x] >= startTime * 1000 and
+                                                   averageGroundTruthLatencies_FromMetricsManager[0][x] <= (
+                                                           startTime + avg_latency_calculateTime) * 1000]
+                groundtruth_P99_except_process_in_range = [averageGroundTruthLatencies_FromMetricsManager[2][x] for x
+                                                               in
+                                                               range(0, len(
+                                                                   averageGroundTruthLatencies_FromMetricsManager[0])) if
+                                                               averageGroundTruthLatencies_FromMetricsManager[0][
+                                                                   x] >= startTime * 1000 and
+                                                               averageGroundTruthLatencies_FromMetricsManager[0][x] <= (
+                                                                       startTime + avg_latency_calculateTime) * 1000]
+                print("in range operator " + operator_name + " MM latency max:" + str(max(groundtruth_P99_MM_latency_in_range)) + " avg: " + str(
+                    sum(groundtruth_P99_MM_latency_in_range) / len(groundtruth_P99_MM_latency_in_range)))
+                print("in range operator " + operator_name + " Except process max:" + str(
+                    max(groundtruth_P99_except_process_in_range)) + " avg: " + str(
+                    sum(groundtruth_P99_except_process_in_range) / len(
+                        groundtruth_P99_except_process_in_range)))
 
     print("1800 seconds success rate")
     print(successRatePerExps)
@@ -327,7 +380,7 @@ def draw(rawDir, outputDir, exps, windowSize):
                  linewidth=linewidth * 2, label="Ground Truth P99") #exps[i][0])
         # plt.plot(averageGroundTruthLatencies_FromMetricsManager[i][0], averageGroundTruthLatencies_FromMetricsManager[i][1], '-', color="orange", markersize=4,
         #         linewidth=1, label="Ground Truth P99 Metrics Manager")
-        averageGroundTruthLatencies_FromMetricsManager = averageGroundTruthLatencies_FromMetricsManager_PerOperator[i]["op-2"]
+        #averageGroundTruthLatencies_FromMetricsManager = averageGroundTruthLatencies_FromMetricsManager_PerOperator[i]["op-2"]
         # y = np.vstack(
         #     [averageGroundTruthLatencies_FromMetricsManager[2], averageGroundTruthLatencies_FromMetricsManager[3]])
         # ax.stackplot(averageGroundTruthLatencies_FromMetricsManager[0],
@@ -347,27 +400,43 @@ def draw(rawDir, outputDir, exps, windowSize):
             plt.plot(sampledLatency[0], sampledLatency[2], '-', color="orange", markersize=4,
                      linewidth=linewidth, label="Ground Truth Average")
         plt.plot(lem_latencies[i][0], lem_latencies[i][1], '-', color="green", markersize=2, linewidth=linewidth, label='Estimated Latency')
+
+        # Add Scaling Marker
+        if (show_scaling_flag):
+            for scaling_info in scaling_infos[i]:
+                plt.plot([scaling_info[0], scaling_info[0]], [0, 1000000], '-', color=("red" if scaling_info[2] == "out" else "orange"), linewidth=1, label=("Scaling " + scaling_info[2]))
+                plt.plot([scaling_info[1], scaling_info[1]], [0, 1000000], '-',
+                         color=("green"), linewidth=1,
+                         label=("Scaling Complete"))
+                plt.plot([scaling_info[0], scaling_info[1]], [4000, 4000], '-',
+                         color=("black"), linewidth=1)
         # plt.plot([x - initial_times[i] for x in lem_latencies[i][0]], [lem_latencies[i][1][x] + lem_latencies[i][2][x] for x in range(0, len(lem_latencies[i][1]))], 'd', color="gray", markersize=2, linewidth=linewidth)
     addLatencyLimitMarker(plt)
     # legend += ["Limit + Spike"]
     # addLatencyLimitWithSpikeMarker(plt)
     # plt.legend(legend, bbox_to_anchor=(0.45, 1.3), loc='upper center', ncol=4, markerscale=4.)  # When
     # plt.legend(legend, bbox_to_anchor=(0.45, 1.3), loc='upper center', ncol=3, markerscale=4.)  # How1
-    plt.legend(bbox_to_anchor=(0.45, 1.4), loc='upper center', ncol=3, markerscale=4.) # How2
+    handles, labels = plt.gca().get_legend_handles_labels()
+    newLabels, newHandles = [], []
+    for handle, label in zip(handles, labels):
+        if label not in newLabels:
+            newLabels.append(label)
+            newHandles.append(handle)
+    plt.legend(newHandles, newLabels, bbox_to_anchor=(0.45, 1.4), loc='upper center', ncol=3, markerscale=4.) # How2
     #plt.xlabel('Time (min)')
     plt.ylabel('Latency (ms)')
     #plt.title('Latency Curves')
     #axes.set_ylim(0, 5000)
     axes = plt.gca()
-    axes.set_xlim(startTime * 1000, (startTime + expLength) * 1000)
-    axes.set_xticks(np.arange(startTime * 1000, (startTime + expLength) * 1000 + 60000, 60000))
-    axes.set_xticklabels([int((x - startTime * 1000) / 1000) for x in np.arange(startTime * 1000, (startTime + expLength) * 1000 + 60000, 60000)])
+    axes.set_xlim((startTime) * 1000, (startTime + expLength) * 1000)
+    axes.set_xticks(np.arange((startTime) * 1000, (startTime + expLength) * 1000 + 60000, 60000))
+    axes.set_xticklabels([int((x - startTime * 1000) / 1000) for x in np.arange((startTime)  * 1000, (startTime + expLength) * 1000 + 60000, 60000)])
     #axes.set_yticks(np.arange(0, 6000, 1000))
     # axes.set_ylim(0, 5000)
     # axes.set_yticks(np.arange(0, 6250, 1250))
     if max(lem_latencies[i][1]) > 500 or max(sampledLatency[2]) > 500:
-        axes.set_ylim(0, 5000)
-        axes.set_yticks(np.arange(0, 5500, 500))
+        axes.set_ylim(0, 3000)
+        axes.set_yticks(np.arange(0, 3500, 500))
     else:
         axes.set_ylim(-1, 500)
         axes.set_yticks(np.arange(0, 550, 50))
@@ -384,48 +453,50 @@ def draw(rawDir, outputDir, exps, windowSize):
 
 
     # Print per operator
-    for i in range(0, len(exps)):
-        operator_num = len(averageGroundTruthLatencies_FromMetricsManager_PerOperator[i].keys())
-        fig, axs = plt.subplots(1, operator_num, figsize=(10 * operator_num, 5))
-        index = 0
-        for operator, averageGroundTruthLatencies_FromMetricsManager in averageGroundTruthLatencies_FromMetricsManager_PerOperator[i].items():
-            if operator_num > 1:
-                ax = axs[index]
-            else:
-                ax = axs
-            y = np.vstack(
-                [averageGroundTruthLatencies_FromMetricsManager[2], averageGroundTruthLatencies_FromMetricsManager[3]])
-            ax.stackplot(averageGroundTruthLatencies_FromMetricsManager[0],
-                         y,
-                         colors=['orange', 'green'],
-                         labels=["Except Processing", "Processing"])
-            axes = ax
-            axes.set_xlim(startTime * 1000, (startTime + expLength) * 1000)
-            axes.set_xticks(np.arange(startTime * 1000, (startTime + expLength) * 1000 + 60000, 60000))
-            axes.set_xticklabels([int((x - startTime * 1000) / 1000) for x in
-                                  np.arange(startTime * 1000, (startTime + expLength) * 1000 + 60000, 60000)])
+    if ground_truth_component_flag:
+        for i in range(0, len(exps)):
+            operator_num = len(averageGroundTruthLatencies_FromMetricsManager_PerOperator[i].keys())
+            fig, axs = plt.subplots(1, operator_num, figsize=(10 * operator_num, 5))
+            index = 0
+            for operator, averageGroundTruthLatencies_FromMetricsManager in averageGroundTruthLatencies_FromMetricsManager_PerOperator[i].items():
+                if operator_num > 1:
+                    ax = axs[index]
+                else:
+                    ax = axs
+                y = np.vstack(
+                    [averageGroundTruthLatencies_FromMetricsManager[2], averageGroundTruthLatencies_FromMetricsManager[3]])
+                ax.stackplot(averageGroundTruthLatencies_FromMetricsManager[0],
+                             y,
+                             colors=['orange', 'green'],
+                             labels=["Except Processing", "Processing"])
+                axes = ax
+                axes.set_xlim(startTime * 1000, (startTime + expLength) * 1000)
+                axes.set_xticks(np.arange(startTime * 1000, (startTime + expLength) * 1000 + 60000, 60000))
+                axes.set_xticklabels([int((x - startTime * 1000) / 1000) for x in
+                                      np.arange(startTime * 1000, (startTime + expLength) * 1000 + 60000, 60000)])
 
-            if max(averageGroundTruthLatencies_FromMetricsManager[2]) <= 300:
-                axes.set_ylim(-1, 300)
-                axes.set_yticks(np.arange(0, 325, 25))
-            else:
-                axes.set_ylim(-1, 10000)
-                axes.set_yticks(np.arange(0, 11000, 1000))
+                if max(averageGroundTruthLatencies_FromMetricsManager[2]) <= 300:
+                    axes.set_ylim(-1, 300)
+                    axes.set_yticks(np.arange(0, 325, 25))
+                else:
+                    axes.set_ylim(-1, 10000)
+                    axes.set_yticks(np.arange(0, 11000, 1000))
 
 
-            ax.set_ylabel(operator + ' latency (ms)')
-            ax.grid(True)
-            if index == 0:
-                ax.legend()
-            index += 1
-        import os
-        if not os.path.exists(outputDir):
-            os.makedirs(outputDir)
-        # plt.savefig(outputDir + 'ground_truth_latency_curves.png', bbox_inches='tight')
-        plt.savefig(outputDir + 'operator_latency_component.png', bbox_inches='tight')
-        plt.close(fig)
+                ax.set_ylabel(operator + ' latency (ms)')
+                ax.grid(True)
+                if index == 0:
+                    ax.legend()
+                index += 1
+            import os
+            if not os.path.exists(outputDir):
+                os.makedirs(outputDir)
+            # plt.savefig(outputDir + 'ground_truth_latency_curves.png', bbox_inches='tight')
+            plt.savefig(outputDir + 'operator_latency_component.png', bbox_inches='tight')
+            plt.close(fig)
 rawDir = "/Users/swrrt/Workplace/BacklogDelayPaper/experiments/raw/"
 outputDir = "/Users/swrrt/Workplace/BacklogDelayPaper/experiments/results/"
+
 exps = [
     # ["Earlier",
     #  "systemsensitivity-streamsluice_earlier-streamsluice-when-1split2join1-400-6000-3000-4000-1-0-2-300-1-10000-2-300-1-10000-2-300-1-10000-6-510-10000-2500-3000-100-10-true-1",
@@ -438,7 +509,7 @@ exps = [
     #  "blue", "o"],
     ["GroundTruth",
       #"systemsensitivity-streamsluice-streamsluice-when-1split2join1-400-6000-3000-4000-1-0-2-300-1-5000-2-300-1-5000-2-300-1-5000-6-510-5000-2000-3000-100-10-true-1",
-     "system-streamsluice-ds2-true-true-true-false-when-gradient-2op_line-170-5000-4000-4000-1-0-2-300-1-5000-2-300-1-5000-2-50-1-5000-2-444-5000-1000-3000-100-1-false-1",
+     "system-false-streamsluice-streamsluice-true-true-false-when-mixed-1split2join1-760-6000-3000-4000-1-0-2-300-1-5000-2-300-1-5000-2-300-1-5000-6-510-5000-500-3000-100-1-true-1",
       "blue", "o"],
 
 
@@ -459,7 +530,6 @@ exps = [
     #  "blue", "o"],
 ]
 
-
 import sys
 if len(sys.argv) > 1:
     expName = sys.argv[1].split("/")[-1]
@@ -467,14 +537,16 @@ if len(sys.argv) > 1:
 overall_latency = {}
 
 windowSize = 500 #500
-latencyLimit = 50000
+latencyLimit = 500
 spike = 2500 #1500
 #latencyLimit = 2500 #1000
 startTime = 30 #+300 #30
-expLength = 120 #480 #480 #360
+expLength = 480 #480 #480 #480 #360
 show_avg_flag = False
+ground_truth_component_flag = False
+show_scaling_flag = True
 
-avg_latency_calculateTime = expLength
+avg_latency_calculateTime = 30 #expLength
 
 isSingleOperator = False #True
 expName = exps[0][1]

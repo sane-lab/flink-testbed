@@ -50,6 +50,7 @@ init() {
   vertex_id="a84740bacf923e828852cc4966f2247c,eabd4c11f6c6fbdf011f0f1fc42097b1,d01047f852abd5702a0dabeedac99ff5"
   L=1000
   migration_interval=500
+  metrics_report_interval_ns=100000000
   epoch=100
   # app level
   JAR="${FLINK_APP_DIR}/target/testbed-1.0-SNAPSHOT.jar"
@@ -80,6 +81,7 @@ init() {
   DELAY4=300
   IO4=1
   STATE_SIZE4=1000
+
 
   P5=6
   MP5=128
@@ -242,20 +244,21 @@ run_scale_test(){
     vertex_id="a84740bacf923e828852cc4966f2247c"
 #    GRAPH="2op_line"
 #    vertex_id="a84740bacf923e828852cc4966f2247c,eabd4c11f6c6fbdf011f0f1fc42097b1"
-    for RATE1 in 100 4000 4500 5000; do #
-      GRAPH="1op_line"
-      vertex_id="a84740bacf923e828852cc4966f2247c"
-      run_one_exp
-      printf "${EXP_NAME}\n" >> whetherhow_result.txt
-#      GRAPH="2op_line"
-#      vertex_id="a84740bacf923e828852cc4966f2247c,eabd4c11f6c6fbdf011f0f1fc42097b1"
-#      run_one_exp
-#      printf "${EXP_NAME}\n" >> whetherhow_result.txt
-      GRAPH="8op_line"
-      vertex_id="a84740bacf923e828852cc4966f2247c,eabd4c11f6c6fbdf011f0f1fc42097b1,d01047f852abd5702a0dabeedac99ff5,d2336f79a0d60b5a4b16c8769ec82e47,36fcfcb61a35d065e60ee34fccb0541a,c395b989724fa728d0a2640c6ccdb8a1,8e0d1d377d577c52511ad507bf0ce330,2019e6125f7b4867f5fd448be51e3519"
-      run_one_exp
-      printf "${EXP_NAME}\n" >> whetherhow_result.txt
-
+    for metrics_report_interval_ns in 50000000 20000000; do
+      for RATE1 in 4000 5000; do #
+  #      GRAPH="1op_line"
+  #      vertex_id="a84740bacf923e828852cc4966f2247c"
+  #      run_one_exp
+  #      printf "${EXP_NAME}\n" >> whetherhow_result.txt
+        GRAPH="2op_line"
+        vertex_id="a84740bacf923e828852cc4966f2247c,eabd4c11f6c6fbdf011f0f1fc42097b1"
+        run_one_exp
+        printf "${EXP_NAME}\n" >> whetherhow_result.txt
+  #      GRAPH="8op_line"
+  #      vertex_id="a84740bacf923e828852cc4966f2247c,eabd4c11f6c6fbdf011f0f1fc42097b1,d01047f852abd5702a0dabeedac99ff5,d2336f79a0d60b5a4b16c8769ec82e47,36fcfcb61a35d065e60ee34fccb0541a,c395b989724fa728d0a2640c6ccdb8a1,8e0d1d377d577c52511ad507bf0ce330,2019e6125f7b4867f5fd448be51e3519"
+  #      run_one_exp
+  #      printf "${EXP_NAME}\n" >> whetherhow_result.txt
+      done
     done
 
     is_treat=true
