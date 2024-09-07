@@ -174,6 +174,7 @@ run_scale_test(){
     how_conservative_flag=true
     coordination_latency_flag=true
     conservative_service_rate_flag=false
+    smooth_backlog_flag=false
     # Curve 1
     SOURCE_TYPE="when"
     is_treat=false
@@ -189,6 +190,7 @@ run_scale_test(){
     P5=6
     is_treat=true
     how_type="streamsluice"
+    DELAY5=530
     for L in 750; do # 750 1000 2000; do
       conservative_service_rate_flag=false
       how_conservative_flag=true

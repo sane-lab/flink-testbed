@@ -294,6 +294,7 @@ model.max_parallelism.2019e6125f7b4867f5fd448be51e3519: 21
 streamsluice.system.metrics_interval: 100
 
 streamsluice.system.true_arrival_calibrated: false
+streamsluice.system.backlog_smooth: true
 
 model.warmup: 10000
 

@@ -244,7 +244,7 @@ run_scale_test(){
     vertex_id="a84740bacf923e828852cc4966f2247c"
 #    GRAPH="2op_line"
 #    vertex_id="a84740bacf923e828852cc4966f2247c,eabd4c11f6c6fbdf011f0f1fc42097b1"
-    for metrics_report_interval_ns in 50000000 20000000; do
+    for smooth_backlog_flag in false true; do
       for RATE1 in 4000 5000; do #
   #      GRAPH="1op_line"
   #      vertex_id="a84740bacf923e828852cc4966f2247c"
