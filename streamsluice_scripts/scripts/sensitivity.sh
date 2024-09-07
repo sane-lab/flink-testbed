@@ -185,6 +185,9 @@ run_scale_test(){
     for L in 2000 1000 750 500; do
       conservative_service_rate_flag=true
       how_conservative_flag=false
+      DELAY2=240
+      DELAY3=240
+      DELAY4=240
       run_one_exp
       printf "${EXP_NAME}\n" >> whetherhow_result.txt
     done
