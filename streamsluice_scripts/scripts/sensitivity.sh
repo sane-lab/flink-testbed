@@ -191,15 +191,15 @@ run_scale_test(){
     is_treat=true
     how_type="streamsluice"
     DELAY5=530
-    for L in 750; do # 750 1000 2000; do
+    for L in 500 750 1000 2000; do
       conservative_service_rate_flag=false
       how_conservative_flag=true
       run_one_exp
       printf "${EXP_NAME}\n" >> whetherhow_result.txt
-#      conservative_service_rate_flag=true
-#      how_conservative_flag=false
-#      run_one_exp
-#      printf "${EXP_NAME}\n" >> whetherhow_result.txt
+      conservative_service_rate_flag=true
+      how_conservative_flag=false
+      run_one_exp
+      printf "${EXP_NAME}\n" >> whetherhow_result.txt
     done
 #    is_treat=false
 #    run_one_exp
