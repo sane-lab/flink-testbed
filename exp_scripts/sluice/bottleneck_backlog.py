@@ -148,7 +148,7 @@ exp_length = 120 #480 #360 #1800
 startTime = 30 # + 300
 rawDir = "/Users/swrrt/Workplace/BacklogDelayPaper/experiments/raw/"
 outputDir = "/Users/swrrt/Workplace/BacklogDelayPaper/experiments/results/"
-expName = "system-true-streamsluice-streamsluice-false-true-true-when-mixed-1split2join1-520-6000-3000-4000-1-0-2-240-1-5000-2-240-1-5000-2-240-1-5000-6-510-5000-500-3000-100-1-true-1"
+expName = "system-true-streamsluice-streamsluice-false-true-true-when-mixed-1split2join1-520-6000-3000-4000-1-0-1-50-1-5000-1-50-1-5000-1-50-1-5000-6-510-5000-1000-3000-100-1-true-1"
 
 bottleneck_operator = "eabd4c11f6c6fbdf011f0f1fc42097b1"
 drawBacklog(rawDir, expName, outputDir + expName + "/")

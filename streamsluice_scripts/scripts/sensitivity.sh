@@ -186,17 +186,18 @@ run_scale_test(){
     P2=1
     P3=1
     P4=1
+    P5=6
     is_treat=true
     how_type="streamsluice"
-    for L in 500; do # 750 1000 2000; do
+    for L in 750; do # 750 1000 2000; do
       conservative_service_rate_flag=false
       how_conservative_flag=true
       run_one_exp
       printf "${EXP_NAME}\n" >> whetherhow_result.txt
-      conservative_service_rate_flag=true
-      how_conservative_flag=false
-      run_one_exp
-      printf "${EXP_NAME}\n" >> whetherhow_result.txt
+#      conservative_service_rate_flag=true
+#      how_conservative_flag=false
+#      run_one_exp
+#      printf "${EXP_NAME}\n" >> whetherhow_result.txt
     done
 #    is_treat=false
 #    run_one_exp
