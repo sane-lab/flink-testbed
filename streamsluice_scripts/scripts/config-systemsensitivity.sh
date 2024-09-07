@@ -62,7 +62,7 @@ function configFlink() {
     sed 's/^\(\s*controller.how.conservative\s*:\s*\).*/\1'"$how_conservative_flag"'/' tmp25 > tmp26
     sed 's/^\(\s*controller.steady_limit\s*:\s*\).*/\1'"$how_steady_limit_flag"'/' tmp26 > tmp27
     sed 's/^\(\s*model.coordination_latency_flag\s*:\s*\).*/\1'"$coordination_latency_flag"'/' tmp27 > tmp28
-    sed 's/^\(\s*policy.windowSize\s*:\s*\).*/\1'"$metrics_report_interval_ns"'/' tmp28 > tmp29
+    sed 's/^\(\s*model.conservative_service_rate_flag\s*:\s*\).*/\1'"$conservative_service_rate_flag"'/' tmp28 > tmp29
     sed 's/^\(\s*controller.scale_in.type\s*:\s*\).*/\1'"$scalein_type"'/' tmp29 > ${FLINK_CONF_DIR}/flink-conf.yaml
     rm tmp*
     echo ${FLINK_CONF_DIR}/flink-conf.yaml

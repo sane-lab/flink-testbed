@@ -312,6 +312,7 @@ streamsluice.system.spike_estimation_intercept: 1250
 streamswitch.system.initialservicerate: 0.8
 
 model.coordination_latency_flag: true
+model.conservative_service_rate_flag: true
 
 streamsluice.system.is_treat: true
 
