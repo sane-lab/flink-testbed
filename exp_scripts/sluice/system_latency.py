@@ -509,7 +509,7 @@ exps = [
     #  "blue", "o"],
     ["GroundTruth",
       #"systemsensitivity-streamsluice-streamsluice-when-1split2join1-400-6000-3000-4000-1-0-2-300-1-5000-2-300-1-5000-2-300-1-5000-6-510-5000-2000-3000-100-10-true-1",
-     "system-true-streamsluice-streamsluice-true-true-false-when-mixed-1split2join1-520-6000-3000-4000-1-0-1-50-1-5000-1-50-1-5000-1-50-1-5000-6-530-5000-750-3000-100-1-true-1",
+     "system-true-streamsluice-streamsluice-false-true-true-false-when-mixed-1split2join1-520-6000-3000-4000-1-0-1-50-1-5000-1-50-1-5000-1-50-1-5000-6-530-5000-2000-3000-100-1-true-1",
       "blue", "o"],
 
 
@@ -537,7 +537,7 @@ if len(sys.argv) > 1:
 overall_latency = {}
 
 windowSize = 2000 #500 #500
-latencyLimit = 750
+latencyLimit = 2000
 spike = 2500 #1500
 #latencyLimit = 2500 #1000
 startTime = 30 #+300 #30

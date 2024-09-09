@@ -156,9 +156,9 @@ run_scale_test(){
     spike_intercept=1000
     runtime=520 #520 #400
     DELTA_I=270
-    LP2=2
-    LP3=2
-    LP4=2
+    LP2=3
+    LP3=3
+    LP4=3
     LP5=13
 
     RATE1=6000
@@ -171,9 +171,9 @@ run_scale_test(){
     how_more_optimization_flag=false
     how_optimization_flag=false
     how_steady_limit_flag=true
-    how_conservative_flag=true
+    how_conservative_flag=false # true
     coordination_latency_flag=true
-    conservative_service_rate_flag=false
+    conservative_service_rate_flag=true # false
     smooth_backlog_flag=false
     # Curve 1
     SOURCE_TYPE="when"
@@ -181,26 +181,33 @@ run_scale_test(){
     how_type="ds2"
 #    run_one_exp
 #    printf "${EXP_NAME}\n" >> whetherhow_result.txt
-    DELAY2=50
-    DELAY3=50
-    DELAY4=50
-    P2=1
-    P3=1
-    P4=1
+    DELAY2=300
+    DELAY3=300
+    DELAY4=300
+    P2=2
+    P3=2
+    P4=2
     P5=6
     is_treat=true
     how_type="streamsluice"
     DELAY5=530
-    for L in 500 750 1000 2000; do
-      conservative_service_rate_flag=false
-      how_conservative_flag=true
-      run_one_exp
-      printf "${EXP_NAME}\n" >> whetherhow_result.txt
-      conservative_service_rate_flag=true
-      how_conservative_flag=false
-      run_one_exp
-      printf "${EXP_NAME}\n" >> whetherhow_result.txt
+    runtime=980
+    for TIME1 in 30 45 60; do
+      TIME2=${TIME1}
+      TIME_I=${TIME1}
+      for RATE1 in 5500 6000 7000; do
+        for CURVE_TYPE in "gradient" "linear" "quarter-sine" "sine"; do
+          for L in 500 750 1000 1500 2000; do
+            run_one_exp
+            printf "${EXP_NAME}\n" >> whetherhow_result.txt
+          done
+        done
+      done
     done
+
+
+
+
 #    is_treat=false
 #    run_one_exp
 #    printf "${EXP_NAME}\n" >> whetherhow_result.txt
