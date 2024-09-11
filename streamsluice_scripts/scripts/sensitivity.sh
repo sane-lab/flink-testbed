@@ -191,8 +191,8 @@ run_scale_test(){
     is_treat=true
     how_type="streamsluice"
     DELAY5=530
-    runtime=360 #980
-    for TIME1 in 600; do # 60
+    runtime=210 #360 #980
+    for TIME1 in 300; do  #600 # 60
       TIME2=${TIME1}
       TIME_I=30 #${TIME1}
       for RATE1 in 10000; do
@@ -203,7 +203,7 @@ run_scale_test(){
 #          printf "${EXP_NAME}\n" >> whetherhow_result.txt
           is_treat=true
           how_type="streamsluice"
-          for L in 250; do #310 315 325 350 500 750 1000 1500 2000; do
+          for L in 310 325 350 500 750 1000 1500 2000; do
             run_one_exp
             printf "${EXP_NAME}\n" >> whetherhow_result.txt
           done
