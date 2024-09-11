@@ -191,8 +191,8 @@ run_scale_test(){
     is_treat=true
     how_type="streamsluice"
     DELAY5=530
-    runtime=360 #980
-    for TIME1 in 600; do # 60
+    runtime=210 #360 #980
+    for TIME1 in 300; do # 60
       TIME2=${TIME1}
       TIME_I=30 #${TIME1}
       for RATE1 in 10000; do
