@@ -203,7 +203,7 @@ run_scale_test(){
 #          printf "${EXP_NAME}\n" >> whetherhow_result.txt
           is_treat=true
           how_type="streamsluice"
-          for L in 310 315; do
+          for L in 310 315 325 350 500 750 1000 1500 2000; do
             run_one_exp
             printf "${EXP_NAME}\n" >> whetherhow_result.txt
           done

@@ -64,7 +64,7 @@ def plot_parallelism_vs_our_limit(outputDir, setting_name, data):
     average_parallelism = [entry[4] for entry in data]  # Assuming the 5th field is 'average parallelism'
 
     # Create a new figure
-    fig, axs = plt.figure(figsize=(14, 6))
+    fig, ax1 = plt.subplots(figsize=(14, 6))
 
     # Plot 'average parallelism' vs 'our limit'
     plt.plot(our_limits, average_parallelism, '-o', label='Average Parallelism', color='green')
@@ -84,7 +84,7 @@ def plot_parallelism_vs_our_limit(outputDir, setting_name, data):
     import os
     if not os.path.exists(outputDir + setting_name):
         os.makedirs(outputDir + setting_name)
-    plt.savefig(outputDir + setting_name + "/" + '_P99Limit_vs_ourlimit.png', bbox_inches='tight')
+    plt.savefig(outputDir + setting_name + "/" + '_parallelism_vs_ourlimit.png', bbox_inches='tight')
     plt.close(fig)
 
 
@@ -140,8 +140,8 @@ data_under_settings = {
         [500, 382, 302, 0.9964211154190278, 12.24249],
         [750, 608, 452, 0.9964221824686941, 11.74845],
         [1000, 925, 721, 0.9955250596658711, 11.741676666666667],
-        [1500, 1735, 1422, 0.9668557778441326, ],
-        [2000, 2073, 1627, 0.9865751789976134, ],
+        [1500, 1735, 1422, 0.9668557778441326, 11.470643333333333],
+        [2000, 2073, 1627, 0.9865751789976134, 11.49742],
     ],
 
     # "system-true-streamsluice-streamsluice-false-true-true-false-when-gradient-1split2join1-980-5500-3000-4000-30-1-0-1-50-1-5000-1-50-1-5000-1-50-1-5000-6-530-5000-500-3000-100-1-true-1":
