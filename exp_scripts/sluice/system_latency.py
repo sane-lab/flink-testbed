@@ -26,6 +26,27 @@ def addLatencyLimitWithSpikeMarker(plt):
     x = [0, 10000000]
     y = [latencyLimit + spike, latencyLimit + spike]
     plt.plot(x, y, color='orange', linewidth=1.5)
+
+
+def calculate_latency_limits(p99_latencies) -> [int, int]:
+    # Filter the P99 latencies to only include those within the given time range
+    # filtered_latencies = [latency[1] for latency in p99_latencies if start_time <= latency[0] <= end_time]
+    filtered_latencies = p99_latencies
+    if not filtered_latencies:
+        raise ValueError("No latencies found in the specified time range.")
+
+    # Sort the latencies in ascending order
+    sorted_latencies = sorted(filtered_latencies)
+
+    # Find the latency limit for 95% success rate (P95)
+    target_p95_index = int(len(sorted_latencies) * 0.95) - 1
+    latency_limit_95 = sorted_latencies[target_p95_index]
+
+    # Find the latency limit for 99% success rate (P99)
+    target_p99_index = int(len(sorted_latencies) * 0.99) - 1
+    latency_limit_99 = sorted_latencies[target_p99_index]
+
+    return latency_limit_95, latency_limit_99
 def readGroundTruthLatency(rawDir, expName, windowSize):
     initialTime = -1
 
@@ -329,6 +350,8 @@ def draw(rawDir, outputDir, exps, windowSize):
         lem_latency_in_range = [lem_latencies[i][1][x] for x in range(0, len(lem_latencies[i][0])) if
                               lem_latencies[i][0][x] >= startTime * 1000 and lem_latencies[i][0][x] <= (startTime + avg_latency_calculateTime) * 1000]
         print("in range ground truth P99 latency max:" + str(max(groundtruth_P99_latency_in_range)) + " avg: " + str(sum(groundtruth_P99_latency_in_range)/len(groundtruth_P99_latency_in_range)))
+        result_limits = calculate_latency_limits(groundtruth_P99_latency_in_range)
+        print("in range ground truth P99 limit: " + str(result_limits[1]) + ", P95 limit: " + str(result_limits[0]))
         print("in range lem latency max:" + str(max(lem_latency_in_range)) + " avg: " + str(
             sum(lem_latency_in_range) / len(lem_latency_in_range)))
         if ground_truth_component_flag:
@@ -509,7 +532,7 @@ exps = [
     #  "blue", "o"],
     ["GroundTruth",
       #"systemsensitivity-streamsluice-streamsluice-when-1split2join1-400-6000-3000-4000-1-0-2-300-1-5000-2-300-1-5000-2-300-1-5000-6-510-5000-2000-3000-100-10-true-1",
-     "system-true-streamsluice-streamsluice-false-true-true-false-when-gradient-1split2join1-980-5500-3000-4000-1-0-2-300-1-5000-2-300-1-5000-2-300-1-5000-6-530-5000-750-3000-100-1-true-1",
+     "system-true-streamsluice-streamsluice-false-true-true-false-when-gradient-1split2join1-980-6500-3000-4000-30-1-0-1-50-1-5000-1-50-1-5000-1-50-1-5000-6-530-5000-500-3000-100-1-true-1",
       "blue", "o"],
 
 
@@ -536,17 +559,17 @@ if len(sys.argv) > 1:
 
 overall_latency = {}
 
-windowSize = 2000 #500 #500
-latencyLimit = 2000
+windowSize = 100 #500 #500
+latencyLimit = int(exps[0][1].split('-')[-6]) #750
 spike = 2500 #1500
 #latencyLimit = 2500 #1000
 startTime = 30 #+300 #30
-expLength = 480 #480 #480 #480 #480 #360
+expLength = 900 #480 #480 #480 #480 #360
 show_avg_flag = False
 ground_truth_component_flag = False
 show_scaling_flag = True
 
-avg_latency_calculateTime = 30 #expLength
+avg_latency_calculateTime = expLength # 30
 
 isSingleOperator = False #True
 expName = exps[0][1]
