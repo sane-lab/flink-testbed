@@ -312,8 +312,8 @@ def draw(rawDir, outputDir, exps):
     #ax2.set_ylabel('Rate (tps)')
     # ax2.set_ylim(0, 10000)
     # ax2.set_yticks(np.arange(0, 11000, 1000))
-    ax2.set_ylim(0, 10000)
-    ax2.set_yticks(np.arange(0, 11000, 1000))
+    ax2.set_ylim(0, 20000)
+    ax2.set_yticks(np.arange(0, 21000, 2000))
     # legend = ["OP_" + str(jobIndex + 1) +"Arrival Rate"]
     legend = ["Arrival Rate"]
     # ax2.set_xlim(startTime * 1000, (startTime + exp_length) * 1000)
@@ -369,8 +369,10 @@ def draw(rawDir, outputDir, exps):
     ax1.plot(scalingPoints[0], scalingPoints[1], 'o', color="orange", mfc='none', markersize=MARKERSIZE * 2, label="Scaling")
     ax1.legend(legend, loc='upper left', bbox_to_anchor=(-0.1, 1.3), ncol=3, markerscale=4.)
     # ax1.set_ylabel('OP_'+str(jobIndex+1)+' Parallelism')
-    ax1.set_ylim(4, 17) #17)
-    ax1.set_yticks(np.arange(4, 18, 1)) #18, 1))
+    # ax1.set_ylim(4, 17) #17)
+    # ax1.set_yticks(np.arange(4, 18, 1)) #18, 1))
+    ax1.set_ylim(4, 32)
+    ax1.set_yticks(np.arange(4, 34, 2))
 
     ax1.set_xlim(startTime * 1000, (startTime + exp_length) * 1000)
     ax1.set_xticks(np.arange(startTime * 1000, (startTime + exp_length) * 1000 + 60000, 60000))
@@ -438,7 +440,7 @@ exps = {
     "Linear_Road": [
         ["Static",
          #"system-streamsluice-ds2-true-true-false-when-mixed-1split2join1-760-6000-3000-4000-1-0-2-300-1-5000-2-300-1-5000-2-300-1-5000-6-510-5000-1000-3000-100-1-false-1",
-         "system-true-streamsluice-streamsluice-false-true-true-false-when-gradient-1split2join1-980-6000-3000-4000-30-1-0-1-50-1-5000-1-50-1-5000-1-50-1-5000-6-530-5000-500-3000-100-1-true-1",
+         "system-true-streamsluice-streamsluice-false-true-true-false-when-linear-1split2join1-360-20000-4000-7000-30-1-0-1-20-1-5000-1-20-1-5000-1-20-1-5000-9-530-5000-350-3000-100-1-true-1",
          "green", "o"],
         # ["Earlier",
         #  "systemsensitivity-streamsluice_earlier-streamsluice-when-1split2join1-400-6000-3000-4000-1-0-2-300-1-10000-2-300-1-10000-2-300-1-10000-6-510-10000-2500-3000-100-10-true-1",
@@ -461,7 +463,7 @@ exps = {
         ["Sluice",
          #"systemsensitivity-streamsluice-streamsluice-when-1split2join1-400-6000-3000-4000-1-0-2-300-1-5000-2-300-1-5000-2-300-1-5000-6-510-5000-2000-3000-100-10-true-1",
          #"system-streamsluice-streamsluice-true-true-false-when-mixed-1split2join1-760-6000-3000-4000-1-0-2-300-1-5000-2-300-1-5000-2-300-1-5000-6-510-5000-2000-3000-100-1-true-1",
-         "system-true-streamsluice-streamsluice-false-true-true-false-when-gradient-1split2join1-980-6000-3000-4000-30-1-0-1-50-1-5000-1-50-1-5000-1-50-1-5000-6-530-5000-400-3000-100-1-true-1",
+         "system-true-streamsluice-streamsluice-false-true-true-false-when-linear-1split2join1-360-20000-4000-7000-30-1-0-1-20-1-5000-1-20-1-5000-1-20-1-5000-9-530-5000-350-3000-100-1-true-1",
          "blue", "o"],
 
         # ["Static",
@@ -528,7 +530,7 @@ overall_resource = {}
 trickFlag = True
 for app in exps.keys():
     expName = [exp[1] for exp in exps[app] if exp[0] == "StreamSluice" or exp[0] == "Sluice"][0]
-    exp_length = 900 #480 #480 #360 #1800
+    exp_length = 300 #900 #480 #480 #360 #1800
     startTime = 30 # + 300
     print(expName)
     overall_resource[app] = {}

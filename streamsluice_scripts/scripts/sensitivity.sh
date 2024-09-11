@@ -156,10 +156,10 @@ run_scale_test(){
     spike_intercept=1000
     runtime=520 #520 #400
     DELTA_I=270
-    LP2=1
-    LP3=1
-    LP4=1
-    LP5=28 #16
+    LP2=2
+    LP3=2
+    LP4=2
+    LP5=20 #16
 
     RATE1=6000
     TIME1=30
@@ -184,20 +184,18 @@ run_scale_test(){
     DELAY2=20 #50
     DELAY3=20 #50
     DELAY4=20 #50
-    P2=1
-    P3=1
-    P4=1
-    P5=9
+    P2=2
+    P3=2
+    P4=2
+    P5=6
     is_treat=true
     how_type="streamsluice"
     DELAY5=530
     runtime=360 #980
-    RATE_I=7000
-    RATE2=4000
-    for TIME1 in 300; do # 60
+    for TIME1 in 600; do # 60
       TIME2=${TIME1}
       TIME_I=30 #${TIME1}
-      for RATE1 in 20000; do
+      for RATE1 in 10000; do
         for CURVE_TYPE in "linear"; do # "gradient" "linear" "sine"
 #          is_treat=false
 #          how_type="ds2"

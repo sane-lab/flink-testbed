@@ -532,7 +532,7 @@ exps = [
     #  "blue", "o"],
     ["GroundTruth",
       #"systemsensitivity-streamsluice-streamsluice-when-1split2join1-400-6000-3000-4000-1-0-2-300-1-5000-2-300-1-5000-2-300-1-5000-6-510-5000-2000-3000-100-10-true-1",
-     "system-true-streamsluice-streamsluice-false-true-true-false-when-gradient-1split2join1-980-6000-3000-4000-30-1-0-1-50-1-5000-1-50-1-5000-1-50-1-5000-6-530-5000-400-3000-100-1-true-1",
+     "system-true-streamsluice-streamsluice-false-true-true-false-when-linear-1split2join1-360-20000-4000-7000-30-1-0-1-20-1-5000-1-20-1-5000-1-20-1-5000-9-530-5000-350-3000-100-1-true-1",
       "blue", "o"],
 
 
@@ -564,7 +564,7 @@ latencyLimit = int(exps[0][1].split('-')[-6]) #750
 spike = 2500 #1500
 #latencyLimit = 2500 #1000
 startTime = 30 #+300 #30
-expLength = 900 #480 #480 #480 #480 #360
+expLength = 300 #900 #480 #480 #480 #480 #360
 show_avg_flag = False
 ground_truth_component_flag = False
 show_scaling_flag = True
