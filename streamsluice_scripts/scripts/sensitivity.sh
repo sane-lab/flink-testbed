@@ -156,10 +156,10 @@ run_scale_test(){
     spike_intercept=1000
     runtime=520 #520 #400
     DELTA_I=270
-    LP2=2
-    LP3=2
-    LP4=2
-    LP5=16
+    LP2=1
+    LP3=1
+    LP4=1
+    LP5=28 #16
 
     RATE1=6000
     TIME1=30
@@ -181,29 +181,31 @@ run_scale_test(){
     how_type="ds2"
 #    run_one_exp
 #    printf "${EXP_NAME}\n" >> whetherhow_result.txt
-    DELAY2=50
-    DELAY3=50
-    DELAY4=50
+    DELAY2=20 #50
+    DELAY3=20 #50
+    DELAY4=20 #50
     P2=1
     P3=1
     P4=1
-    P5=6
+    P5=9
     is_treat=true
     how_type="streamsluice"
     DELAY5=530
-    runtime=980
-    for TIME1 in 30; do # 60
+    runtime=360 #980
+    RATE_I=7000
+    RATE2=4000
+    for TIME1 in 300; do # 60
       TIME2=${TIME1}
-      TIME_I=${TIME1}
-      for RATE1 in 5500 6000 6500; do
-        for CURVE_TYPE in "gradient" "linear"; do # "gradient" "linear" "sine"
+      TIME_I=30 #${TIME1}
+      for RATE1 in 20000; do
+        for CURVE_TYPE in "linear"; do # "gradient" "linear" "sine"
 #          is_treat=false
 #          how_type="ds2"
 #          run_one_exp
 #          printf "${EXP_NAME}\n" >> whetherhow_result.txt
           is_treat=true
           how_type="streamsluice"
-          for L in 450 400; do # 500 750 1000 1250 1500 1750 2000; do
+          for L in 350 500 750 1000 1500 2000; do
             run_one_exp
             printf "${EXP_NAME}\n" >> whetherhow_result.txt
           done
