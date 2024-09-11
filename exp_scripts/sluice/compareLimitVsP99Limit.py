@@ -97,6 +97,16 @@ def plot_metrics_vs_settings(outputDir, setting_name, data):
 outputDir = "/Users/swrrt/Workplace/BacklogDelayPaper/experiments/figures/autotuner/"
 # Example usage with input in the format [[our latency limit, p99 latency limit, p95 latency limit, success rate]]
 data_under_settings = {
+    "system-true-streamsluice-streamsluice-false-true-true-false-when-linear-1split2join1-360-10000-3000-4000-30-1-0-2-20-1-5000-2-20-1-5000-2-20-1-5000-6-530-5000-500-3000-100-1-true-1":
+    [
+        [350, 412, 507, 0.9829850746268657],
+        [500, 382, 302, 0.9964211154190278],
+        [750, 608, 452, 0.9964221824686941],
+        [1000, 1128, 815, 0.977928870292887],
+        [1500, 1790, 1470, 0.9531642917015927],
+        [2000, 2244, 1948, 0.9602427286043105],
+    ],
+
     "system-true-streamsluice-streamsluice-false-true-true-false-when-gradient-1split2join1-980-5500-3000-4000-30-1-0-1-50-1-5000-1-50-1-5000-1-50-1-5000-6-530-5000-500-3000-100-1-true-1":
         [
             [400, 841, 507, 0.9095282920196632],
