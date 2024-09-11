@@ -195,7 +195,7 @@ run_scale_test(){
     for TIME1 in 600; do # 60
       TIME2=${TIME1}
       TIME_I=30 #${TIME1}
-      for RATE1 in 12000; do
+      for RATE1 in 10000; do
         for CURVE_TYPE in "linear"; do # "gradient" "linear" "sine"
 #          is_treat=false
 #          how_type="ds2"
@@ -203,7 +203,7 @@ run_scale_test(){
 #          printf "${EXP_NAME}\n" >> whetherhow_result.txt
           is_treat=true
           how_type="streamsluice"
-          for L in 325 350 500 750 1000 1500 2000; do
+          for L in 310 325; do
             run_one_exp
             printf "${EXP_NAME}\n" >> whetherhow_result.txt
           done
