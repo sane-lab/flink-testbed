@@ -156,10 +156,10 @@ run_scale_test(){
     spike_intercept=1000
     runtime=520 #520 #400
     DELTA_I=270
-    LP2=2
-    LP3=2
-    LP4=2
-    LP5=20 #16
+    LP2=1
+    LP3=1
+    LP4=1
+    LP5=17 #16
 
     RATE1=6000
     TIME1=30
@@ -203,7 +203,7 @@ run_scale_test(){
 #          printf "${EXP_NAME}\n" >> whetherhow_result.txt
           is_treat=true
           how_type="streamsluice"
-          for L in 310 325; do
+          for L in 310 315; do
             run_one_exp
             printf "${EXP_NAME}\n" >> whetherhow_result.txt
           done

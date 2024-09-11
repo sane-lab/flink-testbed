@@ -532,7 +532,7 @@ exps = [
     #  "blue", "o"],
     ["GroundTruth",
       #"systemsensitivity-streamsluice-streamsluice-when-1split2join1-400-6000-3000-4000-1-0-2-300-1-5000-2-300-1-5000-2-300-1-5000-6-510-5000-2000-3000-100-10-true-1",
-     "system-true-streamsluice-streamsluice-false-true-true-false-when-linear-1split2join1-360-12000-3000-4000-30-1-0-2-20-1-5000-2-20-1-5000-2-20-1-5000-6-530-5000-350-3000-100-1-true-1",
+     "system-true-streamsluice-streamsluice-false-true-true-false-when-linear-1split2join1-360-10000-3000-4000-30-1-0-2-20-1-5000-2-20-1-5000-2-20-1-5000-6-530-5000-350-3000-100-1-true-1",
       "blue", "o"],
 
 

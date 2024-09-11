@@ -33,7 +33,7 @@ def plot_latency_success_curve(outputDir, setting_name, data):
     ax1.set_ylabel('Latency Limit Difference', color='tab:blue')
     ax1.plot(our_latency_limit, [p99_latency_limit[x] - our_latency_limit[x] for x in range(0, len(our_latency_limit))], label='(P99 Latency Limit - Our Limit)', color='tab:blue', marker='d')
     ax1.tick_params(axis='y', labelcolor='tab:blue')
-    ax1.set_xticks(our_latency_limit)
+    ax1.set_xticks(range(0, 2250, 250))
     #ax1.plot(our_latency_limit, [p95_latency_limit[x] - our_latency_limit[x] for x in range(0, len(our_latency_limit))], label='(P95 Latency Limit - Our Limit)', color='tab:purple', marker='o')
     ax1.legend(loc='upper left')
     # Create another y-axis for 'success rate'
@@ -72,7 +72,8 @@ def plot_metrics_vs_settings(outputDir, setting_name, data):
     #ax1.plot(our_latency_limit, p95_latency_limit, label='P95 Latency Limit', color='tab:purple', marker='s')
     #ax1.plot(our_latency_limit, our_latency_limit, label='Our Limit', color='tab:green', marker='s')
     ax1.tick_params(axis='y', labelcolor='tab:blue')
-    ax1.set_xticks(our_latency_limit)
+    #ax1.set_xticks(our_latency_limit)
+    ax1.set_xticks(range(0, 2250, 250))
 
     # Create another y-axis for 'success rate'
     ax2 = ax1.twinx()
@@ -99,7 +100,8 @@ outputDir = "/Users/swrrt/Workplace/BacklogDelayPaper/experiments/figures/autotu
 data_under_settings = {
     "system-true-streamsluice-streamsluice-false-true-true-false-when-linear-1split2join1-360-10000-3000-4000-30-1-0-2-20-1-5000-2-20-1-5000-2-20-1-5000-6-530-5000-500-3000-100-1-true-1":
     [
-        [350, 412, 507, 0.9829850746268657],
+        [325, 472, 328, 0.9444776119402986],
+        [350, 412, 303, 0.9829850746268657],
         [500, 382, 302, 0.9964211154190278],
         [750, 608, 452, 0.9964221824686941],
         [1000, 925, 721, 0.9955250596658711],
