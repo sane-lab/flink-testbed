@@ -283,10 +283,15 @@ model.max_parallelism.a84740bacf923e828852cc4966f2247c: 21
 model.max_parallelism.eabd4c11f6c6fbdf011f0f1fc42097b1: 21
 model.max_parallelism.d01047f852abd5702a0dabeedac99ff5: 21
 model.max_parallelism.d2336f79a0d60b5a4b16c8769ec82e47: 21
+model.max_parallelism.36fcfcb61a35d065e60ee34fccb0541a: 21
+model.max_parallelism.c395b989724fa728d0a2640c6ccdb8a1: 21
+model.max_parallelism.8e0d1d377d577c52511ad507bf0ce330: 21
+model.max_parallelism.2019e6125f7b4867f5fd448be51e3519: 21
 
 streamsluice.system.metrics_interval: 100
 
 streamsluice.system.true_arrival_calibrated: false
+streamsluice.system.backlog_smooth: true
 
 model.warmup: 10000
 
@@ -304,11 +309,22 @@ streamsluice.system.spike_estimation_intercept: 1250
 
 streamswitch.system.initialservicerate: 0.8
 
+model.coordination_latency_flag: true
+model.conservative_service_rate_flag: true
+streamsluice.metrics.use_new_retriever: false
 streamsluice.system.is_treat: true
 
 controller.whether.type: streamsluice
 
 controller.how.type: streamsluice
+
+controller.how.more_optimizaiton: false
+
+controller.how.optimizaiton: false
+
+controller.how.conservative: false
+
+controller.steady_limit: falses
 
 controller.scale_in.type: streamsluice
 
@@ -322,7 +338,9 @@ streamsluice.system.autotune: false
 
 streamsluice.system.autotune.interval: 360
 
-streamsluice.system.autotune.groundtruthfile: /home/samza/workspace/flink-related/flink-extended-ete/build-target/log/flink-samza-taskexecutor-0-camel-sane.out
+streamsluice.system.autotuner: RemoteTuner
+
+streamsluice.system.autotune.groundtruthfile: /home/samza/workspace/flink-related/flink-extended-ete/build-target/log/flink-samza-taskexecutor-0-dragon-sane.out,/home/samza/workspace/flink-related/flink-extended-ete/build-target/log/flink-samza-taskexecutor-1-dragon-sane.out,/home/samza/workspace/flink-related/flink-extended-ete/build-target/log/flink-samza-taskexecutor-0-eagle-sane.out,/home/samza/workspace/flink-related/flink-extended-ete/build-target/log/flink-samza-taskexecutor-1-eagle-sane.out,/home/samza/workspace/flink-related/flink-extended-ete/build-target/log/flink-samza-taskexecutor-0-flamingo-sane.out,/home/samza/workspace/flink-related/flink-extended-ete/build-target/log/flink-samza-taskexecutor-1-flamingo-sane.out
 
 #==============================================================================
 # Backpressure Configuration
