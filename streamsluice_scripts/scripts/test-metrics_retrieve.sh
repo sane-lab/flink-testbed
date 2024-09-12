@@ -149,9 +149,9 @@ run_scale_test(){
     spike_intercept=1000
     runtime=170 #520 #400
     DELTA_I=270
-    LP2=2
-    LP3=2
-    LP4=2
+    LP2=1
+    LP3=1
+    LP4=1
     LP5=13
 
     RATE1=4000 #6000
@@ -181,20 +181,20 @@ run_scale_test(){
     # Basic test
     is_treat=false
     how_type="ds2"
-    P4=2
+    P4=1
     P5=3
     LP5=3
     DELAY4=50
     DELAY5=600
     RATE1=4000
-    GRAPH="1op_line"
-    vertex_id="a84740bacf923e828852cc4966f2247c"
-    for new_metrics_retriever_flag in true false; do
-      run_one_exp
-      printf "${EXP_NAME}\n" >> whetherhow_result.txt
-    done
+#    GRAPH="1op_line"
+#    vertex_id="a84740bacf923e828852cc4966f2247c"
+#    for new_metrics_retriever_flag in true false; do
+#      run_one_exp
+#      printf "${EXP_NAME}\n" >> whetherhow_result.txt
+#    done
 
-    RATE1=6000
+    RATE1=7000
     TIME1=300
     CURVE_TYPE="linear"
     GRAPH="1op_line"
@@ -214,8 +214,8 @@ run_scale_test(){
       printf "${EXP_NAME}\n" >> whetherhow_result.txt
     done
 
-    LP5=10
-    RATE1=6000
+    LP5=13
+    RATE1=8000
     TIME1=30
     is_treat=true
     how_type="streamsluice"
@@ -227,15 +227,15 @@ run_scale_test(){
       printf "${EXP_NAME}\n" >> whetherhow_result.txt
     done
 
-    LP5=10
-    RATE1=6000
+    LP5=13
+    RATE1=5000
 
     TIME1=30
     is_treat=true
     how_type="streamsluice"
     CURVE_TYPE="linear"
     GRAPH="1split2join1"
-    ZIPF_SKEW=0.1
+    ZIPF_SKEW=0.05
     vertex_id="a84740bacf923e828852cc4966f2247c,eabd4c11f6c6fbdf011f0f1fc42097b1,d01047f852abd5702a0dabeedac99ff5,d2336f79a0d60b5a4b16c8769ec82e47"
     for new_metrics_retriever_flag in true false; do
       run_one_exp
