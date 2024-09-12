@@ -64,7 +64,8 @@ function configFlink() {
     sed 's/^\(\s*model.coordination_latency_flag\s*:\s*\).*/\1'"$coordination_latency_flag"'/' tmp27 > tmp28
     sed 's/^\(\s*model.conservative_service_rate_flag\s*:\s*\).*/\1'"$conservative_service_rate_flag"'/' tmp28 > tmp29
     sed 's/^\(\s*streamsluice.system.backlog_smooth\s*:\s*\).*/\1'"$smooth_backlog_flag"'/' tmp29 > tmp30
-    sed 's/^\(\s*controller.scale_in.type\s*:\s*\).*/\1'"$scalein_type"'/' tmp30 > ${FLINK_CONF_DIR}/flink-conf.yaml
+    sed 's/^\(\s*streamsluice.metrics.use_new_retriever\s*:\s*\).*/\1'"$new_metrics_retriever_flag"'/' tmp30 > tmp31
+    sed 's/^\(\s*controller.scale_in.type\s*:\s*\).*/\1'"$scalein_type"'/' tmp31 > ${FLINK_CONF_DIR}/flink-conf.yaml
     rm tmp*
     echo ${FLINK_CONF_DIR}/flink-conf.yaml
     cp ${FLINK_CONF_DIR}/* ${FLINK_DIR}/conf
