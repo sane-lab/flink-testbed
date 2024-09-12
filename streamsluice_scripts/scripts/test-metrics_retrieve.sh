@@ -136,7 +136,7 @@ run_scale_test(){
     autotune=false
     epoch=100
     decision_interval=1 #10
-    snapshot_size=3
+    snapshot_size=20
 
     L=1000 #2000 #2500
     migration_interval=3000
@@ -177,6 +177,7 @@ run_scale_test(){
 
     printf "" > whetherhow_result.txt
 
+
     # Basic test
     is_treat=false
     how_type="ds2"
@@ -188,35 +189,59 @@ run_scale_test(){
     RATE1=4000
     GRAPH="1op_line"
     vertex_id="a84740bacf923e828852cc4966f2247c"
-    run_one_exp
-    printf "${EXP_NAME}\n" >> whetherhow_result.txt
+    for new_metrics_retriever_flag in true false; do
+      run_one_exp
+      printf "${EXP_NAME}\n" >> whetherhow_result.txt
+    done
 
     RATE1=6000
     TIME1=300
     CURVE_TYPE="linear"
     GRAPH="1op_line"
     vertex_id="a84740bacf923e828852cc4966f2247c"
-    run_one_exp
-    printf "${EXP_NAME}\n" >> whetherhow_result.txt
+    for new_metrics_retriever_flag in true false; do
+      run_one_exp
+      printf "${EXP_NAME}\n" >> whetherhow_result.txt
+    done
 
     RATE1=6000
     TIME1=90
     CURVE_TYPE="gradient"
     GRAPH="4op_line"
     vertex_id="a84740bacf923e828852cc4966f2247c,eabd4c11f6c6fbdf011f0f1fc42097b1,d01047f852abd5702a0dabeedac99ff5,d2336f79a0d60b5a4b16c8769ec82e47"
-    run_one_exp
-    printf "${EXP_NAME}\n" >> whetherhow_result.txt
+    for new_metrics_retriever_flag in true false; do
+      run_one_exp
+      printf "${EXP_NAME}\n" >> whetherhow_result.txt
+    done
 
     LP5=10
     RATE1=6000
     TIME1=30
     is_treat=true
     how_type="streamsluice"
-    CURVE_TYPE="gradient"
+    CURVE_TYPE="linear"
     GRAPH="4op_line"
     vertex_id="a84740bacf923e828852cc4966f2247c,eabd4c11f6c6fbdf011f0f1fc42097b1,d01047f852abd5702a0dabeedac99ff5,d2336f79a0d60b5a4b16c8769ec82e47"
-    run_one_exp
-    printf "${EXP_NAME}\n" >> whetherhow_result.txt
+    for new_metrics_retriever_flag in true false; do
+      run_one_exp
+      printf "${EXP_NAME}\n" >> whetherhow_result.txt
+    done
+
+    LP5=10
+    RATE1=6000
+
+    TIME1=30
+    is_treat=true
+    how_type="streamsluice"
+    CURVE_TYPE="linear"
+    GRAPH="1split2join1"
+    ZIPF_SKEW=0.1
+    vertex_id="a84740bacf923e828852cc4966f2247c,eabd4c11f6c6fbdf011f0f1fc42097b1,d01047f852abd5702a0dabeedac99ff5,d2336f79a0d60b5a4b16c8769ec82e47"
+    for new_metrics_retriever_flag in true false; do
+      run_one_exp
+      printf "${EXP_NAME}\n" >> whetherhow_result.txt
+    done
+
 
 
 

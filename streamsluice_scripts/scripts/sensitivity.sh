@@ -134,7 +134,7 @@ run_scale_test(){
     autotune=false
     epoch=100
     decision_interval=1 #10
-    snapshot_size=3
+    snapshot_size=20
 
     L=1000 #2000 #2500
     migration_interval=3000
