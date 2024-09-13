@@ -458,8 +458,8 @@ def draw(rawDir, outputDir, exps, windowSize):
     # axes.set_ylim(0, 5000)
     # axes.set_yticks(np.arange(0, 6250, 1250))
     if max(lem_latencies[i][1]) > 500 or max(sampledLatency[2]) > 500:
-        axes.set_ylim(0, 3000)
-        axes.set_yticks(np.arange(0, 3500, 500))
+        axes.set_ylim(0, 10000) #3000)
+        #axes.set_yticks(np.arange(0, 3500, 500))
     else:
         axes.set_ylim(-1, 500)
         axes.set_yticks(np.arange(0, 550, 50))
@@ -532,7 +532,7 @@ exps = [
     #  "blue", "o"],
     ["GroundTruth",
       #"systemsensitivity-streamsluice-streamsluice-when-1split2join1-400-6000-3000-4000-1-0-2-300-1-5000-2-300-1-5000-2-300-1-5000-6-510-5000-2000-3000-100-10-true-1",
-     "system-true-streamsluice-streamsluice-false-true-true-false-when-linear-1split2join1-360-10000-3000-4000-30-1-0-2-20-1-5000-2-20-1-5000-2-20-1-5000-6-530-5000-250-3000-100-1-true-1",
+     "test_metric1-streamsluice-ds2-true-false-true-false-when-gradient-4op_line-170-6000-4000-4000-1-0-2-300-1-5000-2-300-1-5000-1-50-1-5000-3-600-5000-1000-3000-100-1-0-false-1",
       "blue", "o"],
 
 
@@ -560,11 +560,11 @@ if len(sys.argv) > 1:
 overall_latency = {}
 
 windowSize = 100 #500 #500
-latencyLimit = int(exps[0][1].split('-')[-6]) #750
+latencyLimit = 1000 #int(exps[0][1].split('-')[-6]) #750
 spike = 2500 #1500
 #latencyLimit = 2500 #1000
 startTime = 30 #+300 #30
-expLength = 300 #900 #480 #480 #480 #480 #360
+expLength = 120 #900 #480 #480 #480 #480 #360
 show_avg_flag = False
 ground_truth_component_flag = False
 show_scaling_flag = True

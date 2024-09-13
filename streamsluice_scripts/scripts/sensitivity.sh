@@ -159,7 +159,7 @@ run_scale_test(){
     LP2=1
     LP3=1
     LP4=1
-    LP5=17 #16
+    LP5=28 #16
 
     RATE1=6000
     TIME1=30
@@ -175,73 +175,59 @@ run_scale_test(){
     coordination_latency_flag=true
     conservative_service_rate_flag=true # false
     smooth_backlog_flag=false
-    # Curve 1
+    new_metrics_retriever_flag=true
+
+    runtime=390
+    # Setting 1
     SOURCE_TYPE="when"
-    is_treat=false
-    how_type="ds2"
-#    run_one_exp
-#    printf "${EXP_NAME}\n" >> whetherhow_result.txt
-    DELAY2=20 #50
-    DELAY3=20 #50
-    DELAY4=20 #50
-    P2=2
-    P3=2
-    P4=2
-    P5=6
-    is_treat=true
-    how_type="streamsluice"
-    DELAY5=530
-    runtime=210 #360 #980
-    for TIME1 in 300; do  #600 # 60
-      TIME2=${TIME1}
-      TIME_I=30 #${TIME1}
-      for RATE1 in 10000; do
-        for CURVE_TYPE in "linear"; do # "gradient" "linear" "sine"
-#          is_treat=false
-#          how_type="ds2"
-#          run_one_exp
-#          printf "${EXP_NAME}\n" >> whetherhow_result.txt
-          is_treat=true
-          how_type="streamsluice"
-          for L in 310 325 350 500 750 1000 1500 2000; do
-            run_one_exp
-            printf "${EXP_NAME}\n" >> whetherhow_result.txt
-          done
-        done
+    DELAY2=20
+    DELAY3=20
+    DELAY4=20
+    DELAY5=1000
+    STATE_SIZE2=5000 # 1000 keys, per key (n * 2000 + 36) bytes, n=5000 -> 100 MB
+    STATE_SIZE3=5000
+    STATE_SIZE4=5000
+    STATE_SIZE5=5000
+    LP2=1
+    LP3=1
+    LP4=1
+    LP5=28
+    P2=1
+    P3=1
+    P4=1
+    P5=17
+    for GRAPH in "1op_line" "2op_line" "3op_line"; do
+      CURVE_TYPE="linear"
+      RATE1=10000
+      TIME1=600
+      RATE_I=10000
+      TIME_I=30
+      RATE2=10000
+      TIME2=600
+      is_treat=false
+      how_type="ds2"
+      run_one_exp
+      printf "${EXP_NAME}\n" >> whetherhow_result.txt
+      # Set the initial value of L based on the value of GRAPH
+      if [ "$GRAPH" = "1op_line" ]; then
+        L=90
+      elif [ "$GRAPH" = "2op_line" ]; then
+        L=190
+      elif [ "$GRAPH" = "3op_line" ]; then
+        L=290
+      fi
+      is_treat=true
+      how_type="streamsluice"
+      run_one_exp
+      printf "${EXP_NAME}\n" >> whetherhow_result.txt
+      
+      for L in 310 325 350 500 750 1000 1500 2000; do
+        is_treat=true
+        how_type="streamsluice"
+        run_one_exp
+        printf "${EXP_NAME}\n" >> whetherhow_result.txt
       done
     done
-    # Change other graph?
-
-
-
-#    is_treat=false
-#    run_one_exp
-#    printf "${EXP_NAME}\n" >> whetherhow_result.txt
-#    is_treat=true
-#    whether_early="streamsluice_earlier"
-#    whether_late="streamsluice_later"
-#    for whether_type in ${whether_early} ${whether_late}; do
-#      #how_type="streamsluice"
-#      run_one_exp
-#      printf "${EXP_NAME}\n" >> whetherhow_result.txt
-#    done
-#    whether_type="streamsluice"
-
-    RATE1=6000
-    RATE2=3000
-    RATE_I=4000
-    SOURCE_TYPE="how"
-#    run_one_exp
-#    printf "${EXP_NAME}\n" >> whetherhow_result.txt
-#    is_treat=false
-#    run_one_exp
-#    printf "${EXP_NAME}\n" >> whetherhow_result.txt
-#    is_treat=true
-#    for how_type in "streamsluice_not_bottleneck" "streamsluice_less" "streamsluice_no_balance"  "streamsluice_more"; do #"streamsluice_minus_one" ; do #  "streamsluice_not_bottleneck"; do
-#      run_one_exp
-#      printf "${EXP_NAME}\n" >> whetherhow_result.txt
-#    done
-#    how_type="streamsluice"
 }
 
 run_scale_test

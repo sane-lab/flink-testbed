@@ -22,7 +22,7 @@ function analyze() {
 }
 
 run_one_exp() {
-  EXP_NAME=test_metric-${whether_type}-${how_type}-${new_metrics_retriever_flag}-${how_conservative_flag}-${how_steady_limit_flag}-${smooth_backlog_flag}-${SOURCE_TYPE}-${CURVE_TYPE}-${GRAPH}-${runtime}-${RATE1}-${RATE2}-${RATE_I}-${P1}-${ZIPF_SKEW}-${P2}-${DELAY2}-${IO2}-${STATE_SIZE2}-${P3}-${DELAY3}-${IO3}-${STATE_SIZE3}-${P4}-${DELAY4}-${IO4}-${STATE_SIZE4}-${P5}-${DELAY5}-${STATE_SIZE5}-${L}-${migration_interval}-${epoch}-${decision_interval}-${ZIPF_SKEW}-${is_treat}-${repeat}
+  EXP_NAME=test_metric1-${whether_type}-${how_type}-${new_metrics_retriever_flag}-${how_conservative_flag}-${how_steady_limit_flag}-${smooth_backlog_flag}-${SOURCE_TYPE}-${CURVE_TYPE}-${GRAPH}-${runtime}-${RATE1}-${RATE2}-${RATE_I}-${P1}-${ZIPF_SKEW}-${P2}-${DELAY2}-${IO2}-${STATE_SIZE2}-${P3}-${DELAY3}-${IO3}-${STATE_SIZE3}-${P4}-${DELAY4}-${IO4}-${STATE_SIZE4}-${P5}-${DELAY5}-${STATE_SIZE5}-${L}-${migration_interval}-${epoch}-${decision_interval}-${ZIPF_SKEW}-${is_treat}-${repeat}
 
   echo "INFO: run exp ${EXP_NAME}"
   configFlink
@@ -177,6 +177,9 @@ run_scale_test(){
 
     printf "" > whetherhow_result.txt
 
+    RANGE_I=2000
+    PERIOD_I=120
+    DElTA_I=0
 
     # Basic test
     is_treat=false
@@ -187,32 +190,32 @@ run_scale_test(){
     DELAY4=50
     DELAY5=600
     RATE1=4000
-#    GRAPH="1op_line"
-#    vertex_id="a84740bacf923e828852cc4966f2247c"
-#    for new_metrics_retriever_flag in true false; do
-#      run_one_exp
-#      printf "${EXP_NAME}\n" >> whetherhow_result.txt
-#    done
+    GRAPH="1op_line"
+    vertex_id="a84740bacf923e828852cc4966f2247c"
+    for new_metrics_retriever_flag in true; do
+      run_one_exp
+      printf "${EXP_NAME}\n" >> whetherhow_result.txt
+    done
 
     RATE1=7000
     TIME1=300
     CURVE_TYPE="linear"
-#    GRAPH="1op_line"
-#    vertex_id="a84740bacf923e828852cc4966f2247c"
-#    for new_metrics_retriever_flag in true false; do
-#      run_one_exp
-#      printf "${EXP_NAME}\n" >> whetherhow_result.txt
-#    done
+    GRAPH="1op_line"
+    vertex_id="a84740bacf923e828852cc4966f2247c"
+    for new_metrics_retriever_flag in true; do
+      run_one_exp
+      printf "${EXP_NAME}\n" >> whetherhow_result.txt
+    done
 
     RATE1=6000
     TIME1=90
     CURVE_TYPE="gradient"
-#    GRAPH="4op_line"
-#    vertex_id="a84740bacf923e828852cc4966f2247c,eabd4c11f6c6fbdf011f0f1fc42097b1,d01047f852abd5702a0dabeedac99ff5,d2336f79a0d60b5a4b16c8769ec82e47"
-#    for new_metrics_retriever_flag in true false; do
-#      run_one_exp
-#      printf "${EXP_NAME}\n" >> whetherhow_result.txt
-#    done
+    GRAPH="4op_line"
+    vertex_id="a84740bacf923e828852cc4966f2247c,eabd4c11f6c6fbdf011f0f1fc42097b1,d01047f852abd5702a0dabeedac99ff5,d2336f79a0d60b5a4b16c8769ec82e47"
+    for new_metrics_retriever_flag in true; do
+      run_one_exp
+      printf "${EXP_NAME}\n" >> whetherhow_result.txt
+    done
 
 #    LP5=13
 #    RATE1=8000
@@ -246,10 +249,10 @@ run_scale_test(){
     DELAY5=600
     TIME1=30
     TIME_I=3600
-#    is_treat=false
-#    how_type="ds2"
-    is_treat=true
-    how_type="streamsluice"
+    is_treat=false
+    how_type="ds2"
+    #is_treat=true
+    #how_type="streamsluice"
     CURVE_TYPE="linear"
     GRAPH="1split2join1"
     SOURCE_TYPE="normal"
@@ -297,4 +300,3 @@ run_scale_test(){
 }
 
 run_scale_test
-

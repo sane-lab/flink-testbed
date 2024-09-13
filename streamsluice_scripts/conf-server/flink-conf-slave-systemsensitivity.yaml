@@ -49,7 +49,7 @@ taskmanager.heap.size: 10240m
 
 # The number of task slots that each TaskManager offers. Each slot runs one parallel pipeline.
 
-taskmanager.numberOfTaskSlots: 12  #31
+taskmanager.numberOfTaskSlots: 16 #12  #31
 #taskmanager.hostname: eagle
 #taskmanager.rpc.port: 33033
 #taskmanager.data.port: 33034
