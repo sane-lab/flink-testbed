@@ -436,7 +436,7 @@ exps = {
     "Linear_Road": [
         ["Static",
          #"system-streamsluice-ds2-true-true-false-when-mixed-1split2join1-760-6000-3000-4000-1-0-2-300-1-5000-2-300-1-5000-2-300-1-5000-6-510-5000-1000-3000-100-1-false-1",
-         "test_metric-streamsluice-ds2-false-false-true-false-normal-linear-1split2join1-170-4000-4000-4000-1-0.1-1-300-1-5000-2-300-1-5000-3-50-1-5000-6-500-5000-1000-3000-100-1-0.1-false-1",
+         "test_metric-streamsluice-ds2-true-false-true-false-normal-linear-1split2join1-170-4000-4000-4000-1-0.2-1-300-1-5000-2-300-1-5000-3-50-1-5000-6-500-5000-1000-3000-100-1-0.2-false-1",
          "green", "o"],
         # ["Earlier",
         #  "systemsensitivity-streamsluice_earlier-streamsluice-when-1split2join1-400-6000-3000-4000-1-0-2-300-1-10000-2-300-1-10000-2-300-1-10000-6-510-10000-2500-3000-100-10-true-1",
@@ -459,7 +459,7 @@ exps = {
         ["Sluice",
          #"systemsensitivity-streamsluice-streamsluice-when-1split2join1-400-6000-3000-4000-1-0-2-300-1-5000-2-300-1-5000-2-300-1-5000-6-510-5000-2000-3000-100-10-true-1",
          #"system-streamsluice-streamsluice-true-true-false-when-mixed-1split2join1-760-6000-3000-4000-1-0-2-300-1-5000-2-300-1-5000-2-300-1-5000-6-510-5000-2000-3000-100-1-true-1",
-         "test_metric-streamsluice-ds2-false-false-true-false-normal-linear-1split2join1-170-4000-4000-4000-1-0.1-1-300-1-5000-2-300-1-5000-3-50-1-5000-6-500-5000-1000-3000-100-1-0.1-false-1",
+         "test_metric-streamsluice-ds2-true-false-true-false-normal-linear-1split2join1-170-4000-4000-4000-1-0.2-1-300-1-5000-2-300-1-5000-3-50-1-5000-6-500-5000-1000-3000-100-1-0.2-false-1",
          "blue", "o"],
 
         # ["Static",
