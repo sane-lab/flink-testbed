@@ -227,14 +227,15 @@ def verify_key_total(rawDir, expName):
 rawDir = "/Users/swrrt/Workplace/BacklogDelayPaper/experiments/raw/"
 outputDir = "/Users/swrrt/Workplace/BacklogDelayPaper/experiments/results/"
 exps = [
-    "test_metric-streamsluice-ds2-true-false-true-false-when-gradient-1op_line-170-4000-4000-4000-1-0-2-300-1-5000-2-300-1-5000-1-50-1-5000-3-600-5000-1000-3000-100-1-false-1",
-    "test_metric-streamsluice-ds2-false-false-true-false-when-gradient-1op_line-170-4000-4000-4000-1-0-2-300-1-5000-2-300-1-5000-1-50-1-5000-3-600-5000-1000-3000-100-1-false-1",
-    "test_metric-streamsluice-ds2-true-false-true-false-when-linear-1op_line-170-7000-4000-4000-1-0-2-300-1-5000-2-300-1-5000-1-50-1-5000-3-600-5000-1000-3000-100-1-false-1",
-    "test_metric-streamsluice-ds2-false-false-true-false-when-linear-1op_line-170-7000-4000-4000-1-0-2-300-1-5000-2-300-1-5000-1-50-1-5000-3-600-5000-1000-3000-100-1-false-1",
-    "test_metric-streamsluice-ds2-true-false-true-false-when-gradient-4op_line-170-6000-4000-4000-1-0-2-300-1-5000-2-300-1-5000-1-50-1-5000-3-600-5000-1000-3000-100-1-false-1",
-    "test_metric-streamsluice-ds2-false-false-true-false-when-gradient-4op_line-170-6000-4000-4000-1-0-2-300-1-5000-2-300-1-5000-1-50-1-5000-3-600-5000-1000-3000-100-1-false-1",
-    "test_metric-streamsluice-streamsluice-true-false-true-false-when-linear-4op_line-170-8000-4000-4000-1-0-2-300-1-5000-2-300-1-5000-1-50-1-5000-3-600-5000-1000-3000-100-1-true-1",
-    "test_metric-streamsluice-streamsluice-false-false-true-false-when-linear-4op_line-170-8000-4000-4000-1-0-2-300-1-5000-2-300-1-5000-1-50-1-5000-3-600-5000-1000-3000-100-1-true-1",
+    # "test_metric-streamsluice-ds2-true-false-true-false-when-gradient-1op_line-170-4000-4000-4000-1-0-2-300-1-5000-2-300-1-5000-1-50-1-5000-3-600-5000-1000-3000-100-1-false-1",
+    # "test_metric-streamsluice-ds2-false-false-true-false-when-gradient-1op_line-170-4000-4000-4000-1-0-2-300-1-5000-2-300-1-5000-1-50-1-5000-3-600-5000-1000-3000-100-1-false-1",
+    # "test_metric-streamsluice-ds2-true-false-true-false-when-linear-1op_line-170-7000-4000-4000-1-0-2-300-1-5000-2-300-1-5000-1-50-1-5000-3-600-5000-1000-3000-100-1-false-1",
+    # "test_metric-streamsluice-ds2-false-false-true-false-when-linear-1op_line-170-7000-4000-4000-1-0-2-300-1-5000-2-300-1-5000-1-50-1-5000-3-600-5000-1000-3000-100-1-false-1",
+    # "test_metric-streamsluice-ds2-true-false-true-false-when-gradient-4op_line-170-6000-4000-4000-1-0-2-300-1-5000-2-300-1-5000-1-50-1-5000-3-600-5000-1000-3000-100-1-false-1",
+    # "test_metric-streamsluice-ds2-false-false-true-false-when-gradient-4op_line-170-6000-4000-4000-1-0-2-300-1-5000-2-300-1-5000-1-50-1-5000-3-600-5000-1000-3000-100-1-false-1",
+    # "test_metric-streamsluice-streamsluice-true-false-true-false-when-linear-4op_line-170-8000-4000-4000-1-0-2-300-1-5000-2-300-1-5000-1-50-1-5000-3-600-5000-1000-3000-100-1-true-1",
+    # "test_metric-streamsluice-streamsluice-false-false-true-false-when-linear-4op_line-170-8000-4000-4000-1-0-2-300-1-5000-2-300-1-5000-1-50-1-5000-3-600-5000-1000-3000-100-1-true-1",
+    "test_metric-streamsluice-ds2-true-false-true-false-when-linear-1split2join1-170-5000-4000-4000-1-0.05-2-300-1-5000-2-300-1-5000-1-50-1-5000-6-500-5000-1000-3000-100-1-false-1",
 ]
 start_time=30
 end_time=120

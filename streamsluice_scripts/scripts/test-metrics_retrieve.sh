@@ -22,7 +22,7 @@ function analyze() {
 }
 
 run_one_exp() {
-  EXP_NAME=test_metric-${whether_type}-${how_type}-${new_metrics_retriever_flag}-${how_conservative_flag}-${how_steady_limit_flag}-${smooth_backlog_flag}-${SOURCE_TYPE}-${CURVE_TYPE}-${GRAPH}-${runtime}-${RATE1}-${RATE2}-${RATE_I}-${P1}-${ZIPF_SKEW}-${P2}-${DELAY2}-${IO2}-${STATE_SIZE2}-${P3}-${DELAY3}-${IO3}-${STATE_SIZE3}-${P4}-${DELAY4}-${IO4}-${STATE_SIZE4}-${P5}-${DELAY5}-${STATE_SIZE5}-${L}-${migration_interval}-${epoch}-${decision_interval}-${is_treat}-${repeat}
+  EXP_NAME=test_metric-${whether_type}-${how_type}-${new_metrics_retriever_flag}-${how_conservative_flag}-${how_steady_limit_flag}-${smooth_backlog_flag}-${SOURCE_TYPE}-${CURVE_TYPE}-${GRAPH}-${runtime}-${RATE1}-${RATE2}-${RATE_I}-${P1}-${ZIPF_SKEW}-${P2}-${DELAY2}-${IO2}-${STATE_SIZE2}-${P3}-${DELAY3}-${IO3}-${STATE_SIZE3}-${P4}-${DELAY4}-${IO4}-${STATE_SIZE4}-${P5}-${DELAY5}-${STATE_SIZE5}-${L}-${migration_interval}-${epoch}-${decision_interval}-${ZIPF_SKEW}-${is_treat}-${repeat}
 
   echo "INFO: run exp ${EXP_NAME}"
   configFlink
@@ -228,23 +228,31 @@ run_scale_test(){
 #    done
 
     LP5=13
-    RATE1=5000
+    RATE1=4000
+    RATE_I=6000
+    PERIOD_I=120
     P5=6
-    LP=13
+    P2=1
+    P3=1
     DELAY5=500
     TIME1=30
+    TIME_I=3600
     is_treat=false
     how_type="ds2"
     #is_treat=true
     #how_type="streamsluice"
     CURVE_TYPE="linear"
     GRAPH="1split2join1"
-    ZIPF_SKEW=0.05
+    SOURCE_TYPE="normal"
     vertex_id="a84740bacf923e828852cc4966f2247c,eabd4c11f6c6fbdf011f0f1fc42097b1,d01047f852abd5702a0dabeedac99ff5,d2336f79a0d60b5a4b16c8769ec82e47"
-    for new_metrics_retriever_flag in true false; do
-      run_one_exp
-      printf "${EXP_NAME}\n" >> whetherhow_result.txt
+
+    for ZIPF_SKEW in 0.1; do #  0.2 0.4 0.6
+      for new_metrics_retriever_flag in true false; do
+        run_one_exp
+        printf "${EXP_NAME}\n" >> whetherhow_result.txt
+      done
     done
+    ZIPF_SKEW=0
 
 
 
