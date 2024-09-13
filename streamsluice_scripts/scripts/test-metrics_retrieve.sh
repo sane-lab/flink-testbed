@@ -194,45 +194,47 @@ run_scale_test(){
 #      printf "${EXP_NAME}\n" >> whetherhow_result.txt
 #    done
 
-    RATE1=7000
-    TIME1=300
-    CURVE_TYPE="linear"
-    GRAPH="1op_line"
-    vertex_id="a84740bacf923e828852cc4966f2247c"
-    for new_metrics_retriever_flag in true false; do
-      run_one_exp
-      printf "${EXP_NAME}\n" >> whetherhow_result.txt
-    done
-
-    RATE1=6000
-    TIME1=90
-    CURVE_TYPE="gradient"
-    GRAPH="4op_line"
-    vertex_id="a84740bacf923e828852cc4966f2247c,eabd4c11f6c6fbdf011f0f1fc42097b1,d01047f852abd5702a0dabeedac99ff5,d2336f79a0d60b5a4b16c8769ec82e47"
-    for new_metrics_retriever_flag in true false; do
-      run_one_exp
-      printf "${EXP_NAME}\n" >> whetherhow_result.txt
-    done
-
-    LP5=13
-    RATE1=8000
-    TIME1=30
-    is_treat=true
-    how_type="streamsluice"
-    CURVE_TYPE="linear"
-    GRAPH="4op_line"
-    vertex_id="a84740bacf923e828852cc4966f2247c,eabd4c11f6c6fbdf011f0f1fc42097b1,d01047f852abd5702a0dabeedac99ff5,d2336f79a0d60b5a4b16c8769ec82e47"
-    for new_metrics_retriever_flag in true false; do
-      run_one_exp
-      printf "${EXP_NAME}\n" >> whetherhow_result.txt
-    done
+#    RATE1=7000
+#    TIME1=300
+#    CURVE_TYPE="linear"
+#    GRAPH="1op_line"
+#    vertex_id="a84740bacf923e828852cc4966f2247c"
+#    for new_metrics_retriever_flag in true false; do
+#      run_one_exp
+#      printf "${EXP_NAME}\n" >> whetherhow_result.txt
+#    done
+#
+#    RATE1=6000
+#    TIME1=90
+#    CURVE_TYPE="gradient"
+#    GRAPH="4op_line"
+#    vertex_id="a84740bacf923e828852cc4966f2247c,eabd4c11f6c6fbdf011f0f1fc42097b1,d01047f852abd5702a0dabeedac99ff5,d2336f79a0d60b5a4b16c8769ec82e47"
+#    for new_metrics_retriever_flag in true false; do
+#      run_one_exp
+#      printf "${EXP_NAME}\n" >> whetherhow_result.txt
+#    done
+#
+#    LP5=13
+#    RATE1=8000
+#    TIME1=30
+#    is_treat=true
+#    how_type="streamsluice"
+#    CURVE_TYPE="linear"
+#    GRAPH="4op_line"
+#    vertex_id="a84740bacf923e828852cc4966f2247c,eabd4c11f6c6fbdf011f0f1fc42097b1,d01047f852abd5702a0dabeedac99ff5,d2336f79a0d60b5a4b16c8769ec82e47"
+#    for new_metrics_retriever_flag in true false; do
+#      run_one_exp
+#      printf "${EXP_NAME}\n" >> whetherhow_result.txt
+#    done
 
     LP5=13
     RATE1=5000
 
     TIME1=30
-    is_treat=true
-    how_type="streamsluice"
+    is_treat=false
+    how_type="ds2"
+    #is_treat=true
+    #how_type="streamsluice"
     CURVE_TYPE="linear"
     GRAPH="1split2join1"
     ZIPF_SKEW=0.05
@@ -241,8 +243,6 @@ run_scale_test(){
       run_one_exp
       printf "${EXP_NAME}\n" >> whetherhow_result.txt
     done
-
-
 
 
 
