@@ -229,11 +229,16 @@ run_scale_test(){
 
     LP5=13
     RATE1=4000
-    RATE_I=6000
-    PERIOD_I=120
+    RATE_I=4000
+    RANGE_I=2000
+    PERIOD_I=60
     P5=6
+    LP2=1
     P2=1
-    P3=1
+    LP3=2
+    P3=2
+    P4=3
+    LP4=3
     DELAY5=500
     TIME1=30
     TIME_I=3600
