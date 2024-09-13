@@ -196,14 +196,14 @@ run_scale_test(){
     P3=1
     P4=1
     P5=17
+    CURVE_TYPE="linear"
+    RATE1=10000
+    TIME1=600
+    RATE_I=10000
+    TIME_I=90
+    RATE2=10000
+    TIME2=600
     for GRAPH in "1op_line" "2op_line" "3op_line"; do
-      CURVE_TYPE="linear"
-      RATE1=10000
-      TIME1=600
-      RATE_I=10000
-      TIME_I=30
-      RATE2=10000
-      TIME2=600
       is_treat=false
       how_type="ds2"
       run_one_exp
@@ -220,14 +220,55 @@ run_scale_test(){
       how_type="streamsluice"
       run_one_exp
       printf "${EXP_NAME}\n" >> whetherhow_result.txt
-      
-      for L in 310 325 350 500 750 1000 1500 2000; do
+
+      for L in 310 320 330 340 350 500 750 1000 1250 1500; do
         is_treat=true
         how_type="streamsluice"
         run_one_exp
         printf "${EXP_NAME}\n" >> whetherhow_result.txt
       done
     done
+
+    # Setting 2:
+    SOURCE_TYPE="when"
+    DELAY2=20
+    DELAY3=20
+    DELAY4=20
+    DELAY5=1000
+    STATE_SIZE2=5000 # 1000 keys, per key (n * 2000 + 36) bytes, n=5000 -> 100 MB
+    STATE_SIZE3=5000
+    STATE_SIZE4=5000
+    STATE_SIZE5=5000
+    LP2=1
+    LP3=1
+    LP4=1
+    LP5=28
+    P2=1
+    P3=1
+    P4=1
+    P5=17
+    GRAPH="3op_line"
+    is_treat=false
+    how_type="ds2"
+    run_one_exp
+    printf "${EXP_NAME}\n" >> whetherhow_result.txt
+    CURVE_TYPE="linear"
+    RATE1=10000
+    TIME1=600
+    RATE_I=5000
+    TIME_I=90
+    RATE2=10000
+    TIME2=600
+    for RATE1 in 10000 15000 20000; do
+      for L in 290 310 320 330 340 350 500 750 1000 1250 1500; do
+        is_treat=true
+        how_type="streamsluice"
+        run_one_exp
+        printf "${EXP_NAME}\n" >> whetherhow_result.txt
+      done
+    done
+
+    # Setting 3
 }
 
 run_scale_test
