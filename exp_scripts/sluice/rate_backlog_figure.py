@@ -116,10 +116,16 @@ def draw_for_file(rawDir, expName, outputDir):
         ax1.plot(filtered_times, filtered_arrival_rates, label='Arrival Rate', color='tab:red', linestyle='-')
         ax1.plot(filtered_times, filtered_service_rates, label='Service Rate', color='tab:blue', linestyle='-')
         ax1.tick_params(axis='y')
-        ax1.set_ylim(0, 5000)
+        if max(filtered_arrival_rates) < 5000 and max(filtered_service_rates) < 5000:
+            ax1.set_ylim(0, 5000)
+        else:
+            ax1.set_ylim(0, 20000)
         # Create a second y-axis for backlog
         ax2 = ax1.twinx()
-        ax2.set_ylim(0, 10000)
+        if max(filtered_backlogs) < 1000:
+            ax2.set_ylim(0, 1000)
+        else:
+            ax2.set_ylim(0, 10000)
         ax2.set_ylabel('Backlog', color='black')
         ax2.plot(filtered_times, filtered_backlogs, label='Backlog', color='black', linestyle='-')
         ax2.tick_params(axis='y')
@@ -221,23 +227,14 @@ def verify_key_total(rawDir, expName):
 rawDir = "/Users/swrrt/Workplace/BacklogDelayPaper/experiments/raw/"
 outputDir = "/Users/swrrt/Workplace/BacklogDelayPaper/experiments/results/"
 exps = [
-    # "test_metric-streamsluice-ds2-true-false-true-false-when-gradient-1op_line-170-4000-4000-4000-1-0-2-300-1-5000-2-300-1-5000-2-50-1-5000-3-600-5000-1000-3000-100-1-false-1",
-    # "test_metric-streamsluice-ds2-false-false-true-false-when-gradient-1op_line-170-4000-4000-4000-1-0-2-300-1-5000-2-300-1-5000-2-50-1-5000-3-600-5000-1000-3000-100-1-false-1",
-    # "test_metric-streamsluice-ds2-true-false-true-false-when-linear-1op_line-170-6000-4000-4000-1-0-2-300-1-5000-2-300-1-5000-2-50-1-5000-3-600-5000-1000-3000-100-1-false-1",
-    # "test_metric-streamsluice-ds2-false-false-true-false-when-linear-1op_line-170-6000-4000-4000-1-0-2-300-1-5000-2-300-1-5000-2-50-1-5000-3-600-5000-1000-3000-100-1-false-1",
-    "test_metric-streamsluice-ds2-true-false-true-false-when-linear-1op_line-170-7000-4000-4000-1-0-2-300-1-5000-2-300-1-5000-1-50-1-5000-3-600-5000-1000-3000-100-1-false-1",
-    "test_metric-streamsluice-ds2-false-false-true-false-when-linear-1op_line-170-7000-4000-4000-1-0-2-300-1-5000-2-300-1-5000-1-50-1-5000-3-600-5000-1000-3000-100-1-false-1",
-    "test_metric-streamsluice-ds2-true-false-true-false-when-gradient-4op_line-170-6000-4000-4000-1-0-2-300-1-5000-2-300-1-5000-1-50-1-5000-3-600-5000-1000-3000-100-1-false-1",
-    "test_metric-streamsluice-ds2-false-false-true-false-when-gradient-4op_line-170-6000-4000-4000-1-0-2-300-1-5000-2-300-1-5000-1-50-1-5000-3-600-5000-1000-3000-100-1-false-1",
+    "test_metric-streamsluice-ds2-true-false-true-false-when-gradient-1op_line-170-4000-4000-4000-1-0-2-300-1-5000-2-300-1-5000-1-50-1-5000-3-600-5000-1000-3000-100-1-false-1",
+    "test_metric-streamsluice-ds2-false-false-true-false-when-gradient-1op_line-170-4000-4000-4000-1-0-2-300-1-5000-2-300-1-5000-1-50-1-5000-3-600-5000-1000-3000-100-1-false-1",
     "test_metric-streamsluice-ds2-true-false-true-false-when-linear-1op_line-170-7000-4000-4000-1-0-2-300-1-5000-2-300-1-5000-1-50-1-5000-3-600-5000-1000-3000-100-1-false-1",
     "test_metric-streamsluice-ds2-false-false-true-false-when-linear-1op_line-170-7000-4000-4000-1-0-2-300-1-5000-2-300-1-5000-1-50-1-5000-3-600-5000-1000-3000-100-1-false-1",
     "test_metric-streamsluice-ds2-true-false-true-false-when-gradient-4op_line-170-6000-4000-4000-1-0-2-300-1-5000-2-300-1-5000-1-50-1-5000-3-600-5000-1000-3000-100-1-false-1",
     "test_metric-streamsluice-ds2-false-false-true-false-when-gradient-4op_line-170-6000-4000-4000-1-0-2-300-1-5000-2-300-1-5000-1-50-1-5000-3-600-5000-1000-3000-100-1-false-1",
     "test_metric-streamsluice-streamsluice-true-false-true-false-when-linear-4op_line-170-8000-4000-4000-1-0-2-300-1-5000-2-300-1-5000-1-50-1-5000-3-600-5000-1000-3000-100-1-true-1",
     "test_metric-streamsluice-streamsluice-false-false-true-false-when-linear-4op_line-170-8000-4000-4000-1-0-2-300-1-5000-2-300-1-5000-1-50-1-5000-3-600-5000-1000-3000-100-1-true-1",
-    "test_metric-streamsluice-streamsluice-true-false-true-false-when-linear-1split2join1-170-5000-4000-4000-1-0.05-2-300-1-5000-2-300-1-5000-1-50-1-5000-3-600-5000-1000-3000-100-1-true-1",
-    "test_metric-streamsluice-streamsluice-false-false-true-false-when-linear-1split2join1-170-5000-4000-4000-1-0.05-2-300-1-5000-2-300-1-5000-1-50-1-5000-3-600-5000-1000-3000-100-1-true-1",
-
 ]
 start_time=30
 end_time=120
