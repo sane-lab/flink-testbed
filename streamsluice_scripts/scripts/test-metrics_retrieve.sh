@@ -104,7 +104,7 @@ function runApp() {
     -p3 ${P3} -mp3 ${MP3} -op3Delay ${DELAY3} -op3IoRate ${IO3} -op3KeyStateSize ${STATE_SIZE3} \
     -p4 ${P4} -mp4 ${MP4} -op4Delay ${DELAY4} -op4IoRate ${IO4} -op4KeyStateSize ${STATE_SIZE4} \
     -nkeys ${NKEYS} -phase1Time ${TIME1} -phase1Rate ${RATE1} -phase2Time ${TIME2} \
-    -phase2Rate ${RATE2} -interTime ${TIME_I} -interRate ${RATE_I} \
+    -phase2Rate ${RATE2} -interTime ${TIME_I} -interRate ${RATE_I} -interRange ${RANGE_I} -interPeriod ${PERIOD_I} -inter_delta ${DELTA_I}\
     -source ${SOURCE_TYPE} -curve_type ${CURVE_TYPE} -run_time ${runtime} \
     -zipf_skew ${ZIPF_SKEW} &"
     ${FLINK_DIR}/bin/flink run -c ${job} ${JAR} \
@@ -114,7 +114,7 @@ function runApp() {
     -p4 ${P4} -mp4 ${MP4} -op4Delay ${DELAY4} -op4IoRate ${IO4} -op4KeyStateSize ${STATE_SIZE4} \
     -p5 ${P5} -mp5 ${MP5} -op5Delay ${DELAY5} -op5KeyStateSize ${STATE_SIZE5} \
     -nkeys ${NKEYS} -phase1Time ${TIME1} -phase1Rate ${RATE1} -phase2Time ${TIME2} \
-    -phase2Rate ${RATE2} -interTime ${TIME_I} -interRate ${RATE_I}\
+    -phase2Rate ${RATE2} -interTime ${TIME_I} -interRate ${RATE_I} -interRange ${RANGE_I} -interPeriod ${PERIOD_I} -inter_delta ${DELTA_I}\
     -source ${SOURCE_TYPE} -curve_type ${CURVE_TYPE} -run_time ${runtime} \
     -zipf_skew ${ZIPF_SKEW} &
 }
@@ -231,7 +231,8 @@ run_scale_test(){
     RATE1=4000
     RATE_I=4000
     RANGE_I=2000
-    PERIOD_I=60
+    PERIOD_I=120
+    DElTA_I=0
     P5=6
     LP2=1
     P2=1
@@ -251,7 +252,7 @@ run_scale_test(){
     SOURCE_TYPE="normal"
     vertex_id="a84740bacf923e828852cc4966f2247c,eabd4c11f6c6fbdf011f0f1fc42097b1,d01047f852abd5702a0dabeedac99ff5,d2336f79a0d60b5a4b16c8769ec82e47"
 
-    for ZIPF_SKEW in 0.1 0.2 0.4 0.6; do #
+    for ZIPF_SKEW in 0.1 0.2; do #
       for new_metrics_retriever_flag in true false; do
         run_one_exp
         printf "${EXP_NAME}\n" >> whetherhow_result.txt
