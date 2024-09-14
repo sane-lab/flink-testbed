@@ -694,7 +694,7 @@ public class MicroBench {
             System.out.println("Source start at: " + startTime);
             System.out.println("Source warm up...");
             // startSteadyPhase(ctx, NORMAL_RATE, 20 * 1000, startTime);
-            startSteadyPhase(ctx, WARMP_RATE, WARMP_TIME * 1000, startTime);
+            startSteadyPhase(ctx, WARMP_RATE, WARMP_TIME, startTime);
             startTime = System.currentTimeMillis();
             long round = 0;
             while (isRunning && System.currentTimeMillis() - startTime < TOTAL_TIME) {
@@ -854,7 +854,7 @@ public class MicroBench {
             System.out.println("Source start at: " + startTime);
             System.out.println("Source warm up...");
             // startSteadyPhase(ctx, NORMAL_RATE, 20 * 1000, startTime);
-            startSteadyPhase(ctx, WARMP_RATE, WARMP_TIME * 1000, startTime);
+            startSteadyPhase(ctx, WARMP_RATE, WARMP_TIME, startTime);
             startTime = System.currentTimeMillis();
             long round = 0;
             while (isRunning && System.currentTimeMillis() - startTime < TOTAL_TIME) {

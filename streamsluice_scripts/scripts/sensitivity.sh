@@ -313,7 +313,8 @@ run_scale_test(){
     TIME_I=0
     RATE1=15000
     RATE2=5000
-    for TIME1 in 60 45 30; do
+    runtime=210
+    for TIME1 in 60; do # 45 30
       TIME2=${TIME1}
       is_treat=false
       how_type="ds2"
