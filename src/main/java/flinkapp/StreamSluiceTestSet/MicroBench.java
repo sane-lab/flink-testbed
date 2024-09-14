@@ -55,7 +55,7 @@ public class MicroBench {
 
         DataStreamSource<Tuple3<String, Long, Long>> source;
         if(SOURCE_TYPE.equals("when")){
-            source = env.addSource(new WhenSource(params.getLong("warmupTime", 20), PHASE1_TIME, PHASE2_TIME, INTERMEDIATE_TIME, params.getLong("warmupRate", INTERMEDIATE_RATE), PHASE1_RATE, PHASE2_RATE, INTERMEDIATE_RATE, params.getLong("run_time", 510) * 1000, params.get("curve_type", "sine"))).
+            source = env.addSource(new WhenSource(params.getLong("warmupTime", 20) * 1000, PHASE1_TIME, PHASE2_TIME, INTERMEDIATE_TIME, params.getLong("warmupRate", INTERMEDIATE_RATE), PHASE1_RATE, PHASE2_RATE, INTERMEDIATE_RATE, params.getLong("run_time", 510) * 1000, params.get("curve_type", "sine"))).
                     setParallelism(params.getInt("p1", 1));
         }else if(SOURCE_TYPE.equals("how")) {
             source = env.addSource(new HowSource(PHASE1_TIME, PHASE2_TIME, INTERMEDIATE_TIME, PHASE1_RATE, PHASE2_RATE, INTERMEDIATE_RATE, params.getLong("run_time", 510) * 1000));
@@ -901,7 +901,7 @@ public class MicroBench {
                     }
                 }else if(this_round_curve == 1){ // Linear
                     long roundStartTime = System.currentTimeMillis();
-                    System.out.println("Round " + round + " phase 1 start at: " + roundStartTime);
+                    System.out.println("Linear Round " + round + " phase 1 start at: " + roundStartTime);
                     startLinearPhase(ctx, NORMAL_RATE, PHASE1_RATE, PHASE1_TIME / 2, roundStartTime);
                     roundStartTime = System.currentTimeMillis();
                     startLinearPhase(ctx, PHASE1_RATE, NORMAL_RATE, PHASE1_TIME / 2, roundStartTime);
