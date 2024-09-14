@@ -524,7 +524,7 @@ def main():
     overall_output_dir = "/Users/swrrt/Workplace/BacklogDelayPaper/experiments/figures/autotuner/"
     window_size = 100
     start_time = 30 #60
-    exp_length = 300
+    exp_length = 330
 
 
 
@@ -566,37 +566,37 @@ def main():
 
     setting3 = {
         "Period 120s": [
-            "system-true-streamsluice-ds2-false-true-true-false-when-linear-1split2join1-210-15000-60-5000-10000-0-1-0-1-20-1-5000-1-20-1-5000-1-20-1-5000-17-500-5000-1000-3000-100-1-false-1",
+            "setting3-true-streamsluice-ds2-false-true-true-false-when-linear-1split2join1-390-15000-60-5000-10000-0-1-0-1-20-1-5000-1-20-1-5000-1-20-1-5000-17-500-5000-1000-3000-100-1-false-1",
         ],
         "Period 90s": [
-            "system-true-streamsluice-ds2-false-true-true-false-when-linear-1split2join1-390-15000-45-5000-10000-0-1-0-1-20-1-5000-1-20-1-5000-1-20-1-5000-17-500-5000-1000-3000-100-1-false-1",
+            "setting3-true-streamsluice-ds2-false-true-true-false-when-linear-1split2join1-390-15000-45-5000-10000-0-1-0-1-20-1-5000-1-20-1-5000-1-20-1-5000-17-500-5000-1000-3000-100-1-false-1",
         ],
         "Period 60s": [
-            "system-true-streamsluice-ds2-false-true-true-false-when-linear-1split2join1-390-15000-5000-10000-0-1-0-1-20-1-5000-1-20-1-5000-1-20-1-5000-17-500-5000-1000-3000-100-1-false-1",
+            "setting3-true-streamsluice-ds2-false-true-true-false-when-linear-1split2join1-390-15000-30-5000-10000-0-1-0-1-20-1-5000-1-20-1-5000-1-20-1-5000-17-500-5000-1000-3000-100-1-false-1",
         ],
     }
 
     setting4 = {
         "Amplitude 25%": [
-            "system-true-streamsluice-ds2-false-true-true-false-when-sine-1split2join1-390-12500-5000-10000-0-1-0-1-20-1-5000-1-20-1-5000-17-1000-1-5000-1-20-5000-1000-3000-100-1-false-1",
+            "setting4-true-streamsluice-ds2-false-true-true-false-when-sine-1split2join1-390-12500-30-5000-10000-0-1-0-1-20-1-5000-1-20-1-5000-17-1000-1-5000-1-20-5000-1000-3000-100-1-false-1",
         ],
         "Amplitude 50%": [
-            "system-true-streamsluice-ds2-false-true-true-false-when-sine-1split2join1-390-15000-5000-10000-0-1-0-1-20-1-5000-1-20-1-5000-17-1000-1-5000-1-20-5000-1000-3000-100-1-false-1",
+            "setting4-true-streamsluice-ds2-false-true-true-false-when-sine-1split2join1-390-15000-30-5000-10000-0-1-0-1-20-1-5000-1-20-1-5000-17-1000-1-5000-1-20-5000-1000-3000-100-1-false-1",
         ],
         "Amplitude 75%": [
-            "system-true-streamsluice-ds2-false-true-true-false-when-sine-1split2join1-390-17500-5000-10000-0-1-0-1-20-1-5000-1-20-1-5000-17-1000-1-5000-1-20-5000-1000-3000-100-1-false-1",
+            "setting4-true-streamsluice-ds2-false-true-true-false-when-sine-1split2join1-390-17500-30-5000-10000-0-1-0-1-20-1-5000-1-20-1-5000-17-1000-1-5000-1-20-5000-1000-3000-100-1-false-1",
         ],
     }
 
     setting5 = {
         "Amplitude 25%": [
-            "system-true-streamsluice-ds2-false-true-true-false-when-gradient-1split2join1-390-12500-7500-10000-0-1-0-1-20-1-5000-1-20-1-5000-1-20-1-5000-17-500-5000-1000-3000-100-1-false-1",
+            "setting5-true-streamsluice-ds2-false-true-true-false-when-gradient-1split2join1-390-12500-45-7500-10000-0-1-0-1-20-1-5000-1-20-1-5000-1-20-1-5000-17-500-5000-1000-3000-100-1-false-1",
         ],
         "Amplitude 50%": [
-            "system-true-streamsluice-ds2-false-true-true-false-when-gradient-1split2join1-390-15000-5000-10000-0-1-0-1-20-1-5000-1-20-1-5000-1-20-1-5000-17-500-5000-1000-3000-100-1-false-1",
+            "setting5-true-streamsluice-ds2-false-true-true-false-when-gradient-1split2join1-390-15000-45-5000-10000-0-1-0-1-20-1-5000-1-20-1-5000-1-20-1-5000-17-500-5000-1000-3000-100-1-false-1",
         ],
         "Amplitude 75%": [
-            "system-true-streamsluice-ds2-false-true-true-false-when-gradient-1split2join1-390-17500-2500-10000-0-1-0-1-20-1-5000-1-20-1-5000-1-20-1-5000-17-500-5000-1000-3000-100-1-false-1",
+            "setting5-true-streamsluice-ds2-false-true-true-false-when-gradient-1split2join1-390-17500-45-2500-10000-0-1-0-1-20-1-5000-1-20-1-5000-1-20-1-5000-17-500-5000-1000-3000-100-1-false-1",
         ],
     }
 
@@ -627,9 +627,9 @@ def main():
     settings = {
         "setting_1": setting1,
         "setting_2": setting2,
-        #"setting_3": setting3,
-        #"setting_4": setting4,
-        #"setting_5": setting5,
+        "setting_3": setting3,
+        "setting_4": setting4,
+        "setting_5": setting5,
         #"setting_6": setting6,
         #"setting_7": setting7,
     }
