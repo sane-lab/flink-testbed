@@ -179,6 +179,7 @@ run_scale_test(){
 
     runtime=390
     # Setting 1
+    printf "Setting 1\n" >> whetherhow_result.txt
     SOURCE_TYPE="when"
     DELAY2=20
     DELAY3=20
@@ -216,8 +217,8 @@ run_scale_test(){
           LP2=31
           is_treat=true
           how_type="streamsluice"
-          run_one_exp
-          printf "${EXP_NAME}\n" >> whetherhow_result.txt
+#          run_one_exp
+#          printf "${EXP_NAME}\n" >> whetherhow_result.txt
         done
       elif [ "$GRAPH" = "2op_line" ]; then
         LP2=1
@@ -225,8 +226,8 @@ run_scale_test(){
         for L in 1000; do # 190 210 220 230 240 250 500 750 1000 1250 1500
           is_treat=true
           how_type="streamsluice"
-          run_one_exp
-          printf "${EXP_NAME}\n" >> whetherhow_result.txt
+#          run_one_exp
+#          printf "${EXP_NAME}\n" >> whetherhow_result.txt
         done
       elif [ "$GRAPH" = "3op_line" ]; then
         LP2=1
@@ -235,14 +236,15 @@ run_scale_test(){
         for L in 1000; do # 290 310 320 330 340 350 500 750 1000 1250 1500
           is_treat=true
           how_type="streamsluice"
-          run_one_exp
-          printf "${EXP_NAME}\n" >> whetherhow_result.txt
+#          run_one_exp
+#          printf "${EXP_NAME}\n" >> whetherhow_result.txt
         done
       fi
 
     done
 
     # Setting 2:
+    printf "Setting 2\n" >> whetherhow_result.txt
     SOURCE_TYPE="when"
     DELAY2=20
     DELAY3=20
@@ -278,17 +280,18 @@ run_scale_test(){
       for L in 1000; do # 290 310 320 330 340 350 500 750 1000 1250 1500
         is_treat=true
         how_type="streamsluice"
-        run_one_exp
-        printf "${EXP_NAME}\n" >> whetherhow_result.txt
+#        run_one_exp
+#        printf "${EXP_NAME}\n" >> whetherhow_result.txt
       done
     done
 
     # Setting 3
+    printf "Setting 3\n" >> whetherhow_result.txt
     SOURCE_TYPE="when"
     DELAY2=20
     DELAY3=20
     DELAY4=20
-    DELAY5=1000
+    DELAY5=500
     STATE_SIZE2=5000 # 1000 keys, per key (n * 2000 + 36) bytes, n=5000 -> 100 MB
     STATE_SIZE3=5000
     STATE_SIZE4=5000
@@ -324,7 +327,214 @@ run_scale_test(){
       done
     done
 
+    # Setting 4
+    printf "Setting 4\n" >> whetherhow_result.txt
+    SOURCE_TYPE="when"
+    DELAY2=20
+    DELAY3=20
+    DELAY4=1000
+    DELAY5=20
+    STATE_SIZE2=5000 # 1000 keys, per key (n * 2000 + 36) bytes, n=5000 -> 100 MB
+    STATE_SIZE3=5000
+    STATE_SIZE4=5000
+    STATE_SIZE5=5000
+    LP2=1
+    LP3=1
+    LP4=28
+    LP5=1
 
+    P2=1
+    P3=1
+    P4=17
+    P5=1
+    GRAPH="1split2join1"
+    CURVE_TYPE="sine"
+    warmupRate=10000
+    warmupTime=60
+    RATE_I=10000
+    TIME_I=0
+    TIME1=30
+    TIME2=30
+    for RATE1 in 12500 15000 17500; do
+      is_treat=false
+      how_type="ds2"
+      run_one_exp
+      printf "${EXP_NAME}\n" >> whetherhow_result.txt
+      for L in 1000; do # 290 310 320 330 340 350 500 750 1000 1250 1500
+        is_treat=true
+        how_type="streamsluice"
+#        run_one_exp
+#        printf "${EXP_NAME}\n" >> whetherhow_result.txt
+      done
+    done
+
+    # Setting 5
+    printf "Setting 5\n" >> whetherhow_result.txt
+    SOURCE_TYPE="when"
+    DELAY2=20
+    DELAY3=20
+    DELAY4=20
+    DELAY5=500
+    STATE_SIZE2=5000 # 1000 keys, per key (n * 2000 + 36) bytes, n=5000 -> 100 MB
+    STATE_SIZE3=5000
+    STATE_SIZE4=5000
+    STATE_SIZE5=5000
+    LP2=1
+    LP3=1
+    LP4=1
+    LP5=28
+
+    P2=1
+    P3=1
+    P4=1
+    P5=17
+    GRAPH="1split2join1"
+    CURVE_TYPE="gradient"
+    warmupRate=10000
+    warmupTime=60
+    RATE_I=10000
+    TIME_I=0
+    RATE1=15000
+    RATE2=5000
+    TIME1=45
+    TIME2=45
+    for RATE1 in 12500 15000 17500; do
+      RATE2=$((20000 - RATE1))
+      is_treat=false
+      how_type="ds2"
+      run_one_exp
+      printf "${EXP_NAME}\n" >> whetherhow_result.txt
+      for L in 1000; do # 290 310 320 330 340 350 500 750 1000 1250 1500
+        is_treat=true
+        how_type="streamsluice"
+#        run_one_exp
+#        printf "${EXP_NAME}\n" >> whetherhow_result.txt
+      done
+    done
+
+    # Setting 6
+    printf "Setting 6\n" >> whetherhow_result.txt
+    SOURCE_TYPE="when"
+    DELAY2=20
+    DELAY3=20
+    DELAY4=20
+    DELAY5=500
+    STATE_SIZE2=5000 # 1000 keys, per key (n * 2000 + 36) bytes, n=5000 -> 100 MB
+    STATE_SIZE3=5000
+    STATE_SIZE4=5000
+    STATE_SIZE5=5000
+    LP2=1
+    LP3=1
+    LP4=1
+    LP5=28
+
+    P2=1
+    P3=1
+    P4=1
+    P5=17
+    GRAPH="1split2join1"
+    CURVE_TYPE="sine"
+    warmupRate=10000
+    warmupTime=60
+    RATE_I=10000
+    TIME_I=0
+    RATE1=15000
+    RATE2=5000
+    TIME1=45
+    TIME2=45
+    for STATE_SIZE5 in 5000 10000 15000; do
+      is_treat=false
+      how_type="ds2"
+      run_one_exp
+      printf "${EXP_NAME}\n" >> whetherhow_result.txt
+      for L in 1000; do # 290 310 320 330 340 350 500 750 1000 1250 1500
+        is_treat=true
+        how_type="streamsluice"
+#        run_one_exp
+#        printf "${EXP_NAME}\n" >> whetherhow_result.txt
+      done
+    done
+
+    # Setting 7
+    printf "Setting 7\n" >> whetherhow_result.txt
+    SOURCE_TYPE="when"
+    DELAY2=20
+    DELAY3=20
+    DELAY4=20
+    DELAY5=500
+    STATE_SIZE2=5000 # 1000 keys, per key (n * 2000 + 36) bytes, n=5000 -> 100 MB
+    STATE_SIZE3=5000
+    STATE_SIZE4=5000
+    STATE_SIZE5=5000
+    LP2=1
+    LP3=1
+    LP4=1
+    LP5=28
+
+    P2=1
+    P3=1
+    P4=1
+    P5=17
+    GRAPH="1split2join1"
+    CURVE_TYPE="sine"
+    warmupRate=10000
+    warmupTime=60
+    RATE_I=10000
+    TIME_I=0
+    RATE1=15000
+    RATE2=5000
+    TIME1=45
+    TIME2=45
+
+    # 1 bottleneck
+    is_treat=false
+    how_type="ds2"
+    run_one_exp
+    printf "${EXP_NAME}\n" >> whetherhow_result.txt
+    for L in 1000; do # 290 310 320 330 340 350 500 750 1000 1250 1500
+      is_treat=true
+      how_type="streamsluice"
+#      run_one_exp
+#      printf "${EXP_NAME}\n" >> whetherhow_result.txt
+    done
+    # 2 bottleneck
+    LP4=9
+    LP5=20
+    P4=5
+    P5=15
+    DELAY4=333
+    DELAY5=500
+    is_treat=false
+    how_type="ds2"
+    run_one_exp
+    printf "${EXP_NAME}\n" >> whetherhow_result.txt
+    for L in 1000; do # 290 310 320 330 340 350 500 750 1000 1250 1500
+      is_treat=true
+      how_type="streamsluice"
+#      run_one_exp
+#      printf "${EXP_NAME}\n" >> whetherhow_result.txt
+    done
+
+    # 3 bottleneck
+    LP3=5
+    LP4=7
+    LP5=18
+    P3=3
+    P4=5
+    P5=15
+    DELAY3=222
+    DELAY4=333
+    DELAY5=500
+    is_treat=false
+    how_type="ds2"
+    run_one_exp
+    printf "${EXP_NAME}\n" >> whetherhow_result.txt
+    for L in 1000; do # 290 310 320 330 340 350 500 750 1000 1250 1500
+      is_treat=true
+      how_type="streamsluice"
+#      run_one_exp
+#      printf "${EXP_NAME}\n" >> whetherhow_result.txt
+    done
 }
 
 run_scale_test
