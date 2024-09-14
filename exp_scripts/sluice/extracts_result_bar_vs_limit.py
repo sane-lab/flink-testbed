@@ -259,6 +259,8 @@ def readParallelism(rawDir, expName, windowSize):
     print("Reading streamsluice output:" + streamSluiceOutputPath)
     counter = 0
 
+    timestamp_to_index = {}
+
     with open(streamSluiceOutputPath) as f:
         lines = f.readlines()
         for i in range(0, len(lines)):
@@ -344,12 +346,13 @@ def readParallelism(rawDir, expName, windowSize):
             totalArrivalRatePerJob[job] = {}
         for i in range(0, n):
             ax = arrivalRatePerTask[task][0][i]
-            index = math.floor(ax / windowSize) * windowSize
+            index = round(ax / windowSize) * windowSize #math.floor(ax / windowSize) * windowSize
             ay = arrivalRatePerTask[task][1][i]
             if index not in totalArrivalRatePerJob[job]:
                 totalArrivalRatePerJob[job][index] = ay
             else:
                 totalArrivalRatePerJob[job][index] += ay
+
     print(expName, ParallelismPerJob.keys())
     return [ParallelismPerJob, totalArrivalRatePerJob, initialTime, scalings]
 
@@ -528,13 +531,13 @@ def main():
 
     setting1 = {
         "1 op": [
-            "system-true-streamsluice-ds2-false-true-true-false-when-linear-1op_line-390-10000-10000-10000-90-1-0-1-20-1-5000-1-20-1-5000-1-20-1-5000-17-1000-5000-1000-3000-100-1-false-1",
+            #"system-true-streamsluice-ds2-false-true-true-false-when-linear-1op_line-390-10000-10000-10000-90-1-0-1-20-1-5000-1-20-1-5000-1-20-1-5000-17-1000-5000-1000-3000-100-1-false-1",
             # "system-true-streamsluice-streamsluice-false-true-true-false-when-linear-1op_line-390-10000-10000-10000-90-1-0-1-20-1-5000-1-20-1-5000-1-20-1-5000-17-1000-5000-90-3000-100-1-true-1",
             # "system-true-streamsluice-streamsluice-false-true-true-false-when-linear-1op_line-390-10000-10000-10000-90-1-0-1-20-1-5000-1-20-1-5000-1-20-1-5000-17-1000-5000-110-3000-100-1-true-1",
             # "system-true-streamsluice-streamsluice-false-true-true-false-when-linear-1op_line-390-10000-10000-10000-90-1-0-1-20-1-5000-1-20-1-5000-1-20-1-5000-17-1000-5000-120-3000-100-1-true-1",
             # "system-true-streamsluice-streamsluice-false-true-true-false-when-linear-1op_line-390-10000-10000-10000-90-1-0-1-20-1-5000-1-20-1-5000-1-20-1-5000-17-1000-5000-130-3000-100-1-true-1",
             # "system-true-streamsluice-streamsluice-false-true-true-false-when-linear-1op_line-390-10000-10000-10000-90-1-0-1-20-1-5000-1-20-1-5000-1-20-1-5000-17-1000-5000-140-3000-100-1-true-1",
-            "system-true-streamsluice-streamsluice-false-true-true-false-when-linear-1op_line-390-10000-10000-10000-90-1-0-1-20-1-5000-1-20-1-5000-1-20-1-5000-17-1000-5000-150-3000-100-1-true-1",
+            #"system-true-streamsluice-streamsluice-false-true-true-false-when-linear-1op_line-390-10000-10000-10000-90-1-0-1-20-1-5000-1-20-1-5000-1-20-1-5000-17-1000-5000-150-3000-100-1-true-1",
             # "system-true-streamsluice-streamsluice-false-true-true-false-when-linear-1op_line-390-10000-10000-10000-90-1-0-1-20-1-5000-1-20-1-5000-1-20-1-5000-17-1000-5000-250-3000-100-1-true-1",
             # # "system-true-streamsluice-streamsluice-false-true-true-false-when-linear-1op_line-390-10000-10000-10000-90-1-0-1-20-1-5000-1-20-1-5000-1-20-1-5000-17-1000-5000-310-3000-100-1-true-1",
             # # "system-true-streamsluice-streamsluice-false-true-true-false-when-linear-1op_line-390-10000-10000-10000-90-1-0-1-20-1-5000-1-20-1-5000-1-20-1-5000-17-1000-5000-320-3000-100-1-true-1",
@@ -543,18 +546,18 @@ def main():
             # # "system-true-streamsluice-streamsluice-false-true-true-false-when-linear-1op_line-390-10000-10000-10000-90-1-0-1-20-1-5000-1-20-1-5000-1-20-1-5000-17-1000-5000-350-3000-100-1-true-1",
             # "system-true-streamsluice-streamsluice-false-true-true-false-when-linear-1op_line-390-10000-10000-10000-90-1-0-1-20-1-5000-1-20-1-5000-1-20-1-5000-17-1000-5000-500-3000-100-1-true-1",
             # "system-true-streamsluice-streamsluice-false-true-true-false-when-linear-1op_line-390-10000-10000-10000-90-1-0-1-20-1-5000-1-20-1-5000-1-20-1-5000-17-1000-5000-750-3000-100-1-true-1",
-            "system-true-streamsluice-streamsluice-false-true-true-false-when-linear-1op_line-390-10000-10000-10000-90-1-0-1-20-1-5000-1-20-1-5000-1-20-1-5000-17-1000-5000-1000-3000-100-1-true-1",
+            #"system-true-streamsluice-streamsluice-false-true-true-false-when-linear-1op_line-390-10000-10000-10000-90-1-0-1-20-1-5000-1-20-1-5000-1-20-1-5000-17-1000-5000-1000-3000-100-1-true-1",
             # "system-true-streamsluice-streamsluice-false-true-true-false-when-linear-1op_line-390-10000-10000-10000-90-1-0-1-20-1-5000-1-20-1-5000-1-20-1-5000-17-1000-5000-1250-3000-100-1-true-1",
             # "system-true-streamsluice-streamsluice-false-true-true-false-when-linear-1op_line-390-10000-10000-10000-90-1-0-1-20-1-5000-1-20-1-5000-1-20-1-5000-17-1000-5000-1500-3000-100-1-true-1",
         ],
         "2 ops": [
-            "system-true-streamsluice-ds2-false-true-true-false-when-linear-2op_line-390-10000-10000-10000-90-1-0-1-20-1-5000-1-20-1-5000-1-20-1-5000-17-1000-5000-1500-3000-100-1-false-1",
+            #"system-true-streamsluice-ds2-false-true-true-false-when-linear-2op_line-390-10000-10000-10000-90-1-0-1-20-1-5000-1-20-1-5000-1-20-1-5000-17-1000-5000-1500-3000-100-1-false-1",
             # "system-true-streamsluice-streamsluice-false-true-true-false-when-linear-2op_line-390-10000-10000-10000-90-1-0-1-20-1-5000-1-20-1-5000-1-20-1-5000-17-1000-5000-190-3000-100-1-true-1",
             # "system-true-streamsluice-streamsluice-false-true-true-false-when-linear-2op_line-390-10000-10000-10000-90-1-0-1-20-1-5000-1-20-1-5000-1-20-1-5000-17-1000-5000-210-3000-100-1-true-1",
             # "system-true-streamsluice-streamsluice-false-true-true-false-when-linear-2op_line-390-10000-10000-10000-90-1-0-1-20-1-5000-1-20-1-5000-1-20-1-5000-17-1000-5000-220-3000-100-1-true-1",
             # "system-true-streamsluice-streamsluice-false-true-true-false-when-linear-2op_line-390-10000-10000-10000-90-1-0-1-20-1-5000-1-20-1-5000-1-20-1-5000-17-1000-5000-230-3000-100-1-true-1",
             # "system-true-streamsluice-streamsluice-false-true-true-false-when-linear-2op_line-390-10000-10000-10000-90-1-0-1-20-1-5000-1-20-1-5000-1-20-1-5000-17-1000-5000-240-3000-100-1-true-1",
-            "system-true-streamsluice-streamsluice-false-true-true-false-when-linear-2op_line-390-10000-10000-10000-90-1-0-1-20-1-5000-1-20-1-5000-1-20-1-5000-17-1000-5000-250-3000-100-1-true-1",
+            #"system-true-streamsluice-streamsluice-false-true-true-false-when-linear-2op_line-390-10000-10000-10000-90-1-0-1-20-1-5000-1-20-1-5000-1-20-1-5000-17-1000-5000-250-3000-100-1-true-1",
             # # "system-true-streamsluice-streamsluice-false-true-true-false-when-linear-2op_line-390-10000-10000-10000-90-1-0-1-20-1-5000-1-20-1-5000-1-20-1-5000-17-1000-5000-310-3000-100-1-true-1",
             # # "system-true-streamsluice-streamsluice-false-true-true-false-when-linear-2op_line-390-10000-10000-10000-90-1-0-1-20-1-5000-1-20-1-5000-1-20-1-5000-17-1000-5000-320-3000-100-1-true-1",
             # # "system-true-streamsluice-streamsluice-false-true-true-false-when-linear-2op_line-390-10000-10000-10000-90-1-0-1-20-1-5000-1-20-1-5000-1-20-1-5000-17-1000-5000-330-3000-100-1-true-1",
@@ -567,16 +570,16 @@ def main():
             # "system-true-streamsluice-streamsluice-false-true-true-false-when-linear-2op_line-390-10000-10000-10000-90-1-0-1-20-1-5000-1-20-1-5000-1-20-1-5000-17-1000-5000-1500-3000-100-1-true-1",
         ],
         "3 ops": [
-            "system-true-streamsluice-ds2-false-true-true-false-when-linear-3op_line-390-10000-10000-10000-90-1-0-1-20-1-5000-1-20-1-5000-1-20-1-5000-17-1000-5000-1500-3000-100-1-false-1",
+            #"system-true-streamsluice-ds2-false-true-true-false-when-linear-3op_line-390-10000-10000-10000-90-1-0-1-20-1-5000-1-20-1-5000-1-20-1-5000-17-1000-5000-1500-3000-100-1-false-1",
             # "system-true-streamsluice-streamsluice-false-true-true-false-when-linear-3op_line-390-10000-10000-10000-90-1-0-1-20-1-5000-1-20-1-5000-1-20-1-5000-17-1000-5000-290-3000-100-1-true-1",
             # "system-true-streamsluice-streamsluice-false-true-true-false-when-linear-3op_line-390-10000-10000-10000-90-1-0-1-20-1-5000-1-20-1-5000-1-20-1-5000-17-1000-5000-310-3000-100-1-true-1",
             # "system-true-streamsluice-streamsluice-false-true-true-false-when-linear-3op_line-390-10000-10000-10000-90-1-0-1-20-1-5000-1-20-1-5000-1-20-1-5000-17-1000-5000-320-3000-100-1-true-1",
             # "system-true-streamsluice-streamsluice-false-true-true-false-when-linear-3op_line-390-10000-10000-10000-90-1-0-1-20-1-5000-1-20-1-5000-1-20-1-5000-17-1000-5000-330-3000-100-1-true-1",
             # "system-true-streamsluice-streamsluice-false-true-true-false-when-linear-3op_line-390-10000-10000-10000-90-1-0-1-20-1-5000-1-20-1-5000-1-20-1-5000-17-1000-5000-340-3000-100-1-true-1",
-            "system-true-streamsluice-streamsluice-false-true-true-false-when-linear-3op_line-390-10000-10000-10000-90-1-0-1-20-1-5000-1-20-1-5000-1-20-1-5000-17-1000-5000-350-3000-100-1-true-1",
+            #"system-true-streamsluice-streamsluice-false-true-true-false-when-linear-3op_line-390-10000-10000-10000-90-1-0-1-20-1-5000-1-20-1-5000-1-20-1-5000-17-1000-5000-350-3000-100-1-true-1",
             # "system-true-streamsluice-streamsluice-false-true-true-false-when-linear-3op_line-390-10000-10000-10000-90-1-0-1-20-1-5000-1-20-1-5000-1-20-1-5000-17-1000-5000-500-3000-100-1-true-1",
             # "system-true-streamsluice-streamsluice-false-true-true-false-when-linear-3op_line-390-10000-10000-10000-90-1-0-1-20-1-5000-1-20-1-5000-1-20-1-5000-17-1000-5000-750-3000-100-1-true-1",
-            "system-true-streamsluice-streamsluice-false-true-true-false-when-linear-3op_line-390-10000-10000-10000-90-1-0-1-20-1-5000-1-20-1-5000-1-20-1-5000-17-1000-5000-1000-3000-100-1-true-1",
+            #"system-true-streamsluice-streamsluice-false-true-true-false-when-linear-3op_line-390-10000-10000-10000-90-1-0-1-20-1-5000-1-20-1-5000-1-20-1-5000-17-1000-5000-1000-3000-100-1-true-1",
             # "system-true-streamsluice-streamsluice-false-true-true-false-when-linear-3op_line-390-10000-10000-10000-90-1-0-1-20-1-5000-1-20-1-5000-1-20-1-5000-17-1000-5000-1250-3000-100-1-true-1",
             # "system-true-streamsluice-streamsluice-false-true-true-false-when-linear-3op_line-390-10000-10000-10000-90-1-0-1-20-1-5000-1-20-1-5000-1-20-1-5000-17-1000-5000-1500-3000-100-1-true-1",
         ],
@@ -627,9 +630,66 @@ def main():
         ],
     }
 
+    setting3 = {
+        "Period 120s": [
+            "system-true-streamsluice-ds2-false-true-true-false-when-linear-1split2join1-390-15000-5000-10000-0-1-0-1-20-1-5000-1-20-1-5000-1-20-1-5000-17-500-5000-1000-3000-100-1-false-1",
+        ],
+        "Period 90s": [
+            "system-true-streamsluice-ds2-false-true-true-false-when-linear-1split2join1-390-15000-5000-10000-0-1-0-1-20-1-5000-1-20-1-5000-1-20-1-5000-17-500-5000-1000-3000-100-1-false-1",
+        ],
+        "Period 60s": [
+            "system-true-streamsluice-ds2-false-true-true-false-when-linear-1split2join1-390-15000-5000-10000-0-1-0-1-20-1-5000-1-20-1-5000-1-20-1-5000-17-500-5000-1000-3000-100-1-false-1",
+        ],
+    }
+
+    setting4 = {
+        "Amplitude 25%": [
+            "system-true-streamsluice-ds2-false-true-true-false-when-sine-1split2join1-390-12500-5000-10000-0-1-0-1-20-1-5000-1-20-1-5000-17-1000-1-5000-1-20-5000-1000-3000-100-1-false-1",
+        ],
+        "Amplitude 50%": [
+            "system-true-streamsluice-ds2-false-true-true-false-when-sine-1split2join1-390-15000-5000-10000-0-1-0-1-20-1-5000-1-20-1-5000-17-1000-1-5000-1-20-5000-1000-3000-100-1-false-1",
+        ],
+        "Amplitude 75%": [
+            "system-true-streamsluice-ds2-false-true-true-false-when-sine-1split2join1-390-17500-5000-10000-0-1-0-1-20-1-5000-1-20-1-5000-17-1000-1-5000-1-20-5000-1000-3000-100-1-false-1",
+        ],
+    }
+
+    setting5 = {
+        "Amplitude 25%": [
+            "system-true-streamsluice-ds2-false-true-true-false-when-gradient-1split2join1-390-12500-7500-10000-0-1-0-1-20-1-5000-1-20-1-5000-1-20-1-5000-17-500-5000-1000-3000-100-1-false-1",
+        ],
+        "Amplitude 50%": [
+            "system-true-streamsluice-ds2-false-true-true-false-when-gradient-1split2join1-390-15000-5000-10000-0-1-0-1-20-1-5000-1-20-1-5000-1-20-1-5000-17-500-5000-1000-3000-100-1-false-1",
+        ],
+        "Amplitude 75%": [
+            "system-true-streamsluice-ds2-false-true-true-false-when-gradient-1split2join1-390-17500-2500-10000-0-1-0-1-20-1-5000-1-20-1-5000-1-20-1-5000-17-500-5000-1000-3000-100-1-false-1",
+        ],
+    }
+
+    setting6 = {
+        "State 100MB": [
+            "system-true-streamsluice-ds2-false-true-true-false-when-sine-1split2join1-390-15000-5000-10000-0-1-0-1-20-1-5000-1-20-1-5000-1-20-1-5000-17-500-5000-1000-3000-100-1-false-1",
+        ],
+        "State 200MB": [
+            "system-true-streamsluice-ds2-false-true-true-false-when-sine-1split2join1-390-15000-5000-10000-0-1-0-1-20-1-5000-1-20-1-5000-1-20-1-5000-17-500-10000-1000-3000-100-1-false-1",
+        ],
+        "State 300MB": [
+            "system-true-streamsluice-ds2-false-true-true-false-when-sine-1split2join1-390-15000-5000-10000-0-1-0-1-20-1-5000-1-20-1-5000-1-20-1-5000-17-500-15000-1000-3000-100-1-false-1",
+        ],
+    }
+
+    setting7 = {
+        "1 Bottleneck": [
+        ],
+        "2 Bottleneck": [
+        ],
+        "3 Bottleneck": [
+        ],
+    }
+
     settings = {
         "setting_1": setting1,
-        "setting_2": setting2,
+        #"setting_2": setting2,
     }
 
     for setting_name, setting in settings.items():

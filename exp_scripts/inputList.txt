@@ -1,1 +1,2 @@
-system-true-streamsluice-streamsluice-false-true-true-false-when-linear-3op_line-390-20000-10000-5000-90-1-0-1-20-1-5000-1-20-1-5000-1-20-1-5000-17-1000-5000-350-3000-100-1-true-1
+system-true-streamsluice-ds2-false-true-true-false-when-gradient-1split2join1-390-17500-2500-10000-0-1-0-1-20-1-5000-1-20-1-5000-1-20-1-5000-17-500-5000-1000-3000-100-1-false-1
+system-true-streamsluice-ds2-false-true-true-false-when-sine-1split2join1-390-15000-5000-10000-0-1-0-1-20-1-5000-1-20-1-5000-1-20-1-5000-17-500-15000-1000-3000-100-1-false-1

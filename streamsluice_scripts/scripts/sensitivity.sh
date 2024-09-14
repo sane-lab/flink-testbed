@@ -22,7 +22,7 @@ function analyze() {
 }
 
 run_one_exp() {
-  EXP_NAME=system-${coordination_latency_flag}-${whether_type}-${how_type}-${how_conservative_flag}-${how_steady_limit_flag}-${conservative_service_rate_flag}-${smooth_backlog_flag}-${SOURCE_TYPE}-${CURVE_TYPE}-${GRAPH}-${runtime}-${RATE1}-${RATE2}-${RATE_I}-${TIME_I}-${P1}-${ZIPF_SKEW}-${P2}-${DELAY2}-${IO2}-${STATE_SIZE2}-${P3}-${DELAY3}-${IO3}-${STATE_SIZE3}-${P4}-${DELAY4}-${IO4}-${STATE_SIZE4}-${P5}-${DELAY5}-${STATE_SIZE5}-${L}-${migration_interval}-${epoch}-${decision_interval}-${is_treat}-${repeat}
+  EXP_NAME=system-${coordination_latency_flag}-${whether_type}-${how_type}-${how_conservative_flag}-${how_steady_limit_flag}-${conservative_service_rate_flag}-${smooth_backlog_flag}-${SOURCE_TYPE}-${CURVE_TYPE}-${GRAPH}-${runtime}-${RATE1}-${TIME1}-${RATE2}-${RATE_I}-${TIME_I}-${P1}-${ZIPF_SKEW}-${P2}-${DELAY2}-${IO2}-${STATE_SIZE2}-${P3}-${DELAY3}-${IO3}-${STATE_SIZE3}-${P4}-${DELAY4}-${IO4}-${STATE_SIZE4}-${P5}-${DELAY5}-${STATE_SIZE5}-${L}-${migration_interval}-${epoch}-${decision_interval}-${is_treat}-${repeat}
 
   echo "INFO: run exp ${EXP_NAME}"
   configFlink
@@ -358,8 +358,8 @@ run_scale_test(){
     for RATE1 in 12500 15000 17500; do
       is_treat=false
       how_type="ds2"
-      run_one_exp
-      printf "${EXP_NAME}\n" >> whetherhow_result.txt
+#      run_one_exp
+#      printf "${EXP_NAME}\n" >> whetherhow_result.txt
       for L in 1000; do # 290 310 320 330 340 350 500 750 1000 1250 1500
         is_treat=true
         how_type="streamsluice"
@@ -402,8 +402,8 @@ run_scale_test(){
       RATE2=$((20000 - RATE1))
       is_treat=false
       how_type="ds2"
-      run_one_exp
-      printf "${EXP_NAME}\n" >> whetherhow_result.txt
+#      run_one_exp
+#      printf "${EXP_NAME}\n" >> whetherhow_result.txt
       for L in 1000; do # 290 310 320 330 340 350 500 750 1000 1250 1500
         is_treat=true
         how_type="streamsluice"
@@ -445,8 +445,8 @@ run_scale_test(){
     for STATE_SIZE5 in 5000 10000 15000; do
       is_treat=false
       how_type="ds2"
-      run_one_exp
-      printf "${EXP_NAME}\n" >> whetherhow_result.txt
+#      run_one_exp
+#      printf "${EXP_NAME}\n" >> whetherhow_result.txt
       for L in 1000; do # 290 310 320 330 340 350 500 750 1000 1250 1500
         is_treat=true
         how_type="streamsluice"
@@ -489,8 +489,8 @@ run_scale_test(){
     # 1 bottleneck
     is_treat=false
     how_type="ds2"
-    run_one_exp
-    printf "${EXP_NAME}\n" >> whetherhow_result.txt
+#    run_one_exp
+#    printf "${EXP_NAME}\n" >> whetherhow_result.txt
     for L in 1000; do # 290 310 320 330 340 350 500 750 1000 1250 1500
       is_treat=true
       how_type="streamsluice"
@@ -506,8 +506,8 @@ run_scale_test(){
     DELAY5=500
     is_treat=false
     how_type="ds2"
-    run_one_exp
-    printf "${EXP_NAME}\n" >> whetherhow_result.txt
+#    run_one_exp
+#    printf "${EXP_NAME}\n" >> whetherhow_result.txt
     for L in 1000; do # 290 310 320 330 340 350 500 750 1000 1250 1500
       is_treat=true
       how_type="streamsluice"
@@ -527,8 +527,8 @@ run_scale_test(){
     DELAY5=500
     is_treat=false
     how_type="ds2"
-    run_one_exp
-    printf "${EXP_NAME}\n" >> whetherhow_result.txt
+#    run_one_exp
+#    printf "${EXP_NAME}\n" >> whetherhow_result.txt
     for L in 1000; do # 290 310 320 330 340 350 500 750 1000 1250 1500
       is_treat=true
       how_type="streamsluice"
