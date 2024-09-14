@@ -204,29 +204,34 @@ run_scale_test(){
     RATE2=10000
     TIME2=600
     for GRAPH in "1op_line" "2op_line" "3op_line"; do
-      is_treat=false
-      how_type="ds2"
-      run_one_exp
-      printf "${EXP_NAME}\n" >> whetherhow_result.txt
+#      is_treat=false
+#      how_type="ds2"
+#      run_one_exp
+#      printf "${EXP_NAME}\n" >> whetherhow_result.txt
       # Set the initial value of L based on the value of GRAPH
       if [ "$GRAPH" = "1op_line" ]; then
-        L=90
+        for L in 110 120 130 140 150 250; do #90
+          is_treat=true
+          how_type="streamsluice"
+          run_one_exp
+          printf "${EXP_NAME}\n" >> whetherhow_result.txt
+        done
       elif [ "$GRAPH" = "2op_line" ]; then
-        L=190
+        for L in 210 220 230 240 250; do #190
+          is_treat=true
+          how_type="streamsluice"
+          run_one_exp
+          printf "${EXP_NAME}\n" >> whetherhow_result.txt
+        done
       elif [ "$GRAPH" = "3op_line" ]; then
-        L=290
+        for L in 290 310 320 330 340 350 500 750 1000 1250 1500; do
+#          is_treat=true
+#          how_type="streamsluice"
+#          run_one_exp
+#          printf "${EXP_NAME}\n" >> whetherhow_result.txt
+        done
       fi
-      is_treat=true
-      how_type="streamsluice"
-      run_one_exp
-      printf "${EXP_NAME}\n" >> whetherhow_result.txt
 
-      for L in 310 320 330 340 350 500 750 1000 1250 1500; do
-        is_treat=true
-        how_type="streamsluice"
-        run_one_exp
-        printf "${EXP_NAME}\n" >> whetherhow_result.txt
-      done
     done
 
     # Setting 2:
@@ -248,10 +253,6 @@ run_scale_test(){
     P4=1
     P5=17
     GRAPH="3op_line"
-    is_treat=false
-    how_type="ds2"
-    run_one_exp
-    printf "${EXP_NAME}\n" >> whetherhow_result.txt
     CURVE_TYPE="linear"
     RATE1=10000
     TIME1=600
@@ -260,12 +261,16 @@ run_scale_test(){
     RATE2=10000
     TIME2=600
     for RATE1 in 10000 15000 20000; do
-      for L in 290 310 320 330 340 350 500 750 1000 1250 1500; do
-        is_treat=true
-        how_type="streamsluice"
-        run_one_exp
-        printf "${EXP_NAME}\n" >> whetherhow_result.txt
-      done
+      is_treat=false
+      how_type="ds2"
+      run_one_exp
+      printf "${EXP_NAME}\n" >> whetherhow_result.txt
+#      for L in 290 310 320 330 340 350 500 750 1000 1250 1500; do
+#        is_treat=true
+#        how_type="streamsluice"
+#        run_one_exp
+#        printf "${EXP_NAME}\n" >> whetherhow_result.txt
+#      done
     done
 
     # Setting 3

@@ -310,8 +310,8 @@ def draw(rawDir, outputDir, exps):
     ay = [totalArrivalRatesPerJob[job][0][x] / (windowSize / 100) for x in ax]
     ax2.plot(ax, ay, '-', color='red', markersize=MARKERSIZE / 2, label="Arrival Rate")
     #ax2.set_ylabel('Rate (tps)')
-    ax2.set_ylim(0, 10000)
-    ax2.set_yticks(np.arange(0, 11000, 1000))
+    ax2.set_ylim(0, 30000)
+    ax2.set_yticks(np.arange(0, 35000, 5000))
     # legend = ["OP_" + str(jobIndex + 1) +"Arrival Rate"]
     legend = ["Arrival Rate"]
     # ax2.set_xlim(startTime * 1000, (startTime + exp_length) * 1000)
@@ -436,7 +436,7 @@ exps = {
     "Linear_Road": [
         ["Static",
          #"system-streamsluice-ds2-true-true-false-when-mixed-1split2join1-760-6000-3000-4000-1-0-2-300-1-5000-2-300-1-5000-2-300-1-5000-6-510-5000-1000-3000-100-1-false-1",
-         "test_metric1-streamsluice-ds2-true-false-true-false-when-linear-1op_line-170-7000-4000-4000-1-0-2-300-1-5000-2-300-1-5000-1-50-1-5000-3-600-5000-1000-3000-100-1-0-false-1",
+         "system-true-streamsluice-ds2-false-true-true-false-when-linear-3op_line-390-10000-10000-10000-90-1-0-1-20-1-5000-1-20-1-5000-1-20-1-5000-17-1000-5000-1500-3000-100-1-false-1",
          "green", "o"],
         # ["Earlier",
         #  "systemsensitivity-streamsluice_earlier-streamsluice-when-1split2join1-400-6000-3000-4000-1-0-2-300-1-10000-2-300-1-10000-2-300-1-10000-6-510-10000-2500-3000-100-10-true-1",
@@ -459,7 +459,7 @@ exps = {
         ["Sluice",
          #"systemsensitivity-streamsluice-streamsluice-when-1split2join1-400-6000-3000-4000-1-0-2-300-1-5000-2-300-1-5000-2-300-1-5000-6-510-5000-2000-3000-100-10-true-1",
          #"system-streamsluice-streamsluice-true-true-false-when-mixed-1split2join1-760-6000-3000-4000-1-0-2-300-1-5000-2-300-1-5000-2-300-1-5000-6-510-5000-2000-3000-100-1-true-1",
-         "test_metric1-streamsluice-ds2-true-false-true-false-when-linear-1op_line-170-7000-4000-4000-1-0-2-300-1-5000-2-300-1-5000-1-50-1-5000-3-600-5000-1000-3000-100-1-0-false-1",
+         "system-true-streamsluice-ds2-false-true-true-false-when-linear-3op_line-390-10000-10000-10000-90-1-0-1-20-1-5000-1-20-1-5000-1-20-1-5000-17-1000-5000-1500-3000-100-1-false-1",
          "blue", "o"],
 
         # ["Static",
@@ -498,7 +498,7 @@ exps = {
     ],
 }
 windowSize=1000
-startTime=20 #30+300 #30
+startTime=60 #30+300 #30
 perOperatorFlag = False
 weightedTotalParallelismFlag = False
 parallelismWeight = {
@@ -526,8 +526,8 @@ overall_resource = {}
 trickFlag = True
 for app in exps.keys():
     expName = [exp[1] for exp in exps[app] if exp[0] == "StreamSluice" or exp[0] == "Sluice"][0]
-    exp_length = 120 #300 #900 #480 #480 #360 #1800
-    startTime = 30 # + 300
+    exp_length = 300 #300 #900 #480 #480 #360 #1800
+    startTime = 60 # + 300
     print(expName)
     overall_resource[app] = {}
     draw(rawDir, outputDir + expName + "/", exps[app])
