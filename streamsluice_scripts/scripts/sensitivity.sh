@@ -102,7 +102,7 @@ function runApp() {
     -p3 ${P3} -mp3 ${MP3} -op3Delay ${DELAY3} -op3IoRate ${IO3} -op3KeyStateSize ${STATE_SIZE3} \
     -p4 ${P4} -mp4 ${MP4} -op4Delay ${DELAY4} -op4IoRate ${IO4} -op4KeyStateSize ${STATE_SIZE4} \
     -nkeys ${NKEYS} -phase1Time ${TIME1} -phase1Rate ${RATE1} -phase2Time ${TIME2} \
-    -phase2Rate ${RATE2} -interTime ${TIME_I} -interRate ${RATE_I} \
+    -phase2Rate ${RATE2} -interTime ${TIME_I} -interRate ${RATE_I} -warmupTime ${warmupTime} -warmupRate ${warmupRate} \
     -source ${SOURCE_TYPE} -curve_type ${CURVE_TYPE} -run_time ${runtime} \
     -zipf_skew ${ZIPF_SKEW} &"
     ${FLINK_DIR}/bin/flink run -c ${job} ${JAR} \
@@ -112,7 +112,7 @@ function runApp() {
     -p4 ${P4} -mp4 ${MP4} -op4Delay ${DELAY4} -op4IoRate ${IO4} -op4KeyStateSize ${STATE_SIZE4} \
     -p5 ${P5} -mp5 ${MP5} -op5Delay ${DELAY5} -op5KeyStateSize ${STATE_SIZE5} \
     -nkeys ${NKEYS} -phase1Time ${TIME1} -phase1Rate ${RATE1} -phase2Time ${TIME2} \
-    -phase2Rate ${RATE2} -interTime ${TIME_I} -interRate ${RATE_I}\
+    -phase2Rate ${RATE2} -interTime ${TIME_I} -interRate ${RATE_I} -warmupTime ${warmupTime} -warmupRate ${warmupRate} \
     -source ${SOURCE_TYPE} -curve_type ${CURVE_TYPE} -run_time ${runtime} \
     -zipf_skew ${ZIPF_SKEW} &
 }
@@ -212,7 +212,7 @@ run_scale_test(){
 #      printf "${EXP_NAME}\n" >> whetherhow_result.txt
       # Set the initial value of L based on the value of GRAPH
       if [ "$GRAPH" = "1op_line" ]; then
-        for L in 150 250; do # 90 110 120 130 140 500 750 1000 1250 1500
+        for L in 150; do # 90 110 120 130 140 250 500 750 1000 1250 1500
           LP2=31
           is_treat=true
           how_type="streamsluice"
@@ -222,7 +222,7 @@ run_scale_test(){
       elif [ "$GRAPH" = "2op_line" ]; then
         LP2=1
         LP3=30
-        for L in 250 500; do # 190 210 220 230 240 500 750 1000 1250 1500
+        for L in 250; do # 190 210 220 230 240 500 750 1000 1250 1500
           is_treat=true
           how_type="streamsluice"
           run_one_exp
@@ -232,7 +232,7 @@ run_scale_test(){
         LP2=1
         LP3=1
         LP4=29
-        for L in 350 500; do # 290 310 320 330 340 750 1000 1250 1500
+        for L in 350; do # 290 310 320 330 340 500 750 1000 1250 1500
           is_treat=true
           how_type="streamsluice"
           run_one_exp
@@ -275,7 +275,7 @@ run_scale_test(){
       how_type="ds2"
 #      run_one_exp
 #      printf "${EXP_NAME}\n" >> whetherhow_result.txt
-      for L in 350 500; do # 290 310 320 330 340 750 1000 1250 1500
+      for L in 350; do # 290 310 320 330 340 500 750 1000 1250 1500
         is_treat=true
         how_type="streamsluice"
         run_one_exp
