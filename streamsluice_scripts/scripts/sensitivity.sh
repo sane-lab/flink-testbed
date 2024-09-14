@@ -313,8 +313,7 @@ run_scale_test(){
     TIME_I=0
     RATE1=15000
     RATE2=5000
-    runtime=210
-    for TIME1 in 60; do # 45 30
+    for TIME1 in 60 45 30; do #
       TIME2=${TIME1}
       is_treat=false
       how_type="ds2"
@@ -359,8 +358,8 @@ run_scale_test(){
     for RATE1 in 12500 15000 17500; do
       is_treat=false
       how_type="ds2"
-#      run_one_exp
-#      printf "${EXP_NAME}\n" >> whetherhow_result.txt
+      run_one_exp
+      printf "${EXP_NAME}\n" >> whetherhow_result.txt
       for L in 1000; do # 290 310 320 330 340 350 500 750 1000 1250 1500
         is_treat=true
         how_type="streamsluice"
@@ -403,8 +402,8 @@ run_scale_test(){
       RATE2=$((20000 - RATE1))
       is_treat=false
       how_type="ds2"
-#      run_one_exp
-#      printf "${EXP_NAME}\n" >> whetherhow_result.txt
+      run_one_exp
+      printf "${EXP_NAME}\n" >> whetherhow_result.txt
       for L in 1000; do # 290 310 320 330 340 350 500 750 1000 1250 1500
         is_treat=true
         how_type="streamsluice"
