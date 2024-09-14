@@ -203,32 +203,40 @@ run_scale_test(){
     TIME_I=90
     RATE2=10000
     TIME2=600
+    warmupRate=RATE_I
+    warmupTime=TIME_I
     for GRAPH in "1op_line" "2op_line" "3op_line"; do
-#      is_treat=false
-#      how_type="ds2"
+      is_treat=false
+      how_type="ds2"
 #      run_one_exp
 #      printf "${EXP_NAME}\n" >> whetherhow_result.txt
       # Set the initial value of L based on the value of GRAPH
       if [ "$GRAPH" = "1op_line" ]; then
-        for L in 110 120 130 140 150 250; do #90
+        for L in 150 250; do # 90 110 120 130 140 500 750 1000 1250 1500
+          LP2=31
           is_treat=true
           how_type="streamsluice"
           run_one_exp
           printf "${EXP_NAME}\n" >> whetherhow_result.txt
         done
       elif [ "$GRAPH" = "2op_line" ]; then
-        for L in 210 220 230 240 250; do #190
+        LP2=1
+        LP3=30
+        for L in 250 500; do # 190 210 220 230 240 500 750 1000 1250 1500
           is_treat=true
           how_type="streamsluice"
           run_one_exp
           printf "${EXP_NAME}\n" >> whetherhow_result.txt
         done
       elif [ "$GRAPH" = "3op_line" ]; then
-        for L in 290 310 320 330 340 350 500 750 1000 1250 1500; do
+        LP2=1
+        LP3=1
+        LP4=29
+        for L in 350 500; do # 290 310 320 330 340 750 1000 1250 1500
           is_treat=true
           how_type="streamsluice"
-#          run_one_exp
-#          printf "${EXP_NAME}\n" >> whetherhow_result.txt
+          run_one_exp
+          printf "${EXP_NAME}\n" >> whetherhow_result.txt
         done
       fi
 
@@ -246,8 +254,8 @@ run_scale_test(){
     STATE_SIZE5=5000
     LP2=1
     LP3=1
-    LP4=1
-    LP5=28
+    LP4=29
+
     P2=1
     P3=1
     P4=1
@@ -260,20 +268,26 @@ run_scale_test(){
     TIME_I=90
     RATE2=10000
     TIME2=600
+    warmupRate=RATE_I
+    warmupTime=TIME_I
     for RATE1 in 10000 15000 20000; do
       is_treat=false
       how_type="ds2"
-      run_one_exp
-      printf "${EXP_NAME}\n" >> whetherhow_result.txt
-#      for L in 290 310 320 330 340 350 500 750 1000 1250 1500; do
-#        is_treat=true
-#        how_type="streamsluice"
-#        run_one_exp
-#        printf "${EXP_NAME}\n" >> whetherhow_result.txt
-#      done
+#      run_one_exp
+#      printf "${EXP_NAME}\n" >> whetherhow_result.txt
+      for L in 350 500; do # 290 310 320 330 340 750 1000 1250 1500
+        is_treat=true
+        how_type="streamsluice"
+        run_one_exp
+        printf "${EXP_NAME}\n" >> whetherhow_result.txt
+      done
     done
 
     # Setting 3
+    warmupRate=10000
+    warmupTime=60
+    RATE_I=10000
+    TIME_I=0
 }
 
 run_scale_test
