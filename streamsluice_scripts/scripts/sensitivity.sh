@@ -225,8 +225,8 @@ run_scale_test(){
         done
       elif [ "$GRAPH" = "3op_line" ]; then
         for L in 290 310 320 330 340 350 500 750 1000 1250 1500; do
-#          is_treat=true
-#          how_type="streamsluice"
+          is_treat=true
+          how_type="streamsluice"
 #          run_one_exp
 #          printf "${EXP_NAME}\n" >> whetherhow_result.txt
         done
