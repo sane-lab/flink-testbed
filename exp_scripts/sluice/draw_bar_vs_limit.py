@@ -4,6 +4,12 @@ import os
 
 import numpy as np
 
+def get_max_value(data: dict[str, list[float]]) -> float:
+    max_value = float('-inf')
+    for values in data.values():
+        if values:  # Ensure the list is not empty
+            max_value = max(max_value, max(values))
+    return max_value
 
 # Define the function to draw metrics by latency limit
 def draw_metrics_by_latency_limit(latency_limits, p99limits_per_labels, successrate_per_labels, resource_per_labels,
@@ -13,8 +19,12 @@ def draw_metrics_by_latency_limit(latency_limits, p99limits_per_labels, successr
     for label, p99limits in p99limits_per_labels.items():
         plt.plot(latency_limits[label], p99limits, label=label, marker='o')
     ax1 = axs
-    ax1.set_ylim(0, 500)
-    ax1.set_yticks(np.arange(0, 600, 100))
+    if get_max_value(p99limits_per_labels) <= 500:
+        ax1.set_ylim(0, 500)
+        ax1.set_yticks(np.arange(0, 600, 100))
+    else:
+        ax1.set_ylim(0, 1000)
+        ax1.set_yticks(np.arange(0, 1100, 100))
     ax1.set_xlim(0, 1750)
     ax1.set_xticks(np.arange(0, 2000, 250))
     plt.xlabel('Latency Bar')
@@ -35,8 +45,9 @@ def draw_metrics_by_latency_limit(latency_limits, p99limits_per_labels, successr
     plt.xlabel('Latency Bar')
     plt.ylabel('Latency Bar Success Rate')
     plt.title('Success Rates vs Latency Bar')
-    ax1.set_ylim(0, 1.05)
-    ax1.set_yticks(np.arange(0, 1.05, 0.10))
+    ax1 = axs
+    #ax1.set_ylim(0, 1.05)
+    #ax1.set_yticks(np.arange(0, 1.05, 0.10))
     ax1.set_xlim(0, 1750)
     ax1.set_xticks(np.arange(0, 2000, 250))
     plt.legend()
@@ -50,8 +61,9 @@ def draw_metrics_by_latency_limit(latency_limits, p99limits_per_labels, successr
     fig, axs = plt.subplots(figsize=(12, 5))
     for label, resource_usages in resource_per_labels.items():
         plt.plot(latency_limits[label], resource_usages, label=label, marker='o')
-    ax1.set_ylim(0, 32)
-    ax1.set_yticks(np.arange(0, 36, 4))
+    ax1 = axs
+    #ax1.set_ylim(0, 32)
+    #ax1.set_yticks(np.arange(0, 36, 4))
     ax1.set_xlim(0, 1750)
     ax1.set_xticks(np.arange(0, 2000, 250))
     plt.xlabel('Latency Limit')
