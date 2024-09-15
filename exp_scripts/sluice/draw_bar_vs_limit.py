@@ -79,8 +79,17 @@ def draw_metrics_by_latency_limit(latency_limits, p99limits_per_labels, successr
 
 # Load and draw each setting from its individual file
 results_dir = "/Users/swrrt/Workplace/BacklogDelayPaper/experiments/figures/autotuner/"
-
-for file_name in os.listdir(results_dir):
+settings = [
+        #"setting_1",
+        #"setting_2",
+        #"setting_3",
+        "setting_4",
+        #"setting_5",
+        #"setting_6",
+        #"setting_7",
+    ]
+for setting in settings:
+    file_name = setting + ".json"
     if file_name.endswith('.json'):
         with open(os.path.join(results_dir, file_name), 'r') as f:
             setting_data = json.load(f)

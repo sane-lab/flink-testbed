@@ -218,8 +218,8 @@ run_scale_test(){
           LP2=31
           is_treat=true
           how_type="streamsluice"
-          run_one_exp
-          printf "${EXP_NAME}\n" >> whetherhow_result.txt
+#          run_one_exp
+#          printf "${EXP_NAME}\n" >> whetherhow_result.txt
         done
       elif [ "$GRAPH" = "2op_line" ]; then
         LP2=1
@@ -227,8 +227,8 @@ run_scale_test(){
         for L in 190 225 500 750 1250 1500; do # 190 210 220 230 240 250 500 750 1000 1250 1500
           is_treat=true
           how_type="streamsluice"
-          run_one_exp
-          printf "${EXP_NAME}\n" >> whetherhow_result.txt
+#          run_one_exp
+#          printf "${EXP_NAME}\n" >> whetherhow_result.txt
         done
       elif [ "$GRAPH" = "3op_line" ]; then
         LP2=1
@@ -237,8 +237,8 @@ run_scale_test(){
         for L in 290 325 500 750 1250 1500; do # 290 310 320 330 340 350 500 750 1000 1250 1500
           is_treat=true
           how_type="streamsluice"
-          run_one_exp
-          printf "${EXP_NAME}\n" >> whetherhow_result.txt
+#          run_one_exp
+#          printf "${EXP_NAME}\n" >> whetherhow_result.txt
         done
       fi
 
@@ -282,8 +282,8 @@ run_scale_test(){
       for L in 290 325 500 750 1250 1500; do # 290 310 320 330 340 350 500 750 1000 1250 1500
         is_treat=true
         how_type="streamsluice"
-        run_one_exp
-        printf "${EXP_NAME}\n" >> whetherhow_result.txt
+#        run_one_exp
+#        printf "${EXP_NAME}\n" >> whetherhow_result.txt
       done
     done
 
@@ -451,13 +451,13 @@ run_scale_test(){
     for STATE_SIZE5 in 5000 10000 15000; do
       is_treat=false
       how_type="ds2"
-      run_one_exp
-      printf "${EXP_NAME}\n" >> whetherhow_result.txt
+#      run_one_exp
+#      printf "${EXP_NAME}\n" >> whetherhow_result.txt
       for L in 1000; do # 290 310 320 330 340 350 500 750 1000 1250 1500
         is_treat=true
         how_type="streamsluice"
-#        run_one_exp
-#        printf "${EXP_NAME}\n" >> whetherhow_result.txt
+        run_one_exp
+        printf "${EXP_NAME}\n" >> whetherhow_result.txt
       done
     done
 
@@ -501,8 +501,8 @@ run_scale_test(){
     for L in 1000; do # 290 310 320 330 340 350 500 750 1000 1250 1500
       is_treat=true
       how_type="streamsluice"
-#      run_one_exp
-#      printf "${EXP_NAME}\n" >> whetherhow_result.txt
+      run_one_exp
+      printf "${EXP_NAME}\n" >> whetherhow_result.txt
     done
     # 2 bottleneck
     LP4=9
@@ -518,8 +518,8 @@ run_scale_test(){
     for L in 1000; do # 290 310 320 330 340 350 500 750 1000 1250 1500
       is_treat=true
       how_type="streamsluice"
-#      run_one_exp
-#      printf "${EXP_NAME}\n" >> whetherhow_result.txt
+      run_one_exp
+      printf "${EXP_NAME}\n" >> whetherhow_result.txt
     done
 
     # 3 bottleneck
@@ -534,13 +534,13 @@ run_scale_test(){
     DELAY5=500
     is_treat=false
     how_type="ds2"
-    run_one_exp
-    printf "${EXP_NAME}\n" >> whetherhow_result.txt
+#    run_one_exp
+#    printf "${EXP_NAME}\n" >> whetherhow_result.txt
     for L in 1000; do # 290 310 320 330 340 350 500 750 1000 1250 1500
       is_treat=true
       how_type="streamsluice"
-#      run_one_exp
-#      printf "${EXP_NAME}\n" >> whetherhow_result.txt
+      run_one_exp
+      printf "${EXP_NAME}\n" >> whetherhow_result.txt
     done
 }
 
