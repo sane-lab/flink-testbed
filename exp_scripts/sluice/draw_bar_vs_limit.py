@@ -15,7 +15,7 @@ def get_max_value(data: dict[str, list[float]]) -> float:
 def draw_metrics_by_latency_limit(latency_limits, p99limits_per_labels, successrate_per_labels, resource_per_labels,
                                   output_dir):
     # Create a figure for P99 Latency Limits
-    fig, axs = plt.subplots(figsize=(12, 5))
+    fig, axs = plt.subplots(figsize=(10, 5))
     for label, p99limits in p99limits_per_labels.items():
         plt.plot(latency_limits[label], p99limits, label=label, marker='o')
     ax1 = axs
@@ -23,10 +23,15 @@ def draw_metrics_by_latency_limit(latency_limits, p99limits_per_labels, successr
         ax1.set_ylim(0, 500)
         ax1.set_yticks(np.arange(0, 600, 100))
     else:
-        ax1.set_ylim(0, 1000)
-        ax1.set_yticks(np.arange(0, 1100, 100))
+        ax1.set_ylim(0, 3000)
+        ax1.set_yticks(np.arange(0, 3000, 300))
     ax1.set_xlim(0, 1750)
     ax1.set_xticks(np.arange(0, 2000, 250))
+    # Add vertical dashed line at x=300
+    plt.axvline(x=300, color='black', linestyle='--')
+    # Add label for the vertical line
+    plt.text(300, ax1.get_ylim()[1] * 0.9, 'x=300', color='black', rotation=90, verticalalignment='center')
+
     plt.xlabel('Latency Bar')
     plt.ylabel('P99 Latency Limit')
     plt.title('P99 Latency Limits vs Latency Bar')
@@ -39,7 +44,7 @@ def draw_metrics_by_latency_limit(latency_limits, p99limits_per_labels, successr
     plt.close(fig)
 
     # Create a figure for Success Rates
-    fig, axs = plt.subplots(figsize=(12, 5))
+    fig, axs = plt.subplots(figsize=(10, 5))
     for label, success_rates in successrate_per_labels.items():
         plt.plot(latency_limits[label], success_rates, label=label, marker='o')
     plt.xlabel('Latency Bar')
@@ -50,6 +55,11 @@ def draw_metrics_by_latency_limit(latency_limits, p99limits_per_labels, successr
     #ax1.set_yticks(np.arange(0, 1.05, 0.10))
     ax1.set_xlim(0, 1750)
     ax1.set_xticks(np.arange(0, 2000, 250))
+    # Add vertical dashed line at x=300
+    plt.axvline(x=300, color='black', linestyle='--')
+    # Add label for the vertical line
+    plt.text(300, ax1.get_ylim()[1] * 0.9, 'x=300', color='black', rotation=90, verticalalignment='center')
+
     plt.legend()
     plt.grid(True)
     if not os.path.exists(output_dir):
@@ -58,7 +68,7 @@ def draw_metrics_by_latency_limit(latency_limits, p99limits_per_labels, successr
     plt.close(fig)
 
     # Create a figure for Resource Usage (Average Parallelism)
-    fig, axs = plt.subplots(figsize=(12, 5))
+    fig, axs = plt.subplots(figsize=(10, 5))
     for label, resource_usages in resource_per_labels.items():
         plt.plot(latency_limits[label], resource_usages, label=label, marker='o')
     ax1 = axs
@@ -66,6 +76,11 @@ def draw_metrics_by_latency_limit(latency_limits, p99limits_per_labels, successr
     #ax1.set_yticks(np.arange(0, 36, 4))
     ax1.set_xlim(0, 1750)
     ax1.set_xticks(np.arange(0, 2000, 250))
+    # Add vertical dashed line at x=300
+    plt.axvline(x=300, color='black', linestyle='--')
+    # Add label for the vertical line
+    plt.text(300, ax1.get_ylim()[1] * 0.9, 'x=300', color='black', rotation=90, verticalalignment='center')
+
     plt.xlabel('Latency Limit')
     plt.ylabel('Average Parallelism')
     plt.title('Resource Usage vs Latency Bar')
@@ -82,9 +97,9 @@ results_dir = "/Users/swrrt/Workplace/BacklogDelayPaper/experiments/figures/auto
 settings = [
         #"setting_1",
         #"setting_2",
-        #"setting_3",
+        "setting_3",
         "setting_4",
-        #"setting_5",
+        "setting_5",
         #"setting_6",
         #"setting_7",
     ]

@@ -453,7 +453,7 @@ run_scale_test(){
       how_type="ds2"
 #      run_one_exp
 #      printf "${EXP_NAME}\n" >> whetherhow_result.txt
-      for L in 1000; do # 290 310 320 330 340 350 500 750 1000 1250 1500
+      for L in 290 310 320 330 340 350 500 750 1250 1500; do # 290 310 320 330 340 350 500 750 1000 1250 1500
         is_treat=true
         how_type="streamsluice"
         run_one_exp
@@ -496,9 +496,9 @@ run_scale_test(){
     # 1 bottleneck
     is_treat=false
     how_type="ds2"
-    run_one_exp
-    printf "${EXP_NAME}\n" >> whetherhow_result.txt
-    for L in 1000; do # 290 310 320 330 340 350 500 750 1000 1250 1500
+#    run_one_exp
+#    printf "${EXP_NAME}\n" >> whetherhow_result.txt
+    for L in 290 310 320 330 340 350 500 750 1250 1500; do # 290 310 320 330 340 350 500 750 1000 1250 1500
       is_treat=true
       how_type="streamsluice"
       run_one_exp
@@ -512,10 +512,10 @@ run_scale_test(){
     DELAY4=333
     DELAY5=500
     is_treat=false
-    how_type="ds2"
-    run_one_exp
+#    how_type="ds2"
+#    run_one_exp
     printf "${EXP_NAME}\n" >> whetherhow_result.txt
-    for L in 1000; do # 290 310 320 330 340 350 500 750 1000 1250 1500
+    for L in 290 310 320 330 340 350 500 750 1250 1500; do # 290 310 320 330 340 350 500 750 1000 1250 1500
       is_treat=true
       how_type="streamsluice"
       run_one_exp
