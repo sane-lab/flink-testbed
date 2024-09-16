@@ -523,8 +523,8 @@ def main():
     output_dir = "/Users/swrrt/Workplace/BacklogDelayPaper/experiments/results/"
     overall_output_dir = "/Users/swrrt/Workplace/BacklogDelayPaper/experiments/figures/autotuner/"
     window_size = 100
-    start_time = 30 #60
-    exp_length = 330
+    start_time = 60 #30 #60
+    exp_length = 300
 
 
 
@@ -742,13 +742,13 @@ def main():
     }
 
     settings = {
-        #"setting_1": setting1,
-        #"setting_2": setting2,
-        #"setting_3": setting3,
-        #"setting_4": setting4,
-        #"setting_5": setting5,
-        "setting_6": setting6,
-        "setting_7": setting7,
+        "setting_1": setting1,
+        "setting_2": setting2,
+        "setting_3": setting3,
+        "setting_4": setting4,
+        "setting_5": setting5,
+        # "setting_6": setting6,
+        # "setting_7": setting7,
     }
 
     for setting_name, setting in settings.items():

@@ -22,9 +22,12 @@ def draw_metrics_by_latency_limit(latency_limits, p99limits_per_labels, successr
     if get_max_value(p99limits_per_labels) <= 500:
         ax1.set_ylim(0, 500)
         ax1.set_yticks(np.arange(0, 600, 100))
-    else:
+    elif get_max_value(p99limits_per_labels) <= 3000:
         ax1.set_ylim(0, 3000)
         ax1.set_yticks(np.arange(0, 3000, 300))
+    else:
+        ax1.set_ylim(0, 10000)
+        ax1.set_yticks(np.arange(0, 11000, 1000))
     ax1.set_xlim(0, 1750)
     ax1.set_xticks(np.arange(0, 2000, 250))
     # Add vertical dashed line at x=300
@@ -95,13 +98,13 @@ def draw_metrics_by_latency_limit(latency_limits, p99limits_per_labels, successr
 # Load and draw each setting from its individual file
 results_dir = "/Users/swrrt/Workplace/BacklogDelayPaper/experiments/figures/autotuner/"
 settings = [
-        #"setting_1",
-        #"setting_2",
-        #"setting_3",
-        #"setting_4",
-        #"setting_5",
-        "setting_6",
-        "setting_7",
+        "setting_1",
+        "setting_2",
+        "setting_3",
+        "setting_4",
+        "setting_5",
+        #"setting_6",
+        #"setting_7",
     ]
 for setting in settings:
     file_name = setting + ".json"

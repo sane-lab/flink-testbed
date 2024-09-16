@@ -309,20 +309,20 @@ run_scale_test(){
     P4=1
     P5=17
     GRAPH="1split2join1"
-    CURVE_TYPE="linear"
+    CURVE_TYPE="sine" #"linear"
     warmupRate=10000
     warmupTime=60
     RATE_I=10000
     TIME_I=0
-    RATE1=15000
-    RATE2=5000
+    RATE1=12500 #15000
+    RATE2=7500 #5000
     for TIME1 in 60 45 30; do #
       TIME2=${TIME1}
       is_treat=false
       how_type="ds2"
-#      run_one_exp
-#      printf "${EXP_NAME}\n" >> whetherhow_result.txt
-      for L in 400 450; do # 290 310 320 330 340 350 500 750 1000 1250 1500
+      run_one_exp
+      printf "${EXP_NAME}\n" >> whetherhow_result.txt
+      for L in 290 325 350 400 450 500 750 1000 1250 1500; do # 290 310 320 330 340 350 500 750 1000 1250 1500
         is_treat=true
         how_type="streamsluice"
         run_one_exp
@@ -362,13 +362,13 @@ run_scale_test(){
     for RATE1 in 13750; do
       is_treat=false
       how_type="ds2"
-      run_one_exp
-      printf "${EXP_NAME}\n" >> whetherhow_result.txt
+#      run_one_exp
+#      printf "${EXP_NAME}\n" >> whetherhow_result.txt
       for L in 350 500 750 1000; do # 290 310 320 330 340 350 500 750 1000 1250 1500
         is_treat=true
         how_type="streamsluice"
-        run_one_exp
-        printf "${EXP_NAME}\n" >> whetherhow_result.txt
+#        run_one_exp
+#        printf "${EXP_NAME}\n" >> whetherhow_result.txt
       done
     done
 
@@ -407,13 +407,13 @@ run_scale_test(){
       RATE2=$((20000 - RATE1))
       is_treat=false
       how_type="ds2"
-      run_one_exp
-      printf "${EXP_NAME}\n" >> whetherhow_result.txt
+#      run_one_exp
+#      printf "${EXP_NAME}\n" >> whetherhow_result.txt
       for L in 350 500 750 1000; do # 290 310 320 330 340 350 500 750 1000 1250 1500
         is_treat=true
         how_type="streamsluice"
-        run_one_exp
-        printf "${EXP_NAME}\n" >> whetherhow_result.txt
+#        run_one_exp
+#        printf "${EXP_NAME}\n" >> whetherhow_result.txt
       done
     done
 
