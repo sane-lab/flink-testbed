@@ -11,15 +11,14 @@ def format_to_script(input_string):
 
 # Example usage
 input_string = """
-Setting 6
 setting6-true-streamsluice-streamsluice-false-true-true-false-when-sine-1split2join1-390-15000-45-5000-10000-0-1-0-1-20-1-5000-1-20-1-5000-1-20-1-5000-17-500-5000-1000-3000-100-1-true-1
 setting6-true-streamsluice-streamsluice-false-true-true-false-when-sine-1split2join1-390-15000-45-5000-10000-0-1-0-1-20-1-5000-1-20-1-5000-1-20-1-5000-17-500-10000-1000-3000-100-1-true-1
 setting6-true-streamsluice-streamsluice-false-true-true-false-when-sine-1split2join1-390-15000-45-5000-10000-0-1-0-1-20-1-5000-1-20-1-5000-1-20-1-5000-17-500-15000-1000-3000-100-1-true-1
-Setting 7
 setting7-true-streamsluice-streamsluice-false-true-true-false-when-sine-1split2join1-390-15000-45-5000-10000-0-1-0-1-20-1-5000-1-20-1-5000-1-20-1-5000-17-500-5000-1000-3000-100-1-true-1
 setting7-true-streamsluice-streamsluice-false-true-true-false-when-sine-1split2join1-390-15000-45-5000-10000-0-1-0-1-20-1-5000-1-20-1-5000-5-333-1-5000-15-500-5000-1000-3000-100-1-true-1
 setting7-true-streamsluice-streamsluice-false-true-true-false-when-sine-1split2join1-390-15000-45-5000-10000-0-1-0-1-20-1-5000-3-222-1-5000-5-333-1-5000-15-500-5000-1000-3000-100-1-true-1
 """
+
 
 formatted_script = format_to_script(input_string)
 print(formatted_script)

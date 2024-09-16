@@ -58,7 +58,7 @@ def draw_metrics_by_latency_limit(latency_limits, p99limits_per_labels, successr
     # Add vertical dashed line at x=300
     plt.axvline(x=300, color='black', linestyle='--')
     # Add label for the vertical line
-    plt.text(300, ax1.get_ylim()[1] * 0.9, 'x=300', color='black', rotation=90, verticalalignment='center')
+    plt.text(300, (ax1.get_ylim()[0] + ax1.get_ylim()[1]) / 2.0, 'x=300', color='black', rotation=90, verticalalignment='center')
 
     plt.legend()
     plt.grid(True)
@@ -97,11 +97,11 @@ results_dir = "/Users/swrrt/Workplace/BacklogDelayPaper/experiments/figures/auto
 settings = [
         #"setting_1",
         #"setting_2",
-        "setting_3",
-        "setting_4",
-        "setting_5",
-        #"setting_6",
-        #"setting_7",
+        #"setting_3",
+        #"setting_4",
+        #"setting_5",
+        "setting_6",
+        "setting_7",
     ]
 for setting in settings:
     file_name = setting + ".json"
