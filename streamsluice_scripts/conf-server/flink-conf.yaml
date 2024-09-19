@@ -328,7 +328,7 @@ controller.how.optimizaiton: false
 
 controller.how.conservative: false
 
-controller.steady_limit: falses
+controller.steady_limit: false
 
 controller.scale_in.type: streamsluice
 
@@ -343,7 +343,13 @@ streamsluice.system.autotune: false
 streamsluice.system.autotune.interval: 360
 
 streamsluice.system.autotuner: RemoteTuner
-
+streamsluice.system.autotune.latency_window: 100
+streamsluice.system.autotune.bar_lowerbound: 350
+streamsluice.system.autotune.initial_value_option: 1
+streamsluice.system.autotune.adjustment_option: 1
+streamsluice.system.autotune.increase_bar_option: 2
+streamsluice.system.autotune.initial_value_alpha: 0.5
+streamsluice.system.autotune.adjustment_alpha: 2.0
 streamsluice.system.autotune.groundtruthfile: /home/samza/workspace/flink-related/flink-extended-ete/build-target/log/flink-samza-taskexecutor-0-dragon-sane.out,/home/samza/workspace/flink-related/flink-extended-ete/build-target/log/flink-samza-taskexecutor-1-dragon-sane.out,/home/samza/workspace/flink-related/flink-extended-ete/build-target/log/flink-samza-taskexecutor-0-eagle-sane.out,/home/samza/workspace/flink-related/flink-extended-ete/build-target/log/flink-samza-taskexecutor-1-eagle-sane.out,/home/samza/workspace/flink-related/flink-extended-ete/build-target/log/flink-samza-taskexecutor-0-flamingo-sane.out,/home/samza/workspace/flink-related/flink-extended-ete/build-target/log/flink-samza-taskexecutor-1-flamingo-sane.out
 
 #==============================================================================

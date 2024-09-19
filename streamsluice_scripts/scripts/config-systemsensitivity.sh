@@ -65,7 +65,16 @@ function configFlink() {
     sed 's/^\(\s*model.conservative_service_rate_flag\s*:\s*\).*/\1'"$conservative_service_rate_flag"'/' tmp28 > tmp29
     sed 's/^\(\s*streamsluice.system.backlog_smooth\s*:\s*\).*/\1'"$smooth_backlog_flag"'/' tmp29 > tmp30
     sed 's/^\(\s*streamsluice.metrics.use_new_retriever\s*:\s*\).*/\1'"$new_metrics_retriever_flag"'/' tmp30 > tmp31
-    sed 's/^\(\s*controller.scale_in.type\s*:\s*\).*/\1'"$scalein_type"'/' tmp31 > ${FLINK_CONF_DIR}/flink-conf.yaml
+    sed 's/^\(\s*streamsluice.system.autotuner\s*:\s*\).*/\1'"$autotuner"'/' tmp31 > tmp32
+    sed 's/^\(\s*streamsluice.system.autotune.latency_window\s*:\s*\).*/\1'"$autotuner_latency_window"'/' tmp32 > tmp33
+    sed 's/^\(\s*streamsluice.system.autotune.bar_lowerbound\s*:\s*\).*/\1'"$autotuner_bar_lowerbound"'/' tmp33 > tmp34
+    sed 's/^\(\s*streamsluice.system.autotune.initial_value_option\s*:\s*\).*/\1'"$autotuner_initial_value_option"'/' tmp34 > tmp35
+    sed 's/^\(\s*streamsluice.system.autotune.adjustment_option\s*:\s*\).*/\1'"$autotuner_adjustment_option"'/' tmp35 > tmp36
+    sed 's/^\(\s*streamsluice.system.autotune.increase_bar_option\s*:\s*\).*/\1'"$autotuner_increase_bar_option"'/' tmp36 > tmp37
+    sed 's/^\(\s*streamsluice.system.autotune.initial_value_alpha\s*:\s*\).*/\1'"$autotuner_initial_value_alpha"'/' tmp37 > tmp38
+    sed 's/^\(\s*streamsluice.system.autotune.adjustment_alpha\s*:\s*\).*/\1'"$autotuner_adjustment_alpha"'/' tmp38 > tmp39
+    sed 's/^\(\s*streamsluice.system.autotune.groundtruthfile\s*:\s*\).*/\1'"$autotuner_groundtruthfile"'/' tmp39 > tmp40
+    sed 's/^\(\s*controller.scale_in.type\s*:\s*\).*/\1'"$scalein_type"'/' tmp40 > ${FLINK_CONF_DIR}/flink-conf.yaml
     rm tmp*
     echo ${FLINK_CONF_DIR}/flink-conf.yaml
     cp ${FLINK_CONF_DIR}/* ${FLINK_DIR}/conf

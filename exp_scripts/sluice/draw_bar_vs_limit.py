@@ -10,6 +10,13 @@ def get_max_value(data: dict[str, list[float]]) -> float:
         if values:  # Ensure the list is not empty
             max_value = max(max_value, max(values))
     return max_value
+def get_max_abs_value(data: dict[str, list[float]]) -> float:
+    max_value = float('-inf')
+    for values in data.values():
+        if values:  # Ensure the list is not empty
+            max_value = max(max_value, max([abs(x) for x in values]))
+    return max_value
+
 
 # Define the function to draw metrics by latency limit
 def draw_metrics_by_latency_limit(latency_limits, p99limits_per_labels, successrate_per_labels, resource_per_labels,
@@ -44,6 +51,41 @@ def draw_metrics_by_latency_limit(latency_limits, p99limits_per_labels, successr
     if not os.path.exists(output_dir):
         os.makedirs(output_dir)
     plt.savefig(output_dir + "p99limit_vs_bar.png", bbox_inches='tight')
+    plt.close(fig)
+
+    difference_per_labels = {}
+    for label, p99limits in p99limits_per_labels.items():
+        difference_per_labels[label] = [(p99limits[i] - latency_limits[label][i]) for i in range(0, len(p99limits))]
+    # Create a figure for P99 Latency Limits
+    fig, axs = plt.subplots(figsize=(10, 5))
+    for label, difference in difference_per_labels.items():
+        plt.plot(latency_limits[label], difference, label=label, marker='o')
+    ax1 = axs
+    # if get_max_abs_value(difference_per_labels) <= 250:
+    #     ax1.set_ylim(-250, 250)
+    #     ax1.set_yticks(np.arange(-250, 300, 50))
+    # elif get_max_abs_value(p99limits_per_labels) <= 1000:
+    #     ax1.set_ylim(-1000, 1000)
+    #     ax1.set_yticks(np.arange(-1000, 1200, 200))
+    # else:
+    #     ax1.set_ylim(-1000, 5000)
+    #     ax1.set_yticks(np.arange(0, 11000, 1000))
+    ax1.set_xlim(0, 1750)
+    ax1.set_xticks(np.arange(0, 2000, 250))
+    # Add vertical dashed line at x=300
+    plt.axvline(x=300, color='black', linestyle='--')
+    # Add label for the vertical line
+    plt.text(300, ax1.get_ylim()[1] * 0.9, 'x=300', color='black', rotation=90, verticalalignment='center')
+
+    plt.xlabel('Latency Bar')
+    plt.ylabel('(P99 Latency Limit - Latency Bar)')
+    plt.title('Difference of P99 Latency Limits and Latency Bar')
+    plt.legend()
+    plt.grid(True)
+    import os
+    if not os.path.exists(output_dir):
+        os.makedirs(output_dir)
+    plt.savefig(output_dir + "p99limit_bar_difference.png", bbox_inches='tight')
     plt.close(fig)
 
     # Create a figure for Success Rates
