@@ -331,11 +331,13 @@ run_scale_test(){
       TIME2=${TIME1}
       is_treat=false
       how_type="ds2"
-      run_one_exp
-      printf "${EXP_NAME}\n" >> whetherhow_result.txt
+      autotune=false
+#      run_one_exp
+#      printf "${EXP_NAME}\n" >> whetherhow_result.txt
       for L in 1000; do # 290 310 320 330 340 350 500 750 1000 1250 1500
         is_treat=true
         how_type="streamsluice"
+        autotune=true
         run_one_exp
         printf "${EXP_NAME}\n" >> whetherhow_result.txt
       done
