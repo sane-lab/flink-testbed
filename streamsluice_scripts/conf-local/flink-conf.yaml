@@ -308,6 +308,7 @@ streamsluice.system.spike_estimation_slope: 0.7
 streamsluice.system.spike_estimation_intercept: 1250
 
 streamswitch.system.initialservicerate: 0.8
+streamsluice.metrics.snapshot_size: 20
 
 model.coordination_latency_flag: true
 model.conservative_service_rate_flag: true
@@ -324,7 +325,7 @@ controller.how.optimizaiton: false
 
 controller.how.conservative: false
 
-controller.steady_limit: falses
+controller.steady_limit: false
 
 controller.scale_in.type: streamsluice
 
@@ -336,11 +337,17 @@ streamsluice.model.decision_interval: 1
 
 streamsluice.system.autotune: false
 
-streamsluice.system.autotune.interval: 360
+streamsluice.system.autotune.interval: 30
 
 streamsluice.system.autotuner: RemoteTuner
-
-streamsluice.system.autotune.groundtruthfile: /home/samza/workspace/flink-related/flink-extended-ete/build-target/log/flink-samza-taskexecutor-0-dragon-sane.out,/home/samza/workspace/flink-related/flink-extended-ete/build-target/log/flink-samza-taskexecutor-1-dragon-sane.out,/home/samza/workspace/flink-related/flink-extended-ete/build-target/log/flink-samza-taskexecutor-0-eagle-sane.out,/home/samza/workspace/flink-related/flink-extended-ete/build-target/log/flink-samza-taskexecutor-1-eagle-sane.out,/home/samza/workspace/flink-related/flink-extended-ete/build-target/log/flink-samza-taskexecutor-0-flamingo-sane.out,/home/samza/workspace/flink-related/flink-extended-ete/build-target/log/flink-samza-taskexecutor-1-flamingo-sane.out
+streamsluice.system.autotune.latency_window: 100
+streamsluice.system.autotune.bar_lowerbound: 350
+streamsluice.system.autotune.initial_value_option: 1
+streamsluice.system.autotune.adjustment_option: 1
+streamsluice.system.autotune.increase_bar_option: 2
+streamsluice.system.autotune.initial_value_alpha: 0.5
+streamsluice.system.autotune.adjustment_alpha: 2.0
+streamsluice.system.autotune.groundtruthfile: /home/samza/workspace/flink-related/flink-extended-ete/build-target/log/flink-samza-taskexecutor-0-camel-sane.out
 
 #==============================================================================
 # Backpressure Configuration
