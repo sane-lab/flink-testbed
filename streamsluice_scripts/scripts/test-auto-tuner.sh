@@ -22,7 +22,7 @@ function analyze() {
 }
 
 run_one_exp() {
-  EXP_NAME=${setting}-${coordination_latency_flag}-${whether_type}-${how_type}-${how_conservative_flag}-${how_steady_limit_flag}-${conservative_service_rate_flag}-${smooth_backlog_flag}-${SOURCE_TYPE}-${CURVE_TYPE}-${GRAPH}-${runtime}-${RATE1}-${TIME1}-${RATE2}-${RATE_I}-${TIME_I}-${P1}-${ZIPF_SKEW}-${P2}-${DELAY2}-${IO2}-${STATE_SIZE2}-${P3}-${DELAY3}-${IO3}-${STATE_SIZE3}-${P4}-${DELAY4}-${IO4}-${STATE_SIZE4}-${P5}-${DELAY5}-${STATE_SIZE5}-${L}-${migration_interval}-${epoch}-${decision_interval}-${is_treat}-${repeat}
+  EXP_NAME=autotune-${setting}-${coordination_latency_flag}-${whether_type}-${how_type}-${autotuner_latency_window}-${autotuner_bar_lowerbound}-${autotuner_initial_value_option}-${autotuner_initial_value_alpha}-${autotuner_adjustment_option}-${autotuner_adjustment_alpha}-${autotuner_increase_bar_option}-${SOURCE_TYPE}-${CURVE_TYPE}-${GRAPH}-${runtime}-${RATE1}-${TIME1}-${RATE2}-${RATE_I}-${TIME_I}-${P1}-${ZIPF_SKEW}-${P2}-${DELAY2}-${IO2}-${STATE_SIZE2}-${P3}-${DELAY3}-${IO3}-${STATE_SIZE3}-${P4}-${DELAY4}-${IO4}-${STATE_SIZE4}-${P5}-${DELAY5}-${STATE_SIZE5}-${L}-${migration_interval}-${epoch}-${decision_interval}-${is_treat}-${repeat}
 
   echo "INFO: run exp ${EXP_NAME}"
   configFlink
