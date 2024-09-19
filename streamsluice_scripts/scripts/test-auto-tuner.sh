@@ -186,7 +186,7 @@ run_scale_test(){
     smooth_backlog_flag=false
     new_metrics_retriever_flag=true
 
-    runtime=390
+    runtime=660 #390
     # Setting 1
     printf "Setting 1\n" >> whetherhow_result.txt
     setting="setting1"
@@ -216,14 +216,14 @@ run_scale_test(){
     TIME_I=0
     RATE1=12500 #15000
     RATE2=7500 #5000
-    for TIME1 in 60; do # 60 45 30
+    for TIME1 in 45; do # 60 45 30
       TIME2=${TIME1}
       is_treat=false
       how_type="ds2"
       autotune=false
       run_one_exp
       printf "${EXP_NAME}\n" >> whetherhow_result.txt
-      for L in 1000; do # 290 310 320 330 340 350 500 750 1000 1250 1500
+      for L in 250 500 1000 2000 4000; do # 290 310 320 330 340 350 500 750 1000 1250 1500
         is_treat=true
         how_type="streamsluice"
         autotune=true
@@ -239,8 +239,8 @@ run_scale_test(){
             elif [ "$autotuner_adjustment_option" = 2 ]; then
               autotuner_adjustment_alpha=0.8
             fi
-            run_one_exp
-            printf "${EXP_NAME}\n" >> whetherhow_result.txt
+            #run_one_exp
+            #printf "${EXP_NAME}\n" >> whetherhow_result.txt
           done
         done
       done
@@ -251,51 +251,65 @@ run_scale_test(){
     setting="setting2"
     SOURCE_TYPE="when"
     DELAY2=20
-    DELAY3=20
-    DELAY4=1000
-    DELAY5=20
+    DELAY3=1000
+    DELAY4=20
+    DELAY5=500
     STATE_SIZE2=5000 # 1000 keys, per key (n * 2000 + 36) bytes, n=5000 -> 100 MB
     STATE_SIZE3=5000
     STATE_SIZE4=5000
     STATE_SIZE5=5000
     LP2=1
-    LP3=1
-    LP4=28
-    LP5=1
-
+    LP3=30
     P2=1
-    P3=1
-    P4=17
-    P5=1
-    GRAPH="1split2join1"
-    CURVE_TYPE="sine"
+    P3=17
+    P4=1
+    P5=17
+    GRAPH="2op_line"
+    CURVE_TYPE="linear"
     warmupRate=10000
     warmupTime=60
     RATE_I=10000
     TIME_I=0
-    TIME1=30
-    TIME2=30
-    for RATE1 in 13750; do
+    RATE1=12500 #15000
+    RATE2=7500 #5000
+    for TIME1 in 45; do # 60 45 30
+      TIME2=${TIME1}
       is_treat=false
       how_type="ds2"
-#      run_one_exp
-#      printf "${EXP_NAME}\n" >> whetherhow_result.txt
-      for L in 350 500 750 1000; do # 290 310 320 330 340 350 500 750 1000 1250 1500
+      autotune=false
+      run_one_exp
+      printf "${EXP_NAME}\n" >> whetherhow_result.txt
+      for L in 125 250 500 1000 2000; do # 290 310 320 330 340 350 500 750 1000 1250 1500
         is_treat=true
         how_type="streamsluice"
-#        run_one_exp
-#        printf "${EXP_NAME}\n" >> whetherhow_result.txt
+        autotune=true
+        for autotuner_initial_value_option in 1 2; do
+          if [ "$autotuner_initial_value_option" = 1 ]; then
+            autotuner_initial_value_alpha=0.2
+          elif [ "$autotuner_initial_value_option" = 2 ]; then
+            autotuner_initial_value_alpha=0.2
+          fi
+          for autotuner_adjustment_option in 1 2; do
+            if [ "$autotuner_adjustment_option" = 1 ]; then
+              autotuner_adjustment_alpha=2.0
+            elif [ "$autotuner_adjustment_option" = 2 ]; then
+              autotuner_adjustment_alpha=0.8
+            fi
+            #run_one_exp
+            #printf "${EXP_NAME}\n" >> whetherhow_result.txt
+          done
+        done
       done
     done
 
-    # Setting 5
-    printf "Setting 5\n" >> whetherhow_result.txt
-    setting="setting5"
+    # Setting 3
+    printf "Setting 3\n" >> whetherhow_result.txt
+    setting="setting3"
     SOURCE_TYPE="when"
     DELAY2=20
     DELAY3=20
     DELAY4=20
-    DELAY5=500
+    DELAY5=1000
     STATE_SIZE2=5000 # 1000 keys, per key (n * 2000 + 36) bytes, n=5000 -> 100 MB
     STATE_SIZE3=5000
     STATE_SIZE4=5000
@@ -309,27 +323,41 @@ run_scale_test(){
     P3=1
     P4=1
     P5=17
-    GRAPH="1split2join1"
+    GRAPH="4op_line"
     CURVE_TYPE="gradient"
     warmupRate=10000
     warmupTime=60
     RATE_I=10000
     TIME_I=0
-    RATE1=15000
-    RATE2=5000
-    TIME1=45
-    TIME2=45
-    for RATE1 in 13750; do #12500 15000 17500
-      RATE2=$((20000 - RATE1))
+    RATE1=12500 #15000
+    RATE2=7500 #5000
+    for TIME1 in 45; do # 60 45 30
+      TIME2=${TIME1}
       is_treat=false
       how_type="ds2"
-#      run_one_exp
-#      printf "${EXP_NAME}\n" >> whetherhow_result.txt
-      for L in 350 500 750 1000; do # 290 310 320 330 340 350 500 750 1000 1250 1500
+      autotune=false
+      run_one_exp
+      printf "${EXP_NAME}\n" >> whetherhow_result.txt
+      for L in 250 500 1000 2000 4000; do # 290 310 320 330 340 350 500 750 1000 1250 1500
         is_treat=true
         how_type="streamsluice"
-#        run_one_exp
-#        printf "${EXP_NAME}\n" >> whetherhow_result.txt
+        autotune=true
+        for autotuner_initial_value_option in 1 2; do
+          if [ "$autotuner_initial_value_option" = 1 ]; then
+            autotuner_initial_value_alpha=0.2
+          elif [ "$autotuner_initial_value_option" = 2 ]; then
+            autotuner_initial_value_alpha=0.2
+          fi
+          for autotuner_adjustment_option in 1 2; do
+            if [ "$autotuner_adjustment_option" = 1 ]; then
+              autotuner_adjustment_alpha=2.0
+            elif [ "$autotuner_adjustment_option" = 2 ]; then
+              autotuner_adjustment_alpha=0.8
+            fi
+            #run_one_exp
+            #printf "${EXP_NAME}\n" >> whetherhow_result.txt
+          done
+        done
       done
     done
 }

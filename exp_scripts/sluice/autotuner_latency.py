@@ -118,12 +118,12 @@ def add_latency_bar_curve(plt, latency_bar:dict[int, int], initial_time):
     for time in latency_bar.keys():
         x = [last_time, time - initial_time]
         y = [last_y, last_y]
-        plt.plot(x, y, '--', label="Latency Bar", color='red', linewidth=1.5)
+        plt.plot(x, y, 'o--', label="Latency Bar", color='red', linewidth=1.5)
         last_y = latency_bar[time]
         last_time = time - initial_time
     x = [last_time, 10000000]
     y = [last_y, last_y]
-    plt.plot(x, y, '--', label="Latency Bar", color='red', linewidth=1.5)
+    plt.plot(x, y, 'o--', label="Latency Bar", color='red', linewidth=1.5)
 
 def draw_latency_curves(raw_dir, output_dir, exp_name, window_size, start_time, exp_length, latency_limit):
     exps = [
@@ -229,10 +229,10 @@ def main():
     start_time = 60 #30 #60
     exp_length = 300
     exps = [
-        "autotune-setting3-true-streamsluice-streamsluice-30-100-300-1-1.2-1-2.0-2-when-sine-1split2join1-390-12500-60-7500-10000-0-1-0-1-20-1-5000-1-20-1-5000-1-20-1-5000-17-500-5000-1000-3000-100-1-true-1",
-        "autotune-setting3-true-streamsluice-streamsluice-30-100-300-1-1.2-2-0.8-2-when-sine-1split2join1-390-12500-60-7500-10000-0-1-0-1-20-1-5000-1-20-1-5000-1-20-1-5000-17-500-5000-1000-3000-100-1-true-1",
-        "autotune-setting3-true-streamsluice-streamsluice-30-100-300-2-1.2-1-2.0-2-when-sine-1split2join1-390-12500-60-7500-10000-0-1-0-1-20-1-5000-1-20-1-5000-1-20-1-5000-17-500-5000-1000-3000-100-1-true-1",
-        "autotune-setting3-true-streamsluice-streamsluice-30-100-300-2-1.2-2-0.8-2-when-sine-1split2join1-390-12500-60-7500-10000-0-1-0-1-20-1-5000-1-20-1-5000-1-20-1-5000-17-500-5000-1000-3000-100-1-true-1",
+        "autotune-setting1-true-streamsluice-streamsluice-30-100-300-1-0.2-1-2.0-2-when-sine-1split2join1-390-12500-60-7500-10000-0-1-0-1-20-1-5000-1-20-1-5000-1-20-1-5000-17-500-5000-1000-3000-100-1-true-1",
+        "autotune-setting1-true-streamsluice-streamsluice-30-100-300-1-0.2-2-0.8-2-when-sine-1split2join1-390-12500-60-7500-10000-0-1-0-1-20-1-5000-1-20-1-5000-1-20-1-5000-17-500-5000-1000-3000-100-1-true-1",
+        "autotune-setting1-true-streamsluice-streamsluice-30-100-300-2-0.2-1-2.0-2-when-sine-1split2join1-390-12500-60-7500-10000-0-1-0-1-20-1-5000-1-20-1-5000-1-20-1-5000-17-500-5000-1000-3000-100-1-true-1",
+        "autotune-setting1-true-streamsluice-streamsluice-30-100-300-2-0.2-2-0.8-2-when-sine-1split2join1-390-12500-60-7500-10000-0-1-0-1-20-1-5000-1-20-1-5000-1-20-1-5000-17-500-5000-1000-3000-100-1-true-1",
     ]
     for exp_name in exps:
         latency_bar = int(exp_name.split('-')[-6])
