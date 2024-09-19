@@ -187,9 +187,9 @@ run_scale_test(){
     new_metrics_retriever_flag=true
 
     runtime=390
-    # Setting 3
-    printf "Setting 3\n" >> whetherhow_result.txt
-    setting="setting3"
+    # Setting 1
+    printf "Setting 1\n" >> whetherhow_result.txt
+    setting="setting1"
     SOURCE_TYPE="when"
     DELAY2=20
     DELAY3=20
@@ -229,9 +229,9 @@ run_scale_test(){
         autotune=true
         for autotuner_initial_value_option in 1 2; do
           if [ "$autotuner_initial_value_option" = 1 ]; then
-            autotuner_initial_value_alpha=1.2
+            autotuner_initial_value_alpha=0.2
           elif [ "$autotuner_initial_value_option" = 2 ]; then
-            autotuner_initial_value_alpha=1.2
+            autotuner_initial_value_alpha=0.2
           fi
           for autotuner_adjustment_option in 1 2; do
             if [ "$autotuner_adjustment_option" = 1 ]; then
@@ -246,9 +246,9 @@ run_scale_test(){
       done
     done
 
-    # Setting 4
-    printf "Setting 4\n" >> whetherhow_result.txt
-    setting="setting4"
+    # Setting 2
+    printf "Setting 2\n" >> whetherhow_result.txt
+    setting="setting2"
     SOURCE_TYPE="when"
     DELAY2=20
     DELAY3=20
