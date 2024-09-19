@@ -436,7 +436,7 @@ exps = {
     "Linear_Road": [
         ["Static",
          #"system-streamsluice-ds2-true-true-false-when-mixed-1split2join1-760-6000-3000-4000-1-0-2-300-1-5000-2-300-1-5000-2-300-1-5000-6-510-5000-1000-3000-100-1-false-1",
-         "autotune-setting3-true-streamsluice-ds2-100-300-1-1.2-1-2.0-2-when-sine-1split2join1-390-12500-60-7500-10000-0-1-0-1-20-1-5000-1-20-1-5000-1-20-1-5000-17-500-5000-1500-3000-100-1-false-1",
+         "autotune-setting3-true-streamsluice-ds2-30-100-300-2-0.2-2-0.8-2-when-gradient-4op_line-660-12500-45-7500-10000-0-1-0-1-20-1-5000-1-20-1-5000-1-20-1-5000-17-1000-5000-2000-3000-100-1-false-1",
          "green", "o"],
         # ["Earlier",
         #  "systemsensitivity-streamsluice_earlier-streamsluice-when-1split2join1-400-6000-3000-4000-1-0-2-300-1-10000-2-300-1-10000-2-300-1-10000-6-510-10000-2500-3000-100-10-true-1",
@@ -459,7 +459,7 @@ exps = {
         ["Sluice",
          #"systemsensitivity-streamsluice-streamsluice-when-1split2join1-400-6000-3000-4000-1-0-2-300-1-5000-2-300-1-5000-2-300-1-5000-6-510-5000-2000-3000-100-10-true-1",
          #"system-streamsluice-streamsluice-true-true-false-when-mixed-1split2join1-760-6000-3000-4000-1-0-2-300-1-5000-2-300-1-5000-2-300-1-5000-6-510-5000-2000-3000-100-1-true-1",
-         "autotune-setting3-true-streamsluice-streamsluice-30-100-300-1-1.2-2-0.8-2-when-sine-1split2join1-390-12500-60-7500-10000-0-1-0-1-20-1-5000-1-20-1-5000-1-20-1-5000-17-500-5000-1000-3000-100-1-true-1",
+         "autotune-setting3-true-streamsluice-ds2-30-100-300-2-0.2-2-0.8-2-when-gradient-4op_line-660-12500-45-7500-10000-0-1-0-1-20-1-5000-1-20-1-5000-1-20-1-5000-17-1000-5000-2000-3000-100-1-false-1",
          "blue", "o"],
 
         # ["Static",
@@ -526,7 +526,7 @@ overall_resource = {}
 trickFlag = True
 for app in exps.keys():
     expName = [exp[1] for exp in exps[app] if exp[0] == "StreamSluice" or exp[0] == "Sluice"][0]
-    exp_length = 300 #300 #900 #480 #480 #360 #1800
+    exp_length = 600 #300 #900 #480 #480 #360 #1800
     startTime = 60 # + 300
     print(expName)
     overall_resource[app] = {}

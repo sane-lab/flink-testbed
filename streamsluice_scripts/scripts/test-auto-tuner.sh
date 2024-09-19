@@ -191,6 +191,7 @@ run_scale_test(){
     printf "Setting 1\n" >> whetherhow_result.txt
     setting="setting1"
     SOURCE_TYPE="when"
+    autotuner_bar_lowerbound=300
     DELAY2=20
     DELAY3=20
     DELAY4=20
@@ -221,15 +222,15 @@ run_scale_test(){
       is_treat=false
       how_type="ds2"
       autotune=false
-      run_one_exp
-      printf "${EXP_NAME}\n" >> whetherhow_result.txt
+#      run_one_exp
+#      printf "${EXP_NAME}\n" >> whetherhow_result.txt
       for L in 250 500 1000 2000 4000; do # 290 310 320 330 340 350 500 750 1000 1250 1500
         is_treat=true
         how_type="streamsluice"
         autotune=true
         for autotuner_initial_value_option in 1 2; do
           if [ "$autotuner_initial_value_option" = 1 ]; then
-            autotuner_initial_value_alpha=0.2
+            autotuner_initial_value_alpha=0.5
           elif [ "$autotuner_initial_value_option" = 2 ]; then
             autotuner_initial_value_alpha=0.2
           fi
@@ -239,8 +240,8 @@ run_scale_test(){
             elif [ "$autotuner_adjustment_option" = 2 ]; then
               autotuner_adjustment_alpha=0.8
             fi
-            #run_one_exp
-            #printf "${EXP_NAME}\n" >> whetherhow_result.txt
+            run_one_exp
+            printf "${EXP_NAME}\n" >> whetherhow_result.txt
           done
         done
       done
@@ -250,6 +251,7 @@ run_scale_test(){
     printf "Setting 2\n" >> whetherhow_result.txt
     setting="setting2"
     SOURCE_TYPE="when"
+    autotuner_bar_lowerbound=200
     DELAY2=20
     DELAY3=1000
     DELAY4=20
@@ -277,15 +279,15 @@ run_scale_test(){
       is_treat=false
       how_type="ds2"
       autotune=false
-      run_one_exp
-      printf "${EXP_NAME}\n" >> whetherhow_result.txt
+#      run_one_exp
+#      printf "${EXP_NAME}\n" >> whetherhow_result.txt
       for L in 125 250 500 1000 2000; do # 290 310 320 330 340 350 500 750 1000 1250 1500
         is_treat=true
         how_type="streamsluice"
         autotune=true
         for autotuner_initial_value_option in 1 2; do
           if [ "$autotuner_initial_value_option" = 1 ]; then
-            autotuner_initial_value_alpha=0.2
+            autotuner_initial_value_alpha=0.5
           elif [ "$autotuner_initial_value_option" = 2 ]; then
             autotuner_initial_value_alpha=0.2
           fi
@@ -295,8 +297,8 @@ run_scale_test(){
             elif [ "$autotuner_adjustment_option" = 2 ]; then
               autotuner_adjustment_alpha=0.8
             fi
-            #run_one_exp
-            #printf "${EXP_NAME}\n" >> whetherhow_result.txt
+            run_one_exp
+            printf "${EXP_NAME}\n" >> whetherhow_result.txt
           done
         done
       done
@@ -306,6 +308,7 @@ run_scale_test(){
     printf "Setting 3\n" >> whetherhow_result.txt
     setting="setting3"
     SOURCE_TYPE="when"
+    autotuner_bar_lowerbound=400
     DELAY2=20
     DELAY3=20
     DELAY4=20
@@ -336,15 +339,15 @@ run_scale_test(){
       is_treat=false
       how_type="ds2"
       autotune=false
-      run_one_exp
-      printf "${EXP_NAME}\n" >> whetherhow_result.txt
+#      run_one_exp
+#      printf "${EXP_NAME}\n" >> whetherhow_result.txt
       for L in 250 500 1000 2000 4000; do # 290 310 320 330 340 350 500 750 1000 1250 1500
         is_treat=true
         how_type="streamsluice"
         autotune=true
         for autotuner_initial_value_option in 1 2; do
           if [ "$autotuner_initial_value_option" = 1 ]; then
-            autotuner_initial_value_alpha=0.2
+            autotuner_initial_value_alpha=0.5
           elif [ "$autotuner_initial_value_option" = 2 ]; then
             autotuner_initial_value_alpha=0.2
           fi
@@ -354,8 +357,8 @@ run_scale_test(){
             elif [ "$autotuner_adjustment_option" = 2 ]; then
               autotuner_adjustment_alpha=0.8
             fi
-            #run_one_exp
-            #printf "${EXP_NAME}\n" >> whetherhow_result.txt
+            run_one_exp
+            printf "${EXP_NAME}\n" >> whetherhow_result.txt
           done
         done
       done
