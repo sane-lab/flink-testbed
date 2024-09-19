@@ -140,7 +140,6 @@ run_scale_test(){
     autotuner_increase_bar_option=2
     autotuner_initial_value_alpha=1.2
     autotuner_adjustment_alpha=2.0
-    autotuner_groundtruthfile="/home/samza/workspace/flink-related/flink-extended-ete/build-target/log/flink-samza-taskexecutor-0-dragon-sane.out,/home/samza/workspace/flink-related/flink-extended-ete/build-target/log/flink-samza-taskexecutor-0-eagle-sane.out"
     epoch=100
     decision_interval=1 #10
     snapshot_size=20

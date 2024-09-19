@@ -350,7 +350,7 @@ streamsluice.system.autotune.adjustment_option: 1
 streamsluice.system.autotune.increase_bar_option: 2
 streamsluice.system.autotune.initial_value_alpha: 0.5
 streamsluice.system.autotune.adjustment_alpha: 2.0
-streamsluice.system.autotune.groundtruthfile: /home/samza/workspace/flink-related/flink-extended-ete/build-target/log/flink-samza-taskexecutor-0-dragon-sane.out,/home/samza/workspace/flink-related/flink-extended-ete/build-target/log/flink-samza-taskexecutor-1-dragon-sane.out,/home/samza/workspace/flink-related/flink-extended-ete/build-target/log/flink-samza-taskexecutor-0-eagle-sane.out,/home/samza/workspace/flink-related/flink-extended-ete/build-target/log/flink-samza-taskexecutor-1-eagle-sane.out,/home/samza/workspace/flink-related/flink-extended-ete/build-target/log/flink-samza-taskexecutor-0-flamingo-sane.out,/home/samza/workspace/flink-related/flink-extended-ete/build-target/log/flink-samza-taskexecutor-1-flamingo-sane.out
+streamsluice.system.autotune.groundtruthfile: /home/samza/workspace/flink-related/flink-extended-ete/build-target/log/flink-samza-taskexecutor-0-dragon-sane.out,/home/samza/workspace/flink-related/flink-extended-ete/build-target/log/flink-samza-taskexecutor-0-eagle-sane.out
 
 #==============================================================================
 # Backpressure Configuration

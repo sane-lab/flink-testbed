@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 FLINK_DIR="/home/samza/workspace/flink-related/flink-extended-ete/build-target"
-FLINK_APP_DIR="/home/samza/workspace/flink-related/flink-testbed-sane"
-SCRIPT_DIR="/home/samza/workspace/flink-related/flink-testbed-sane/streamsluice_scripts"
+FLINK_APP_DIR="/Users/swrrt/Workplace/flinks/flink-testbed-sane/" #"/home/samza/workspace/flink-related/flink-testbed-sane"
+SCRIPT_DIR="/Users/swrrt/Workplace/flinks/flink-testbed-sane/streamsluice_scripts"
 FLINK_CONF_DIR="${SCRIPT_DIR}/conf-server"
 
 EXP_DIR="/data/streamsluice"
@@ -73,8 +73,7 @@ function configFlink() {
     sed 's/^\(\s*streamsluice.system.autotune.increase_bar_option\s*:\s*\).*/\1'"$autotuner_increase_bar_option"'/' tmp36 > tmp37
     sed 's/^\(\s*streamsluice.system.autotune.initial_value_alpha\s*:\s*\).*/\1'"$autotuner_initial_value_alpha"'/' tmp37 > tmp38
     sed 's/^\(\s*streamsluice.system.autotune.adjustment_alpha\s*:\s*\).*/\1'"$autotuner_adjustment_alpha"'/' tmp38 > tmp39
-    sed 's/^\(\s*streamsluice.system.autotune.groundtruthfile\s*:\s*\).*/\1'"$autotuner_groundtruthfile"'/' tmp39 > tmp40
-    sed 's/^\(\s*controller.scale_in.type\s*:\s*\).*/\1'"$scalein_type"'/' tmp40 > ${FLINK_CONF_DIR}/flink-conf.yaml
+    sed 's/^\(\s*controller.scale_in.type\s*:\s*\).*/\1'"$scalein_type"'/' tmp39 > ${FLINK_CONF_DIR}/flink-conf.yaml
     rm tmp*
     echo ${FLINK_CONF_DIR}/flink-conf.yaml
     cp ${FLINK_CONF_DIR}/* ${FLINK_DIR}/conf
