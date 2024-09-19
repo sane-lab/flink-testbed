@@ -1,6 +1,6 @@
 #!/bin/bash
 
-source config-systemsensitivity-local.sh
+source config-systemsensitivity.sh
 
 # dump data
 function analyze() {
@@ -186,118 +186,7 @@ run_scale_test(){
     smooth_backlog_flag=false
     new_metrics_retriever_flag=true
 
-
-
     runtime=390
-    # Setting 1
-    printf "Setting 1\n" >> whetherhow_result.txt
-    setting="setting1"
-    SOURCE_TYPE="when"
-    DELAY2=20
-    DELAY3=20
-    DELAY4=20
-    DELAY5=1000
-    STATE_SIZE2=5000 # 1000 keys, per key (n * 2000 + 36) bytes, n=5000 -> 100 MB
-    STATE_SIZE3=5000
-    STATE_SIZE4=5000
-    STATE_SIZE5=5000
-    LP2=1
-    LP3=1
-    LP4=1
-    LP5=28
-    P2=1
-    P3=1
-    P4=1
-    P5=17
-    CURVE_TYPE="linear"
-    RATE1=10000
-    TIME1=600
-    RATE_I=10000
-    TIME_I=90
-    RATE2=10000
-    TIME2=600
-    warmupRate=${RATE_I}
-    warmupTime=${TIME_I}
-    for GRAPH in "1op_line" "2op_line" "3op_line"; do
-      is_treat=false
-      how_type="ds2"
-#      run_one_exp
-#      printf "${EXP_NAME}\n" >> whetherhow_result.txt
-      # Set the initial value of L based on the value of GRAPH
-      if [ "$GRAPH" = "1op_line" ]; then
-        for L in 90 125 250 500 750 1250 1500; do # 90 110 120 130 140 150 250 500 750 1000 1250 1500
-          LP2=31
-          is_treat=true
-          how_type="streamsluice"
-#          run_one_exp
-#          printf "${EXP_NAME}\n" >> whetherhow_result.txt
-        done
-      elif [ "$GRAPH" = "2op_line" ]; then
-        LP2=1
-        LP3=30
-        for L in 190 225 500 750 1250 1500; do # 190 210 220 230 240 250 500 750 1000 1250 1500
-          is_treat=true
-          how_type="streamsluice"
-#          run_one_exp
-#          printf "${EXP_NAME}\n" >> whetherhow_result.txt
-        done
-      elif [ "$GRAPH" = "3op_line" ]; then
-        LP2=1
-        LP3=1
-        LP4=29
-        for L in 290 325 500 750 1250 1500; do # 290 310 320 330 340 350 500 750 1000 1250 1500
-          is_treat=true
-          how_type="streamsluice"
-#          run_one_exp
-#          printf "${EXP_NAME}\n" >> whetherhow_result.txt
-        done
-      fi
-
-    done
-
-    # Setting 2:
-    printf "Setting 2\n" >> whetherhow_result.txt
-    setting="setting2"
-    SOURCE_TYPE="when"
-    DELAY2=20
-    DELAY3=20
-    DELAY4=20
-    DELAY5=1000
-    STATE_SIZE2=5000 # 1000 keys, per key (n * 2000 + 36) bytes, n=5000 -> 100 MB
-    STATE_SIZE3=5000
-    STATE_SIZE4=5000
-    STATE_SIZE5=5000
-    LP2=1
-    LP3=1
-    LP4=29
-
-    P2=1
-    P3=1
-    P4=1
-    P5=17
-    GRAPH="3op_line"
-    CURVE_TYPE="linear"
-    RATE1=10000
-    TIME1=600
-    RATE_I=5000
-    TIME_I=0
-    RATE2=10000
-    TIME2=600
-    warmupRate=5000
-    warmupTime=60
-    for RATE1 in 10000 15000 20000; do
-      is_treat=false
-      how_type="ds2"
-#      run_one_exp
-#      printf "${EXP_NAME}\n" >> whetherhow_result.txt
-      for L in 290 325 500 750 1250 1500; do # 290 310 320 330 340 350 500 750 1000 1250 1500
-        is_treat=true
-        how_type="streamsluice"
-#        run_one_exp
-#        printf "${EXP_NAME}\n" >> whetherhow_result.txt
-      done
-    done
-
     # Setting 3
     printf "Setting 3\n" >> whetherhow_result.txt
     setting="setting3"
@@ -332,14 +221,28 @@ run_scale_test(){
       is_treat=false
       how_type="ds2"
       autotune=false
-#      run_one_exp
-#      printf "${EXP_NAME}\n" >> whetherhow_result.txt
+      run_one_exp
+      printf "${EXP_NAME}\n" >> whetherhow_result.txt
       for L in 1000; do # 290 310 320 330 340 350 500 750 1000 1250 1500
         is_treat=true
         how_type="streamsluice"
         autotune=true
-        run_one_exp
-        printf "${EXP_NAME}\n" >> whetherhow_result.txt
+        for autotuner_initial_value_option in 1 2; do
+          if [ "$autotuner_initial_value_option" = 1 ]; then
+            autotuner_initial_value_alpha=1.2
+          elif [ "$autotuner_initial_value_option" = 2 ]; then
+            autotuner_initial_value_alpha=1.2
+          fi
+          for autotuner_adjustment_option in 1 2; do
+            if [ "$autotuner_adjustment_option" = 1 ]; then
+              autotuner_adjustment_alpha=2.0
+            elif [ "$autotuner_adjustment_option" = 2 ]; then
+              autotuner_adjustment_alpha=0.8
+            fi
+            run_one_exp
+            printf "${EXP_NAME}\n" >> whetherhow_result.txt
+          done
+        done
       done
     done
 
