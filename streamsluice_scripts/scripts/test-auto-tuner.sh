@@ -217,7 +217,7 @@ run_scale_test(){
     TIME_I=0
     RATE1=13750 #12500 #15000
     RATE2=6250 #7500 #5000
-    for TIME1 in 30; do # 60 45 30
+    for TIME1 in 30 20; do # 60 45 30
       TIME2=${TIME1}
       is_treat=false
       how_type="ds2"
@@ -234,7 +234,7 @@ run_scale_test(){
           elif [ "$autotuner_initial_value_option" = 2 ]; then
             autotuner_initial_value_alpha=0.2
           fi
-          for autotuner_adjustment_option in 1; do
+          for autotuner_adjustment_option in 1 2; do
             if [ "$autotuner_adjustment_option" = 1 ]; then
               autotuner_adjustment_alpha=2.0
             elif [ "$autotuner_adjustment_option" = 2 ]; then
@@ -274,7 +274,7 @@ run_scale_test(){
     TIME_I=0
     RATE1=13750 #12500 #15000
     RATE2=6250 #7500 #5000
-    for TIME1 in 30; do # 60 45 30
+    for TIME1 in 30 20; do # 60 45 30
       TIME2=${TIME1}
       is_treat=false
       how_type="ds2"
@@ -291,7 +291,7 @@ run_scale_test(){
           elif [ "$autotuner_initial_value_option" = 2 ]; then
             autotuner_initial_value_alpha=0.2
           fi
-          for autotuner_adjustment_option in 1; do
+          for autotuner_adjustment_option in 1 2; do
             if [ "$autotuner_adjustment_option" = 1 ]; then
               autotuner_adjustment_alpha=2.0
             elif [ "$autotuner_adjustment_option" = 2 ]; then
@@ -334,7 +334,7 @@ run_scale_test(){
     TIME_I=0
     RATE1=13750 #12500 #15000
     RATE2=6250 #7500 #5000
-    for TIME1 in 30; do # 60 45 30
+    for TIME1 in 30 20; do # 60 45 30
       TIME2=${TIME1}
       is_treat=false
       how_type="ds2"
@@ -351,7 +351,7 @@ run_scale_test(){
           elif [ "$autotuner_initial_value_option" = 2 ]; then
             autotuner_initial_value_alpha=0.2
           fi
-          for autotuner_adjustment_option in 1; do
+          for autotuner_adjustment_option in 1 2; do
             if [ "$autotuner_adjustment_option" = 1 ]; then
               autotuner_adjustment_alpha=2.0
             elif [ "$autotuner_adjustment_option" = 2 ]; then
