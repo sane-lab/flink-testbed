@@ -76,6 +76,7 @@ def read_ground_truth_latency(raw_dir, exp_name, window_size):
 def readLEMLatencyAndSpikeAndBar(rawDir, expName) -> [[list[int], list[float], list[float]], dict[int, int]]:
     lem_latency = [[], [], []]
     latency_bar = {}
+    p99_bar = {}
 
     streamsluiceOutput = "flink-samza-standalonesession-0-eagle-sane.out"
     import os
@@ -112,14 +113,17 @@ def readLEMLatencyAndSpikeAndBar(rawDir, expName) -> [[list[int], list[float], l
                 for index in range(7, 15):
                     if(split[index] == "bar:"):
                         bar = int(split[index + 1].rstrip(','))
+                        p99 = int(split[index + 4].rstrip(','))
                         break
                 latency_bar[time] = bar
+                p99_bar[time] = p99
             if (len(split) >= 8 and split[1] == "[AUTOTUNE]" and split[4] == "set" and split[5] == "bar" and split[6] == "to" and split[7] == "lowerbound:"):
                 time = int(split[3])
                 bar = int(split[8].rstrip(','))
                 latency_bar[time] = bar
+                p99_bar[time] = int(split[11].rstrip(','))
 
-    return [lem_latency, latency_bar]
+    return [lem_latency, latency_bar, p99_bar]
 
 def add_latency_limit_marker(plt, latency_limit):
     x = [0, 10000000]
@@ -127,18 +131,28 @@ def add_latency_limit_marker(plt, latency_limit):
     plt.plot(x, y, "--", label="Limit", color='red', linewidth=1.5)
 
 
+def add_p99_bar_curve(plt, p99_bar: dict[int, int], initial_time):
+    last_time = 0
+    for time in p99_bar.keys():
+        if time - initial_time > last_time:
+            x = [last_time, time - initial_time]
+            y = [p99_bar[time], p99_bar[time]]
+            print(x, y)
+            plt.plot(x, y, 'd-', label="P99 latency", color='blue', linewidth=1.5)
+        last_time = time - initial_time
+
 def add_latency_bar_curve(plt, latency_bar:dict[int, int], initial_time):
     last_time = 0
     last_y = 0
     for time in latency_bar.keys():
         x = [last_time, time - initial_time]
         y = [last_y, last_y]
-        plt.plot(x, y, 'o--', label="Latency Bar", color='red', linewidth=1.5)
+        plt.plot(x, y, 'o--', label="Latency Bar", color='green', linewidth=1.5)
         last_y = latency_bar[time]
         last_time = time - initial_time
     x = [last_time, 10000000]
     y = [last_y, last_y]
-    plt.plot(x, y, 'o--', label="Latency Bar", color='red', linewidth=1.5)
+    plt.plot(x, y, 'o--', label="Latency Bar", color='green', linewidth=1.5)
 
 def draw_latency_curves(raw_dir, output_dir, exp_name, window_size, start_time, exp_length, latency_limit):
     exps = [
@@ -148,6 +162,7 @@ def draw_latency_curves(raw_dir, output_dir, exp_name, window_size, start_time, 
     average_ground_truth_latencies = []
     lem_latencies = []
     latency_bar = []
+    p99_bar = []
     initial_times = []
     for i in range(len(exps)):
         result = read_ground_truth_latency(raw_dir, exps[i][1], window_size)
@@ -156,7 +171,8 @@ def draw_latency_curves(raw_dir, output_dir, exp_name, window_size, start_time, 
         result = readLEMLatencyAndSpikeAndBar(raw_dir, exps[i][1])
         lem_latencies += [result[0]]
         latency_bar += [result[1]]
-
+        p99_bar += [result[2]]
+    #print(p99_bar)
     for i in range(len(exps)):
         groundtruth_p99_latency_in_range = [average_ground_truth_latencies[i][1][x] for x in
                                             range(len(average_ground_truth_latencies[i][0])) if
@@ -204,14 +220,63 @@ def draw_latency_curves(raw_dir, output_dir, exp_name, window_size, start_time, 
     plt.savefig(output_dir + 'ground_truth_latency_curves.png', bbox_inches='tight')
     plt.close(fig)
 
+    #Calculate the bar converge time
+    #tune_window_success_rates = {}
+    last_time = 0
+    last_bar = 0
+    index = 0
+    first_converge_time = 0
+    for time, bar in latency_bar[0].items():
+        if last_bar > 0:
+            # start = last_time - initial_times[0]
+            # end = time - initial_times[0]
+            # tune_window_groundtruth_p99_latency_in_range = [average_ground_truth_latencies[0][1][x] for x in
+            #                                     range(len(average_ground_truth_latencies[0][0])) if
+            #                                     average_ground_truth_latencies[0][0][x] >= start and
+            #                                     average_ground_truth_latencies[0][0][x] <
+            #                                                 end]
+            # print(start, end)
+            # tune_window_success_rate = len([x for x in tune_window_groundtruth_p99_latency_in_range if x <= latency_limit]) / len(
+            #     tune_window_groundtruth_p99_latency_in_range)
+            # tune_window_success_rates[last_time - initial_times[0]] = tune_window_success_rate
+            if last_bar != bar:
+                first_converge_time = index + 1
+        index += 1
+        last_time = time
+        last_bar = bar
+    if first_converge_time == 0:
+        first_converge_time = index
+    start = last_time - initial_times[0]
+    end = (start_time + exp_length) * 1000
+    # tune_window_groundtruth_p99_latency_in_range = [average_ground_truth_latencies[0][1][x] for x in
+    #                                                 range(len(average_ground_truth_latencies[0][0])) if
+    #                                                 average_ground_truth_latencies[0][0][x] >= start and
+    #                                                 average_ground_truth_latencies[0][0][x] <
+    #                                                     end]
+    # if len(tune_window_groundtruth_p99_latency_in_range) > 0:
+    #     tune_window_success_rate = len(
+    #     [x for x in tune_window_groundtruth_p99_latency_in_range if x <= latency_limit]) / len(
+    #     tune_window_groundtruth_p99_latency_in_range)
+    #     tune_window_success_rates[last_time - initial_times[0]] = tune_window_success_rate
+    converged_bar = last_bar
+    #print("tune window success rates: " + str(tune_window_success_rates))
+    #first_converge_time = 0
+    #index = 0
+    # for time, tune_window_success_rate in tune_window_success_rates.items():
+    #     if tune_window_success_rate < 0.99:
+    #         first_converge_time = index + 1
+    #     index += 1
+
+
     # Plotting the latency curve
     fig, ax = plt.subplots(figsize=(12, 5))
     for i in range(len(exps)):
-        lem_latencies[i][0] = [x - initial_times[0] for x in lem_latencies[i][0]]
-        plt.plot(lem_latencies[i][0], lem_latencies[i][1], '-', color=exps[i][2], markersize=4, linewidth=3,
-                 label="Estimated Latency")
+         # lem_latencies[i][0] = [x - initial_times[0] for x in lem_latencies[i][0]]
+         # plt.plot(lem_latencies[i][0], lem_latencies[i][1], '-', color=exps[i][2], markersize=4, linewidth=3,
+         #          label="Estimated Latency")
+        add_p99_bar_curve(plt, p99_bar[i], initial_times[i])
         add_latency_bar_curve(plt, latency_bar[i], initial_times[i])
-
+    add_latency_limit_marker(plt, latency_limit)
     handles, labels = plt.gca().get_legend_handles_labels()
     new_labels, new_handles = [], []
     for handle, label in zip(handles, labels):
@@ -233,7 +298,7 @@ def draw_latency_curves(raw_dir, output_dir, exp_name, window_size, start_time, 
     plt.savefig(output_dir + 'latency_bar.png', bbox_inches='tight')
     plt.close(fig)
 
-    return success_rate
+    return success_rate, first_converge_time, converged_bar
 
 def parseMapping(split):
     mapping = {}
@@ -569,6 +634,52 @@ def plot_success_rate(user_limits, success_rate_per_label, output_dir):
     plt.savefig(output_dir + 'success_rate_by_strategy.png', bbox_inches='tight')
     plt.close(fig)
 
+def plot_converge_time(user_limits, first_converge_time_per_label, output_dir):
+    labels = list(first_converge_time_per_label.keys())
+    bar_width = 0.2
+    x = np.arange(len(user_limits))
+
+    fig, axs = plt.subplots(figsize=(12, 5))
+
+    # Plot avg parallelism
+    for idx, label in enumerate(labels):
+        plt.bar(x + idx * bar_width, first_converge_time_per_label[label], bar_width, label=label)
+
+    plt.xlabel('User Limits')
+    plt.ylabel('# of Tunes to Converge')
+    plt.yticks(np.arange(0, 20, 5))
+    plt.xticks(x + bar_width * (len(labels) - 1) / 2, user_limits)
+    plt.title('Number of Tunes to Converge by User Limits and Strategy')
+    plt.legend()
+    plt.grid(True)
+    if not os.path.exists(output_dir):
+        os.makedirs(output_dir)
+    plt.savefig(output_dir + 'converge_vs_strategy.png', bbox_inches='tight')
+    plt.close(fig)
+
+def plot_converged_bar(user_limits, converged_bar_per_label, output_dir):
+    labels = list(converged_bar_per_label.keys())
+    bar_width = 0.2
+    x = np.arange(len(user_limits))
+
+    fig, axs = plt.subplots(figsize=(12, 5))
+
+    # Plot avg parallelism
+    for idx, label in enumerate(labels):
+        plt.bar(x + idx * bar_width, converged_bar_per_label[label], bar_width, label=label)
+
+    plt.xlabel('User Limits')
+    plt.ylabel('Converged Bar')
+    #plt.yticks(np.arange(0, 20, 5))
+    plt.xticks(x + bar_width * (len(labels) - 1) / 2, user_limits)
+    plt.title('Converged Bar by User Limits and Strategy')
+    plt.legend()
+    plt.grid(True)
+    if not os.path.exists(output_dir):
+        os.makedirs(output_dir)
+    plt.savefig(output_dir + 'converged_bar_vs_strategy.png', bbox_inches='tight')
+    plt.close(fig)
+
 
 # Function to plot avg parallelism
 def plot_avg_parallelism(user_limits, avg_parallelism_per_label, output_dir):
@@ -602,77 +713,95 @@ def main():
     start_time = 60 #30 #60
     exp_length = 600
     exps_per_label = {
-        "option_1": [
-            # "autotune-setting1-true-streamsluice-streamsluice-30-100-300-1-0.5-1-2.0-2-when-sine-1split2join1-660-12500-45-7500-10000-0-1-0-1-20-1-5000-1-20-1-5000-1-20-1-5000-17-500-5000-250-3000-100-1-true-1",
-            # "autotune-setting1-true-streamsluice-streamsluice-30-100-300-1-0.5-1-2.0-2-when-sine-1split2join1-660-12500-45-7500-10000-0-1-0-1-20-1-5000-1-20-1-5000-1-20-1-5000-17-500-5000-500-3000-100-1-true-1",
-            # "autotune-setting1-true-streamsluice-streamsluice-30-100-300-1-0.5-1-2.0-2-when-sine-1split2join1-660-12500-45-7500-10000-0-1-0-1-20-1-5000-1-20-1-5000-1-20-1-5000-17-500-5000-1000-3000-100-1-true-1",
-            # "autotune-setting1-true-streamsluice-streamsluice-30-100-300-1-0.5-1-2.0-2-when-sine-1split2join1-660-12500-45-7500-10000-0-1-0-1-20-1-5000-1-20-1-5000-1-20-1-5000-17-500-5000-2000-3000-100-1-true-1",
-            # "autotune-setting1-true-streamsluice-streamsluice-30-100-300-1-0.5-1-2.0-2-when-sine-1split2join1-660-12500-45-7500-10000-0-1-0-1-20-1-5000-1-20-1-5000-1-20-1-5000-17-500-5000-4000-3000-100-1-true-1",
-            # "autotune-setting2-true-streamsluice-streamsluice-30-100-200-1-0.5-1-2.0-2-when-linear-2op_line-660-12500-45-7500-10000-0-1-0-1-20-1-5000-17-1000-1-5000-1-20-1-5000-17-500-5000-125-3000-100-1-true-1",
-            # "autotune-setting2-true-streamsluice-streamsluice-30-100-200-1-0.5-1-2.0-2-when-linear-2op_line-660-12500-45-7500-10000-0-1-0-1-20-1-5000-17-1000-1-5000-1-20-1-5000-17-500-5000-250-3000-100-1-true-1",
-            # "autotune-setting2-true-streamsluice-streamsluice-30-100-200-1-0.5-1-2.0-2-when-linear-2op_line-660-12500-45-7500-10000-0-1-0-1-20-1-5000-17-1000-1-5000-1-20-1-5000-17-500-5000-500-3000-100-1-true-1",
-            # "autotune-setting2-true-streamsluice-streamsluice-30-100-200-1-0.5-1-2.0-2-when-linear-2op_line-660-12500-45-7500-10000-0-1-0-1-20-1-5000-17-1000-1-5000-1-20-1-5000-17-500-5000-1000-3000-100-1-true-1",
-            # "autotune-setting2-true-streamsluice-streamsluice-30-100-200-1-0.5-1-2.0-2-when-linear-2op_line-660-12500-45-7500-10000-0-1-0-1-20-1-5000-17-1000-1-5000-1-20-1-5000-17-500-5000-2000-3000-100-1-true-1",
-            "autotune-setting3-true-streamsluice-streamsluice-30-100-400-1-0.5-1-2.0-2-when-gradient-4op_line-660-12500-45-7500-10000-0-1-0-1-20-1-5000-1-20-1-5000-1-20-1-5000-17-1000-5000-250-3000-100-1-true-1",
-            "autotune-setting3-true-streamsluice-streamsluice-30-100-400-1-0.5-1-2.0-2-when-gradient-4op_line-660-12500-45-7500-10000-0-1-0-1-20-1-5000-1-20-1-5000-1-20-1-5000-17-1000-5000-500-3000-100-1-true-1",
-            "autotune-setting3-true-streamsluice-streamsluice-30-100-400-1-0.5-1-2.0-2-when-gradient-4op_line-660-12500-45-7500-10000-0-1-0-1-20-1-5000-1-20-1-5000-1-20-1-5000-17-1000-5000-1000-3000-100-1-true-1",
-            "autotune-setting3-true-streamsluice-streamsluice-30-100-400-1-0.5-1-2.0-2-when-gradient-4op_line-660-12500-45-7500-10000-0-1-0-1-20-1-5000-1-20-1-5000-1-20-1-5000-17-1000-5000-2000-3000-100-1-true-1",
-            "autotune-setting3-true-streamsluice-streamsluice-30-100-400-1-0.5-1-2.0-2-when-gradient-4op_line-660-12500-45-7500-10000-0-1-0-1-20-1-5000-1-20-1-5000-1-20-1-5000-17-1000-5000-4000-3000-100-1-true-1",
+        # "option_1": [
+        #     # "autotune-setting1-true-streamsluice-streamsluice-30-100-300-1-0.5-1-2.0-2-when-sine-1split2join1-660-12500-45-7500-10000-0-1-0-1-20-1-5000-1-20-1-5000-1-20-1-5000-17-500-5000-250-3000-100-1-true-1",
+        #     # "autotune-setting1-true-streamsluice-streamsluice-30-100-300-1-0.5-1-2.0-2-when-sine-1split2join1-660-12500-45-7500-10000-0-1-0-1-20-1-5000-1-20-1-5000-1-20-1-5000-17-500-5000-500-3000-100-1-true-1",
+        #     # "autotune-setting1-true-streamsluice-streamsluice-30-100-300-1-0.5-1-2.0-2-when-sine-1split2join1-660-12500-45-7500-10000-0-1-0-1-20-1-5000-1-20-1-5000-1-20-1-5000-17-500-5000-1000-3000-100-1-true-1",
+        #     # "autotune-setting1-true-streamsluice-streamsluice-30-100-300-1-0.5-1-2.0-2-when-sine-1split2join1-660-12500-45-7500-10000-0-1-0-1-20-1-5000-1-20-1-5000-1-20-1-5000-17-500-5000-2000-3000-100-1-true-1",
+        #     # "autotune-setting1-true-streamsluice-streamsluice-30-100-300-1-0.5-1-2.0-2-when-sine-1split2join1-660-12500-45-7500-10000-0-1-0-1-20-1-5000-1-20-1-5000-1-20-1-5000-17-500-5000-4000-3000-100-1-true-1",
+        #     # "autotune-setting2-true-streamsluice-streamsluice-30-100-200-1-0.5-1-2.0-2-when-linear-2op_line-660-12500-45-7500-10000-0-1-0-1-20-1-5000-17-1000-1-5000-1-20-1-5000-17-500-5000-125-3000-100-1-true-1",
+        #     # "autotune-setting2-true-streamsluice-streamsluice-30-100-200-1-0.5-1-2.0-2-when-linear-2op_line-660-12500-45-7500-10000-0-1-0-1-20-1-5000-17-1000-1-5000-1-20-1-5000-17-500-5000-250-3000-100-1-true-1",
+        #     # "autotune-setting2-true-streamsluice-streamsluice-30-100-200-1-0.5-1-2.0-2-when-linear-2op_line-660-12500-45-7500-10000-0-1-0-1-20-1-5000-17-1000-1-5000-1-20-1-5000-17-500-5000-500-3000-100-1-true-1",
+        #     # "autotune-setting2-true-streamsluice-streamsluice-30-100-200-1-0.5-1-2.0-2-when-linear-2op_line-660-12500-45-7500-10000-0-1-0-1-20-1-5000-17-1000-1-5000-1-20-1-5000-17-500-5000-1000-3000-100-1-true-1",
+        #     # "autotune-setting2-true-streamsluice-streamsluice-30-100-200-1-0.5-1-2.0-2-when-linear-2op_line-660-12500-45-7500-10000-0-1-0-1-20-1-5000-17-1000-1-5000-1-20-1-5000-17-500-5000-2000-3000-100-1-true-1",
+        #     #"autotune-setting3-true-streamsluice-streamsluice-30-100-400-1-0.5-1-2.0-2-when-gradient-4op_line-660-12500-45-7500-10000-0-1-0-1-20-1-5000-1-20-1-5000-1-20-1-5000-17-1000-5000-250-3000-100-1-true-1",
+        #     #"autotune-setting3-true-streamsluice-streamsluice-30-100-400-1-0.5-1-2.0-2-when-gradient-4op_line-660-12500-45-7500-10000-0-1-0-1-20-1-5000-1-20-1-5000-1-20-1-5000-17-1000-5000-500-3000-100-1-true-1",
+        #     #"autotune-setting3-true-streamsluice-streamsluice-30-100-400-1-0.5-1-2.0-2-when-gradient-4op_line-660-12500-45-7500-10000-0-1-0-1-20-1-5000-1-20-1-5000-1-20-1-5000-17-1000-5000-1000-3000-100-1-true-1",
+        #     # "autotune-setting3-true-streamsluice-streamsluice-30-100-400-1-0.5-1-2.0-2-when-gradient-4op_line-660-12500-45-7500-10000-0-1-0-1-20-1-5000-1-20-1-5000-1-20-1-5000-17-1000-5000-2000-3000-100-1-true-1",
+        #     #"autotune-setting3-true-streamsluice-streamsluice-30-100-400-1-0.5-1-2.0-2-when-gradient-4op_line-660-12500-45-7500-10000-0-1-0-1-20-1-5000-1-20-1-5000-1-20-1-5000-17-1000-5000-4000-3000-100-1-true-1",
+        # ],
+        # "option_2": [
+        #     # "autotune-setting1-true-streamsluice-streamsluice-30-100-300-1-0.5-2-0.8-2-when-sine-1split2join1-660-12500-45-7500-10000-0-1-0-1-20-1-5000-1-20-1-5000-1-20-1-5000-17-500-5000-250-3000-100-1-true-1",
+        #     # "autotune-setting1-true-streamsluice-streamsluice-30-100-300-1-0.5-2-0.8-2-when-sine-1split2join1-660-12500-45-7500-10000-0-1-0-1-20-1-5000-1-20-1-5000-1-20-1-5000-17-500-5000-500-3000-100-1-true-1",
+        #     # "autotune-setting1-true-streamsluice-streamsluice-30-100-300-1-0.5-2-0.8-2-when-sine-1split2join1-660-12500-45-7500-10000-0-1-0-1-20-1-5000-1-20-1-5000-1-20-1-5000-17-500-5000-1000-3000-100-1-true-1",
+        #     # "autotune-setting1-true-streamsluice-streamsluice-30-100-300-1-0.5-2-0.8-2-when-sine-1split2join1-660-12500-45-7500-10000-0-1-0-1-20-1-5000-1-20-1-5000-1-20-1-5000-17-500-5000-2000-3000-100-1-true-1",
+        #     # "autotune-setting1-true-streamsluice-streamsluice-30-100-300-1-0.5-2-0.8-2-when-sine-1split2join1-660-12500-45-7500-10000-0-1-0-1-20-1-5000-1-20-1-5000-1-20-1-5000-17-500-5000-4000-3000-100-1-true-1",
+        #     # "autotune-setting2-true-streamsluice-streamsluice-30-100-200-1-0.5-2-0.8-2-when-linear-2op_line-660-12500-45-7500-10000-0-1-0-1-20-1-5000-17-1000-1-5000-1-20-1-5000-17-500-5000-125-3000-100-1-true-1",
+        #     # "autotune-setting2-true-streamsluice-streamsluice-30-100-200-1-0.5-2-0.8-2-when-linear-2op_line-660-12500-45-7500-10000-0-1-0-1-20-1-5000-17-1000-1-5000-1-20-1-5000-17-500-5000-250-3000-100-1-true-1",
+        #     # "autotune-setting2-true-streamsluice-streamsluice-30-100-200-1-0.5-2-0.8-2-when-linear-2op_line-660-12500-45-7500-10000-0-1-0-1-20-1-5000-17-1000-1-5000-1-20-1-5000-17-500-5000-500-3000-100-1-true-1",
+        #     # "autotune-setting2-true-streamsluice-streamsluice-30-100-200-1-0.5-2-0.8-2-when-linear-2op_line-660-12500-45-7500-10000-0-1-0-1-20-1-5000-17-1000-1-5000-1-20-1-5000-17-500-5000-1000-3000-100-1-true-1",
+        #     # "autotune-setting2-true-streamsluice-streamsluice-30-100-200-1-0.5-2-0.8-2-when-linear-2op_line-660-12500-45-7500-10000-0-1-0-1-20-1-5000-17-1000-1-5000-1-20-1-5000-17-500-5000-2000-3000-100-1-true-1",
+        #     #"autotune-setting3-true-streamsluice-streamsluice-30-100-400-1-0.5-2-0.8-2-when-gradient-4op_line-660-12500-45-7500-10000-0-1-0-1-20-1-5000-1-20-1-5000-1-20-1-5000-17-1000-5000-250-3000-100-1-true-1",
+        #     #"autotune-setting3-true-streamsluice-streamsluice-30-100-400-1-0.5-2-0.8-2-when-gradient-4op_line-660-12500-45-7500-10000-0-1-0-1-20-1-5000-1-20-1-5000-1-20-1-5000-17-1000-5000-500-3000-100-1-true-1",
+        #     #"autotune-setting3-true-streamsluice-streamsluice-30-100-400-1-0.5-2-0.8-2-when-gradient-4op_line-660-12500-45-7500-10000-0-1-0-1-20-1-5000-1-20-1-5000-1-20-1-5000-17-1000-5000-1000-3000-100-1-true-1",
+        #     #"autotune-setting3-true-streamsluice-streamsluice-30-100-400-1-0.5-2-0.8-2-when-gradient-4op_line-660-12500-45-7500-10000-0-1-0-1-20-1-5000-1-20-1-5000-1-20-1-5000-17-1000-5000-2000-3000-100-1-true-1",
+        #     #"autotune-setting3-true-streamsluice-streamsluice-30-100-400-1-0.5-2-0.8-2-when-gradient-4op_line-660-12500-45-7500-10000-0-1-0-1-20-1-5000-1-20-1-5000-1-20-1-5000-17-1000-5000-4000-3000-100-1-true-1",
+        # ],
+        # "bisection-with-increase": [
+        #     # "autotune-setting1-true-streamsluice-streamsluice-30-100-300-2-0.2-1-2.0-2-when-sine-1split2join1-660-12500-45-7500-10000-0-1-0-1-20-1-5000-1-20-1-5000-1-20-1-5000-17-500-5000-250-3000-100-1-true-1",
+        #     # "autotune-setting1-true-streamsluice-streamsluice-30-100-300-2-0.2-1-2.0-2-when-sine-1split2join1-660-12500-45-7500-10000-0-1-0-1-20-1-5000-1-20-1-5000-1-20-1-5000-17-500-5000-500-3000-100-1-true-1",
+        #     # "autotune-setting1-true-streamsluice-streamsluice-30-100-300-2-0.2-1-2.0-2-when-sine-1split2join1-660-12500-45-7500-10000-0-1-0-1-20-1-5000-1-20-1-5000-1-20-1-5000-17-500-5000-1000-3000-100-1-true-1",
+        #     # "autotune-setting1-true-streamsluice-streamsluice-30-100-300-2-0.2-1-2.0-2-when-sine-1split2join1-660-12500-45-7500-10000-0-1-0-1-20-1-5000-1-20-1-5000-1-20-1-5000-17-500-5000-2000-3000-100-1-true-1",
+        #     # "autotune-setting1-true-streamsluice-streamsluice-30-100-300-2-0.2-1-2.0-2-when-sine-1split2join1-660-12500-45-7500-10000-0-1-0-1-20-1-5000-1-20-1-5000-1-20-1-5000-17-500-5000-4000-3000-100-1-true-1",
+        #     "autotune-setting2-true-streamsluice-streamsluice-30-100-200-2-0.2-1-2.0-2-when-linear-2op_line-660-12500-45-7500-10000-0-1-0-1-20-1-5000-17-1000-1-5000-1-20-1-5000-17-500-5000-125-3000-100-1-true-1",
+        #     "autotune-setting2-true-streamsluice-streamsluice-30-100-200-2-0.2-1-2.0-2-when-linear-2op_line-660-12500-45-7500-10000-0-1-0-1-20-1-5000-17-1000-1-5000-1-20-1-5000-17-500-5000-250-3000-100-1-true-1",
+        #     "autotune-setting2-true-streamsluice-streamsluice-30-100-200-2-0.2-1-2.0-2-when-linear-2op_line-660-12500-45-7500-10000-0-1-0-1-20-1-5000-17-1000-1-5000-1-20-1-5000-17-500-5000-500-3000-100-1-true-1",
+        #     "autotune-setting2-true-streamsluice-streamsluice-30-100-200-2-0.2-1-2.0-2-when-linear-2op_line-660-12500-45-7500-10000-0-1-0-1-20-1-5000-17-1000-1-5000-1-20-1-5000-17-500-5000-1000-3000-100-1-true-1",
+        #     "autotune-setting2-true-streamsluice-streamsluice-30-100-200-2-0.2-1-2.0-2-when-linear-2op_line-660-12500-45-7500-10000-0-1-0-1-20-1-5000-17-1000-1-5000-1-20-1-5000-17-500-5000-2000-3000-100-1-true-1",
+        #     # "autotune-setting3-true-streamsluice-streamsluice-30-100-400-2-0.2-1-2.0-2-when-gradient-4op_line-660-12500-45-7500-10000-0-1-0-1-20-1-5000-1-20-1-5000-1-20-1-5000-17-1000-5000-250-3000-100-1-true-1",
+        #     # "autotune-setting3-true-streamsluice-streamsluice-30-100-400-2-0.2-1-2.0-2-when-gradient-4op_line-660-12500-45-7500-10000-0-1-0-1-20-1-5000-1-20-1-5000-1-20-1-5000-17-1000-5000-500-3000-100-1-true-1",
+        #     # "autotune-setting3-true-streamsluice-streamsluice-30-100-400-2-0.2-1-2.0-2-when-gradient-4op_line-660-12500-45-7500-10000-0-1-0-1-20-1-5000-1-20-1-5000-1-20-1-5000-17-1000-5000-1000-3000-100-1-true-1",
+        #     # "autotune-setting3-true-streamsluice-streamsluice-30-100-400-2-0.2-1-2.0-2-when-gradient-4op_line-660-12500-45-7500-10000-0-1-0-1-20-1-5000-1-20-1-5000-1-20-1-5000-17-1000-5000-2000-3000-100-1-true-1",
+        #     # "autotune-setting3-true-streamsluice-streamsluice-30-100-400-2-0.2-1-2.0-2-when-gradient-4op_line-660-12500-45-7500-10000-0-1-0-1-20-1-5000-1-20-1-5000-1-20-1-5000-17-1000-5000-4000-3000-100-1-true-1",
+        # ],
+        # "gradient_descent-with-increase": [
+        #     # "autotune-setting1-true-streamsluice-streamsluice-30-100-300-2-0.2-2-0.8-2-when-sine-1split2join1-660-12500-45-7500-10000-0-1-0-1-20-1-5000-1-20-1-5000-1-20-1-5000-17-500-5000-250-3000-100-1-true-1",
+        #     # "autotune-setting1-true-streamsluice-streamsluice-30-100-300-2-0.2-2-0.8-2-when-sine-1split2join1-660-12500-45-7500-10000-0-1-0-1-20-1-5000-1-20-1-5000-1-20-1-5000-17-500-5000-500-3000-100-1-true-1",
+        #     # "autotune-setting1-true-streamsluice-streamsluice-30-100-300-2-0.2-2-0.8-2-when-sine-1split2join1-660-12500-45-7500-10000-0-1-0-1-20-1-5000-1-20-1-5000-1-20-1-5000-17-500-5000-1000-3000-100-1-true-1",
+        #     # "autotune-setting1-true-streamsluice-streamsluice-30-100-300-2-0.2-2-0.8-2-when-sine-1split2join1-660-12500-45-7500-10000-0-1-0-1-20-1-5000-1-20-1-5000-1-20-1-5000-17-500-5000-2000-3000-100-1-true-1",
+        #     # "autotune-setting1-true-streamsluice-streamsluice-30-100-300-2-0.2-2-0.8-2-when-sine-1split2join1-660-12500-45-7500-10000-0-1-0-1-20-1-5000-1-20-1-5000-1-20-1-5000-17-500-5000-4000-3000-100-1-true-1",
+        #     "autotune-setting2-true-streamsluice-streamsluice-30-100-200-2-0.2-2-0.8-2-when-linear-2op_line-660-12500-45-7500-10000-0-1-0-1-20-1-5000-17-1000-1-5000-1-20-1-5000-17-500-5000-125-3000-100-1-true-1",
+        #     "autotune-setting2-true-streamsluice-streamsluice-30-100-200-2-0.2-2-0.8-2-when-linear-2op_line-660-12500-45-7500-10000-0-1-0-1-20-1-5000-17-1000-1-5000-1-20-1-5000-17-500-5000-250-3000-100-1-true-1",
+        #     "autotune-setting2-true-streamsluice-streamsluice-30-100-200-2-0.2-2-0.8-2-when-linear-2op_line-660-12500-45-7500-10000-0-1-0-1-20-1-5000-17-1000-1-5000-1-20-1-5000-17-500-5000-500-3000-100-1-true-1",
+        #     "autotune-setting2-true-streamsluice-streamsluice-30-100-200-2-0.2-2-0.8-2-when-linear-2op_line-660-12500-45-7500-10000-0-1-0-1-20-1-5000-17-1000-1-5000-1-20-1-5000-17-500-5000-1000-3000-100-1-true-1",
+        #     "autotune-setting2-true-streamsluice-streamsluice-30-100-200-2-0.2-2-0.8-2-when-linear-2op_line-660-12500-45-7500-10000-0-1-0-1-20-1-5000-17-1000-1-5000-1-20-1-5000-17-500-5000-2000-3000-100-1-true-1",
+        #     # "autotune-setting3-true-streamsluice-streamsluice-30-100-400-2-0.2-2-0.8-2-when-gradient-4op_line-660-12500-45-7500-10000-0-1-0-1-20-1-5000-1-20-1-5000-1-20-1-5000-17-1000-5000-250-3000-100-1-true-1",
+        #     # "autotune-setting3-true-streamsluice-streamsluice-30-100-400-2-0.2-2-0.8-2-when-gradient-4op_line-660-12500-45-7500-10000-0-1-0-1-20-1-5000-1-20-1-5000-1-20-1-5000-17-1000-5000-500-3000-100-1-true-1",
+        #     # "autotune-setting3-true-streamsluice-streamsluice-30-100-400-2-0.2-2-0.8-2-when-gradient-4op_line-660-12500-45-7500-10000-0-1-0-1-20-1-5000-1-20-1-5000-1-20-1-5000-17-1000-5000-1000-3000-100-1-true-1",
+        #     # "autotune-setting3-true-streamsluice-streamsluice-30-100-400-2-0.2-2-0.8-2-when-gradient-4op_line-660-12500-45-7500-10000-0-1-0-1-20-1-5000-1-20-1-5000-1-20-1-5000-17-1000-5000-2000-3000-100-1-true-1",
+        #     # "autotune-setting3-true-streamsluice-streamsluice-30-100-400-2-0.2-2-0.8-2-when-gradient-4op_line-660-12500-45-7500-10000-0-1-0-1-20-1-5000-1-20-1-5000-1-20-1-5000-17-1000-5000-4000-3000-100-1-true-1",
+        # ],
+        "bisection-no-increase": [
+            # "autotune-setting1-true-streamsluice-streamsluice-60-100-300-2-0.2-1-2.0-1-when-sine-1split2join1-660-12500-30-7500-10000-0-1-0-1-20-1-5000-1-20-1-5000-1-20-1-5000-17-500-5000-500-3000-100-1-true-1",
+            # "autotune-setting1-true-streamsluice-streamsluice-60-100-300-2-0.2-1-2.0-1-when-sine-1split2join1-660-12500-30-7500-10000-0-1-0-1-20-1-5000-1-20-1-5000-1-20-1-5000-17-500-5000-1000-3000-100-1-true-1",
+            # "autotune-setting1-true-streamsluice-streamsluice-60-100-300-2-0.2-1-2.0-1-when-sine-1split2join1-660-12500-30-7500-10000-0-1-0-1-20-1-5000-1-20-1-5000-1-20-1-5000-17-500-5000-1500-3000-100-1-true-1",
+            "autotune-setting2-true-streamsluice-streamsluice-60-100-200-2-0.2-1-2.0-1-when-linear-2op_line-660-12500-30-7500-10000-0-1-0-1-20-1-5000-17-1000-1-5000-1-20-1-5000-17-500-5000-250-3000-100-1-true-1",
+            "autotune-setting2-true-streamsluice-streamsluice-60-100-200-2-0.2-1-2.0-1-when-linear-2op_line-660-12500-30-7500-10000-0-1-0-1-20-1-5000-17-1000-1-5000-1-20-1-5000-17-500-5000-500-3000-100-1-true-1",
+            "autotune-setting2-true-streamsluice-streamsluice-60-100-200-2-0.2-1-2.0-1-when-linear-2op_line-660-12500-30-7500-10000-0-1-0-1-20-1-5000-17-1000-1-5000-1-20-1-5000-17-500-5000-1000-3000-100-1-true-1",
         ],
-        "option_2": [
-            # "autotune-setting1-true-streamsluice-streamsluice-30-100-300-1-0.5-2-0.8-2-when-sine-1split2join1-660-12500-45-7500-10000-0-1-0-1-20-1-5000-1-20-1-5000-1-20-1-5000-17-500-5000-250-3000-100-1-true-1",
-            # "autotune-setting1-true-streamsluice-streamsluice-30-100-300-1-0.5-2-0.8-2-when-sine-1split2join1-660-12500-45-7500-10000-0-1-0-1-20-1-5000-1-20-1-5000-1-20-1-5000-17-500-5000-500-3000-100-1-true-1",
-            # "autotune-setting1-true-streamsluice-streamsluice-30-100-300-1-0.5-2-0.8-2-when-sine-1split2join1-660-12500-45-7500-10000-0-1-0-1-20-1-5000-1-20-1-5000-1-20-1-5000-17-500-5000-1000-3000-100-1-true-1",
-            # "autotune-setting1-true-streamsluice-streamsluice-30-100-300-1-0.5-2-0.8-2-when-sine-1split2join1-660-12500-45-7500-10000-0-1-0-1-20-1-5000-1-20-1-5000-1-20-1-5000-17-500-5000-2000-3000-100-1-true-1",
-            # "autotune-setting1-true-streamsluice-streamsluice-30-100-300-1-0.5-2-0.8-2-when-sine-1split2join1-660-12500-45-7500-10000-0-1-0-1-20-1-5000-1-20-1-5000-1-20-1-5000-17-500-5000-4000-3000-100-1-true-1",
-            # "autotune-setting2-true-streamsluice-streamsluice-30-100-200-1-0.5-2-0.8-2-when-linear-2op_line-660-12500-45-7500-10000-0-1-0-1-20-1-5000-17-1000-1-5000-1-20-1-5000-17-500-5000-125-3000-100-1-true-1",
-            # "autotune-setting2-true-streamsluice-streamsluice-30-100-200-1-0.5-2-0.8-2-when-linear-2op_line-660-12500-45-7500-10000-0-1-0-1-20-1-5000-17-1000-1-5000-1-20-1-5000-17-500-5000-250-3000-100-1-true-1",
-            # "autotune-setting2-true-streamsluice-streamsluice-30-100-200-1-0.5-2-0.8-2-when-linear-2op_line-660-12500-45-7500-10000-0-1-0-1-20-1-5000-17-1000-1-5000-1-20-1-5000-17-500-5000-500-3000-100-1-true-1",
-            # "autotune-setting2-true-streamsluice-streamsluice-30-100-200-1-0.5-2-0.8-2-when-linear-2op_line-660-12500-45-7500-10000-0-1-0-1-20-1-5000-17-1000-1-5000-1-20-1-5000-17-500-5000-1000-3000-100-1-true-1",
-            # "autotune-setting2-true-streamsluice-streamsluice-30-100-200-1-0.5-2-0.8-2-when-linear-2op_line-660-12500-45-7500-10000-0-1-0-1-20-1-5000-17-1000-1-5000-1-20-1-5000-17-500-5000-2000-3000-100-1-true-1",
-            "autotune-setting3-true-streamsluice-streamsluice-30-100-400-1-0.5-2-0.8-2-when-gradient-4op_line-660-12500-45-7500-10000-0-1-0-1-20-1-5000-1-20-1-5000-1-20-1-5000-17-1000-5000-250-3000-100-1-true-1",
-            "autotune-setting3-true-streamsluice-streamsluice-30-100-400-1-0.5-2-0.8-2-when-gradient-4op_line-660-12500-45-7500-10000-0-1-0-1-20-1-5000-1-20-1-5000-1-20-1-5000-17-1000-5000-500-3000-100-1-true-1",
-            "autotune-setting3-true-streamsluice-streamsluice-30-100-400-1-0.5-2-0.8-2-when-gradient-4op_line-660-12500-45-7500-10000-0-1-0-1-20-1-5000-1-20-1-5000-1-20-1-5000-17-1000-5000-1000-3000-100-1-true-1",
-            "autotune-setting3-true-streamsluice-streamsluice-30-100-400-1-0.5-2-0.8-2-when-gradient-4op_line-660-12500-45-7500-10000-0-1-0-1-20-1-5000-1-20-1-5000-1-20-1-5000-17-1000-5000-2000-3000-100-1-true-1",
-            "autotune-setting3-true-streamsluice-streamsluice-30-100-400-1-0.5-2-0.8-2-when-gradient-4op_line-660-12500-45-7500-10000-0-1-0-1-20-1-5000-1-20-1-5000-1-20-1-5000-17-1000-5000-4000-3000-100-1-true-1",
+        "gradient_descent-no-increase": [
+            # "autotune-setting1-true-streamsluice-streamsluice-60-100-300-2-0.2-2-1.0-1-when-sine-1split2join1-660-12500-30-7500-10000-0-1-0-1-20-1-5000-1-20-1-5000-1-20-1-5000-17-500-5000-500-3000-100-1-true-1",
+            # "autotune-setting1-true-streamsluice-streamsluice-60-100-300-2-0.2-2-1.0-1-when-sine-1split2join1-660-12500-30-7500-10000-0-1-0-1-20-1-5000-1-20-1-5000-1-20-1-5000-17-500-5000-1000-3000-100-1-true-1",
+            # "autotune-setting1-true-streamsluice-streamsluice-60-100-300-2-0.2-2-1.0-1-when-sine-1split2join1-660-12500-30-7500-10000-0-1-0-1-20-1-5000-1-20-1-5000-1-20-1-5000-17-500-5000-1500-3000-100-1-true-1",
+            "autotune-setting2-true-streamsluice-streamsluice-60-100-200-2-0.2-2-1.0-1-when-linear-2op_line-660-12500-30-7500-10000-0-1-0-1-20-1-5000-17-1000-1-5000-1-20-1-5000-17-500-5000-250-3000-100-1-true-1",
+            "autotune-setting2-true-streamsluice-streamsluice-60-100-200-2-0.2-2-1.0-1-when-linear-2op_line-660-12500-30-7500-10000-0-1-0-1-20-1-5000-17-1000-1-5000-1-20-1-5000-17-500-5000-500-3000-100-1-true-1",
+            "autotune-setting2-true-streamsluice-streamsluice-60-100-200-2-0.2-2-1.0-1-when-linear-2op_line-660-12500-30-7500-10000-0-1-0-1-20-1-5000-17-1000-1-5000-1-20-1-5000-17-500-5000-1000-3000-100-1-true-1",
         ],
-        "option_3": [
-            # "autotune-setting1-true-streamsluice-streamsluice-30-100-300-2-0.2-1-2.0-2-when-sine-1split2join1-660-12500-45-7500-10000-0-1-0-1-20-1-5000-1-20-1-5000-1-20-1-5000-17-500-5000-250-3000-100-1-true-1",
-            # "autotune-setting1-true-streamsluice-streamsluice-30-100-300-2-0.2-1-2.0-2-when-sine-1split2join1-660-12500-45-7500-10000-0-1-0-1-20-1-5000-1-20-1-5000-1-20-1-5000-17-500-5000-500-3000-100-1-true-1",
-            # "autotune-setting1-true-streamsluice-streamsluice-30-100-300-2-0.2-1-2.0-2-when-sine-1split2join1-660-12500-45-7500-10000-0-1-0-1-20-1-5000-1-20-1-5000-1-20-1-5000-17-500-5000-1000-3000-100-1-true-1",
-            # "autotune-setting1-true-streamsluice-streamsluice-30-100-300-2-0.2-1-2.0-2-when-sine-1split2join1-660-12500-45-7500-10000-0-1-0-1-20-1-5000-1-20-1-5000-1-20-1-5000-17-500-5000-2000-3000-100-1-true-1",
-            # "autotune-setting1-true-streamsluice-streamsluice-30-100-300-2-0.2-1-2.0-2-when-sine-1split2join1-660-12500-45-7500-10000-0-1-0-1-20-1-5000-1-20-1-5000-1-20-1-5000-17-500-5000-4000-3000-100-1-true-1",
-            # "autotune-setting2-true-streamsluice-streamsluice-30-100-200-2-0.2-1-2.0-2-when-linear-2op_line-660-12500-45-7500-10000-0-1-0-1-20-1-5000-17-1000-1-5000-1-20-1-5000-17-500-5000-125-3000-100-1-true-1",
-            # "autotune-setting2-true-streamsluice-streamsluice-30-100-200-2-0.2-1-2.0-2-when-linear-2op_line-660-12500-45-7500-10000-0-1-0-1-20-1-5000-17-1000-1-5000-1-20-1-5000-17-500-5000-250-3000-100-1-true-1",
-            # "autotune-setting2-true-streamsluice-streamsluice-30-100-200-2-0.2-1-2.0-2-when-linear-2op_line-660-12500-45-7500-10000-0-1-0-1-20-1-5000-17-1000-1-5000-1-20-1-5000-17-500-5000-500-3000-100-1-true-1",
-            # "autotune-setting2-true-streamsluice-streamsluice-30-100-200-2-0.2-1-2.0-2-when-linear-2op_line-660-12500-45-7500-10000-0-1-0-1-20-1-5000-17-1000-1-5000-1-20-1-5000-17-500-5000-1000-3000-100-1-true-1",
-            # "autotune-setting2-true-streamsluice-streamsluice-30-100-200-2-0.2-1-2.0-2-when-linear-2op_line-660-12500-45-7500-10000-0-1-0-1-20-1-5000-17-1000-1-5000-1-20-1-5000-17-500-5000-2000-3000-100-1-true-1",
-            "autotune-setting3-true-streamsluice-streamsluice-30-100-400-2-0.2-1-2.0-2-when-gradient-4op_line-660-12500-45-7500-10000-0-1-0-1-20-1-5000-1-20-1-5000-1-20-1-5000-17-1000-5000-250-3000-100-1-true-1",
-            "autotune-setting3-true-streamsluice-streamsluice-30-100-400-2-0.2-1-2.0-2-when-gradient-4op_line-660-12500-45-7500-10000-0-1-0-1-20-1-5000-1-20-1-5000-1-20-1-5000-17-1000-5000-500-3000-100-1-true-1",
-            "autotune-setting3-true-streamsluice-streamsluice-30-100-400-2-0.2-1-2.0-2-when-gradient-4op_line-660-12500-45-7500-10000-0-1-0-1-20-1-5000-1-20-1-5000-1-20-1-5000-17-1000-5000-1000-3000-100-1-true-1",
-            "autotune-setting3-true-streamsluice-streamsluice-30-100-400-2-0.2-1-2.0-2-when-gradient-4op_line-660-12500-45-7500-10000-0-1-0-1-20-1-5000-1-20-1-5000-1-20-1-5000-17-1000-5000-2000-3000-100-1-true-1",
-            "autotune-setting3-true-streamsluice-streamsluice-30-100-400-2-0.2-1-2.0-2-when-gradient-4op_line-660-12500-45-7500-10000-0-1-0-1-20-1-5000-1-20-1-5000-1-20-1-5000-17-1000-5000-4000-3000-100-1-true-1",
-        ],
-        "option_4": [
-            # "autotune-setting1-true-streamsluice-streamsluice-30-100-300-2-0.2-2-0.8-2-when-sine-1split2join1-660-12500-45-7500-10000-0-1-0-1-20-1-5000-1-20-1-5000-1-20-1-5000-17-500-5000-250-3000-100-1-true-1",
-            # "autotune-setting1-true-streamsluice-streamsluice-30-100-300-2-0.2-2-0.8-2-when-sine-1split2join1-660-12500-45-7500-10000-0-1-0-1-20-1-5000-1-20-1-5000-1-20-1-5000-17-500-5000-500-3000-100-1-true-1",
-            # "autotune-setting1-true-streamsluice-streamsluice-30-100-300-2-0.2-2-0.8-2-when-sine-1split2join1-660-12500-45-7500-10000-0-1-0-1-20-1-5000-1-20-1-5000-1-20-1-5000-17-500-5000-1000-3000-100-1-true-1",
-            # "autotune-setting1-true-streamsluice-streamsluice-30-100-300-2-0.2-2-0.8-2-when-sine-1split2join1-660-12500-45-7500-10000-0-1-0-1-20-1-5000-1-20-1-5000-1-20-1-5000-17-500-5000-2000-3000-100-1-true-1",
-            # "autotune-setting1-true-streamsluice-streamsluice-30-100-300-2-0.2-2-0.8-2-when-sine-1split2join1-660-12500-45-7500-10000-0-1-0-1-20-1-5000-1-20-1-5000-1-20-1-5000-17-500-5000-4000-3000-100-1-true-1",
-            # "autotune-setting2-true-streamsluice-streamsluice-30-100-200-2-0.2-2-0.8-2-when-linear-2op_line-660-12500-45-7500-10000-0-1-0-1-20-1-5000-17-1000-1-5000-1-20-1-5000-17-500-5000-125-3000-100-1-true-1",
-            # "autotune-setting2-true-streamsluice-streamsluice-30-100-200-2-0.2-2-0.8-2-when-linear-2op_line-660-12500-45-7500-10000-0-1-0-1-20-1-5000-17-1000-1-5000-1-20-1-5000-17-500-5000-250-3000-100-1-true-1",
-            # "autotune-setting2-true-streamsluice-streamsluice-30-100-200-2-0.2-2-0.8-2-when-linear-2op_line-660-12500-45-7500-10000-0-1-0-1-20-1-5000-17-1000-1-5000-1-20-1-5000-17-500-5000-500-3000-100-1-true-1",
-            # "autotune-setting2-true-streamsluice-streamsluice-30-100-200-2-0.2-2-0.8-2-when-linear-2op_line-660-12500-45-7500-10000-0-1-0-1-20-1-5000-17-1000-1-5000-1-20-1-5000-17-500-5000-1000-3000-100-1-true-1",
-            # "autotune-setting2-true-streamsluice-streamsluice-30-100-200-2-0.2-2-0.8-2-when-linear-2op_line-660-12500-45-7500-10000-0-1-0-1-20-1-5000-17-1000-1-5000-1-20-1-5000-17-500-5000-2000-3000-100-1-true-1",
-            "autotune-setting3-true-streamsluice-streamsluice-30-100-400-2-0.2-2-0.8-2-when-gradient-4op_line-660-12500-45-7500-10000-0-1-0-1-20-1-5000-1-20-1-5000-1-20-1-5000-17-1000-5000-250-3000-100-1-true-1",
-            "autotune-setting3-true-streamsluice-streamsluice-30-100-400-2-0.2-2-0.8-2-when-gradient-4op_line-660-12500-45-7500-10000-0-1-0-1-20-1-5000-1-20-1-5000-1-20-1-5000-17-1000-5000-500-3000-100-1-true-1",
-            "autotune-setting3-true-streamsluice-streamsluice-30-100-400-2-0.2-2-0.8-2-when-gradient-4op_line-660-12500-45-7500-10000-0-1-0-1-20-1-5000-1-20-1-5000-1-20-1-5000-17-1000-5000-1000-3000-100-1-true-1",
-            "autotune-setting3-true-streamsluice-streamsluice-30-100-400-2-0.2-2-0.8-2-when-gradient-4op_line-660-12500-45-7500-10000-0-1-0-1-20-1-5000-1-20-1-5000-1-20-1-5000-17-1000-5000-2000-3000-100-1-true-1",
-            "autotune-setting3-true-streamsluice-streamsluice-30-100-400-2-0.2-2-0.8-2-when-gradient-4op_line-660-12500-45-7500-10000-0-1-0-1-20-1-5000-1-20-1-5000-1-20-1-5000-17-1000-5000-4000-3000-100-1-true-1",
-        ]
     }
     success_rate_per_label = {}
     avg_parallelism_per_label = {}
+    first_converge_time_per_label = {}
+    converged_bar_per_label = {}
     # Setting 1:
     # success_rate_per_label = {'option_1': [0.9909969989996665, 0.9995000833194467, 1.0, 1.0],
     #                           'option_2': [0.9958340276620563, 0.9998333611064822, 1.0, 1.0],
@@ -701,9 +830,11 @@ def main():
         success_rate_per_label[label] = []
         avg_parallelism_per_label[label] = []
         user_limit_per_label[label] = []
+        first_converge_time_per_label[label] = []
+        converged_bar_per_label[label] = []
         for exp_name in exps:
             latency_bar = int(exp_name.split('-')[-6])
-            success_rate = draw_latency_curves(raw_dir, output_dir + exp_name + '/', exp_name,
+            success_rate, first_converge_time, converged_bar = draw_latency_curves(raw_dir, output_dir + exp_name + '/', exp_name,
                                                                           window_size,
                                                                           start_time, exp_length, latency_bar)
             avg_parallelism, trash = draw_parallelism_curve(raw_dir, output_dir + exp_name + '/', exp_name, window_size,
@@ -711,13 +842,16 @@ def main():
             user_limit_per_label[label] += [latency_bar]
             success_rate_per_label[label] += [success_rate]
             avg_parallelism_per_label[label] += [avg_parallelism]
-    user_limits = user_limit_per_label["option_1"]
+            first_converge_time_per_label[label] += [first_converge_time]
+            converged_bar_per_label[label] += [converged_bar]
     print(success_rate_per_label)
     print(avg_parallelism_per_label)
-
+    print(first_converge_time_per_label)
+    user_limits = user_limit_per_label["bisection-no-increase"]
     plot_success_rate(user_limits, success_rate_per_label, overall_output_dir)
     plot_avg_parallelism(user_limits, avg_parallelism_per_label, overall_output_dir)
-
+    plot_converge_time(user_limits, first_converge_time_per_label, overall_output_dir)
+    plot_converged_bar(user_limits, converged_bar_per_label, overall_output_dir)
 
 if __name__ == "__main__":
     main()

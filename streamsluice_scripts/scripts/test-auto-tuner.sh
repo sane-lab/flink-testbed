@@ -215,8 +215,8 @@ run_scale_test(){
     warmupTime=60
     RATE_I=10000
     TIME_I=0
-    RATE1=12500 #15000
-    RATE2=7500 #5000
+    RATE1=13750 #12500 #15000
+    RATE2=6250 #7500 #5000
     for TIME1 in 30; do # 60 45 30
       TIME2=${TIME1}
       is_treat=false
@@ -224,7 +224,7 @@ run_scale_test(){
       autotune=false
 #      run_one_exp
 #      printf "${EXP_NAME}\n" >> whetherhow_result.txt
-      for L in 500 1000 1500; do # 290 310 320 330 340 350 500 750 1000 1250 1500
+      for L in 500 1000 1500 2000; do # 290 310 320 330 340 350 500 750 1000 1250 1500
         is_treat=true
         how_type="streamsluice"
         autotune=true
@@ -234,7 +234,7 @@ run_scale_test(){
           elif [ "$autotuner_initial_value_option" = 2 ]; then
             autotuner_initial_value_alpha=0.2
           fi
-          for autotuner_adjustment_option in 1 2; do
+          for autotuner_adjustment_option in 1; do
             if [ "$autotuner_adjustment_option" = 1 ]; then
               autotuner_adjustment_alpha=2.0
             elif [ "$autotuner_adjustment_option" = 2 ]; then
@@ -272,8 +272,8 @@ run_scale_test(){
     warmupTime=60
     RATE_I=10000
     TIME_I=0
-    RATE1=12500 #15000
-    RATE2=7500 #5000
+    RATE1=13750 #12500 #15000
+    RATE2=6250 #7500 #5000
     for TIME1 in 30; do # 60 45 30
       TIME2=${TIME1}
       is_treat=false
@@ -281,7 +281,7 @@ run_scale_test(){
       autotune=false
 #      run_one_exp
 #      printf "${EXP_NAME}\n" >> whetherhow_result.txt
-      for L in 250 500 1000; do # 290 310 320 330 340 350 500 750 1000 1250 1500
+      for L in 250 500 1000 1500; do # 290 310 320 330 340 350 500 750 1000 1250 1500
         is_treat=true
         how_type="streamsluice"
         autotune=true
@@ -291,7 +291,7 @@ run_scale_test(){
           elif [ "$autotuner_initial_value_option" = 2 ]; then
             autotuner_initial_value_alpha=0.2
           fi
-          for autotuner_adjustment_option in 1 2; do
+          for autotuner_adjustment_option in 1; do
             if [ "$autotuner_adjustment_option" = 1 ]; then
               autotuner_adjustment_alpha=2.0
             elif [ "$autotuner_adjustment_option" = 2 ]; then
@@ -332,8 +332,8 @@ run_scale_test(){
     warmupTime=60
     RATE_I=10000
     TIME_I=0
-    RATE1=12500 #15000
-    RATE2=7500 #5000
+    RATE1=13750 #12500 #15000
+    RATE2=6250 #7500 #5000
     for TIME1 in 30; do # 60 45 30
       TIME2=${TIME1}
       is_treat=false
@@ -341,7 +341,7 @@ run_scale_test(){
       autotune=false
 #      run_one_exp
 #      printf "${EXP_NAME}\n" >> whetherhow_result.txt
-      for L in 500 1000 1500; do # 290 310 320 330 340 350 500 750 1000 1250 1500
+      for L in 500 1000 1500 2000; do # 290 310 320 330 340 350 500 750 1000 1250 1500
         is_treat=true
         how_type="streamsluice"
         autotune=true
@@ -351,7 +351,7 @@ run_scale_test(){
           elif [ "$autotuner_initial_value_option" = 2 ]; then
             autotuner_initial_value_alpha=0.2
           fi
-          for autotuner_adjustment_option in 1 2; do
+          for autotuner_adjustment_option in 1; do
             if [ "$autotuner_adjustment_option" = 1 ]; then
               autotuner_adjustment_alpha=2.0
             elif [ "$autotuner_adjustment_option" = 2 ]; then
