@@ -132,13 +132,13 @@ run_scale_test(){
     CURVE_TYPE="mixed"
     vertex_id="a84740bacf923e828852cc4966f2247c,eabd4c11f6c6fbdf011f0f1fc42097b1,d01047f852abd5702a0dabeedac99ff5,d2336f79a0d60b5a4b16c8769ec82e47"
     autotune=true
-    autotune_interval=30
+    autotune_interval=60 #30
     autotuner="UserLimitTuner"
     autotuner_latency_window=100
     autotuner_bar_lowerbound=300
     autotuner_initial_value_option=1
     autotuner_adjustment_option=1
-    autotuner_increase_bar_option=2
+    autotuner_increase_bar_option=1 # 2
     autotuner_initial_value_alpha=1.2
     autotuner_adjustment_alpha=2.0
     epoch=100
@@ -217,18 +217,18 @@ run_scale_test(){
     TIME_I=0
     RATE1=12500 #15000
     RATE2=7500 #5000
-    for TIME1 in 45; do # 60 45 30
+    for TIME1 in 30; do # 60 45 30
       TIME2=${TIME1}
       is_treat=false
       how_type="ds2"
       autotune=false
 #      run_one_exp
 #      printf "${EXP_NAME}\n" >> whetherhow_result.txt
-      for L in 250 500 1000 2000 4000; do # 290 310 320 330 340 350 500 750 1000 1250 1500
+      for L in 500 1000 1500; do # 290 310 320 330 340 350 500 750 1000 1250 1500
         is_treat=true
         how_type="streamsluice"
         autotune=true
-        for autotuner_initial_value_option in 1 2; do
+        for autotuner_initial_value_option in 2; do
           if [ "$autotuner_initial_value_option" = 1 ]; then
             autotuner_initial_value_alpha=0.5
           elif [ "$autotuner_initial_value_option" = 2 ]; then
@@ -238,7 +238,7 @@ run_scale_test(){
             if [ "$autotuner_adjustment_option" = 1 ]; then
               autotuner_adjustment_alpha=2.0
             elif [ "$autotuner_adjustment_option" = 2 ]; then
-              autotuner_adjustment_alpha=0.8
+              autotuner_adjustment_alpha=1.0
             fi
             run_one_exp
             printf "${EXP_NAME}\n" >> whetherhow_result.txt
@@ -274,18 +274,18 @@ run_scale_test(){
     TIME_I=0
     RATE1=12500 #15000
     RATE2=7500 #5000
-    for TIME1 in 45; do # 60 45 30
+    for TIME1 in 30; do # 60 45 30
       TIME2=${TIME1}
       is_treat=false
       how_type="ds2"
       autotune=false
 #      run_one_exp
 #      printf "${EXP_NAME}\n" >> whetherhow_result.txt
-      for L in 125 250 500 1000 2000; do # 290 310 320 330 340 350 500 750 1000 1250 1500
+      for L in 250 500 1000; do # 290 310 320 330 340 350 500 750 1000 1250 1500
         is_treat=true
         how_type="streamsluice"
         autotune=true
-        for autotuner_initial_value_option in 1 2; do
+        for autotuner_initial_value_option in 2; do
           if [ "$autotuner_initial_value_option" = 1 ]; then
             autotuner_initial_value_alpha=0.5
           elif [ "$autotuner_initial_value_option" = 2 ]; then
@@ -295,7 +295,7 @@ run_scale_test(){
             if [ "$autotuner_adjustment_option" = 1 ]; then
               autotuner_adjustment_alpha=2.0
             elif [ "$autotuner_adjustment_option" = 2 ]; then
-              autotuner_adjustment_alpha=0.8
+              autotuner_adjustment_alpha=1.0
             fi
             run_one_exp
             printf "${EXP_NAME}\n" >> whetherhow_result.txt
@@ -334,18 +334,18 @@ run_scale_test(){
     TIME_I=0
     RATE1=12500 #15000
     RATE2=7500 #5000
-    for TIME1 in 45; do # 60 45 30
+    for TIME1 in 30; do # 60 45 30
       TIME2=${TIME1}
       is_treat=false
       how_type="ds2"
       autotune=false
 #      run_one_exp
 #      printf "${EXP_NAME}\n" >> whetherhow_result.txt
-      for L in 250 500 1000 2000 4000; do # 290 310 320 330 340 350 500 750 1000 1250 1500
+      for L in 500 1000 1500; do # 290 310 320 330 340 350 500 750 1000 1250 1500
         is_treat=true
         how_type="streamsluice"
         autotune=true
-        for autotuner_initial_value_option in 1 2; do
+        for autotuner_initial_value_option in 2; do
           if [ "$autotuner_initial_value_option" = 1 ]; then
             autotuner_initial_value_alpha=0.5
           elif [ "$autotuner_initial_value_option" = 2 ]; then
@@ -355,7 +355,7 @@ run_scale_test(){
             if [ "$autotuner_adjustment_option" = 1 ]; then
               autotuner_adjustment_alpha=2.0
             elif [ "$autotuner_adjustment_option" = 2 ]; then
-              autotuner_adjustment_alpha=0.8
+              autotuner_adjustment_alpha=1.0
             fi
             run_one_exp
             printf "${EXP_NAME}\n" >> whetherhow_result.txt
