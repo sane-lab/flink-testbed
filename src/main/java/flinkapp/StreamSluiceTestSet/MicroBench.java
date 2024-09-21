@@ -1143,7 +1143,7 @@ public class MicroBench {
     }
     public static final class SineWithSpikeSource implements SourceFunction<Tuple3<String, Long, Long>>, CheckpointedFunction {
         final private boolean withStairFlag;
-        final private long WARMP_TIME, WARMP_RATE, NORMAL_TIME, NORMAL_RATE, BIG_PERIOD, MAX_RATE, SMALL_PERIOD, SMALL_RATE, TOTAL_TIME;
+        final private long WARMP_TIME, WARMP_RATE, NORMAL_TIME, NORMAL_RATE, PERIOD, MAX_RATE, SPIKE_LENGTH, SMALL_RATE, TOTAL_TIME;
         private int count = 0;
         private long next_spike_time = 0;
         private final int curve_type;
@@ -1165,8 +1165,8 @@ public class MicroBench {
             }
             this.WARMP_TIME = WARMP_TIME;
             this.WARMP_RATE = WARMP_RATE;
-            this.BIG_PERIOD = PHASE1_TIME;
-            this.SMALL_PERIOD = PHASE2_TIME;
+            this.PERIOD = PHASE1_TIME;
+            this.SPIKE_LENGTH = PHASE2_TIME;
             this.NORMAL_TIME = NORMAL_TIME;
             this.MAX_RATE = PHASE1_RATE;
             this.SMALL_RATE = PHASE2_RATE;
@@ -1238,7 +1238,7 @@ public class MicroBench {
                 elapsedTime = currentTime - phaseStartTime;
                 if(emitStartTime >= next_spike_time && emitStartTime > spike_end_time){
                     rate = (long) this.SMALL_RATE;
-                    spike_end_time = emitStartTime + this.SMALL_PERIOD;
+                    spike_end_time = emitStartTime + this.SPIKE_LENGTH;
                     next_spike_time = emitStartTime + (random.nextInt(15) + 30) * 1000;
                 }else if(emitStartTime <= spike_end_time){
                     rate = (long) this.SMALL_RATE;
@@ -1281,7 +1281,7 @@ public class MicroBench {
                 if(this_round_curve == 3){ // Sine
                     long roundStartTime = System.currentTimeMillis();
                     System.out.println("Round " + round + " sine phase start at: " + roundStartTime);
-                    startSinePhase(ctx, AMPLITUDE,  NORMAL_RATE, SMALL_PERIOD, roundStartTime);
+                    startSinePhase(ctx, AMPLITUDE,  NORMAL_RATE, PERIOD, roundStartTime);
                     if (!isRunning) {
                         return;
                     }
@@ -1467,7 +1467,7 @@ public class MicroBench {
     }
     public static final class SinePhaseShift implements SourceFunction<Tuple3<String, Long, Long>>, CheckpointedFunction {
         final private boolean withStairFlag;
-        final private long WARMP_TIME, WARMP_RATE, NORMAL_TIME, NORMAL_RATE, BIG_PERIOD, INITIAL_MAX_RATE, SMALL_PERIOD, SMALL_RATE, TOTAL_TIME;
+        final private long WARMP_TIME, WARMP_RATE, NORMAL_TIME, NORMAL_RATE, PHASE1_PERIOD, INITIAL_MAX_RATE, PHASE2_PERIOD, PHASE2_RATE, TOTAL_TIME;
         final private double amplitude_ratio;
         private int count = 0;
         private final int curve_type;
@@ -1489,12 +1489,12 @@ public class MicroBench {
             }
             this.WARMP_TIME = WARMP_TIME;
             this.WARMP_RATE = WARMP_RATE;
-            this.BIG_PERIOD = PHASE1_TIME;
-            this.SMALL_PERIOD = PHASE2_TIME;
+            this.PHASE1_PERIOD = PHASE1_TIME;
+            this.PHASE2_PERIOD = PHASE2_TIME;
             this.NORMAL_TIME = NORMAL_TIME;
             this.INITIAL_MAX_RATE = PHASE1_RATE;
             this.amplitude_ratio = (INITIAL_MAX_RATE - NORMAL_RATE)/(double) NORMAL_RATE;
-            this.SMALL_RATE = PHASE2_RATE;
+            this.PHASE2_RATE = PHASE2_RATE;
             this.NORMAL_RATE = NORMAL_RATE;
             this.TOTAL_TIME = runtime;
             if(curve_type.equals("gradient")) {
@@ -1585,7 +1585,6 @@ public class MicroBench {
             while (isRunning && System.currentTimeMillis() - startTime < TOTAL_TIME) {
                 round++;
                 int this_round_curve;
-                long AMPLITUDE = this.INITIAL_MAX_RATE - NORMAL_RATE;
                 if(curve_type != 4){
                     this_round_curve = curve_type;
                 }else{
@@ -1594,7 +1593,13 @@ public class MicroBench {
                 if(this_round_curve == 3){ // Sine
                     long roundStartTime = System.currentTimeMillis();
                     System.out.println("Round " + round + " sine phase start at: " + roundStartTime);
-                    startSinePhase(ctx, AMPLITUDE,  NORMAL_RATE, SMALL_PERIOD, roundStartTime);
+                    if(System.currentTimeMillis() - startTime <= TOTAL_TIME / 2) {
+                        long AMPLITUDE = Math.round(NORMAL_RATE * amplitude_ratio);
+                        startSinePhase(ctx, AMPLITUDE, NORMAL_RATE, PHASE1_PERIOD, roundStartTime);
+                    }else{
+                        long AMPLITUDE = Math.round(PHASE2_RATE * amplitude_ratio);
+                        startSinePhase(ctx, AMPLITUDE, PHASE2_RATE, PHASE2_PERIOD, roundStartTime);
+                    }
                     if (!isRunning) {
                         return;
                     }

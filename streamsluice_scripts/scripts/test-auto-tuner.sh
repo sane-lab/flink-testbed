@@ -712,9 +712,9 @@ function setting10(){
   RATE_I=10000
   TIME_I=0
   RATE1=12500 #12500 #15000
-  RATE2=17500 #7500 #5000
+  RATE2=20000 #7500 #5000
   TIME1=60
-  for TIME2 in 3 5; do # 60 45 30
+  for TIME2 in 3; do # 60 45 30
     is_treat=false
     how_type="ds2"
     autotune=false
@@ -777,7 +777,7 @@ function setting11(){
   RATE1=12500 #12500 #15000
   RATE2=15000 #7500 #5000
   TIME1=60
-  for TIME2 in 15 20; do # 60 45 30
+  for TIME2 in 15; do # 60 45 30
     is_treat=false
     how_type="ds2"
     autotune=false
@@ -950,8 +950,8 @@ run_scale_test(){
     #setting8
     #setting9
     setting10
-    #setting11
-    #setting12
+    setting11
+    setting12
 }
 
 run_scale_test
