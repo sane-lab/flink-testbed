@@ -610,7 +610,7 @@ def draw_parallelism_curve(rawDir, outputDir, exp_name, windowSize, startTime, e
 
 
 # Function to plot success rates
-def plot_success_rate(user_limits, success_rate_per_label, output_dir):
+def plot_success_rate(user_limits, success_rate_per_label, output_dir, setting_index):
     labels = list(success_rate_per_label.keys())
     bar_width = 0.2
     x = np.arange(len(user_limits))
@@ -631,10 +631,10 @@ def plot_success_rate(user_limits, success_rate_per_label, output_dir):
     plt.grid(True)
     if not os.path.exists(output_dir):
         os.makedirs(output_dir)
-    plt.savefig(output_dir + 'success_rate_by_strategy.png', bbox_inches='tight')
+    plt.savefig(output_dir + 'success_rate_by_strategy_' + str(setting_index) + '.png', bbox_inches='tight')
     plt.close(fig)
 
-def plot_converge_time(user_limits, first_converge_time_per_label, output_dir):
+def plot_converge_time(user_limits, first_converge_time_per_label, output_dir, setting_index):
     labels = list(first_converge_time_per_label.keys())
     bar_width = 0.2
     x = np.arange(len(user_limits))
@@ -654,10 +654,10 @@ def plot_converge_time(user_limits, first_converge_time_per_label, output_dir):
     plt.grid(True)
     if not os.path.exists(output_dir):
         os.makedirs(output_dir)
-    plt.savefig(output_dir + 'converge_vs_strategy.png', bbox_inches='tight')
+    plt.savefig(output_dir + 'converge_vs_strategy_' + str(setting_index) + '.png', bbox_inches='tight')
     plt.close(fig)
 
-def plot_converged_bar(user_limits, converged_bar_per_label, output_dir):
+def plot_converged_bar(user_limits, converged_bar_per_label, output_dir, setting_index):
     labels = list(converged_bar_per_label.keys())
     bar_width = 0.2
     x = np.arange(len(user_limits))
@@ -677,12 +677,12 @@ def plot_converged_bar(user_limits, converged_bar_per_label, output_dir):
     plt.grid(True)
     if not os.path.exists(output_dir):
         os.makedirs(output_dir)
-    plt.savefig(output_dir + 'converged_bar_vs_strategy.png', bbox_inches='tight')
+    plt.savefig(output_dir + 'converged_bar_vs_strategy_' + str(setting_index) + '.png', bbox_inches='tight')
     plt.close(fig)
 
 
 # Function to plot avg parallelism
-def plot_avg_parallelism(user_limits, avg_parallelism_per_label, output_dir):
+def plot_avg_parallelism(user_limits, avg_parallelism_per_label, output_dir, setting_index):
     labels = list(avg_parallelism_per_label.keys())
     bar_width = 0.2
     x = np.arange(len(user_limits))
@@ -701,7 +701,7 @@ def plot_avg_parallelism(user_limits, avg_parallelism_per_label, output_dir):
     plt.grid(True)
     if not os.path.exists(output_dir):
         os.makedirs(output_dir)
-    plt.savefig(output_dir + 'resource_vs_strategy.png', bbox_inches='tight')
+    plt.savefig(output_dir + 'resource_vs_strategy_' + str(setting_index) + '.png', bbox_inches='tight')
     plt.close(fig)
 
 
@@ -794,10 +794,17 @@ def main():
             # "autotune-setting3-true-streamsluice-streamsluice-60-100-400-2-0.2-1-2.0-1-when-gradient-4op_line-660-12500-30-7500-10000-0-1-0-1-20-1-5000-1-20-1-5000-1-20-1-5000-17-1000-5000-1000-3000-100-1-true-1",
             # "autotune-setting3-true-streamsluice-streamsluice-60-100-400-2-0.2-1-2.0-1-when-gradient-4op_line-660-12500-30-7500-10000-0-1-0-1-20-1-5000-1-20-1-5000-1-20-1-5000-17-1000-5000-1500-3000-100-1-true-1",
 
-            "autotune-setting1-true-streamsluice-streamsluice-60-100-300-2-0.2-1-2.0-1-when-sine-1split2join1-660-13750-30-6250-10000-0-1-0-1-20-1-5000-1-20-1-5000-1-20-1-5000-17-500-5000-500-3000-100-1-true-1",
-            "autotune-setting1-true-streamsluice-streamsluice-60-100-300-2-0.2-1-2.0-1-when-sine-1split2join1-660-13750-30-6250-10000-0-1-0-1-20-1-5000-1-20-1-5000-1-20-1-5000-17-500-5000-1000-3000-100-1-true-1",
-            "autotune-setting1-true-streamsluice-streamsluice-60-100-300-2-0.2-1-2.0-1-when-sine-1split2join1-660-13750-30-6250-10000-0-1-0-1-20-1-5000-1-20-1-5000-1-20-1-5000-17-500-5000-1500-3000-100-1-true-1",
-            "autotune-setting1-true-streamsluice-streamsluice-60-100-300-2-0.2-1-2.0-1-when-sine-1split2join1-660-13750-30-6250-10000-0-1-0-1-20-1-5000-1-20-1-5000-1-20-1-5000-17-500-5000-2000-3000-100-1-true-1",
+            # Setting 4
+            # "autotune-setting1-true-streamsluice-streamsluice-60-100-300-2-0.2-1-2.0-1-when-sine-1split2join1-660-13750-30-6250-10000-0-1-0-1-20-1-5000-1-20-1-5000-1-20-1-5000-17-500-5000-500-3000-100-1-true-1",
+            # "autotune-setting1-true-streamsluice-streamsluice-60-100-300-2-0.2-1-2.0-1-when-sine-1split2join1-660-13750-30-6250-10000-0-1-0-1-20-1-5000-1-20-1-5000-1-20-1-5000-17-500-5000-1000-3000-100-1-true-1",
+            # "autotune-setting1-true-streamsluice-streamsluice-60-100-300-2-0.2-1-2.0-1-when-sine-1split2join1-660-13750-30-6250-10000-0-1-0-1-20-1-5000-1-20-1-5000-1-20-1-5000-17-500-5000-1500-3000-100-1-true-1",
+            # "autotune-setting1-true-streamsluice-streamsluice-60-100-300-2-0.2-1-2.0-1-when-sine-1split2join1-660-13750-30-6250-10000-0-1-0-1-20-1-5000-1-20-1-5000-1-20-1-5000-17-500-5000-2000-3000-100-1-true-1",
+
+            # Setting 5
+            "autotune-setting1-true-streamsluice-streamsluice-60-100-300-2-0.2-1-2.0-1-when-sine-1split2join1-660-13750-20-6250-10000-0-1-0-1-20-1-5000-1-20-1-5000-1-20-1-5000-17-500-5000-500-3000-100-1-true-1",
+            "autotune-setting1-true-streamsluice-streamsluice-60-100-300-2-0.2-1-2.0-1-when-sine-1split2join1-660-13750-20-6250-10000-0-1-0-1-20-1-5000-1-20-1-5000-1-20-1-5000-17-500-5000-1000-3000-100-1-true-1",
+            "autotune-setting1-true-streamsluice-streamsluice-60-100-300-2-0.2-1-2.0-1-when-sine-1split2join1-660-13750-20-6250-10000-0-1-0-1-20-1-5000-1-20-1-5000-1-20-1-5000-17-500-5000-1500-3000-100-1-true-1",
+            "autotune-setting1-true-streamsluice-streamsluice-60-100-300-2-0.2-1-2.0-1-when-sine-1split2join1-660-13750-20-6250-10000-0-1-0-1-20-1-5000-1-20-1-5000-1-20-1-5000-17-500-5000-2000-3000-100-1-true-1",
 
             # "autotune-setting2-true-streamsluice-streamsluice-60-100-200-2-0.2-1-2.0-1-when-linear-2op_line-660-13750-30-6250-10000-0-1-0-1-20-1-5000-17-1000-1-5000-1-20-1-5000-17-500-5000-250-3000-100-1-true-1",
             # "autotune-setting2-true-streamsluice-streamsluice-60-100-200-2-0.2-1-2.0-1-when-linear-2op_line-660-13750-30-6250-10000-0-1-0-1-20-1-5000-17-1000-1-5000-1-20-1-5000-17-500-5000-500-3000-100-1-true-1",
@@ -848,33 +855,84 @@ def main():
     #  'option_3': [18.0, 23.246483333333334, 7.451758333333333, 7.239298333333333, 7.18298],
     #  'option_4': [18.0, 13.12991, 7.265076666666666, 7.228191666666667, 7.113145]}
 
-    user_limit_per_label = {}
-    for label, exps in exps_per_label.items():
-        success_rate_per_label[label] = []
-        avg_parallelism_per_label[label] = []
-        user_limit_per_label[label] = []
-        first_converge_time_per_label[label] = []
-        converged_bar_per_label[label] = []
-        for exp_name in exps:
-            latency_bar = int(exp_name.split('-')[-6])
-            success_rate, first_converge_time, converged_bar = draw_latency_curves(raw_dir, output_dir + exp_name + '/', exp_name,
-                                                                          window_size,
-                                                                          start_time, exp_length, latency_bar)
-            avg_parallelism, trash = draw_parallelism_curve(raw_dir, output_dir + exp_name + '/', exp_name, window_size,
-                                                            start_time, exp_length, True)
-            user_limit_per_label[label] += [latency_bar]
-            success_rate_per_label[label] += [success_rate]
-            avg_parallelism_per_label[label] += [avg_parallelism]
-            first_converge_time_per_label[label] += [first_converge_time]
-            converged_bar_per_label[label] += [converged_bar]
-    print(success_rate_per_label)
-    print(avg_parallelism_per_label)
-    print(first_converge_time_per_label)
-    user_limits = user_limit_per_label["bisection-no-increase"]
-    plot_success_rate(user_limits, success_rate_per_label, overall_output_dir)
-    plot_avg_parallelism(user_limits, avg_parallelism_per_label, overall_output_dir)
-    plot_converge_time(user_limits, first_converge_time_per_label, overall_output_dir)
-    plot_converged_bar(user_limits, converged_bar_per_label, overall_output_dir)
+    exps_per_label_per_setting = {
+        # 1: {
+        #     "bisection-no-increase": [
+        #         "autotune-setting1-true-streamsluice-streamsluice-60-100-300-2-0.2-1-2.0-1-when-sine-1split2join1-660-12500-30-7500-10000-0-1-0-1-20-1-5000-1-20-1-5000-1-20-1-5000-17-500-5000-500-3000-100-1-true-1",
+        #         "autotune-setting1-true-streamsluice-streamsluice-60-100-300-2-0.2-1-2.0-1-when-sine-1split2join1-660-12500-30-7500-10000-0-1-0-1-20-1-5000-1-20-1-5000-1-20-1-5000-17-500-5000-1000-3000-100-1-true-1",
+        #         "autotune-setting1-true-streamsluice-streamsluice-60-100-300-2-0.2-1-2.0-1-when-sine-1split2join1-660-12500-30-7500-10000-0-1-0-1-20-1-5000-1-20-1-5000-1-20-1-5000-17-500-5000-1500-3000-100-1-true-1",
+        #     ],
+        # },
+        # 2: {
+        #     "bisection-no-increase": [
+        #         "autotune-setting2-true-streamsluice-streamsluice-60-100-200-2-0.2-1-2.0-1-when-linear-2op_line-660-12500-30-7500-10000-0-1-0-1-20-1-5000-17-1000-1-5000-1-20-1-5000-17-500-5000-250-3000-100-1-true-1",
+        #         "autotune-setting2-true-streamsluice-streamsluice-60-100-200-2-0.2-1-2.0-1-when-linear-2op_line-660-12500-30-7500-10000-0-1-0-1-20-1-5000-17-1000-1-5000-1-20-1-5000-17-500-5000-500-3000-100-1-true-1",
+        #         "autotune-setting2-true-streamsluice-streamsluice-60-100-200-2-0.2-1-2.0-1-when-linear-2op_line-660-12500-30-7500-10000-0-1-0-1-20-1-5000-17-1000-1-5000-1-20-1-5000-17-500-5000-1000-3000-100-1-true-1",
+        #     ],
+        # },
+        # 3: {
+        #     "bisection-no-increase": [
+        #         "autotune-setting3-true-streamsluice-streamsluice-60-100-400-2-0.2-1-2.0-1-when-gradient-4op_line-660-12500-30-7500-10000-0-1-0-1-20-1-5000-1-20-1-5000-1-20-1-5000-17-1000-5000-500-3000-100-1-true-1",
+        #         "autotune-setting3-true-streamsluice-streamsluice-60-100-400-2-0.2-1-2.0-1-when-gradient-4op_line-660-12500-30-7500-10000-0-1-0-1-20-1-5000-1-20-1-5000-1-20-1-5000-17-1000-5000-1000-3000-100-1-true-1",
+        #         "autotune-setting3-true-streamsluice-streamsluice-60-100-400-2-0.2-1-2.0-1-when-gradient-4op_line-660-12500-30-7500-10000-0-1-0-1-20-1-5000-1-20-1-5000-1-20-1-5000-17-1000-5000-1500-3000-100-1-true-1",
+        #     ],
+        # },
+        # 4: {
+        #     "bisection-no-increase": [
+        #         "autotune-setting1-true-streamsluice-streamsluice-60-100-300-2-0.2-1-2.0-1-when-sine-1split2join1-660-13750-30-6250-10000-0-1-0-1-20-1-5000-1-20-1-5000-1-20-1-5000-17-500-5000-500-3000-100-1-true-1",
+        #         "autotune-setting1-true-streamsluice-streamsluice-60-100-300-2-0.2-1-2.0-1-when-sine-1split2join1-660-13750-30-6250-10000-0-1-0-1-20-1-5000-1-20-1-5000-1-20-1-5000-17-500-5000-1000-3000-100-1-true-1",
+        #         "autotune-setting1-true-streamsluice-streamsluice-60-100-300-2-0.2-1-2.0-1-when-sine-1split2join1-660-13750-30-6250-10000-0-1-0-1-20-1-5000-1-20-1-5000-1-20-1-5000-17-500-5000-1500-3000-100-1-true-1",
+        #         "autotune-setting1-true-streamsluice-streamsluice-60-100-300-2-0.2-1-2.0-1-when-sine-1split2join1-660-13750-30-6250-10000-0-1-0-1-20-1-5000-1-20-1-5000-1-20-1-5000-17-500-5000-2000-3000-100-1-true-1",
+        #     ],
+        # },
+        5: {
+            "bisection-no-increase": [
+                "autotune-setting1-true-streamsluice-streamsluice-60-100-300-2-0.2-1-2.0-1-when-sine-1split2join1-660-13750-20-6250-10000-0-1-0-1-20-1-5000-1-20-1-5000-1-20-1-5000-17-500-5000-500-3000-100-1-true-1",
+                "autotune-setting1-true-streamsluice-streamsluice-60-100-300-2-0.2-1-2.0-1-when-sine-1split2join1-660-13750-20-6250-10000-0-1-0-1-20-1-5000-1-20-1-5000-1-20-1-5000-17-500-5000-1000-3000-100-1-true-1",
+                "autotune-setting1-true-streamsluice-streamsluice-60-100-300-2-0.2-1-2.0-1-when-sine-1split2join1-660-13750-20-6250-10000-0-1-0-1-20-1-5000-1-20-1-5000-1-20-1-5000-17-500-5000-1500-3000-100-1-true-1",
+                "autotune-setting1-true-streamsluice-streamsluice-60-100-300-2-0.2-1-2.0-1-when-sine-1split2join1-660-13750-20-6250-10000-0-1-0-1-20-1-5000-1-20-1-5000-1-20-1-5000-17-500-5000-2000-3000-100-1-true-1",
+            ],
+        },
+        6: {
+            "bisection-no-increase": [
+                "autotune-setting6-true-streamsluice-streamsluice-60-100-300-2-0.2-1-2.0-1-when-sine-1split2join1-660-13750-30-6250-10000-0-1-0-1-20-1-20000-1-20-1-20000-1-20-1-20000-17-500-20000-500-3000-100-1-true-1",
+                "autotune-setting6-true-streamsluice-streamsluice-60-100-300-2-0.2-1-2.0-1-when-sine-1split2join1-660-13750-30-6250-10000-0-1-0-1-20-1-20000-1-20-1-20000-1-20-1-20000-17-500-20000-1000-3000-100-1-true-1",
+                "autotune-setting6-true-streamsluice-streamsluice-60-100-300-2-0.2-1-2.0-1-when-sine-1split2join1-660-13750-30-6250-10000-0-1-0-1-20-1-20000-1-20-1-20000-1-20-1-20000-17-500-20000-1500-3000-100-1-true-1"
+            ],
+        },
+    }
+    for setting_index, exps_per_label in exps_per_label_per_setting.items():
+        success_rate_per_label = {}
+        avg_parallelism_per_label = {}
+        first_converge_time_per_label = {}
+        converged_bar_per_label = {}
+        user_limit_per_label = {}
+        for label, exps in exps_per_label.items():
+            success_rate_per_label[label] = []
+            avg_parallelism_per_label[label] = []
+            user_limit_per_label[label] = []
+            first_converge_time_per_label[label] = []
+            converged_bar_per_label[label] = []
+            for exp_name in exps:
+                latency_bar = int(exp_name.split('-')[-6])
+                success_rate, first_converge_time, converged_bar = draw_latency_curves(raw_dir, output_dir + exp_name + '/', exp_name,
+                                                                              window_size,
+                                                                              start_time, exp_length, latency_bar)
+                avg_parallelism, trash = draw_parallelism_curve(raw_dir, output_dir + exp_name + '/', exp_name, window_size,
+                                                                start_time, exp_length, True)
+                user_limit_per_label[label] += [latency_bar]
+                success_rate_per_label[label] += [success_rate]
+                avg_parallelism_per_label[label] += [avg_parallelism]
+                first_converge_time_per_label[label] += [first_converge_time]
+                converged_bar_per_label[label] += [converged_bar]
+        print(success_rate_per_label)
+        print(avg_parallelism_per_label)
+        print(first_converge_time_per_label)
+        user_limits = user_limit_per_label["bisection-no-increase"]
+        plot_success_rate(user_limits, success_rate_per_label, overall_output_dir, setting_index)
+        plot_avg_parallelism(user_limits, avg_parallelism_per_label, overall_output_dir, setting_index)
+        plot_converge_time(user_limits, first_converge_time_per_label, overall_output_dir, setting_index)
+        plot_converged_bar(user_limits, converged_bar_per_label, overall_output_dir, setting_index)
 
 if __name__ == "__main__":
     main()
