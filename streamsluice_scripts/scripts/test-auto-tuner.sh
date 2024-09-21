@@ -531,7 +531,7 @@ function setting7(){
     autotune=false
 #      run_one_exp
 #      printf "${EXP_NAME}\n" >> whetherhow_result.txt
-    for L in 500 1000 1500; do
+    for L in 500 1000 1500 2000; do
       is_treat=true
       how_type="streamsluice"
       autotune=true
@@ -594,7 +594,7 @@ function setting8(){
     autotune=false
 #      run_one_exp
 #      printf "${EXP_NAME}\n" >> whetherhow_result.txt
-    for L in 500 1000 1500; do
+    for L in 500 1000 1500 2000; do
       is_treat=true
       how_type="streamsluice"
       autotune=true
@@ -657,7 +657,7 @@ function setting9(){
     autotune=false
 #      run_one_exp
 #      printf "${EXP_NAME}\n" >> whetherhow_result.txt
-    for L in 500 1000 1500; do
+    for L in 500 1000 1500 2000; do
       is_treat=true
       how_type="streamsluice"
       autotune=true
@@ -684,7 +684,7 @@ function setting9(){
 function setting10(){
   # Setting 10
   printf "Setting 10\n" >> whetherhow_result.txt
-  runtime=360 #660
+  runtime=660
   setting="setting10"
   SOURCE_TYPE="sine_with_spike"
   autotuner_bar_lowerbound=300
@@ -712,15 +712,15 @@ function setting10(){
   RATE_I=10000
   TIME_I=0
   RATE1=12500 #12500 #15000
-  RATE2=20000 #7500 #5000
+  RATE2=17500 #7500 #5000
   TIME1=60
-  for TIME2 in 3; do # 60 45 30
+  for TIME2 in 2; do # 60 45 30
     is_treat=false
     how_type="ds2"
     autotune=false
 #    run_one_exp
 #    printf "${EXP_NAME}\n" >> whetherhow_result.txt
-    for L in 500; do # 1000 1500
+    for L in 500 1000 1500 2000; do
       is_treat=true
       how_type="streamsluice"
       autotune=true
@@ -747,7 +747,7 @@ function setting10(){
 function setting11(){
   # Setting 11
   printf "Setting 11\n" >> whetherhow_result.txt
-  runtime=360 #660
+  runtime=660
   setting="setting11"
   SOURCE_TYPE="sine_with_spike"
   autotuner_bar_lowerbound=300
@@ -777,13 +777,13 @@ function setting11(){
   RATE1=12500 #12500 #15000
   RATE2=15000 #7500 #5000
   TIME1=60
-  for TIME2 in 15; do # 60 45 30
+  for TIME2 in 10; do # 60 45 30
     is_treat=false
     how_type="ds2"
     autotune=false
 #    run_one_exp
 #    printf "${EXP_NAME}\n" >> whetherhow_result.txt
-    for L in 500; do # 1000 1500
+    for L in 500 1000 1500 2000; do
       is_treat=true
       how_type="streamsluice"
       autotune=true
@@ -810,7 +810,7 @@ function setting11(){
 function setting12(){
   # Setting 12
   printf "Setting 12\n" >> whetherhow_result.txt
-  runtime=360 #660
+  runtime=1260
   setting="setting12"
   SOURCE_TYPE="sine_shift"
   autotuner_bar_lowerbound=300
@@ -846,7 +846,7 @@ function setting12(){
     autotune=false
 #    run_one_exp
 #    printf "${EXP_NAME}\n" >> whetherhow_result.txt
-    for L in 500; do # 1000 1500
+    for L in 500 1000 1500 2000; do
       is_treat=true
       how_type="streamsluice"
       autotune=true
