@@ -171,8 +171,8 @@ function setting1(){
           elif [ "$autotuner_adjustment_option" = 2 ]; then
             autotuner_adjustment_alpha=1.0
           fi
-#            run_one_exp
-#            printf "${EXP_NAME}\n" >> whetherhow_result.txt
+            run_one_exp
+            printf "${EXP_NAME}\n" >> whetherhow_result.txt
         done
       done
     done
@@ -230,8 +230,8 @@ function setting2(){
           elif [ "$autotuner_adjustment_option" = 2 ]; then
             autotuner_adjustment_alpha=1.0
           fi
-#            run_one_exp
-#            printf "${EXP_NAME}\n" >> whetherhow_result.txt
+            run_one_exp
+            printf "${EXP_NAME}\n" >> whetherhow_result.txt
         done
       done
     done
@@ -292,8 +292,8 @@ function setting3(){
           elif [ "$autotuner_adjustment_option" = 2 ]; then
             autotuner_adjustment_alpha=1.0
           fi
-#            run_one_exp
-#            printf "${EXP_NAME}\n" >> whetherhow_result.txt
+            run_one_exp
+            printf "${EXP_NAME}\n" >> whetherhow_result.txt
         done
       done
     done
@@ -354,8 +354,8 @@ function setting4(){
           elif [ "$autotuner_adjustment_option" = 2 ]; then
             autotuner_adjustment_alpha=1.0
           fi
-#            run_one_exp
-#            printf "${EXP_NAME}\n" >> whetherhow_result.txt
+            run_one_exp
+            printf "${EXP_NAME}\n" >> whetherhow_result.txt
         done
       done
     done
@@ -416,8 +416,8 @@ function setting5(){
           elif [ "$autotuner_adjustment_option" = 2 ]; then
             autotuner_adjustment_alpha=1.0
           fi
-#            run_one_exp
-#            printf "${EXP_NAME}\n" >> whetherhow_result.txt
+            run_one_exp
+            printf "${EXP_NAME}\n" >> whetherhow_result.txt
         done
       done
     done
@@ -478,8 +478,8 @@ function setting6(){
           elif [ "$autotuner_adjustment_option" = 2 ]; then
             autotuner_adjustment_alpha=1.0
           fi
-#            run_one_exp
-#            printf "${EXP_NAME}\n" >> whetherhow_result.txt
+            run_one_exp
+            printf "${EXP_NAME}\n" >> whetherhow_result.txt
         done
       done
     done
