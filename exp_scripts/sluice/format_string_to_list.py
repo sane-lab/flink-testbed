@@ -11,9 +11,11 @@ def format_to_script(input_string):
 
 # Example usage
 input_string = """
-autotune-setting7-true-streamsluice-streamsluice-60-100-300-2-0.2-1-2.0-1-changing_amplitude-sine-1split2join1-1260-11000-1200-14000-10000-0-1-0-1-20-1-5000-1-20-1-5000-1-20-1-5000-17-500-5000-500-3000-100-1-true-1
-autotune-setting7-true-streamsluice-streamsluice-60-100-300-2-0.2-1-2.0-1-changing_amplitude-sine-1split2join1-1260-11000-1200-14000-10000-0-1-0-1-20-1-5000-1-20-1-5000-1-20-1-5000-17-500-5000-1000-3000-100-1-true-1
-autotune-setting7-true-streamsluice-streamsluice-60-100-300-2-0.2-1-2.0-1-changing_amplitude-sine-1split2join1-1260-11000-1200-14000-10000-0-1-0-1-20-1-5000-1-20-1-5000-1-20-1-5000-17-500-5000-1500-3000-100-1-true-1
+autotune-setting10-true-streamsluice-streamsluice-60-100-300-2-0.2-1-2.0-1-sine_with_spike-sine-1split2join1-660-12500-60-17500-10000-0-1-0-1-20-1-5000-1-20-1-5000-1-20-1-5000-17-500-5000-1500-3000-100-1-true-1
+autotune-setting10-true-streamsluice-streamsluice-60-100-300-2-0.2-1-2.0-1-sine_with_spike-sine-1split2join1-660-12500-60-17500-10000-0-1-0-1-20-1-5000-1-20-1-5000-1-20-1-5000-17-500-5000-2000-3000-100-1-true-1
+autotune-setting11-true-streamsluice-streamsluice-60-100-300-2-0.2-1-2.0-1-sine_with_spike-sine-1split2join1-660-12500-60-15000-10000-0-1-0-1-20-1-5000-1-20-1-5000-1-20-1-5000-17-500-5000-500-3000-100-1-true-1
+autotune-setting11-true-streamsluice-streamsluice-60-100-300-2-0.2-1-2.0-1-sine_with_spike-sine-1split2join1-660-12500-60-15000-10000-0-1-0-1-20-1-5000-1-20-1-5000-1-20-1-5000-17-500-5000-1000-3000-100-1-true-1
+autotune-setting11-true-streamsluice-streamsluice-60-100-300-2-0.2-1-2.0-1-sine_with_spike-sine-1split2join1-660-12500-60-15000-10000-0-1-0-1-20-1-5000-1-20-1-5000-1-20-1-5000-17-500-5000-1500-3000-100-1-true-1
 """
 
 

@@ -468,7 +468,7 @@ function setting6(){
     autotune=false
 #      run_one_exp
 #      printf "${EXP_NAME}\n" >> whetherhow_result.txt
-    for L in 5000; do # 500 1000 2500
+    for L in 5000 7500 10000; do # 500 1000 2500
       is_treat=true
       how_type="streamsluice"
       autotune=true
@@ -870,6 +870,87 @@ function setting12(){
   done
 }
 
+function setting13(){
+  # Setting 13
+  printf "Setting 13\n" >> whetherhow_result.txt
+  runtime=1860
+  setting="setting13"
+  SOURCE_TYPE="linear_phase_change"
+  autotuner_bar_lowerbound=300
+  DELAY2=20
+  DELAY3=20
+  DELAY4=20
+  DELAY5=500
+  STATE_SIZE2=5000 # 1000 keys, per key (n * 2000 + 36) bytes, n=5000 -> 100 MB
+  STATE_SIZE3=5000
+  STATE_SIZE4=5000
+  STATE_SIZE5=5000
+  LP2=1
+  LP3=1
+  LP4=1
+  LP5=28
+
+  P2=1
+  P3=1
+  P4=1
+  P5=17
+  GRAPH="1split2join1"
+  CURVE_TYPE="sine" #"linear"
+  warmupRate=10000
+  warmupTime=60
+  RATE_I=10000
+  TIME_I=0
+  RATE1=12500 #12500 #15000
+  RATE2=15000 #7500 #5000
+  TIME1=360
+  TIME2=40
+  for parameter_index in 1 2 3 4; do # 60 45 30
+    if [ "$parameter_index" = 1 ]; then
+      RATE_I=5000
+      RATE1=10000
+      TIME1=360
+    elif [ "$parameter_index" = 2 ]; then
+      RATE_I=5000
+      RATE1=15000
+      TIME1=900
+    elif [ "$parameter_index" = 3 ]; then
+      RATE_I=10000
+      RATE1=15000
+      TIME1=180
+    elif [ "$parameter_index" = 4 ]; then
+      RATE_I=7500
+      RATE1=12500
+      TIME1=450
+    fi
+    is_treat=false
+    how_type="ds2"
+    autotune=false
+#    run_one_exp
+#    printf "${EXP_NAME}\n" >> whetherhow_result.txt
+    for L in 1000 1500 2000 4000; do
+      is_treat=true
+      how_type="streamsluice"
+      autotune=true
+      for autotuner_initial_value_option in 2; do
+        if [ "$autotuner_initial_value_option" = 1 ]; then
+          autotuner_initial_value_alpha=0.5
+        elif [ "$autotuner_initial_value_option" = 2 ]; then
+          autotuner_initial_value_alpha=0.2
+        fi
+        for autotuner_adjustment_option in 1; do
+          if [ "$autotuner_adjustment_option" = 1 ]; then
+            autotuner_adjustment_alpha=2.0
+          elif [ "$autotuner_adjustment_option" = 2 ]; then
+            autotuner_adjustment_alpha=1.0
+          fi
+          run_one_exp
+          printf "${EXP_NAME}\n" >> whetherhow_result.txt
+        done
+      done
+    done
+  done
+}
+
 run_scale_test(){
     echo "Run micro bench system sensitivity..."
     init
@@ -945,13 +1026,14 @@ run_scale_test(){
     #setting3
     #setting4
     #setting5
-    #setting6
-    setting10
-    setting11
-    setting7
-    setting8
-    setting9
-    setting12
+    setting6
+    #setting7
+    #setting8
+    #setting9
+    #setting10
+    #setting11
+    #setting12
+    setting13
 }
 
 run_scale_test
