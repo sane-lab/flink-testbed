@@ -495,7 +495,7 @@ function setting6(){
 function setting7(){
   # Setting 7
   printf "Setting 7\n" >> whetherhow_result.txt
-  runtime=360 #1260
+  runtime=1260
   setting="setting7"
   SOURCE_TYPE="changing_amplitude"
   autotuner_bar_lowerbound=300
@@ -524,14 +524,14 @@ function setting7(){
   TIME_I=0
   RATE1=14000 #12500 #15000
   RATE2=11000 #7500 #5000
-  for TIME1 in 300; do #1200; do
+  for TIME1 in 1200; do
     TIME2=60
     is_treat=false
     how_type="ds2"
     autotune=false
 #      run_one_exp
 #      printf "${EXP_NAME}\n" >> whetherhow_result.txt
-    for L in 500; do # 1000 1500
+    for L in 500 1000 1500; do
       is_treat=true
       how_type="streamsluice"
       autotune=true
@@ -558,7 +558,7 @@ function setting7(){
 function setting8(){
   # Setting 8
   printf "Setting 8\n" >> whetherhow_result.txt
-  runtime=360 #1260
+  runtime=1260
   setting="setting8"
   SOURCE_TYPE="changing_amplitude"
   autotuner_bar_lowerbound=300
@@ -587,14 +587,14 @@ function setting8(){
   TIME_I=0
   RATE1=14000 #12500 #15000
   RATE2=11000 #7500 #5000
-  for TIME1 in 150; do #600; do
+  for TIME1 in 600; do
     TIME2=60
     is_treat=false
     how_type="ds2"
     autotune=false
 #      run_one_exp
 #      printf "${EXP_NAME}\n" >> whetherhow_result.txt
-    for L in 500; do # 1000 1500
+    for L in 500 1000 1500; do
       is_treat=true
       how_type="streamsluice"
       autotune=true
@@ -621,7 +621,7 @@ function setting8(){
 function setting9(){
   # Setting 9
   printf "Setting 9\n" >> whetherhow_result.txt
-  runtime=360 #1260
+  runtime=1260
   setting="setting9"
   SOURCE_TYPE="changing_period"
   autotuner_bar_lowerbound=300
@@ -657,7 +657,7 @@ function setting9(){
     autotune=false
 #      run_one_exp
 #      printf "${EXP_NAME}\n" >> whetherhow_result.txt
-    for L in 500; do #  1000 1500
+    for L in 500 1000 1500; do
       is_treat=true
       how_type="streamsluice"
       autotune=true
@@ -744,8 +744,8 @@ function setting10(){
   done
 }
 
-function setting10(){
-  # Setting 10
+function setting11(){
+  # Setting 11
   printf "Setting 11\n" >> whetherhow_result.txt
   runtime=360 #660
   setting="setting11"
@@ -778,6 +778,69 @@ function setting10(){
   RATE2=15000 #7500 #5000
   TIME1=60
   for TIME2 in 15 20; do # 60 45 30
+    is_treat=false
+    how_type="ds2"
+    autotune=false
+#    run_one_exp
+#    printf "${EXP_NAME}\n" >> whetherhow_result.txt
+    for L in 500; do # 1000 1500
+      is_treat=true
+      how_type="streamsluice"
+      autotune=true
+      for autotuner_initial_value_option in 2; do
+        if [ "$autotuner_initial_value_option" = 1 ]; then
+          autotuner_initial_value_alpha=0.5
+        elif [ "$autotuner_initial_value_option" = 2 ]; then
+          autotuner_initial_value_alpha=0.2
+        fi
+        for autotuner_adjustment_option in 1; do
+          if [ "$autotuner_adjustment_option" = 1 ]; then
+            autotuner_adjustment_alpha=2.0
+          elif [ "$autotuner_adjustment_option" = 2 ]; then
+            autotuner_adjustment_alpha=1.0
+          fi
+          run_one_exp
+          printf "${EXP_NAME}\n" >> whetherhow_result.txt
+        done
+      done
+    done
+  done
+}
+
+function setting12(){
+  # Setting 12
+  printf "Setting 12\n" >> whetherhow_result.txt
+  runtime=360 #660
+  setting="setting12"
+  SOURCE_TYPE="sine_shift"
+  autotuner_bar_lowerbound=300
+  DELAY2=20
+  DELAY3=20
+  DELAY4=20
+  DELAY5=500
+  STATE_SIZE2=5000 # 1000 keys, per key (n * 2000 + 36) bytes, n=5000 -> 100 MB
+  STATE_SIZE3=5000
+  STATE_SIZE4=5000
+  STATE_SIZE5=5000
+  LP2=1
+  LP3=1
+  LP4=1
+  LP5=28
+
+  P2=1
+  P3=1
+  P4=1
+  P5=17
+  GRAPH="1split2join1"
+  CURVE_TYPE="sine" #"linear"
+  warmupRate=10000
+  warmupTime=60
+  RATE_I=10000
+  TIME_I=0
+  RATE1=12500 #12500 #15000
+  RATE2=15000 #7500 #5000
+  TIME1=60
+  for TIME2 in 40; do # 60 45 30
     is_treat=false
     how_type="ds2"
     autotune=false
@@ -887,7 +950,8 @@ run_scale_test(){
     #setting8
     #setting9
     setting10
-    setting11
+    #setting11
+    #setting12
 }
 
 run_scale_test
