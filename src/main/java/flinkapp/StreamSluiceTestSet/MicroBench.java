@@ -1133,7 +1133,7 @@ public class MicroBench {
             }
         }
 
-        private void generateWithStairCurve(SourceContext<Tuple3<String, Long, Long>> ctx) throws Exception {
+        private void generateCurve(SourceContext<Tuple3<String, Long, Long>> ctx) throws Exception {
             long startTime = System.currentTimeMillis();
             System.out.println("Source start at: " + startTime);
             System.out.println("Source warm up...");
@@ -1167,109 +1167,8 @@ public class MicroBench {
                 }
             }
         }
-
-        private void generateWithOutStairCurve(SourceContext<Tuple3<String, Long, Long>> ctx) throws Exception {
-            long startTime = System.currentTimeMillis();
-            System.out.println("Source start at: " + startTime);
-            System.out.println("Source warm up...");
-            // startSteadyPhase(ctx, NORMAL_RATE, 20 * 1000, startTime);
-            startSteadyPhase(ctx, WARMP_RATE, WARMP_TIME, startTime);
-            startTime = System.currentTimeMillis();
-            long round = 0;
-            while (isRunning && System.currentTimeMillis() - startTime < TOTAL_TIME) {
-                round++;
-                int this_round_curve;
-                if(curve_type != 4){
-                    this_round_curve = curve_type;
-                }else{
-                    this_round_curve = (int)((round - 1) % 4);
-                }
-                if(this_round_curve == 0) { // Gradient
-                    long roundStartTime = System.currentTimeMillis();
-                    System.out.println("Round " + round + " normal phase start at: " + roundStartTime);
-                    startSteadyPhase(ctx, NORMAL_RATE, BIG_PERIOD / 4, roundStartTime);
-                    if (!isRunning) {
-                        return;
-                    }
-                    roundStartTime = System.currentTimeMillis();
-                    System.out.println("Round " + round + " phase 1 start at: " + roundStartTime);
-                    startSteadyPhase(ctx, MAX_RATE, BIG_PERIOD / 2, roundStartTime);
-
-                    if (!isRunning) {
-                        return;
-                    }
-
-                    roundStartTime = System.currentTimeMillis();
-                    System.out.println("Round " + round + " normal phase start at: " + roundStartTime);
-                    startSteadyPhase(ctx, NORMAL_RATE, BIG_PERIOD / 4 + SMALL_PERIOD / 4, roundStartTime);
-                    if (!isRunning) {
-                        return;
-                    }
-
-                    roundStartTime = System.currentTimeMillis();
-                    System.out.println("Round " + round + " phase 2 start at: " + roundStartTime);
-                    startSteadyPhase(ctx, SMALL_RATE, SMALL_PERIOD / 2, roundStartTime);
-                    if (!isRunning) {
-                        return;
-                    }
-                    roundStartTime = System.currentTimeMillis();
-                    System.out.println("Round " + round + " normal phase start at: " + roundStartTime);
-                    startSteadyPhase(ctx, NORMAL_RATE, SMALL_PERIOD / 4, roundStartTime);
-                    if (!isRunning) {
-                        return;
-                    }
-                }else if(this_round_curve == 1){ // Linear
-                    long roundStartTime = System.currentTimeMillis();
-                    System.out.println("Linear Round " + round + " phase 1 start at: " + roundStartTime);
-                    startLinearPhase(ctx, NORMAL_RATE, MAX_RATE, BIG_PERIOD / 2, roundStartTime);
-                    roundStartTime = System.currentTimeMillis();
-                    startLinearPhase(ctx, MAX_RATE, NORMAL_RATE, BIG_PERIOD / 2, roundStartTime);
-                    if (!isRunning) {
-                        return;
-                    }
-                    roundStartTime = System.currentTimeMillis();
-                    System.out.println("Round " + round + " phase 2 start at: " + roundStartTime);
-                    startLinearPhase(ctx, NORMAL_RATE, SMALL_RATE, SMALL_PERIOD / 2, roundStartTime);
-                    roundStartTime = System.currentTimeMillis();
-                    startLinearPhase(ctx, SMALL_RATE, NORMAL_RATE, SMALL_PERIOD / 2, roundStartTime);
-                    if (!isRunning) {
-                        return;
-                    }
-                }else if(this_round_curve == 2){ // Quarter sine
-                    // TODO: add quarter sine
-                    long roundStartTime = System.currentTimeMillis();
-                    System.out.println("Round " + round + " phase 1 start at: " + roundStartTime);
-                    startQuarterSinePhase(ctx, NORMAL_RATE, MAX_RATE, BIG_PERIOD / 2, roundStartTime);
-                    roundStartTime = System.currentTimeMillis();
-                    startQuarterSinePhase(ctx, MAX_RATE, NORMAL_RATE, BIG_PERIOD / 2, roundStartTime);
-                    if (!isRunning) {
-                        return;
-                    }
-                    roundStartTime = System.currentTimeMillis();
-                    System.out.println("Round " + round + " phase 2 start at: " + roundStartTime);
-                    startQuarterSinePhase(ctx, NORMAL_RATE, SMALL_RATE, SMALL_PERIOD / 2, roundStartTime);
-                    roundStartTime = System.currentTimeMillis();
-                    startQuarterSinePhase(ctx, SMALL_RATE, NORMAL_RATE, SMALL_PERIOD / 2, roundStartTime);
-                    if (!isRunning) {
-                        return;
-                    }
-                }else if(this_round_curve == 3){ // Sine
-                    long roundStartTime = System.currentTimeMillis();
-                    System.out.println("Round " + round + " phase 1 start at: " + roundStartTime);
-                    // startSinePhase(ctx, NORMAL_RATE - PHASE2_RATE,  NORMAL_RATE, NORMAL_TIME + PHASE1_TIME + PHASE2_TIME, roundStartTime);
-                    startSinePhase(ctx, MAX_RATE - NORMAL_RATE,  NORMAL_RATE, NORMAL_TIME + BIG_PERIOD + SMALL_PERIOD, roundStartTime);
-                    if (!isRunning) {
-                        return;
-                    }
-                }
-            }
-        }
         public void run(SourceContext<Tuple3<String, Long, Long>> ctx) throws Exception {
-            if(withStairFlag){
-                generateWithStairCurve(ctx);
-            }else{
-                generateWithOutStairCurve(ctx);
-            }
+            generateCurve(ctx);
         }
 
         private String getChar(int cur) {
