@@ -54,7 +54,10 @@ public class MicroBench {
         final String SOURCE_TYPE = params.get("source", "normal");
 
         DataStreamSource<Tuple3<String, Long, Long>> source;
-        if(SOURCE_TYPE.equals("changing_period")){
+        if(SOURCE_TYPE.equals("sine_with_spike")){
+            source = env.addSource(new SineWithSpikeSource(params.getLong("warmupTime", 20) * 1000, PHASE1_TIME, PHASE2_TIME, INTERMEDIATE_TIME, params.getLong("warmupRate", INTERMEDIATE_RATE), PHASE1_RATE, PHASE2_RATE, INTERMEDIATE_RATE, params.getLong("run_time", 510) * 1000, params.get("curve_type", "sine"))).
+                    setParallelism(params.getInt("p1", 1));
+        }else if(SOURCE_TYPE.equals("changing_period")){
             source = env.addSource(new ChangingPeriodSource(params.getLong("warmupTime", 20) * 1000, PHASE1_TIME, PHASE2_TIME, INTERMEDIATE_TIME, params.getLong("warmupRate", INTERMEDIATE_RATE), PHASE1_RATE, PHASE2_RATE, INTERMEDIATE_RATE, params.getLong("run_time", 510) * 1000, params.get("curve_type", "sine"))).
                     setParallelism(params.getInt("p1", 1));
         }else if(SOURCE_TYPE.equals("changing_amplitude")) {
@@ -1139,12 +1142,13 @@ public class MicroBench {
         final private boolean withStairFlag;
         final private long WARMP_TIME, WARMP_RATE, NORMAL_TIME, NORMAL_RATE, BIG_PERIOD, MAX_RATE, SMALL_PERIOD, SMALL_RATE, TOTAL_TIME;
         private int count = 0;
+        private long next_spike_time = 0;
         private final int curve_type;
         private volatile boolean isRunning = true;
         private transient ListState<Integer> checkpointedCount;
         private int maxParallelism;
         private FastZipfGenerator fastZipfGenerator;
-        private RandomDataGenerator randomGen = new RandomDataGenerator();
+        private Random random = new Random(114514);
         private int nKeys;
         private final Map<Integer, List<String>> keyGroupMapping = new HashMap<>();
 
@@ -1225,14 +1229,20 @@ public class MicroBench {
             long currentTime;
             long elapsedTime;
             long rate;
-
+            long spike_end_time = 0;
             while (isRunning && (currentTime = System.currentTimeMillis()) - phaseStartTime < time) {
                 long emitStartTime = System.currentTimeMillis();
                 elapsedTime = currentTime - phaseStartTime;
-
-                // Calculate the rate using a sine function
-                rate = (long) (baseRate + amplitude * Math.sin((2 * Math.PI * elapsedTime) / time));
-
+                if(emitStartTime >= next_spike_time && emitStartTime > spike_end_time){
+                    rate = (long) this.SMALL_RATE;
+                    spike_end_time = emitStartTime + this.SMALL_PERIOD;
+                    next_spike_time = emitStartTime + (random.nextInt(15) + 30) * 1000;
+                }else if(emitStartTime <= spike_end_time){
+                    rate = (long) this.SMALL_RATE;
+                }else {
+                    // Calculate the rate using a sine function
+                    rate = (long) (baseRate + amplitude * Math.sin((2 * Math.PI * elapsedTime) / time));
+                }
 
                 for (int i = 0; i < rate / 20; i++) {
                     int selectedKeygroup = fastZipfGenerator.next();
@@ -1255,17 +1265,11 @@ public class MicroBench {
             startSteadyPhase(ctx, WARMP_RATE, WARMP_TIME, startTime);
             startTime = System.currentTimeMillis();
             long round = 0;
+            next_spike_time = startTime + (random.nextInt(15) + 30) * 1000;
             while (isRunning && System.currentTimeMillis() - startTime < TOTAL_TIME) {
                 round++;
                 int this_round_curve;
-                long passed_time = System.currentTimeMillis() - startTime;
-                double ratio;
-                if((passed_time / BIG_PERIOD) % 2 == 0){
-                    ratio = ((passed_time % BIG_PERIOD) / (double)BIG_PERIOD);
-                }else{
-                    ratio = 1.0 - ((passed_time % BIG_PERIOD) / (double)BIG_PERIOD);
-                }
-                long AMPLITUDE = Math.round(ratio * (this.MAX_RATE - this.SMALL_RATE)) + this.SMALL_RATE - NORMAL_RATE;
+                long AMPLITUDE = this.MAX_RATE - NORMAL_RATE;
                 if(curve_type != 4){
                     this_round_curve = curve_type;
                 }else{
