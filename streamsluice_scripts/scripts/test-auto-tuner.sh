@@ -946,11 +946,11 @@ run_scale_test(){
     #setting4
     #setting5
     #setting6
+    setting10
+    setting11
     setting7
     setting8
     setting9
-    setting10
-    setting11
     setting12
 }
 
