@@ -1801,9 +1801,9 @@ public class MicroBench {
                 System.out.println("Round " + round + " sine phase start at: " + roundStartTime);
                 double ratio;
                 if (((roundStartTime - startTime) / (BIG_PERIOD/2)) % 2 == 0){
-                    ratio = Math.round( ((roundStartTime - startTime) % (BIG_PERIOD / 2)) / (double)(BIG_PERIOD/2) );
+                    ratio = ((roundStartTime - startTime) % (BIG_PERIOD / 2)) / (double)(BIG_PERIOD/2);
                 }else{
-                    ratio = 1.0 - Math.round( ((roundStartTime - startTime) % (BIG_PERIOD / 2)) / (double)(BIG_PERIOD/2) );
+                    ratio = 1.0 - ((roundStartTime - startTime) % (BIG_PERIOD / 2)) / (double)(BIG_PERIOD/2);
                 }
                 long avg_rate = Math.round(ratio * (MAX_RATE - NORMAL_RATE) + NORMAL_RATE);
                 int curve_type = random.nextInt(2), period_option = random.nextInt(4), amplitude_option = random.nextInt(5);

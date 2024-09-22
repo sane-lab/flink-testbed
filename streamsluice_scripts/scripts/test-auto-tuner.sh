@@ -873,7 +873,7 @@ function setting12(){
 function setting13(){
   # Setting 13
   printf "Setting 13\n" >> whetherhow_result.txt
-  runtime=1860
+  runtime=360 #1860
   setting="setting13"
   SOURCE_TYPE="linear_phase_change"
   autotuner_bar_lowerbound=300
@@ -1026,7 +1026,7 @@ run_scale_test(){
     #setting3
     #setting4
     #setting5
-    setting6
+    #setting6
     #setting7
     #setting8
     #setting9
