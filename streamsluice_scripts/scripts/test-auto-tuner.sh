@@ -904,47 +904,45 @@ function setting13(){
   RATE2=15000 #7500 #5000
   TIME1=360
   TIME2=40
-  for parameter_index in 1 2 3 4; do
-    if [ "$parameter_index" = 1 ]; then
-      RATE_I=5000
-      RATE1=10000
-      TIME1=360
-    elif [ "$parameter_index" = 2 ]; then
-      RATE_I=5000
-      RATE1=15000
-      TIME1=900
-    elif [ "$parameter_index" = 3 ]; then
-      RATE_I=10000
-      RATE1=15000
-      TIME1=180
-    elif [ "$parameter_index" = 4 ]; then
-      RATE_I=7500
-      RATE1=12500
-      TIME1=450
-    fi
-    is_treat=false
-    how_type="ds2"
-    autotune=false
-#    run_one_exp
-#    printf "${EXP_NAME}\n" >> whetherhow_result.txt
-    for L in 1000 1500 2000 5000 10000 500; do
-      is_treat=true
-      how_type="streamsluice"
-      autotune=true
-      for autotuner_initial_value_option in 2; do
-        if [ "$autotuner_initial_value_option" = 1 ]; then
-          autotuner_initial_value_alpha=0.5
-        elif [ "$autotuner_initial_value_option" = 2 ]; then
-          autotuner_initial_value_alpha=0.2
-        fi
-        for autotuner_adjustment_option in 1; do
-          if [ "$autotuner_adjustment_option" = 1 ]; then
-            autotuner_adjustment_alpha=2.0
-          elif [ "$autotuner_adjustment_option" = 2 ]; then
-            autotuner_adjustment_alpha=1.0
+  for STATE_SIZE2 in 5000 10000; do
+    for parameter_index in 1 2 3; do
+      if [ "$parameter_index" = 1 ]; then
+        RATE_I=5000
+        RATE1=10000
+        TIME1=360
+      elif [ "$parameter_index" = 2 ]; then
+        RATE_I=5000
+        RATE1=12500
+        TIME1=900
+      elif [ "$parameter_index" = 3 ]; then
+        RATE_I=7500
+        RATE1=12500
+        TIME1=180
+      fi
+      is_treat=false
+      how_type="ds2"
+      autotune=false
+  #    run_one_exp
+  #    printf "${EXP_NAME}\n" >> whetherhow_result.txt
+      for L in 1000 1500 2000 5000 10000; do
+        is_treat=true
+        how_type="streamsluice"
+        autotune=true
+        for autotuner_initial_value_option in 2; do
+          if [ "$autotuner_initial_value_option" = 1 ]; then
+            autotuner_initial_value_alpha=0.5
+          elif [ "$autotuner_initial_value_option" = 2 ]; then
+            autotuner_initial_value_alpha=0.2
           fi
-          run_one_exp
-          printf "${EXP_NAME}\n" >> whetherhow_result.txt
+          for autotuner_adjustment_option in 1; do
+            if [ "$autotuner_adjustment_option" = 1 ]; then
+              autotuner_adjustment_alpha=2.0
+            elif [ "$autotuner_adjustment_option" = 2 ]; then
+              autotuner_adjustment_alpha=1.0
+            fi
+            run_one_exp
+            printf "${EXP_NAME}\n" >> whetherhow_result.txt
+          done
         done
       done
     done
