@@ -873,7 +873,7 @@ function setting12(){
 function setting13(){
   # Setting 13
   printf "Setting 13\n" >> whetherhow_result.txt
-  runtime=360 #1860
+  runtime=1860
   setting="setting13"
   SOURCE_TYPE="linear_phase_change"
   autotuner_bar_lowerbound=300
@@ -904,7 +904,7 @@ function setting13(){
   RATE2=15000 #7500 #5000
   TIME1=360
   TIME2=40
-  for parameter_index in 1; do # 2 3 4
+  for parameter_index in 1 2 3 4; do
     if [ "$parameter_index" = 1 ]; then
       RATE_I=5000
       RATE1=10000
@@ -927,7 +927,7 @@ function setting13(){
     autotune=false
 #    run_one_exp
 #    printf "${EXP_NAME}\n" >> whetherhow_result.txt
-    for L in 1000 1500 2000 4000; do
+    for L in 1000 1500 2000 5000 10000 500; do
       is_treat=true
       how_type="streamsluice"
       autotune=true
