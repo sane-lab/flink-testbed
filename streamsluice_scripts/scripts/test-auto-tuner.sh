@@ -904,7 +904,7 @@ function setting13(){
   RATE2=15000 #7500 #5000
   TIME1=360
   TIME2=40
-  for parameter_index in 1 2 3 4; do # 60 45 30
+  for parameter_index in 1; do # 2 3 4
     if [ "$parameter_index" = 1 ]; then
       RATE_I=5000
       RATE1=10000
