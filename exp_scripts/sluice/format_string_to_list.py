@@ -18,21 +18,6 @@ autotune-setting13-true-streamsluice-streamsluice-60-100-300-2-0.2-1-2.0-1-linea
 autotune-setting13-true-streamsluice-streamsluice-60-100-300-2-0.2-1-2.0-1-linear_phase_change-sine-1split2join1-1860-10000-360-15000-5000-0-1-0-1-20-1-5000-1-20-1-5000-1-20-1-5000-17-500-5000-1500-3000-100-1-true-1
 """
 
-# autotune-setting13-true-streamsluice-streamsluice-60-100-300-2-0.2-1-2.0-1-linear_phase_change-sine-1split2join1-1860-10000-360-15000-5000-0-1-0-1-20-1-5000-1-20-1-5000-1-20-1-5000-17-500-5000-2000-3000-100-1-true-1
-# autotune-setting13-true-streamsluice-streamsluice-60-100-300-2-0.2-1-2.0-1-linear_phase_change-sine-1split2join1-1860-10000-360-15000-5000-0-1-0-1-20-1-5000-1-20-1-5000-1-20-1-5000-17-500-5000-4000-3000-100-1-true-1
-# autotune-setting13-true-streamsluice-streamsluice-60-100-300-2-0.2-1-2.0-1-linear_phase_change-sine-1split2join1-1860-15000-900-15000-5000-0-1-0-1-20-1-5000-1-20-1-5000-1-20-1-5000-17-500-5000-1000-3000-100-1-true-1
-# autotune-setting13-true-streamsluice-streamsluice-60-100-300-2-0.2-1-2.0-1-linear_phase_change-sine-1split2join1-1860-15000-900-15000-5000-0-1-0-1-20-1-5000-1-20-1-5000-1-20-1-5000-17-500-5000-1500-3000-100-1-true-1
-# autotune-setting13-true-streamsluice-streamsluice-60-100-300-2-0.2-1-2.0-1-linear_phase_change-sine-1split2join1-1860-15000-900-15000-5000-0-1-0-1-20-1-5000-1-20-1-5000-1-20-1-5000-17-500-5000-2000-3000-100-1-true-1
-# autotune-setting13-true-streamsluice-streamsluice-60-100-300-2-0.2-1-2.0-1-linear_phase_change-sine-1split2join1-1860-15000-900-15000-5000-0-1-0-1-20-1-5000-1-20-1-5000-1-20-1-5000-17-500-5000-4000-3000-100-1-true-1
-# autotune-setting13-true-streamsluice-streamsluice-60-100-300-2-0.2-1-2.0-1-linear_phase_change-sine-1split2join1-1860-15000-180-15000-10000-0-1-0-1-20-1-5000-1-20-1-5000-1-20-1-5000-17-500-5000-1000-3000-100-1-true-1
-# autotune-setting13-true-streamsluice-streamsluice-60-100-300-2-0.2-1-2.0-1-linear_phase_change-sine-1split2join1-1860-15000-180-15000-10000-0-1-0-1-20-1-5000-1-20-1-5000-1-20-1-5000-17-500-5000-1500-3000-100-1-true-1
-# autotune-setting13-true-streamsluice-streamsluice-60-100-300-2-0.2-1-2.0-1-linear_phase_change-sine-1split2join1-1860-15000-180-15000-10000-0-1-0-1-20-1-5000-1-20-1-5000-1-20-1-5000-17-500-5000-2000-3000-100-1-true-1
-# autotune-setting13-true-streamsluice-streamsluice-60-100-300-2-0.2-1-2.0-1-linear_phase_change-sine-1split2join1-1860-15000-180-15000-10000-0-1-0-1-20-1-5000-1-20-1-5000-1-20-1-5000-17-500-5000-4000-3000-100-1-true-1
-# autotune-setting13-true-streamsluice-streamsluice-60-100-300-2-0.2-1-2.0-1-linear_phase_change-sine-1split2join1-1860-12500-450-15000-7500-0-1-0-1-20-1-5000-1-20-1-5000-1-20-1-5000-17-500-5000-1000-3000-100-1-true-1
-# autotune-setting13-true-streamsluice-streamsluice-60-100-300-2-0.2-1-2.0-1-linear_phase_change-sine-1split2join1-1860-12500-450-15000-7500-0-1-0-1-20-1-5000-1-20-1-5000-1-20-1-5000-17-500-5000-1500-3000-100-1-true-1
-# autotune-setting13-true-streamsluice-streamsluice-60-100-300-2-0.2-1-2.0-1-linear_phase_change-sine-1split2join1-1860-12500-450-15000-7500-0-1-0-1-20-1-5000-1-20-1-5000-1-20-1-5000-17-500-5000-2000-3000-100-1-true-1
-# autotune-setting13-true-streamsluice-streamsluice-60-100-300-2-0.2-1-2.0-1-linear_phase_change-sine-1split2join1-1860-12500-450-15000-7500-0-1-0-1-20-1-5000-1-20-1-5000-1-20-1-5000-17-500-5000-4000-3000-100-1-true-1
-
 
 formatted_script = format_to_script(input_string)
 print(formatted_script)

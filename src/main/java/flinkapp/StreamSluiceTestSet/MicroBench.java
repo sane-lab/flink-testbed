@@ -1798,7 +1798,6 @@ public class MicroBench {
             while (isRunning && System.currentTimeMillis() - startTime < TOTAL_TIME) {
                 round++;
                 long roundStartTime = System.currentTimeMillis();
-                System.out.println("Round " + round + " sine phase start at: " + roundStartTime);
                 double ratio;
                 if (((roundStartTime - startTime) / (BIG_PERIOD/2)) % 2 == 0){
                     ratio = ((roundStartTime - startTime) % (BIG_PERIOD / 2)) / (double)(BIG_PERIOD/2);
@@ -1807,9 +1806,10 @@ public class MicroBench {
                 }
                 long avg_rate = Math.round(ratio * (MAX_RATE - NORMAL_RATE) + NORMAL_RATE);
                 int curve_type = random.nextInt(2), period_option = random.nextInt(4), amplitude_option = random.nextInt(5);
-                long period = PERIOD_CHOICE[period_option];
+                long period = PERIOD_CHOICE[period_option] * 1000;
                 long AMPLITUDE = Math.round(avg_rate * AMPLITUDE_CHOICE[amplitude_option]);
                 if(curve_type == 0){
+                    System.out.println("Round " + round + " sine phase start at: " + roundStartTime);
                     startSinePhase(ctx, AMPLITUDE, avg_rate, period, roundStartTime);
                 }else{
                     startLinearPhase(ctx, avg_rate, avg_rate + AMPLITUDE, period / 2, roundStartTime);

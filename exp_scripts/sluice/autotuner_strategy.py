@@ -711,7 +711,7 @@ def main():
     overall_output_dir = "/Users/swrrt/Workplace/BacklogDelayPaper/experiments/figures/autotuner/"
     window_size = 100
     start_time = 60 #30 #60
-    exp_length = 1800 #1200 #600
+    exp_length = 300 #1200 #600
     exps_per_label = {
         # "option_1": [
         #     # "autotune-setting1-true-streamsluice-streamsluice-30-100-300-1-0.5-1-2.0-2-when-sine-1split2join1-660-12500-45-7500-10000-0-1-0-1-20-1-5000-1-20-1-5000-1-20-1-5000-17-500-5000-250-3000-100-1-true-1",
@@ -955,8 +955,8 @@ def main():
         # },
         13: {
             "bisection-no-increase": [
-                "autotune-setting13-true-streamsluice-streamsluice-60-100-300-2-0.2-1-2.0-1-linear_phase_change-sine-1split2join1-1860-10000-360-15000-5000-0-1-0-1-20-1-5000-1-20-1-5000-1-20-1-5000-17-500-5000-1000-3000-100-1-true-1",
-                "autotune-setting13-true-streamsluice-streamsluice-60-100-300-2-0.2-1-2.0-1-linear_phase_change-sine-1split2join1-1860-10000-360-15000-5000-0-1-0-1-20-1-5000-1-20-1-5000-1-20-1-5000-17-500-5000-1500-3000-100-1-true-1",
+                "autotune-setting13-true-streamsluice-streamsluice-60-100-300-2-0.2-1-2.0-1-linear_phase_change-sine-1split2join1-360-10000-360-15000-5000-0-1-0-1-20-1-5000-1-20-1-5000-1-20-1-5000-17-500-5000-1000-3000-100-1-true-1",
+                "autotune-setting13-true-streamsluice-streamsluice-60-100-300-2-0.2-1-2.0-1-linear_phase_change-sine-1split2join1-360-10000-360-15000-5000-0-1-0-1-20-1-5000-1-20-1-5000-1-20-1-5000-17-500-5000-1500-3000-100-1-true-1",
             ],
         },
     }
