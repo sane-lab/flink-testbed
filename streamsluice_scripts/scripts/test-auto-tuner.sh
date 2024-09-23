@@ -1048,31 +1048,33 @@ function setting15(){
   TIME_I=0
   RATE1=14000 #15000
   RATE2=10000 #5000
-  for TIME1 in 60; do # 60 45 30
-    TIME2=120
-    is_treat=false
-    how_type="ds2"
-    autotune=false
-#      run_one_exp
-#      printf "${EXP_NAME}\n" >> whetherhow_result.txt
-    for L in 3000 4000 5000 10000 20000; do # 500 1000 1500 2000
-      is_treat=true
-      how_type="streamsluice"
-      autotune=true
-      for autotuner_initial_value_option in 2; do
-        if [ "$autotuner_initial_value_option" = 1 ]; then
-          autotuner_initial_value_alpha=0.5
-        elif [ "$autotuner_initial_value_option" = 2 ]; then
-          autotuner_initial_value_alpha=0.2
-        fi
-        for autotuner_adjustment_option in 1; do
-          if [ "$autotuner_adjustment_option" = 1 ]; then
-            autotuner_adjustment_beta=2.0
-          elif [ "$autotuner_adjustment_option" = 2 ]; then
-            autotuner_adjustment_beta=1.0
+  TIME1=60
+  for TIME2 in 90 120 150; do
+    for RATE2 in 10000 11000 12000; do
+      is_treat=false
+      how_type="ds2"
+      autotune=false
+  #      run_one_exp
+  #      printf "${EXP_NAME}\n" >> whetherhow_result.txt
+      for L in 3000 4000 5000 10000 20000; do # 500 1000 1500 2000
+        is_treat=true
+        how_type="streamsluice"
+        autotune=true
+        for autotuner_initial_value_option in 2; do
+          if [ "$autotuner_initial_value_option" = 1 ]; then
+            autotuner_initial_value_alpha=0.5
+          elif [ "$autotuner_initial_value_option" = 2 ]; then
+            autotuner_initial_value_alpha=0.2
           fi
-          run_one_exp
-          printf "${EXP_NAME}\n" >> whetherhow_result.txt
+          for autotuner_adjustment_option in 1; do
+            if [ "$autotuner_adjustment_option" = 1 ]; then
+              autotuner_adjustment_beta=2.0
+            elif [ "$autotuner_adjustment_option" = 2 ]; then
+              autotuner_adjustment_beta=1.0
+            fi
+            run_one_exp
+            printf "${EXP_NAME}\n" >> whetherhow_result.txt
+          done
         done
       done
     done
@@ -1165,7 +1167,7 @@ run_scale_test(){
 
     autotuner_increase_bar_option=3
     autotuner_increase_bar_alpha=0.25
-    setting14
+    #setting14
     setting15
     setting13
 }
