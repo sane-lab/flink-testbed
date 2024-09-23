@@ -54,7 +54,10 @@ public class MicroBench {
         final String SOURCE_TYPE = params.get("source", "normal");
 
         DataStreamSource<Tuple3<String, Long, Long>> source;
-        if(SOURCE_TYPE.equals("linear_phase_change")){
+        if(SOURCE_TYPE.equals("sine_two_phase")) {
+            source = env.addSource(new SineTwoPhase(params.getLong("warmupTime", 20) * 1000, PHASE1_TIME, PHASE2_TIME, INTERMEDIATE_TIME, params.getLong("warmupRate", INTERMEDIATE_RATE), PHASE1_RATE, PHASE2_RATE, INTERMEDIATE_RATE, params.getLong("run_time", 510) * 1000, params.get("curve_type", "sine"))).
+                    setParallelism(params.getInt("p1", 1));
+        }else if(SOURCE_TYPE.equals("linear_phase_change")){
             source = env.addSource(new LinearChangingAveragePhase(params.getLong("warmupTime", 20) * 1000, PHASE1_TIME, PHASE2_TIME, INTERMEDIATE_TIME, params.getLong("warmupRate", INTERMEDIATE_RATE), PHASE1_RATE, PHASE2_RATE, INTERMEDIATE_RATE, params.getLong("run_time", 510) * 1000, params.get("curve_type", "sine"))).
                     setParallelism(params.getInt("p1", 1));
         }else if(SOURCE_TYPE.equals("sine_shift")){
@@ -1601,6 +1604,162 @@ public class MicroBench {
                         startSinePhase(ctx, AMPLITUDE, NORMAL_RATE, PHASE1_PERIOD, roundStartTime);
                     }else{
                         long AMPLITUDE = Math.round(PHASE2_RATE * amplitude_ratio);
+                        startSinePhase(ctx, AMPLITUDE, PHASE2_RATE, PHASE2_PERIOD, roundStartTime);
+                    }
+                    if (!isRunning) {
+                        return;
+                    }
+                }
+            }
+        }
+        public void run(SourceContext<Tuple3<String, Long, Long>> ctx) throws Exception {
+            generateCurve(ctx);
+        }
+
+        private String getChar(int cur) {
+            return "A" + (cur % nKeys);
+        }
+
+        private String getSubKeySetChar(int cur, List<String> subKeySet) {
+            return subKeySet.get(cur % subKeySet.size());
+        }
+
+        @Override
+        public void cancel() {
+            isRunning = false;
+        }
+    }
+    public static final class SineTwoPhase implements SourceFunction<Tuple3<String, Long, Long>>, CheckpointedFunction {
+        final private boolean withStairFlag;
+        final private long WARMP_TIME, WARMP_RATE, NORMAL_TIME, NORMAL_RATE, PHASE1_PERIOD, PHASE1_RATE, PHASE2_PERIOD, PHASE2_RATE, TOTAL_TIME;
+        private int count = 0;
+        private final int curve_type;
+        private volatile boolean isRunning = true;
+        private transient ListState<Integer> checkpointedCount;
+        private int maxParallelism;
+        private FastZipfGenerator fastZipfGenerator;
+        private Random random = new Random(114514);
+        private int nKeys;
+        private final Map<Integer, List<String>> keyGroupMapping = new HashMap<>();
+
+        private final Map<Integer, Long> totalOutputNumbers = new HashMap<>();
+
+        public SineTwoPhase(long WARMP_TIME, long PHASE1_TIME, long PHASE2_TIME, long NORMAL_TIME, long WARMP_RATE, long PHASE1_RATE, long PHASE2_RATE, long NORMAL_RATE, long runtime, String curve_type){
+            if(NORMAL_TIME == 0){
+                withStairFlag = false;
+            }else {
+                withStairFlag = true;
+            }
+            this.WARMP_TIME = WARMP_TIME;
+            this.WARMP_RATE = WARMP_RATE;
+            this.PHASE1_PERIOD = PHASE1_TIME;
+            this.PHASE2_PERIOD = PHASE2_TIME;
+            this.NORMAL_TIME = NORMAL_TIME;
+            this.PHASE1_RATE = PHASE1_RATE;
+            this.PHASE2_RATE = PHASE2_RATE;
+            this.NORMAL_RATE = NORMAL_RATE;
+            this.TOTAL_TIME = runtime;
+            if(curve_type.equals("gradient")) {
+                this.curve_type = 0;
+            }else if(curve_type.equals("linear")){
+                this.curve_type = 1;
+            }else if(curve_type.equals("quarter-sine")) {
+                this.curve_type = 2;
+            }else if(curve_type.equals("sine")){
+                this.curve_type = 3;
+            }else if(curve_type.equals("mixed")) {
+                this.curve_type = 4;
+            }else{
+                this.curve_type = 0;
+            }
+            this.nKeys = 1000;
+            this.maxParallelism = 128;
+            this.fastZipfGenerator = new FastZipfGenerator(maxParallelism, 0.0, 0, 114514);
+            for (int i = 0; i < this.nKeys; i++) {
+                String key = "A" + i;
+                int keygroup = MathUtils.murmurHash(key.hashCode()) % maxParallelism;
+                List<String> keys = keyGroupMapping.computeIfAbsent(keygroup, t -> new ArrayList<>());
+                keys.add(key);
+            }
+        }
+        @Override
+        public void snapshotState(FunctionSnapshotContext functionSnapshotContext) throws Exception {
+            this.checkpointedCount.clear();
+            this.checkpointedCount.add(count);
+        }
+
+        @Override
+        public void initializeState(FunctionInitializationContext context) throws Exception {
+            this.checkpointedCount = context
+                    .getOperatorStateStore()
+                    .getListState(new ListStateDescriptor<>("checkpointedCount", Integer.class));
+
+            if (context.isRestored()) {
+                for (Integer count : this.checkpointedCount.get()) {
+                    this.count = count;
+                }
+            }
+        }
+        void startSteadyPhase(SourceContext<Tuple3<String, Long, Long>> ctx, long rate, long time, long phaseStartTime)throws Exception {
+            while (isRunning && System.currentTimeMillis() - phaseStartTime < time) {
+                long emitStartTime = System.currentTimeMillis();
+                for (int i = 0; i < rate / 20; i++) {
+                    int selectedKeygroup = fastZipfGenerator.next();
+                    List<String> subKeySet = keyGroupMapping.get(selectedKeygroup);
+                    totalOutputNumbers.put(selectedKeygroup, totalOutputNumbers.getOrDefault(selectedKeygroup, 0l) + 1);
+                    String key = getSubKeySetChar(count, subKeySet);
+                    ctx.collect(Tuple3.of(key, System.currentTimeMillis(), (long) count));
+                    count++;
+                }
+                Util.pause(emitStartTime);
+            }
+        }
+
+        void startSinePhase(SourceContext<Tuple3<String, Long, Long>> ctx, long amplitude, long baseRate, long time, long phaseStartTime) throws Exception {
+            long currentTime;
+            long elapsedTime;
+            long rate;
+            while (isRunning && (currentTime = System.currentTimeMillis()) - phaseStartTime < time) {
+                long emitStartTime = System.currentTimeMillis();
+                elapsedTime = currentTime - phaseStartTime;
+                rate = (long) (baseRate + amplitude * Math.sin((2 * Math.PI * elapsedTime) / time));
+                for (int i = 0; i < rate / 20; i++) {
+                    int selectedKeygroup = fastZipfGenerator.next();
+                    List<String> subKeySet = keyGroupMapping.get(selectedKeygroup);
+                    totalOutputNumbers.put(selectedKeygroup, totalOutputNumbers.getOrDefault(selectedKeygroup, 0L) + 1);
+                    String key = getSubKeySetChar(count, subKeySet);
+                    ctx.collect(Tuple3.of(key, System.currentTimeMillis(), (long) count));
+                    count++;
+                }
+
+                Util.pause(emitStartTime);
+            }
+        }
+
+        private void generateCurve(SourceContext<Tuple3<String, Long, Long>> ctx) throws Exception {
+            long startTime = System.currentTimeMillis();
+            System.out.println("Source start at: " + startTime);
+            System.out.println("Source warm up...");
+            // startSteadyPhase(ctx, NORMAL_RATE, 20 * 1000, startTime);
+            startSteadyPhase(ctx, WARMP_RATE, WARMP_TIME, startTime);
+            startTime = System.currentTimeMillis();
+            long round = 0;
+            while (isRunning && System.currentTimeMillis() - startTime < TOTAL_TIME) {
+                round++;
+                int this_round_curve;
+                if(curve_type != 4){
+                    this_round_curve = curve_type;
+                }else{
+                    this_round_curve = (int)((round - 1) % 4);
+                }
+                if(this_round_curve == 3){ // Sine
+                    long roundStartTime = System.currentTimeMillis();
+                    System.out.println("Round " + round + " sine phase start at: " + roundStartTime);
+                    if(System.currentTimeMillis() - startTime <= TOTAL_TIME / 2) {
+                        long AMPLITUDE = PHASE1_RATE - NORMAL_RATE;
+                        startSinePhase(ctx, AMPLITUDE, NORMAL_RATE, PHASE1_PERIOD, roundStartTime);
+                    }else{
+                        long AMPLITUDE = PHASE2_RATE - NORMAL_RATE;
                         startSinePhase(ctx, AMPLITUDE, PHASE2_RATE, PHASE2_PERIOD, roundStartTime);
                     }
                     if (!isRunning) {
