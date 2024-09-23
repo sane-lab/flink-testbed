@@ -22,7 +22,7 @@ function analyze() {
 }
 
 run_one_exp() {
-  EXP_NAME=autotune-${setting}-${coordination_latency_flag}-${whether_type}-${how_type}-${autotune_interval}-${autotuner_latency_window}-${autotuner_bar_lowerbound}-${autotuner_initial_value_option}-${autotuner_initial_value_alpha}-${autotuner_adjustment_option}-${autotuner_adjustment_alpha}-${autotuner_increase_bar_option}-${SOURCE_TYPE}-${CURVE_TYPE}-${GRAPH}-${runtime}-${RATE1}-${TIME1}-${RATE2}-${RATE_I}-${TIME_I}-${P1}-${ZIPF_SKEW}-${P2}-${DELAY2}-${IO2}-${STATE_SIZE2}-${P3}-${DELAY3}-${IO3}-${STATE_SIZE3}-${P4}-${DELAY4}-${IO4}-${STATE_SIZE4}-${P5}-${DELAY5}-${STATE_SIZE5}-${L}-${migration_interval}-${epoch}-${decision_interval}-${is_treat}-${repeat}
+  EXP_NAME=autotune-${setting}-${coordination_latency_flag}-${whether_type}-${how_type}-${autotune_interval}-${autotuner_latency_window}-${autotuner_bar_lowerbound}-${autotuner_adjustment_option}-${autotuner_adjustment_beta}-${autotuner_increase_bar_option}-${autotuner_increase_bar_alpha}-${SOURCE_TYPE}-${CURVE_TYPE}-${GRAPH}-${runtime}-${RATE1}-${TIME1}-${RATE2}-${RATE_I}-${TIME_I}-${P1}-${ZIPF_SKEW}-${P2}-${DELAY2}-${IO2}-${STATE_SIZE2}-${P3}-${DELAY3}-${IO3}-${STATE_SIZE3}-${P4}-${DELAY4}-${IO4}-${STATE_SIZE4}-${P5}-${DELAY5}-${STATE_SIZE5}-${L}-${migration_interval}-${epoch}-${decision_interval}-${is_treat}-${repeat}
 
   echo "INFO: run exp ${EXP_NAME}"
   configFlink
@@ -168,9 +168,9 @@ function setting1(){
         fi
         for autotuner_adjustment_option in 1; do
           if [ "$autotuner_adjustment_option" = 1 ]; then
-            autotuner_adjustment_alpha=2.0
+            autotuner_adjustment_beta=2.0
           elif [ "$autotuner_adjustment_option" = 2 ]; then
-            autotuner_adjustment_alpha=1.0
+            autotuner_adjustment_beta=1.0
           fi
             run_one_exp
             printf "${EXP_NAME}\n" >> whetherhow_result.txt
@@ -228,9 +228,9 @@ function setting2(){
         fi
         for autotuner_adjustment_option in 1; do
           if [ "$autotuner_adjustment_option" = 1 ]; then
-            autotuner_adjustment_alpha=2.0
+            autotuner_adjustment_beta=2.0
           elif [ "$autotuner_adjustment_option" = 2 ]; then
-            autotuner_adjustment_alpha=1.0
+            autotuner_adjustment_beta=1.0
           fi
             run_one_exp
             printf "${EXP_NAME}\n" >> whetherhow_result.txt
@@ -291,9 +291,9 @@ function setting3(){
         fi
         for autotuner_adjustment_option in 1; do
           if [ "$autotuner_adjustment_option" = 1 ]; then
-            autotuner_adjustment_alpha=2.0
+            autotuner_adjustment_beta=2.0
           elif [ "$autotuner_adjustment_option" = 2 ]; then
-            autotuner_adjustment_alpha=1.0
+            autotuner_adjustment_beta=1.0
           fi
             run_one_exp
             printf "${EXP_NAME}\n" >> whetherhow_result.txt
@@ -354,9 +354,9 @@ function setting4(){
         fi
         for autotuner_adjustment_option in 1; do
           if [ "$autotuner_adjustment_option" = 1 ]; then
-            autotuner_adjustment_alpha=2.0
+            autotuner_adjustment_beta=2.0
           elif [ "$autotuner_adjustment_option" = 2 ]; then
-            autotuner_adjustment_alpha=1.0
+            autotuner_adjustment_beta=1.0
           fi
             run_one_exp
             printf "${EXP_NAME}\n" >> whetherhow_result.txt
@@ -417,9 +417,9 @@ function setting5(){
         fi
         for autotuner_adjustment_option in 1; do
           if [ "$autotuner_adjustment_option" = 1 ]; then
-            autotuner_adjustment_alpha=2.0
+            autotuner_adjustment_beta=2.0
           elif [ "$autotuner_adjustment_option" = 2 ]; then
-            autotuner_adjustment_alpha=1.0
+            autotuner_adjustment_beta=1.0
           fi
             run_one_exp
             printf "${EXP_NAME}\n" >> whetherhow_result.txt
@@ -480,9 +480,9 @@ function setting6(){
         fi
         for autotuner_adjustment_option in 1; do
           if [ "$autotuner_adjustment_option" = 1 ]; then
-            autotuner_adjustment_alpha=2.0
+            autotuner_adjustment_beta=2.0
           elif [ "$autotuner_adjustment_option" = 2 ]; then
-            autotuner_adjustment_alpha=1.0
+            autotuner_adjustment_beta=1.0
           fi
             run_one_exp
             printf "${EXP_NAME}\n" >> whetherhow_result.txt
@@ -543,9 +543,9 @@ function setting7(){
         fi
         for autotuner_adjustment_option in 1; do
           if [ "$autotuner_adjustment_option" = 1 ]; then
-            autotuner_adjustment_alpha=2.0
+            autotuner_adjustment_beta=2.0
           elif [ "$autotuner_adjustment_option" = 2 ]; then
-            autotuner_adjustment_alpha=1.0
+            autotuner_adjustment_beta=1.0
           fi
             run_one_exp
             printf "${EXP_NAME}\n" >> whetherhow_result.txt
@@ -606,9 +606,9 @@ function setting8(){
         fi
         for autotuner_adjustment_option in 1; do
           if [ "$autotuner_adjustment_option" = 1 ]; then
-            autotuner_adjustment_alpha=2.0
+            autotuner_adjustment_beta=2.0
           elif [ "$autotuner_adjustment_option" = 2 ]; then
-            autotuner_adjustment_alpha=1.0
+            autotuner_adjustment_beta=1.0
           fi
             run_one_exp
             printf "${EXP_NAME}\n" >> whetherhow_result.txt
@@ -669,9 +669,9 @@ function setting9(){
         fi
         for autotuner_adjustment_option in 1; do
           if [ "$autotuner_adjustment_option" = 1 ]; then
-            autotuner_adjustment_alpha=2.0
+            autotuner_adjustment_beta=2.0
           elif [ "$autotuner_adjustment_option" = 2 ]; then
-            autotuner_adjustment_alpha=1.0
+            autotuner_adjustment_beta=1.0
           fi
           run_one_exp
           printf "${EXP_NAME}\n" >> whetherhow_result.txt
@@ -732,9 +732,9 @@ function setting10(){
         fi
         for autotuner_adjustment_option in 1; do
           if [ "$autotuner_adjustment_option" = 1 ]; then
-            autotuner_adjustment_alpha=2.0
+            autotuner_adjustment_beta=2.0
           elif [ "$autotuner_adjustment_option" = 2 ]; then
-            autotuner_adjustment_alpha=1.0
+            autotuner_adjustment_beta=1.0
           fi
           run_one_exp
           printf "${EXP_NAME}\n" >> whetherhow_result.txt
@@ -795,9 +795,9 @@ function setting11(){
         fi
         for autotuner_adjustment_option in 1; do
           if [ "$autotuner_adjustment_option" = 1 ]; then
-            autotuner_adjustment_alpha=2.0
+            autotuner_adjustment_beta=2.0
           elif [ "$autotuner_adjustment_option" = 2 ]; then
-            autotuner_adjustment_alpha=1.0
+            autotuner_adjustment_beta=1.0
           fi
           run_one_exp
           printf "${EXP_NAME}\n" >> whetherhow_result.txt
@@ -858,9 +858,9 @@ function setting12(){
         fi
         for autotuner_adjustment_option in 1; do
           if [ "$autotuner_adjustment_option" = 1 ]; then
-            autotuner_adjustment_alpha=2.0
+            autotuner_adjustment_beta=2.0
           elif [ "$autotuner_adjustment_option" = 2 ]; then
-            autotuner_adjustment_alpha=1.0
+            autotuner_adjustment_beta=1.0
           fi
           run_one_exp
           printf "${EXP_NAME}\n" >> whetherhow_result.txt
@@ -908,7 +908,7 @@ function setting13(){
     STATE_SIZE3=${STATE_SIZE2}
     STATE_SIZE4=${STATE_SIZE2}
     STATE_SIZE5=${STATE_SIZE2}
-    for parameter_index in 1; do # 2 3
+    for parameter_index in 2; do # 1 3
       if [ "$parameter_index" = 1 ]; then
         RATE_I=5000
         RATE1=10000
@@ -939,9 +939,9 @@ function setting13(){
           fi
           for autotuner_adjustment_option in 1; do
             if [ "$autotuner_adjustment_option" = 1 ]; then
-              autotuner_adjustment_alpha=2.0
+              autotuner_adjustment_beta=2.0
             elif [ "$autotuner_adjustment_option" = 2 ]; then
-              autotuner_adjustment_alpha=1.0
+              autotuner_adjustment_beta=1.0
             fi
             run_one_exp
             printf "${EXP_NAME}\n" >> whetherhow_result.txt
@@ -955,7 +955,7 @@ function setting13(){
 function setting14(){
   # Setting 14
   printf "Setting 14\n" >> whetherhow_result.txt
-  runtime=1260
+  runtime=660
   setting="setting14"
   SOURCE_TYPE="sine_two_phase"
   autotuner_bar_lowerbound=300
@@ -1004,9 +1004,72 @@ function setting14(){
         fi
         for autotuner_adjustment_option in 1; do
           if [ "$autotuner_adjustment_option" = 1 ]; then
-            autotuner_adjustment_alpha=2.0
+            autotuner_adjustment_beta=2.0
           elif [ "$autotuner_adjustment_option" = 2 ]; then
-            autotuner_adjustment_alpha=1.0
+            autotuner_adjustment_beta=1.0
+          fi
+          run_one_exp
+          printf "${EXP_NAME}\n" >> whetherhow_result.txt
+        done
+      done
+    done
+  done
+}
+
+function setting15(){
+  # Setting 15
+  printf "Setting 15\n" >> whetherhow_result.txt
+  runtime=1260
+  setting="setting15"
+  SOURCE_TYPE="changing_amplitude_and_period"
+  autotuner_bar_lowerbound=300
+  DELAY2=20
+  DELAY3=20
+  DELAY4=20
+  DELAY5=500
+  STATE_SIZE2=5000 # 1000 keys, per key (n * 2000 + 36) bytes, n=5000 -> 100 MB
+  STATE_SIZE3=5000
+  STATE_SIZE4=5000
+  STATE_SIZE5=5000
+  LP2=1
+  LP3=1
+  LP4=1
+  LP5=28
+
+  P2=1
+  P3=1
+  P4=1
+  P5=17
+  GRAPH="1split2join1"
+  CURVE_TYPE="sine" #"linear"
+  warmupRate=10000
+  warmupTime=60
+  RATE_I=10000
+  TIME_I=0
+  RATE1=14000 #15000
+  RATE2=10000 #5000
+  for TIME1 in 60; do # 60 45 30
+    TIME2=120
+    is_treat=false
+    how_type="ds2"
+    autotune=false
+#      run_one_exp
+#      printf "${EXP_NAME}\n" >> whetherhow_result.txt
+    for L in 500 1000 1500 2000; do
+      is_treat=true
+      how_type="streamsluice"
+      autotune=true
+      for autotuner_initial_value_option in 2; do
+        if [ "$autotuner_initial_value_option" = 1 ]; then
+          autotuner_initial_value_alpha=0.5
+        elif [ "$autotuner_initial_value_option" = 2 ]; then
+          autotuner_initial_value_alpha=0.2
+        fi
+        for autotuner_adjustment_option in 1; do
+          if [ "$autotuner_adjustment_option" = 1 ]; then
+            autotuner_adjustment_beta=2.0
+          elif [ "$autotuner_adjustment_option" = 2 ]; then
+            autotuner_adjustment_beta=1.0
           fi
           run_one_exp
           printf "${EXP_NAME}\n" >> whetherhow_result.txt
@@ -1039,7 +1102,7 @@ run_scale_test(){
     autotuner_adjustment_option=1
     autotuner_increase_bar_option=1 # 2
     autotuner_initial_value_alpha=1.2
-    autotuner_adjustment_alpha=2.0
+    autotuner_adjustment_beta=2.0
     epoch=100
     decision_interval=1 #10
     snapshot_size=20
@@ -1101,8 +1164,9 @@ run_scale_test(){
     #setting13
 
     autotuner_increase_bar_option=3
+    autotuner_increase_bar_alpha=0.25
     setting14
-    setting1
+    setting15
     setting13
 }
 
