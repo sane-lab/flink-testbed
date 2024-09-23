@@ -927,7 +927,7 @@ function setting13(){
       autotune=false
   #    run_one_exp
   #    printf "${EXP_NAME}\n" >> whetherhow_result.txt
-      for L in 1000 1500 2000 5000 10000; do
+      for L in 2000 5000 10000 20000; do # 1000 1500
         is_treat=true
         how_type="streamsluice"
         autotune=true
