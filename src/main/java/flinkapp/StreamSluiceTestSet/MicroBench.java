@@ -1812,12 +1812,13 @@ public class MicroBench {
                     System.out.println("Round " + round + " sine phase start at: " + roundStartTime);
                     startSinePhase(ctx, AMPLITUDE, avg_rate, period, roundStartTime);
                 }else{
+                    System.out.println("Round " + round + " linear phase 1 start at: " + roundStartTime);
                     startLinearPhase(ctx, avg_rate, avg_rate + AMPLITUDE, period / 2, roundStartTime);
                     if (!isRunning) {
                         return;
                     }
                     roundStartTime = System.currentTimeMillis();
-                    System.out.println("Round " + round + " sine phase start at: " + roundStartTime);
+                    System.out.println("Round " + round + " linear phase 2 start at: " + roundStartTime);
                     startLinearPhase(ctx, avg_rate + AMPLITUDE, avg_rate, period / 2, roundStartTime);
                 }
 

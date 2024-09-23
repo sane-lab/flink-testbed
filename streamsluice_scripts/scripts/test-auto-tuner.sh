@@ -904,8 +904,11 @@ function setting13(){
   RATE2=15000 #7500 #5000
   TIME1=360
   TIME2=40
-  for STATE_SIZE2 in 5000 10000; do
-    for parameter_index in 1 2 3; do
+  for STATE_SIZE2 in 10000; do # 5000
+    STATE_SIZE3=${STATE_SIZE2}
+    STATE_SIZE4=${STATE_SIZE2}
+    STATE_SIZE5=${STATE_SIZE2}
+    for parameter_index in 1 2; do # 3
       if [ "$parameter_index" = 1 ]; then
         RATE_I=5000
         RATE1=10000
