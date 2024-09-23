@@ -1055,7 +1055,7 @@ function setting15(){
     autotune=false
 #      run_one_exp
 #      printf "${EXP_NAME}\n" >> whetherhow_result.txt
-    for L in 500 1000 1500 2000; do
+    for L in 3000 4000 5000 10000 20000; do # 500 1000 1500 2000
       is_treat=true
       how_type="streamsluice"
       autotune=true
