@@ -1049,8 +1049,8 @@ function setting15(){
   RATE1=14000 #15000
   RATE2=10000 #5000
   TIME1=60
-  for TIME2 in 90 120 150; do
-    for RATE2 in 10000 11000 12000; do
+  for TIME2 in 90; do
+    for RATE2 in 10000; do
       is_treat=false
       how_type="ds2"
       autotune=false
@@ -1167,6 +1167,7 @@ run_scale_test(){
 
     autotuner_increase_bar_option=3
     autotuner_increase_bar_alpha=0.25
+    autotune_interval=90
     #setting14
     setting15
     setting13

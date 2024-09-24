@@ -291,7 +291,7 @@ def draw_latency_curves(raw_dir, output_dir, exp_name, window_size, start_time, 
     axes.set_xticks(np.arange((start_time) * 1000, (start_time + exp_length) * 1000 + (exp_length / 10) * 1000, (exp_length / 10) * 1000))
     axes.set_xticklabels([int((x - start_time * 1000) / 1000) for x in
                           np.arange((start_time) * 1000, (start_time + exp_length) * 1000 + (exp_length / 10) * 1000, (exp_length / 10) * 1000)])
-    if (latency_limit <= 3000):
+    if (latency_limit < 3000):
         axes.set_ylim(0, 3000)
         axes.set_yticks(np.arange(0, 3300, 300))
     else:
@@ -1020,10 +1020,15 @@ def main():
         # }
         20: {
             "bisection-no-increase": [
-                "autotune-setting15-true-streamsluice-streamsluice-60-100-300-1-2.0-3-0.25-changing_amplitude_and_period-sine-1split2join1-1260-14000-60-10000-10000-0-1-0-1-20-1-5000-1-20-1-5000-1-20-1-5000-17-500-5000-500-3000-100-1-true-1",
-                "autotune-setting15-true-streamsluice-streamsluice-60-100-300-1-2.0-3-0.25-changing_amplitude_and_period-sine-1split2join1-1260-14000-60-10000-10000-0-1-0-1-20-1-5000-1-20-1-5000-1-20-1-5000-17-500-5000-1000-3000-100-1-true-1",
-                "autotune-setting15-true-streamsluice-streamsluice-60-100-300-1-2.0-3-0.25-changing_amplitude_and_period-sine-1split2join1-1260-14000-60-10000-10000-0-1-0-1-20-1-5000-1-20-1-5000-1-20-1-5000-17-500-5000-1500-3000-100-1-true-1",
-                "autotune-setting15-true-streamsluice-streamsluice-60-100-300-1-2.0-3-0.25-changing_amplitude_and_period-sine-1split2join1-1260-14000-60-10000-10000-0-1-0-1-20-1-5000-1-20-1-5000-1-20-1-5000-17-500-5000-2000-3000-100-1-true-1",
+                # "autotune-setting15-true-streamsluice-streamsluice-60-100-300-1-2.0-3-0.25-changing_amplitude_and_period-sine-1split2join1-1260-14000-60-10000-10000-0-1-0-1-20-1-5000-1-20-1-5000-1-20-1-5000-17-500-5000-500-3000-100-1-true-1",
+                # "autotune-setting15-true-streamsluice-streamsluice-60-100-300-1-2.0-3-0.25-changing_amplitude_and_period-sine-1split2join1-1260-14000-60-10000-10000-0-1-0-1-20-1-5000-1-20-1-5000-1-20-1-5000-17-500-5000-1000-3000-100-1-true-1",
+                # "autotune-setting15-true-streamsluice-streamsluice-60-100-300-1-2.0-3-0.25-changing_amplitude_and_period-sine-1split2join1-1260-14000-60-10000-10000-0-1-0-1-20-1-5000-1-20-1-5000-1-20-1-5000-17-500-5000-1500-3000-100-1-true-1",
+                # "autotune-setting15-true-streamsluice-streamsluice-60-100-300-1-2.0-3-0.25-changing_amplitude_and_period-sine-1split2join1-1260-14000-60-10000-10000-0-1-0-1-20-1-5000-1-20-1-5000-1-20-1-5000-17-500-5000-2000-3000-100-1-true-1",
+                # "autotune-setting15-true-streamsluice-streamsluice-60-100-300-1-2.0-3-0.25-changing_amplitude_and_period-sine-1split2join1-1260-14000-60-10000-10000-0-1-0-1-20-1-5000-1-20-1-5000-1-20-1-5000-17-500-5000-3000-3000-100-1-true-1",
+                # "autotune-setting15-true-streamsluice-streamsluice-60-100-300-1-2.0-3-0.25-changing_amplitude_and_period-sine-1split2join1-1260-14000-60-10000-10000-0-1-0-1-20-1-5000-1-20-1-5000-1-20-1-5000-17-500-5000-4000-3000-100-1-true-1",
+                "autotune-setting15-true-streamsluice-streamsluice-60-100-300-1-2.0-3-0.25-changing_amplitude_and_period-sine-1split2join1-1260-14000-60-10000-10000-0-1-0-1-20-1-5000-1-20-1-5000-1-20-1-5000-17-500-5000-5000-3000-100-1-true-1",
+                "autotune-setting15-true-streamsluice-streamsluice-60-100-300-1-2.0-3-0.25-changing_amplitude_and_period-sine-1split2join1-1260-14000-60-10000-10000-0-1-0-1-20-1-5000-1-20-1-5000-1-20-1-5000-17-500-5000-10000-3000-100-1-true-1",
+                "autotune-setting15-true-streamsluice-streamsluice-60-100-300-1-2.0-3-0.25-changing_amplitude_and_period-sine-1split2join1-1260-14000-60-10000-10000-0-1-0-1-20-1-5000-1-20-1-5000-1-20-1-5000-17-500-5000-20000-3000-100-1-true-1",
             ],
         }
     }
