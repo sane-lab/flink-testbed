@@ -1165,7 +1165,7 @@ run_scale_test(){
     #setting12
     #setting13
 
-    autotuner_increase_bar_option=5
+    autotuner_increase_bar_option=6 # 3 5
     autotuner_increase_bar_alpha=0.25
     autotune_interval=90
     setting14
