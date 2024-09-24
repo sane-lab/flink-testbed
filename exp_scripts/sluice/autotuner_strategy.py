@@ -294,9 +294,12 @@ def draw_latency_curves(raw_dir, output_dir, exp_name, window_size, start_time, 
     if (latency_limit < 3000):
         axes.set_ylim(0, 3000)
         axes.set_yticks(np.arange(0, 3300, 300))
-    else:
+    elif (latency_limit < 6000):
         axes.set_ylim(0, 10050)
         axes.set_yticks(np.arange(0, 11000, 1000))
+    else:
+        axes.set_ylim(0, 25000)
+        axes.set_yticks(np.arange(0, 27500, 2500))
     plt.grid(True)
     if not os.path.exists(output_dir):
         os.makedirs(output_dir)
@@ -1040,7 +1043,7 @@ def main():
                 #"autotune-setting13-true-streamsluice-streamsluice-90-100-300-1-2.0-3-0.25-linear_phase_change-sine-1split2join1-1860-12500-900-15000-5000-0-1-0-1-20-1-5000-1-20-1-5000-1-20-1-5000-17-500-5000-2000-3000-100-1-true-1",
                 #"autotune-setting13-true-streamsluice-streamsluice-90-100-300-1-2.0-3-0.25-linear_phase_change-sine-1split2join1-1860-12500-900-15000-5000-0-1-0-1-20-1-5000-1-20-1-5000-1-20-1-5000-17-500-5000-5000-3000-100-1-true-1",
                 "autotune-setting13-true-streamsluice-streamsluice-90-100-300-1-2.0-3-0.25-linear_phase_change-sine-1split2join1-1860-12500-900-15000-5000-0-1-0-1-20-1-5000-1-20-1-5000-1-20-1-5000-17-500-5000-10000-3000-100-1-true-1",
-                "autotune-setting13-true-streamsluice-streamsluice-90-100-300-1-2.0-3-0.25-linear_phase_change-sine-1split2join1-1860-12500-900-15000-5000-0-1-0-1-20-1-5000-1-20-1-5000-1-20-1-5000-17-500-5000-20000-3000-100-1-true-1",
+                #"autotune-setting13-true-streamsluice-streamsluice-90-100-300-1-2.0-3-0.25-linear_phase_change-sine-1split2join1-1860-12500-900-15000-5000-0-1-0-1-20-1-5000-1-20-1-5000-1-20-1-5000-17-500-5000-20000-3000-100-1-true-1",
             ],
         }
     }
