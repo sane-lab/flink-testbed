@@ -927,7 +927,7 @@ function setting13(){
       autotune=false
   #    run_one_exp
   #    printf "${EXP_NAME}\n" >> whetherhow_result.txt
-      for L in 5000 10000 20000; do # 1000 1500 2000 10000 20000
+      for L in 5000 10000 15000 20000 25000; do # 1000 1500 2000 10000 20000
         is_treat=true
         how_type="streamsluice"
         autotune=true
@@ -992,7 +992,7 @@ function setting14(){
     autotune=false
 #    run_one_exp
 #    printf "${EXP_NAME}\n" >> whetherhow_result.txt
-    for L in 2000 5000; do # 500 1000 1500
+    for L in 4000 5000 10000; do # 500 1000 1500
       is_treat=true
       how_type="streamsluice"
       autotune=true
@@ -1056,7 +1056,7 @@ function setting15(){
       autotune=false
   #      run_one_exp
   #      printf "${EXP_NAME}\n" >> whetherhow_result.txt
-      for L in 3000 4000 5000 10000 20000; do # 500 1000 1500 2000
+      for L in 4000 5000 7500 10000 15000 20000; do # 500 1000 1500 2000
         is_treat=true
         how_type="streamsluice"
         autotune=true
@@ -1165,8 +1165,8 @@ run_scale_test(){
     #setting12
     #setting13
 
-    autotuner_increase_bar_option=6 # 3 5
-    autotuner_increase_bar_alpha=0.25
+    autotuner_increase_bar_option=7 # 3 5
+    autotuner_increase_bar_alpha=0.1 #0.25
     autotune_interval=90
     setting14
     setting15
