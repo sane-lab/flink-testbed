@@ -22,7 +22,7 @@ function analyze() {
 }
 
 run_one_exp() {
-  EXP_NAME=lr-${whether_type}-${how_type}-${runtime}-${warmup_time}-${warmup_rate}-${skip_interval}-${P2}-${DELAY2}-${P3}-${DELAY3}-${P4}-${DELAY4}-${P5}-${DELAY5}-${L}-${epoch}-${input_rate_factor}-${PAYLOAD}-${SKEWNESS}-${is_treat}-${errorcase_number}-${calibrate_selectivity}-${repeat}
+  EXP_NAME=lr-${whether_type}-${how_type}-${runtime}-${warmup_time}-${warmup_rate}-${skip_interval}-${P2}-${DELAY2}-${P3}-${DELAY3}-${P4}-${DELAY4}-${P5}-${DELAY5}-${L}-${autotuner_increase_bar_alpha}-${epoch}-${input_rate_factor}-${PAYLOAD}-${SKEWNESS}-${is_treat}-${errorcase_number}-${calibrate_selectivity}-${repeat}
 
   echo "INFO: run exp ${EXP_NAME}"
   configFlink
@@ -81,28 +81,28 @@ init() {
 #  MP8=128
 #  MP9=128
 
-  LP2=2
-  LP3=20
-  LP4=5
-  LP5=60
+  LP2=1
+  LP3=15
+  LP4=1
+  LP5=55
 #  LP6=1
 #  LP7=60
 #  LP8=1
 #  LP9=1
 
   P1=1
-  P2=2
-  P3=20
-  P4=4
-  P5=60
+  P2=1
+  P3=15
+  P4=1
+  P5=55
 #  P6=1
 #  P7=65
 #  P8=1
 #  P9=1
 
-  DELAY2=100
+  DELAY2=50
   DELAY3=2000 #2000
-  DELAY4=100
+  DELAY4=50
   DELAY5=1500 #1500
 #  DELAY6=10
 #  DELAY7=500
@@ -147,14 +147,42 @@ run_stock_test(){
     echo "Run linear road experiments..."
     init
     printf "" > lr_result.txt
+    how_more_optimization_flag=false
+    how_optimization_flag=false
+    how_steady_limit_flag=true
+    how_conservative_flag=false # true
+    coordination_latency_flag=true
+    conservative_service_rate_flag=true # false
+    smooth_backlog_flag=false
+    new_metrics_retriever_flag=true
 
-    for repeat in 1; do # 2 3 4 5; do
-        whether_type="streamsluice"
-        how_type="streamsluice"
-        scalein_type="streamsluice"
-        run_one_exp
-        printf "${EXP_NAME}\n" >> lr_result.txt
-
+    autotune=true
+    autotune_interval=60
+    autotuner="UserLimitTuner"
+    autotuner_latency_window=100
+    autotuner_bar_lowerbound=300
+    autotuner_initial_value_option=1
+    autotuner_adjustment_option=1
+    autotuner_increase_bar_option=1 # 2
+    autotuner_initial_value_alpha=1.2
+    autotuner_adjustment_beta=2.0
+    epoch=100
+    decision_interval=1 #10
+    snapshot_size=20
+    L=1000 #2000 #2500
+    migration_interval=500
+    spike_slope=0.7
+    autotuner_increase_bar_option=7 # 3 5
+    autotuner_increase_bar_alpha=0.1 #0.25
+    for autotuner_increase_bar_alpha in 0.1 0.2 0.4; do
+      for L in 1000 1500 2000 2500 3000; do
+          whether_type="streamsluice"
+          how_type="streamsluice"
+          scalein_type="streamsluice"
+          run_one_exp
+          printf "${EXP_NAME}\n" >> lr_result.txt
+      done
+    done
 #        is_treat=false
 #        run_one_exp
 #        printf "${EXP_NAME}\n" >> lr_result.txt
@@ -173,7 +201,6 @@ run_stock_test(){
 #        migration_interval=1000
 #        run_one_exp
 #        printf "${EXP_NAME}\n" >> lr_result.txt
-    done
 
 #       Part 2 experiment
     migration_interval=500

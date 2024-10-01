@@ -723,7 +723,7 @@ def main():
     overall_output_dir = "/Users/swrrt/Workplace/BacklogDelayPaper/experiments/figures/autotuner/"
     window_size = 100
     start_time = 60 #30 #60
-    exp_length = 1200 #1200 #600
+    exp_length = 600 #1200 #600
     exps_per_label = {
         # "option_1": [
         #     # "autotune-setting1-true-streamsluice-streamsluice-30-100-300-1-0.5-1-2.0-2-when-sine-1split2join1-660-12500-45-7500-10000-0-1-0-1-20-1-5000-1-20-1-5000-1-20-1-5000-17-500-5000-250-3000-100-1-true-1",
@@ -1059,18 +1059,36 @@ def main():
         #         "autotune-setting13-true-streamsluice-streamsluice-90-100-300-1-2.0-5-0.25-linear_phase_change-sine-1split2join1-1860-12500-900-15000-5000-0-1-0-1-20-1-5000-1-20-1-5000-1-20-1-5000-17-500-5000-10000-3000-100-1-true-1",
         #     ],
         # }
-        22: {
+        # 22: {
+        #     "bisection-no-increase": [
+        #         # "autotune-setting14-true-streamsluice-streamsluice-90-100-300-1-2.0-6-0.25-sine_two_phase-sine-1split2join1-660-12500-60-10000-10000-0-1-0-1-20-1-5000-1-20-1-5000-1-20-1-5000-17-500-5000-2000-3000-100-1-true-1",
+        #         # "autotune-setting14-true-streamsluice-streamsluice-90-100-300-1-2.0-6-0.25-sine_two_phase-sine-1split2join1-660-12500-60-10000-10000-0-1-0-1-20-1-5000-1-20-1-5000-1-20-1-5000-17-500-5000-5000-3000-100-1-true-1",
+        #         "autotune-setting15-true-streamsluice-streamsluice-90-100-300-1-2.0-6-0.25-changing_amplitude_and_period-sine-1split2join1-1260-14000-60-10000-10000-0-1-0-1-20-1-5000-1-20-1-5000-1-20-1-5000-17-500-5000-3000-3000-100-1-true-1",
+        #         "autotune-setting15-true-streamsluice-streamsluice-90-100-300-1-2.0-6-0.25-changing_amplitude_and_period-sine-1split2join1-1260-14000-60-10000-10000-0-1-0-1-20-1-5000-1-20-1-5000-1-20-1-5000-17-500-5000-4000-3000-100-1-true-1",
+        #         "autotune-setting15-true-streamsluice-streamsluice-90-100-300-1-2.0-6-0.25-changing_amplitude_and_period-sine-1split2join1-1260-14000-60-10000-10000-0-1-0-1-20-1-5000-1-20-1-5000-1-20-1-5000-17-500-5000-5000-3000-100-1-true-1",
+        #         "autotune-setting15-true-streamsluice-streamsluice-90-100-300-1-2.0-6-0.25-changing_amplitude_and_period-sine-1split2join1-1260-14000-60-10000-10000-0-1-0-1-20-1-5000-1-20-1-5000-1-20-1-5000-17-500-5000-10000-3000-100-1-true-1",
+        #         "autotune-setting15-true-streamsluice-streamsluice-90-100-300-1-2.0-6-0.25-changing_amplitude_and_period-sine-1split2join1-1260-14000-60-10000-10000-0-1-0-1-20-1-5000-1-20-1-5000-1-20-1-5000-17-500-5000-20000-3000-100-1-true-1",
+        #         # "autotune-setting13-true-streamsluice-streamsluice-90-100-300-1-2.0-6-0.25-linear_phase_change-sine-1split2join1-1860-12500-900-15000-5000-0-1-0-1-20-1-5000-1-20-1-5000-1-20-1-5000-17-500-5000-5000-3000-100-1-true-1",
+        #         # "autotune-setting13-true-streamsluice-streamsluice-90-100-300-1-2.0-6-0.25-linear_phase_change-sine-1split2join1-1860-12500-900-15000-5000-0-1-0-1-20-1-5000-1-20-1-5000-1-20-1-5000-17-500-5000-10000-3000-100-1-true-1",
+        #         # "autotune-setting13-true-streamsluice-streamsluice-90-100-300-1-2.0-6-0.25-linear_phase_change-sine-1split2join1-1860-12500-900-15000-5000-0-1-0-1-20-1-5000-1-20-1-5000-1-20-1-5000-17-500-5000-20000-3000-100-1-true-1",
+        #     ]
+        # }
+        23: {
             "bisection-no-increase": [
-                # "autotune-setting14-true-streamsluice-streamsluice-90-100-300-1-2.0-6-0.25-sine_two_phase-sine-1split2join1-660-12500-60-10000-10000-0-1-0-1-20-1-5000-1-20-1-5000-1-20-1-5000-17-500-5000-2000-3000-100-1-true-1",
-                # "autotune-setting14-true-streamsluice-streamsluice-90-100-300-1-2.0-6-0.25-sine_two_phase-sine-1split2join1-660-12500-60-10000-10000-0-1-0-1-20-1-5000-1-20-1-5000-1-20-1-5000-17-500-5000-5000-3000-100-1-true-1",
-                "autotune-setting15-true-streamsluice-streamsluice-90-100-300-1-2.0-6-0.25-changing_amplitude_and_period-sine-1split2join1-1260-14000-60-10000-10000-0-1-0-1-20-1-5000-1-20-1-5000-1-20-1-5000-17-500-5000-3000-3000-100-1-true-1",
-                "autotune-setting15-true-streamsluice-streamsluice-90-100-300-1-2.0-6-0.25-changing_amplitude_and_period-sine-1split2join1-1260-14000-60-10000-10000-0-1-0-1-20-1-5000-1-20-1-5000-1-20-1-5000-17-500-5000-4000-3000-100-1-true-1",
-                "autotune-setting15-true-streamsluice-streamsluice-90-100-300-1-2.0-6-0.25-changing_amplitude_and_period-sine-1split2join1-1260-14000-60-10000-10000-0-1-0-1-20-1-5000-1-20-1-5000-1-20-1-5000-17-500-5000-5000-3000-100-1-true-1",
-                "autotune-setting15-true-streamsluice-streamsluice-90-100-300-1-2.0-6-0.25-changing_amplitude_and_period-sine-1split2join1-1260-14000-60-10000-10000-0-1-0-1-20-1-5000-1-20-1-5000-1-20-1-5000-17-500-5000-10000-3000-100-1-true-1",
-                "autotune-setting15-true-streamsluice-streamsluice-90-100-300-1-2.0-6-0.25-changing_amplitude_and_period-sine-1split2join1-1260-14000-60-10000-10000-0-1-0-1-20-1-5000-1-20-1-5000-1-20-1-5000-17-500-5000-20000-3000-100-1-true-1",
-                # "autotune-setting13-true-streamsluice-streamsluice-90-100-300-1-2.0-6-0.25-linear_phase_change-sine-1split2join1-1860-12500-900-15000-5000-0-1-0-1-20-1-5000-1-20-1-5000-1-20-1-5000-17-500-5000-5000-3000-100-1-true-1",
-                # "autotune-setting13-true-streamsluice-streamsluice-90-100-300-1-2.0-6-0.25-linear_phase_change-sine-1split2join1-1860-12500-900-15000-5000-0-1-0-1-20-1-5000-1-20-1-5000-1-20-1-5000-17-500-5000-10000-3000-100-1-true-1",
-                # "autotune-setting13-true-streamsluice-streamsluice-90-100-300-1-2.0-6-0.25-linear_phase_change-sine-1split2join1-1860-12500-900-15000-5000-0-1-0-1-20-1-5000-1-20-1-5000-1-20-1-5000-17-500-5000-20000-3000-100-1-true-1",
+                "autotune-setting14-true-streamsluice-streamsluice-90-100-300-1-2.0-7-0.1-sine_two_phase-sine-1split2join1-660-12500-60-10000-10000-0-1-0-1-20-1-5000-1-20-1-5000-1-20-1-5000-17-500-5000-4000-3000-100-1-true-1",
+                "autotune-setting14-true-streamsluice-streamsluice-90-100-300-1-2.0-7-0.1-sine_two_phase-sine-1split2join1-660-12500-60-10000-10000-0-1-0-1-20-1-5000-1-20-1-5000-1-20-1-5000-17-500-5000-5000-3000-100-1-true-1",
+                "autotune-setting14-true-streamsluice-streamsluice-90-100-300-1-2.0-7-0.1-sine_two_phase-sine-1split2join1-660-12500-60-10000-10000-0-1-0-1-20-1-5000-1-20-1-5000-1-20-1-5000-17-500-5000-10000-3000-100-1-true-1",
+                 # "autotune-setting15-true-streamsluice-streamsluice-90-100-300-1-2.0-7-0.1-changing_amplitude_and_period-sine-1split2join1-1260-14000-60-10000-10000-0-1-0-1-20-1-5000-1-20-1-5000-1-20-1-5000-17-500-5000-4000-3000-100-1-true-1",
+                 # "autotune-setting15-true-streamsluice-streamsluice-90-100-300-1-2.0-7-0.1-changing_amplitude_and_period-sine-1split2join1-1260-14000-60-10000-10000-0-1-0-1-20-1-5000-1-20-1-5000-1-20-1-5000-17-500-5000-5000-3000-100-1-true-1",
+                 # "autotune-setting15-true-streamsluice-streamsluice-90-100-300-1-2.0-7-0.1-changing_amplitude_and_period-sine-1split2join1-1260-14000-60-10000-10000-0-1-0-1-20-1-5000-1-20-1-5000-1-20-1-5000-17-500-5000-7500-3000-100-1-true-1",
+                 # "autotune-setting15-true-streamsluice-streamsluice-90-100-300-1-2.0-7-0.1-changing_amplitude_and_period-sine-1split2join1-1260-14000-60-10000-10000-0-1-0-1-20-1-5000-1-20-1-5000-1-20-1-5000-17-500-5000-10000-3000-100-1-true-1",
+                 # "autotune-setting15-true-streamsluice-streamsluice-90-100-300-1-2.0-7-0.1-changing_amplitude_and_period-sine-1split2join1-1260-14000-60-10000-10000-0-1-0-1-20-1-5000-1-20-1-5000-1-20-1-5000-17-500-5000-15000-3000-100-1-true-1",
+                 # "autotune-setting15-true-streamsluice-streamsluice-90-100-300-1-2.0-7-0.1-changing_amplitude_and_period-sine-1split2join1-1260-14000-60-10000-10000-0-1-0-1-20-1-5000-1-20-1-5000-1-20-1-5000-17-500-5000-20000-3000-100-1-true-1",
+                # "autotune-setting13-true-streamsluice-streamsluice-90-100-300-1-2.0-7-0.1-linear_phase_change-sine-1split2join1-1860-12500-900-15000-5000-0-1-0-1-20-1-5000-1-20-1-5000-1-20-1-5000-17-500-5000-5000-3000-100-1-true-1",
+                # "autotune-setting13-true-streamsluice-streamsluice-90-100-300-1-2.0-7-0.1-linear_phase_change-sine-1split2join1-1860-12500-900-15000-5000-0-1-0-1-20-1-5000-1-20-1-5000-1-20-1-5000-17-500-5000-10000-3000-100-1-true-1",
+                # "autotune-setting13-true-streamsluice-streamsluice-90-100-300-1-2.0-7-0.1-linear_phase_change-sine-1split2join1-1860-12500-900-15000-5000-0-1-0-1-20-1-5000-1-20-1-5000-1-20-1-5000-17-500-5000-15000-3000-100-1-true-1",
+                # "autotune-setting13-true-streamsluice-streamsluice-90-100-300-1-2.0-7-0.1-linear_phase_change-sine-1split2join1-1860-12500-900-15000-5000-0-1-0-1-20-1-5000-1-20-1-5000-1-20-1-5000-17-500-5000-20000-3000-100-1-true-1",
+                # "autotune-setting13-true-streamsluice-streamsluice-90-100-300-1-2.0-7-0.1-linear_phase_change-sine-1split2join1-1860-12500-900-15000-5000-0-1-0-1-20-1-5000-1-20-1-5000-1-20-1-5000-17-500-5000-25000-3000-100-1-true-1"
             ]
         }
     }
