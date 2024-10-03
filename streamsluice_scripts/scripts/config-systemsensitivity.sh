@@ -32,7 +32,7 @@ function stopFlink() {
 function configFlink() {
     # set user requirement
     echo $L
-    sed 's/^\(\s*streamsluice.requirement.latency\s*:\s*\).*/\1'"$L"'/' ${FLINK_CONF_DIR}/flink-conf.yaml > tmp1
+    sed 's/^\(\s*streamsluice.requirement.latency\s*:\s*\).*/\1'"$L"'/' ${FLINK_CONF_DIR}/flink-conf-systemsensitivity.yaml > tmp1
     echo $migration_overhead
     sed 's/^\(\s*streamsluice.system.migration_overhead\s*:\s*\).*/\1'"$migration_overhead"'/' tmp1 > tmp2
     echo $vertex_id
