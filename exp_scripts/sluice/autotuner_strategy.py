@@ -544,8 +544,10 @@ def draw_parallelism_curve(rawDir, outputDir, exp_name, windowSize, startTime, e
     arrival_curves = [ax, ay]
     ax2.plot(ax, ay, '-', color='red', markersize=MARKERSIZE / 2, label="Arrival Rate")
     #ax2.set_ylabel('Rate (tps)')
-    ax2.set_ylim(0, 30000)
-    ax2.set_yticks(np.arange(0, 35000, 5000))
+    # ax2.set_ylim(0, 30000)
+    # ax2.set_yticks(np.arange(0, 35000, 5000))
+    ax2.set_ylim(0, 5000)
+    ax2.set_yticks(np.arange(0, 6000, 1000))
     # legend = ["OP_" + str(jobIndex + 1) +"Arrival Rate"]
     legend = ["Arrival Rate"]
     # ax2.set_xlim(startTime * 1000, (startTime + exp_length) * 1000)
@@ -1094,7 +1096,15 @@ def main():
         24: {
             "bisection-no-increase": [
                 "lr-streamsluice-streamsluice-2190-30-1000-10-1-50-15-2000-1-50-55-1500-1000-0.1-100-1-0-0.0-true-3-true-1",
-                "lr-streamsluice-streamsluice-2190-30-1000-10-1-50-15-2000-1-50-55-1500-1500-0.1-100-1-0-0.0-true-3-true-1",
+                #"lr-streamsluice-streamsluice-2190-30-1000-10-1-50-15-2000-1-50-55-1500-1500-0.1-100-1-0-0.0-true-3-true-1",
+                "lr-streamsluice-streamsluice-2190-30-1000-10-1-50-15-2000-1-50-55-1500-2000-0.1-100-1-0-0.0-true-3-true-1",
+                "lr-streamsluice-streamsluice-2190-30-1000-10-1-50-15-2000-1-50-55-1500-2500-0.1-100-1-0-0.0-true-3-true-1",
+                "lr-streamsluice-streamsluice-2190-30-1000-10-1-50-15-2000-1-50-55-1500-3000-0.1-100-1-0-0.0-true-3-true-1",
+                "lr-streamsluice-streamsluice-2190-30-1000-10-1-50-15-2000-1-50-55-1500-1000-0.2-100-1-0-0.0-true-3-true-1",
+                "lr-streamsluice-streamsluice-2190-30-1000-10-1-50-15-2000-1-50-55-1500-1500-0.2-100-1-0-0.0-true-3-true-1",
+                "lr-streamsluice-streamsluice-2190-30-1000-10-1-50-15-2000-1-50-55-1500-2000-0.2-100-1-0-0.0-true-3-true-1",
+                "lr-streamsluice-streamsluice-2190-30-1000-10-1-50-15-2000-1-50-55-1500-2500-0.2-100-1-0-0.0-true-3-true-1",
+                "lr-streamsluice-streamsluice-2190-30-1000-10-1-50-15-2000-1-50-55-1500-3000-0.2-100-1-0-0.0-true-3-true-1",
             ]
         }
 
