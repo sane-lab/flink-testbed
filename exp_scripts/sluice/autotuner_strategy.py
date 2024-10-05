@@ -1095,9 +1095,11 @@ def main():
         # },
         24: {
             "bisection-no-increase": [
-                #"lr-streamsluice-streamsluice-2190-30-1000-10-1-50-1-50-1-50-65-3333-1000-0.1-100-1-0-0.0-true-3-true-1",
-                "lr-streamsluice-streamsluice-2190-30-1000-10-1-50-1-50-1-50-65-3333-1500-0.1-100-1-0-0.0-true-3-true-1",
-                "lr-streamsluice-streamsluice-2190-30-1000-10-1-50-1-50-1-50-65-3333-2000-0.1-100-1-0-0.0-true-3-true-1",
+                "lr-streamsluice-streamsluice-2190-30-1000-10-1-50-1-50-1-50-50-3333-1000-0.1-100-1-0-0.0-true-3-true-1",
+                "lr-streamsluice-streamsluice-2190-30-1000-10-1-50-1-50-1-50-50-3333-1500-0.1-100-1-0-0.0-true-3-true-1",
+                "lr-streamsluice-streamsluice-2190-30-1000-10-1-50-1-50-1-50-50-3333-2000-0.1-100-1-0-0.0-true-3-true-1",
+                "lr-streamsluice-streamsluice-2190-30-1000-10-1-50-1-50-1-50-50-3333-2500-0.1-100-1-0-0.0-true-3-true-1",
+                "lr-streamsluice-streamsluice-2190-30-1000-10-1-50-1-50-1-50-50-3333-3000-0.1-100-1-0-0.0-true-3-true-1",
             ]
         }
 
