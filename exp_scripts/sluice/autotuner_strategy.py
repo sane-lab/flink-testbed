@@ -604,8 +604,8 @@ def draw_parallelism_curve(rawDir, outputDir, exp_name, windowSize, startTime, e
         ax1.plot(scalingPoints[0], scalingPoints[1], 'o', color="orange", mfc='none', markersize=MARKERSIZE * 2, label="Scaling")
         ax1.legend(legend, loc='upper left', bbox_to_anchor=(-0.1, 1.3), ncol=3, markerscale=4.)
         # ax1.set_ylabel('OP_'+str(jobIndex+1)+' Parallelism')
-        ax1.set_ylim(4, 32) #17)
-        ax1.set_yticks(np.arange(4, 34, 2)) #18, 1))
+        ax1.set_ylim(10, 60) #(4, 32) #17)
+        ax1.set_yticks(np.arange(10, 70, 5)) # (4, 34, 2)) #18, 1))
 
         ax1.set_xlim(startTime * 1000, (startTime + exp_length) * 1000)
         ax1.set_xticks(np.arange(startTime * 1000, (startTime + exp_length) * 1000 + (exp_length / 10) * 1000, (exp_length / 10) * 1000))
@@ -1095,11 +1095,10 @@ def main():
         # },
         24: {
             "bisection-no-increase": [
-                "lr-streamsluice-streamsluice-2190-30-1000-10-1-50-1-50-1-50-50-3333-1000-0.1-100-1-0-0.0-true-3-true-1",
-                "lr-streamsluice-streamsluice-2190-30-1000-10-1-50-1-50-1-50-50-3333-1500-0.1-100-1-0-0.0-true-3-true-1",
-                "lr-streamsluice-streamsluice-2190-30-1000-10-1-50-1-50-1-50-50-3333-2000-0.1-100-1-0-0.0-true-3-true-1",
-                "lr-streamsluice-streamsluice-2190-30-1000-10-1-50-1-50-1-50-50-3333-2500-0.1-100-1-0-0.0-true-3-true-1",
-                "lr-streamsluice-streamsluice-2190-30-1000-10-1-50-1-50-1-50-50-3333-3000-0.1-100-1-0-0.0-true-3-true-1",
+                "lr-streamsluice-streamsluice-2190-30-1000-10-1-50-1-50-1-50-50-3333-1000-0.1-100-1-0-0.0-true-3000-1",
+                "lr-streamsluice-streamsluice-2190-30-1000-10-1-50-1-50-1-50-50-3333-1500-0.1-100-1-0-0.0-true-3000-1",
+                "lr-streamsluice-streamsluice-2190-30-1000-10-1-50-1-50-1-50-50-3333-2000-0.1-100-1-0-0.0-true-3000-1",
+                "lr-streamsluice-streamsluice-2190-30-1000-10-1-50-1-50-1-50-50-3333-2500-0.1-100-1-0-0.0-true-3000-1",
             ]
         }
 
@@ -1118,7 +1117,7 @@ def main():
             converged_bar_per_label[label] = []
             for exp_name in exps:
                 if exp_name.startswith("lr"):
-                    latency_bar = int(exp_name.split('-')[-10])
+                    latency_bar = int(exp_name.split('-')[-9])
                 else:
                     latency_bar = int(exp_name.split('-')[-6])
                 success_rate, first_converge_time, converged_bar = draw_latency_curves(raw_dir, output_dir + exp_name + '/', exp_name,
