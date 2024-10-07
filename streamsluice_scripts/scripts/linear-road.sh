@@ -161,7 +161,7 @@ run_stock_test(){
     autotuner="UserLimitTuner"
     autotuner_latency_window=100
     autotuner_bar_lowerbound=200 #300
-    autotuner_initial_value_option=1
+    autotuner_initial_value_option=4 # 1
     autotuner_adjustment_option=1
     autotuner_increase_bar_option=1 # 2
     autotuner_initial_value_alpha=1.2
@@ -174,8 +174,8 @@ run_stock_test(){
     spike_slope=0.7
     autotuner_increase_bar_option=7 # 3 5
     autotuner_increase_bar_alpha=0.1 #0.25
-    for autotuner_increase_bar_alpha in 0.1 0.2 0.4; do
-      for L in 1000 1500 2000 2500 3000; do
+    for autotuner_increase_bar_alpha in 0.1; do # 0.2 0.4
+      for L in 3000; do # 1000 1500 2000 2500
           whether_type="streamsluice"
           how_type="streamsluice"
           scalein_type="streamsluice"
@@ -183,10 +183,13 @@ run_stock_test(){
           printf "${EXP_NAME}\n" >> lr_result.txt
       done
     done
-#        is_treat=false
-#        run_one_exp
-#        printf "${EXP_NAME}\n" >> lr_result.txt
-#        is_treat=true
+
+    autotune=false
+    is_treat=false
+    epoch=100
+    run_one_exp
+    printf "${EXP_NAME}\n" >> lr_result.txt
+    is_treat=true
 
 #        whether_type="ds2"
 #        how_type="ds2"
