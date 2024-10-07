@@ -52,7 +52,7 @@ init() {
   runtime=2190 #2190 #1290 #3990
   skip_interval=10 #120 #300 # skip seconds
   warmup=10000
-  warmup_time=30
+  warmup_time=300 #30
   warmup_rate=1000
   repeat=1
   spike_estimation="linear_regression"
@@ -84,7 +84,7 @@ init() {
   LP2=1
   LP3=1
   LP4=1
-  LP5=50
+  LP5=46
 #  LP6=1
 #  LP7=60
 #  LP8=1
@@ -94,7 +94,7 @@ init() {
   P2=1
   P3=1
   P4=1
-  P5=50
+  P5=46
 #  P6=1
 #  P7=65
 #  P8=1
@@ -103,7 +103,7 @@ init() {
   DELAY2=50
   DELAY3=50 #2000
   DELAY4=50
-  DELAY5=2000 #3333 #1500
+  DELAY5=3333 #2000 #1500
 #  DELAY6=10
 #  DELAY7=500
 #  DELAY8=10
@@ -174,8 +174,8 @@ run_stock_test(){
     spike_slope=0.7
     autotuner_increase_bar_option=7 # 3 5
     autotuner_increase_bar_alpha=0.1 #0.25
-    for autotuner_increase_bar_alpha in 0.1; do # 0.2 0.4
-      for L in 3000; do # 1000 1500 2000 2500
+    for autotuner_increase_bar_alpha in 0.1 0.2 0.4; do #
+      for L in 2000 2500 5000; do # 1000 1500 2000 2500
           whether_type="streamsluice"
           how_type="streamsluice"
           scalein_type="streamsluice"
@@ -184,11 +184,11 @@ run_stock_test(){
       done
     done
 
-    autotune=false
-    is_treat=false
-    epoch=100
-    run_one_exp
-    printf "${EXP_NAME}\n" >> lr_result.txt
+#    autotune=false
+#    is_treat=false
+#    epoch=100
+#    run_one_exp
+#    printf "${EXP_NAME}\n" >> lr_result.txt
     is_treat=true
 
 #        whether_type="ds2"
