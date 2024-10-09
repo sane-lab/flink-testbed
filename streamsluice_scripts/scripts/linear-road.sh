@@ -49,7 +49,7 @@ init() {
   how_type="streamsluice"
   scalein_type="streamsluice"
   L=2000
-  runtime=2190 #2190 #1290 #3990
+  runtime=690 #2190 #2190 #1290 #3990
   skip_interval=10 #120 #300 # skip seconds
   warmup=10000
   warmup_time=300 #30
@@ -174,8 +174,8 @@ run_stock_test(){
     spike_slope=0.7
     autotuner_increase_bar_option=7 # 3 5
     autotuner_increase_bar_alpha=0.1 #0.25
-    for autotuner_increase_bar_alpha in 0.1 0.2 0.4; do #
-      for L in 2000 2500 5000; do # 1000 1500 2000 2500
+    for autotuner_increase_bar_alpha in 0.1; do #
+      for L in 2500; do # 1000 1500 2000 2500
           whether_type="streamsluice"
           how_type="streamsluice"
           scalein_type="streamsluice"
