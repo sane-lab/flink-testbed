@@ -53,7 +53,7 @@ init() {
   skip_interval=10 #120 #300 # skip seconds
   warmup=10000
   warmup_time=300 #30
-  warmup_rate=1000
+  warmup_rate=1300
   repeat=1
   spike_estimation="linear_regression"
   spike_slope=0.75
@@ -175,13 +175,6 @@ run_stock_test(){
     autotuner_increase_bar_option=7 # 3 5
     autotuner_increase_bar_alpha=0.1 #0.25
 
-    autotune=false
-    is_treat=false
-    epoch=100
-    run_one_exp
-    printf "${EXP_NAME}\n" >> lr_result.txt
-    is_treat=true
-    autotune=true
     for autotuner_increase_bar_alpha in 0.1; do #
       for L in 2500; do # 1000 1500 2000 2500
           whether_type="streamsluice"
@@ -191,6 +184,12 @@ run_stock_test(){
           printf "${EXP_NAME}\n" >> lr_result.txt
       done
     done
+    autotune=false
+    is_treat=false
+    run_one_exp
+    printf "${EXP_NAME}\n" >> lr_result.txt
+    is_treat=true
+    autotune=true
 
 #        whether_type="ds2"
 #        how_type="ds2"
