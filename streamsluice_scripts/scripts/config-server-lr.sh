@@ -60,7 +60,7 @@ sed 's/^\(\s*model.vertex\s*:\s*\).*/\1'"$vertex_id"'/' tmp2 > tmp3
     sed 's/^\(\s*controller.how.more_optimizaiton\s*:\s*\).*/\1'"$how_more_optimization_flag"'/' tmp23 > tmp24
     sed 's/^\(\s*controller.how.optimizaiton\s*:\s*\).*/\1'"$how_optimization_flag"'/' tmp24 > tmp25
     sed 's/^\(\s*controller.how.conservative\s*:\s*\).*/\1'"$how_conservative_flag"'/' tmp25 > tmp26
-    sed 's/^\(\s*controller.steady_limit\s*:\s*\).*/\1'"$how_steady_limit_flag"'/' tmp26 > tmp27
+    sed 's/^\(\s*controller.steady_limit\s*:\s*\).*/\1'"$how_intrinsic_bound_flag"'/' tmp26 > tmp27
     sed 's/^\(\s*model.coordination_latency_flag\s*:\s*\).*/\1'"$coordination_latency_flag"'/' tmp27 > tmp28
     sed 's/^\(\s*model.conservative_service_rate_flag\s*:\s*\).*/\1'"$conservative_service_rate_flag"'/' tmp28 > tmp29
     sed 's/^\(\s*streamsluice.system.backlog_smooth\s*:\s*\).*/\1'"$smooth_backlog_flag"'/' tmp29 > tmp30

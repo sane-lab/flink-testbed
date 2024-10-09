@@ -149,7 +149,7 @@ run_stock_test(){
     printf "" > lr_result.txt
     how_more_optimization_flag=false
     how_optimization_flag=false
-    how_steady_limit_flag=true
+    how_intrinsic_bound_flag=true
     how_conservative_flag=false # true
     coordination_latency_flag=true
     conservative_service_rate_flag=true # false

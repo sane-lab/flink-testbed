@@ -328,7 +328,7 @@ controller.how.optimizaiton: false
 
 controller.how.conservative: false
 
-controller.steady_limit: false
+controller.intrinsic_bound: false
 
 controller.scale_in.type: streamsluice
 
