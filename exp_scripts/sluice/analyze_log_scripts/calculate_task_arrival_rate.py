@@ -36,3 +36,4 @@ for task, keys in key_task_mapping.items():
 # Output the total arrival rates for each task
 for task, rate in task_total_arrival_rate.items():
     print(f"{task}: {rate}")
+print("total arrival: " + str(sum(task_total_arrival_rate.values())))
