@@ -106,7 +106,7 @@ init() {
   LP4=4
   LP5=10
   LP6=1
-  LP7=15
+  LP7=1 # 15
 
   P1=1
   P2=1
@@ -114,14 +114,14 @@ init() {
   P4=3
   P5=5
   P6=1
-  P7=8
+  P7=1 #8
 
   # Original setting
   DELAY2=200
   DELAY3=2500
   DELAY4=500
   DELAY5=1500
-  DELAY7=2000
+  DELAY7=200 #2000
 }
 
 # run applications

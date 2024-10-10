@@ -264,7 +264,7 @@ exps = [
     #"test_metric-streamsluice-ds2-false-false-true-false-when-linear-1op_line-170-7000-4000-4000-1-0-2-300-1-5000-2-300-1-5000-1-50-1-5000-3-600-5000-1000-3000-100-1-false-1",
     # "test_metric-streamsluice-ds2-true-false-true-false-when-gradient-4op_line-170-6000-4000-4000-1-0-2-300-1-5000-2-300-1-5000-1-50-1-5000-3-600-5000-1000-3000-100-1-false-1",
     #"test_metric1-streamsluice-ds2-true-false-true-false-when-gradient-4op_line-170-6000-4000-4000-1-0-2-300-1-5000-2-300-1-5000-1-50-1-5000-3-600-5000-1000-3000-100-1-0-false-1",
-    "test_metric-streamsluice-ds2-false-false-true-false-when-gradient-4op_line-170-6000-4000-4000-1-0-2-300-1-5000-2-300-1-5000-1-50-1-5000-3-600-5000-1000-3000-100-1-false-1",
+    #"test_metric-streamsluice-ds2-false-false-true-false-when-gradient-4op_line-170-6000-4000-4000-1-0-2-300-1-5000-2-300-1-5000-1-50-1-5000-3-600-5000-1000-3000-100-1-false-1",
     # "test_metric-streamsluice-streamsluice-true-false-true-false-when-linear-4op_line-170-8000-4000-4000-1-0-2-300-1-5000-2-300-1-5000-1-50-1-5000-3-600-5000-1000-3000-100-1-true-1",
     # "test_metric-streamsluice-streamsluice-false-false-true-false-when-linear-4op_line-170-8000-4000-4000-1-0-2-300-1-5000-2-300-1-5000-1-50-1-5000-3-600-5000-1000-3000-100-1-true-1",
     # "test_metric-streamsluice-ds2-true-false-true-false-normal-linear-1split2join1-170-4000-4000-4000-1-0.1-1-300-1-5000-2-300-1-5000-3-50-1-5000-6-500-5000-1000-3000-100-1-0.1-false-1",
@@ -275,9 +275,10 @@ exps = [
     #"test_metric-streamsluice-streamsluice-false-false-true-false-normal-linear-1split2join1-170-4000-4000-4000-1-0.1-1-50-1-5000-2-50-1-5000-3-50-1-5000-6-600-5000-1000-3000-100-1-0.1-true-1",
     #"test_metric-streamsluice-streamsluice-true-false-true-false-normal-linear-1split2join1-170-4000-4000-4000-1-0.2-1-50-1-5000-2-50-1-5000-3-50-1-5000-6-600-5000-1000-3000-100-1-0.2-true-1",
     #"test_metric-streamsluice-streamsluice-false-false-true-false-normal-linear-1split2join1-170-4000-4000-4000-1-0.2-1-50-1-5000-2-50-1-5000-3-50-1-5000-6-600-5000-1000-3000-100-1-0.2-true-1",
+    "stock-streamsluice-streamsluice-690-30-1000-20-1-200-6-2500-3-500-5-1500-1-8-2000-5000-100-true-3-true-1",
 ]
-start_time=30
-exp_length=120
+start_time=0
+exp_length=600
 
 for expName in exps:
     #verify_key_total(rawDir, expName)
