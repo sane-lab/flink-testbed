@@ -101,20 +101,20 @@ init() {
 #  DELAY5=3000
 #  DELAY7=4000
 
-  LP2=2
+  LP2=1
   LP3=10
-  LP4=5
+  LP4=4
   LP5=10
   LP6=1
-  LP7=10
+  LP7=15
 
   P1=1
-  P2=2
+  P2=1
   P3=6
   P4=3
   P5=5
   P6=1
-  P7=5
+  P7=8
 
   # Original setting
   DELAY2=200
@@ -179,29 +179,29 @@ run_stock_test(){
     autotuner_increase_bar_option=7 # 3 5
     autotuner_increase_bar_alpha=0.1 #0.25
     for autotuner_increase_bar_alpha in 0.1; do #
-      for L in 2500 5000; do # 1000 1500 2000 2500
+      for L in 5000; do
           whether_type="streamsluice"
           how_type="streamsluice"
           scalein_type="streamsluice"
           run_one_exp
-          printf "${EXP_NAME}\n" >> lr_result.txt
+          printf "${EXP_NAME}\n" >> stock_result.txt
       done
     done
-    autotune=false
-    is_treat=false
-    run_one_exp
-    printf "${EXP_NAME}\n" >> lr_result.txt
-    is_treat=true
-    autotune=true
+#    autotune=false
+#    is_treat=false
+#    run_one_exp
+#    printf "${EXP_NAME}\n" >> stock_result.txt
+#    is_treat=true
+#    autotune=true
 
-    for repeat in 1; do # 2 3 4 5; do
-        whether_type="streamsluice"
-        how_type="streamsluice"
-        scalein_type="streamsluice"
-        is_treat=true
-        run_one_exp
-        printf "${EXP_NAME}\n" >> stock_result.txt
-    done
+#    for repeat in 1; do # 2 3 4 5; do
+#        whether_type="streamsluice"
+#        how_type="streamsluice"
+#        scalein_type="streamsluice"
+#        is_treat=true
+#        run_one_exp
+#        printf "${EXP_NAME}\n" >> stock_result.txt
+#    done
 
     # Change rate
 #    for DELAY3 in 2500 3750 7500 10000; do
