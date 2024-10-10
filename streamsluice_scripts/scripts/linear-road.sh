@@ -103,7 +103,7 @@ init() {
   DELAY2=50
   DELAY3=50 #2000
   DELAY4=50
-  DELAY5=3333 #2000 #1500
+  DELAY5=1666 #200  #2000 #1500
 #  DELAY6=10
 #  DELAY7=500
 #  DELAY8=10
@@ -174,15 +174,13 @@ run_stock_test(){
     spike_slope=0.7
     autotuner_increase_bar_option=7 # 3 5
     autotuner_increase_bar_alpha=0.1 #0.25
-    for DELAY5 in 3333 2500; do
-      for autotuner_increase_bar_alpha in 0.1; do #
-        for L in 2500 5000; do # 1000 1500 2000 2500
-            whether_type="streamsluice"
-            how_type="streamsluice"
-            scalein_type="streamsluice"
-            run_one_exp
-            printf "${EXP_NAME}\n" >> lr_result.txt
-        done
+    for autotuner_increase_bar_alpha in 0.1; do #
+      for L in 5000; do # 1000 1500 2000 2500
+          whether_type="streamsluice"
+          how_type="streamsluice"
+          scalein_type="streamsluice"
+          run_one_exp
+          printf "${EXP_NAME}\n" >> lr_result.txt
       done
     done
 #    autotune=false
