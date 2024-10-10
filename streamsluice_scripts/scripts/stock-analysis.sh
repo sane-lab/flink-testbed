@@ -49,7 +49,7 @@ init() {
   how_type="streamsluice"
   scalein_type="streamsuice"
   L=2000
-  runtime=2190 #3990 #
+  runtime=690 #2190 #3990 #
   skip_interval=20 # skip seconds
   warmup=10000
   warmup_time=30
@@ -79,27 +79,49 @@ init() {
   MP6=128
   MP7=128
 
-  LP2=5
-  LP3=20
-  LP4=10
-  LP5=20
+#  LP2=5
+#  LP3=20
+#  LP4=10
+#  LP5=20
+#  LP6=1
+#  LP7=20
+#
+#  P1=1
+#  P2=2
+#  P3=6
+#  P4=3
+#  P5=4
+#  P6=1
+#  P7=5
+
+#  # Original setting
+#  DELAY2=500
+#  DELAY3=5000
+#  DELAY4=1000
+#  DELAY5=3000
+#  DELAY7=4000
+
+  LP2=2
+  LP3=10
+  LP4=5
+  LP5=10
   LP6=1
-  LP7=20
+  LP7=10
 
   P1=1
   P2=2
   P3=6
   P4=3
-  P5=4
+  P5=5
   P6=1
   P7=5
 
   # Original setting
-  DELAY2=500
-  DELAY3=5000
-  DELAY4=1000
-  DELAY5=3000
-  DELAY7=4000
+  DELAY2=200
+  DELAY3=2500
+  DELAY4=500
+  DELAY5=1500
+  DELAY7=2000
 }
 
 # run applications
@@ -129,6 +151,49 @@ run_stock_test(){
     init
     printf "" > stock_result.txt
 
+    how_more_optimization_flag=false
+    how_optimization_flag=false
+    how_intrinsic_bound_flag=true
+    how_conservative_flag=false # true
+    coordination_latency_flag=true
+    conservative_service_rate_flag=true # false
+    smooth_backlog_flag=false
+    new_metrics_retriever_flag=true
+
+    autotune=true
+    autotune_interval=60
+    autotuner="UserLimitTuner"
+    autotuner_latency_window=100
+    autotuner_bar_lowerbound=200 #300
+    autotuner_initial_value_option=4 # 1
+    autotuner_adjustment_option=1
+    autotuner_increase_bar_option=1 # 2
+    autotuner_initial_value_alpha=1.2
+    autotuner_adjustment_beta=2.0
+    epoch=100
+    decision_interval=1 #10
+    snapshot_size=20
+    L=1000 #2000 #2500
+    migration_interval=3000 #500
+    spike_slope=0.7
+    autotuner_increase_bar_option=7 # 3 5
+    autotuner_increase_bar_alpha=0.1 #0.25
+    for autotuner_increase_bar_alpha in 0.1; do #
+      for L in 2500 5000; do # 1000 1500 2000 2500
+          whether_type="streamsluice"
+          how_type="streamsluice"
+          scalein_type="streamsluice"
+          run_one_exp
+          printf "${EXP_NAME}\n" >> lr_result.txt
+      done
+    done
+    autotune=false
+    is_treat=false
+    run_one_exp
+    printf "${EXP_NAME}\n" >> lr_result.txt
+    is_treat=true
+    autotune=true
+
     for repeat in 1; do # 2 3 4 5; do
         whether_type="streamsluice"
         how_type="streamsluice"
@@ -136,24 +201,6 @@ run_stock_test(){
         is_treat=true
         run_one_exp
         printf "${EXP_NAME}\n" >> stock_result.txt
-#        is_treat=false
-#        run_one_exp
-#        printf "${EXP_NAME}\n" >> stock_result.txt
-        is_treat=true
-
-#        whether_type="ds2"
-#        how_type="ds2"
-#        scalein_type="ds2"
-#        migration_interval=2500
-#        run_one_exp
-#        printf "${EXP_NAME}\n" >> stock_result.txt
-
-#        whether_type="streamswitch"
-#        how_type="streamswitch"
-#        scalein_type="streamswitch"
-#        migration_interval=2000
-#        run_one_exp
-#        printf "${EXP_NAME}\n" >> stock_result.txt
     done
 
     # Change rate

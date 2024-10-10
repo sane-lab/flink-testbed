@@ -36,7 +36,7 @@ function configFlink() {
     echo $migration_overhead
     sed 's/^\(\s*streamsluice.system.migration_overhead\s*:\s*\).*/\1'"$migration_overhead"'/' tmp1 > tmp2
     echo $vertex_id
-sed 's/^\(\s*model.vertex\s*:\s*\).*/\1'"$vertex_id"'/' tmp2 > tmp3
+    sed 's/^\(\s*model.vertex\s*:\s*\).*/\1'"$vertex_id"'/' tmp2 > tmp3
     sed 's/^\(\s*streamsluice.system.metrics_interval\s*:\ss*\).*/\1'"$epoch"'/' tmp3 > tmp4
     sed 's/^\(\s*model.warmup\s*:\s*\).*/\1'"$warmup"'/' tmp4 > tmp5
     sed 's/^\(\s*streamsluice.system.migration_interval\s*:\s*\).*/\1'"$migration_interval"'/' tmp5 > tmp6
