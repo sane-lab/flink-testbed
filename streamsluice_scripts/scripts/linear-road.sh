@@ -49,10 +49,10 @@ init() {
   how_type="streamsluice"
   scalein_type="streamsluice"
   L=2000
-  runtime=2190 #2190 #2190 #1290 #3990
+  runtime=780 #2190
   skip_interval=10 #120 #300 # skip seconds
   warmup=10000
-  warmup_time=300 #30
+  warmup_time=150 #300
   warmup_rate=1300
   repeat=1
   spike_estimation="linear_regression"
@@ -81,9 +81,9 @@ init() {
 #  MP8=128
 #  MP9=128
 
-  LP2=1
-  LP3=6
-  LP4=1
+  LP2=2
+  LP3=2
+  LP4=2
   LP5=30
 #  LP6=1
 #  LP7=60
@@ -92,16 +92,16 @@ init() {
 
   P1=1
   P2=1
-  P3=6
+  P3=2
   P4=1
-  P5=30
+  P5=36
 #  P6=1
 #  P7=65
 #  P8=1
 #  P9=1
 
   DELAY2=50
-  DELAY3=2000
+  DELAY3=1000
   DELAY4=50
   DELAY5=1666 #200  #2000 #1500
 #  DELAY6=10
@@ -175,7 +175,7 @@ run_stock_test(){
     autotuner_increase_bar_option=7 # 3 5
     autotuner_increase_bar_alpha=0.1 #0.25
     for autotuner_increase_bar_alpha in 0.1; do #
-      for L in 5000; do # 1000 1500 2000 2500
+      for L in 2500 5000; do # 1000 1500 2000 2500
           whether_type="streamsluice"
           how_type="streamsluice"
           scalein_type="streamsluice"
@@ -183,12 +183,12 @@ run_stock_test(){
           printf "${EXP_NAME}\n" >> lr_result.txt
       done
     done
-#    autotune=false
-#    is_treat=false
-#    run_one_exp
-#    printf "${EXP_NAME}\n" >> lr_result.txt
-#    is_treat=true
-#    autotune=true
+    autotune=false
+    is_treat=false
+    run_one_exp
+    printf "${EXP_NAME}\n" >> lr_result.txt
+    is_treat=true
+    autotune=true
 
 #        whether_type="ds2"
 #        how_type="ds2"
