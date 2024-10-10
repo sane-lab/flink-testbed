@@ -213,8 +213,8 @@ def draw_latency_curves(raw_dir, output_dir, exp_name, window_size, start_time, 
     axes.set_xticklabels([int((x - start_time * 1000) / 1000) for x in
                           np.arange((start_time) * 1000, (start_time + exp_length) * 1000 + (exp_length / 10) * 1000, (exp_length / 10) * 1000)])
 
-    axes.set_ylim(0, 3000)
-    axes.set_yticks(np.arange(0, 3300, 300))
+    axes.set_ylim(0, 10000)
+    axes.set_yticks(np.arange(0, 11000, 1000))
     plt.grid(True)
     if not os.path.exists(output_dir):
         os.makedirs(output_dir)
@@ -724,8 +724,8 @@ def main():
     output_dir = "/Users/swrrt/Workplace/BacklogDelayPaper/experiments/results/"
     overall_output_dir = "/Users/swrrt/Workplace/BacklogDelayPaper/experiments/figures/autotuner/"
     window_size = 100
-    start_time = 0 #360 #360 #60
-    exp_length = 480 #120 #1800 #1200 #600
+    start_time = 1200 #360 #360 #360 #60
+    exp_length = 240 #120 #1800 #1200 #600
     exps_per_label = {
         # "option_1": [
         #     # "autotune-setting1-true-streamsluice-streamsluice-30-100-300-1-0.5-1-2.0-2-when-sine-1split2join1-660-12500-45-7500-10000-0-1-0-1-20-1-5000-1-20-1-5000-1-20-1-5000-17-500-5000-250-3000-100-1-true-1",
@@ -1095,18 +1095,8 @@ def main():
         # },
         24: {
             "bisection-no-increase": [
-               # "lr-streamsluice-streamsluice-2190-30-1000-10-1-50-1-50-1-50-50-3333-1000-0.1-100-1-0-0.0-true-3000-1",
-               # "lr-streamsluice-streamsluice-2190-30-1000-10-1-50-1-50-1-50-50-3333-1500-0.1-100-1-0-0.0-true-3000-1",
-               # "lr-streamsluice-streamsluice-2190-30-1000-10-1-50-1-50-1-50-50-3333-2000-0.1-100-1-0-0.0-true-3000-1",
-               # "lr-streamsluice-streamsluice-2190-30-1000-10-1-50-1-50-1-50-50-3333-2500-0.1-100-1-0-0.0-true-3000-1",
-               # "lr-streamsluice-streamsluice-2190-30-1000-10-1-50-1-50-1-50-50-2000-2500-0.1-100-1-0-0.0-true-3000-1",
-               # "lr-streamsluice-streamsluice-2190-30-1000-10-1-50-1-50-1-50-50-2000-3000-0.1-100-1-0-0.0-true-3000-1",
-               # "lr-streamsluice-streamsluice-2190-30-1000-10-1-50-1-50-1-50-50-2000-3000-0.1-100-1-0-0.0-false-3000-1"
-               # "lr-streamsluice-streamsluice-2190-300-1000-10-1-50-1-50-1-50-46-3333-2500-0.1-100-1-0-0.0-true-3000-1",
-               # "lr-streamsluice-streamsluice-2190-300-1000-10-1-50-1-50-1-50-46-3333-2500-0.1-100-1-0-0.0-true-3000-1",
-               #  "lr-streamsluice-streamsluice-2190-300-1000-10-1-50-1-50-1-50-46-3333-5000-0.1-100-1-0-0.0-true-3000-1",
-               #  "lr-streamsluice-streamsluice-2190-300-1000-10-1-50-1-50-1-50-46-3333-5000-0.4-100-1-0-0.0-false-3000-1",
-                 "lr-streamsluice-streamsluice-2190-300-1000-10-1-50-1-50-1-50-40-3333-1000-0.1-100-1-0-0.0-false-3000-1",
+                "lr-streamsluice-streamsluice-2190-300-1300-10-1-50-1-50-1-50-40-3333-2500-0.1-100-1-0-0.0-true-3000-1",
+             #   "lr-streamsluice-streamsluice-2190-300-1300-10-1-50-1-50-1-50-40-3333-2500-0.1-100-1-0-0.0-false-3000-1",
             ]
         }
 
