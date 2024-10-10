@@ -724,8 +724,8 @@ def main():
     output_dir = "/Users/swrrt/Workplace/BacklogDelayPaper/experiments/results/"
     overall_output_dir = "/Users/swrrt/Workplace/BacklogDelayPaper/experiments/figures/autotuner/"
     window_size = 100
-    start_time = 360 #540 #360 #1200 #360 #360 #60
-    exp_length = 1800 #180 #1800 #240 #1800 #1200 #600
+    start_time = 1260 #540 #360 #1200 #360 #360 #60
+    exp_length = 240 #180 #1800 #240 #1800 #1200 #600
     exps_per_label = {
         # "option_1": [
         #     # "autotune-setting1-true-streamsluice-streamsluice-30-100-300-1-0.5-1-2.0-2-when-sine-1split2join1-660-12500-45-7500-10000-0-1-0-1-20-1-5000-1-20-1-5000-1-20-1-5000-17-500-5000-250-3000-100-1-true-1",
