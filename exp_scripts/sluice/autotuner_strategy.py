@@ -604,8 +604,10 @@ def draw_parallelism_curve(rawDir, outputDir, exp_name, windowSize, startTime, e
         ax1.plot(scalingPoints[0], scalingPoints[1], 'o', color="orange", mfc='none', markersize=MARKERSIZE * 2, label="Scaling")
         ax1.legend(legend, loc='upper left', bbox_to_anchor=(-0.1, 1.3), ncol=3, markerscale=4.)
         # ax1.set_ylabel('OP_'+str(jobIndex+1)+' Parallelism')
-        ax1.set_ylim(10, 60) #(4, 32) #17)
-        ax1.set_yticks(np.arange(10, 70, 5)) # (4, 34, 2)) #18, 1))
+        #ax1.set_ylim(10, 60) #(4, 32) #17)
+        #ax1.set_yticks(np.arange(10, 70, 5)) # (4, 34, 2)) #18, 1))
+        ax1.set_ylim(0, 40) #(4, 32) #17)
+        ax1.set_yticks(np.arange(0, 45, 5)) # (4, 34, 2)) #18, 1))
 
         ax1.set_xlim(startTime * 1000, (startTime + exp_length) * 1000)
         ax1.set_xticks(np.arange(startTime * 1000, (startTime + exp_length) * 1000 + (exp_length / 10) * 1000, (exp_length / 10) * 1000))
@@ -724,8 +726,8 @@ def main():
     output_dir = "/Users/swrrt/Workplace/BacklogDelayPaper/experiments/results/"
     overall_output_dir = "/Users/swrrt/Workplace/BacklogDelayPaper/experiments/figures/autotuner/"
     window_size = 100
-    start_time = 1260 #540 #360 #1200 #360 #360 #60
-    exp_length = 240 #180 #1800 #240 #1800 #1200 #600
+    start_time = 360 #1260 #540 #360 #1200 #360 #360 #60
+    exp_length = 1800 #240 #180 #1800 #240 #1800 #1200 #600
     exps_per_label = {
         # "option_1": [
         #     # "autotune-setting1-true-streamsluice-streamsluice-30-100-300-1-0.5-1-2.0-2-when-sine-1split2join1-660-12500-45-7500-10000-0-1-0-1-20-1-5000-1-20-1-5000-1-20-1-5000-17-500-5000-250-3000-100-1-true-1",
@@ -1095,8 +1097,9 @@ def main():
         # },
         24: {
             "bisection-no-increase": [
+             "lr-streamsluice-streamsluice-2190-300-1300-10-1-50-1-50-1-50-36-1666-5000-0.1-100-1-0-0.0-true-3000-1",
              #   "lr-streamsluice-streamsluice-2190-300-1300-10-1-50-1-50-1-50-36-2500-2500-0.1-100-1-0-0.0-true-3000-1",
-                "lr-streamsluice-streamsluice-2190-300-1300-10-1-50-1-50-1-50-36-2500-5000-0.1-100-1-0-0.0-true-3000-1",
+             #   "lr-streamsluice-streamsluice-2190-300-1300-10-1-50-1-50-1-50-36-2500-5000-0.1-100-1-0-0.0-true-3000-1",
              #   "lr-streamsluice-streamsluice-2190-300-1300-10-1-50-1-50-1-50-36-3333-2500-0.1-100-1-0-0.0-true-3000-1",
              #   "lr-streamsluice-streamsluice-2190-300-1300-10-1-50-1-50-1-50-36-3333-5000-0.1-100-1-0-0.0-true-3000-1",
              #   "lr-streamsluice-streamsluice-2190-300-1300-10-1-50-1-50-1-50-40-3333-2500-0.1-100-1-0-0.0-false-3000-1",
