@@ -49,10 +49,10 @@ init() {
   how_type="streamsluice"
   scalein_type="streamsuice"
   L=2000
-  runtime=690 #2190 #3990 #
+  runtime=720 #2190 #3990 #
   skip_interval=20 # skip seconds
   warmup=10000
-  warmup_time=30
+  warmup_time=90 #30
   warmup_rate=1000
   repeat=1
   spike_estimation="linear_regression"
@@ -110,18 +110,18 @@ init() {
 
   P1=1
   P2=1
-  P3=6
+  P3=18
   P4=1
   P5=2
   P6=1
-  P7=8
+  P7=18
 
   # Original setting
   DELAY2=200
   DELAY3=1500
   DELAY4=200
   DELAY5=500 #1500
-  DELAY7=2000
+  DELAY7=2500
 }
 
 # run applications
@@ -178,14 +178,14 @@ run_stock_test(){
     spike_slope=0.7
     autotuner_increase_bar_option=7 # 3 5
     autotuner_increase_bar_alpha=0.1 #0.25
-#    autotune=false
-#    is_treat=false
-#    run_one_exp
-#    printf "${EXP_NAME}\n" >> stock_result.txt
-#    is_treat=true
+    autotune=false
+    is_treat=false
+    run_one_exp
+    printf "${EXP_NAME}\n" >> stock_result.txt
+    is_treat=true
     autotune=true
     for autotuner_increase_bar_alpha in 0.1; do #
-      for L in 5000; do
+      for L in 2000; do
           whether_type="streamsluice"
           how_type="streamsluice"
           scalein_type="streamsluice"

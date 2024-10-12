@@ -275,7 +275,7 @@ exps = [
     #"test_metric-streamsluice-streamsluice-false-false-true-false-normal-linear-1split2join1-170-4000-4000-4000-1-0.1-1-50-1-5000-2-50-1-5000-3-50-1-5000-6-600-5000-1000-3000-100-1-0.1-true-1",
     #"test_metric-streamsluice-streamsluice-true-false-true-false-normal-linear-1split2join1-170-4000-4000-4000-1-0.2-1-50-1-5000-2-50-1-5000-3-50-1-5000-6-600-5000-1000-3000-100-1-0.2-true-1",
     #"test_metric-streamsluice-streamsluice-false-false-true-false-normal-linear-1split2join1-170-4000-4000-4000-1-0.2-1-50-1-5000-2-50-1-5000-3-50-1-5000-6-600-5000-1000-3000-100-1-0.2-true-1",
-    "stock-streamsluice-streamsluice-390-30-1000-20-1-200-6-200-3-200-5-200-1-1-100-1000-100-false-3-true-1",
+    "stock-streamsluice-streamsluice-690-30-1000-20-1-200-6-1500-1-200-2-500-1-8-2000-5000-100-true-3-true-1",
 ]
 start_time=0
 exp_length=600
