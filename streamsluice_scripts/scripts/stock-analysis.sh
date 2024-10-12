@@ -196,7 +196,7 @@ run_stock_test(){
         done
       done
     done
-    
+
 #    for repeat in 1; do # 2 3 4 5; do
 #        whether_type="streamsluice"
 #        how_type="streamsluice"

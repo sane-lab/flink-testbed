@@ -1103,7 +1103,7 @@ def main():
         # },
         24: {
             "bisection-no-increase": [
-                "lr-streamsluice-streamsluice-780-150-1300-10-1-50-2-1000-1-50-36-1666-2500-0.1-100-1-0-0.0-true-3000-2",
+                "tweet-streamsluice-streamsluice-720-90-1800-1-28-5000-10-1000-1-50-1-50-1000-100-true-3-1-2",
                 #"stock-streamsluice-streamsluice-690-30-1000-20-2-200-6-2500-3-500-5-1500-1-5-2000-2500-100-true-3-true-1",
                 #"stock-streamsluice-streamsluice-690-30-1000-20-2-200-6-2500-3-500-5-1500-1-5-2000-5000-100-true-3-true-1",
                 #"stock-streamsluice-streamsluice-690-30-1000-20-2-200-6-2500-3-500-5-1500-1-5-2000-5000-100-false-3-true-1",

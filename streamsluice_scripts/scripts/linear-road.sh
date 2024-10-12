@@ -177,7 +177,7 @@ run_stock_test(){
     repeat=2
     for scaling_decision_option in 1 2; do
       for autotuner_increase_bar_alpha in 0.1; do #
-        for L in 2500; do # 5000
+        for L in 4000 5000; do # 5000
             whether_type="streamsluice"
             how_type="streamsluice"
             scalein_type="streamsluice"
