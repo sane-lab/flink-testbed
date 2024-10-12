@@ -74,7 +74,8 @@ function configFlink() {
     sed 's/^\(\s*streamsluice.system.autotune.initial_value_alpha\s*:\s*\).*/\1'"$autotuner_initial_value_alpha"'/' tmp37 > tmp38
     sed 's/^\(\s*streamsluice.system.autotune.adjustment_beta\s*:\s*\).*/\1'"$autotuner_adjustment_beta"'/' tmp38 > tmp39
     sed 's/^\(\s*streamsluice.system.autotune.increase_bar_alpha\s*:\s*\).*/\1'"$autotuner_increase_bar_alpha"'/' tmp39 > tmp40
-    sed 's/^\(\s*controller.scale_in.type\s*:\s*\).*/\1'"$scalein_type"'/' tmp40 > ${FLINK_CONF_DIR}/flink-conf.yaml
+    sed 's/^\(\s*controller.whether.option\s*:\s*\).*/\1'"$scaling_decision_option"'/' tmp40 > tmp41
+    sed 's/^\(\s*controller.scale_in.type\s*:\s*\).*/\1'"$scalein_type"'/' tmp41 > ${FLINK_CONF_DIR}/flink-conf.yaml
 
     rm tmp*
     echo ${FLINK_CONF_DIR}/flink-conf.yaml

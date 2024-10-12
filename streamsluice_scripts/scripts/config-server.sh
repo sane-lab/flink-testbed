@@ -76,7 +76,8 @@ function configFlink() {
     sed 's/^\(\s*streamsluice.system.autotune.increase_bar_alpha\s*:\s*\).*/\1'"$autotuner_increase_bar_alpha"'/' tmp39 > tmp40
     sed 's/^\(\s*model.max_parallelism.36fcfcb61a35d065e60ee34fccb0541a\s*:\s*\).*/\1'"$LP6"'/' tmp40 > tmp41
     sed 's/^\(\s*model.max_parallelism.c395b989724fa728d0a2640c6ccdb8a1\s*:\s*\).*/\1'"$LP7"'/' tmp41 > tmp42
-    sed 's/^\(\s*controller.scale_in.type\s*:\s*\).*/\1'"$scalein_type"'/' tmp42 > ${FLINK_CONF_DIR}/flink-conf.yaml
+    sed 's/^\(\s*controller.whether.option\s*:\s*\).*/\1'"$scaling_decision_option"'/' tmp42 > tmp43
+    sed 's/^\(\s*controller.scale_in.type\s*:\s*\).*/\1'"$scalein_type"'/' tmp43 > ${FLINK_CONF_DIR}/flink-conf.yaml
 
     rm tmp*
     echo ${FLINK_CONF_DIR}/flink-conf.yaml
