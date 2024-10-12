@@ -732,7 +732,7 @@ def main():
     output_dir = "/Users/swrrt/Workplace/BacklogDelayPaper/experiments/results/"
     overall_output_dir = "/Users/swrrt/Workplace/BacklogDelayPaper/experiments/figures/autotuner/"
     window_size = 100
-    start_time = 90 #180 #0
+    start_time = 120  # tweet
     exp_length = 600 #2160
     exps_per_label = {
         # "option_1": [
@@ -1103,7 +1103,7 @@ def main():
         # },
         24: {
             "bisection-no-increase": [
-                "tweet-streamsluice-streamsluice-720-90-1800-1-28-5000-10-1000-1-50-1-50-1000-100-true-3-1-2",
+                "stock-streamsluice-streamsluice-720-90-1000-20-1-200-15-2500-1-200-2-500-1-21-3333-750-100-true-3-1-2",
                 #"stock-streamsluice-streamsluice-690-30-1000-20-2-200-6-2500-3-500-5-1500-1-5-2000-2500-100-true-3-true-1",
                 #"stock-streamsluice-streamsluice-690-30-1000-20-2-200-6-2500-3-500-5-1500-1-5-2000-5000-100-true-3-true-1",
                 #"stock-streamsluice-streamsluice-690-30-1000-20-2-200-6-2500-3-500-5-1500-1-5-2000-5000-100-false-3-true-1",
