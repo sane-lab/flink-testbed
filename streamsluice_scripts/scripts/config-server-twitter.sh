@@ -55,13 +55,28 @@ function configFlink() {
     sed 's/^\(\s*model.max_parallelism.eabd4c11f6c6fbdf011f0f1fc42097b1\s*:\s*\).*/\1'"$LP3"'/' tmp18 > tmp19
     sed 's/^\(\s*model.max_parallelism.d01047f852abd5702a0dabeedac99ff5\s*:\s*\).*/\1'"$LP4"'/' tmp19 > tmp20
     sed 's/^\(\s*model.max_parallelism.d2336f79a0d60b5a4b16c8769ec82e47\s*:\s*\).*/\1'"$LP5"'/' tmp20 > tmp21
-    sed 's/^\(\s*model.max_parallelism.36fcfcb61a35d065e60ee34fccb0541a\s*:\s*\).*/\1'"$LP6"'/' tmp21 > tmp22
-    sed 's/^\(\s*model.max_parallelism.c395b989724fa728d0a2640c6ccdb8a1\s*:\s*\).*/\1'"$LP7"'/' tmp22 > tmp23
-    sed 's/^\(\s*streamsluice.model.decision_interval\s*:\s*\).*/\1'"$decision_interval"'/' tmp23 > tmp24
-    sed 's/^\(\s*streamsluice.metrics.snapshot_size\s*:\s*\).*/\1'"$snapshot_size"'/' tmp24 > tmp25
-    sed 's/^\(\s*streamsluice.system.errorcase_number\s*:\s*\).*/\1'"$errorcase_number"'/' tmp25 > tmp26
-    sed 's/^\(\s*controller.scale_in.type\s*:\s*\).*/\1'"$scalein_type"'/' tmp26 > tmp27
-    sed 's/^\(\s*streamsluice.system.true_arrival_calibrated\s*:\s*\).*/\1'"$calibrate_selectivity"'/' tmp27 > ${FLINK_CONF_DIR}/flink-conf.yaml
+    sed 's/^\(\s*streamsluice.model.decision_interval\s*:\s*\).*/\1'"$decision_interval"'/' tmp21 > tmp22
+    sed 's/^\(\s*streamsluice.metrics.snapshot_size\s*:\s*\).*/\1'"$snapshot_size"'/' tmp22 > tmp23
+    sed 's/^\(\s*controller.how.more_optimizaiton\s*:\s*\).*/\1'"$how_more_optimization_flag"'/' tmp23 > tmp24
+    sed 's/^\(\s*controller.how.optimizaiton\s*:\s*\).*/\1'"$how_optimization_flag"'/' tmp24 > tmp25
+    sed 's/^\(\s*controller.how.conservative\s*:\s*\).*/\1'"$how_conservative_flag"'/' tmp25 > tmp26
+    sed 's/^\(\s*controller.steady_limit\s*:\s*\).*/\1'"$how_intrinsic_bound_flag"'/' tmp26 > tmp27
+    sed 's/^\(\s*model.coordination_latency_flag\s*:\s*\).*/\1'"$coordination_latency_flag"'/' tmp27 > tmp28
+    sed 's/^\(\s*model.conservative_service_rate_flag\s*:\s*\).*/\1'"$conservative_service_rate_flag"'/' tmp28 > tmp29
+    sed 's/^\(\s*streamsluice.system.backlog_smooth\s*:\s*\).*/\1'"$smooth_backlog_flag"'/' tmp29 > tmp30
+    sed 's/^\(\s*streamsluice.metrics.use_new_retriever\s*:\s*\).*/\1'"$new_metrics_retriever_flag"'/' tmp30 > tmp31
+    sed 's/^\(\s*streamsluice.system.autotuner\s*:\s*\).*/\1'"$autotuner"'/' tmp31 > tmp32
+    sed 's/^\(\s*streamsluice.system.autotune.latency_window\s*:\s*\).*/\1'"$autotuner_latency_window"'/' tmp32 > tmp33
+    sed 's/^\(\s*streamsluice.system.autotune.bar_lowerbound\s*:\s*\).*/\1'"$autotuner_bar_lowerbound"'/' tmp33 > tmp34
+    sed 's/^\(\s*streamsluice.system.autotune.initial_value_option\s*:\s*\).*/\1'"$autotuner_initial_value_option"'/' tmp34 > tmp35
+    sed 's/^\(\s*streamsluice.system.autotune.adjustment_option\s*:\s*\).*/\1'"$autotuner_adjustment_option"'/' tmp35 > tmp36
+    sed 's/^\(\s*streamsluice.system.autotune.increase_bar_option\s*:\s*\).*/\1'"$autotuner_increase_bar_option"'/' tmp36 > tmp37
+    sed 's/^\(\s*streamsluice.system.autotune.initial_value_alpha\s*:\s*\).*/\1'"$autotuner_initial_value_alpha"'/' tmp37 > tmp38
+    sed 's/^\(\s*streamsluice.system.autotune.adjustment_beta\s*:\s*\).*/\1'"$autotuner_adjustment_beta"'/' tmp38 > tmp39
+    sed 's/^\(\s*streamsluice.system.autotune.increase_bar_alpha\s*:\s*\).*/\1'"$autotuner_increase_bar_alpha"'/' tmp39 > tmp40
+    sed 's/^\(\s*model.max_parallelism.36fcfcb61a35d065e60ee34fccb0541a\s*:\s*\).*/\1'"$LP6"'/' tmp40 > tmp41
+    sed 's/^\(\s*model.max_parallelism.c395b989724fa728d0a2640c6ccdb8a1\s*:\s*\).*/\1'"$LP7"'/' tmp41 > tmp42
+    sed 's/^\(\s*controller.scale_in.type\s*:\s*\).*/\1'"$scalein_type"'/' tmp42 > ${FLINK_CONF_DIR}/flink-conf.yaml
 
     rm tmp*
     echo ${FLINK_CONF_DIR}/flink-conf.yaml

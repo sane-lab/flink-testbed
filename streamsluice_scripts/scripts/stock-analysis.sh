@@ -49,7 +49,7 @@ init() {
   how_type="streamsluice"
   scalein_type="streamsuice"
   L=2000
-  runtime=390 #690 #2190 #3990 #
+  runtime=690 #2190 #3990 #
   skip_interval=20 # skip seconds
   warmup=10000
   warmup_time=30
@@ -102,26 +102,26 @@ init() {
 #  DELAY7=4000
 
   LP2=1
-  LP3=10
-  LP4=4
-  LP5=10
+  LP3=18
+  LP4=1
+  LP5=2
   LP6=1
-  LP7=1 # 15
+  LP7=18
 
   P1=1
   P2=1
   P3=6
-  P4=3
-  P5=5
+  P4=1
+  P5=2
   P6=1
-  P7=1 #8
+  P7=8
 
   # Original setting
   DELAY2=200
-  DELAY3=200 #2500
-  DELAY4=200 #500
-  DELAY5=200 #1500
-  DELAY7=100 #2000
+  DELAY3=1500
+  DELAY4=200
+  DELAY5=500 #1500
+  DELAY7=2000
 }
 
 # run applications
@@ -178,11 +178,11 @@ run_stock_test(){
     spike_slope=0.7
     autotuner_increase_bar_option=7 # 3 5
     autotuner_increase_bar_alpha=0.1 #0.25
-    autotune=false
-    is_treat=false
-    run_one_exp
-    printf "${EXP_NAME}\n" >> stock_result.txt
-    is_treat=true
+#    autotune=false
+#    is_treat=false
+#    run_one_exp
+#    printf "${EXP_NAME}\n" >> stock_result.txt
+#    is_treat=true
     autotune=true
     for autotuner_increase_bar_alpha in 0.1; do #
       for L in 5000; do
