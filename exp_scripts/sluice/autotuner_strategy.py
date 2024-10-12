@@ -548,8 +548,12 @@ def draw_parallelism_curve(rawDir, outputDir, exp_name, windowSize, startTime, e
     #ax2.set_ylabel('Rate (tps)')
     # ax2.set_ylim(0, 30000)
     # ax2.set_yticks(np.arange(0, 35000, 5000))
-    ax2.set_ylim(500, 2000)
-    ax2.set_yticks(np.arange(500, 2100, 200))
+    if max(ay) <= 2000:
+        ax2.set_ylim(500, 2000)
+        ax2.set_yticks(np.arange(500, 2100, 200))
+    else:
+        ax2.set_ylim(1000, 4000)
+        ax2.set_yticks(np.arange(1000, 4500, 500))
     # legend = ["OP_" + str(jobIndex + 1) +"Arrival Rate"]
     legend = ["Arrival Rate"]
     # ax2.set_xlim(startTime * 1000, (startTime + exp_length) * 1000)
@@ -1099,7 +1103,7 @@ def main():
         # },
         24: {
             "bisection-no-increase": [
-                "stock-streamsluice-streamsluice-720-90-1000-20-1-200-15-2500-1-200-2-500-1-21-3333-1000-100-true-3-true-1",
+                "tweet-streamsluice-streamsluice-390-30-1800-1-28-2000-10-500-1-50-1-50-2000-100-true-3-true-1",
                 #"stock-streamsluice-streamsluice-690-30-1000-20-2-200-6-2500-3-500-5-1500-1-5-2000-2500-100-true-3-true-1",
                 #"stock-streamsluice-streamsluice-690-30-1000-20-2-200-6-2500-3-500-5-1500-1-5-2000-5000-100-true-3-true-1",
                 #"stock-streamsluice-streamsluice-690-30-1000-20-2-200-6-2500-3-500-5-1500-1-5-2000-5000-100-false-3-true-1",

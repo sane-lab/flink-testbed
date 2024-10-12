@@ -49,7 +49,7 @@ init() {
   how_type="streamsluice"
   scalein_type="streamsluice"
   L=2000 #4000
-  runtime=390 #790 #3990 #
+  runtime=790 #3990 #
   skip_interval=1 # skip seconds
   warmup=10000
   warmup_time=30
@@ -92,8 +92,8 @@ init() {
   P5=1
   #P6=1
 
-  DELAY2=2000 #5000
-  DELAY3=500 #1000
+  DELAY2=5000 #5000
+  DELAY3=1000 #1000
   DELAY4=50
   DELAY5=50
   #DELAY6=100
@@ -154,7 +154,7 @@ run_stock_test(){
     autotune=false
     is_treat=false
     run_one_exp
-    printf "${EXP_NAME}\n" >> stock_result.txt
+    printf "${EXP_NAME}\n" >> tweet_result.txt
     is_treat=true
     autotune=true
     for autotuner_increase_bar_alpha in 0.1; do #
