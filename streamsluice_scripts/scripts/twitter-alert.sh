@@ -210,6 +210,6 @@ run_stock_test(){
 #        migration_interval=1000
 #        run_one_exp
 #        printf "${EXP_NAME}\n" >> tweet_result.txt
-    done
+#    done
 }
 run_stock_test
