@@ -184,8 +184,9 @@ run_stock_test(){
 #    printf "${EXP_NAME}\n" >> stock_result.txt
 #    is_treat=true
 #    autotune=true
+    repeat=2
     for autotuner_increase_bar_alpha in 0.1; do #
-      for L in 750 1000 1250 2000; do #
+      for L in 750; do #  1000  1250 2000
           whether_type="streamsluice"
           how_type="streamsluice"
           scalein_type="streamsluice"

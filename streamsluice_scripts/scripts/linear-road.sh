@@ -174,8 +174,9 @@ run_stock_test(){
     spike_slope=0.7
     autotuner_increase_bar_option=7 # 3 5
     autotuner_increase_bar_alpha=0.1 #0.25
+    repeat=2
     for autotuner_increase_bar_alpha in 0.1; do #
-      for L in 2500 5000; do # 1000 1500 2000 2500
+      for L in 2500; do # 5000
           whether_type="streamsluice"
           how_type="streamsluice"
           scalein_type="streamsluice"
@@ -183,12 +184,12 @@ run_stock_test(){
           printf "${EXP_NAME}\n" >> lr_result.txt
       done
     done
-    autotune=false
-    is_treat=false
-    run_one_exp
-    printf "${EXP_NAME}\n" >> lr_result.txt
-    is_treat=true
-    autotune=true
+#    autotune=false
+#    is_treat=false
+#    run_one_exp
+#    printf "${EXP_NAME}\n" >> lr_result.txt
+#    is_treat=true
+#    autotune=true
 
 #        whether_type="ds2"
 #        how_type="ds2"

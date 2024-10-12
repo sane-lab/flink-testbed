@@ -49,10 +49,10 @@ init() {
   how_type="streamsluice"
   scalein_type="streamsluice"
   L=2000 #4000
-  runtime=790 #3990 #
+  runtime=720 #3990 #
   skip_interval=1 # skip seconds
   warmup=10000
-  warmup_time=30
+  warmup_time=90
   warmup_rate=1800
   repeat=1
   spike_estimation="linear_regression"
@@ -151,14 +151,15 @@ run_stock_test(){
     spike_slope=0.7
     autotuner_increase_bar_option=7 # 3 5
     autotuner_increase_bar_alpha=0.1 #0.25
-    autotune=false
-    is_treat=false
-    run_one_exp
-    printf "${EXP_NAME}\n" >> tweet_result.txt
-    is_treat=true
-    autotune=true
+#    autotune=false
+#    is_treat=false
+#    run_one_exp
+#    printf "${EXP_NAME}\n" >> tweet_result.txt
+#    is_treat=true
+#    autotune=true
+    repeat=2
     for autotuner_increase_bar_alpha in 0.1; do #
-      for L in 1000 2000; do #  4000
+      for L in 1000; do # 2000 4000
           whether_type="streamsluice"
           how_type="streamsluice"
           scalein_type="streamsluice"
