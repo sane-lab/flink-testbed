@@ -185,7 +185,7 @@ run_stock_test(){
     is_treat=true
     autotune=true
     for autotuner_increase_bar_alpha in 0.1; do #
-      for L in 2000; do
+      for L in 1000 2000 4000; do
           whether_type="streamsluice"
           how_type="streamsluice"
           scalein_type="streamsluice"
