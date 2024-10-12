@@ -49,7 +49,7 @@ init() {
   how_type="streamsluice"
   scalein_type="streamsluice"
   L=2000 #4000
-  runtime=2190 #3990 #
+  runtime=790 #3990 #
   skip_interval=1 # skip seconds
   warmup=10000
   warmup_time=30
@@ -118,17 +118,62 @@ function runApp() {
 }
 
 run_stock_test(){
+
+    how_more_optimization_flag=false
+    how_optimization_flag=false
+    how_intrinsic_bound_flag=true
+    how_conservative_flag=false # true
+    coordination_latency_flag=true
+    conservative_service_rate_flag=true # false
+    smooth_backlog_flag=false
+    new_metrics_retriever_flag=true
+
+    autotune=true
+    autotune_interval=60
+    autotuner="UserLimitTuner"
+    autotuner_latency_window=100
+    autotuner_bar_lowerbound=200 #300
+    autotuner_initial_value_option=4 # 1
+    autotuner_adjustment_option=1
+    autotuner_increase_bar_option=1 # 2
+    autotuner_initial_value_alpha=1.2
+    autotuner_adjustment_beta=2.0
+
     echo "Run twitter alert experiments..."
     init
     printf "" > tweet_result.txt
 
-    for repeat in 1; do # 2 3 4 5; do
-        whether_type="streamsluice"
-        how_type="streamsluice"
-        scalein_type="streamsluice"
+    epoch=100
+    decision_interval=1 #10
+    snapshot_size=20
+    L=1000 #2000 #2500
+    migration_interval=3000 #500
+    spike_slope=0.7
+    autotuner_increase_bar_option=7 # 3 5
+    autotuner_increase_bar_alpha=0.1 #0.25
+#    autotune=false
+#    is_treat=false
+#    run_one_exp
+#    printf "${EXP_NAME}\n" >> stock_result.txt
+#    is_treat=true
+#    autotune=true
+    for autotuner_increase_bar_alpha in 0.1; do #
+      for L in 2000 4000; do #
+          whether_type="streamsluice"
+          how_type="streamsluice"
+          scalein_type="streamsluice"
+          run_one_exp
+          printf "${EXP_NAME}\n" >> tweet_result.txt
+      done
+    done
 
-        run_one_exp
-        printf "${EXP_NAME}\n" >> tweet_result.txt
+#    for repeat in 1; do # 2 3 4 5; do
+#        whether_type="streamsluice"
+#        how_type="streamsluice"
+#        scalein_type="streamsluice"
+#
+#        run_one_exp
+#        printf "${EXP_NAME}\n" >> tweet_result.txt
 
 #        is_treat=false
 #        run_one_exp
