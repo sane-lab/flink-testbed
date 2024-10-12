@@ -213,8 +213,10 @@ def draw_latency_curves(raw_dir, output_dir, exp_name, window_size, start_time, 
     axes.set_xticklabels([int((x - start_time * 1000) / 1000) for x in
                           np.arange((start_time) * 1000, (start_time + exp_length) * 1000 + (exp_length / 10) * 1000, (exp_length / 10) * 1000)])
 
-    axes.set_ylim(0, 10000)
-    axes.set_yticks(np.arange(0, 11000, 1000))
+    axes.set_ylim(0, 5000)
+    axes.set_yticks(np.arange(0, 5500, 500))
+    # axes.set_ylim(0, 10000)
+    # axes.set_yticks(np.arange(0, 11000, 1000))
     plt.grid(True)
     if not os.path.exists(output_dir):
         os.makedirs(output_dir)
@@ -726,7 +728,7 @@ def main():
     output_dir = "/Users/swrrt/Workplace/BacklogDelayPaper/experiments/results/"
     overall_output_dir = "/Users/swrrt/Workplace/BacklogDelayPaper/experiments/figures/autotuner/"
     window_size = 100
-    start_time = 0 #60 #180 #0
+    start_time = 90 #180 #0
     exp_length = 600 #2160
     exps_per_label = {
         # "option_1": [
@@ -1097,7 +1099,7 @@ def main():
         # },
         24: {
             "bisection-no-increase": [
-                "stock-streamsluice-streamsluice-690-30-1000-20-1-200-6-1500-1-200-2-500-1-8-2000-5000-100-true-3-true-1",
+                "stock-streamsluice-streamsluice-720-90-1000-20-1-200-18-1500-1-200-2-500-1-18-2500-2000-100-true-3-true-1",
                 #"stock-streamsluice-streamsluice-690-30-1000-20-2-200-6-2500-3-500-5-1500-1-5-2000-2500-100-true-3-true-1",
                 #"stock-streamsluice-streamsluice-690-30-1000-20-2-200-6-2500-3-500-5-1500-1-5-2000-5000-100-true-3-true-1",
                 #"stock-streamsluice-streamsluice-690-30-1000-20-2-200-6-2500-3-500-5-1500-1-5-2000-5000-100-false-3-true-1",
