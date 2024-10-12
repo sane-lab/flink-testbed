@@ -182,8 +182,8 @@ public class TweetAlertTrigger {
             while (System.currentTimeMillis() - startTime < warmup) {
                 long emitStartTime = System.currentTimeMillis();
                 for (int i = 0; i < warmp_rate / 20; i++) {
-                    String tweet_id = getTweetID(i % 1000000);
-                    String user_id = getTweetID(i % 10000);
+                    String tweet_id = getTweetID(count % 1000000);
+                    String user_id = getTweetID(count % 10000);
                     ctx.collect(Tuple7.of(tweet_id, user_id, "test test", 0, 0, System.currentTimeMillis(), (long) count));
                     count++;
                 }
@@ -207,8 +207,8 @@ public class TweetAlertTrigger {
                         // System.out.println("output rate: " + counter);
                         if (sleepCnt <= skipCount) {
                             for (int i = 0; i < warmp_rate / 20; i++) {
-                                String tweet_id = getTweetID(i % 1000000);
-                                String user_id = getTweetID(i % 10000);
+                                String tweet_id = getTweetID(count % 1000000);
+                                String user_id = getTweetID(count % 10000);
                                 ctx.collect(Tuple7.of(tweet_id, user_id, "test test", 0, 0, System.currentTimeMillis(), (long) count));
                                 count++;
                             }
