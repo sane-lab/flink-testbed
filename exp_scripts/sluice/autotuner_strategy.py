@@ -612,7 +612,7 @@ def draw_parallelism_curve(rawDir, outputDir, exp_name, windowSize, startTime, e
         # ax1.set_ylabel('OP_'+str(jobIndex+1)+' Parallelism')
         #ax1.set_ylim(10, 60) #(4, 32) #17)
         #ax1.set_yticks(np.arange(10, 70, 5)) # (4, 34, 2)) #18, 1))
-        ax1.set_ylim(0, 40) #(4, 32) #17)
+        ax1.set_ylim(0, 45) #(4, 32) #17)
         ax1.set_yticks(np.arange(0, 45, 5)) # (4, 34, 2)) #18, 1))
 
         ax1.set_xlim(startTime * 1000, (startTime + exp_length) * 1000)
@@ -732,7 +732,8 @@ def main():
     output_dir = "/Users/swrrt/Workplace/BacklogDelayPaper/experiments/results/"
     overall_output_dir = "/Users/swrrt/Workplace/BacklogDelayPaper/experiments/figures/autotuner/"
     window_size = 100
-    start_time = 120  # tweet
+    #start_time = 120  # tweet, stock
+    start_time = 180  # lr
     exp_length = 600 #2160
     exps_per_label = {
         # "option_1": [
@@ -1103,7 +1104,7 @@ def main():
         # },
         24: {
             "bisection-no-increase": [
-                "stock-streamsluice-streamsluice-720-90-1000-20-1-200-15-2500-1-200-2-500-1-21-3333-750-100-true-3-1-2",
+                "lr-streamsluice-streamsluice-2-780-150-1300-10-1-50-2-1000-1-50-36-1666-4000-0.1-100-1-0-0.0-true-3000-2",
                 #"stock-streamsluice-streamsluice-690-30-1000-20-2-200-6-2500-3-500-5-1500-1-5-2000-2500-100-true-3-true-1",
                 #"stock-streamsluice-streamsluice-690-30-1000-20-2-200-6-2500-3-500-5-1500-1-5-2000-5000-100-true-3-true-1",
                 #"stock-streamsluice-streamsluice-690-30-1000-20-2-200-6-2500-3-500-5-1500-1-5-2000-5000-100-false-3-true-1",

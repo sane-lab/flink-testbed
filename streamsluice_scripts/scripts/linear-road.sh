@@ -160,7 +160,7 @@ run_stock_test(){
     autotune_interval=60
     autotuner="UserLimitTuner"
     autotuner_latency_window=100
-    autotuner_bar_lowerbound=200 #300
+    autotuner_bar_lowerbound=300 #200 #300
     autotuner_initial_value_option=4 # 1
     autotuner_adjustment_option=1
     autotuner_increase_bar_option=1 # 2
@@ -177,7 +177,7 @@ run_stock_test(){
     repeat=2
     for scaling_decision_option in 1 2; do
       for autotuner_increase_bar_alpha in 0.1; do #
-        for L in 4000 5000; do # 5000
+        for L in 3000 4000 5000; do # 5000
             whether_type="streamsluice"
             how_type="streamsluice"
             scalein_type="streamsluice"
