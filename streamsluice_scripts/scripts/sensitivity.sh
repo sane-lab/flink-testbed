@@ -118,13 +118,21 @@ function runApp() {
 }
 
 run_scale_test(){
+    how_more_optimization_flag=false
+    how_optimization_flag=false
+    how_intrinsic_bound_flag=true
+    how_conservative_flag=false # true
+    coordination_latency_flag=true
+    conservative_service_rate_flag=true # false
+    smooth_backlog_flag=false
+    new_metrics_retriever_flag=true
+    scaling_decision_option=1
     echo "Run micro bench system sensitivity..."
     init
     #L=1000
     #is_treat=false
     #repeat=1
     #run_one_exp
-
 
     # Different cases
     GRAPH="1split2join1"
@@ -135,6 +143,7 @@ run_scale_test(){
     epoch=100
     decision_interval=1 #10
     snapshot_size=20
+
 
     L=1000 #2000 #2500
     migration_interval=3000
