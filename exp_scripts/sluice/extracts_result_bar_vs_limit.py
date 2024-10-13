@@ -521,7 +521,7 @@ def draw_arrival_curve(outputDir, arrival_curves, startTime, exp_length):
 def main():
     raw_dir = "/Users/swrrt/Workplace/BacklogDelayPaper/experiments/raw/"
     output_dir = "/Users/swrrt/Workplace/BacklogDelayPaper/experiments/results/"
-    overall_output_dir = "/Users/swrrt/Workplace/BacklogDelayPaper/experiments/figures/autotuner/"
+    overall_output_dir = "/Users/swrrt/Workplace/BacklogDelayPaper/experiments/figures/autotuner_new/"
     window_size = 100
     start_time = 60 #30 #60
     exp_length = 300
@@ -530,39 +530,18 @@ def main():
 
     setting1 = {
         "1 op": [
-            "system-true-streamsluice-ds2-false-true-true-false-when-linear-1op_line-390-10000-10000-10000-90-1-0-1-20-1-5000-1-20-1-5000-1-20-1-5000-17-1000-5000-1000-3000-100-1-false-1",
+            "setting1-true-streamsluice-ds2-false-true-true-false-when-linear-1op_line-390-10000-600-10000-10000-90-1-0-1-20-1-5000-1-20-1-5000-1-20-1-5000-17-1000-5000-1000-3000-100-1-false-1",
             "setting1-true-streamsluice-streamsluice-false-true-true-false-when-linear-1op_line-390-10000-600-10000-10000-90-1-0-1-20-1-5000-1-20-1-5000-1-20-1-5000-17-1000-5000-90-3000-100-1-true-1",
-            "system-true-streamsluice-streamsluice-false-true-true-false-when-linear-1op_line-390-10000-10000-10000-90-1-0-1-20-1-5000-1-20-1-5000-1-20-1-5000-17-1000-5000-150-3000-100-1-true-1",
             "setting1-true-streamsluice-streamsluice-false-true-true-false-when-linear-1op_line-390-10000-600-10000-10000-90-1-0-1-20-1-5000-1-20-1-5000-1-20-1-5000-17-1000-5000-125-3000-100-1-true-1",
             "setting1-true-streamsluice-streamsluice-false-true-true-false-when-linear-1op_line-390-10000-600-10000-10000-90-1-0-1-20-1-5000-1-20-1-5000-1-20-1-5000-17-1000-5000-250-3000-100-1-true-1",
             "setting1-true-streamsluice-streamsluice-false-true-true-false-when-linear-1op_line-390-10000-600-10000-10000-90-1-0-1-20-1-5000-1-20-1-5000-1-20-1-5000-17-1000-5000-500-3000-100-1-true-1",
-            "setting1-true-streamsluice-streamsluice-false-true-true-false-when-linear-1op_line-390-10000-600-10000-10000-90-1-0-1-20-1-5000-1-20-1-5000-1-20-1-5000-17-1000-5000-750-3000-100-1-true-1",
-            "system-true-streamsluice-streamsluice-false-true-true-false-when-linear-1op_line-390-10000-10000-10000-90-1-0-1-20-1-5000-1-20-1-5000-1-20-1-5000-17-1000-5000-1000-3000-100-1-true-1",
-            "setting1-true-streamsluice-streamsluice-false-true-true-false-when-linear-1op_line-390-10000-600-10000-10000-90-1-0-1-20-1-5000-1-20-1-5000-1-20-1-5000-17-1000-5000-1250-3000-100-1-true-1",
-            "setting1-true-streamsluice-streamsluice-false-true-true-false-when-linear-1op_line-390-10000-600-10000-10000-90-1-0-1-20-1-5000-1-20-1-5000-1-20-1-5000-17-1000-5000-1500-3000-100-1-true-1",
         ],
-        "2 ops": [
-            "system-true-streamsluice-ds2-false-true-true-false-when-linear-2op_line-390-10000-10000-10000-90-1-0-1-20-1-5000-1-20-1-5000-1-20-1-5000-17-1000-5000-1500-3000-100-1-false-1",
-            "setting1-true-streamsluice-streamsluice-false-true-true-false-when-linear-2op_line-390-10000-600-10000-10000-90-1-0-1-20-1-5000-1-20-1-5000-1-20-1-5000-17-1000-5000-190-3000-100-1-true-1",
-            "setting1-true-streamsluice-streamsluice-false-true-true-false-when-linear-2op_line-390-10000-600-10000-10000-90-1-0-1-20-1-5000-1-20-1-5000-1-20-1-5000-17-1000-5000-225-3000-100-1-true-1",
-            "system-true-streamsluice-streamsluice-false-true-true-false-when-linear-2op_line-390-10000-10000-10000-90-1-0-1-20-1-5000-1-20-1-5000-1-20-1-5000-17-1000-5000-250-3000-100-1-true-1",
-            "setting1-true-streamsluice-streamsluice-false-true-true-false-when-linear-2op_line-390-10000-600-10000-10000-90-1-0-1-20-1-5000-1-20-1-5000-1-20-1-5000-17-1000-5000-500-3000-100-1-true-1",
-            "setting1-true-streamsluice-streamsluice-false-true-true-false-when-linear-2op_line-390-10000-600-10000-10000-90-1-0-1-20-1-5000-1-20-1-5000-1-20-1-5000-17-1000-5000-750-3000-100-1-true-1",
-            "system-true-streamsluice-streamsluice-false-true-true-false-when-linear-2op_line-390-10000-10000-10000-90-1-0-1-20-1-5000-1-20-1-5000-1-20-1-5000-17-1000-5000-1000-3000-100-1-true-1",
-            "setting1-true-streamsluice-streamsluice-false-true-true-false-when-linear-2op_line-390-10000-600-10000-10000-90-1-0-1-20-1-5000-1-20-1-5000-1-20-1-5000-17-1000-5000-1250-3000-100-1-true-1",
-            "setting1-true-streamsluice-streamsluice-false-true-true-false-when-linear-2op_line-390-10000-600-10000-10000-90-1-0-1-20-1-5000-1-20-1-5000-1-20-1-5000-17-1000-5000-1500-3000-100-1-true-1",
-        ],
-        "3 ops": [
-            "system-true-streamsluice-ds2-false-true-true-false-when-linear-3op_line-390-10000-10000-10000-90-1-0-1-20-1-5000-1-20-1-5000-1-20-1-5000-17-1000-5000-1500-3000-100-1-false-1",
-            "setting1-true-streamsluice-streamsluice-false-true-true-false-when-linear-3op_line-390-10000-600-10000-10000-90-1-0-1-20-1-5000-1-20-1-5000-1-20-1-5000-17-1000-5000-290-3000-100-1-true-1",
-            "setting1-true-streamsluice-streamsluice-false-true-true-false-when-linear-3op_line-390-10000-600-10000-10000-90-1-0-1-20-1-5000-1-20-1-5000-1-20-1-5000-17-1000-5000-325-3000-100-1-true-1",
-            "system-true-streamsluice-streamsluice-false-true-true-false-when-linear-3op_line-390-10000-10000-10000-90-1-0-1-20-1-5000-1-20-1-5000-1-20-1-5000-17-1000-5000-350-3000-100-1-true-1",
-            "setting1-true-streamsluice-streamsluice-false-true-true-false-when-linear-3op_line-390-10000-600-10000-10000-90-1-0-1-20-1-5000-1-20-1-5000-1-20-1-5000-17-1000-5000-500-3000-100-1-true-1",
-            "setting1-true-streamsluice-streamsluice-false-true-true-false-when-linear-3op_line-390-10000-600-10000-10000-90-1-0-1-20-1-5000-1-20-1-5000-1-20-1-5000-17-1000-5000-750-3000-100-1-true-1",
-            "system-true-streamsluice-streamsluice-false-true-true-false-when-linear-3op_line-390-10000-10000-10000-90-1-0-1-20-1-5000-1-20-1-5000-1-20-1-5000-17-1000-5000-1000-3000-100-1-true-1",
-            "setting1-true-streamsluice-streamsluice-false-true-true-false-when-linear-3op_line-390-10000-600-10000-10000-90-1-0-1-20-1-5000-1-20-1-5000-1-20-1-5000-17-1000-5000-1250-3000-100-1-true-1",
-            "setting1-true-streamsluice-streamsluice-false-true-true-false-when-linear-3op_line-390-10000-600-10000-10000-90-1-0-1-20-1-5000-1-20-1-5000-1-20-1-5000-17-1000-5000-1500-3000-100-1-true-1",
-        ],
+        # "2 ops": [
+        #
+        # ],
+        # "3 ops": [
+        #
+        # ],
     }
 
     setting2 = {
@@ -793,13 +772,13 @@ def main():
     }
 
     settings = {
-        #"setting_1": setting1,
-        #"setting_2": setting2,
-        #"setting_3": setting3,
-        #"setting_4": setting4,
+        "setting_1": setting1,
+       # "setting_2": setting2,
+       # "setting_3": setting3,
+       # "setting_4": setting4,
        # "setting_5": setting5,
-         "setting_6": setting6,
-         "setting_7": setting7,
+       #  "setting_6": setting6,
+       #  "setting_7": setting7,
     }
 
     for setting_name, setting in settings.items():

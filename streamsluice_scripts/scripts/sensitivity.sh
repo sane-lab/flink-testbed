@@ -22,7 +22,7 @@ function analyze() {
 }
 
 run_one_exp() {
-  EXP_NAME=${setting}-${coordination_latency_flag}-${whether_type}-${how_type}-${how_conservative_flag}-${how_steady_limit_flag}-${conservative_service_rate_flag}-${smooth_backlog_flag}-${SOURCE_TYPE}-${CURVE_TYPE}-${GRAPH}-${runtime}-${RATE1}-${TIME1}-${RATE2}-${RATE_I}-${TIME_I}-${P1}-${ZIPF_SKEW}-${P2}-${DELAY2}-${IO2}-${STATE_SIZE2}-${P3}-${DELAY3}-${IO3}-${STATE_SIZE3}-${P4}-${DELAY4}-${IO4}-${STATE_SIZE4}-${P5}-${DELAY5}-${STATE_SIZE5}-${L}-${migration_interval}-${epoch}-${decision_interval}-${is_treat}-${repeat}
+  EXP_NAME=${setting}-${scaling_decision_option}-${coordination_latency_flag}-${whether_type}-${how_type}-${how_conservative_flag}-${how_steady_limit_flag}-${conservative_service_rate_flag}-${smooth_backlog_flag}-${SOURCE_TYPE}-${CURVE_TYPE}-${GRAPH}-${runtime}-${RATE1}-${TIME1}-${RATE2}-${RATE_I}-${TIME_I}-${P1}-${ZIPF_SKEW}-${P2}-${DELAY2}-${IO2}-${STATE_SIZE2}-${P3}-${DELAY3}-${IO3}-${STATE_SIZE3}-${P4}-${DELAY4}-${IO4}-${STATE_SIZE4}-${P5}-${DELAY5}-${STATE_SIZE5}-${L}-${migration_interval}-${epoch}-${decision_interval}-${is_treat}-${repeat}
 
   echo "INFO: run exp ${EXP_NAME}"
   configFlink
@@ -127,6 +127,9 @@ run_scale_test(){
     smooth_backlog_flag=false
     new_metrics_retriever_flag=true
     scaling_decision_option=1
+    epoch=100
+    decision_interval=1 #10
+    snapshot_size=20
     echo "Run micro bench system sensitivity..."
     init
     #L=1000
@@ -177,14 +180,6 @@ run_scale_test(){
     RATE_I=4000
     TIME_I=30
     printf "" > whetherhow_result.txt
-    how_more_optimization_flag=false
-    how_optimization_flag=false
-    how_steady_limit_flag=true
-    how_conservative_flag=false # true
-    coordination_latency_flag=true
-    conservative_service_rate_flag=true # false
-    smooth_backlog_flag=false
-    new_metrics_retriever_flag=true
 
     runtime=390
     # Setting 1
