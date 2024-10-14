@@ -234,7 +234,7 @@ def readGroundTruthLatencyByMetricsManager(rawDir, expName, windowSize):
 
 def readLEMLatencyAndSpike(rawDir, expName) -> [list[int], list[float], list[float]]:
 
-    lem_latency = [[], [], []]
+    lem_latency = [[], []]
 
     streamsluiceOutput = "flink-samza-standalonesession-0-eagle-sane.out"
     import os
@@ -254,14 +254,14 @@ def readLEMLatencyAndSpike(rawDir, expName) -> [list[int], list[float], list[flo
             counter += 1
             if (counter % 5000 == 0):
                 print("Processed to line:" + str(counter))
-            if (len(split) >= 10 and split[0] == "+++" and split[1] == "[MODEL]" and split[6] == "cur_ete_l:" and split[
-                8] == "n_epoch_l:"):
+            if (len(split) >= 10 and split[0] == "+++" and split[1] == "[MODEL]" and split[6] == "cur_ete_l:" and (split[
+                8] == "n_epoch_l:" or split[11] == "n_epoch_l:")):
                 time = int(split[3])
                 estimated_l = float(split[7])
-                estimated_spike = float(split[13]) - float(split[7])
+                #estimated_spike = float(split[13]) - float(split[7])
                 lem_latency[0] += [time]
                 lem_latency[1] += [estimated_l]
-                lem_latency[2] += [estimated_spike]
+                #lem_latency[2] += [estimated_spike]
     return lem_latency
 
 def retrieve_scaling_info(rawDir, expName):
@@ -535,7 +535,7 @@ exps = [
     #  "blue", "o"],
     ["GroundTruth",
       #"systemsensitivity-streamsluice-streamsluice-when-1split2join1-400-6000-3000-4000-1-0-2-300-1-5000-2-300-1-5000-2-300-1-5000-6-510-5000-2000-3000-100-10-true-1",
-     "algorithm_test-1-true-streamsluice-streamsluice-false--true-false-when-mixed-1split2join1-520-6000-30-3000-4000-30-1-0-1-20-1-5000-1-20-1-5000-1-20-1-5000-13-1000-5000-500-3000-100-1-true-1",
+     "algorithm_test-1-true-streamsluice-streamsluice--true-false-when-mixed-1split2join1-520-6000-30-3000-4000-30-1-0-1-20-1-5000-1-20-1-5000-1-20-1-5000-6-1000-5000-500-3000-100-1-true-1",
       "blue", "o"],
 
 

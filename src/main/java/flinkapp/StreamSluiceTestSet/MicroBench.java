@@ -854,13 +854,11 @@ public class MicroBench {
 
                     roundStartTime = System.currentTimeMillis();
                     System.out.println("Round " + round + " phase 1 start at: " + roundStartTime);
-                    // startSinePhase(ctx, NORMAL_RATE - PHASE2_RATE,  NORMAL_RATE, NORMAL_TIME + PHASE1_TIME + PHASE2_TIME, roundStartTime);
-                    long amplitude = PHASE1_RATE - NORMAL_RATE;
                     if (curve_type == 4){
-                        amplitude = (PHASE1_RATE - NORMAL_RATE) / 2;
+                        startSinePhase(ctx, NORMAL_RATE - PHASE2_RATE,  NORMAL_RATE, NORMAL_TIME + PHASE1_TIME + PHASE2_TIME, roundStartTime);
+                    }else {
+                        startSinePhase(ctx, PHASE1_RATE - NORMAL_RATE, NORMAL_RATE, NORMAL_TIME + PHASE1_TIME + PHASE2_TIME, roundStartTime);
                     }
-                    startSinePhase(ctx, amplitude,  NORMAL_RATE, NORMAL_TIME + PHASE1_TIME + PHASE2_TIME, roundStartTime);
-
                     if (!isRunning) {
                         return;
                     }

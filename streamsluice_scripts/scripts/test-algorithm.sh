@@ -164,7 +164,7 @@ run_scale_test(){
     DELAY2=20
     DELAY3=20
     DELAY4=20
-    DELAY5=1000
+    DELAY5=500
 
     RATE1=6000
     TIME1=30
