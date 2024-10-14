@@ -160,7 +160,7 @@ run_scale_test(){
     P2=1
     P3=1
     P4=1
-    P5=6
+    P5=13
     DELAY2=20
     DELAY3=20
     DELAY4=20
@@ -172,6 +172,8 @@ run_scale_test(){
     TIME2=30
     RATE_I=4000
     TIME_I=30
+    warmupRate=${RATE_I}
+    warmupTime=${TIME_I}
     printf "" > whetherhow_result.txt
     is_treat=false
     how_type="ds2"
