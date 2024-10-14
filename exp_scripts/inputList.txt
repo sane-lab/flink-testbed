@@ -1,1 +1,6 @@
-setting5-1-true-streamsluice-streamsluice-false--true-false-when-gradient-1split2join1-390-12500-45-7500-10000-0-1-0-1-20-1-5000-1-20-1-5000-1-20-1-5000-17-500-5000-1000-3000-100-1-true-1
+stock-streamsluice-streamsluice-720-90-1000-20-1-200-15-2500-1-200-2-500-1-21-3333-750-100-true-false-1-2
+stock-streamsluice-streamsluice-720-90-1000-20-1-200-15-2500-1-200-2-500-1-21-3333-1000-100-true-false-1-2
+stock-streamsluice-streamsluice-720-90-1000-20-1-200-15-2500-1-200-2-500-1-21-3333-1250-100-true-false-1-2
+stock-streamsluice-streamsluice-720-90-1000-20-1-200-15-2500-1-200-2-500-1-21-3333-750-100-true-false-2-2
+stock-streamsluice-streamsluice-720-90-1000-20-1-200-15-2500-1-200-2-500-1-21-3333-1000-100-true-false-2-2
+stock-streamsluice-streamsluice-720-90-1000-20-1-200-15-2500-1-200-2-500-1-21-3333-1250-100-true-false-2-2
