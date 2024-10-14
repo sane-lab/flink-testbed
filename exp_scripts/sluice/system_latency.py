@@ -458,7 +458,7 @@ def draw(rawDir, outputDir, exps, windowSize):
     # axes.set_ylim(0, 5000)
     # axes.set_yticks(np.arange(0, 6250, 1250))
     if max(lem_latencies[i][1] + [0]) > 2000 or max(sampledLatency[2]) > 2000:
-        axes.set_ylim(0, 10000) #3000)
+        axes.set_ylim(0, 5000) #3000)
         #axes.set_yticks(np.arange(0, 3500, 500))
     elif max(lem_latencies[i][1] + [0]) > 500 or max(sampledLatency[2]) > 500:
         axes.set_ylim(0, 2000)
@@ -535,7 +535,7 @@ exps = [
     #  "blue", "o"],
     ["GroundTruth",
       #"systemsensitivity-streamsluice-streamsluice-when-1split2join1-400-6000-3000-4000-1-0-2-300-1-5000-2-300-1-5000-2-300-1-5000-6-510-5000-2000-3000-100-10-true-1",
-     "algorithm_test-1-true-streamsluice-streamsluice--true-false-when-mixed-1split2join1-520-6000-30-3000-4000-30-1-0-1-20-1-5000-1-20-1-5000-1-20-1-5000-6-520-5000-1000-3000-100-1-true-1",
+     "algorithm_test-2-true-streamsluice-streamsluice-true-false-when-mixed-1split2join1-520-6000-30-3000-4000-30-1-0-1-20-1-5000-1-20-1-5000-1-20-1-5000-6-520-5000-1500-3000-100-1-true-1",
       "blue", "o"],
 
 

@@ -22,7 +22,7 @@ function analyze() {
 }
 
 run_one_exp() {
-  EXP_NAME=tweet-${whether_type}-${how_type}-${runtime}-${warmup_time}-${warmup_rate}-${skip_interval}-${P2}-${DELAY2}-${P3}-${DELAY3}-${P4}-${DELAY4}-${P5}-${DELAY5}-${L}-${epoch}-${is_treat}-${errorcase_number}-${scaling_decision_option}-${repeat}
+  EXP_NAME=tweet-${whether_type}-${how_type}-${scaling_decision_option}-${runtime}-${warmup_time}-${warmup_rate}-${skip_interval}-${P2}-${DELAY2}-${P3}-${DELAY3}-${P4}-${DELAY4}-${P5}-${DELAY5}-${L}-${epoch}-${is_treat}-${errorcase_number}-${repeat}
 
   echo "INFO: run exp ${EXP_NAME}"
   configFlink
@@ -151,16 +151,16 @@ run_stock_test(){
     spike_slope=0.7
     autotuner_increase_bar_option=7 # 3 5
     autotuner_increase_bar_alpha=0.1 #0.25
-#    autotune=false
+    autotune=false
 #    is_treat=false
 #    run_one_exp
 #    printf "${EXP_NAME}\n" >> tweet_result.txt
 #    is_treat=true
 #    autotune=true
     repeat=2
-    for scaling_decision_option in 1 2; do
+    for scaling_decision_option in 1 2 0; do
       for autotuner_increase_bar_alpha in 0.1; do #
-        for L in 1000; do # 2000 4000
+        for L in 750 1000 1500; do # 2000 4000
             whether_type="streamsluice"
             how_type="streamsluice"
             scalein_type="streamsluice"

@@ -81,10 +81,10 @@ init() {
 #  MP8=128
 #  MP9=128
 
-  LP2=2
-  LP3=2
-  LP4=2
-  LP5=30
+  LP2=1
+  LP3=1
+  LP4=1
+  LP5=38
 #  LP6=1
 #  LP7=60
 #  LP8=1
@@ -92,7 +92,7 @@ init() {
 
   P1=1
   P2=1
-  P3=2
+  P3=1
   P4=1
   P5=36
 #  P6=1
@@ -101,9 +101,9 @@ init() {
 #  P9=1
 
   DELAY2=50
-  DELAY3=1000
+  DELAY3=50 #1000
   DELAY4=50
-  DELAY5=1666 #200  #2000 #1500
+  DELAY5=2000 #1666 #200  #2000 #1500
 #  DELAY6=10
 #  DELAY7=500
 #  DELAY8=10
@@ -174,10 +174,16 @@ run_stock_test(){
     spike_slope=0.7
     autotuner_increase_bar_option=7 # 3 5
     autotuner_increase_bar_alpha=0.1 #0.25
-    repeat=2
-    for scaling_decision_option in 1 2; do
+    repeat=1
+    autotune=false
+    is_treat=false
+    run_one_exp
+    printf "${EXP_NAME}\n" >> lr_result.txt
+    is_treat=true
+    #autotune=true
+    for scaling_decision_option in 1 2 0; do
       for autotuner_increase_bar_alpha in 0.1; do #
-        for L in 3000 4000 5000; do # 5000
+        for L in 1000 2000 4000; do # 5000
             whether_type="streamsluice"
             how_type="streamsluice"
             scalein_type="streamsluice"
@@ -186,12 +192,6 @@ run_stock_test(){
         done
       done
     done
-#    autotune=false
-#    is_treat=false
-#    run_one_exp
-#    printf "${EXP_NAME}\n" >> lr_result.txt
-#    is_treat=true
-#    autotune=true
 
 #        whether_type="ds2"
 #        how_type="ds2"
