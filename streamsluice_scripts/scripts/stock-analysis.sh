@@ -22,7 +22,7 @@ function analyze() {
 }
 
 run_one_exp() {
-  EXP_NAME=stock-${whether_type}-${how_type}-${runtime}-${warmup_time}-${warmup_rate}-${skip_interval}-${P2}-${DELAY2}-${P3}-${DELAY3}-${P4}-${DELAY4}-${P5}-${DELAY5}-${P6}-${P7}-${DELAY7}-${L}-${epoch}-${is_treat}-${errorcase_number}-${scaling_decision_option}-${repeat}
+  EXP_NAME=stock-${whether_type}-${how_type}-${runtime}-${warmup_time}-${warmup_rate}-${skip_interval}-${P2}-${DELAY2}-${P3}-${DELAY3}-${P4}-${DELAY4}-${P5}-${DELAY5}-${P6}-${P7}-${DELAY7}-${L}-${epoch}-${is_treat}-${autotune}-${scaling_decision_option}-${repeat}
 
   echo "INFO: run exp ${EXP_NAME}"
   configFlink
@@ -178,7 +178,7 @@ run_stock_test(){
     spike_slope=0.7
     autotuner_increase_bar_option=7 # 3 5
     autotuner_increase_bar_alpha=0.1 #0.25
-#    autotune=false
+    autotune=false
 #    is_treat=false
 #    run_one_exp
 #    printf "${EXP_NAME}\n" >> stock_result.txt

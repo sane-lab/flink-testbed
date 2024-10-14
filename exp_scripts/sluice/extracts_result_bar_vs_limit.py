@@ -631,68 +631,83 @@ def main():
         ],
     }
     setting4 = {
-        "Amplitude 25%": [
+        # "Amplitude 25%": [
+        #     "setting4-true-streamsluice-ds2-false-true-true-false-when-sine-1split2join1-390-13750-30-7500-10000-0-1-0-1-20-1-5000-1-20-1-5000-17-1000-1-5000-1-20-5000-1500-3000-100-1-false-1",
+        #     "setting4-true-streamsluice-streamsluice-false-true-true-false-when-sine-1split2join1-390-13750-30-7500-10000-0-1-0-1-20-1-5000-1-20-1-5000-17-1000-1-5000-1-20-5000-350-3000-100-1-true-1",
+        #     "setting4-true-streamsluice-streamsluice-false-true-true-false-when-sine-1split2join1-390-13750-30-7500-10000-0-1-0-1-20-1-5000-1-20-1-5000-17-1000-1-5000-1-20-5000-500-3000-100-1-true-1",
+        #     "setting4-true-streamsluice-streamsluice-false-true-true-false-when-sine-1split2join1-390-13750-30-7500-10000-0-1-0-1-20-1-5000-1-20-1-5000-17-1000-1-5000-1-20-5000-750-3000-100-1-true-1",
+        #     "setting4-true-streamsluice-streamsluice-false-true-true-false-when-sine-1split2join1-390-13750-30-7500-10000-0-1-0-1-20-1-5000-1-20-1-5000-17-1000-1-5000-1-20-5000-1000-3000-100-1-true-1",
+        # ],
+        "Amplitude 37.5%": [
             "setting4-true-streamsluice-ds2-false-true-true-false-when-sine-1split2join1-390-13750-30-7500-10000-0-1-0-1-20-1-5000-1-20-1-5000-17-1000-1-5000-1-20-5000-1500-3000-100-1-false-1",
             "setting4-true-streamsluice-streamsluice-false-true-true-false-when-sine-1split2join1-390-13750-30-7500-10000-0-1-0-1-20-1-5000-1-20-1-5000-17-1000-1-5000-1-20-5000-350-3000-100-1-true-1",
             "setting4-true-streamsluice-streamsluice-false-true-true-false-when-sine-1split2join1-390-13750-30-7500-10000-0-1-0-1-20-1-5000-1-20-1-5000-17-1000-1-5000-1-20-5000-500-3000-100-1-true-1",
             "setting4-true-streamsluice-streamsluice-false-true-true-false-when-sine-1split2join1-390-13750-30-7500-10000-0-1-0-1-20-1-5000-1-20-1-5000-17-1000-1-5000-1-20-5000-750-3000-100-1-true-1",
             "setting4-true-streamsluice-streamsluice-false-true-true-false-when-sine-1split2join1-390-13750-30-7500-10000-0-1-0-1-20-1-5000-1-20-1-5000-17-1000-1-5000-1-20-5000-1000-3000-100-1-true-1",
         ],
-        "Amplitude 50%": [
-            "setting4-true-streamsluice-ds2-false-true-true-false-when-sine-1split2join1-390-15000-30-5000-10000-0-1-0-1-20-1-5000-1-20-1-5000-17-1000-1-5000-1-20-5000-1000-3000-100-1-false-1",
-            "setting4-true-streamsluice-streamsluice-false-true-true-false-when-sine-1split2join1-390-15000-30-5000-10000-0-1-0-1-20-1-5000-1-20-1-5000-17-1000-1-5000-1-20-5000-290-3000-100-1-true-1",
-            "setting4-true-streamsluice-streamsluice-false-true-true-false-when-sine-1split2join1-390-15000-30-5000-10000-0-1-0-1-20-1-5000-1-20-1-5000-17-1000-1-5000-1-20-5000-325-3000-100-1-true-1",
-            "setting4-true-streamsluice-streamsluice-false-true-true-false-when-sine-1split2join1-390-15000-30-5000-10000-0-1-0-1-20-1-5000-1-20-1-5000-17-1000-1-5000-1-20-5000-350-3000-100-1-true-1",
-            "setting4-true-streamsluice-streamsluice-false-true-true-false-when-sine-1split2join1-390-15000-30-5000-10000-0-1-0-1-20-1-5000-1-20-1-5000-17-1000-1-5000-1-20-5000-500-3000-100-1-true-1",
-            "setting4-true-streamsluice-streamsluice-false-true-true-false-when-sine-1split2join1-390-15000-30-5000-10000-0-1-0-1-20-1-5000-1-20-1-5000-17-1000-1-5000-1-20-5000-750-3000-100-1-true-1",
-            "setting4-true-streamsluice-streamsluice-false-true-true-false-when-sine-1split2join1-390-15000-30-5000-10000-0-1-0-1-20-1-5000-1-20-1-5000-17-1000-1-5000-1-20-5000-1000-3000-100-1-true-1",
-            "setting4-true-streamsluice-streamsluice-false-true-true-false-when-sine-1split2join1-390-15000-30-5000-10000-0-1-0-1-20-1-5000-1-20-1-5000-17-1000-1-5000-1-20-5000-1250-3000-100-1-true-1",
-            "setting4-true-streamsluice-streamsluice-false-true-true-false-when-sine-1split2join1-390-15000-30-5000-10000-0-1-0-1-20-1-5000-1-20-1-5000-17-1000-1-5000-1-20-5000-1500-3000-100-1-true-1",
-
-        ],
-        "Amplitude 75%": [
-            "setting4-true-streamsluice-ds2-false-true-true-false-when-sine-1split2join1-390-17500-30-5000-10000-0-1-0-1-20-1-5000-1-20-1-5000-17-1000-1-5000-1-20-5000-1000-3000-100-1-false-1",
-            "setting4-true-streamsluice-streamsluice-false-true-true-false-when-sine-1split2join1-390-17500-30-5000-10000-0-1-0-1-20-1-5000-1-20-1-5000-17-1000-1-5000-1-20-5000-290-3000-100-1-true-1",
-            "setting4-true-streamsluice-streamsluice-false-true-true-false-when-sine-1split2join1-390-17500-30-5000-10000-0-1-0-1-20-1-5000-1-20-1-5000-17-1000-1-5000-1-20-5000-325-3000-100-1-true-1",
-            "setting4-true-streamsluice-streamsluice-false-true-true-false-when-sine-1split2join1-390-17500-30-5000-10000-0-1-0-1-20-1-5000-1-20-1-5000-17-1000-1-5000-1-20-5000-350-3000-100-1-true-1",
-            "setting4-true-streamsluice-streamsluice-false-true-true-false-when-sine-1split2join1-390-17500-30-5000-10000-0-1-0-1-20-1-5000-1-20-1-5000-17-1000-1-5000-1-20-5000-500-3000-100-1-true-1",
-            "setting4-true-streamsluice-streamsluice-false-true-true-false-when-sine-1split2join1-390-17500-30-5000-10000-0-1-0-1-20-1-5000-1-20-1-5000-17-1000-1-5000-1-20-5000-750-3000-100-1-true-1",
-            "setting4-true-streamsluice-streamsluice-false-true-true-false-when-sine-1split2join1-390-17500-30-5000-10000-0-1-0-1-20-1-5000-1-20-1-5000-17-1000-1-5000-1-20-5000-1000-3000-100-1-true-1",
-            "setting4-true-streamsluice-streamsluice-false-true-true-false-when-sine-1split2join1-390-17500-30-5000-10000-0-1-0-1-20-1-5000-1-20-1-5000-17-1000-1-5000-1-20-5000-1250-3000-100-1-true-1",
-            "setting4-true-streamsluice-streamsluice-false-true-true-false-when-sine-1split2join1-390-17500-30-5000-10000-0-1-0-1-20-1-5000-1-20-1-5000-17-1000-1-5000-1-20-5000-1500-3000-100-1-true-1",
-        ],
+        # "Amplitude 50%": [
+        #     "setting4-true-streamsluice-ds2-false-true-true-false-when-sine-1split2join1-390-15000-30-5000-10000-0-1-0-1-20-1-5000-1-20-1-5000-17-1000-1-5000-1-20-5000-1000-3000-100-1-false-1",
+        #     "setting4-true-streamsluice-streamsluice-false-true-true-false-when-sine-1split2join1-390-15000-30-5000-10000-0-1-0-1-20-1-5000-1-20-1-5000-17-1000-1-5000-1-20-5000-290-3000-100-1-true-1",
+        #     "setting4-true-streamsluice-streamsluice-false-true-true-false-when-sine-1split2join1-390-15000-30-5000-10000-0-1-0-1-20-1-5000-1-20-1-5000-17-1000-1-5000-1-20-5000-325-3000-100-1-true-1",
+        #     "setting4-true-streamsluice-streamsluice-false-true-true-false-when-sine-1split2join1-390-15000-30-5000-10000-0-1-0-1-20-1-5000-1-20-1-5000-17-1000-1-5000-1-20-5000-350-3000-100-1-true-1",
+        #     "setting4-true-streamsluice-streamsluice-false-true-true-false-when-sine-1split2join1-390-15000-30-5000-10000-0-1-0-1-20-1-5000-1-20-1-5000-17-1000-1-5000-1-20-5000-500-3000-100-1-true-1",
+        #     "setting4-true-streamsluice-streamsluice-false-true-true-false-when-sine-1split2join1-390-15000-30-5000-10000-0-1-0-1-20-1-5000-1-20-1-5000-17-1000-1-5000-1-20-5000-750-3000-100-1-true-1",
+        #     "setting4-true-streamsluice-streamsluice-false-true-true-false-when-sine-1split2join1-390-15000-30-5000-10000-0-1-0-1-20-1-5000-1-20-1-5000-17-1000-1-5000-1-20-5000-1000-3000-100-1-true-1",
+        #     "setting4-true-streamsluice-streamsluice-false-true-true-false-when-sine-1split2join1-390-15000-30-5000-10000-0-1-0-1-20-1-5000-1-20-1-5000-17-1000-1-5000-1-20-5000-1250-3000-100-1-true-1",
+        #     "setting4-true-streamsluice-streamsluice-false-true-true-false-when-sine-1split2join1-390-15000-30-5000-10000-0-1-0-1-20-1-5000-1-20-1-5000-17-1000-1-5000-1-20-5000-1500-3000-100-1-true-1",
+        #
+        # ],
+        # "Amplitude 75%": [
+        #     "setting4-true-streamsluice-ds2-false-true-true-false-when-sine-1split2join1-390-17500-30-5000-10000-0-1-0-1-20-1-5000-1-20-1-5000-17-1000-1-5000-1-20-5000-1000-3000-100-1-false-1",
+        #     "setting4-true-streamsluice-streamsluice-false-true-true-false-when-sine-1split2join1-390-17500-30-5000-10000-0-1-0-1-20-1-5000-1-20-1-5000-17-1000-1-5000-1-20-5000-290-3000-100-1-true-1",
+        #     "setting4-true-streamsluice-streamsluice-false-true-true-false-when-sine-1split2join1-390-17500-30-5000-10000-0-1-0-1-20-1-5000-1-20-1-5000-17-1000-1-5000-1-20-5000-325-3000-100-1-true-1",
+        #     "setting4-true-streamsluice-streamsluice-false-true-true-false-when-sine-1split2join1-390-17500-30-5000-10000-0-1-0-1-20-1-5000-1-20-1-5000-17-1000-1-5000-1-20-5000-350-3000-100-1-true-1",
+        #     "setting4-true-streamsluice-streamsluice-false-true-true-false-when-sine-1split2join1-390-17500-30-5000-10000-0-1-0-1-20-1-5000-1-20-1-5000-17-1000-1-5000-1-20-5000-500-3000-100-1-true-1",
+        #     "setting4-true-streamsluice-streamsluice-false-true-true-false-when-sine-1split2join1-390-17500-30-5000-10000-0-1-0-1-20-1-5000-1-20-1-5000-17-1000-1-5000-1-20-5000-750-3000-100-1-true-1",
+        #     "setting4-true-streamsluice-streamsluice-false-true-true-false-when-sine-1split2join1-390-17500-30-5000-10000-0-1-0-1-20-1-5000-1-20-1-5000-17-1000-1-5000-1-20-5000-1000-3000-100-1-true-1",
+        #     "setting4-true-streamsluice-streamsluice-false-true-true-false-when-sine-1split2join1-390-17500-30-5000-10000-0-1-0-1-20-1-5000-1-20-1-5000-17-1000-1-5000-1-20-5000-1250-3000-100-1-true-1",
+        #     "setting4-true-streamsluice-streamsluice-false-true-true-false-when-sine-1split2join1-390-17500-30-5000-10000-0-1-0-1-20-1-5000-1-20-1-5000-17-1000-1-5000-1-20-5000-1500-3000-100-1-true-1",
+        # ],
     }
 
     setting5 = {
         "Amplitude 25%": [
+            "setting5-1-true-streamsluice-ds2-false--true-false-when-gradient-1split2join1-390-12500-45-7500-10000-0-1-0-1-20-1-5000-1-20-1-5000-1-20-1-5000-17-500-5000-1000-3000-100-1-false-1",
+            "setting5-1-true-streamsluice-streamsluice-false--true-false-when-gradient-1split2join1-390-12500-45-7500-10000-0-1-0-1-20-1-5000-1-20-1-5000-1-20-1-5000-17-500-5000-290-3000-100-1-true-1",
+            "setting5-1-true-streamsluice-streamsluice-false--true-false-when-gradient-1split2join1-390-12500-45-7500-10000-0-1-0-1-20-1-5000-1-20-1-5000-1-20-1-5000-17-500-5000-350-3000-100-1-true-1",
+            "setting5-1-true-streamsluice-streamsluice-false--true-false-when-gradient-1split2join1-390-12500-45-7500-10000-0-1-0-1-20-1-5000-1-20-1-5000-1-20-1-5000-17-500-5000-500-3000-100-1-true-1",
+            "setting5-1-true-streamsluice-streamsluice-false--true-false-when-gradient-1split2join1-390-12500-45-7500-10000-0-1-0-1-20-1-5000-1-20-1-5000-1-20-1-5000-17-500-5000-750-3000-100-1-true-1",
+            "setting5-1-true-streamsluice-streamsluice-false--true-false-when-gradient-1split2join1-390-12500-45-7500-10000-0-1-0-1-20-1-5000-1-20-1-5000-1-20-1-5000-17-500-5000-1000-3000-100-1-true-1",
+        ],
+        "Amplitude 37.5%": [
             "setting5-true-streamsluice-ds2-false-true-true-false-when-gradient-1split2join1-390-13750-45-6250-10000-0-1-0-1-20-1-5000-1-20-1-5000-1-20-1-5000-17-500-5000-1000-3000-100-1-false-1",
             "setting5-true-streamsluice-streamsluice-false-true-true-false-when-gradient-1split2join1-390-13750-45-6250-10000-0-1-0-1-20-1-5000-1-20-1-5000-1-20-1-5000-17-500-5000-350-3000-100-1-true-1",
             "setting5-true-streamsluice-streamsluice-false-true-true-false-when-gradient-1split2join1-390-13750-45-6250-10000-0-1-0-1-20-1-5000-1-20-1-5000-1-20-1-5000-17-500-5000-500-3000-100-1-true-1",
             "setting5-true-streamsluice-streamsluice-false-true-true-false-when-gradient-1split2join1-390-13750-45-6250-10000-0-1-0-1-20-1-5000-1-20-1-5000-1-20-1-5000-17-500-5000-750-3000-100-1-true-1",
             "setting5-true-streamsluice-streamsluice-false-true-true-false-when-gradient-1split2join1-390-13750-45-6250-10000-0-1-0-1-20-1-5000-1-20-1-5000-1-20-1-5000-17-500-5000-1000-3000-100-1-true-1"
         ],
-        "Amplitude 50%": [
-            "setting5-true-streamsluice-ds2-false-true-true-false-when-gradient-1split2join1-390-15000-45-5000-10000-0-1-0-1-20-1-5000-1-20-1-5000-1-20-1-5000-17-500-5000-1000-3000-100-1-false-1",
-            "setting5-true-streamsluice-streamsluice-false-true-true-false-when-gradient-1split2join1-390-15000-45-5000-10000-0-1-0-1-20-1-5000-1-20-1-5000-1-20-1-5000-17-500-5000-290-3000-100-1-true-1",
-            "setting5-true-streamsluice-streamsluice-false-true-true-false-when-gradient-1split2join1-390-15000-45-5000-10000-0-1-0-1-20-1-5000-1-20-1-5000-1-20-1-5000-17-500-5000-325-3000-100-1-true-1",
-            "setting5-true-streamsluice-streamsluice-false-true-true-false-when-gradient-1split2join1-390-15000-45-5000-10000-0-1-0-1-20-1-5000-1-20-1-5000-1-20-1-5000-17-500-5000-350-3000-100-1-true-1",
-            "setting5-true-streamsluice-streamsluice-false-true-true-false-when-gradient-1split2join1-390-15000-45-5000-10000-0-1-0-1-20-1-5000-1-20-1-5000-1-20-1-5000-17-500-5000-500-3000-100-1-true-1",
-            "setting5-true-streamsluice-streamsluice-false-true-true-false-when-gradient-1split2join1-390-15000-45-5000-10000-0-1-0-1-20-1-5000-1-20-1-5000-1-20-1-5000-17-500-5000-750-3000-100-1-true-1",
-            "setting5-true-streamsluice-streamsluice-false-true-true-false-when-gradient-1split2join1-390-15000-45-5000-10000-0-1-0-1-20-1-5000-1-20-1-5000-1-20-1-5000-17-500-5000-1000-3000-100-1-true-1",
-            "setting5-true-streamsluice-streamsluice-false-true-true-false-when-gradient-1split2join1-390-15000-45-5000-10000-0-1-0-1-20-1-5000-1-20-1-5000-1-20-1-5000-17-500-5000-1250-3000-100-1-true-1",
-            "setting5-true-streamsluice-streamsluice-false-true-true-false-when-gradient-1split2join1-390-15000-45-5000-10000-0-1-0-1-20-1-5000-1-20-1-5000-1-20-1-5000-17-500-5000-1500-3000-100-1-true-1",
-        ],
-        "Amplitude 75%": [
-            "setting5-true-streamsluice-ds2-false-true-true-false-when-gradient-1split2join1-390-17500-45-2500-10000-0-1-0-1-20-1-5000-1-20-1-5000-1-20-1-5000-17-500-5000-1000-3000-100-1-false-1",
-            "setting5-true-streamsluice-streamsluice-false-true-true-false-when-gradient-1split2join1-390-17500-45-2500-10000-0-1-0-1-20-1-5000-1-20-1-5000-1-20-1-5000-17-500-5000-290-3000-100-1-true-1",
-            "setting5-true-streamsluice-streamsluice-false-true-true-false-when-gradient-1split2join1-390-17500-45-2500-10000-0-1-0-1-20-1-5000-1-20-1-5000-1-20-1-5000-17-500-5000-325-3000-100-1-true-1",
-            "setting5-true-streamsluice-streamsluice-false-true-true-false-when-gradient-1split2join1-390-17500-45-2500-10000-0-1-0-1-20-1-5000-1-20-1-5000-1-20-1-5000-17-500-5000-350-3000-100-1-true-1",
-            "setting5-true-streamsluice-streamsluice-false-true-true-false-when-gradient-1split2join1-390-17500-45-2500-10000-0-1-0-1-20-1-5000-1-20-1-5000-1-20-1-5000-17-500-5000-500-3000-100-1-true-1",
-            "setting5-true-streamsluice-streamsluice-false-true-true-false-when-gradient-1split2join1-390-17500-45-2500-10000-0-1-0-1-20-1-5000-1-20-1-5000-1-20-1-5000-17-500-5000-750-3000-100-1-true-1",
-            "setting5-true-streamsluice-streamsluice-false-true-true-false-when-gradient-1split2join1-390-17500-45-2500-10000-0-1-0-1-20-1-5000-1-20-1-5000-1-20-1-5000-17-500-5000-1000-3000-100-1-true-1",
-            "setting5-true-streamsluice-streamsluice-false-true-true-false-when-gradient-1split2join1-390-17500-45-2500-10000-0-1-0-1-20-1-5000-1-20-1-5000-1-20-1-5000-17-500-5000-1250-3000-100-1-true-1",
-            "setting5-true-streamsluice-streamsluice-false-true-true-false-when-gradient-1split2join1-390-17500-45-2500-10000-0-1-0-1-20-1-5000-1-20-1-5000-1-20-1-5000-17-500-5000-1500-3000-100-1-true-1"
-        ],
+        # "Amplitude 50%": [
+        #     "setting5-true-streamsluice-ds2-false-true-true-false-when-gradient-1split2join1-390-15000-45-5000-10000-0-1-0-1-20-1-5000-1-20-1-5000-1-20-1-5000-17-500-5000-1000-3000-100-1-false-1",
+        #     "setting5-true-streamsluice-streamsluice-false-true-true-false-when-gradient-1split2join1-390-15000-45-5000-10000-0-1-0-1-20-1-5000-1-20-1-5000-1-20-1-5000-17-500-5000-290-3000-100-1-true-1",
+        #     "setting5-true-streamsluice-streamsluice-false-true-true-false-when-gradient-1split2join1-390-15000-45-5000-10000-0-1-0-1-20-1-5000-1-20-1-5000-1-20-1-5000-17-500-5000-325-3000-100-1-true-1",
+        #     "setting5-true-streamsluice-streamsluice-false-true-true-false-when-gradient-1split2join1-390-15000-45-5000-10000-0-1-0-1-20-1-5000-1-20-1-5000-1-20-1-5000-17-500-5000-350-3000-100-1-true-1",
+        #     "setting5-true-streamsluice-streamsluice-false-true-true-false-when-gradient-1split2join1-390-15000-45-5000-10000-0-1-0-1-20-1-5000-1-20-1-5000-1-20-1-5000-17-500-5000-500-3000-100-1-true-1",
+        #     "setting5-true-streamsluice-streamsluice-false-true-true-false-when-gradient-1split2join1-390-15000-45-5000-10000-0-1-0-1-20-1-5000-1-20-1-5000-1-20-1-5000-17-500-5000-750-3000-100-1-true-1",
+        #     "setting5-true-streamsluice-streamsluice-false-true-true-false-when-gradient-1split2join1-390-15000-45-5000-10000-0-1-0-1-20-1-5000-1-20-1-5000-1-20-1-5000-17-500-5000-1000-3000-100-1-true-1",
+        #     "setting5-true-streamsluice-streamsluice-false-true-true-false-when-gradient-1split2join1-390-15000-45-5000-10000-0-1-0-1-20-1-5000-1-20-1-5000-1-20-1-5000-17-500-5000-1250-3000-100-1-true-1",
+        #     "setting5-true-streamsluice-streamsluice-false-true-true-false-when-gradient-1split2join1-390-15000-45-5000-10000-0-1-0-1-20-1-5000-1-20-1-5000-1-20-1-5000-17-500-5000-1500-3000-100-1-true-1",
+        # ],
+        # "Amplitude 75%": [
+        #     "setting5-true-streamsluice-ds2-false-true-true-false-when-gradient-1split2join1-390-17500-45-2500-10000-0-1-0-1-20-1-5000-1-20-1-5000-1-20-1-5000-17-500-5000-1000-3000-100-1-false-1",
+        #     "setting5-true-streamsluice-streamsluice-false-true-true-false-when-gradient-1split2join1-390-17500-45-2500-10000-0-1-0-1-20-1-5000-1-20-1-5000-1-20-1-5000-17-500-5000-290-3000-100-1-true-1",
+        #     "setting5-true-streamsluice-streamsluice-false-true-true-false-when-gradient-1split2join1-390-17500-45-2500-10000-0-1-0-1-20-1-5000-1-20-1-5000-1-20-1-5000-17-500-5000-325-3000-100-1-true-1",
+        #     "setting5-true-streamsluice-streamsluice-false-true-true-false-when-gradient-1split2join1-390-17500-45-2500-10000-0-1-0-1-20-1-5000-1-20-1-5000-1-20-1-5000-17-500-5000-350-3000-100-1-true-1",
+        #     "setting5-true-streamsluice-streamsluice-false-true-true-false-when-gradient-1split2join1-390-17500-45-2500-10000-0-1-0-1-20-1-5000-1-20-1-5000-1-20-1-5000-17-500-5000-500-3000-100-1-true-1",
+        #     "setting5-true-streamsluice-streamsluice-false-true-true-false-when-gradient-1split2join1-390-17500-45-2500-10000-0-1-0-1-20-1-5000-1-20-1-5000-1-20-1-5000-17-500-5000-750-3000-100-1-true-1",
+        #     "setting5-true-streamsluice-streamsluice-false-true-true-false-when-gradient-1split2join1-390-17500-45-2500-10000-0-1-0-1-20-1-5000-1-20-1-5000-1-20-1-5000-17-500-5000-1000-3000-100-1-true-1",
+        #     "setting5-true-streamsluice-streamsluice-false-true-true-false-when-gradient-1split2join1-390-17500-45-2500-10000-0-1-0-1-20-1-5000-1-20-1-5000-1-20-1-5000-17-500-5000-1250-3000-100-1-true-1",
+        #     "setting5-true-streamsluice-streamsluice-false-true-true-false-when-gradient-1split2join1-390-17500-45-2500-10000-0-1-0-1-20-1-5000-1-20-1-5000-1-20-1-5000-17-500-5000-1500-3000-100-1-true-1"
+        # ],
     }
 
     setting6 = {
@@ -778,10 +793,10 @@ def main():
 
     settings = {
        # "setting_1": setting1,
-        "setting_2": setting2,
+       # "setting_2": setting2,
        # "setting_3": setting3,
        # "setting_4": setting4,
-       # "setting_5": setting5,
+        "setting_5": setting5,
        #  "setting_6": setting6,
        #  "setting_7": setting7,
     }
