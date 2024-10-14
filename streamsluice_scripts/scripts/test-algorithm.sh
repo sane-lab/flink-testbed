@@ -164,7 +164,7 @@ run_scale_test(){
     DELAY2=20
     DELAY3=20
     DELAY4=20
-    DELAY5=500
+    DELAY5=520
 
     RATE1=6000
     TIME1=30
@@ -182,7 +182,7 @@ run_scale_test(){
     is_treat=true
     how_type="streamsluice"
     for scaling_decision_option in 1 2 0; do #
-      for L in 500  750 1000 1500; do #
+      for L in 500 750 1000 1500; do #
         run_one_exp
         printf "${EXP_NAME}\n" >> whetherhow_result.txt
       done
