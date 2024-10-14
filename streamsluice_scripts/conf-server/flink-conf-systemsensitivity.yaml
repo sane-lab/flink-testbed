@@ -342,6 +342,8 @@ streamsluice.system.autotune: false
 
 streamsluice.system.autotune.interval: 30
 
+controller.whether.option: 0
+
 streamsluice.system.autotuner: RemoteTuner
 streamsluice.system.autotune.latency_window: 100
 streamsluice.system.autotune.bar_lowerbound: 350
