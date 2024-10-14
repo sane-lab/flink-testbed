@@ -138,7 +138,7 @@ def draw_metrics_by_latency_limit(latency_limits, p99limits_per_labels, successr
 
 
 # Load and draw each setting from its individual file
-results_dir = "/Users/swrrt/Workplace/BacklogDelayPaper/experiments/figures/autotuner/"
+results_dir = "/Users/swrrt/Workplace/BacklogDelayPaper/experiments/figures/autotuner_new/"
 settings = [
         "setting_1",
         "setting_2",
