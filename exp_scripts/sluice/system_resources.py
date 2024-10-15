@@ -437,7 +437,7 @@ exps = {
     "Linear_Road": [
         ["Static",
          #"system-streamsluice-ds2-true-true-false-when-mixed-1split2join1-760-6000-3000-4000-1-0-2-300-1-5000-2-300-1-5000-2-300-1-5000-6-510-5000-1000-3000-100-1-false-1",
-         "algorithm_test-0-true-streamsluice-ds2--true-false-when-mixed-1split2join1-520-6000-30-3000-4000-30-1-0-1-20-1-5000-1-20-1-5000-1-20-1-5000-6-520-5000-1000-3000-100-1-false-1",
+         "stock-streamsluice-streamsluice-720-90-1000-20-1-200-18-1500-1-200-2-500-1-18-2500-1000-100-false-3-true-1",
          "green", "o"],
         # ["Earlier",
         #  "systemsensitivity-streamsluice_earlier-streamsluice-when-1split2join1-400-6000-3000-4000-1-0-2-300-1-10000-2-300-1-10000-2-300-1-10000-6-510-10000-2500-3000-100-10-true-1",
@@ -460,7 +460,7 @@ exps = {
         ["Sluice",
          #"systemsensitivity-streamsluice-streamsluice-when-1split2join1-400-6000-3000-4000-1-0-2-300-1-5000-2-300-1-5000-2-300-1-5000-6-510-5000-2000-3000-100-10-true-1",
          #"system-streamsluice-streamsluice-true-true-false-when-mixed-1split2join1-760-6000-3000-4000-1-0-2-300-1-5000-2-300-1-5000-2-300-1-5000-6-510-5000-2000-3000-100-1-true-1",
-         "algorithm_test-2-true-streamsluice-streamsluice-true-false-when-mixed-1split2join1-520-6000-30-3000-4000-30-1-0-1-20-1-5000-1-20-1-5000-1-20-1-5000-6-520-5000-1500-3000-100-1-true-1",
+         "stock-streamsluice-streamsluice-1-720-90-1000-20-1-200-15-2500-1-200-2-500-1-21-3333-750-100-true-false-1-2",
          "blue", "o"],
 
         # ["Static",
@@ -525,9 +525,16 @@ arrivalrate_ylim_app = {
 overall_resource = {}
 trickFlag = True
 for app in exps.keys():
-    expName = [exp[1] for exp in exps[app] if exp[0] == "StreamSluice" or exp[0] == "Sluice"][0]
-    exp_length = 480
-    startTime = 30
+    expName:str = [exp[1] for exp in exps[app] if exp[0] == "StreamSluice" or exp[0] == "Sluice"][0]
+    if expName.startswith("stock-") or expName.startswith("tweet-"):
+        exp_length = 600
+        startTime = 90
+    elif expName.startswith("lr-"):
+        exp_length = 600
+        startTime = 150
+    else:
+        exp_length = 480
+        startTime = 30
     print(expName)
     overall_resource[app] = {}
     draw(rawDir, outputDir + expName + "/", exps[app])

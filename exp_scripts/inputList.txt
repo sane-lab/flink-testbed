@@ -1,1 +1,10 @@
-algorithm_test-2-true-streamsluice-streamsluice-true-false-when-mixed-1split2join1-520-6000-30-3000-4000-30-1-0-1-20-1-5000-1-20-1-5000-1-20-1-5000-6-520-5000-1500-3000-100-1-true-1
+lr-streamsluice-streamsluice--780-150-1300-10-1-50-1-50-1-50-36-2000-1000-0.1-100-1-0-0.0-false-3000-1
+lr-streamsluice-streamsluice-1-780-150-1300-10-1-50-1-50-1-50-36-2000-1000-0.1-100-1-0-0.0-true-3000-1
+lr-streamsluice-streamsluice-1-780-150-1300-10-1-50-1-50-1-50-36-2000-2000-0.1-100-1-0-0.0-true-3000-1
+lr-streamsluice-streamsluice-1-780-150-1300-10-1-50-1-50-1-50-36-2000-4000-0.1-100-1-0-0.0-true-3000-1
+lr-streamsluice-streamsluice-2-780-150-1300-10-1-50-1-50-1-50-36-2000-1000-0.1-100-1-0-0.0-true-3000-1
+lr-streamsluice-streamsluice-2-780-150-1300-10-1-50-1-50-1-50-36-2000-2000-0.1-100-1-0-0.0-true-3000-1
+lr-streamsluice-streamsluice-2-780-150-1300-10-1-50-1-50-1-50-36-2000-4000-0.1-100-1-0-0.0-true-3000-1
+lr-streamsluice-streamsluice-0-780-150-1300-10-1-50-1-50-1-50-36-2000-1000-0.1-100-1-0-0.0-true-3000-1
+lr-streamsluice-streamsluice-0-780-150-1300-10-1-50-1-50-1-50-36-2000-2000-0.1-100-1-0-0.0-true-3000-1
+lr-streamsluice-streamsluice-0-780-150-1300-10-1-50-1-50-1-50-36-2000-4000-0.1-100-1-0-0.0-true-3000-1

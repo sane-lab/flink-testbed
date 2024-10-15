@@ -96,14 +96,15 @@ def readLEMLatencyAndSpikeAndBar(rawDir, expName) -> [[list[int], list[float], l
             counter += 1
             if (counter % 5000 == 0):
                 print("Processed to line:" + str(counter))
-            if (len(split) >= 10 and split[0] == "+++" and split[1] == "[MODEL]" and split[6] == "cur_ete_l:" and split[
-                8] == "n_epoch_l:"):
+            if (len(split) >= 10 and split[0] == "+++" and split[1] == "[MODEL]" and split[6] == "cur_ete_l:" and (
+                    split[
+                        8] == "n_epoch_l:" or split[11] == "n_epoch_l:")):
                 time = int(split[3])
                 estimated_l = float(split[7])
-                estimated_spike = float(split[13]) - float(split[7])
+                # estimated_spike = float(split[13]) - float(split[7])
                 lem_latency[0] += [time]
                 lem_latency[1] += [estimated_l]
-                lem_latency[2] += [estimated_spike]
+                # lem_latency[2] += [estimated_spike]
             if (len(split) >= 8 and split[0] == "[AUTOTUNE]" and split[4] == "initial" and split[5] == "latency" and split[6] == "bar:"):
                 time = int(split[2])
                 bar = int(split[7].rstrip(','))
@@ -154,7 +155,7 @@ def add_latency_bar_curve(plt, latency_bar:dict[int, int], initial_time):
     y = [last_y, last_y]
     plt.plot(x, y, 'o--', label="Latency Bar", color='green', linewidth=1.5)
 
-def draw_latency_curves(raw_dir, output_dir, exp_name, window_size, start_time, exp_length, latency_limit):
+def draw_latency_curves(raw_dir, output_dir, exp_name, window_size, start_time, exp_length, latency_limit, draw_lem_latency_flag):
     exps = [
         ["GroundTruth", exp_name, "blue", "o"]
     ]
@@ -169,6 +170,7 @@ def draw_latency_curves(raw_dir, output_dir, exp_name, window_size, start_time, 
         average_ground_truth_latencies += [result[0]]
         initial_times += [result[1]]
         result = readLEMLatencyAndSpikeAndBar(raw_dir, exps[i][1])
+        result[0][0] = [x - initial_times[i] for x in result[0][0]]
         lem_latencies += [result[0]]
         latency_bar += [result[1]]
         p99_bar += [result[2]]
@@ -179,6 +181,8 @@ def draw_latency_curves(raw_dir, output_dir, exp_name, window_size, start_time, 
                                             average_ground_truth_latencies[i][0][x] >= start_time * 1000 and
                                             average_ground_truth_latencies[i][0][x] <= (start_time + exp_length) * 1000]
         success_rate = len([x for x in groundtruth_p99_latency_in_range if x <= latency_limit])/len(groundtruth_p99_latency_in_range)
+        lem_latency_in_range = [lem_latencies[i][1][x] for x in range(0, len(lem_latencies[i][0])) if
+                                lem_latencies[i][0][x] >= start_time * 1000 and lem_latencies[i][0][x] <= (start_time + exp_length) * 1000]
         print("Success rate: " + str(success_rate))
     # Plotting the latency curve
     fig, ax = plt.subplots(figsize=(12, 5))
@@ -197,6 +201,9 @@ def draw_latency_curves(raw_dir, output_dir, exp_name, window_size, start_time, 
 
         plt.plot(sampled_latency[0], sampled_latency[1], '-', color=exps[i][2], markersize=4, linewidth=3,
                  label="Ground Truth P99")
+        if(draw_lem_latency_flag):
+            plt.plot(lem_latencies[i][0], lem_latencies[i][1], '-', color="green", markersize=2, linewidth=2,
+                 label='Estimated Latency')
         add_latency_limit_marker(plt, latency_limit)
 
     handles, labels = plt.gca().get_legend_handles_labels()
@@ -732,9 +739,10 @@ def main():
     output_dir = "/Users/swrrt/Workplace/BacklogDelayPaper/experiments/results/"
     overall_output_dir = "/Users/swrrt/Workplace/BacklogDelayPaper/experiments/figures/autotuner/"
     window_size = 100
-    #start_time = 120  # tweet, stock
-    start_time = 180  # lr
+    start_time = 120  # tweet, stock
+    #start_time = 180  # lr
     exp_length = 600 #2160
+    draw_lem_latency_flag = True
     exps_per_label = {
         # "option_1": [
         #     # "autotune-setting1-true-streamsluice-streamsluice-30-100-300-1-0.5-1-2.0-2-when-sine-1split2join1-660-12500-45-7500-10000-0-1-0-1-20-1-5000-1-20-1-5000-1-20-1-5000-17-500-5000-250-3000-100-1-true-1",
@@ -1102,25 +1110,52 @@ def main():
         #         # "autotune-setting13-true-streamsluice-streamsluice-90-100-300-1-2.0-7-0.1-linear_phase_change-sine-1split2join1-1860-12500-900-15000-5000-0-1-0-1-20-1-5000-1-20-1-5000-1-20-1-5000-17-500-5000-25000-3000-100-1-true-1"
         #     ]
         # },
-        24: {
-            "bisection-no-increase": [
-                "lr-streamsluice-streamsluice-2-780-150-1300-10-1-50-2-1000-1-50-36-1666-4000-0.1-100-1-0-0.0-true-3000-2",
-                #"stock-streamsluice-streamsluice-690-30-1000-20-2-200-6-2500-3-500-5-1500-1-5-2000-2500-100-true-3-true-1",
-                #"stock-streamsluice-streamsluice-690-30-1000-20-2-200-6-2500-3-500-5-1500-1-5-2000-5000-100-true-3-true-1",
-                #"stock-streamsluice-streamsluice-690-30-1000-20-2-200-6-2500-3-500-5-1500-1-5-2000-5000-100-false-3-true-1",
-
-                # "lr-streamsluice-streamsluice-780-150-1300-10-1-50-2-1000-1-50-36-1666-2500-0.1-100-1-0-0.0-true-3000-1",
-                # "lr-streamsluice-streamsluice-780-150-1300-10-1-50-2-1000-1-50-36-1666-5000-0.1-100-1-0-0.0-true-3000-1",
-                # "lr-streamsluice-streamsluice-780-150-1300-10-1-50-2-1000-1-50-36-1666-5000-0.1-100-1-0-0.0-false-3000-1",
-             # "lr-streamsluice-streamsluice-2190-300-1300-10-1-50-1-50-1-50-36-1666-5000-0.1-100-1-0-0.0-true-3000-1",
-             #   "lr-streamsluice-streamsluice-2190-300-1300-10-1-50-1-50-1-50-36-2500-2500-0.1-100-1-0-0.0-true-3000-1",
-             #   "lr-streamsluice-streamsluice-2190-300-1300-10-1-50-1-50-1-50-36-2500-5000-0.1-100-1-0-0.0-true-3000-1",
-             #   "lr-streamsluice-streamsluice-2190-300-1300-10-1-50-1-50-1-50-36-3333-2500-0.1-100-1-0-0.0-true-3000-1",
-             #   "lr-streamsluice-streamsluice-2190-300-1300-10-1-50-1-50-1-50-36-3333-5000-0.1-100-1-0-0.0-true-3000-1",
-             #   "lr-streamsluice-streamsluice-2190-300-1300-10-1-50-1-50-1-50-40-3333-2500-0.1-100-1-0-0.0-false-3000-1",
-            ]
+        # 24: { # Stock
+        #     "static": [
+        #         "stock-streamsluice-streamsluice-1-720-90-1000-20-1-200-15-2500-1-200-2-500-1-21-3333-750-100-true-false-1-2",
+        #         "stock-streamsluice-streamsluice-1-720-90-1000-20-1-200-15-2500-1-200-2-500-1-21-3333-1000-100-true-false-1-2",
+        #         "stock-streamsluice-streamsluice-1-720-90-1000-20-1-200-15-2500-1-200-2-500-1-21-3333-1500-100-true-false-1-2",
+        #         "stock-streamsluice-streamsluice-2-720-90-1000-20-1-200-15-2500-1-200-2-500-1-21-3333-750-100-true-false-2-2",
+        #         "stock-streamsluice-streamsluice-2-720-90-1000-20-1-200-15-2500-1-200-2-500-1-21-3333-1000-100-true-false-2-2",
+        #         "stock-streamsluice-streamsluice-2-720-90-1000-20-1-200-15-2500-1-200-2-500-1-21-3333-1500-100-true-false-2-2",
+        #         "stock-streamsluice-streamsluice-0-720-90-1000-20-1-200-15-2500-1-200-2-500-1-21-3333-750-100-true-false-0-2",
+        #         "stock-streamsluice-streamsluice-0-720-90-1000-20-1-200-15-2500-1-200-2-500-1-21-3333-1000-100-true-false-0-2",
+        #         "stock-streamsluice-streamsluice-0-720-90-1000-20-1-200-15-2500-1-200-2-500-1-21-3333-1500-100-true-false-0-2",
+        #     ],
+        #     #"bisection-no-increase": [
+        #     #],
+        # },
+        # 25: {  # Twitter
+        #     "static": [
+        #         "tweet-streamsluice-streamsluice-1-720-90-1800-1-28-5000-10-1000-1-50-1-50-750-100-true-3-2",
+        #         "tweet-streamsluice-streamsluice-1-720-90-1800-1-28-5000-10-1000-1-50-1-50-1000-100-true-3-2",
+        #         "tweet-streamsluice-streamsluice-1-720-90-1800-1-28-5000-10-1000-1-50-1-50-1500-100-true-3-2",
+        #         "tweet-streamsluice-streamsluice-2-720-90-1800-1-28-5000-10-1000-1-50-1-50-750-100-true-3-2",
+        #         "tweet-streamsluice-streamsluice-2-720-90-1800-1-28-5000-10-1000-1-50-1-50-1000-100-true-3-2",
+        #         "tweet-streamsluice-streamsluice-2-720-90-1800-1-28-5000-10-1000-1-50-1-50-1500-100-true-3-2",
+        #         "tweet-streamsluice-streamsluice-0-720-90-1800-1-28-5000-10-1000-1-50-1-50-750-100-true-3-2",
+        #         "tweet-streamsluice-streamsluice-0-720-90-1800-1-28-5000-10-1000-1-50-1-50-1000-100-true-3-2",
+        #         "tweet-streamsluice-streamsluice-0-720-90-1800-1-28-5000-10-1000-1-50-1-50-1500-100-true-3-2",
+        #     ],
+        #     # "bisection-no-increase": [
+        #     # ],
+        # },
+        26: {  # LR
+            "static": [
+                "lr-streamsluice-streamsluice--780-150-1300-10-1-50-1-50-1-50-36-2000-1000-0.1-100-1-0-0.0-false-3000-1",
+                "lr-streamsluice-streamsluice-1-780-150-1300-10-1-50-1-50-1-50-36-2000-1000-0.1-100-1-0-0.0-true-3000-1",
+                "lr-streamsluice-streamsluice-1-780-150-1300-10-1-50-1-50-1-50-36-2000-2000-0.1-100-1-0-0.0-true-3000-1",
+                "lr-streamsluice-streamsluice-1-780-150-1300-10-1-50-1-50-1-50-36-2000-4000-0.1-100-1-0-0.0-true-3000-1",
+                "lr-streamsluice-streamsluice-2-780-150-1300-10-1-50-1-50-1-50-36-2000-1000-0.1-100-1-0-0.0-true-3000-1",
+                "lr-streamsluice-streamsluice-2-780-150-1300-10-1-50-1-50-1-50-36-2000-2000-0.1-100-1-0-0.0-true-3000-1",
+                "lr-streamsluice-streamsluice-2-780-150-1300-10-1-50-1-50-1-50-36-2000-4000-0.1-100-1-0-0.0-true-3000-1",
+                "lr-streamsluice-streamsluice-0-780-150-1300-10-1-50-1-50-1-50-36-2000-1000-0.1-100-1-0-0.0-true-3000-1",
+                "lr-streamsluice-streamsluice-0-780-150-1300-10-1-50-1-50-1-50-36-2000-2000-0.1-100-1-0-0.0-true-3000-1",
+                "lr-streamsluice-streamsluice-0-780-150-1300-10-1-50-1-50-1-50-36-2000-4000-0.1-100-1-0-0.0-true-3000-1"
+            ],
+            # "bisection-no-increase": [
+            # ],
         }
-
     }
     for setting_index, exps_per_label in exps_per_label_per_setting.items():
         success_rate_per_label = {}
@@ -1137,11 +1172,13 @@ def main():
             for exp_name in exps:
                 if exp_name.startswith("lr"):
                     latency_bar = int(exp_name.split('-')[-9])
+                elif exp_name.startswith("tweet"):
+                    latency_bar = int(exp_name.split('-')[-5])
                 else:
                     latency_bar = int(exp_name.split('-')[-6])
                 success_rate, first_converge_time, converged_bar = draw_latency_curves(raw_dir, output_dir + exp_name + '/', exp_name,
                                                                               window_size,
-                                                                              start_time, exp_length, latency_bar)
+                                                                              start_time, exp_length, latency_bar, draw_lem_latency_flag)
                 avg_parallelism, trash = draw_parallelism_curve(raw_dir, output_dir + exp_name + '/', exp_name, window_size,
                                                                 start_time, exp_length, True)
                 user_limit_per_label[label] += [latency_bar]
