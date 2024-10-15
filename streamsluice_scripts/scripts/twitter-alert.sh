@@ -22,7 +22,7 @@ function analyze() {
 }
 
 run_one_exp() {
-  EXP_NAME=tweet-${whether_type}-${how_type}-${scaling_decision_option}-${runtime}-${warmup_time}-${warmup_rate}-${skip_interval}-${P2}-${DELAY2}-${P3}-${DELAY3}-${P4}-${DELAY4}-${P5}-${DELAY5}-${L}-${epoch}-${is_treat}-${errorcase_number}-${repeat}
+  EXP_NAME=tweet-${whether_type}-${how_type}-${scaling_decision_option}-${runtime}-${warmup_time}-${warmup_rate}-${skip_interval}-${P2}-${DELAY2}-${P3}-${DELAY3}-${P4}-${DELAY4}-${P5}-${DELAY5}-${L}-${epoch}-${is_treat}-${autotuner_increase_bar_alpha}-${repeat}
 
   echo "INFO: run exp ${EXP_NAME}"
   configFlink
