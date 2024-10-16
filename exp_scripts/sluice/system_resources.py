@@ -437,7 +437,7 @@ exps = {
     "Linear_Road": [
         ["Static",
          #"system-streamsluice-ds2-true-true-false-when-mixed-1split2join1-760-6000-3000-4000-1-0-2-300-1-5000-2-300-1-5000-2-300-1-5000-6-510-5000-1000-3000-100-1-false-1",
-         "stock-streamsluice-streamsluice-720-90-1000-20-1-200-18-1500-1-200-2-500-1-18-2500-1000-100-false-3-true-1",
+         "stock-streamsluice-streamsluice-1-720-90-1000-20-1-200-15-2500-1-200-2-500-1-21-3333-750-100-0.2-true-true-2",
          "green", "o"],
         # ["Earlier",
         #  "systemsensitivity-streamsluice_earlier-streamsluice-when-1split2join1-400-6000-3000-4000-1-0-2-300-1-10000-2-300-1-10000-2-300-1-10000-6-510-10000-2500-3000-100-10-true-1",

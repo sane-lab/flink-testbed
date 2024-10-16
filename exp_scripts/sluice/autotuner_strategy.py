@@ -739,9 +739,9 @@ def main():
     output_dir = "/Users/swrrt/Workplace/BacklogDelayPaper/experiments/results/"
     overall_output_dir = "/Users/swrrt/Workplace/BacklogDelayPaper/experiments/figures/autotuner/"
     window_size = 100
-    start_time = 120  # tweet, stock
+    start_time = 0#120  # tweet, stock
     #start_time = 180  # lr
-    exp_length = 600 #2160
+    exp_length = 720 #600 #2160
     draw_lem_latency_flag = True
     exps_per_label = {
         # "option_1": [
@@ -864,7 +864,7 @@ def main():
     first_converge_time_per_label = {}
     converged_bar_per_label = {}
     # Setting 1:
-    # success_rate_per_label = {'option_1': [0.9909969989996665, 0.9995000833194467, 1.0, 1.0],
+    # weighted_success_rate_per_label = {'option_1': [0.9909969989996665, 0.9995000833194467, 1.0, 1.0],
     #                           'option_2': [0.9958340276620563, 0.9998333611064822, 1.0, 1.0],
     #                           'option_3': [0.9879959986662221, 0.990834860856524, 0.9765039160139977,
     #                                        0.9726712214630895],
@@ -877,7 +877,7 @@ def main():
     #     'option_4': [24.085583333333332, 15.399241666666667, 15.169036666666667, 14.863578333333333]}
 
     # Setting 2:
-    # success_rate_per_label = {'option_1': [0.1183136143976004, 0.9951674720879853, 0.9991668055324112, 1.0, 1.0],
+    # weighted_success_rate_per_label = {'option_1': [0.1183136143976004, 0.9951674720879853, 0.9991668055324112, 1.0, 1.0],
     #  'option_2': [0.42626228961839696, 0.9981669721713048, 1.0, 1.0, 1.0],
     #  'option_3': [0.2837860356607232, 0.9966672221296451, 0.9981669721713048, 0.9936677220463256, 0.9840026662222963],
     #  'option_4': [0.3514414264289285, 0.9941676387268789, 0.9948341943009499, 0.9778370271621396, 0.9691718046992168]}
@@ -1142,16 +1142,17 @@ def main():
         # },
         26: {  # LR
             "static": [
-                "lr-streamsluice-streamsluice--780-150-1300-10-1-50-1-50-1-50-36-2000-1000-0.1-100-1-0-0.0-false-3000-1",
-                "lr-streamsluice-streamsluice-1-780-150-1300-10-1-50-1-50-1-50-36-2000-1000-0.1-100-1-0-0.0-true-3000-1",
-                "lr-streamsluice-streamsluice-1-780-150-1300-10-1-50-1-50-1-50-36-2000-2000-0.1-100-1-0-0.0-true-3000-1",
-                "lr-streamsluice-streamsluice-1-780-150-1300-10-1-50-1-50-1-50-36-2000-4000-0.1-100-1-0-0.0-true-3000-1",
-                "lr-streamsluice-streamsluice-2-780-150-1300-10-1-50-1-50-1-50-36-2000-1000-0.1-100-1-0-0.0-true-3000-1",
-                "lr-streamsluice-streamsluice-2-780-150-1300-10-1-50-1-50-1-50-36-2000-2000-0.1-100-1-0-0.0-true-3000-1",
-                "lr-streamsluice-streamsluice-2-780-150-1300-10-1-50-1-50-1-50-36-2000-4000-0.1-100-1-0-0.0-true-3000-1",
-                "lr-streamsluice-streamsluice-0-780-150-1300-10-1-50-1-50-1-50-36-2000-1000-0.1-100-1-0-0.0-true-3000-1",
-                "lr-streamsluice-streamsluice-0-780-150-1300-10-1-50-1-50-1-50-36-2000-2000-0.1-100-1-0-0.0-true-3000-1",
-                "lr-streamsluice-streamsluice-0-780-150-1300-10-1-50-1-50-1-50-36-2000-4000-0.1-100-1-0-0.0-true-3000-1"
+                "stock-streamsluice-streamsluice-1-720-90-1000-20-1-200-15-2500-1-200-2-500-1-21-3333-750-100-0.2-true-true-2",
+                # "lr-streamsluice-streamsluice--780-150-1300-10-1-50-1-50-1-50-36-2000-1000-0.1-100-1-0-0.0-false-3000-1",
+                # "lr-streamsluice-streamsluice-1-780-150-1300-10-1-50-1-50-1-50-36-2000-1000-0.1-100-1-0-0.0-true-3000-1",
+                # "lr-streamsluice-streamsluice-1-780-150-1300-10-1-50-1-50-1-50-36-2000-2000-0.1-100-1-0-0.0-true-3000-1",
+                # "lr-streamsluice-streamsluice-1-780-150-1300-10-1-50-1-50-1-50-36-2000-4000-0.1-100-1-0-0.0-true-3000-1",
+                # "lr-streamsluice-streamsluice-2-780-150-1300-10-1-50-1-50-1-50-36-2000-1000-0.1-100-1-0-0.0-true-3000-1",
+                # "lr-streamsluice-streamsluice-2-780-150-1300-10-1-50-1-50-1-50-36-2000-2000-0.1-100-1-0-0.0-true-3000-1",
+                # "lr-streamsluice-streamsluice-2-780-150-1300-10-1-50-1-50-1-50-36-2000-4000-0.1-100-1-0-0.0-true-3000-1",
+                # "lr-streamsluice-streamsluice-0-780-150-1300-10-1-50-1-50-1-50-36-2000-1000-0.1-100-1-0-0.0-true-3000-1",
+                # "lr-streamsluice-streamsluice-0-780-150-1300-10-1-50-1-50-1-50-36-2000-2000-0.1-100-1-0-0.0-true-3000-1",
+                # "lr-streamsluice-streamsluice-0-780-150-1300-10-1-50-1-50-1-50-36-2000-4000-0.1-100-1-0-0.0-true-3000-1"
             ],
             # "bisection-no-increase": [
             # ],
