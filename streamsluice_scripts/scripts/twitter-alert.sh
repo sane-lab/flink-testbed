@@ -49,7 +49,7 @@ init() {
   how_type="streamsluice"
   scalein_type="streamsluice"
   L=2000 #4000
-  runtime=750 #3990 #
+  runtime=1950 #750 #3990 #
   skip_interval=1 # skip seconds
   warmup=10000
   warmup_time=90
