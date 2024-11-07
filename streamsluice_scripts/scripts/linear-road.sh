@@ -178,18 +178,22 @@ run_stock_test(){
     repeat=1
     autotune=false
     is_treat=false
-#    run_one_exp
-#    printf "${EXP_NAME}\n" >> lr_result.txt
+    for lem_dp_algorithm_flag in false true; do
+      run_one_exp
+      printf "${EXP_NAME}\n" >> lr_result.txt
+    done
     is_treat=true
     autotune=true
     for scaling_decision_option in 1; do # 2 0
-      for autotuner_increase_bar_alpha in 0.1 0.2 0.4; do #
-        for L in 1000 2000 3000 4000 5000; do # 5000
+      for autotuner_increase_bar_alpha in 0.1; do #  0.2 0.4
+        for L in 2000; do # 1000 2000 3000 4000 5000
             whether_type="streamsluice"
             how_type="streamsluice"
             scalein_type="streamsluice"
-            run_one_exp
-            printf "${EXP_NAME}\n" >> lr_result.txt
+            for lem_dp_algorithm_flag in false true; do
+              run_one_exp
+              printf "${EXP_NAME}\n" >> lr_result.txt
+            done
         done
       done
     done

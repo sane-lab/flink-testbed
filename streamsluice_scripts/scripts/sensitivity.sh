@@ -22,7 +22,7 @@ function analyze() {
 }
 
 run_one_exp() {
-  EXP_NAME=${setting}-${scaling_decision_option}-${lem_dp_algorithm_flag}-${whether_type}-${how_type}-${how_conservative_flag}-${how_steady_limit_flag}-${conservative_service_rate_flag}-${smooth_backlog_flag}-${SOURCE_TYPE}-${CURVE_TYPE}-${GRAPH}-${runtime}-${RATE1}-${TIME1}-${RATE2}-${RATE_I}-${TIME_I}-${P1}-${ZIPF_SKEW}-${P2}-${DELAY2}-${IO2}-${STATE_SIZE2}-${P3}-${DELAY3}-${IO3}-${STATE_SIZE3}-${P4}-${DELAY4}-${IO4}-${STATE_SIZE4}-${P5}-${DELAY5}-${STATE_SIZE5}-${L}-${migration_interval}-${epoch}-${decision_interval}-${is_treat}-${repeat}
+  EXP_NAME=${setting}-${scaling_decision_option}-${lem_dp_algorithm_flag}-${whether_type}-${how_type}-${how_conservative_flag}-${conservative_service_rate_flag}-${smooth_backlog_flag}-${SOURCE_TYPE}-${CURVE_TYPE}-${GRAPH}-${runtime}-${RATE1}-${TIME1}-${RATE2}-${RATE_I}-${TIME_I}-${P1}-${ZIPF_SKEW}-${P2}-${DELAY2}-${IO2}-${STATE_SIZE2}-${P3}-${DELAY3}-${IO3}-${STATE_SIZE3}-${P4}-${DELAY4}-${IO4}-${STATE_SIZE4}-${P5}-${DELAY5}-${STATE_SIZE5}-${L}-${migration_interval}-${epoch}-${decision_interval}-${is_treat}-${repeat}
 
   echo "INFO: run exp ${EXP_NAME}"
   configFlink
@@ -215,10 +215,10 @@ run_scale_test(){
     for GRAPH in "1op_line" "2op_line" "3op_line"; do
       is_treat=false
       how_type="ds2"
-      for lem_dp_algorithm_flag in false true; do
-        run_one_exp
-        printf "${EXP_NAME}\n" >> whetherhow_result.txt
-      done
+#      for lem_dp_algorithm_flag in false true; do
+#        run_one_exp
+#        printf "${EXP_NAME}\n" >> whetherhow_result.txt
+#      done
       # Set the initial value of L based on the value of GRAPH
 #      if [ "$GRAPH" = "1op_line" ]; then
 #        for L in 90 125 250 500 750 1250 1500; do # 90 110 120 130 140 150 250 500 750 1000 1250 1500
