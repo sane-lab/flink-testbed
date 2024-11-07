@@ -178,7 +178,7 @@ run_stock_test(){
     repeat=1
     autotune=false
     is_treat=false
-    for lem_dp_algorithm_flag in false true; do
+    for lem_dp_algorithm_flag in false; do #true
       run_one_exp
       printf "${EXP_NAME}\n" >> lr_result.txt
     done
@@ -190,7 +190,7 @@ run_stock_test(){
             whether_type="streamsluice"
             how_type="streamsluice"
             scalein_type="streamsluice"
-            for lem_dp_algorithm_flag in false true; do
+            for lem_dp_algorithm_flag in false; do # true
               run_one_exp
               printf "${EXP_NAME}\n" >> lr_result.txt
             done

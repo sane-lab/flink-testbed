@@ -153,7 +153,7 @@ run_stock_test(){
     autotuner_increase_bar_alpha=0.1 #0.25
     autotune=false
     is_treat=false
-    for lem_dp_algorithm_flag in false true; do
+    for lem_dp_algorithm_flag in false; do #true
       run_one_exp
       printf "${EXP_NAME}\n" >> tweet_result.txt
     done
@@ -166,7 +166,7 @@ run_stock_test(){
             whether_type="streamsluice"
             how_type="streamsluice"
             scalein_type="streamsluice"
-            for lem_dp_algorithm_flag in false true; do
+            for lem_dp_algorithm_flag in true; do #false 
               run_one_exp
               printf "${EXP_NAME}\n" >> tweet_result.txt
             done
