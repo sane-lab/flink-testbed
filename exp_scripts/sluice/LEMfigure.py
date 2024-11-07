@@ -104,6 +104,10 @@ def getWorstTaskAndKey(sorted_operators: list[str], in_neighbors: dict[str, list
     # Return the maximum end-to-end latency minus the initial time
     return worst_task, worst_key
 
+def LEM_estimate_ete_latency():
+
+
+
 
 outputDir = "/Users/swrrt/Workplace/BacklogDelayPaper/experiments/LEM/"
 random_seed = 114514

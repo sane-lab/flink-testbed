@@ -314,6 +314,7 @@ streamswitch.system.initialservicerate: 0.8
 streamsluice.metrics.snapshot_size: 20
 
 model.coordination_latency_flag: true
+model.use_DP_algorithm_flag: false
 model.conservative_service_rate_flag: true
 streamsluice.metrics.use_new_retriever: false
 streamsluice.system.is_treat: true

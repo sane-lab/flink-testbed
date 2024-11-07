@@ -151,6 +151,7 @@ run_stock_test(){
     init
     printf "" > stock_result.txt
 
+    lem_dp_algorithm_flag=false
     how_more_optimization_flag=false
     how_optimization_flag=false
     how_intrinsic_bound_flag=true
