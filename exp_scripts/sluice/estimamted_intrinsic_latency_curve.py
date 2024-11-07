@@ -217,8 +217,8 @@ def draw_latency_curves(raw_dir, output_dir, exp_name, exp_dp_name, window_size,
                                    range(x, min(x + sample_factor, len(average_ground_truth_latency[2])))]) for x in
                               range(0, len(average_ground_truth_latency[0]), sample_factor)]
 
-        plt.plot(sampled_latency[0], sampled_latency[1], '-', color="blue", markersize=4, linewidth=3,
-                 label="Ground Truth P99")
+        #plt.plot(sampled_latency[0], sampled_latency[1], '-', color="blue", markersize=4, linewidth=3,
+        #         label="Ground Truth P99")
         if(draw_lem_latency_flag):
             plt.plot(lem_latencies[i][0], lem_latencies[i][1], 'd-', color="green", markersize=2, linewidth=2,
                  label='Estimated Latency (Brute force)')
@@ -765,13 +765,14 @@ def main():
     draw_lem_latency_flag = True
     exps_per_label_per_setting = {
         1: {  # Tweet
-            "static": [
-                ["tweet-streamsluice-streamsluice--false-1950-90-1500-1-22-6666-10-1000-1-50-1-50-1000-100-false-0.1-1",
-                 "tweet-streamsluice-streamsluice--true-1950-90-1500-1-22-6666-10-1000-1-50-1-50-1000-100-false-0.1-1",]
-            ],
+            # "static": [
+            #     ["tweet-streamsluice-streamsluice--false-1950-90-1500-1-22-6666-10-1000-1-50-1-50-1000-100-false-0.1-1",
+            #      "tweet-streamsluice-streamsluice--true-1950-90-1500-1-22-6666-10-1000-1-50-1-50-1000-100-false-0.1-1",]
+            # ],
             "sluice": [
-                ["tweet-streamsluice-streamsluice-1-false-1950-90-1500-1-22-6666-10-1000-1-50-1-50-1000-100-true-0.1-2",
-                "tweet-streamsluice-streamsluice-1-true-1950-90-1500-1-22-6666-10-1000-1-50-1-50-1000-100-true-0.1-2",]
+                ["tweet-streamsluice-streamsluice-1-true-1950-90-1500-1-22-6666-10-1000-1-50-1-50-1000-100-true-0.1-2",
+                    "tweet-streamsluice-streamsluice-1-false-1950-90-1500-1-22-6666-10-1000-1-50-1-50-1000-100-true-0.1-2",
+                ]
             ],
         }
     }
