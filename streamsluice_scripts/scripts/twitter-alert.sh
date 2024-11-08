@@ -22,7 +22,7 @@ function analyze() {
 }
 
 run_one_exp() {
-  EXP_NAME=tweet-${whether_type}-${how_type}-${scaling_decision_option}-${lem_dp_algorithm_flag}-${runtime}-${warmup_time}-${warmup_rate}-${skip_interval}-${P2}-${DELAY2}-${P3}-${DELAY3}-${P4}-${DELAY4}-${P5}-${DELAY5}-${L}-${epoch}-${is_treat}-${autotuner_increase_bar_alpha}-${repeat}
+  EXP_NAME=tweet-${whether_type}-${how_type}-${scaling_decision_option}-${runtime}-${warmup_time}-${warmup_rate}-${skip_interval}-${P2}-${DELAY2}-${P3}-${DELAY3}-${P4}-${DELAY4}-${P5}-${DELAY5}-${L}-${epoch}-${is_treat}-${autotuner_increase_bar_alpha}-${repeat}
 
   echo "INFO: run exp ${EXP_NAME}"
   configFlink
@@ -118,7 +118,6 @@ function runApp() {
 }
 
 run_stock_test(){
-    lem_dp_algorithm_flag=false
     how_more_optimization_flag=false
     how_optimization_flag=false
     how_intrinsic_bound_flag=true
@@ -153,27 +152,9 @@ run_stock_test(){
     autotuner_increase_bar_alpha=0.1 #0.25
     autotune=false
     is_treat=false
+    run_one_exp
+    printf "${EXP_NAME}\n" >> tweet_result.txt
 
-    for lem_dp_algorithm_flag in false true; do #
-      run_one_exp
-      printf "${EXP_NAME}\n" >> tweet_result.txt
-    done
-
-    P1=1
-    P2=15
-    P3=3
-    P4=1
-    P5=1
-    for lem_dp_algorithm_flag in false true; do #
-      run_one_exp
-      printf "${EXP_NAME}\n" >> tweet_result.txt
-    done
-
-    P1=1
-    P2=22
-    P3=10
-    P4=1
-    P5=1
     is_treat=true
     autotune=true
     repeat=2
@@ -183,10 +164,8 @@ run_stock_test(){
             whether_type="streamsluice"
             how_type="streamsluice"
             scalein_type="streamsluice"
-            for lem_dp_algorithm_flag in false true; do #
-              run_one_exp
-              printf "${EXP_NAME}\n" >> tweet_result.txt
-            done
+            run_one_exp
+            printf "${EXP_NAME}\n" >> tweet_result.txt
         done
       done
     done

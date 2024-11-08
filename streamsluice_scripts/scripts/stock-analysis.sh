@@ -22,7 +22,7 @@ function analyze() {
 }
 
 run_one_exp() {
-  EXP_NAME=stock-${whether_type}-${how_type}-${scaling_decision_option}-${lem_dp_algorithm_flag}-${runtime}-${warmup_time}-${warmup_rate}-${skip_interval}-${P2}-${DELAY2}-${P3}-${DELAY3}-${P4}-${DELAY4}-${P5}-${DELAY5}-${P6}-${P7}-${DELAY7}-${L}-${epoch}-${autotuner_increase_bar_alpha}-${is_treat}-${autotune}-${repeat}
+  EXP_NAME=stock-${whether_type}-${how_type}-${scaling_decision_option}-${runtime}-${warmup_time}-${warmup_rate}-${skip_interval}-${P2}-${DELAY2}-${P3}-${DELAY3}-${P4}-${DELAY4}-${P5}-${DELAY5}-${P6}-${P7}-${DELAY7}-${L}-${epoch}-${autotuner_increase_bar_alpha}-${is_treat}-${autotune}-${repeat}
 
   echo "INFO: run exp ${EXP_NAME}"
   configFlink
@@ -151,7 +151,6 @@ run_stock_test(){
     init
     printf "" > stock_result.txt
 
-    lem_dp_algorithm_flag=false
     how_more_optimization_flag=false
     how_optimization_flag=false
     how_intrinsic_bound_flag=true
@@ -181,31 +180,9 @@ run_stock_test(){
     autotuner_increase_bar_alpha=0.1 #0.25
     autotune=false
     is_treat=false
-    for lem_dp_algorithm_flag in false true; do
-      run_one_exp
-      printf "${EXP_NAME}\n" >> stock_result.txt
-    done
+    run_one_exp
+    printf "${EXP_NAME}\n" >> stock_result.txt
 
-    P1=1
-    P2=1
-    P3=4
-    P4=1
-    P5=2
-    P6=1
-    P7=8
-
-    for lem_dp_algorithm_flag in false true; do
-      run_one_exp
-      printf "${EXP_NAME}\n" >> stock_result.txt
-    done
-
-    P1=1
-    P2=1
-    P3=15
-    P4=1
-    P5=2
-    P6=1
-    P7=21
     is_treat=true
     autotune=true
     repeat=1
@@ -215,10 +192,10 @@ run_stock_test(){
             whether_type="streamsluice"
             how_type="streamsluice"
             scalein_type="streamsluice"
-            for lem_dp_algorithm_flag in false true; do
-              run_one_exp
-              printf "${EXP_NAME}\n" >> stock_result.txt
-            done
+
+            run_one_exp
+            printf "${EXP_NAME}\n" >> stock_result.txt
+
         done
       done
     done

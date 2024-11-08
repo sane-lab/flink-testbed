@@ -22,7 +22,7 @@ function analyze() {
 }
 
 run_one_exp() {
-  EXP_NAME=lr-${whether_type}-${how_type}-${scaling_decision_option}-${lem_dp_algorithm_flag}-${runtime}-${warmup_time}-${warmup_rate}-${skip_interval}-${P2}-${DELAY2}-${P3}-${DELAY3}-${P4}-${DELAY4}-${P5}-${DELAY5}-${L}-${autotuner_increase_bar_alpha}-${epoch}-${input_rate_factor}-${PAYLOAD}-${SKEWNESS}-${is_treat}-${migration_interval}-${repeat}
+  EXP_NAME=lr-${whether_type}-${how_type}-${scaling_decision_option}-${runtime}-${warmup_time}-${warmup_rate}-${skip_interval}-${P2}-${DELAY2}-${P3}-${DELAY3}-${P4}-${DELAY4}-${P5}-${DELAY5}-${L}-${autotuner_increase_bar_alpha}-${epoch}-${input_rate_factor}-${PAYLOAD}-${SKEWNESS}-${is_treat}-${migration_interval}-${repeat}
 
   echo "INFO: run exp ${EXP_NAME}"
   configFlink
@@ -49,7 +49,7 @@ init() {
   how_type="streamsluice"
   scalein_type="streamsluice"
   L=2000
-  runtime=1980 #780 #2190
+  runtime=780 #1980 #780 #2190
   skip_interval=10 #120 #300 # skip seconds
   warmup=10000
   warmup_time=150 #300
@@ -147,7 +147,6 @@ run_stock_test(){
     echo "Run linear road experiments..."
     init
     printf "" > lr_result.txt
-    lem_dp_algorithm_flag=false
     how_more_optimization_flag=false
     how_optimization_flag=false
     how_intrinsic_bound_flag=true
@@ -178,27 +177,8 @@ run_stock_test(){
     repeat=1
     autotune=false
     is_treat=false
-    for lem_dp_algorithm_flag in false true; do #
-      run_one_exp
-      printf "${EXP_NAME}\n" >> lr_result.txt
-    done
-
-    P1=1
-    P2=1
-    P3=1
-    P4=1
-    P5=11
-
-    for lem_dp_algorithm_flag in false true; do #
-      run_one_exp
-      printf "${EXP_NAME}\n" >> lr_result.txt
-    done
-
-    P1=1
-    P2=1
-    P3=1
-    P4=1
-    P5=36
+    run_one_exp
+    printf "${EXP_NAME}\n" >> lr_result.txt
 
     is_treat=true
     autotune=true
@@ -208,10 +188,8 @@ run_stock_test(){
             whether_type="streamsluice"
             how_type="streamsluice"
             scalein_type="streamsluice"
-            for lem_dp_algorithm_flag in  true false; do #
-              run_one_exp
-              printf "${EXP_NAME}\n" >> lr_result.txt
-            done
+            run_one_exp
+            printf "${EXP_NAME}\n" >> lr_result.txt
         done
       done
     done

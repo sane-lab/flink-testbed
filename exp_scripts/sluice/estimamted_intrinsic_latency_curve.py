@@ -766,7 +766,7 @@ def main():
     output_dir = "/Users/swrrt/Workplace/BacklogDelayPaper/experiments/results/"
     overall_output_dir = "/Users/swrrt/Workplace/BacklogDelayPaper/experiments/figures/autotuner/"
     window_size = 100
-    start_time = 150 #0#120  # tweet, stock
+    start_time = 120 #150 #120  # tweet, stock
     #start_time = 180  # lr
     exp_length = 600 #1800 #720 #600 #2160
     draw_lem_latency_flag = True
@@ -793,21 +793,41 @@ def main():
             #      ]
             # ],
         },
-        2: {  # Stock
+        # 2: {  # Stock
+        #     "static": [
+        #         ["stock-streamsluice-streamsluice--false-750-90-1000-20-1-200-15-2500-1-200-2-500-1-21-3333-1000-100-0.1-false-false-1",
+        #          "stock-streamsluice-streamsluice--true-750-90-1000-20-1-200-15-2500-1-200-2-500-1-21-3333-1000-100-0.1-false-false-1",
+        #         ]
+        #     ],
+        #     "static-1": [
+        #         ["stock-streamsluice-streamsluice--false-750-90-1000-20-1-200-4-2500-1-200-2-500-1-8-3333-1000-100-0.1-false-false-1",
+        #          "stock-streamsluice-streamsluice--true-750-90-1000-20-1-200-4-2500-1-200-2-500-1-8-3333-1000-100-0.1-false-false-1",
+        #          ]
+        #     ],
+        #     "sluice": [
+        #         ["stock-streamsluice-streamsluice-1-false-750-90-1000-20-1-200-15-2500-1-200-2-500-1-21-3333-1000-100-0.1-true-true-1",
+        #          "stock-streamsluice-streamsluice-1-true-750-90-1000-20-1-200-15-2500-1-200-2-500-1-21-3333-1000-100-0.1-true-true-1",
+        #         ]
+        #     ],
+        # },
+        3: {  # LR
             "static": [
-                ["stock-streamsluice-streamsluice--false-750-90-1000-20-1-200-15-2500-1-200-2-500-1-21-3333-1000-100-0.1-false-false-1",
-                 "stock-streamsluice-streamsluice--true-750-90-1000-20-1-200-15-2500-1-200-2-500-1-21-3333-1000-100-0.1-false-false-1",
-                ]
+                [
+                    "lr-streamsluice-streamsluice--false-1980-150-1300-10-1-50-1-50-1-50-36-2000-1000-0.1-100-1-0-0.0-false-3000-1",
+                    "lr-streamsluice-streamsluice--true-1980-150-1300-10-1-50-1-50-1-50-36-2000-1000-0.1-100-1-0-0.0-false-3000-1",
+                    ]
             ],
             # "static-1": [
-            #     ["stock-streamsluice-streamsluice--false-750-90-1000-20-1-200-4-2500-1-200-2-500-1-8-3333-1000-100-0.1-false-false-1",
-            #     "tweet-streamsluice-streamsluice--true-750-90-1500-1-15-6666-2-1000-1-50-1-50-1000-100-false-0.1-1",
-            #      ]
+            #     [
+            #         "stock-streamsluice-streamsluice--false-750-90-1000-20-1-200-4-2500-1-200-2-500-1-8-3333-1000-100-0.1-false-false-1",
+            #         "stock-streamsluice-streamsluice--true-750-90-1000-20-1-200-4-2500-1-200-2-500-1-8-3333-1000-100-0.1-false-false-1",
+            #         ]
             # ],
             # "sluice": [
-            #     ["tweet-streamsluice-streamsluice-1-false-750-90-1500-1-22-6666-10-1000-1-50-1-50-750-100-true-0.1-2",
-            #      "tweet-streamsluice-streamsluice-1-true-750-90-1500-1-22-6666-10-1000-1-50-1-50-750-100-true-0.1-2",
-            #     ]
+            #     [
+            #         "stock-streamsluice-streamsluice-1-false-750-90-1000-20-1-200-15-2500-1-200-2-500-1-21-3333-1000-100-0.1-true-true-1",
+            #         "stock-streamsluice-streamsluice-1-true-750-90-1000-20-1-200-15-2500-1-200-2-500-1-21-3333-1000-100-0.1-true-true-1",
+            #         ]
             # ],
         }
     }
