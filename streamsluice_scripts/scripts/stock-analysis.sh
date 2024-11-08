@@ -49,7 +49,7 @@ init() {
   how_type="streamsluice"
   scalein_type="streamsuice"
   L=2000
-  runtime=1950 #750 #2190 #3990 #
+  runtime=750 #1950 #750 #2190 #3990 #
   skip_interval=20 # skip seconds
   warmup=10000
   warmup_time=90 #30
@@ -185,6 +185,27 @@ run_stock_test(){
       run_one_exp
       printf "${EXP_NAME}\n" >> stock_result.txt
     done
+
+    P1=1
+    P2=1
+    P3=4
+    P4=1
+    P5=2
+    P6=1
+    P7=8
+
+    for lem_dp_algorithm_flag in false true; do
+      run_one_exp
+      printf "${EXP_NAME}\n" >> stock_result.txt
+    done
+
+    P1=1
+    P2=1
+    P3=15
+    P4=1
+    P5=2
+    P6=1
+    P7=21
     is_treat=true
     autotune=true
     repeat=1
