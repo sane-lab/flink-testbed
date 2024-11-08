@@ -176,7 +176,7 @@ def draw_latency_curves(raw_dir, output_dir, exp_name, exp_dp_name, window_size,
         p99_bar += [result[2]]
 
     exps = [
-        ["DP", exp_name, "blue", "o"]
+        ["DP", exp_dp_name, "blue", "o"]
     ]
     lem_latencies_dp = []
 
@@ -232,7 +232,7 @@ def draw_latency_curves(raw_dir, output_dir, exp_name, exp_dp_name, window_size,
         if label not in new_labels:
             new_labels.append(label)
             new_handles.append(handle)
-    plt.legend(new_handles, new_labels, bbox_to_anchor=(0.45, 1.4), loc='upper center', ncol=3, markerscale=4.)
+    plt.legend(new_handles, new_labels, bbox_to_anchor=(0.45, 1.4), loc='upper center', ncol=1, markerscale=4.)
     plt.ylabel('Latency (ms)')
     axes = plt.gca()
     axes.set_xlim((start_time) * 1000, (start_time + exp_length) * 1000)
@@ -240,8 +240,15 @@ def draw_latency_curves(raw_dir, output_dir, exp_name, exp_dp_name, window_size,
     axes.set_xticklabels([int((x - start_time * 1000) / 1000) for x in
                           np.arange((start_time) * 1000, (start_time + exp_length) * 1000 + (exp_length / 10) * 1000, (exp_length / 10) * 1000)])
 
-    axes.set_ylim(0, 1000)
-    axes.set_yticks(np.arange(0, 1000, 200))
+    if (max(lem_latencies[0][1]) <= 1000):
+        axes.set_ylim(0, 1000)
+        axes.set_yticks(np.arange(0, 1000, 200))
+    elif (max(lem_latencies[0][1]) <= 2000):
+        axes.set_ylim(0, 2000)
+        axes.set_yticks(np.arange(0, 2000, 400))
+    else:
+        axes.set_ylim(0, 5000)
+        axes.set_yticks(np.arange(0, 5000, 1000))
     # axes.set_ylim(0, 10000)
     # axes.set_yticks(np.arange(0, 11000, 1000))
     plt.grid(True)
@@ -761,19 +768,47 @@ def main():
     window_size = 100
     start_time = 150 #0#120  # tweet, stock
     #start_time = 180  # lr
-    exp_length = 1800 #720 #600 #2160
+    exp_length = 600 #1800 #720 #600 #2160
     draw_lem_latency_flag = True
     exps_per_label_per_setting = {
         1: {  # Tweet
             # "static": [
-            #     ["tweet-streamsluice-streamsluice--false-1950-90-1500-1-22-6666-10-1000-1-50-1-50-1000-100-false-0.1-1",
-            #      "tweet-streamsluice-streamsluice--true-1950-90-1500-1-22-6666-10-1000-1-50-1-50-1000-100-false-0.1-1",]
+            #     ["tweet-streamsluice-streamsluice--false-750-90-1500-1-22-6666-10-1000-1-50-1-50-1000-100-false-0.1-1",
+            #      "tweet-streamsluice-streamsluice--true-750-90-1500-1-22-6666-10-1000-1-50-1-50-1000-100-false-0.1-1",
+            #     ]
             # ],
-            "sluice": [
-                ["tweet-streamsluice-streamsluice-1-true-1950-90-1500-1-22-6666-10-1000-1-50-1-50-1000-100-true-0.1-2",
-                    "tweet-streamsluice-streamsluice-1-false-1950-90-1500-1-22-6666-10-1000-1-50-1-50-1000-100-true-0.1-2",
+            # "static-1": [
+            #     ["tweet-streamsluice-streamsluice--false-750-90-1500-1-15-6666-2-1000-1-50-1-50-1000-100-false-0.1-1",
+            #     "tweet-streamsluice-streamsluice--true-750-90-1500-1-15-6666-2-1000-1-50-1-50-1000-100-false-0.1-1",
+            #      ]
+            # ],
+            # "sluice": [
+            #     ["tweet-streamsluice-streamsluice-1-false-750-90-1500-1-22-6666-10-1000-1-50-1-50-750-100-true-0.1-2",
+            #      "tweet-streamsluice-streamsluice-1-true-750-90-1500-1-22-6666-10-1000-1-50-1-50-750-100-true-0.1-2",
+            #     ]
+            # ],
+            # "sluice1": [
+            #     ["tweet-streamsluice-streamsluice-1-false-750-90-1500-1-22-6666-10-1000-1-50-1-50-1000-100-true-0.1-2",
+            #      "tweet-streamsluice-streamsluice-1-true-750-90-1500-1-22-6666-10-1000-1-50-1-50-1000-100-true-0.1-2",
+            #      ]
+            # ],
+        },
+        2: {  # Stock
+            "static": [
+                ["stock-streamsluice-streamsluice--false-750-90-1000-20-1-200-15-2500-1-200-2-500-1-21-3333-1000-100-0.1-false-false-1",
+                 "stock-streamsluice-streamsluice--true-750-90-1000-20-1-200-15-2500-1-200-2-500-1-21-3333-1000-100-0.1-false-false-1",
                 ]
             ],
+            # "static-1": [
+            #     ["stock-streamsluice-streamsluice--false-750-90-1000-20-1-200-4-2500-1-200-2-500-1-8-3333-1000-100-0.1-false-false-1",
+            #     "tweet-streamsluice-streamsluice--true-750-90-1500-1-15-6666-2-1000-1-50-1-50-1000-100-false-0.1-1",
+            #      ]
+            # ],
+            # "sluice": [
+            #     ["tweet-streamsluice-streamsluice-1-false-750-90-1500-1-22-6666-10-1000-1-50-1-50-750-100-true-0.1-2",
+            #      "tweet-streamsluice-streamsluice-1-true-750-90-1500-1-22-6666-10-1000-1-50-1-50-750-100-true-0.1-2",
+            #     ]
+            # ],
         }
     }
     for setting_index, exps_per_label in exps_per_label_per_setting.items():

@@ -161,7 +161,7 @@ run_stock_test(){
 
     P1=1
     P2=15
-    P3=2
+    P3=3
     P4=1
     P5=1
     for lem_dp_algorithm_flag in false true; do #

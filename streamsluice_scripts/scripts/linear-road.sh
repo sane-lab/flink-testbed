@@ -178,10 +178,28 @@ run_stock_test(){
     repeat=1
     autotune=false
     is_treat=false
-    for lem_dp_algorithm_flag in false; do #true
+    for lem_dp_algorithm_flag in false true; do #
       run_one_exp
       printf "${EXP_NAME}\n" >> lr_result.txt
     done
+
+    P1=1
+    P2=1
+    P3=1
+    P4=1
+    P5=11
+
+    for lem_dp_algorithm_flag in false true; do #
+      run_one_exp
+      printf "${EXP_NAME}\n" >> lr_result.txt
+    done
+
+    P1=1
+    P2=1
+    P3=1
+    P4=1
+    P5=36
+
     is_treat=true
     autotune=true
     for scaling_decision_option in 1; do # 2 0
@@ -190,7 +208,7 @@ run_stock_test(){
             whether_type="streamsluice"
             how_type="streamsluice"
             scalein_type="streamsluice"
-            for lem_dp_algorithm_flag in false; do # true
+            for lem_dp_algorithm_flag in  true false; do #
               run_one_exp
               printf "${EXP_NAME}\n" >> lr_result.txt
             done
