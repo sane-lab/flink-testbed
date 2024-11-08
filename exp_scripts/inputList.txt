@@ -1,2 +1,6 @@
-lr-streamsluice-streamsluice--false-1980-150-1300-10-1-50-1-50-1-50-36-2000-1000-0.1-100-1-0-0.0-false-3000-1
-lr-streamsluice-streamsluice--true-1980-150-1300-10-1-50-1-50-1-50-36-2000-1000-0.1-100-1-0-0.0-false-3000-1
+tweet-streamsluice-streamsluice--750-90-1500-1-22-6666-10-1000-1-50-1-50-1000-100-false-0.1-1
+tweet-streamsluice-streamsluice-1-750-90-1500-1-22-6666-10-1000-1-50-1-50-750-100-true-0.1-2
+tweet-streamsluice-streamsluice-1-750-90-1500-1-22-6666-10-1000-1-50-1-50-1000-100-true-0.1-2
+tweet-streamsluice-streamsluice-1-750-90-1500-1-22-6666-10-1000-1-50-1-50-1500-100-true-0.1-2
+tweet-streamsluice-streamsluice-1-750-90-1500-1-22-6666-10-1000-1-50-1-50-2000-100-true-0.1-2
+tweet-streamsluice-streamsluice-1-750-90-1500-1-22-6666-10-1000-1-50-1-50-2500-100-true-0.1-2
