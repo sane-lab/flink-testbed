@@ -49,7 +49,7 @@ init() {
   how_type="streamsluice"
   scalein_type="streamsuice"
   L=2000
-  runtime=750 #1950 #750 #2190 #3990 #
+  runtime=1950 #750 #1950 #750 #2190 #3990 #
   skip_interval=20 # skip seconds
   warmup=10000
   warmup_time=90 #30
@@ -187,7 +187,7 @@ run_stock_test(){
     autotune=true
     repeat=1
     for scaling_decision_option in 1; do # 2 0
-      for autotuner_increase_bar_alpha in 0.1; do # 0.1 0.2 0.4
+      for autotuner_increase_bar_alpha in 0.1 0.2 0.4; do # 0.1 0.2 0.4
         for L in 750 1000 1500 2000 2500; do #
             whether_type="streamsluice"
             how_type="streamsluice"
