@@ -77,6 +77,8 @@ def readLEMLatencyAndSpikeAndBar(rawDir, expName) -> [[list[int], list[float], l
     lem_latency = [[], [], []]
     latency_bar = {}
     p99_bar = {}
+    cur_ete_times = 0
+    cur_ete_errors = 0
 
     streamsluiceOutput = "flink-samza-standalonesession-0-eagle-sane.out"
     import os
@@ -98,13 +100,19 @@ def readLEMLatencyAndSpikeAndBar(rawDir, expName) -> [[list[int], list[float], l
                 print("Processed to line:" + str(counter))
             if (len(split) >= 10 and split[0] == "+++" and split[1] == "[MODEL]" and split[6] == "cur_ete_l:" and (
                     split[
-                        8] == "n_epoch_l:" or split[11] == "n_epoch_l:")):
+                        8] == "n_epoch_l:" or split[13] == "n_epoch_l:")):
                 time = int(split[3])
                 estimated_l = float(split[7])
-                # estimated_spike = float(split[13]) - float(split[7])
+                if (split[11] == "cur_ete_l_dp:"):
+                    dp_estimated_l = float(split[12])
+                    cur_ete_times += 1
+                    if abs(dp_estimated_l - estimated_l) > 1e-9:
+                        cur_ete_errors += 1
+                else:
+                    dp_estimated_l = 0
                 lem_latency[0] += [time]
                 lem_latency[1] += [estimated_l]
-                # lem_latency[2] += [estimated_spike]
+                lem_latency[2] += [dp_estimated_l]
             if (len(split) >= 8 and split[0] == "[AUTOTUNE]" and split[4] == "initial" and split[5] == "latency" and split[6] == "bar:"):
                 time = int(split[2])
                 bar = int(split[7].rstrip(','))
@@ -124,7 +132,7 @@ def readLEMLatencyAndSpikeAndBar(rawDir, expName) -> [[list[int], list[float], l
                 latency_bar[time] = bar
                 p99_bar[time] = int(split[11].rstrip(','))
 
-    return [lem_latency, latency_bar, p99_bar]
+    return [lem_latency, latency_bar, p99_bar, cur_ete_times, cur_ete_errors]
 
 def add_latency_limit_marker(plt, latency_limit):
     x = [0, 10000000]
@@ -155,9 +163,9 @@ def add_latency_bar_curve(plt, latency_bar:dict[int, int], initial_time):
     y = [last_y, last_y]
     plt.plot(x, y, 'o--', label="Latency Bar", color='green', linewidth=1.5)
 
-def draw_latency_curves(raw_dir, output_dir, exp_name, exp_dp_name, window_size, start_time, exp_length, latency_limit, draw_lem_latency_flag):
+def draw_latency_curves(raw_dir, output_dir, exp_name, window_size, start_time, exp_length, latency_limit, draw_lem_latency_flag):
     exps = [
-        ["BruteForce", exp_name, "blue", "o"]
+        ["Sluice", exp_name, "blue", "o"]
     ]
 
     average_ground_truth_latencies = []
@@ -165,6 +173,8 @@ def draw_latency_curves(raw_dir, output_dir, exp_name, exp_dp_name, window_size,
     latency_bar = []
     p99_bar = []
     initial_times = []
+    cur_ete_times = 0
+    cur_ete_errors = 0
     for i in range(len(exps)):
         result = read_ground_truth_latency(raw_dir, exps[i][1], window_size)
         average_ground_truth_latencies += [result[0]]
@@ -174,21 +184,10 @@ def draw_latency_curves(raw_dir, output_dir, exp_name, exp_dp_name, window_size,
         lem_latencies += [result[0]]
         latency_bar += [result[1]]
         p99_bar += [result[2]]
+        cur_ete_times += result[3]
+        cur_ete_errors = result[4]
 
-    exps = [
-        ["DP", exp_dp_name, "blue", "o"]
-    ]
-    lem_latencies_dp = []
 
-    for i in range(len(exps)):
-        result = read_ground_truth_latency(raw_dir, exps[i][1], window_size)
-        #average_ground_truth_latencies += [result[0]]
-        initial_times_dp = result[1]
-        result = readLEMLatencyAndSpikeAndBar(raw_dir, exps[i][1])
-        result[0][0] = [x - initial_times_dp for x in result[0][0]]
-        lem_latencies_dp += [result[0]]
-        #latency_bar += [result[1]]
-        #p99_bar += [result[2]]
 
 
 
@@ -199,8 +198,6 @@ def draw_latency_curves(raw_dir, output_dir, exp_name, exp_dp_name, window_size,
                                             average_ground_truth_latencies[i][0][x] >= start_time * 1000 and
                                             average_ground_truth_latencies[i][0][x] <= (start_time + exp_length) * 1000]
         success_rate = len([x for x in groundtruth_p99_latency_in_range if x <= latency_limit])/len(groundtruth_p99_latency_in_range)
-        lem_latency_in_range = [lem_latencies[i][1][x] for x in range(0, len(lem_latencies[i][0])) if
-                                lem_latencies[i][0][x] >= start_time * 1000 and lem_latencies[i][0][x] <= (start_time + exp_length) * 1000]
         print("Success rate: " + str(success_rate))
     # Plotting the latency curve
     fig, ax = plt.subplots(figsize=(12, 5))
@@ -222,8 +219,8 @@ def draw_latency_curves(raw_dir, output_dir, exp_name, exp_dp_name, window_size,
         if(draw_lem_latency_flag):
             plt.plot(lem_latencies[i][0], lem_latencies[i][1], 'd-', color="green", markersize=2, linewidth=2,
                  label='Estimated Latency (Brute force)')
-            plt.plot(lem_latencies_dp[i][0], lem_latencies_dp[i][1], 'c-', color="orange", markersize=2, linewidth=2,
-                     label='Estimated Latency (Dynamic Programming)')
+            plt.plot(lem_latencies[i][0], lem_latencies[i][2], 'c-', color="orange", markersize=2, linewidth=2,
+                     label='Estimated Latency (DP)')
         add_latency_limit_marker(plt, latency_limit)
 
     handles, labels = plt.gca().get_legend_handles_labels()
@@ -342,7 +339,7 @@ def draw_latency_curves(raw_dir, output_dir, exp_name, exp_dp_name, window_size,
     plt.savefig(output_dir + 'latency_bar.png', bbox_inches='tight')
     plt.close(fig)
 
-    return success_rate, first_converge_time, converged_bar
+    return success_rate, first_converge_time, converged_bar, cur_ete_times, cur_ete_errors
 
 def parseMapping(split):
     mapping = {}
@@ -772,65 +769,74 @@ def main():
     draw_lem_latency_flag = True
     exps_per_label_per_setting = {
         1: {  # Tweet
-            # "static": [
-            #     ["tweet-streamsluice-streamsluice--false-750-90-1500-1-22-6666-10-1000-1-50-1-50-1000-100-false-0.1-1",
-            #      "tweet-streamsluice-streamsluice--true-750-90-1500-1-22-6666-10-1000-1-50-1-50-1000-100-false-0.1-1",
-            #     ]
-            # ],
-            # "static-1": [
-            #     ["tweet-streamsluice-streamsluice--false-750-90-1500-1-15-6666-2-1000-1-50-1-50-1000-100-false-0.1-1",
-            #     "tweet-streamsluice-streamsluice--true-750-90-1500-1-15-6666-2-1000-1-50-1-50-1000-100-false-0.1-1",
-            #      ]
-            # ],
-            # "sluice": [
-            #     ["tweet-streamsluice-streamsluice-1-false-750-90-1500-1-22-6666-10-1000-1-50-1-50-750-100-true-0.1-2",
-            #      "tweet-streamsluice-streamsluice-1-true-750-90-1500-1-22-6666-10-1000-1-50-1-50-750-100-true-0.1-2",
-            #     ]
-            # ],
-            # "sluice1": [
-            #     ["tweet-streamsluice-streamsluice-1-false-750-90-1500-1-22-6666-10-1000-1-50-1-50-1000-100-true-0.1-2",
-            #      "tweet-streamsluice-streamsluice-1-true-750-90-1500-1-22-6666-10-1000-1-50-1-50-1000-100-true-0.1-2",
-            #      ]
-            # ],
-        },
-        # 2: {  # Stock
-        #     "static": [
-        #         ["stock-streamsluice-streamsluice--false-750-90-1000-20-1-200-15-2500-1-200-2-500-1-21-3333-1000-100-0.1-false-false-1",
-        #          "stock-streamsluice-streamsluice--true-750-90-1000-20-1-200-15-2500-1-200-2-500-1-21-3333-1000-100-0.1-false-false-1",
-        #         ]
-        #     ],
-        #     "static-1": [
-        #         ["stock-streamsluice-streamsluice--false-750-90-1000-20-1-200-4-2500-1-200-2-500-1-8-3333-1000-100-0.1-false-false-1",
-        #          "stock-streamsluice-streamsluice--true-750-90-1000-20-1-200-4-2500-1-200-2-500-1-8-3333-1000-100-0.1-false-false-1",
-        #          ]
-        #     ],
-        #     "sluice": [
-        #         ["stock-streamsluice-streamsluice-1-false-750-90-1000-20-1-200-15-2500-1-200-2-500-1-21-3333-1000-100-0.1-true-true-1",
-        #          "stock-streamsluice-streamsluice-1-true-750-90-1000-20-1-200-15-2500-1-200-2-500-1-21-3333-1000-100-0.1-true-true-1",
-        #         ]
-        #     ],
-        # },
-        3: {  # LR
             "static": [
-                [
-                    "lr-streamsluice-streamsluice--false-1980-150-1300-10-1-50-1-50-1-50-36-2000-1000-0.1-100-1-0-0.0-false-3000-1",
-                    "lr-streamsluice-streamsluice--true-1980-150-1300-10-1-50-1-50-1-50-36-2000-1000-0.1-100-1-0-0.0-false-3000-1",
-                    ]
+                "tweet-streamsluice-streamsluice--1950-90-1500-1-22-6666-10-1000-1-50-1-50-1000-100-false-0.1-1",
             ],
-            # "static-1": [
-            #     [
-            #         "stock-streamsluice-streamsluice--false-750-90-1000-20-1-200-4-2500-1-200-2-500-1-8-3333-1000-100-0.1-false-false-1",
-            #         "stock-streamsluice-streamsluice--true-750-90-1000-20-1-200-4-2500-1-200-2-500-1-8-3333-1000-100-0.1-false-false-1",
-            #         ]
-            # ],
-            # "sluice": [
-            #     [
-            #         "stock-streamsluice-streamsluice-1-false-750-90-1000-20-1-200-15-2500-1-200-2-500-1-21-3333-1000-100-0.1-true-true-1",
-            #         "stock-streamsluice-streamsluice-1-true-750-90-1000-20-1-200-15-2500-1-200-2-500-1-21-3333-1000-100-0.1-true-true-1",
-            #         ]
-            # ],
-        }
+            "sluice": [
+                "tweet-streamsluice-streamsluice-1-1950-90-1500-1-22-6666-10-1000-1-50-1-50-750-100-true-0.1-2",
+                "tweet-streamsluice-streamsluice-1-1950-90-1500-1-22-6666-10-1000-1-50-1-50-1000-100-true-0.1-2",
+                "tweet-streamsluice-streamsluice-1-1950-90-1500-1-22-6666-10-1000-1-50-1-50-1500-100-true-0.1-2",
+                "tweet-streamsluice-streamsluice-1-1950-90-1500-1-22-6666-10-1000-1-50-1-50-2000-100-true-0.1-2",
+                "tweet-streamsluice-streamsluice-1-1950-90-1500-1-22-6666-10-1000-1-50-1-50-2500-100-true-0.1-2",
+                "tweet-streamsluice-streamsluice-1-1950-90-1500-1-22-6666-10-1000-1-50-1-50-750-100-true-0.2-2",
+                "tweet-streamsluice-streamsluice-1-1950-90-1500-1-22-6666-10-1000-1-50-1-50-1000-100-true-0.2-2",
+                "tweet-streamsluice-streamsluice-1-1950-90-1500-1-22-6666-10-1000-1-50-1-50-1500-100-true-0.2-2",
+                "tweet-streamsluice-streamsluice-1-1950-90-1500-1-22-6666-10-1000-1-50-1-50-2000-100-true-0.2-2",
+                "tweet-streamsluice-streamsluice-1-1950-90-1500-1-22-6666-10-1000-1-50-1-50-2500-100-true-0.2-2",
+                "tweet-streamsluice-streamsluice-1-1950-90-1500-1-22-6666-10-1000-1-50-1-50-750-100-true-0.4-2",
+                "tweet-streamsluice-streamsluice-1-1950-90-1500-1-22-6666-10-1000-1-50-1-50-1000-100-true-0.4-2",
+                "tweet-streamsluice-streamsluice-1-1950-90-1500-1-22-6666-10-1000-1-50-1-50-1500-100-true-0.4-2",
+                "tweet-streamsluice-streamsluice-1-1950-90-1500-1-22-6666-10-1000-1-50-1-50-2000-100-true-0.4-2",
+                "tweet-streamsluice-streamsluice-1-1950-90-1500-1-22-6666-10-1000-1-50-1-50-2500-100-true-0.4-2",
+            ],
+        },
+        2: {  # Stock
+            "static": [
+                "stock-streamsluice-streamsluice--1950-90-1000-20-1-200-15-2500-1-200-2-500-1-21-3333-1000-100-0.1-false-false-1",
+            ],
+            "sluice": [
+                "stock-streamsluice-streamsluice-1-1950-90-1000-20-1-200-15-2500-1-200-2-500-1-21-3333-750-100-0.1-true-true-1",
+                "stock-streamsluice-streamsluice-1-1950-90-1000-20-1-200-15-2500-1-200-2-500-1-21-3333-1000-100-0.1-true-true-1",
+                "stock-streamsluice-streamsluice-1-1950-90-1000-20-1-200-15-2500-1-200-2-500-1-21-3333-1500-100-0.1-true-true-1",
+                "stock-streamsluice-streamsluice-1-1950-90-1000-20-1-200-15-2500-1-200-2-500-1-21-3333-2000-100-0.1-true-true-1",
+                "stock-streamsluice-streamsluice-1-1950-90-1000-20-1-200-15-2500-1-200-2-500-1-21-3333-2500-100-0.1-true-true-1",
+                "stock-streamsluice-streamsluice-1-1950-90-1000-20-1-200-15-2500-1-200-2-500-1-21-3333-750-100-0.2-true-true-1",
+                "stock-streamsluice-streamsluice-1-1950-90-1000-20-1-200-15-2500-1-200-2-500-1-21-3333-1000-100-0.2-true-true-1",
+                "stock-streamsluice-streamsluice-1-1950-90-1000-20-1-200-15-2500-1-200-2-500-1-21-3333-1500-100-0.2-true-true-1",
+                "stock-streamsluice-streamsluice-1-1950-90-1000-20-1-200-15-2500-1-200-2-500-1-21-3333-2000-100-0.2-true-true-1",
+                "stock-streamsluice-streamsluice-1-1950-90-1000-20-1-200-15-2500-1-200-2-500-1-21-3333-2500-100-0.2-true-true-1",
+                "stock-streamsluice-streamsluice-1-1950-90-1000-20-1-200-15-2500-1-200-2-500-1-21-3333-750-100-0.4-true-true-1",
+                "stock-streamsluice-streamsluice-1-1950-90-1000-20-1-200-15-2500-1-200-2-500-1-21-3333-1000-100-0.4-true-true-1",
+                "stock-streamsluice-streamsluice-1-1950-90-1000-20-1-200-15-2500-1-200-2-500-1-21-3333-1500-100-0.4-true-true-1",
+                "stock-streamsluice-streamsluice-1-1950-90-1000-20-1-200-15-2500-1-200-2-500-1-21-3333-2000-100-0.4-true-true-1",
+                "stock-streamsluice-streamsluice-1-1950-90-1000-20-1-200-15-2500-1-200-2-500-1-21-3333-2500-100-0.4-true-true-1",
+            ],
+        },
+        3: {  # Linear-road
+            "static": [
+                "lr-streamsluice-streamsluice--1980-150-1300-10-1-50-1-50-1-50-36-2000-1000-0.1-100-1-0-0.0-false-3000-1",
+            ],
+            "sluice": [
+                "lr-streamsluice-streamsluice-1-1980-150-1300-10-1-50-1-50-1-50-36-2000-1000-0.1-100-1-0-0.0-true-3000-1",
+                "lr-streamsluice-streamsluice-1-1980-150-1300-10-1-50-1-50-1-50-36-2000-2000-0.1-100-1-0-0.0-true-3000-1",
+                "lr-streamsluice-streamsluice-1-1980-150-1300-10-1-50-1-50-1-50-36-2000-3000-0.1-100-1-0-0.0-true-3000-1",
+                "lr-streamsluice-streamsluice-1-1980-150-1300-10-1-50-1-50-1-50-36-2000-4000-0.1-100-1-0-0.0-true-3000-1",
+                "lr-streamsluice-streamsluice-1-1980-150-1300-10-1-50-1-50-1-50-36-2000-5000-0.1-100-1-0-0.0-true-3000-1",
+                "lr-streamsluice-streamsluice-1-1980-150-1300-10-1-50-1-50-1-50-36-2000-1000-0.2-100-1-0-0.0-true-3000-1",
+                "lr-streamsluice-streamsluice-1-1980-150-1300-10-1-50-1-50-1-50-36-2000-2000-0.2-100-1-0-0.0-true-3000-1",
+                "lr-streamsluice-streamsluice-1-1980-150-1300-10-1-50-1-50-1-50-36-2000-3000-0.2-100-1-0-0.0-true-3000-1",
+                "lr-streamsluice-streamsluice-1-1980-150-1300-10-1-50-1-50-1-50-36-2000-4000-0.2-100-1-0-0.0-true-3000-1",
+                "lr-streamsluice-streamsluice-1-1980-150-1300-10-1-50-1-50-1-50-36-2000-5000-0.2-100-1-0-0.0-true-3000-1",
+                "lr-streamsluice-streamsluice-1-1980-150-1300-10-1-50-1-50-1-50-36-2000-1000-0.4-100-1-0-0.0-true-3000-1",
+                "lr-streamsluice-streamsluice-1-1980-150-1300-10-1-50-1-50-1-50-36-2000-2000-0.4-100-1-0-0.0-true-3000-1",
+                "lr-streamsluice-streamsluice-1-1980-150-1300-10-1-50-1-50-1-50-36-2000-3000-0.4-100-1-0-0.0-true-3000-1",
+                "lr-streamsluice-streamsluice-1-1980-150-1300-10-1-50-1-50-1-50-36-2000-4000-0.4-100-1-0-0.0-true-3000-1",
+                "lr-streamsluice-streamsluice-1-1980-150-1300-10-1-50-1-50-1-50-36-2000-5000-0.4-100-1-0-0.0-true-3000-1",
+            ],
+        },
+
     }
+    total_cur_ete_times = []
     for setting_index, exps_per_label in exps_per_label_per_setting.items():
         success_rate_per_label = {}
         avg_parallelism_per_label = {}
@@ -843,18 +849,19 @@ def main():
             user_limit_per_label[label] = []
             first_converge_time_per_label[label] = []
             converged_bar_per_label[label] = []
-            for exp_name_pair in exps:
-                exp_name = exp_name_pair[0]
-                exp_name_1 = exp_name_pair[1]
+            for exp_name in exps:
                 if exp_name.startswith("lr"):
                     latency_bar = int(exp_name.split('-')[-9])
                 elif exp_name.startswith("tweet"):
                     latency_bar = int(exp_name.split('-')[-5])
                 else:
                     latency_bar = int(exp_name.split('-')[-6])
-                success_rate, first_converge_time, converged_bar = draw_latency_curves(raw_dir, output_dir + exp_name + '/', exp_name, exp_name_1,
+
+                success_rate, first_converge_time, converged_bar, cur_ete_times, cur_ete_errors = draw_latency_curves(raw_dir, output_dir + exp_name + '/', exp_name,
                                                                               window_size,
                                                                               start_time, exp_length, latency_bar, draw_lem_latency_flag)
+                total_cur_ete_times.append([cur_ete_times, cur_ete_errors])
+                print("Total ete l times: " + str(cur_ete_times) + " , errors: " + str(cur_ete_errors))
                 avg_parallelism, trash = draw_parallelism_curve(raw_dir, output_dir + exp_name + '/', exp_name, window_size,
                                                                 start_time, exp_length, True)
                 user_limit_per_label[label] += [latency_bar]
@@ -870,6 +877,8 @@ def main():
         #plot_avg_parallelism(user_limits, avg_parallelism_per_label, overall_output_dir, setting_index)
         #plot_converge_time(user_limits, first_converge_time_per_label, overall_output_dir, setting_index)
         #plot_converged_bar(user_limits, converged_bar_per_label, overall_output_dir, setting_index)
+    print(total_cur_ete_times)
+    print(sum([x[0] for x in total_cur_ete_times]), sum([x[1] for x in total_cur_ete_times]))
 
 if __name__ == "__main__":
     main()
