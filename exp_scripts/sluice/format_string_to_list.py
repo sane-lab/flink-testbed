@@ -11,14 +11,22 @@ def format_to_script(input_string):
 
 # Example usage
 input_string = """
-lr-streamsluice-streamsluice-1-1980-150-1300-10-1-50-1-50-1-50-36-2000-3000-0.2-100-1-0-0.0-true-3000-1
-lr-streamsluice-streamsluice-1-1980-150-1300-10-1-50-1-50-1-50-36-2000-4000-0.2-100-1-0-0.0-true-3000-1
-lr-streamsluice-streamsluice-1-1980-150-1300-10-1-50-1-50-1-50-36-2000-5000-0.2-100-1-0-0.0-true-3000-1
-lr-streamsluice-streamsluice-1-1980-150-1300-10-1-50-1-50-1-50-36-2000-1000-0.4-100-1-0-0.0-true-3000-1
-lr-streamsluice-streamsluice-1-1980-150-1300-10-1-50-1-50-1-50-36-2000-2000-0.4-100-1-0-0.0-true-3000-1
-lr-streamsluice-streamsluice-1-1980-150-1300-10-1-50-1-50-1-50-36-2000-3000-0.4-100-1-0-0.0-true-3000-1
-lr-streamsluice-streamsluice-1-1980-150-1300-10-1-50-1-50-1-50-36-2000-4000-0.4-100-1-0-0.0-true-3000-1
-lr-streamsluice-streamsluice-1-1980-150-1300-10-1-50-1-50-1-50-36-2000-5000-0.4-100-1-0-0.0-true-3000-1
+stock-streamsluice-streamsluice--1950-90-1000-20-1-200-15-2500-1-200-2-500-1-21-3333-1000-100-0.1-false-false-1
+stock-streamsluice-streamsluice-1-1950-90-1000-20-1-200-15-2500-1-200-2-500-1-21-3333-750-100-0.1-true-true-1
+stock-streamsluice-streamsluice-1-1950-90-1000-20-1-200-15-2500-1-200-2-500-1-21-3333-1000-100-0.1-true-true-1
+stock-streamsluice-streamsluice-1-1950-90-1000-20-1-200-15-2500-1-200-2-500-1-21-3333-1500-100-0.1-true-true-1
+stock-streamsluice-streamsluice-1-1950-90-1000-20-1-200-15-2500-1-200-2-500-1-21-3333-2000-100-0.1-true-true-1
+stock-streamsluice-streamsluice-1-1950-90-1000-20-1-200-15-2500-1-200-2-500-1-21-3333-2500-100-0.1-true-true-1
+stock-streamsluice-streamsluice-1-1950-90-1000-20-1-200-15-2500-1-200-2-500-1-21-3333-750-100-0.2-true-true-1
+stock-streamsluice-streamsluice-1-1950-90-1000-20-1-200-15-2500-1-200-2-500-1-21-3333-1000-100-0.2-true-true-1
+stock-streamsluice-streamsluice-1-1950-90-1000-20-1-200-15-2500-1-200-2-500-1-21-3333-1500-100-0.2-true-true-1
+stock-streamsluice-streamsluice-1-1950-90-1000-20-1-200-15-2500-1-200-2-500-1-21-3333-2000-100-0.2-true-true-1
+stock-streamsluice-streamsluice-1-1950-90-1000-20-1-200-15-2500-1-200-2-500-1-21-3333-2500-100-0.2-true-true-1
+stock-streamsluice-streamsluice-1-1950-90-1000-20-1-200-15-2500-1-200-2-500-1-21-3333-750-100-0.4-true-true-1
+stock-streamsluice-streamsluice-1-1950-90-1000-20-1-200-15-2500-1-200-2-500-1-21-3333-1000-100-0.4-true-true-1
+stock-streamsluice-streamsluice-1-1950-90-1000-20-1-200-15-2500-1-200-2-500-1-21-3333-1500-100-0.4-true-true-1
+stock-streamsluice-streamsluice-1-1950-90-1000-20-1-200-15-2500-1-200-2-500-1-21-3333-2000-100-0.4-true-true-1
+stock-streamsluice-streamsluice-1-1950-90-1000-20-1-200-15-2500-1-200-2-500-1-21-3333-2500-100-0.4-true-true-1
 """
 
 

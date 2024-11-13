@@ -734,6 +734,38 @@ def plot_avg_parallelism_bar(user_limits, avg_parallelism_per_label, output_dir,
     plt.close(fig)
 
 
+def plot_success_rate_bar(user_limits_per_label, success_rate_per_label, output_dir, workload_name: str):
+    labels = list(success_rate_per_label.keys())
+    user_limits = user_limits_per_label[labels[0]]  # Assuming all labels have the same user limits for simplicity
+
+    fig, ax = plt.subplots(figsize=(12, 5))
+
+    # Set width of bars and positions
+    bar_width = 0.15
+    x = np.arange(len(user_limits))
+
+    # Plot bars for each label
+    for i, label in enumerate(labels):
+        success_rates = success_rate_per_label[label]
+        ax.bar(x + i * bar_width, success_rates, width=bar_width, label=("$\\alpha$=" + label))
+
+    # Add labels, title, and custom x-axis tick labels
+    ax.set_xlabel('User Limits')
+    ax.set_ylabel('Success Rate')
+    ax.set_ylim(0.95, 1.01)
+    ax.set_yticks(np.arange(0.95, 1.01, 0.01))
+    ax.set_xticks(x + bar_width * (len(labels) - 1) / 2)
+    ax.set_xticklabels(user_limits)
+    ax.set_title('Success Rates by User Limits and Strategy')
+    ax.legend()
+    ax.grid(True, axis='y')
+
+    # Save the plot
+    if not os.path.exists(output_dir):
+        os.makedirs(output_dir)
+    plt.savefig(os.path.join(output_dir, 'success_rate_bar_' + str(workload_name) + '.png'), bbox_inches='tight')
+    plt.close(fig)
+
 # Function to plot success rate as curves
 def plot_success_rate_curve(user_limits_per_label, success_rate_per_label, output_dir, workload_name: str):
     labels = list(success_rate_per_label.keys())
@@ -811,105 +843,8 @@ def main():
     window_size = 100
     draw_lem_latency_flag = True
     exps_per_label_per_setting = {
-        # "Stock": {
-        #     "0.1": [
-        #         "stock-streamsluice-streamsluice-1-720-90-1000-20-1-200-15-2500-1-200-2-500-1-21-3333-750-100-0.1-true-true-2",
-        #         "stock-streamsluice-streamsluice-1-720-90-1000-20-1-200-15-2500-1-200-2-500-1-21-3333-1000-100-0.1-true-true-2",
-        #         "stock-streamsluice-streamsluice-1-720-90-1000-20-1-200-15-2500-1-200-2-500-1-21-3333-1500-100-0.1-true-true-2",
-        #         "stock-streamsluice-streamsluice-1-720-90-1000-20-1-200-15-2500-1-200-2-500-1-21-3333-2000-100-0.1-true-true-2",
-        #         "stock-streamsluice-streamsluice-1-720-90-1000-20-1-200-15-2500-1-200-2-500-1-21-3333-2500-100-0.1-true-true-2",
-        #     ],
-        #     "0.2": [
-        #         "stock-streamsluice-streamsluice-1-720-90-1000-20-1-200-15-2500-1-200-2-500-1-21-3333-750-100-0.2-true-true-2",
-        #         "stock-streamsluice-streamsluice-1-720-90-1000-20-1-200-15-2500-1-200-2-500-1-21-3333-1000-100-0.2-true-true-2",
-        #         "stock-streamsluice-streamsluice-1-720-90-1000-20-1-200-15-2500-1-200-2-500-1-21-3333-1500-100-0.2-true-true-2",
-        #         #"stock-streamsluice-streamsluice-1-720-90-1000-20-1-200-15-2500-1-200-2-500-1-21-3333-2000-100-0.2-true-true-2",
-        #         "stock-streamsluice-streamsluice-1-720-90-1000-20-1-200-15-2500-1-200-2-500-1-21-3333-2500-100-0.2-true-true-2",
-        #     ],
-        #     "0.4": [
-        #         "stock-streamsluice-streamsluice-1-720-90-1000-20-1-200-15-2500-1-200-2-500-1-21-3333-750-100-0.4-true-true-2",
-        #         "stock-streamsluice-streamsluice-1-720-90-1000-20-1-200-15-2500-1-200-2-500-1-21-3333-1000-100-0.4-true-true-2",
-        #         "stock-streamsluice-streamsluice-1-720-90-1000-20-1-200-15-2500-1-200-2-500-1-21-3333-1500-100-0.4-true-true-2",
-        #         "stock-streamsluice-streamsluice-1-720-90-1000-20-1-200-15-2500-1-200-2-500-1-21-3333-2000-100-0.4-true-true-2",
-        #         "stock-streamsluice-streamsluice-1-720-90-1000-20-1-200-15-2500-1-200-2-500-1-21-3333-2500-100-0.4-true-true-2",
-        #     ],
-        # },
-        # "Stock_Fixed": {
-        #     "0.1": [
-        #         "stock-streamsluice-streamsluice-1-750-90-1000-20-1-200-15-2500-1-200-2-500-1-21-3333-750-100-0.1-true-true-2",
-        #         "stock-streamsluice-streamsluice-1-750-90-1000-20-1-200-15-2500-1-200-2-500-1-21-3333-1000-100-0.1-true-true-2",
-        #         "stock-streamsluice-streamsluice-1-750-90-1000-20-1-200-15-2500-1-200-2-500-1-21-3333-1500-100-0.1-true-true-2",
-        #         "stock-streamsluice-streamsluice-1-750-90-1000-20-1-200-15-2500-1-200-2-500-1-21-3333-2000-100-0.1-true-true-2",
-        #         "stock-streamsluice-streamsluice-1-750-90-1000-20-1-200-15-2500-1-200-2-500-1-21-3333-2500-100-0.1-true-true-2",
-        #     ],
-        #     "0.2": [
-        #         "stock-streamsluice-streamsluice-1-750-90-1000-20-1-200-15-2500-1-200-2-500-1-21-3333-750-100-0.2-true-true-2",
-        #         "stock-streamsluice-streamsluice-1-750-90-1000-20-1-200-15-2500-1-200-2-500-1-21-3333-1000-100-0.2-true-true-2",
-        #         "stock-streamsluice-streamsluice-1-750-90-1000-20-1-200-15-2500-1-200-2-500-1-21-3333-1500-100-0.2-true-true-2",
-        #         "stock-streamsluice-streamsluice-1-750-90-1000-20-1-200-15-2500-1-200-2-500-1-21-3333-2000-100-0.2-true-true-2",
-        #         "stock-streamsluice-streamsluice-1-750-90-1000-20-1-200-15-2500-1-200-2-500-1-21-3333-2500-100-0.2-true-true-2",
-        #     ],
-        #     "0.4": [
-        #         "stock-streamsluice-streamsluice-1-750-90-1000-20-1-200-15-2500-1-200-2-500-1-21-3333-750-100-0.4-true-true-2",
-        #         "stock-streamsluice-streamsluice-1-750-90-1000-20-1-200-15-2500-1-200-2-500-1-21-3333-1000-100-0.4-true-true-2",
-        #         "stock-streamsluice-streamsluice-1-750-90-1000-20-1-200-15-2500-1-200-2-500-1-21-3333-1500-100-0.4-true-true-2",
-        #         "stock-streamsluice-streamsluice-1-750-90-1000-20-1-200-15-2500-1-200-2-500-1-21-3333-2000-100-0.4-true-true-2",
-        #         "stock-streamsluice-streamsluice-1-750-90-1000-20-1-200-15-2500-1-200-2-500-1-21-3333-2500-100-0.4-true-true-2",
-        #     ],
-        # },
-
-        # "Twitter": {
-        #     "0.1": [
-        #         "tweet-streamsluice-streamsluice-1-720-90-1800-1-28-5000-10-1000-1-50-1-50-750-100-true-0.1-2",
-        #         "tweet-streamsluice-streamsluice-1-720-90-1800-1-28-5000-10-1000-1-50-1-50-1000-100-true-0.1-2",
-        #         "tweet-streamsluice-streamsluice-1-720-90-1800-1-28-5000-10-1000-1-50-1-50-1500-100-true-0.1-2",
-        #         "tweet-streamsluice-streamsluice-1-720-90-1800-1-28-5000-10-1000-1-50-1-50-2000-100-true-0.1-2",
-        #         "tweet-streamsluice-streamsluice-1-720-90-1800-1-28-5000-10-1000-1-50-1-50-2500-100-true-0.1-2",
-        #     ],
-        #     "0.2": [
-        #         "tweet-streamsluice-streamsluice-1-720-90-1800-1-28-5000-10-1000-1-50-1-50-750-100-true-0.2-2",
-        #         "tweet-streamsluice-streamsluice-1-720-90-1800-1-28-5000-10-1000-1-50-1-50-1000-100-true-0.2-2",
-        #         "tweet-streamsluice-streamsluice-1-720-90-1800-1-28-5000-10-1000-1-50-1-50-1500-100-true-0.2-2",
-        #         "tweet-streamsluice-streamsluice-1-720-90-1800-1-28-5000-10-1000-1-50-1-50-2000-100-true-0.2-2",
-        #         "tweet-streamsluice-streamsluice-1-720-90-1800-1-28-5000-10-1000-1-50-1-50-2500-100-true-0.2-2",
-        #     ],
-        #     "0.4": [
-        #         "tweet-streamsluice-streamsluice-1-720-90-1800-1-28-5000-10-1000-1-50-1-50-750-100-true-0.4-2",
-        #         "tweet-streamsluice-streamsluice-1-720-90-1800-1-28-5000-10-1000-1-50-1-50-1000-100-true-0.4-2",
-        #         "tweet-streamsluice-streamsluice-1-720-90-1800-1-28-5000-10-1000-1-50-1-50-1500-100-true-0.4-2",
-        #         "tweet-streamsluice-streamsluice-1-720-90-1800-1-28-5000-10-1000-1-50-1-50-2000-100-true-0.4-2",
-        #         "tweet-streamsluice-streamsluice-1-720-90-1800-1-28-5000-10-1000-1-50-1-50-2500-100-true-0.4-2",
-        #     ],
-        # },
-        # "Twitter_fixed": {
-        #     "0.1": [
-        #         "tweet-streamsluice-streamsluice-1-750-90-1500-1-22-6666-10-1000-1-50-1-50-500-100-true-0.1-2",
-        #         "tweet-streamsluice-streamsluice-1-750-90-1500-1-22-6666-10-1000-1-50-1-50-750-100-true-0.1-2",
-        #         "tweet-streamsluice-streamsluice-1-750-90-1500-1-22-6666-10-1000-1-50-1-50-1000-100-true-0.1-2",
-        #         "tweet-streamsluice-streamsluice-1-750-90-1500-1-22-6666-10-1000-1-50-1-50-1500-100-true-0.1-2",
-        #         "tweet-streamsluice-streamsluice-1-750-90-1500-1-22-6666-10-1000-1-50-1-50-2000-100-true-0.1-2",
-        #         "tweet-streamsluice-streamsluice-1-750-90-1500-1-22-6666-10-1000-1-50-1-50-2500-100-true-0.1-2",
-        #     ],
-        #     "0.2": [
-        #         "tweet-streamsluice-streamsluice-1-750-90-1500-1-22-6666-10-1000-1-50-1-50-500-100-true-0.2-2",
-        #         "tweet-streamsluice-streamsluice-1-750-90-1500-1-22-6666-10-1000-1-50-1-50-750-100-true-0.2-2",
-        #         "tweet-streamsluice-streamsluice-1-750-90-1500-1-22-6666-10-1000-1-50-1-50-1000-100-true-0.2-2",
-        #         "tweet-streamsluice-streamsluice-1-750-90-1500-1-22-6666-10-1000-1-50-1-50-1500-100-true-0.2-2",
-        #         "tweet-streamsluice-streamsluice-1-750-90-1500-1-22-6666-10-1000-1-50-1-50-2000-100-true-0.2-2",
-        #         "tweet-streamsluice-streamsluice-1-750-90-1500-1-22-6666-10-1000-1-50-1-50-2500-100-true-0.2-2",
-        #     ],
-        #     "0.4": [
-        #         "tweet-streamsluice-streamsluice-1-750-90-1500-1-22-6666-10-1000-1-50-1-50-500-100-true-0.4-2",
-        #         "tweet-streamsluice-streamsluice-1-750-90-1500-1-22-6666-10-1000-1-50-1-50-750-100-true-0.4-2",
-        #         "tweet-streamsluice-streamsluice-1-750-90-1500-1-22-6666-10-1000-1-50-1-50-1000-100-true-0.4-2",
-        #         "tweet-streamsluice-streamsluice-1-750-90-1500-1-22-6666-10-1000-1-50-1-50-1500-100-true-0.4-2",
-        #         "tweet-streamsluice-streamsluice-1-750-90-1500-1-22-6666-10-1000-1-50-1-50-2000-100-true-0.4-2",
-        #         "tweet-streamsluice-streamsluice-1-750-90-1500-1-22-6666-10-1000-1-50-1-50-2500-100-true-0.4-2",
-        #     ],
-        # },
         "Twitter_30min": {
             "0.1": [
-                "tweet-streamsluice-streamsluice-1-1950-90-1500-1-22-6666-10-1000-1-50-1-50-500-100-true-0.1-2",
                 "tweet-streamsluice-streamsluice-1-1950-90-1500-1-22-6666-10-1000-1-50-1-50-750-100-true-0.1-2",
                 "tweet-streamsluice-streamsluice-1-1950-90-1500-1-22-6666-10-1000-1-50-1-50-1000-100-true-0.1-2",
                 "tweet-streamsluice-streamsluice-1-1950-90-1500-1-22-6666-10-1000-1-50-1-50-1500-100-true-0.1-2",
@@ -917,7 +852,6 @@ def main():
                 "tweet-streamsluice-streamsluice-1-1950-90-1500-1-22-6666-10-1000-1-50-1-50-2500-100-true-0.1-2",
             ],
             "0.2": [
-                "tweet-streamsluice-streamsluice-1-1950-90-1500-1-22-6666-10-1000-1-50-1-50-500-100-true-0.2-2",
                 "tweet-streamsluice-streamsluice-1-1950-90-1500-1-22-6666-10-1000-1-50-1-50-750-100-true-0.2-2",
                 "tweet-streamsluice-streamsluice-1-1950-90-1500-1-22-6666-10-1000-1-50-1-50-1000-100-true-0.2-2",
                 "tweet-streamsluice-streamsluice-1-1950-90-1500-1-22-6666-10-1000-1-50-1-50-1500-100-true-0.2-2",
@@ -925,7 +859,6 @@ def main():
                 "tweet-streamsluice-streamsluice-1-1950-90-1500-1-22-6666-10-1000-1-50-1-50-2500-100-true-0.2-2",
             ],
             "0.4": [
-                "tweet-streamsluice-streamsluice-1-1950-90-1500-1-22-6666-10-1000-1-50-1-50-500-100-true-0.4-2",
                 "tweet-streamsluice-streamsluice-1-1950-90-1500-1-22-6666-10-1000-1-50-1-50-750-100-true-0.4-2",
                 "tweet-streamsluice-streamsluice-1-1950-90-1500-1-22-6666-10-1000-1-50-1-50-1000-100-true-0.4-2",
                 "tweet-streamsluice-streamsluice-1-1950-90-1500-1-22-6666-10-1000-1-50-1-50-1500-100-true-0.4-2",
@@ -933,30 +866,7 @@ def main():
                 "tweet-streamsluice-streamsluice-1-1950-90-1500-1-22-6666-10-1000-1-50-1-50-2500-100-true-0.4-2"
             ],
         },
-        # "Linear-Road": {
-        #     "0.1": [
-        #     #    "lr-streamsluice-streamsluice-1-780-150-1300-10-1-50-1-50-1-50-36-2000-1000-0.1-100-1-0-0.0-true-3000-1",
-        #         "lr-streamsluice-streamsluice-1-780-150-1300-10-1-50-1-50-1-50-36-2000-2000-0.1-100-1-0-0.0-true-3000-1",
-        #         "lr-streamsluice-streamsluice-1-780-150-1300-10-1-50-1-50-1-50-36-2000-3000-0.1-100-1-0-0.0-true-3000-1",
-        #         "lr-streamsluice-streamsluice-1-780-150-1300-10-1-50-1-50-1-50-36-2000-4000-0.1-100-1-0-0.0-true-3000-1",
-        #     #    "lr-streamsluice-streamsluice-1-780-150-1300-10-1-50-1-50-1-50-36-2000-5000-0.1-100-1-0-0.0-true-3000-1",
-        #     ],
-        #     "0.2": [
-        #         "lr-streamsluice-streamsluice-1-780-150-1300-10-1-50-1-50-1-50-36-2000-1000-0.2-100-1-0-0.0-true-3000-1",
-        #         "lr-streamsluice-streamsluice-1-780-150-1300-10-1-50-1-50-1-50-36-2000-2000-0.2-100-1-0-0.0-true-3000-1",
-        #         "lr-streamsluice-streamsluice-1-780-150-1300-10-1-50-1-50-1-50-36-2000-3000-0.2-100-1-0-0.0-true-3000-1",
-        #         "lr-streamsluice-streamsluice-1-780-150-1300-10-1-50-1-50-1-50-36-2000-4000-0.2-100-1-0-0.0-true-3000-1",
-        #         "lr-streamsluice-streamsluice-1-780-150-1300-10-1-50-1-50-1-50-36-2000-5000-0.2-100-1-0-0.0-true-3000-1",
-        #     ],
-        #     "0.4": [
-        #         "lr-streamsluice-streamsluice-1-780-150-1300-10-1-50-1-50-1-50-36-2000-1000-0.4-100-1-0-0.0-true-3000-1",
-        #         "lr-streamsluice-streamsluice-1-780-150-1300-10-1-50-1-50-1-50-36-2000-2000-0.4-100-1-0-0.0-true-3000-1",
-        #         "lr-streamsluice-streamsluice-1-780-150-1300-10-1-50-1-50-1-50-36-2000-3000-0.4-100-1-0-0.0-true-3000-1",
-        #         "lr-streamsluice-streamsluice-1-780-150-1300-10-1-50-1-50-1-50-36-2000-4000-0.4-100-1-0-0.0-true-3000-1",
-        #         "lr-streamsluice-streamsluice-1-780-150-1300-10-1-50-1-50-1-50-36-2000-5000-0.4-100-1-0-0.0-true-3000-1",
-        #     ],
-        # },
-        # "Linear-Road-30min": {
+        # "Linear-Road_30min": {
         #     "0.1": [
         #         "lr-streamsluice-streamsluice-1-1980-150-1300-10-1-50-1-50-1-50-36-2000-1000-0.1-100-1-0-0.0-true-3000-1",
         #         "lr-streamsluice-streamsluice-1-1980-150-1300-10-1-50-1-50-1-50-36-2000-2000-0.1-100-1-0-0.0-true-3000-1",
@@ -979,6 +889,29 @@ def main():
         #         "lr-streamsluice-streamsluice-1-1980-150-1300-10-1-50-1-50-1-50-36-2000-5000-0.4-100-1-0-0.0-true-3000-1",
         #     ],
         # },
+        # "Stock-Analysis_30min":{
+        #     "0.1": [
+        #         "stock-streamsluice-streamsluice-1-1950-90-1000-20-1-200-15-2500-1-200-2-500-1-21-3333-750-100-0.1-true-true-1",
+        #         "stock-streamsluice-streamsluice-1-1950-90-1000-20-1-200-15-2500-1-200-2-500-1-21-3333-1000-100-0.1-true-true-1",
+        #         "stock-streamsluice-streamsluice-1-1950-90-1000-20-1-200-15-2500-1-200-2-500-1-21-3333-1500-100-0.1-true-true-1",
+        #         "stock-streamsluice-streamsluice-1-1950-90-1000-20-1-200-15-2500-1-200-2-500-1-21-3333-2000-100-0.1-true-true-1",
+        #         "stock-streamsluice-streamsluice-1-1950-90-1000-20-1-200-15-2500-1-200-2-500-1-21-3333-2500-100-0.1-true-true-1",
+        #     ],
+        #     "0.2": [
+        #         "stock-streamsluice-streamsluice-1-1950-90-1000-20-1-200-15-2500-1-200-2-500-1-21-3333-750-100-0.2-true-true-1",
+        #         "stock-streamsluice-streamsluice-1-1950-90-1000-20-1-200-15-2500-1-200-2-500-1-21-3333-1000-100-0.2-true-true-1",
+        #         "stock-streamsluice-streamsluice-1-1950-90-1000-20-1-200-15-2500-1-200-2-500-1-21-3333-1500-100-0.2-true-true-1",
+        #         "stock-streamsluice-streamsluice-1-1950-90-1000-20-1-200-15-2500-1-200-2-500-1-21-3333-2000-100-0.2-true-true-1",
+        #         "stock-streamsluice-streamsluice-1-1950-90-1000-20-1-200-15-2500-1-200-2-500-1-21-3333-2500-100-0.2-true-true-1",
+        #     ],
+        #     "0.4": [
+        #         "stock-streamsluice-streamsluice-1-1950-90-1000-20-1-200-15-2500-1-200-2-500-1-21-3333-750-100-0.4-true-true-1",
+        #         "stock-streamsluice-streamsluice-1-1950-90-1000-20-1-200-15-2500-1-200-2-500-1-21-3333-1000-100-0.4-true-true-1",
+        #         "stock-streamsluice-streamsluice-1-1950-90-1000-20-1-200-15-2500-1-200-2-500-1-21-3333-1500-100-0.4-true-true-1",
+        #         "stock-streamsluice-streamsluice-1-1950-90-1000-20-1-200-15-2500-1-200-2-500-1-21-3333-2000-100-0.4-true-true-1",
+        #         "stock-streamsluice-streamsluice-1-1950-90-1000-20-1-200-15-2500-1-200-2-500-1-21-3333-2500-100-0.4-true-true-1",
+        #     ]
+        # }
     }
     for workload_name, exps_per_label in exps_per_label_per_setting.items():
         success_rate_per_label = {}
@@ -995,7 +928,7 @@ def main():
                 if exp_name.startswith("lr"):
                     latency_bar = int(exp_name.split('-')[-9])
                     start_time = 180
-                    exp_length = 600
+                    exp_length = 1800
                 elif exp_name.startswith("tweet"):
                     latency_bar = int(exp_name.split('-')[-5])
                     start_time = 150
@@ -1003,7 +936,7 @@ def main():
                 elif exp_name.startswith("stock"):
                     latency_bar = int(exp_name.split('-')[-6])
                     start_time = 150
-                    exp_length = 600
+                    exp_length = 1800
                 else:
                     latency_bar = int(exp_name.split('-')[-6])
                     start_time = 120
@@ -1021,10 +954,8 @@ def main():
         print(weighted_success_rate_per_label)
         print(avg_parallelism_per_label)
         #user_limits = user_limit_per_label["0.1"]
-        #plot_success_rate_bar(user_limits, weighted_success_rate_per_label, overall_output_dir, workload_name)
-        plot_success_rate_curve(user_limit_per_label, success_rate_per_label, overall_output_dir, workload_name)
+        plot_success_rate_bar(user_limit_per_label, success_rate_per_label, overall_output_dir, workload_name)
         plot_weighted_success_rate_curve(user_limit_per_label, weighted_success_rate_per_label, overall_output_dir, workload_name)
-        #plot_avg_parallelism_bar(user_limits, avg_parallelism_per_label, overall_output_dir, workload_name)
         plot_avg_parallelism_curve(user_limit_per_label, avg_parallelism_per_label, overall_output_dir, workload_name)
 
 if __name__ == "__main__":

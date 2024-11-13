@@ -131,7 +131,7 @@ run_stock_test(){
     autotune_interval=60
     autotuner="UserLimitTuner"
     autotuner_latency_window=100
-    autotuner_bar_lowerbound=350 #300
+    autotuner_bar_lowerbound=450 #350
     autotuner_initial_value_option=4 # 1
     autotuner_adjustment_option=1
     autotuner_increase_bar_option=1 # 2
@@ -152,22 +152,51 @@ run_stock_test(){
     autotuner_increase_bar_alpha=0.1 #0.25
     autotune=false
     is_treat=false
-    run_one_exp
-    printf "${EXP_NAME}\n" >> tweet_result.txt
+#    run_one_exp
+#    printf "${EXP_NAME}\n" >> tweet_result.txt
 
     is_treat=true
     autotune=true
     repeat=2
     for scaling_decision_option in 1; do # 2 0
-      for autotuner_increase_bar_alpha in 0.1 0.2 0.4; do # 0.1 0.2 0.4
-        for L in 750 1000 1500 2000 2500; do #500 750 1000 1500 2000 2500; do
+      for autotuner_increase_bar_alpha in 0.1 0.2 0.4; do #
+        for L in 750 1000 1500 2000 2500; do #
             whether_type="streamsluice"
             how_type="streamsluice"
             scalein_type="streamsluice"
-            run_one_exp
-            printf "${EXP_NAME}\n" >> tweet_result.txt
+#            run_one_exp
+#            printf "${EXP_NAME}\n" >> tweet_result.txt
         done
       done
+    done
+
+    # Fixed experiment
+    repeat=3
+    autotuner_increase_bar_alpha=0.1
+    for L in 750 1000 1500 3000; do
+      whether_type="streamsluice"
+      how_type="streamsluice"
+      scalein_type="streamsluice"
+      run_one_exp
+      printf "${EXP_NAME}\n" >> tweet_result.txt
+    done
+
+    autotuner_increase_bar_alpha=0.2
+    for L in 750 1500 2000 3000; do
+      whether_type="streamsluice"
+      how_type="streamsluice"
+      scalein_type="streamsluice"
+      run_one_exp
+      printf "${EXP_NAME}\n" >> tweet_result.txt
+    done
+
+    autotuner_increase_bar_alpha=0.4
+    for L in 1000 2000 3000; do
+      whether_type="streamsluice"
+      how_type="streamsluice"
+      scalein_type="streamsluice"
+      run_one_exp
+      printf "${EXP_NAME}\n" >> tweet_result.txt
     done
 
 #    for repeat in 1; do # 2 3 4 5; do
