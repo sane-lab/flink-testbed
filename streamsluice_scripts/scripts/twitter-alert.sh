@@ -171,9 +171,12 @@ run_stock_test(){
     done
 
     # Fixed experiment
+    is_treat=true
+    autotune=true
+    scaling_decision_option=1
     repeat=3
     autotuner_increase_bar_alpha=0.1
-    for L in 750 1000 1500 3000; do
+    for L in 750 1000 3000; do
       whether_type="streamsluice"
       how_type="streamsluice"
       scalein_type="streamsluice"
@@ -182,7 +185,7 @@ run_stock_test(){
     done
 
     autotuner_increase_bar_alpha=0.2
-    for L in 750 1500 2000 3000; do
+    for L in 750 2000; do
       whether_type="streamsluice"
       how_type="streamsluice"
       scalein_type="streamsluice"
