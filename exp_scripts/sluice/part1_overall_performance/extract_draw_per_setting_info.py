@@ -700,8 +700,8 @@ def plot_success_rate_bar(user_limits, success_rate_per_label, output_dir, workl
     plt.xlabel('User Limits')
     plt.ylabel('Success Rate')
     plt.xticks(x + bar_width * (len(labels) - 1) / 2, user_limits)
-    plt.ylim(0.95, 1.01)
-    plt.yticks(np.arange(0.95, 1.01, 0.01))
+    plt.ylim(0.90, 1.01)
+    plt.yticks(np.arange(0.90, 1.01, 0.01))
     plt.title('Success Rates by User Limits and Strategy')
     plt.legend()
     plt.grid(True)
@@ -709,30 +709,6 @@ def plot_success_rate_bar(user_limits, success_rate_per_label, output_dir, workl
         os.makedirs(output_dir)
     plt.savefig(output_dir + 'success_rate_by_strategy_' + str(workload_name) + '.png', bbox_inches='tight')
     plt.close(fig)
-
-# Function to plot avg parallelism
-def plot_avg_parallelism_bar(user_limits, avg_parallelism_per_label, output_dir, workload_name:str):
-    labels = list(avg_parallelism_per_label.keys())
-    bar_width = 0.2
-    x = np.arange(len(user_limits))
-
-    fig, axs = plt.subplots(figsize=(12, 5))
-
-    # Plot avg parallelism
-    for idx, label in enumerate(labels):
-        plt.bar(x + idx * bar_width, avg_parallelism_per_label[label], bar_width, label=("$\\alpha$="+label))
-
-    plt.xlabel('User Limits')
-    plt.ylabel('Avg Parallelism')
-    plt.xticks(x + bar_width * (len(labels) - 1) / 2, user_limits)
-    plt.title('Avg Parallelism by User Limits and Strategy')
-    plt.legend()
-    plt.grid(True)
-    if not os.path.exists(output_dir):
-        os.makedirs(output_dir)
-    plt.savefig(output_dir + 'resource_vs_strategy_' + str(workload_name) + '.png', bbox_inches='tight')
-    plt.close(fig)
-
 
 def plot_success_rate_bar(user_limits_per_label, success_rate_per_label, output_dir, workload_name: str):
     labels = list(success_rate_per_label.keys())
@@ -778,8 +754,8 @@ def plot_success_rate_curve(user_limits_per_label, success_rate_per_label, outpu
 
     plt.xlabel('User Limits')
     plt.ylabel('Success Rate')
-    plt.ylim(0.95, 1.01)
-    plt.yticks(np.arange(0.95, 1.01, 0.01))
+    plt.ylim(0.90, 1.01)
+    plt.yticks(np.arange(0.90, 1.01, 0.01))
     plt.xticks(user_limits_per_label[label])
     plt.title('Success Rates by User Limits and Strategy')
     plt.legend()
@@ -801,12 +777,43 @@ def plot_weighted_success_rate_curve(user_limits_per_label, weighted_success_rat
 
     plt.xlabel('User Limits')
     plt.ylabel('Weighted Success Rate')
-    plt.ylim(0.95, 1.01)
-    plt.yticks(np.arange(0.95, 1.01, 0.01))
+    plt.ylim(0.90, 1.01)
+    plt.yticks(np.arange(0.90, 1.01, 0.01))
     plt.xticks(user_limits_per_label[label])
     plt.title('Weighted Success Rates by User Limits and Strategy')
     plt.legend()
     plt.grid(True)
+
+    if not os.path.exists(output_dir):
+        os.makedirs(output_dir)
+    plt.savefig(output_dir + 'weighted_success_rate_curve_' + str(workload_name) + '.png', bbox_inches='tight')
+    plt.close(fig)
+
+def plot_weighted_success_rate_bar(user_limits_per_label, weighted_success_rate_per_label, output_dir, workload_name: str):
+    labels = list(weighted_success_rate_per_label.keys())
+    user_limits = user_limits_per_label[labels[0]]  # Assuming all labels have the same user limits for simplicity
+
+    fig, ax = plt.subplots(figsize=(12, 5))
+
+    # Set width of bars and positions
+    bar_width = 0.15
+    x = np.arange(len(user_limits))
+
+    # Plot bars for each label
+    for i, label in enumerate(labels):
+        success_rates = weighted_success_rate_per_label[label]
+        ax.bar(x + i * bar_width, success_rates, width=bar_width, label=("$\\alpha$=" + label))
+
+    # Add labels, title, and custom x-axis tick labels
+    ax.set_xlabel('User Limits')
+    ax.set_ylabel('Weighted Success Rate')
+    ax.set_ylim(0.95, 1.01)
+    ax.set_yticks(np.arange(0.95, 1.01, 0.01))
+    ax.set_xticks(x + bar_width * (len(labels) - 1) / 2)
+    ax.set_xticklabels(user_limits)
+    ax.set_title('Weighted Success Rates by User Limits and Strategy')
+    ax.legend()
+    ax.grid(True, axis='y')
 
     if not os.path.exists(output_dir):
         os.makedirs(output_dir)
@@ -835,6 +842,36 @@ def plot_avg_parallelism_curve(user_limits_per_label, avg_parallelism_per_label,
         os.makedirs(output_dir)
     plt.savefig(output_dir + 'avg_parallelism_curve_' + str(workload_name) + '.png', bbox_inches='tight')
     plt.close(fig)
+
+def plot_avg_parallelism_bar(user_limits_per_label, avg_parallelism_per_label, output_dir, workload_name: str):
+    labels = list(avg_parallelism_per_label.keys())
+    user_limits = user_limits_per_label[labels[0]]  # Assuming all labels have the same user limits for simplicity
+
+    fig, ax = plt.subplots(figsize=(12, 5))
+
+    # Set width of bars and positions
+    bar_width = 0.15
+    x = np.arange(len(user_limits))
+
+    # Plot bars for each label
+    for i, label in enumerate(labels):
+        avg_parallelisms = avg_parallelism_per_label[label]
+        ax.bar(x + i * bar_width, avg_parallelisms, width=bar_width, label=("$\\alpha$=" + label))
+
+    # Add labels, title, and custom x-axis tick labels
+    ax.set_xticks(x + bar_width * (len(labels) - 1) / 2)
+    ax.set_xticklabels(user_limits)
+    plt.xlabel('User Limits')
+    plt.ylabel('Avg Parallelism')
+    plt.title('Avg Parallelism by User Limits and Strategy')
+    ax.legend()
+    ax.grid(True, axis='y')
+
+    if not os.path.exists(output_dir):
+        os.makedirs(output_dir)
+    plt.savefig(output_dir + 'avg_parallelism_curve_' + str(workload_name) + '.png', bbox_inches='tight')
+    plt.close(fig)
+
 
 def main():
     raw_dir = "/Users/swrrt/Workplace/BacklogDelayPaper/experiments/raw/"
@@ -958,8 +995,8 @@ def main():
         print(avg_parallelism_per_label)
         #user_limits = user_limit_per_label["0.1"]
         plot_success_rate_bar(user_limit_per_label, success_rate_per_label, overall_output_dir, workload_name)
-        plot_weighted_success_rate_curve(user_limit_per_label, weighted_success_rate_per_label, overall_output_dir, workload_name)
-        plot_avg_parallelism_curve(user_limit_per_label, avg_parallelism_per_label, overall_output_dir, workload_name)
+        plot_weighted_success_rate_bar(user_limit_per_label, weighted_success_rate_per_label, overall_output_dir, workload_name)
+        plot_avg_parallelism_bar(user_limit_per_label, avg_parallelism_per_label, overall_output_dir, workload_name)
 
 if __name__ == "__main__":
     main()
