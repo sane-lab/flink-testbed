@@ -79,42 +79,20 @@ init() {
   MP6=128
   MP7=128
 
-#  LP2=5
-#  LP3=20
-#  LP4=10
-#  LP5=20
-#  LP6=1
-#  LP7=20
-#
-#  P1=1
-#  P2=2
-#  P3=6
-#  P4=3
-#  P5=4
-#  P6=1
-#  P7=5
-
-#  # Original setting
-#  DELAY2=500
-#  DELAY3=5000
-#  DELAY4=1000
-#  DELAY5=3000
-#  DELAY7=4000
-
   LP2=1
-  LP3=15
+  LP3=14
   LP4=1
   LP5=2
   LP6=1
-  LP7=21
+  LP7=20
 
   P1=1
   P2=1
-  P3=15
+  P3=11
   P4=1
   P5=2
   P6=1
-  P7=21
+  P7=15
 
   # Original setting
   DELAY2=200
