@@ -164,8 +164,8 @@ run_stock_test(){
             whether_type="streamsluice"
             how_type="streamsluice"
             scalein_type="streamsluice"
-            run_one_exp
-            printf "${EXP_NAME}\n" >> tweet_result.txt
+#            run_one_exp
+#            printf "${EXP_NAME}\n" >> tweet_result.txt
         done
       done
     done
@@ -202,49 +202,44 @@ run_stock_test(){
 #      printf "${EXP_NAME}\n" >> tweet_result.txt
 #    done
 
-#    for repeat in 1; do # 2 3 4 5; do
-#        whether_type="streamsluice"
-#        how_type="streamsluice"
-#        scalein_type="streamsluice"
-#
-#        run_one_exp
-#        printf "${EXP_NAME}\n" >> tweet_result.txt
+    autotune=false
+    L=1000
+    for repeat in 1; do # 2 3 4 5; do
+        whether_type="streamsluice"
+        how_type="streamsluice"
+        scalein_type="streamsluice"
 
-#        is_treat=false
-#        run_one_exp
-#        printf "${EXP_NAME}\n" >> tweet_result.txt
-#        P1=2
-#        P2=3
-#        P3=9
-#        P4=5
-#        P5=6
-#        P6=2
-#        P7=8
-#        is_treat=false
-#        run_one_exp
-#        printf "${EXP_NAME}\n" >> tweet_result.txt
-#        is_treat=true
+        is_treat=false
+        run_one_exp
+        printf "${EXP_NAME}\n" >> tweet_result.txt
+        P1=1
+        P2=14
+        P3=5
+        P4=1
+        P5=1
+        is_treat=false
+        run_one_exp
+        printf "${EXP_NAME}\n" >> tweet_result.txt
+        is_treat=true
 
-##        P1=1
-##        P2=2
-##        P3=6
-##        P4=3
-##        P5=4
-##        P6=1
-##        P7=5
-#        whether_type="ds2"
-#        how_type="ds2"
-#        scalein_type="ds2"
-#        migration_interval=1000
-#        run_one_exp
-#        printf "${EXP_NAME}\n" >> tweet_result.txt
-#
-#        whether_type="streamswitch"
-#        how_type="streamswitch"
-#        scalein_type="streamswitch"
-#        migration_interval=1000
-#        run_one_exp
-#        printf "${EXP_NAME}\n" >> tweet_result.txt
-#    done
+        P1=1
+        P2=19
+        P3=9
+        P4=1
+        P5=1
+        whether_type="ds2"
+        how_type="ds2"
+        scalein_type="ds2"
+        migration_interval=1000
+        run_one_exp
+        printf "${EXP_NAME}\n" >> tweet_result.txt
+
+        whether_type="streamswitch"
+        how_type="streamswitch"
+        scalein_type="streamswitch"
+        migration_interval=1000
+        run_one_exp
+        printf "${EXP_NAME}\n" >> tweet_result.txt
+    done
 }
 run_stock_test
