@@ -158,8 +158,8 @@ run_stock_test(){
     autotuner_increase_bar_alpha=0.1 #0.25
     autotune=false
     is_treat=false
-    run_one_exp
-    printf "${EXP_NAME}\n" >> stock_result.txt
+#    run_one_exp
+#    printf "${EXP_NAME}\n" >> stock_result.txt
 
     is_treat=true
     autotune=true
@@ -171,8 +171,8 @@ run_stock_test(){
             how_type="streamsluice"
             scalein_type="streamsluice"
 
-            run_one_exp
-            printf "${EXP_NAME}\n" >> stock_result.txt
+#            run_one_exp
+#            printf "${EXP_NAME}\n" >> stock_result.txt
 
         done
       done
@@ -187,35 +187,55 @@ run_stock_test(){
 #        printf "${EXP_NAME}\n" >> stock_result.txt
 #    done
 
-    # Change rate
-#    for DELAY3 in 2500 3750 7500 10000; do
-#        P3=6
-#        LP3=20
-#        if [[ ${DELAY3} == 7500 ]]; then
-#          P3=9
-#          LP3=30
-#        fi
-#        if [[ ${DELAY3} == 10000 ]]; then
-#          P3=12
-#          LP3=40
-#        fi
-#        whether_type="streamsluice"
-#        how_type="streamsluice"
-#        scalein_type="streamsluice"
-#        run_one_exp
-#        printf "${EXP_NAME}\n" >> stock_result.txt
-#        whether_type="ds2"
-#        how_type="ds2"
-#        scalein_type="ds2"
-#        migration_interval=2500
-#        run_one_exp
-#        printf "${EXP_NAME}\n" >> stock_result.txt
-#        whether_type="streamswitch"
-#        how_type="streamswitch"
-#        scalein_type="streamswitch"
-#        migration_interval=1000
-#        run_one_exp
-#        printf "${EXP_NAME}\n" >> stock_result.txt
-#    done
+    L=1000
+    autotune=false
+
+    P1=1
+    P2=1
+    P3=4
+    P4=1
+    P5=1
+    P6=1
+    P7=7
+    is_treat=false
+    whether_type="ds2"
+    how_type="ds2"
+    scalein_type="ds2"
+    migration_interval=2500
+    run_one_exp
+    printf "${EXP_NAME}\n" >> stock_result.txt
+    P1=1
+    P2=1
+    P3=11
+    P4=1
+    P5=2
+    P6=1
+    P7=15
+
+    is_treat=false
+    whether_type="ds2"
+    how_type="ds2"
+    scalein_type="ds2"
+    migration_interval=2500
+    run_one_exp
+    printf "${EXP_NAME}\n" >> stock_result.txt
+
+    is_treat=true
+    whether_type="ds2"
+    how_type="ds2"
+    scalein_type="ds2"
+    migration_interval=2500
+    run_one_exp
+    printf "${EXP_NAME}\n" >> stock_result.txt
+
+
+
+    whether_type="streamswitch"
+    how_type="streamswitch"
+    scalein_type="streamswitch"
+    migration_interval=1000
+    run_one_exp
+    printf "${EXP_NAME}\n" >> stock_result.txt
+
 }
 run_stock_test
