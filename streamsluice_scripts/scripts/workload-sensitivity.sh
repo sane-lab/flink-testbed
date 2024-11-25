@@ -211,14 +211,14 @@ run_scale_test(){
       is_treat=false
       autotune=false
       how_type="ds2"
-      run_one_exp
-      printf "${EXP_NAME}\n" >> workload_sensitivity_result.txt
+#      run_one_exp
+#      printf "${EXP_NAME}\n" >> workload_sensitivity_result.txt
       for L in 750 1000 1250; do #250 500 750 1000 1250 1500
         is_treat=true
         autotune=true
         how_type="streamsluice"
-        run_one_exp
-        printf "${EXP_NAME}\n" >> workload_sensitivity_result.txt
+#        run_one_exp
+#        printf "${EXP_NAME}\n" >> workload_sensitivity_result.txt
       done
     done
 
@@ -246,24 +246,24 @@ run_scale_test(){
     GRAPH="1split2join1"
     autotuner_bar_lowerbound=350
     CURVE_TYPE="sine"
-    warmupRate=10000
+    warmupRate=5000
     warmupTime=60
-    RATE_I=10000
+    RATE_I=5000
     TIME_I=0
-    TIME1=30
-    TIME2=30
-    for RATE1 in 11000 12000 13000 14000 15000; do #
+    TIME1=45
+    TIME2=45
+    for RATE1 in 5500 6000 7000 7500; do #
       is_treat=false
       autotune=false
       how_type="ds2"
-#      run_one_exp
-#      printf "${EXP_NAME}\n" >> workload_sensitivity_result.txt
-      for L in 250 500 750 1000 1250 1500; do
+      run_one_exp
+      printf "${EXP_NAME}\n" >> workload_sensitivity_result.txt
+      for L in 1000; do #750 1000 1250
         is_treat=true
         autotune=true
         how_type="streamsluice"
-#        run_one_exp
-#        printf "${EXP_NAME}\n" >> workload_sensitivity_result.txt
+        run_one_exp
+        printf "${EXP_NAME}\n" >> workload_sensitivity_result.txt
       done
     done
 

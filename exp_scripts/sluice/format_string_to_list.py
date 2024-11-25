@@ -11,12 +11,22 @@ def format_to_script(input_string):
 
 # Example usage
 input_string = """
-Setting 1
-setting1--streamsluice-ds2-false-true-false-when-sine-1split2join1-690-12500-90-7500-10000-0-1-0-1-20-1-5000-1-20-1-5000-1-20-1-5000-17-500-5000-1000-3000-100-1-false-1
-setting1--streamsluice-ds2-false-true-false-when-sine-1split2join1-690-12500-60-7500-10000-0-1-0-1-20-1-5000-1-20-1-5000-1-20-1-5000-17-500-5000-1500-3000-100-1-false-1
-setting1--streamsluice-ds2-false-true-false-when-sine-1split2join1-690-12500-45-7500-10000-0-1-0-1-20-1-5000-1-20-1-5000-1-20-1-5000-17-500-5000-1500-3000-100-1-false-1
-setting1--streamsluice-ds2-false-true-false-when-sine-1split2join1-690-12500-30-7500-10000-0-1-0-1-20-1-5000-1-20-1-5000-1-20-1-5000-17-500-5000-1500-3000-100-1-false-1
-setting1--streamsluice-ds2-false-true-false-when-sine-1split2join1-690-12500-20-7500-10000-0-1-0-1-20-1-5000-1-20-1-5000-1-20-1-5000-17-500-5000-1500-3000-100-1-false-1
+lr-streamsluice-streamsluice--1980-150-1300-10-1-50-1-50-1-50-30-1666-1000-0.1-100-1-0-0.0-false-3000-1
+lr-streamsluice-streamsluice-1-1980-150-1300-10-1-50-1-50-1-50-30-1666-1000-0.1-100-1-0-0.0-true-3000-1
+lr-streamsluice-streamsluice-1-1980-150-1300-10-1-50-1-50-1-50-30-1666-2000-0.1-100-1-0-0.0-true-3000-1
+lr-streamsluice-streamsluice-1-1980-150-1300-10-1-50-1-50-1-50-30-1666-3000-0.1-100-1-0-0.0-true-3000-1
+lr-streamsluice-streamsluice-1-1980-150-1300-10-1-50-1-50-1-50-30-1666-4000-0.1-100-1-0-0.0-true-3000-1
+lr-streamsluice-streamsluice-1-1980-150-1300-10-1-50-1-50-1-50-30-1666-5000-0.1-100-1-0-0.0-true-3000-1
+lr-streamsluice-streamsluice-1-1980-150-1300-10-1-50-1-50-1-50-30-1666-1000-0.2-100-1-0-0.0-true-3000-1
+lr-streamsluice-streamsluice-1-1980-150-1300-10-1-50-1-50-1-50-30-1666-2000-0.2-100-1-0-0.0-true-3000-1
+lr-streamsluice-streamsluice-1-1980-150-1300-10-1-50-1-50-1-50-30-1666-3000-0.2-100-1-0-0.0-true-3000-1
+lr-streamsluice-streamsluice-1-1980-150-1300-10-1-50-1-50-1-50-30-1666-4000-0.2-100-1-0-0.0-true-3000-1
+lr-streamsluice-streamsluice-1-1980-150-1300-10-1-50-1-50-1-50-30-1666-5000-0.2-100-1-0-0.0-true-3000-1
+lr-streamsluice-streamsluice-1-1980-150-1300-10-1-50-1-50-1-50-30-1666-1000-0.4-100-1-0-0.0-true-3000-1
+lr-streamsluice-streamsluice-1-1980-150-1300-10-1-50-1-50-1-50-30-1666-2000-0.4-100-1-0-0.0-true-3000-1
+lr-streamsluice-streamsluice-1-1980-150-1300-10-1-50-1-50-1-50-30-1666-3000-0.4-100-1-0-0.0-true-3000-1
+lr-streamsluice-streamsluice-1-1980-150-1300-10-1-50-1-50-1-50-30-1666-4000-0.4-100-1-0-0.0-true-3000-1
+lr-streamsluice-streamsluice-1-1980-150-1300-10-1-50-1-50-1-50-30-1666-5000-0.4-100-1-0-0.0-true-3000-1
 """
 
 
