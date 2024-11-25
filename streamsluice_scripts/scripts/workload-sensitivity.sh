@@ -174,12 +174,6 @@ run_scale_test(){
     LP4=1
     LP5=28 #16
 
-    RATE1=6000
-    TIME1=30
-    RATE2=3000
-    TIME2=30
-    RATE_I=4000
-    TIME_I=30
     printf "" > workload_sensitivity_result.txt
 
     # Setting 1
@@ -189,7 +183,7 @@ run_scale_test(){
     DELAY2=20
     DELAY3=20
     DELAY4=20
-    DELAY5=500
+    DELAY5=2000
     STATE_SIZE2=5000 # 1000 keys, per key (n * 2000 + 36) bytes, n=5000 -> 100 MB
     STATE_SIZE3=5000
     STATE_SIZE4=5000
@@ -206,20 +200,20 @@ run_scale_test(){
     GRAPH="1split2join1"
     autotuner_bar_lowerbound=350
     CURVE_TYPE="sine" #"linear"
-    warmupRate=10000
+    warmupRate=5000
     warmupTime=60
-    RATE_I=10000
+    RATE_I=5000
     TIME_I=0
-    RATE1=12500 #15000
-    RATE2=7500 #5000
-    for TIME1 in 90; do #   60 45 30 20
+    RATE1=3500
+    RATE2=6500
+    for TIME1 in 75 60 45 30 15; do #   90 60 45 30 20
       TIME2=${TIME1}
       is_treat=false
       autotune=false
       how_type="ds2"
-#      run_one_exp
-#      printf "${EXP_NAME}\n" >> workload_sensitivity_result.txt
-      for L in 1000; do #250 500 750 1000 1250 1500
+      run_one_exp
+      printf "${EXP_NAME}\n" >> workload_sensitivity_result.txt
+      for L in 750 1000 1250; do #250 500 750 1000 1250 1500
         is_treat=true
         autotune=true
         how_type="streamsluice"
