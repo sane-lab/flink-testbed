@@ -160,12 +160,12 @@ run_stock_test(){
     repeat=1
     for scaling_decision_option in 1; do # 2 0
       for autotuner_increase_bar_alpha in 0.1 0.2 0.4; do #
-        for L in 1000 1500 2000 2500 3000; do # 750
+        for L in 3500; do # 1000 1500 2000 2500 3000
             whether_type="streamsluice"
             how_type="streamsluice"
             scalein_type="streamsluice"
-#            run_one_exp
-#            printf "${EXP_NAME}\n" >> tweet_result.txt
+            run_one_exp
+            printf "${EXP_NAME}\n" >> tweet_result.txt
         done
       done
     done
@@ -203,23 +203,23 @@ run_stock_test(){
 #    done
 
     autotune=false
-    L=1000
+    L=2500
     for repeat in 1; do # 2 3 4 5; do
         whether_type="streamsluice"
         how_type="streamsluice"
         scalein_type="streamsluice"
 
         is_treat=false
-        run_one_exp
-        printf "${EXP_NAME}\n" >> tweet_result.txt
+#        run_one_exp
+#        printf "${EXP_NAME}\n" >> tweet_result.txt
         P1=1
         P2=14
         P3=5
         P4=1
         P5=1
         is_treat=false
-        run_one_exp
-        printf "${EXP_NAME}\n" >> tweet_result.txt
+#        run_one_exp
+#        printf "${EXP_NAME}\n" >> tweet_result.txt
         is_treat=true
 
         P1=1

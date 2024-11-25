@@ -176,9 +176,9 @@ run_scale_test(){
 
     printf "" > workload_sensitivity_result.txt
 
-    # Setting 1
-    printf "Setting 1\n" >> workload_sensitivity_result.txt
-    setting="setting1"
+    # Setting 3
+    printf "Setting 3\n" >> workload_sensitivity_result.txt
+    setting="setting3"
     SOURCE_TYPE="when"
     DELAY2=20
     DELAY3=20
@@ -256,9 +256,9 @@ run_scale_test(){
       is_treat=false
       autotune=false
       how_type="ds2"
-      run_one_exp
-      printf "${EXP_NAME}\n" >> workload_sensitivity_result.txt
-      for L in 1000; do #750 1000 1250
+#      run_one_exp
+#      printf "${EXP_NAME}\n" >> workload_sensitivity_result.txt
+      for L in 750 1250; do #750 1000 1250
         is_treat=true
         autotune=true
         how_type="streamsluice"
@@ -267,52 +267,52 @@ run_scale_test(){
       done
     done
 
-    # Setting 3
-    printf "Setting 3\n" >> workload_sensitivity_result.txt
-    setting="setting3"
-    SOURCE_TYPE="when"
-    DELAY2=20
-    DELAY3=20
-    DELAY4=20
-    DELAY5=500
-    STATE_SIZE2=5000 # 1000 keys, per key (n * 2000 + 36) bytes, n=5000 -> 100 MB
-    STATE_SIZE3=5000
-    STATE_SIZE4=5000
-    STATE_SIZE5=5000
-    LP2=1
-    LP3=1
-    LP4=1
-    LP5=28
-
-    P2=1
-    P3=1
-    P4=1
-    P5=17
-    GRAPH="1split2join1"
-    CURVE_TYPE="gradient"
-    warmupRate=10000
-    warmupTime=60
-    RATE_I=10000
-    TIME_I=0
-    RATE1=15000
-    RATE2=5000
-    TIME1=45
-    TIME2=45
-    for RATE1 in 11000 12000 13000 14000 15000; do
-      RATE2=$((20000 - RATE1))
-      is_treat=false
-      autotune=false
-      how_type="ds2"
-#      run_one_exp
-#      printf "${EXP_NAME}\n" >> workload_sensitivity_result.txt
-      for L in 250 500 750 1000 1250 1500; do
-        is_treat=true
-        autotune=true
-        how_type="streamsluice"
-#        run_one_exp
-#        printf "${EXP_NAME}\n" >> workload_sensitivity_result.txt
-      done
-    done
+#    # Setting 3
+#    printf "Setting 3\n" >> workload_sensitivity_result.txt
+#    setting="setting3"
+#    SOURCE_TYPE="when"
+#    DELAY2=20
+#    DELAY3=20
+#    DELAY4=20
+#    DELAY5=500
+#    STATE_SIZE2=5000 # 1000 keys, per key (n * 2000 + 36) bytes, n=5000 -> 100 MB
+#    STATE_SIZE3=5000
+#    STATE_SIZE4=5000
+#    STATE_SIZE5=5000
+#    LP2=1
+#    LP3=1
+#    LP4=1
+#    LP5=28
+#
+#    P2=1
+#    P3=1
+#    P4=1
+#    P5=17
+#    GRAPH="1split2join1"
+#    CURVE_TYPE="gradient"
+#    warmupRate=10000
+#    warmupTime=60
+#    RATE_I=10000
+#    TIME_I=0
+#    RATE1=15000
+#    RATE2=5000
+#    TIME1=45
+#    TIME2=45
+#    for RATE1 in 11000 12000 13000 14000 15000; do
+#      RATE2=$((20000 - RATE1))
+#      is_treat=false
+#      autotune=false
+#      how_type="ds2"
+##      run_one_exp
+##      printf "${EXP_NAME}\n" >> workload_sensitivity_result.txt
+#      for L in 250 500 750 1000 1250 1500; do
+#        is_treat=true
+#        autotune=true
+#        how_type="streamsluice"
+##        run_one_exp
+##        printf "${EXP_NAME}\n" >> workload_sensitivity_result.txt
+#      done
+#    done
 
     # Setting 6
     printf "Setting 6\n" >> whetherhow_result.txt

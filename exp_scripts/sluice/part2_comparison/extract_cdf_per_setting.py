@@ -21,6 +21,14 @@ plt.rc('figure', titlesize=BIGGER_SIZE)
 MARKERSIZE = 4
 LINEWIDTH = 3
 
+CONTROLLER_COLOR={
+    "Static": "black",
+    "Static-Adequate": "grey",
+    "DS2": "orange",
+    "Streamswitch": "green",
+    "Sluice": "blue",
+}
+
 def read_ground_truth_latency(raw_dir, exp_name, window_size):
     initial_time = -1
     ground_truth_latency = []
@@ -689,21 +697,25 @@ def plot_latency_cdf(latency_per_label, output_dir, workload_name: str):
 
     fig, ax = plt.subplots(figsize=(12, 5))
 
-    for data, label in latency_per_label.items():
-        # Sort the data
+    for label, data in latency_per_label.items():
+        line_width = 1
+        if label == "Sluice":
+            line_width = 1.5
         data_sorted = np.sort(data)
-
-        # Calculate the CDF values
         cdf = np.arange(1, len(data_sorted) + 1) / len(data_sorted)
-
-        # Plot the CDF
-        plt.plot(data_sorted, cdf, marker='.', linestyle='none', label=label)
-
+        plt.plot(data_sorted, cdf, marker='none', linestyle='-', linewidth=line_width, color=CONTROLLER_COLOR[label], label=label)
+        # data.sort()
+        # plt.ecdf(data, complementary=True, color=CONTROLLER_COLOR[label], label=label)
+    # Draw p99
+    plt.plot([0, 10000000], [0.99, 0.99], "--", color='red')
+    plt.plot([1000, 1000], [0, 1.0], "--", color='red')
     # Add labels, title, and custom x-axis tick labels
     ax.set_xlabel('Latency')
     ax.set_ylabel('CDF')
     ax.set_ylim(0.0, 1.01)
     ax.set_yticks(np.arange(0.0, 1.1, 0.1))
+    ax.set_xlim(0, 5000)
+    ax.set_xticks(np.arange(0, 5000, 500))
     ax.set_title('Cumulative Distribution Function (CDF) of Latency')
     ax.legend()
     ax.grid(True, axis='y')
@@ -713,83 +725,6 @@ def plot_latency_cdf(latency_per_label, output_dir, workload_name: str):
     plt.savefig(os.path.join(output_dir, 'cdf_' + str(workload_name) + '.png'), bbox_inches='tight')
     plt.close(fig)
 
-
-def plot_weighted_success_rate_curve(user_limits_per_label, weighted_success_rate_per_label, output_dir, workload_name: str):
-    labels = list(weighted_success_rate_per_label.keys())
-
-    fig, axs = plt.subplots(figsize=(12, 5))
-
-    # Plot success rate curves
-    for label in labels:
-        plt.plot(user_limits_per_label[label], weighted_success_rate_per_label[label], marker='o', label=("$\\alpha$="+label))
-
-    plt.xlabel('User Limits')
-    plt.ylabel('Weighted Success Rate')
-    plt.ylim(0.95, 1.01)
-    plt.yticks(np.arange(0.95, 1.01, 0.01))
-    plt.xticks(user_limits_per_label[label])
-    plt.title('Weighted Success Rates by User Limits')
-    plt.legend()
-    plt.grid(True)
-
-    if not os.path.exists(output_dir):
-        os.makedirs(output_dir)
-    plt.savefig(output_dir + 'weighted_success_rate_curve_' + str(workload_name) + '.png', bbox_inches='tight')
-    plt.close(fig)
-
-def plot_weighted_success_rate_bar(user_limits_per_label, weighted_success_rate_per_label, output_dir, workload_name: str):
-    labels = list(weighted_success_rate_per_label.keys())
-    user_limits = user_limits_per_label[labels[0]]  # Assuming all labels have the same user limits for simplicity
-
-    fig, ax = plt.subplots(figsize=(12, 5))
-
-    # Set width of bars and positions
-    bar_width = 0.15
-    x = np.arange(len(user_limits))
-
-    # Plot bars for each label
-    for i, label in enumerate(labels):
-        success_rates = weighted_success_rate_per_label[label]
-        ax.bar(x + i * bar_width, success_rates, width=bar_width, label=("$\\alpha$=" + label))
-
-    # Add labels, title, and custom x-axis tick labels
-    ax.set_xlabel('User Limits')
-    ax.set_ylabel('Weighted Success Rate')
-    ax.set_ylim(0.95, 1.01)
-    ax.set_yticks(np.arange(0.95, 1.01, 0.01))
-    ax.set_xticks(x + bar_width * (len(labels) - 1) / 2)
-    ax.set_xticklabels(user_limits)
-    ax.set_title('Weighted Success Rates by User Limits')
-    ax.legend()
-    ax.grid(True, axis='y')
-
-    if not os.path.exists(output_dir):
-        os.makedirs(output_dir)
-    plt.savefig(output_dir + 'weighted_success_rate_curve_' + str(workload_name) + '.png', bbox_inches='tight')
-    plt.close(fig)
-
-
-# Function to plot average parallelism as curves
-def plot_avg_parallelism_curve(user_limits_per_label, avg_parallelism_per_label, output_dir, workload_name: str):
-    labels = list(avg_parallelism_per_label.keys())
-
-    fig, axs = plt.subplots(figsize=(12, 5))
-
-    # Plot average parallelism curves
-    for label in labels:
-        plt.plot(user_limits_per_label[label], avg_parallelism_per_label[label], marker='o', label=label)
-
-    plt.xticks(user_limits_per_label[label])
-    plt.xlabel('User Limits')
-    plt.ylabel('Avg Parallelism')
-    plt.title('Avg Parallelism by User Limits')
-    plt.legend()
-    plt.grid(True)
-
-    if not os.path.exists(output_dir):
-        os.makedirs(output_dir)
-    plt.savefig(output_dir + 'avg_parallelism_curve_' + str(workload_name) + '.png', bbox_inches='tight')
-    plt.close(fig)
 
 def plot_avg_parallelism_bar(avg_parallelism_per_label, output_dir, workload_name: str):
     x = list(avg_parallelism_per_label.keys())
@@ -801,8 +736,8 @@ def plot_avg_parallelism_bar(avg_parallelism_per_label, output_dir, workload_nam
     plt.bar(x, y, width=bar_width, color='blue')
     plt.xlabel('Controller')
     plt.ylabel('Avg Parallelism')
-    plt.title('Avg Parallelism by Controllers')
-    ax.legend()
+    plt.title('Avg Parallelism by Controllers in ' + workload_name)
+    # ax.legend()
     ax.grid(True, axis='y')
 
     if not os.path.exists(output_dir):
@@ -819,8 +754,8 @@ def main():
     draw_lem_latency_flag = True
     exps_per_label_per_setting = {
         "Twitter_30min": {
-            "Static": "tweet-streamsluice-streamsluice-1-1950-90-1500-1-19-6666-9-1000-1-50-1-50-1000-100-false-0.4-1",
-            "Static-Adequate": "tweet-streamsluice-streamsluice-1-1950-90-1500-1-14-6666-5-1000-1-50-1-50-1000-100-false-0.4-1",
+            "Static": "tweet-streamsluice-streamsluice-1-1950-90-1500-1-14-6666-5-1000-1-50-1-50-1000-100-false-0.4-1",
+            "Static-Adequate": "tweet-streamsluice-streamsluice-1-1950-90-1500-1-19-6666-9-1000-1-50-1-50-1000-100-false-0.4-1",
             "DS2": "tweet-ds2-ds2-1-1950-90-1500-1-19-6666-9-1000-1-50-1-50-1000-100-true-0.4-1",
             "Streamswitch": "tweet-streamswitch-streamswitch-1-1950-90-1500-1-19-6666-9-1000-1-50-1-50-1000-100-true-0.4-1",
             "Sluice": "tweet-streamsluice-streamsluice-1-1950-90-1500-1-19-6666-9-1000-1-50-1-50-1000-100-true-0.1-1",

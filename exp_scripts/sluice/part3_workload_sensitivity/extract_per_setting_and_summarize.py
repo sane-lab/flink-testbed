@@ -718,16 +718,38 @@ def main():
     window_size = 100
     draw_lem_latency_flag = True
     exps_per_label_per_setting = {
-        "setting_1": {
-            "Dimension": "Amplitude",
-            "25%": [
-                "setting1--streamsluice-ds2-false-true-false-when-sine-1split2join1-690-12500-90-7500-10000-0-1-0-1-20-1-5000-1-20-1-5000-1-20-1-5000-17-500-5000-1000-3000-100-1-false-1",
-                "setting1--streamsluice-streamsluice-false-true-false-when-sine-1split2join1-720-12500-90-7500-10000-0-1-0-1-20-1-5000-1-20-1-5000-1-20-1-5000-17-500-5000-1000-3000-100-1-true-1",
-                # "setting1--streamsluice-ds2-false-true-false-when-sine-1split2join1-690-12500-60-7500-10000-0-1-0-1-20-1-5000-1-20-1-5000-1-20-1-5000-17-500-5000-1500-3000-100-1-false-1",
-                # "setting1--streamsluice-ds2-false-true-false-when-sine-1split2join1-690-12500-45-7500-10000-0-1-0-1-20-1-5000-1-20-1-5000-1-20-1-5000-17-500-5000-1500-3000-100-1-false-1",
-                # "setting1--streamsluice-ds2-false-true-false-when-sine-1split2join1-690-12500-30-7500-10000-0-1-0-1-20-1-5000-1-20-1-5000-1-20-1-5000-17-500-5000-1500-3000-100-1-false-1",
-                # "setting1--streamsluice-ds2-false-true-false-when-sine-1split2join1-690-12500-20-7500-10000-0-1-0-1-20-1-5000-1-20-1-5000-1-20-1-5000-17-500-5000-1500-3000-100-1-false-1",
-            ]
+        "setting_3": {
+            "Dimension": "Period",
+            "30s": [
+                #"setting1--streamsluice-ds2-false-true-false-when-sine-1split2join1-720-3500-15-6500-5000-0-1-0-1-20-1-5000-1-20-1-5000-1-20-1-5000-17-2000-5000-1250-3000-100-1-false-1",
+                "setting1--streamsluice-streamsluice-false-true-false-when-sine-1split2join1-720-3500-15-6500-5000-0-1-0-1-20-1-5000-1-20-1-5000-1-20-1-5000-17-2000-5000-750-3000-100-1-true-1",
+                "setting1--streamsluice-streamsluice-false-true-false-when-sine-1split2join1-720-3500-15-6500-5000-0-1-0-1-20-1-5000-1-20-1-5000-1-20-1-5000-17-2000-5000-1000-3000-100-1-true-1",
+                "setting1--streamsluice-streamsluice-false-true-false-when-sine-1split2join1-720-3500-15-6500-5000-0-1-0-1-20-1-5000-1-20-1-5000-1-20-1-5000-17-2000-5000-1250-3000-100-1-true-1"
+            ],
+            "60s": [
+                #"setting1--streamsluice-ds2-false-true-false-when-sine-1split2join1-720-3500-30-6500-5000-0-1-0-1-20-1-5000-1-20-1-5000-1-20-1-5000-17-2000-5000-1250-3000-100-1-false-1",
+                "setting1--streamsluice-streamsluice-false-true-false-when-sine-1split2join1-720-3500-30-6500-5000-0-1-0-1-20-1-5000-1-20-1-5000-1-20-1-5000-17-2000-5000-750-3000-100-1-true-1",
+                "setting1--streamsluice-streamsluice-false-true-false-when-sine-1split2join1-720-3500-30-6500-5000-0-1-0-1-20-1-5000-1-20-1-5000-1-20-1-5000-17-2000-5000-1000-3000-100-1-true-1",
+                "setting1--streamsluice-streamsluice-false-true-false-when-sine-1split2join1-720-3500-30-6500-5000-0-1-0-1-20-1-5000-1-20-1-5000-1-20-1-5000-17-2000-5000-1250-3000-100-1-true-1",
+            ],
+            "90s": [
+                #"setting1--streamsluice-ds2-false-true-false-when-sine-1split2join1-720-3500-45-6500-5000-0-1-0-1-20-1-5000-1-20-1-5000-1-20-1-5000-17-2000-5000-1250-3000-100-1-false-1",
+                "setting1--streamsluice-streamsluice-false-true-false-when-sine-1split2join1-720-3500-45-6500-5000-0-1-0-1-20-1-5000-1-20-1-5000-1-20-1-5000-17-2000-5000-750-3000-100-1-true-1",
+                "setting1--streamsluice-streamsluice-false-true-false-when-sine-1split2join1-720-3500-45-6500-5000-0-1-0-1-20-1-5000-1-20-1-5000-1-20-1-5000-17-2000-5000-1000-3000-100-1-true-1",
+                "setting1--streamsluice-streamsluice-false-true-false-when-sine-1split2join1-720-3500-45-6500-5000-0-1-0-1-20-1-5000-1-20-1-5000-1-20-1-5000-17-2000-5000-1250-3000-100-1-true-1",
+            ],
+            "120s": [
+                # "setting1--streamsluice-ds2-false-true-false-when-sine-1split2join1-720-3500-60-6500-5000-0-1-0-1-20-1-5000-1-20-1-5000-1-20-1-5000-17-2000-5000-1250-3000-100-1-false-1",
+                "setting1--streamsluice-streamsluice-false-true-false-when-sine-1split2join1-720-3500-60-6500-5000-0-1-0-1-20-1-5000-1-20-1-5000-1-20-1-5000-17-2000-5000-750-3000-100-1-true-1",
+                "setting1--streamsluice-streamsluice-false-true-false-when-sine-1split2join1-720-3500-60-6500-5000-0-1-0-1-20-1-5000-1-20-1-5000-1-20-1-5000-17-2000-5000-1000-3000-100-1-true-1",
+                "setting1--streamsluice-streamsluice-false-true-false-when-sine-1split2join1-720-3500-60-6500-5000-0-1-0-1-20-1-5000-1-20-1-5000-1-20-1-5000-17-2000-5000-1250-3000-100-1-true-1",
+            ],
+            "150s": [
+                # "setting1--streamsluice-ds2-false-true-false-when-sine-1split2join1-720-3500-75-6500-5000-0-1-0-1-20-1-5000-1-20-1-5000-1-20-1-5000-17-2000-5000-1000-3000-100-1-false-1",
+                "setting1--streamsluice-streamsluice-false-true-false-when-sine-1split2join1-720-3500-75-6500-5000-0-1-0-1-20-1-5000-1-20-1-5000-1-20-1-5000-17-2000-5000-750-3000-100-1-true-1",
+                "setting1--streamsluice-streamsluice-false-true-false-when-sine-1split2join1-720-3500-75-6500-5000-0-1-0-1-20-1-5000-1-20-1-5000-1-20-1-5000-17-2000-5000-1000-3000-100-1-true-1",
+                "setting1--streamsluice-streamsluice-false-true-false-when-sine-1split2join1-720-3500-75-6500-5000-0-1-0-1-20-1-5000-1-20-1-5000-1-20-1-5000-17-2000-5000-1250-3000-100-1-true-1",
+            ],
         }
 
     }
