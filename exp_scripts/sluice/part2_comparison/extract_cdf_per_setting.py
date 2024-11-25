@@ -756,9 +756,9 @@ def main():
         "Twitter_30min": {
             "Static": "tweet-streamsluice-streamsluice-1-1950-90-1500-1-14-6666-5-1000-1-50-1-50-1000-100-false-0.4-1",
             "Static-Adequate": "tweet-streamsluice-streamsluice-1-1950-90-1500-1-19-6666-9-1000-1-50-1-50-1000-100-false-0.4-1",
-            "DS2": "tweet-ds2-ds2-1-1950-90-1500-1-19-6666-9-1000-1-50-1-50-1000-100-true-0.4-1",
-            "Streamswitch": "tweet-streamswitch-streamswitch-1-1950-90-1500-1-19-6666-9-1000-1-50-1-50-1000-100-true-0.4-1",
-            "Sluice": "tweet-streamsluice-streamsluice-1-1950-90-1500-1-19-6666-9-1000-1-50-1-50-1000-100-true-0.1-1",
+            "DS2": "tweet-ds2-ds2-1-1950-90-1500-1-19-6666-9-1000-1-50-1-50-2500-100-true-0.4-1",
+            "Streamswitch": "tweet-streamswitch-streamswitch-1-1950-90-1500-1-19-6666-9-1000-1-50-1-50-2500-100-true-0.4-1",
+            "Sluice": "tweet-streamsluice-streamsluice-1-1950-90-1500-1-19-6666-9-1000-1-50-1-50-2500-100-true-0.1-1",
         },
         # "Stock-Analysis_30min":{
         # },
