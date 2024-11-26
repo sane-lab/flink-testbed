@@ -76,34 +76,32 @@ init() {
   MP3=128
   MP4=128
   MP5=128
-#  MP6=128
-#  MP7=128
-#  MP8=128
-#  MP9=128
 
+#  LP2=1
+#  LP3=1
+#  LP4=1
+#  LP5=36
   LP2=1
-  LP3=1
-  LP4=1
-  LP5=36
-#  LP6=1
-#  LP7=60
-#  LP8=1
-#  LP9=1
+  LP3=30
+  LP4=7
+  LP5=1
 
+#  P1=1
+#  P2=1
+#  P3=1
+#  P4=1
+#  P5=30
   P1=1
   P2=1
-  P3=1
-  P4=1
-  P5=30
-#  P6=1
-#  P7=65
-#  P8=1
-#  P9=1
+  P3=27
+  P4=4
+  P5=1
+
 
   DELAY2=50
-  DELAY3=50 #1000
-  DELAY4=50
-  DELAY5=1666 #2000 #1666 #200  #2000 #1500
+  DELAY3=8000 # 50
+  DELAY4=2000 # 50
+  DELAY5=50 #1666
 #  DELAY6=10
 #  DELAY7=500
 #  DELAY8=10
@@ -146,7 +144,7 @@ function runApp() {
 run_stock_test(){
     echo "Run linear road experiments..."
     init
-    printf "" > lr_result.txt
+    printf "Part_1\n" > lr_result.txt
     how_more_optimization_flag=false
     how_optimization_flag=false
     how_intrinsic_bound_flag=true
@@ -160,7 +158,7 @@ run_stock_test(){
     autotune_interval=60
     autotuner="UserLimitTuner"
     autotuner_latency_window=100
-    autotuner_bar_lowerbound=300 #200 #300
+    autotuner_bar_lowerbound=350
     autotuner_initial_value_option=4 # 1
     autotuner_adjustment_option=1
     autotuner_increase_bar_option=1 # 2
@@ -183,7 +181,7 @@ run_stock_test(){
     is_treat=true
     autotune=true
     for scaling_decision_option in 1; do # 2 0
-      for autotuner_increase_bar_alpha in 0.1 0.2 0.4; do #  0.2 0.4
+      for autotuner_increase_bar_alpha in 0.1; do #  0.2 0.4
         for L in 1000 2000 3000 4000 5000; do # 1000 2000 3000 4000 5000
             whether_type="streamsluice"
             how_type="streamsluice"
@@ -194,57 +192,54 @@ run_stock_test(){
       done
     done
 
-#        whether_type="ds2"
-#        how_type="ds2"
-#        scalein_type="ds2"
-#        migration_interval=2500
-#        run_one_exp
-#        printf "${EXP_NAME}\n" >> lr_result.txt
-#
-#        whether_type="streamswitch"
-#        how_type="streamswitch"
-#        scalein_type="streamswitch"
-#        migration_interval=1000
-#        run_one_exp
-#        printf "${EXP_NAME}\n" >> lr_result.txt
+    printf "Part_2\n" >> lr_result.txt
+    autotune=false
+    is_treat=false
+    P1=1
+    P2=1
+    P3=1
+    P4=1
+    P5=8
+    whether_type="ds2"
+    how_type="ds2"
+    scalein_type="ds2"
+    migration_interval=2500
+#    run_one_exp
+#    printf "${EXP_NAME}\n" >> lr_result.txt
 
-#       Part 2 experiment
-    migration_interval=500
-    DELAY2=100
-    DELAY3=2000 #2000
-    DELAY4=100
-    DELAY5=1500 #1500
-#    for input_rate_factor in 2; do # 0.5 0.75 1.5
-#        run_one_exp
-#        printf "${EXP_NAME}\n" >> lr_result.txt
-#    done
-#    input_rate_factor=1
+    P1=1
+    P2=1
+    P3=1
+    P4=1
+    P5=30
+#    run_one_exp
+#    printf "${EXP_NAME}\n" >> lr_result.txt
 
-#    for process_factor in 2 3 5 6; do
-#      #DELAY3=$((${process_factor} * 500))
-#      DELAY5=$(((${process_factor}) * 375))
-#      run_one_exp
-#      printf "${EXP_NAME}\n" >> lr_result.txt
-#    done
-#    DELAY2=100
-#    DELAY3=2000
-#    DELAY4=100
-#    DELAY5=1500
 
-#    for PAYLOAD in 50 75 100 200; do
-#      for repeat in 1 2 3 4 5; do
-#        run_one_exp
-#        printf "${EXP_NAME}\n" >> lr_result.txt
-#      done
-#    done
-#    PAYLOAD=0
+    is_treat=true
+    whether_type="ds2"
+    how_type="ds2"
+    scalein_type="ds2"
+    migration_interval=2500
+#    run_one_exp
+#    printf "${EXP_NAME}\n" >> lr_result.txt
 
-#    P3=20
-#    P5=60
-#    for SKEWNESS in 0.125 0.25 0.375 0.5; do #  0.05 0.1; do
-#      run_one_exp
-#      printf "${EXP_NAME}\n" >> lr_result.txt
-#    done
-#    SKEWNESS=0.0
+    whether_type="streamswitch"
+    how_type="streamswitch"
+    scalein_type="streamswitch"
+    migration_interval=1000
+#    run_one_exp
+#    printf "${EXP_NAME}\n" >> lr_result.txt
+
+
+    # Part 5
+    printf "Part_5\n" >> lr_result.txt
+    autotune=false
+    is_treat=true
+    whether_type="streamsluice"
+    how_type="streamsluice"
+    scalein_type="streamsluice"
+#    run_one_exp
+#    printf "${EXP_NAME}\n" >> lr_result.txt
 }
 run_stock_test

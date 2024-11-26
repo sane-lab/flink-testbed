@@ -11,22 +11,22 @@ def format_to_script(input_string):
 
 # Example usage
 input_string = """
-setting2--streamsluice-ds2-false-true-false-when-sine-1split2join1-720-5500-45-6500-5000-0-1-0-1-20-1-5000-1-20-1-5000-17-1000-1-5000-1-20-5000-1250-3000-100-1-false-1
-setting2--streamsluice-streamsluice-false-true-false-when-sine-1split2join1-720-5500-45-6500-5000-0-1-0-1-20-1-5000-1-20-1-5000-17-1000-1-5000-1-20-5000-1000-3000-100-1-true-1
-setting2--streamsluice-ds2-false-true-false-when-sine-1split2join1-720-6000-45-6500-5000-0-1-0-1-20-1-5000-1-20-1-5000-17-1000-1-5000-1-20-5000-1000-3000-100-1-false-1
-setting2--streamsluice-streamsluice-false-true-false-when-sine-1split2join1-720-6000-45-6500-5000-0-1-0-1-20-1-5000-1-20-1-5000-17-1000-1-5000-1-20-5000-1000-3000-100-1-true-1
-setting2--streamsluice-ds2-false-true-false-when-sine-1split2join1-720-7000-45-6500-5000-0-1-0-1-20-1-5000-1-20-1-5000-17-1000-1-5000-1-20-5000-1000-3000-100-1-false-1
-setting2--streamsluice-streamsluice-false-true-false-when-sine-1split2join1-720-7000-45-6500-5000-0-1-0-1-20-1-5000-1-20-1-5000-17-1000-1-5000-1-20-5000-1000-3000-100-1-true-1
-setting2--streamsluice-ds2-false-true-false-when-sine-1split2join1-720-7500-45-6500-5000-0-1-0-1-20-1-5000-1-20-1-5000-17-1000-1-5000-1-20-5000-1000-3000-100-1-false-1
-setting2--streamsluice-streamsluice-false-true-false-when-sine-1split2join1-720-7500-45-6500-5000-0-1-0-1-20-1-5000-1-20-1-5000-17-1000-1-5000-1-20-5000-1000-3000-100-1-true-1
-setting2--streamsluice-streamsluice-false-true-false-when-sine-1split2join1-720-5500-45-6500-5000-0-1-0-1-20-1-5000-1-20-1-5000-17-1000-1-5000-1-20-5000-750-3000-100-1-true-1
-setting2--streamsluice-streamsluice-false-true-false-when-sine-1split2join1-720-5500-45-6500-5000-0-1-0-1-20-1-5000-1-20-1-5000-17-1000-1-5000-1-20-5000-1250-3000-100-1-true-1
-setting2--streamsluice-streamsluice-false-true-false-when-sine-1split2join1-720-6000-45-6500-5000-0-1-0-1-20-1-5000-1-20-1-5000-17-1000-1-5000-1-20-5000-750-3000-100-1-true-1
-setting2--streamsluice-streamsluice-false-true-false-when-sine-1split2join1-720-6000-45-6500-5000-0-1-0-1-20-1-5000-1-20-1-5000-17-1000-1-5000-1-20-5000-1250-3000-100-1-true-1
-setting2--streamsluice-streamsluice-false-true-false-when-sine-1split2join1-720-7000-45-6500-5000-0-1-0-1-20-1-5000-1-20-1-5000-17-1000-1-5000-1-20-5000-750-3000-100-1-true-1
-setting2--streamsluice-streamsluice-false-true-false-when-sine-1split2join1-720-7000-45-6500-5000-0-1-0-1-20-1-5000-1-20-1-5000-17-1000-1-5000-1-20-5000-1250-3000-100-1-true-1
-setting2--streamsluice-streamsluice-false-true-false-when-sine-1split2join1-720-7500-45-6500-5000-0-1-0-1-20-1-5000-1-20-1-5000-17-1000-1-5000-1-20-5000-750-3000-100-1-true-1
-setting2--streamsluice-streamsluice-false-true-false-when-sine-1split2join1-720-7500-45-6500-5000-0-1-0-1-20-1-5000-1-20-1-5000-17-1000-1-5000-1-20-5000-1250-3000-100-1-true-1
+setting6--streamsluice-ds2-false-true-false-when-sine-1split2join1-720-6500-45-3500-5000-0-1-0-1-20-1-1250-1-20-1-1250-1-20-1-1250-17-1000-1250-1250-3000-100-1-false-1
+setting6--streamsluice-streamsluice-false-true-false-when-sine-1split2join1-720-6500-45-3500-5000-0-1-0-1-20-1-1250-1-20-1-1250-1-20-1-1250-17-1000-1250-750-3000-100-1-true-1
+setting6--streamsluice-streamsluice-false-true-false-when-sine-1split2join1-720-6500-45-3500-5000-0-1-0-1-20-1-1250-1-20-1-1250-1-20-1-1250-17-1000-1250-1000-3000-100-1-true-1
+setting6--streamsluice-streamsluice-false-true-false-when-sine-1split2join1-720-6500-45-3500-5000-0-1-0-1-20-1-1250-1-20-1-1250-1-20-1-1250-17-1000-1250-1250-3000-100-1-true-1
+setting6--streamsluice-ds2-false-true-false-when-sine-1split2join1-720-6500-45-3500-5000-0-1-0-1-20-1-2500-1-20-1-2500-1-20-1-2500-17-1000-2500-1250-3000-100-1-false-1
+setting6--streamsluice-streamsluice-false-true-false-when-sine-1split2join1-720-6500-45-3500-5000-0-1-0-1-20-1-2500-1-20-1-2500-1-20-1-2500-17-1000-2500-750-3000-100-1-true-1
+setting6--streamsluice-streamsluice-false-true-false-when-sine-1split2join1-720-6500-45-3500-5000-0-1-0-1-20-1-2500-1-20-1-2500-1-20-1-2500-17-1000-2500-1000-3000-100-1-true-1
+setting6--streamsluice-streamsluice-false-true-false-when-sine-1split2join1-720-6500-45-3500-5000-0-1-0-1-20-1-2500-1-20-1-2500-1-20-1-2500-17-1000-2500-1250-3000-100-1-true-1
+setting6--streamsluice-ds2-false-true-false-when-sine-1split2join1-720-6500-45-3500-5000-0-1-0-1-20-1-10000-1-20-1-10000-1-20-1-10000-17-1000-10000-1250-3000-100-1-false-1
+setting6--streamsluice-streamsluice-false-true-false-when-sine-1split2join1-720-6500-45-3500-5000-0-1-0-1-20-1-10000-1-20-1-10000-1-20-1-10000-17-1000-10000-750-3000-100-1-true-1
+setting6--streamsluice-streamsluice-false-true-false-when-sine-1split2join1-720-6500-45-3500-5000-0-1-0-1-20-1-10000-1-20-1-10000-1-20-1-10000-17-1000-10000-1000-3000-100-1-true-1
+setting6--streamsluice-streamsluice-false-true-false-when-sine-1split2join1-720-6500-45-3500-5000-0-1-0-1-20-1-10000-1-20-1-10000-1-20-1-10000-17-1000-10000-1250-3000-100-1-true-1
+setting6--streamsluice-ds2-false-true-false-when-sine-1split2join1-720-6500-45-3500-5000-0-1-0-1-20-1-20000-1-20-1-20000-1-20-1-20000-17-1000-20000-1250-3000-100-1-false-1
+setting6--streamsluice-streamsluice-false-true-false-when-sine-1split2join1-720-6500-45-3500-5000-0-1-0-1-20-1-20000-1-20-1-20000-1-20-1-20000-17-1000-20000-750-3000-100-1-true-1
+setting6--streamsluice-streamsluice-false-true-false-when-sine-1split2join1-720-6500-45-3500-5000-0-1-0-1-20-1-20000-1-20-1-20000-1-20-1-20000-17-1000-20000-1000-3000-100-1-true-1
+setting6--streamsluice-streamsluice-false-true-false-when-sine-1split2join1-720-6500-45-3500-5000-0-1-0-1-20-1-20000-1-20-1-20000-1-20-1-20000-17-1000-20000-1250-3000-100-1-true-1
 """
 
 

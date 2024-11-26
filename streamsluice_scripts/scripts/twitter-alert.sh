@@ -140,7 +140,7 @@ run_stock_test(){
 
     echo "Run twitter alert experiments..."
     init
-    printf "" > tweet_result.txt
+    printf "Part_1\n" > tweet_result.txt
 
     epoch=100
     decision_interval=1 #10
@@ -202,6 +202,8 @@ run_stock_test(){
 #      printf "${EXP_NAME}\n" >> tweet_result.txt
 #    done
 
+
+    printf "Part_2\n" >> tweet_result.txt
     autotune=false
     L=2500
     for repeat in 1; do # 2 3 4 5; do
@@ -241,5 +243,15 @@ run_stock_test(){
         run_one_exp
         printf "${EXP_NAME}\n" >> tweet_result.txt
     done
+
+    printf "Part_5\n" >> tweet_result.txt
+    autotune=false
+    is_treat=true
+    whether_type="streamsluice"
+    how_type="streamsluice"
+    scalein_type="streamsluice"
+    migration_interval=1000
+    run_one_exp
+    printf "${EXP_NAME}\n" >> tweet_result.txt
 }
 run_stock_test

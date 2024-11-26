@@ -127,7 +127,7 @@ function runApp() {
 run_stock_test(){
     echo "Run overall test..."
     init
-    printf "" > stock_result.txt
+    printf "Part_1\n" > stock_result.txt
 
     how_more_optimization_flag=false
     how_optimization_flag=false
@@ -178,15 +178,8 @@ run_stock_test(){
       done
     done
 
-#    for repeat in 1; do # 2 3 4 5; do
-#        whether_type="streamsluice"
-#        how_type="streamsluice"
-#        scalein_type="streamsluice"
-#        is_treat=true
-#        run_one_exp
-#        printf "${EXP_NAME}\n" >> stock_result.txt
-#    done
 
+    printf "Part_2\n" >> stock_result.txt
     L=1000
     autotune=false
 
@@ -228,14 +221,23 @@ run_stock_test(){
     run_one_exp
     printf "${EXP_NAME}\n" >> stock_result.txt
 
-
-
     whether_type="streamswitch"
     how_type="streamswitch"
     scalein_type="streamswitch"
     migration_interval=1000
     run_one_exp
     printf "${EXP_NAME}\n" >> stock_result.txt
+
+
+    printf "Part_5\n" >> stock_result.txt
+    autotune=false
+    is_treat=true
+    whether_type="streamsluice"
+    how_type="streamsluice"
+    scalein_type="streamsuice"
+    migration_interval=1000
+#    run_one_exp
+#    printf "${EXP_NAME}\n" >> stock_result.txt
 
 }
 run_stock_test

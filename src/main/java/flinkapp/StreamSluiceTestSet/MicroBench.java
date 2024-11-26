@@ -247,6 +247,26 @@ public class MicroBench {
             env.execute();
             return ;
         }
+        SingleOutputStreamOperator<Tuple3<String, Long, Long>> leng3 = leng2.keyBy(0)
+                .flatMap(new DumbStatefulMap(params.getLong("op4Delay", 100), params.getInt("op4IoRate", 1), params.getBoolean("op4IoFix", true), params.getInt("op4KeyStateSize", 1)))
+                .disableChaining()
+                .name("FlatMap 4")
+                .uid("op4")
+                .setParallelism(params.getInt("p4", 1))
+                .setMaxParallelism(params.getInt("mp4", 8))
+                .slotSharingGroup("g4");
+
+        if(GRAPH_TYPE.equals("4op")){
+            leng3.keyBy(0).map(new DumbSink(params.getLong("op5Delay", 100), params.getInt("op5KeyStateSize", 1), params.getBoolean("outputGroundTruth", true)))
+                    .disableChaining()
+                    .name("FlatMap 5")
+                    .uid("op5")
+                    .setParallelism(params.getInt("p5", 1))
+                    .setMaxParallelism(params.getInt("mp5", 8))
+                    .slotSharingGroup("g5");
+            env.execute();
+            return ;
+        }
         System.out.println("ERROR: Cannot find the specificed graph type: " + GRAPH_TYPE);
     }
 

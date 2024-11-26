@@ -40,8 +40,12 @@ def plot_success_rate_bar(xs_per_label, success_rate_per_label, output_dir, work
     # Add labels, title, and custom x-axis tick labels
     ax.set_xlabel(dimension)
     ax.set_ylabel('Success Rate')
-    ax.set_ylim(0.95, 1.01)
-    ax.set_yticks(np.arange(0.95, 1.01, 0.01))
+    if min([min(x) for x in success_rate_per_label.values()]) < 0.95:
+        ax.set_ylim(0.90, 1.00)
+        ax.set_yticks(np.arange(0.90, 1.02, 0.02))
+    else:
+        ax.set_ylim(0.95, 1.00)
+        ax.set_yticks(np.arange(0.95, 1.01, 0.01))
     ax.set_xticks(x + bar_width * (len(labels) - 1) / 2)
     ax.set_xticklabels(xs)
     ax.set_title('Success Rates by ' + dimension)
@@ -73,8 +77,12 @@ def plot_weighted_success_rate_bar(x_per_label, weighted_success_rate_per_label,
     # Add labels, title, and custom x-axis tick labels
     ax.set_xlabel(dimension)
     ax.set_ylabel('Weighted Success Rate')
-    ax.set_ylim(0.95, 1.01)
-    ax.set_yticks(np.arange(0.95, 1.01, 0.01))
+    if min([min(x) for x in weighted_success_rate_per_label.values()]) < 0.95:
+        ax.set_ylim(0.90, 1.00)
+        ax.set_yticks(np.arange(0.90, 1.02, 0.02))
+    else:
+        ax.set_ylim(0.95, 1.00)
+        ax.set_yticks(np.arange(0.95, 1.01, 0.01))
     ax.set_xticks(x + bar_width * (len(labels) - 1) / 2)
     ax.set_xticklabels(user_limits)
     ax.set_title('Weighted Success Rates by ' + dimension)
