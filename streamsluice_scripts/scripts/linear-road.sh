@@ -22,7 +22,7 @@ function analyze() {
 }
 
 run_one_exp() {
-  EXP_NAME=lr-${whether_type}-${how_type}-${scaling_decision_option}-${runtime}-${warmup_time}-${warmup_rate}-${skip_interval}-${P2}-${DELAY2}-${P3}-${DELAY3}-${P4}-${DELAY4}-${P5}-${DELAY5}-${L}-${autotuner_increase_bar_alpha}-${epoch}-${input_rate_factor}-${PAYLOAD}-${SKEWNESS}-${is_treat}-${migration_interval}-${repeat}
+  EXP_NAME=lr-${whether_type}-${how_type}-${scaling_decision_option}-${runtime}-${warmup_time}-${warmup_rate}-${skip_interval}-${P2}-${DELAY2}-${P3}-${DELAY3}-${P4}-${DELAY4}-${P5}-${DELAY5}-${L}-${autotuner_increase_bar_alpha}-${epoch}-${input_rate_factor}-${PAYLOAD}-${SKEWNESS}-${is_treat}-${migration_interval}-${conservative_factor}-${repeat}
 
   echo "INFO: run exp ${EXP_NAME}"
   configFlink
@@ -99,8 +99,8 @@ init() {
 
 
   DELAY2=50
-  DELAY3=8000 # 50
-  DELAY4=2000 # 50
+  DELAY3=8000 #8000 # 50
+  DELAY4=2000 #2000 # 50
   DELAY5=50 #1666
 #  DELAY6=10
 #  DELAY7=500
@@ -151,6 +151,7 @@ run_stock_test(){
     how_conservative_flag=false # true
     coordination_latency_flag=true
     conservative_service_rate_flag=true # false
+    conservative_factor=0.8
     smooth_backlog_flag=false
     new_metrics_retriever_flag=true
 
@@ -180,9 +181,10 @@ run_stock_test(){
 
     is_treat=true
     autotune=true
+    conservative_factor=0.6
     for scaling_decision_option in 1; do # 2 0
-      for autotuner_increase_bar_alpha in 0.1; do #  0.2 0.4
-        for L in 1000; do # 1000 2000 3000 4000 5000
+      for autotuner_increase_bar_alpha in 0.1 0.2 0.4; do #  0.2 0.4
+        for L in 1000 2000 3000 4000 5000; do #
             whether_type="streamsluice"
             how_type="streamsluice"
             scalein_type="streamsluice"
