@@ -175,8 +175,8 @@ run_stock_test(){
     repeat=1
     autotune=false
     is_treat=false
-    run_one_exp
-    printf "${EXP_NAME}\n" >> lr_result.txt
+#    run_one_exp
+#    printf "${EXP_NAME}\n" >> lr_result.txt
 
     is_treat=true
     autotune=true
