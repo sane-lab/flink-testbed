@@ -11,8 +11,14 @@ def format_to_script(input_string):
 
 # Example usage
 input_string = """
-setting7--streamsluice-streamsluice-false-true-false-when-sine-1split2join1-720-6500-45-3500-5000-0-1-0-1-20-1-5000-1-20-1-5000-1-20-1-5000-17-1000-5000-0.1-750-3000-100-1-true-1
-setting7--streamsluice-streamsluice-false-true-false-when-sine-1split2join1-720-6500-45-3500-5000-0-1-0-1-20-1-5000-1-20-1-5000-1-20-1-5000-17-1000-5000-0.1-1000-3000-100-1-true-1
+setting4--streamsluice-streamsluice-false-true-false-when-sine-1op-720-6500-45-3500-5000-0-1-0-17-2000-1-5000-1-20-1-5000-1-20-1-5000-17-20-5000--750-3000-100-1-true-1
+setting4--streamsluice-streamsluice-false-true-false-when-sine-1op-720-6500-45-3500-5000-0-1-0-17-2000-1-5000-1-20-1-5000-1-20-1-5000-17-20-5000--1250-3000-100-1-true-1
+setting4--streamsluice-streamsluice-false-true-false-when-sine-2op-720-6500-45-3500-5000-0-1-0-1-20-1-5000-17-2000-1-5000-1-20-1-5000-17-20-5000--750-3000-100-1-true-1
+setting4--streamsluice-streamsluice-false-true-false-when-sine-2op-720-6500-45-3500-5000-0-1-0-1-20-1-5000-17-2000-1-5000-1-20-1-5000-17-20-5000--1250-3000-100-1-true-1
+setting4--streamsluice-streamsluice-false-true-false-when-sine-3op-720-6500-45-3500-5000-0-1-0-1-20-1-5000-1-20-1-5000-17-2000-1-5000-17-20-5000--750-3000-100-1-true-1
+setting4--streamsluice-streamsluice-false-true-false-when-sine-3op-720-6500-45-3500-5000-0-1-0-1-20-1-5000-1-20-1-5000-17-2000-1-5000-17-20-5000--1250-3000-100-1-true-1
+setting4--streamsluice-streamsluice-false-true-false-when-sine-4op-720-6500-45-3500-5000-0-1-0-1-20-1-5000-1-20-1-5000-1-20-1-5000-17-2000-5000--750-3000-100-1-true-1
+setting4--streamsluice-streamsluice-false-true-false-when-sine-4op-720-6500-45-3500-5000-0-1-0-1-20-1-5000-1-20-1-5000-1-20-1-5000-17-2000-5000--1250-3000-100-1-true-1
 """
 
 
