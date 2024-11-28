@@ -82,8 +82,8 @@ init() {
 #  LP4=1
 #  LP5=36
   LP2=1
-  LP3=30
-  LP4=7
+  LP3=36
+  LP4=1 #7
   LP5=1
 
 #  P1=1
@@ -94,13 +94,13 @@ init() {
   P1=1
   P2=1
   P3=27
-  P4=4
+  P4=1 #4
   P5=1
 
 
   DELAY2=50
-  DELAY3=8000 #8000 # 50
-  DELAY4=2000 #2000 # 50
+  DELAY3=5000 #8000 # 50
+  DELAY4=50 #2000 # 50
   DELAY5=50 #1666
 #  DELAY6=10
 #  DELAY7=500
@@ -183,8 +183,8 @@ run_stock_test(){
     autotune=true
     conservative_factor=0.6
     for scaling_decision_option in 1; do # 2 0
-      for autotuner_increase_bar_alpha in 0.1 0.2 0.4; do #  0.2 0.4
-        for L in 1000 2000 3000 4000 5000; do #
+      for autotuner_increase_bar_alpha in 0.1; do #  0.2 0.4
+        for L in 3000 4000 5000 1000 2000; do #
             whether_type="streamsluice"
             how_type="streamsluice"
             scalein_type="streamsluice"
