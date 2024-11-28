@@ -740,11 +740,17 @@ def main():
             "200":[
 
             ],
-            ""
-        },
+        "system_d2--streamsluice-streamsluice-false-true-false-when-sine-1split2join1-720-7000-45-3000-5000-0-1-0-1-20-1-5000-1-20-1-5000-1-20-1-5000-17-1000-5000-1000-3000-100-60-0.2-1-true-1",
+        "system_d2--streamsluice-streamsluice-false-true-false-when-sine-1split2join1-720-7000-45-3000-5000-0-1-0-1-20-1-5000-1-20-1-5000-1-20-1-5000-17-1000-5000-1000-3000-100-60-0.3-1-true-1",
+        "system_d2--streamsluice-streamsluice-false-true-false-when-sine-1split2join1-720-7000-45-3000-5000-0-1-0-1-20-1-5000-1-20-1-5000-1-20-1-5000-17-1000-5000-1000-3000-100-60-0.4-1-true-1",
+        "system_d2--streamsluice-streamsluice-false-true-false-when-sine-1split2join1-720-7000-45-3000-5000-0-1-0-1-20-1-5000-1-20-1-5000-1-20-1-5000-17-1000-5000-1000-3000-100-60-0.5-1-true-1",
+        "system_d3--streamsluice-streamsluice-false-true-false-when-sine-1split2join1-720-7000-45-3000-5000-0-1-0-1-20-1-5000-1-20-1-5000-1-20-1-5000-17-1000-5000-1000-3000-100-15-0.1-1-true-1",
+        "system_d3--streamsluice-streamsluice-false-true-false-when-sine-1split2join1-720-7000-45-3000-5000-0-1-0-1-20-1-5000-1-20-1-5000-1-20-1-5000-17-1000-5000-1000-3000-100-30-0.1-1-true-1",
+        "system_d3--streamsluice-streamsluice-false-true-false-when-sine-1split2join1-720-7000-45-3000-5000-0-1-0-1-20-1-5000-1-20-1-5000-1-20-1-5000-17-1000-5000-1000-3000-100-90-0.1-1-true-1",
+        "system_d3--streamsluice-streamsluice-false-true-false-when-sine-1split2join1-720-7000-45-3000-5000-0-1-0-1-20-1-5000-1-20-1-5000-1-20-1-5000-17-1000-5000-1000-3000-100-120-0.1-1-true-1"
+    },
         "setting_2": {
             "Dimension": "Tuning Window (ms)",
-
         },
         "setting_3": {
             "Dimension": "Period",

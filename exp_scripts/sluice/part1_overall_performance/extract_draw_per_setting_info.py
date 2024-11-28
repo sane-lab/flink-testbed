@@ -896,9 +896,7 @@ def main():
         "Linear-Road_30min": {
             # "arrival_rate" : "lr-streamsluice-streamsluice--1980-150-1300-10-1-50-27-8000-4-2000-1-50-1000-0.1-100-1-0-0.0-false-3000-1",
             "0.1": [
-                "lr-streamsluice-streamsluice-1-780-150-1300-10-1-50-27-8000-4-2000-1-50-1000-0.1-100-1-0-0.0-true-3000-0.8-1",
-                "lr-streamsluice-streamsluice-1-780-150-1300-10-1-50-27-8000-4-2000-1-50-2000-0.1-100-1-0-0.0-true-3000-0.8-1",
-                "lr-streamsluice-streamsluice-1-780-150-1300-10-1-50-27-8000-4-2000-1-50-3000-0.1-100-1-0-0.0-true-3000-0.8-1",
+                "lr-streamsluice-streamsluice-1-1980-150-1300-10-1-50-27-8000-4-2000-1-50-1000-0.1-100-1-0-0.0-true-3000-0.8-1",
             ],
             # "0.2": [
             #     # "lr-streamsluice-streamsluice-1-1980-150-1300-10-1-50-1-50-1-50-30-1666-1000-0.2-100-1-0-0.0-true-3000-1",
@@ -957,7 +955,7 @@ def main():
                     else:
                         latency_bar = int(exp_name.split('-')[-9])
                     start_time = 180
-                    exp_length = 360 #1800
+                    exp_length = 1800
                 elif exp_name.startswith("tweet"):
                     latency_bar = int(exp_name.split('-')[-5])
                     start_time = 150
