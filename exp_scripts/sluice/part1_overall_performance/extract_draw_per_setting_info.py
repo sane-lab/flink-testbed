@@ -97,8 +97,7 @@ def readLEMLatencyAndSpikeAndBar(rawDir, expName) -> [[list[int], list[float], l
             if (counter % 5000 == 0):
                 print("Processed to line:" + str(counter))
             if (len(split) >= 10 and split[0] == "+++" and split[1] == "[MODEL]" and split[6] == "cur_ete_l:" and (
-                    split[
-                        8] == "n_epoch_l:" or split[11] == "n_epoch_l:")):
+                    "n_epoch_l:" in split)):
                 time = int(split[3])
                 estimated_l = float(split[7])
                 # estimated_spike = float(split[13]) - float(split[7])
@@ -365,12 +364,12 @@ def draw_latency_curves(raw_dir, output_dir, exp_name, window_size, start_time, 
     # Plotting the estimated latency curve
     fig, ax = plt.subplots(figsize=(12, 5))
     for i in range(len(exps)):
-         # lem_latencies[i][0] = [x - initial_times[0] for x in lem_latencies[i][0]]
-         # plt.plot(lem_latencies[i][0], lem_latencies[i][1], '-', color=exps[i][2], markersize=4, linewidth=3,
-         #          label="Estimated Latency")
-        add_p99_bar_curve(plt, p99_bar[i], initial_times[i])
+        #lem_latencies[i][0] = [x - initial_times[0] for x in lem_latencies[i][0]]
+        plt.plot(lem_latencies[i][0], lem_latencies[i][1], '-', color=exps[i][2], markersize=4, linewidth=3,
+                  label="Estimated Latency")
+        #add_p99_bar_curve(plt, p99_bar[i], initial_times[i])
         add_latency_bar_curve(plt, latency_bar[i], initial_times[i])
-    add_latency_limit_marker(plt, latency_limit)
+    #add_latency_limit_marker(plt, latency_limit)
     handles, labels = plt.gca().get_legend_handles_labels()
     new_labels, new_handles = [], []
     for handle, label in zip(handles, labels):
@@ -902,7 +901,11 @@ def main():
                 # "lr-streamsluice-streamsluice-1-1980-150-1300-10-1-50-1-50-1-50-30-1666-3000-0.1-100-1-0-0.0-true-3000-1",
                 # "lr-streamsluice-streamsluice-1-1980-150-1300-10-1-50-1-50-1-50-30-1666-4000-0.1-100-1-0-0.0-true-3000-1",
                 # "lr-streamsluice-streamsluice-1-1980-150-1300-10-1-50-1-50-1-50-30-1666-5000-0.1-100-1-0-0.0-true-3000-1",
-                "lr-streamsluice-streamsluice-1-1980-150-1300-10-1-50-27-8000-4-2000-1-50-1000-0.1-100-1-0-0.0-true-3000-1"
+                "lr-streamsluice-streamsluice-1-1980-150-1300-10-1-50-27-8000-4-2000-1-50-1000-0.1-100-1-0-0.0-true-3000-0.6-1",
+                #"lr-streamsluice-streamsluice-1-1980-150-1300-10-1-50-27-8000-4-2000-1-50-2000-0.1-100-1-0-0.0-true-3000-0.6-1",
+                #"lr-streamsluice-streamsluice-1-1980-150-1300-10-1-50-27-8000-4-2000-1-50-3000-0.1-100-1-0-0.0-true-3000-0.6-1",
+                #"lr-streamsluice-streamsluice-1-1980-150-1300-10-1-50-27-8000-4-2000-1-50-4000-0.1-100-1-0-0.0-true-3000-0.6-1",
+                #"lr-streamsluice-streamsluice-1-1980-150-1300-10-1-50-27-8000-4-2000-1-50-5000-0.1-100-1-0-0.0-true-3000-0.6-1",
             ],
             # "0.2": [
             #     # "lr-streamsluice-streamsluice-1-1980-150-1300-10-1-50-1-50-1-50-30-1666-1000-0.2-100-1-0-0.0-true-3000-1",
@@ -956,7 +959,10 @@ def main():
 
             for exp_name in exps:
                 if exp_name.startswith("lr"):
-                    latency_bar = int(exp_name.split('-')[-9])
+                    if exp_name.split('-')[-2].startswith("0."):
+                        latency_bar = int(exp_name.split('-')[-10])
+                    else:
+                        latency_bar = int(exp_name.split('-')[-9])
                     start_time = 180
                     exp_length = 360 #1800
                 elif exp_name.startswith("tweet"):

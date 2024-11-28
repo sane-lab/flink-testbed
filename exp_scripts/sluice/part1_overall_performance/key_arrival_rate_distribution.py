@@ -145,7 +145,7 @@ def main():
     experiment_list = [
         # "lr-streamsluice-streamsluice-1-1980-150-1300-10-1-50-27-8000-4-2000-1-50-1000-0.1-100-1-0-0.0-true-3000-1",
         # "lr-streamsluice-streamsluice--1980-150-1300-10-1-50-27-8000-4-2000-1-50-1000-0.1-100-1-0-0.0-false-3000-1",
-        "tweet-streamsluice-streamsluice-1-1950-90-1500-1-19-6666-9-1000-1-50-1-50-1000-100-false-0.4-1",
+        "lr-streamsluice-streamsluice-1-1980-150-1300-10-1-50-27-8000-4-2000-1-50-1000-0.1-100-1-0-0.0-true-3000-0.6-1",
     ]
     start_time = 180
     exp_length = 360
