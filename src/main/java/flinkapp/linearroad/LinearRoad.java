@@ -143,15 +143,15 @@ public class LinearRoad {
 //                .setMaxParallelism(params.getInt("mp8", 8))
 //                .slotSharingGroup("g8");
 
-        DataStream<Tuple19<String, Integer, String, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Long, Long>> afterTollNotification = afterAccidentDetection.union(afterAverageSpeed).union(afterCountVehicles) // .union(afterDispatcher)
-                .keyBy(LinearRoadSource.Car_ID) // .keyBy(LinearRoadSource.Seg_ID)
-                .flatMap(new TollNotificationAndAccountBalanceAndDailyExpense(params.getInt("op5Delay", 1000), params.getInt("payload", 0)))
-                .disableChaining()
-                .name("Toll Notification and Account Balance")
-                .uid("op5")
-                .setParallelism(params.getInt("p5", 1))
-                .setMaxParallelism(params.getInt("mp5", 8))
-                .slotSharingGroup("g5");
+//        DataStream<Tuple19<String, Integer, String, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Long, Long>> afterTollNotification = afterAccidentDetection.union(afterAverageSpeed).union(afterCountVehicles) // .union(afterDispatcher)
+//                .keyBy(LinearRoadSource.Car_ID) // .keyBy(LinearRoadSource.Seg_ID)
+//                .flatMap(new TollNotificationAndAccountBalanceAndDailyExpense(params.getInt("op5Delay", 1000), params.getInt("payload", 0)))
+//                .disableChaining()
+//                .name("Toll Notification and Account Balance")
+//                .uid("op5")
+//                .setParallelism(params.getInt("p5", 1))
+//                .setMaxParallelism(params.getInt("mp5", 8))
+//                .slotSharingGroup("g5");
 
 
 //        afterAccountBalance
@@ -523,6 +523,9 @@ public class LinearRoad {
                 carStayLength.put(car_id, 1);
             }
             delay(averageDelay);
+
+            long currentTime = System.currentTimeMillis();
+            System.out.println("GT: " + input.f0 + "-" + input.f2 + ", " + currentTime + ", " + (currentTime - input.f17) + ", " + input.f18);
         }
 
         private void delay(long interval) {
@@ -910,6 +913,10 @@ public class LinearRoad {
                     input.f17,
                     input.f18));
             delay(averageDelay);
+
+            long currentTime = System.currentTimeMillis();
+            System.out.println("GT: " + input.f0 + "-" + input.f2 + ", " + currentTime + ", " + (currentTime - input.f17) + ", " + input.f18);
+
         }
 
         private void delay(long interval) {
@@ -1013,6 +1020,10 @@ public class LinearRoad {
                     input.f17,
                     input.f18));
             delay(averageDelay);
+
+            long currentTime = System.currentTimeMillis();
+            System.out.println("GT: " + input.f0 + "-" + input.f2 + ", " + currentTime + ", " + (currentTime - input.f17) + ", " + input.f18);
+
         }
 
         private void delay(long interval) {
