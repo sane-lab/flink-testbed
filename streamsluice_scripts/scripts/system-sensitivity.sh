@@ -186,7 +186,7 @@ run_scale_test(){
     STATE_SIZE2=5000 # 1000 keys, per key (n * 2000 + 36) bytes, n=5000 -> 100 MB
     STATE_SIZE3=5000
     STATE_SIZE4=5000
-    STATE_SIZE5=5000
+    STATE_SIZE5=10000 #5000
     LP2=1
     LP3=1
     LP4=1
@@ -210,13 +210,13 @@ run_scale_test(){
     TIME1=45
     TIME2=45
 
-    for epoch in 25 50 200 500 1000; do #
+    for epoch in 25 50 200 500; do #
       is_treat=false
       autotune=false
       how_type="ds2"
 #      run_one_exp
 #      printf "${EXP_NAME}\n" >> workload_sensitivity_result.txt
-      for L in 750 1250; do # 1000
+      for L in 750 1000 1250; do # 1000
         is_treat=true
         autotune=true
         how_type="streamsluice"
@@ -236,7 +236,7 @@ run_scale_test(){
     STATE_SIZE2=5000 # 1000 keys, per key (n * 2000 + 36) bytes, n=5000 -> 100 MB
     STATE_SIZE3=5000
     STATE_SIZE4=5000
-    STATE_SIZE5=5000
+    STATE_SIZE5=10000
     LP2=1
     LP3=1
     LP4=1
@@ -260,13 +260,13 @@ run_scale_test(){
     RATE2=3000
     TIME1=45
     TIME2=45
-    for autotuner_increase_bar_alpha in 0.2 0.3 0.4 0.5; do
+    for autotuner_increase_bar_alpha in 0.2 0.4 0.6 0.8; do
       is_treat=false
       autotune=false
       how_type="ds2"
 #      run_one_exp
 #      printf "${EXP_NAME}\n" >> workload_sensitivity_result.txt
-      for L in 1000; do #
+      for L in 750 1000 1250; do #
         is_treat=true
         autotune=true
         how_type="streamsluice"
@@ -287,7 +287,7 @@ run_scale_test(){
     STATE_SIZE2=5000 # 1000 keys, per key (n * 2000 + 36) bytes, n=5000 -> 100 MB
     STATE_SIZE3=5000
     STATE_SIZE4=5000
-    STATE_SIZE5=5000
+    STATE_SIZE5=10000
     LP2=1
     LP3=1
     LP4=1
@@ -317,7 +317,7 @@ run_scale_test(){
       how_type="ds2"
 #      run_one_exp
 #      printf "${EXP_NAME}\n" >> workload_sensitivity_result.txt
-      for L in 1000; do # 750 1250
+      for L in 750 1000 1250; do # 750 1250
         is_treat=true
         autotune=true
         how_type="streamsluice"
