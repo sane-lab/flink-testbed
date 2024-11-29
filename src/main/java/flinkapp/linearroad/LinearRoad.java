@@ -246,7 +246,7 @@ public class LinearRoad {
             while (System.currentTimeMillis() - startTime < warmup) {
                 long emitStartTime = System.currentTimeMillis();
                 for (int i = 0; i < warmp_rate * input_rate_factor / 20; i++) {
-                    int car_id = count % 1000000;
+                    int car_id = count % 10000; // count % 1000000
                     String key = getCarID(car_id);
                     if(isSkewed){
                         int selectedKeygroup = fastZipfGenerator.next();
