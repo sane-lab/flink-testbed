@@ -82,8 +82,8 @@ init() {
 #  LP4=1
 #  LP5=36
   LP2=1
-  LP3=36 #36
-  LP4=2 #7
+  LP3=33 #36
+  LP4=4 #7
   LP5=1
 
 #  P1=1
@@ -94,13 +94,13 @@ init() {
   P1=1
   P2=1
   P3=27 #27
-  P4=2 #4
+  P4=4 #4
   P5=1
 
 
   DELAY2=50
-  DELAY3=3333 #8000 # 50
-  DELAY4=50 #2000 # 50
+  DELAY3=2000 #8000 # 50
+  DELAY4=100 #2000 # 50
   DELAY5=50 #1666
 #  DELAY6=10
 #  DELAY7=500
@@ -159,7 +159,7 @@ run_stock_test(){
     autotune_interval=60
     autotuner="UserLimitTuner"
     autotuner_latency_window=100
-    autotuner_bar_lowerbound=350
+    autotuner_bar_lowerbound=500 #350
     autotuner_initial_value_option=4 # 1
     autotuner_adjustment_option=1
     autotuner_increase_bar_option=1 # 2
