@@ -159,7 +159,7 @@ run_stock_test(){
     autotune_interval=60
     autotuner="UserLimitTuner"
     autotuner_latency_window=100
-    autotuner_bar_lowerbound=500 #350
+    autotuner_bar_lowerbound=350
     autotuner_initial_value_option=4 # 1
     autotuner_adjustment_option=1
     autotuner_increase_bar_option=1 # 2
@@ -169,7 +169,7 @@ run_stock_test(){
     decision_interval=1 #10
     snapshot_size=20
     L=1000 #2000 #2500
-    migration_interval=3000 #500
+    migration_interval=500 #3000 #500
     spike_slope=0.7
     autotuner_increase_bar_option=7 # 3 5
     autotuner_increase_bar_alpha=0.1 #0.25
