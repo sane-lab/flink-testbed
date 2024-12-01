@@ -246,7 +246,7 @@ public class LinearRoad {
             while (System.currentTimeMillis() - startTime < warmup) {
                 long emitStartTime = System.currentTimeMillis();
                 for (int i = 0; i < warmp_rate * input_rate_factor / 20; i++) {
-                    int car_id = count % 100000; // count % 1000000
+                    int car_id = count % 20000; // count % 1000000
                     String key = getCarID(car_id);
                     if(isSkewed){
                         int selectedKeygroup = fastZipfGenerator.next();
@@ -524,8 +524,8 @@ public class LinearRoad {
             }
             delay(averageDelay);
 
-            long currentTime = System.currentTimeMillis();
-            System.out.println("GT: " + input.f0 + "-" + input.f2 + ", " + currentTime + ", " + (currentTime - input.f17) + ", " + input.f18);
+            // long currentTime = System.currentTimeMillis();
+            // System.out.println("GT: " + input.f0 + "-" + input.f2 + ", " + currentTime + ", " + (currentTime - input.f17) + ", " + input.f18);
         }
 
         private void delay(long interval) {
@@ -914,8 +914,8 @@ public class LinearRoad {
                     input.f18));
             delay(averageDelay);
 
-            long currentTime = System.currentTimeMillis();
-            System.out.println("GT: " + input.f0 + "-" + input.f2 + ", " + currentTime + ", " + (currentTime - input.f17) + ", " + input.f18);
+            // long currentTime = System.currentTimeMillis();
+            // System.out.println("GT: " + input.f0 + "-" + input.f2 + ", " + currentTime + ", " + (currentTime - input.f17) + ", " + input.f18);
 
         }
 
@@ -1021,8 +1021,8 @@ public class LinearRoad {
                     input.f18));
             delay(averageDelay);
 
-            long currentTime = System.currentTimeMillis();
-            System.out.println("GT: " + input.f0 + "-" + input.f2 + ", " + currentTime + ", " + (currentTime - input.f17) + ", " + input.f18);
+            // long currentTime = System.currentTimeMillis();
+            // System.out.println("GT: " + input.f0 + "-" + input.f2 + ", " + currentTime + ", " + (currentTime - input.f17) + ", " + input.f18);
 
         }
 
