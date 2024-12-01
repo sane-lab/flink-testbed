@@ -82,7 +82,7 @@ init() {
 #  LP4=1
 #  LP5=36
   LP2=1
-  LP3=10 #36
+  LP3=7 #36
   LP4=1 #7
   LP5=30
 
@@ -182,8 +182,8 @@ run_stock_test(){
     is_treat=true
     autotune=true
     for scaling_decision_option in 1; do # 2 0
-      for autotuner_increase_bar_alpha in 0.1; do #  0.2 0.4
-        for L in 1000 2000; do #1000 1500 2000 2500 3000
+      for autotuner_increase_bar_alpha in 0.1 0.2 0.4; do #
+        for L in 1000 1500 2000 2500 3000; do #1000 1500 2000 2500 3000
             whether_type="streamsluice"
             how_type="streamsluice"
             scalein_type="streamsluice"
@@ -206,16 +206,16 @@ run_stock_test(){
     how_type="ds2"
     scalein_type="ds2"
     migration_interval=2500
-#    run_one_exp
-#    printf "${EXP_NAME}\n" >> lr_result.txt
+    run_one_exp
+    printf "${EXP_NAME}\n" >> lr_result.txt
 
     P1=1
     P2=1
     P3=15
     P4=4
     P5=1
-#    run_one_exp
-#    printf "${EXP_NAME}\n" >> lr_result.txt
+    run_one_exp
+    printf "${EXP_NAME}\n" >> lr_result.txt
 
 
     is_treat=true
@@ -223,15 +223,15 @@ run_stock_test(){
     how_type="ds2"
     scalein_type="ds2"
     migration_interval=2500
-#    run_one_exp
-#    printf "${EXP_NAME}\n" >> lr_result.txt
+    run_one_exp
+    printf "${EXP_NAME}\n" >> lr_result.txt
 
     whether_type="streamswitch"
     how_type="streamswitch"
     scalein_type="streamswitch"
     migration_interval=1000
-#    run_one_exp
-#    printf "${EXP_NAME}\n" >> lr_result.txt
+    run_one_exp
+    printf "${EXP_NAME}\n" >> lr_result.txt
 
 
     # Part 5
