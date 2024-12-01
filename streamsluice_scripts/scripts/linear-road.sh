@@ -49,7 +49,7 @@ init() {
   how_type="streamsluice"
   scalein_type="streamsluice"
   L=2000
-  runtime=1980 #780 #1980 #780 #2190
+  runtime=1080 #1980 #780 #2190
   skip_interval=10 #120 #300 # skip seconds
   warmup=10000
   warmup_time=150 #300
@@ -82,9 +82,9 @@ init() {
 #  LP4=1
 #  LP5=36
   LP2=1
-  LP3=33 #36
-  LP4=4 #7
-  LP5=1
+  LP3=10 #36
+  LP4=1 #7
+  LP5=30
 
 #  P1=1
 #  P2=1
@@ -93,15 +93,15 @@ init() {
 #  P5=30
   P1=1
   P2=1
-  P3=27 #27
-  P4=4 #4
-  P5=1
+  P3=2 #27
+  P4=1 #4
+  P5=27
 
 
   DELAY2=50
   DELAY3=2000 #8000 # 50
-  DELAY4=100 #2000 # 50
-  DELAY5=50 #1666
+  DELAY4=50 #2000 # 50
+  DELAY5=4000 #1666
 #  DELAY6=10
 #  DELAY7=500
 #  DELAY8=10
@@ -182,8 +182,8 @@ run_stock_test(){
     is_treat=true
     autotune=true
     for scaling_decision_option in 1; do # 2 0
-      for autotuner_increase_bar_alpha in 0.1 0.2 0.4; do #  0.2 0.4
-        for L in 1000 1500 2000 2500 3000; do #1500 2000 2500 3000
+      for autotuner_increase_bar_alpha in 0.1; do #  0.2 0.4
+        for L in 1000 2000; do #1000 1500 2000 2500 3000
             whether_type="streamsluice"
             how_type="streamsluice"
             scalein_type="streamsluice"
@@ -206,16 +206,16 @@ run_stock_test(){
     how_type="ds2"
     scalein_type="ds2"
     migration_interval=2500
-    run_one_exp
-    printf "${EXP_NAME}\n" >> lr_result.txt
+#    run_one_exp
+#    printf "${EXP_NAME}\n" >> lr_result.txt
 
     P1=1
     P2=1
     P3=15
     P4=4
     P5=1
-    run_one_exp
-    printf "${EXP_NAME}\n" >> lr_result.txt
+#    run_one_exp
+#    printf "${EXP_NAME}\n" >> lr_result.txt
 
 
     is_treat=true
@@ -223,15 +223,15 @@ run_stock_test(){
     how_type="ds2"
     scalein_type="ds2"
     migration_interval=2500
-    run_one_exp
-    printf "${EXP_NAME}\n" >> lr_result.txt
+#    run_one_exp
+#    printf "${EXP_NAME}\n" >> lr_result.txt
 
     whether_type="streamswitch"
     how_type="streamswitch"
     scalein_type="streamswitch"
     migration_interval=1000
-    run_one_exp
-    printf "${EXP_NAME}\n" >> lr_result.txt
+#    run_one_exp
+#    printf "${EXP_NAME}\n" >> lr_result.txt
 
 
     # Part 5

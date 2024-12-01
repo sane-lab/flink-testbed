@@ -11,27 +11,21 @@ def format_to_script(input_string):
 
 # Example usage
 input_string = """
-system_d1--streamsluice-streamsluice-false-true-false-when-sine-1split2join1-720-7000-45-3000-5000-0-1-0-1-20-1-5000-1-20-1-5000-1-20-1-5000-17-1000-5000-1000-3000-25-1-true-1
-system_d1--streamsluice-streamsluice-false-true-false-when-sine-1split2join1-720-7000-45-3000-5000-0-1-0-1-20-1-5000-1-20-1-5000-1-20-1-5000-17-1000-5000-1000-3000-50-1-true-1
-system_d1--streamsluice-streamsluice-false-true-false-when-sine-1split2join1-720-7000-45-3000-5000-0-1-0-1-20-1-5000-1-20-1-5000-1-20-1-5000-17-1000-5000-1000-3000-200-1-true-1
-system_d1--streamsluice-streamsluice-false-true-false-when-sine-1split2join1-720-7000-45-3000-5000-0-1-0-1-20-1-5000-1-20-1-5000-1-20-1-5000-17-1000-5000-1000-3000-500-1-true-1
-system_d1--streamsluice-streamsluice-false-true-false-when-sine-1split2join1-720-7000-45-3000-5000-0-1-0-1-20-1-5000-1-20-1-5000-1-20-1-5000-17-1000-5000-1000-3000-1000-1-true-1
-system_d2--streamsluice-streamsluice-false-true-false-when-sine-1split2join1-720-7000-45-3000-5000-0-1-0-1-20-1-5000-1-20-1-5000-1-20-1-5000-17-1000-5000-1000-3000-100-1-true-1
-system_d2--streamsluice-streamsluice-false-true-false-when-sine-1split2join1-720-7000-45-3000-5000-0-1-0-1-20-1-5000-1-20-1-5000-1-20-1-5000-17-1000-5000-1000-3000-100-1-true-1
-system_d2--streamsluice-streamsluice-false-true-false-when-sine-1split2join1-720-7000-45-3000-5000-0-1-0-1-20-1-5000-1-20-1-5000-1-20-1-5000-17-1000-5000-1000-3000-100-1-true-1
-system_d2--streamsluice-streamsluice-false-true-false-when-sine-1split2join1-720-7000-45-3000-5000-0-1-0-1-20-1-5000-1-20-1-5000-1-20-1-5000-17-1000-5000-1000-3000-100-1-true-1
-system_d3--streamsluice-streamsluice-false-true-false-when-sine-1split2join1-720-7000-45-3000-5000-0-1-0-1-20-1-5000-1-20-1-5000-1-20-1-5000-17-1000-5000-1000-3000-100-1-true-1
-system_d3--streamsluice-streamsluice-false-true-false-when-sine-1split2join1-720-7000-45-3000-5000-0-1-0-1-20-1-5000-1-20-1-5000-1-20-1-5000-17-1000-5000-1000-3000-100-1-true-1
-system_d3--streamsluice-streamsluice-false-true-false-when-sine-1split2join1-720-7000-45-3000-5000-0-1-0-1-20-1-5000-1-20-1-5000-1-20-1-5000-17-1000-5000-1000-3000-100-1-true-1
-system_d3--streamsluice-streamsluice-false-true-false-when-sine-1split2join1-720-7000-45-3000-5000-0-1-0-1-20-1-5000-1-20-1-5000-1-20-1-5000-17-1000-5000-1000-3000-100-1-true-1
-system_d2--streamsluice-streamsluice-false-true-false-when-sine-1split2join1-720-7000-45-3000-5000-0-1-0-1-20-1-5000-1-20-1-5000-1-20-1-5000-17-1000-5000-1000-3000-100-60-0.2-1-true-1
-system_d2--streamsluice-streamsluice-false-true-false-when-sine-1split2join1-720-7000-45-3000-5000-0-1-0-1-20-1-5000-1-20-1-5000-1-20-1-5000-17-1000-5000-1000-3000-100-60-0.3-1-true-1
-system_d2--streamsluice-streamsluice-false-true-false-when-sine-1split2join1-720-7000-45-3000-5000-0-1-0-1-20-1-5000-1-20-1-5000-1-20-1-5000-17-1000-5000-1000-3000-100-60-0.4-1-true-1
-system_d2--streamsluice-streamsluice-false-true-false-when-sine-1split2join1-720-7000-45-3000-5000-0-1-0-1-20-1-5000-1-20-1-5000-1-20-1-5000-17-1000-5000-1000-3000-100-60-0.5-1-true-1
-system_d3--streamsluice-streamsluice-false-true-false-when-sine-1split2join1-720-7000-45-3000-5000-0-1-0-1-20-1-5000-1-20-1-5000-1-20-1-5000-17-1000-5000-1000-3000-100-15-0.1-1-true-1
-system_d3--streamsluice-streamsluice-false-true-false-when-sine-1split2join1-720-7000-45-3000-5000-0-1-0-1-20-1-5000-1-20-1-5000-1-20-1-5000-17-1000-5000-1000-3000-100-30-0.1-1-true-1
-system_d3--streamsluice-streamsluice-false-true-false-when-sine-1split2join1-720-7000-45-3000-5000-0-1-0-1-20-1-5000-1-20-1-5000-1-20-1-5000-17-1000-5000-1000-3000-100-90-0.1-1-true-1
-system_d3--streamsluice-streamsluice-false-true-false-when-sine-1split2join1-720-7000-45-3000-5000-0-1-0-1-20-1-5000-1-20-1-5000-1-20-1-5000-17-1000-5000-1000-3000-100-120-0.1-1-true-1
+lr-streamsluice-streamsluice-1-1980-150-1300-10-1-50-27-2000-4-100-1-50-1000-0.1-100-1-0-0.0-true-500-0.8-1
+lr-streamsluice-streamsluice-1-1980-150-1300-10-1-50-27-2000-4-100-1-50-1500-0.1-100-1-0-0.0-true-500-0.8-1
+lr-streamsluice-streamsluice-1-1980-150-1300-10-1-50-27-2000-4-100-1-50-2000-0.1-100-1-0-0.0-true-500-0.8-1
+lr-streamsluice-streamsluice-1-1980-150-1300-10-1-50-27-2000-4-100-1-50-2500-0.1-100-1-0-0.0-true-500-0.8-1
+lr-streamsluice-streamsluice-1-1980-150-1300-10-1-50-27-2000-4-100-1-50-3000-0.1-100-1-0-0.0-true-500-0.8-1
+lr-streamsluice-streamsluice-1-1980-150-1300-10-1-50-27-2000-4-100-1-50-1000-0.2-100-1-0-0.0-true-500-0.8-1
+lr-streamsluice-streamsluice-1-1980-150-1300-10-1-50-27-2000-4-100-1-50-1500-0.2-100-1-0-0.0-true-500-0.8-1
+lr-streamsluice-streamsluice-1-1980-150-1300-10-1-50-27-2000-4-100-1-50-2000-0.2-100-1-0-0.0-true-500-0.8-1
+lr-streamsluice-streamsluice-1-1980-150-1300-10-1-50-27-2000-4-100-1-50-2500-0.2-100-1-0-0.0-true-500-0.8-1
+lr-streamsluice-streamsluice-1-1980-150-1300-10-1-50-27-2000-4-100-1-50-3000-0.2-100-1-0-0.0-true-500-0.8-1
+lr-streamsluice-streamsluice-1-1980-150-1300-10-1-50-27-2000-4-100-1-50-1000-0.4-100-1-0-0.0-true-500-0.8-1
+lr-streamsluice-streamsluice-1-1980-150-1300-10-1-50-27-2000-4-100-1-50-1500-0.4-100-1-0-0.0-true-500-0.8-1
+lr-streamsluice-streamsluice-1-1980-150-1300-10-1-50-27-2000-4-100-1-50-2000-0.4-100-1-0-0.0-true-500-0.8-1
+lr-streamsluice-streamsluice-1-1980-150-1300-10-1-50-27-2000-4-100-1-50-2500-0.4-100-1-0-0.0-true-500-0.8-1
+lr-streamsluice-streamsluice-1-1980-150-1300-10-1-50-27-2000-4-100-1-50-3000-0.4-100-1-0-0.0-true-500-0.8-1
 """
 
 
