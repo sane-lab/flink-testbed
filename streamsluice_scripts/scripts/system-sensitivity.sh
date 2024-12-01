@@ -186,7 +186,7 @@ run_scale_test(){
     STATE_SIZE2=5000 # 1000 keys, per key (n * 2000 + 36) bytes, n=5000 -> 100 MB
     STATE_SIZE3=5000
     STATE_SIZE4=5000
-    STATE_SIZE5=10000 #5000
+    STATE_SIZE5=10000
     LP2=1
     LP3=1
     LP4=1
@@ -200,6 +200,7 @@ run_scale_test(){
     autotuner_bar_lowerbound=350
     autotuner_latency_window=100
     autotuner_increase_bar_alpha=0.1
+    epoch=100
     CURVE_TYPE="sine" #"linear"
     warmupRate=5000
     warmupTime=60
@@ -210,7 +211,7 @@ run_scale_test(){
     TIME1=45
     TIME2=45
 
-    for epoch in 25 50 200 500; do #
+    for epoch in 25 50 100 200 500; do #
       is_treat=false
       autotune=false
       how_type="ds2"
@@ -220,8 +221,8 @@ run_scale_test(){
         is_treat=true
         autotune=true
         how_type="streamsluice"
-#        run_one_exp
-#        printf "${EXP_NAME}\n" >> system_sensitivity_result.txt
+        run_one_exp
+        printf "${EXP_NAME}\n" >> system_sensitivity_result.txt
       done
     done
 
@@ -270,8 +271,8 @@ run_scale_test(){
         is_treat=true
         autotune=true
         how_type="streamsluice"
-        run_one_exp
-        printf "${EXP_NAME}\n" >> system_sensitivity_result.txt
+#        run_one_exp
+#        printf "${EXP_NAME}\n" >> system_sensitivity_result.txt
       done
     done
 
@@ -321,8 +322,8 @@ run_scale_test(){
         is_treat=true
         autotune=true
         how_type="streamsluice"
-        run_one_exp
-        printf "${EXP_NAME}\n" >> system_sensitivity_result.txt
+#        run_one_exp
+#        printf "${EXP_NAME}\n" >> system_sensitivity_result.txt
       done
     done
 
