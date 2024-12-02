@@ -81,12 +81,12 @@ public class MicroBench {
         }else if(SOURCE_TYPE.equals("how")) {
             source = env.addSource(new HowSource(PHASE1_TIME, PHASE2_TIME, INTERMEDIATE_TIME, PHASE1_RATE, PHASE2_RATE, INTERMEDIATE_RATE, params.getLong("run_time", 510) * 1000));
         }else if(SOURCE_TYPE.equals("part5")){
-            long average_rate_low = params.getLong("rateLow", 20) * 1000;
-            long average_rate_high = params.getLong("rateHigh", 20) * 1000;
+            long average_rate_low = params.getLong("rateLow", 5000);
+            long average_rate_high = params.getLong("rateHigh", 5000);
             long average_rate_period = params.getLong("ratePeriod", 300) * 1000;
             String average_rate_pattern = params.get("ratePattern", "sine");
-            long amplitude_low = params.getLong("amplitudeLow", 10) * 1000;
-            long amplitude_high = params.getLong("amplitudeHigh", 10) * 1000;
+            long amplitude_low = params.getLong("amplitudeLow", 5000);
+            long amplitude_high = params.getLong("amplitudeHigh", 5000);
             long amplitude_period = params.getLong("amplitudePeriod", 60) * 1000;
             String amplitude_pattern = params.get("amplitudePattern", "stair_4");
             long period_low = params.getLong("periodLow", 10) * 1000;
