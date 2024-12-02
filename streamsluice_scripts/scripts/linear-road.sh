@@ -206,16 +206,16 @@ run_stock_test(){
     how_type="ds2"
     scalein_type="ds2"
     migration_interval=2500
-    run_one_exp
-    printf "${EXP_NAME}\n" >> lr_result.txt
+#    run_one_exp
+#    printf "${EXP_NAME}\n" >> lr_result.txt
 
     P1=1
     P2=1
     P3=15
     P4=4
     P5=1
-    run_one_exp
-    printf "${EXP_NAME}\n" >> lr_result.txt
+#    run_one_exp
+#    printf "${EXP_NAME}\n" >> lr_result.txt
 
 
     is_treat=true
@@ -223,15 +223,15 @@ run_stock_test(){
     how_type="ds2"
     scalein_type="ds2"
     migration_interval=2500
-    run_one_exp
-    printf "${EXP_NAME}\n" >> lr_result.txt
+#    run_one_exp
+#    printf "${EXP_NAME}\n" >> lr_result.txt
 
     whether_type="streamswitch"
     how_type="streamswitch"
     scalein_type="streamswitch"
     migration_interval=1000
-    run_one_exp
-    printf "${EXP_NAME}\n" >> lr_result.txt
+#    run_one_exp
+#    printf "${EXP_NAME}\n" >> lr_result.txt
 
 
     # Part 5
