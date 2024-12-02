@@ -279,7 +279,7 @@ public class LinearRoad {
                         // System.out.println("output rate: " + counter);
                         if (sleepCnt <= skipCount) {
                             for (int i = 0; i < warmp_rate * input_rate_factor / 20; i++) {
-                                int car_id = count % 1000000;
+                                int car_id = count % 20000; // count % 1000000;
                                 String key = getCarID(car_id);
                                 if(isSkewed){
                                     int selectedKeygroup = fastZipfGenerator.next();
