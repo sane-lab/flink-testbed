@@ -193,7 +193,7 @@ run_scale_test(){
     TIME_I=30
     printf "" > part5_result.txt
 
-    runtime=690
+    runtime=1890
 
     # Period Amplitude Change
     printf "MicroBench\n" >> part5_result.txt
@@ -225,17 +225,17 @@ run_scale_test(){
 
     warmupRate=5000
     warmupTime=60
-    rate_low=4000
-    rate_high=6000
-    rate_period=450
+    rate_low=4500
+    rate_high=5500
+    rate_period=600
     rate_pattern="linear"
     amplitude_low=1000
-    amplitude_high=2000
-    amplitude_period=300
+    amplitude_high=2500
+    amplitude_period=360
     amplitude_pattern="stair_4"
     period_low=120
-    period_high=45
-    period_period=300
+    period_high=30
+    period_period=360
     period_pattern="stair_4"
     noise=0.05
 
@@ -244,12 +244,12 @@ run_scale_test(){
     how_type="ds2"
     run_one_exp
     printf "${EXP_NAME}\n" >> part5_result.txt
-    for L in 750 1000 1250; do #
+    for L in 1000; do # 1500 2000
       is_treat=true
       autotune=true
       how_type="streamsluice"
-#      run_one_exp
-#      printf "${EXP_NAME}\n" >> part5_result.txt
+      run_one_exp
+      printf "${EXP_NAME}\n" >> part5_result.txt
     done
 }
 

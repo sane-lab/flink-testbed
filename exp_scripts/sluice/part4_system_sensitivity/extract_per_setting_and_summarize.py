@@ -793,7 +793,7 @@ def main():
         "part5":{
             "Dimension": "a",
             "S": [
-                "part5-microbench--streamsluice-ds2-part5-sine-1split2join1-690-4000-6000-450-linear-1000-2000-300-stair_4-120-45-300-stair_4-1-0-1-20-1-5000-3-500-1-5000-1-20-1-5000-17-1000-5000-0.05-1000-3000-100-1-false-1",
+                "part5-microbench-streamsluice-ds2-part5-sine-1split2join1-690-4000-6000-450-linear-1000-2000-300-stair_4-120-45-300-stair_4-1-0-1-20-1-5000-3-500-1-5000-1-20-1-5000-17-1000-10000-0.05-1000-3000-100-1-false-1",
             ]
         }
     }
@@ -828,7 +828,7 @@ def main():
                     exp_length = 600
                 else:
                     latency_bar = int(exp_name.split('-')[-6])
-                    start_time = 60 #10
+                    start_time = 60
                     exp_length = 600
                 success_rate, weighted_success_rate, first_converge_time, converged_bar = draw_latency_curves(raw_dir,
                                                                                                               output_dir + exp_name + '/',
