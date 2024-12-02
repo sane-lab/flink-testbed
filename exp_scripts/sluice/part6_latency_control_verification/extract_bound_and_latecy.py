@@ -289,95 +289,9 @@ def draw_latency_curves(raw_dir, output_dir, exp_name, window_size, start_time, 
     plt.grid(True)
     if not os.path.exists(output_dir):
         os.makedirs(output_dir)
-    plt.savefig(output_dir + 'ground_truth_latency_curves.png', bbox_inches='tight')
+    plt.savefig(output_dir + 'latency_curves.png', bbox_inches='tight')
     plt.close(fig)
-
-    #Calculate the bar converge time
-    #tune_window_success_rates = {}
-    last_time = 0
-    last_bar = 0
-    index = 0
-    first_converge_time = 0
-    for time, bar in latency_bar[0].items():
-        if last_bar > 0:
-            # start = last_time - initial_times[0]
-            # end = time - initial_times[0]
-            # tune_window_groundtruth_p99_latency_in_range = [average_ground_truth_latencies[0][1][x] for x in
-            #                                     range(len(average_ground_truth_latencies[0][0])) if
-            #                                     average_ground_truth_latencies[0][0][x] >= start and
-            #                                     average_ground_truth_latencies[0][0][x] <
-            #                                                 end]
-            # print(start, end)
-            # tune_window_success_rate = len([x for x in tune_window_groundtruth_p99_latency_in_range if x <= latency_limit]) / len(
-            #     tune_window_groundtruth_p99_latency_in_range)
-            # tune_window_success_rates[last_time - initial_times[0]] = tune_window_success_rate
-            if last_bar != bar:
-                first_converge_time = index + 1
-        index += 1
-        last_time = time
-        last_bar = bar
-    if first_converge_time == 0:
-        first_converge_time = 1
-    start = last_time - initial_times[0]
-    end = (start_time + exp_length) * 1000
-    # tune_window_groundtruth_p99_latency_in_range = [average_ground_truth_latencies[0][1][x] for x in
-    #                                                 range(len(average_ground_truth_latencies[0][0])) if
-    #                                                 average_ground_truth_latencies[0][0][x] >= start and
-    #                                                 average_ground_truth_latencies[0][0][x] <
-    #                                                     end]
-    # if len(tune_window_groundtruth_p99_latency_in_range) > 0:
-    #     tune_window_success_rate = len(
-    #     [x for x in tune_window_groundtruth_p99_latency_in_range if x <= latency_limit]) / len(
-    #     tune_window_groundtruth_p99_latency_in_range)
-    #     tune_window_success_rates[last_time - initial_times[0]] = tune_window_success_rate
-    converged_bar = last_bar
-    #print("tune window success rates: " + str(tune_window_success_rates))
-    #first_converge_time = 0
-    #index = 0
-    # for time, tune_window_success_rate in tune_window_success_rates.items():
-    #     if tune_window_success_rate < 0.99:
-    #         first_converge_time = index + 1
-    #     index += 1
-
-
-    # Plotting the latency curve
-    fig, ax = plt.subplots(figsize=(12, 5))
-    for i in range(len(exps)):
-         # lem_latencies[i][0] = [x - initial_times[0] for x in lem_latencies[i][0]]
-         # plt.plot(lem_latencies[i][0], lem_latencies[i][1], '-', color=exps[i][2], markersize=4, linewidth=3,
-         #          label="Estimated Latency")
-        add_p99_bar_curve(plt, p99_bar[i], initial_times[i])
-        add_latency_bar_curve(plt, latency_bar[i], initial_times[i])
-    add_latency_limit_marker(plt, latency_limit)
-    handles, labels = plt.gca().get_legend_handles_labels()
-    new_labels, new_handles = [], []
-    for handle, label in zip(handles, labels):
-        if label not in new_labels:
-            new_labels.append(label)
-            new_handles.append(handle)
-    plt.legend(new_handles, new_labels, bbox_to_anchor=(0.45, 1.4), loc='upper center', ncol=3, markerscale=4.)
-    plt.ylabel('Latency (ms)')
-    axes = plt.gca()
-    axes.set_xlim((start_time) * 1000, (start_time + exp_length) * 1000)
-    axes.set_xticks(np.arange((start_time) * 1000, (start_time + exp_length) * 1000 + (exp_length / 10) * 1000, (exp_length / 10) * 1000))
-    axes.set_xticklabels([int((x - start_time * 1000) / 1000) for x in
-                          np.arange((start_time) * 1000, (start_time + exp_length) * 1000 + (exp_length / 10) * 1000, (exp_length / 10) * 1000)])
-    if (latency_limit < 3000):
-        axes.set_ylim(0, 3000)
-        axes.set_yticks(np.arange(0, 3300, 300))
-    elif (latency_limit < 6000):
-        axes.set_ylim(0, 10050)
-        axes.set_yticks(np.arange(0, 11000, 1000))
-    else:
-        axes.set_ylim(0, 25000)
-        axes.set_yticks(np.arange(0, 27500, 2500))
-    plt.grid(True)
-    if not os.path.exists(output_dir):
-        os.makedirs(output_dir)
-    plt.savefig(output_dir + 'latency_bar.png', bbox_inches='tight')
-    plt.close(fig)
-
-    return success_rate, weighted_success_rate, first_converge_time, converged_bar
+    return success_rate, weighted_success_rate, [], []
 
 
 
@@ -593,7 +507,7 @@ def draw_parallelism_curve(rawDir, outputDir, exp_name, windowSize, startTime, e
     print("Draw total figure...")
     print("TOTAL parallelism: " + str(totalParallelismPerExps))
 
-    figName = "Parallelism"
+    figName = "Part6_Parallelism"
     nJobs = len(parallelismsPerJob.keys())
     jobList = ["a84740bacf923e828852cc4966f2247c", "eabd4c11f6c6fbdf011f0f1fc42097b1",
                "d01047f852abd5702a0dabeedac99ff5", "d2336f79a0d60b5a4b16c8769ec82e47",
@@ -716,11 +630,10 @@ def main():
     window_size = 100
     draw_lem_latency_flag = True
     exps_per_label_per_setting = {
-        "Microbench_1": {
-            #"static": "part5-microbench-streamsluice-ds2-part5-sine-1split2join1-1890-4500-5500-600-linear-1000-2500-360-stair_4-120-30-360-stair_4-1-0-1-20-1-5000-3-500-1-5000-1-20-1-5000-17-1000-10000-0.05-1000-3000-100-1-false-1",
-            "scale": [
-                "part5-microbench-streamsluice-streamsluice-part5-sine-1split2join1-1890-4000-6000-600-linear-1000-2000-1800-stair_4-120-60-1800-stair_4-1-0-1-20-1-5000-3-500-1-5000-1-20-1-5000-17-1000-10000-0.05-1000-3000-100-1-true-1",
-            ]
+        "Twitter": {
+            "start_time": 100,
+            "exp_length": 100,
+            "scale": "tweet-streamsluice-streamsluice-1-1950-90-1500-1-19-6666-9-1000-1-50-1-50-2000-100-true-0.1-1",
         }
     }
     for workload_name, exps_per_label in exps_per_label_per_setting.items():

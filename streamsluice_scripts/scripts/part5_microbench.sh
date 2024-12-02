@@ -206,7 +206,7 @@ run_scale_test(){
     STATE_SIZE2=5000 # 1000 keys, per key (n * 2000 + 36) bytes, n=5000 -> 100 MB
     STATE_SIZE3=5000
     STATE_SIZE4=5000
-    STATE_SIZE5=10000 #10000
+    STATE_SIZE5=5000 #10000
     LP2=1
     LP3=9
     LP4=1

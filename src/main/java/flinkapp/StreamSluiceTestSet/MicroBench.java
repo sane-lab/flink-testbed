@@ -2404,7 +2404,7 @@ public class MicroBench {
                 value = (long) (baseRate + amplitude * Math.sin((2 * Math.PI * time) / period));
             }else if(pattern >= 3){
                 int n = (int) (pattern - 1);
-                long period_n = period / n;
+                long period_n = period / (n * 2L);
                 long stair_rate = (high - low) / n;
                 if(time < period / 2){
                     value = low + stair_rate * (time / period_n);
