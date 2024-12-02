@@ -93,7 +93,7 @@ public class MicroBench {
             long period_high = params.getLong("periodHigh", 10) * 1000;
             long period_period = params.getLong("periodPeriod", 60) * 1000;
             String period_pattern = params.get("periodPattern", "stair_4");
-
+            System.out.println("!!!! Source");
             source = env.addSource(new AverageRateChangeAmplitudeChangeWithNoiseSource(
                     params.getLong("warmupTime", 20) * 1000,
                     params.getLong("warmupRate", INTERMEDIATE_RATE),
@@ -2296,7 +2296,6 @@ public class MicroBench {
                     break;
             }
             this.NOISE_LEVEL = NOISE_LEVEL;
-            System.out.println("Rate pattern: " + this.AVERAGE_RATE_PATTERN + ", amplitude pattern: " + this.AMPLITUDE_PATTERN + ", period pattern: " + this.PERIOD_PATTERN);
             this.nKeys = 1000;
             this.maxParallelism = 128;
             this.fastZipfGenerator = new FastZipfGenerator(maxParallelism, 0.0, 0, 114514);
@@ -2420,6 +2419,10 @@ public class MicroBench {
 
         private void generateCurve(SourceContext<Tuple3<String, Long, Long>> ctx) throws Exception {
             long startTime = System.currentTimeMillis();
+            System.out.println("Rate paras: " + this.AVERAGE_RATE_LOW + ", " + this.AVERAGE_RATE_HIGH + ", " + this.AVERAGE_RATE_PERIOD + ", " + this.AVERAGE_RATE_PATTERN
+                    + "\nAmplitude paras: " + this.AMPLITUDE_LOW + ", " + this.AMPLITUDE_HIGH + ", " + this.AMPLITUDE_PERIOD + ", " + this.AMPLITUDE_PATTERN
+                    + "\nPeriod pattern: " + this.PERIOD_LOW + ", " + this.PERIOD_HIGH + ", " + this.PERIOD_PERIOD + ", " + this.PERIOD_PATTERN
+                    + "\nNoise: " + this.NOISE_LEVEL);
             System.out.println("Source start at: " + startTime);
             System.out.println("Source warm up...");
             startSteadyPhase(ctx, WARMP_RATE, WARMP_TIME, startTime);
@@ -2432,6 +2435,7 @@ public class MicroBench {
                 long now_amplitude = calculateValueAtCurrentTime(roundStartTime - startTime, AMPLITUDE_LOW, AMPLITUDE_HIGH, AMPLITUDE_PERIOD, AMPLITUDE_PATTERN);
                 long now_period = calculateValueAtCurrentTime(roundStartTime - startTime, PERIOD_LOW, PERIOD_HIGH, PERIOD_PERIOD, PERIOD_PATTERN);
                 System.out.println("Round " + round + " sine phase start at: " + roundStartTime);
+                System.out.println("phase paras: " + now_average_rate + ", " + now_amplitude + ", " + now_period);
                 startSinePhase(ctx, now_amplitude,  now_average_rate, now_period, roundStartTime);
                 if (!isRunning) {
                     return;
