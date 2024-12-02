@@ -206,7 +206,7 @@ run_scale_test(){
     STATE_SIZE2=5000 # 1000 keys, per key (n * 2000 + 36) bytes, n=5000 -> 100 MB
     STATE_SIZE3=5000
     STATE_SIZE4=5000
-    STATE_SIZE5=10000 #10000
+    STATE_SIZE5=10000
     LP2=1
     LP3=9
     LP4=1
@@ -225,25 +225,25 @@ run_scale_test(){
 
     warmupRate=5000
     warmupTime=60
-    rate_low=4000
-    rate_high=6000
+    rate_low=4500
+    rate_high=5500
     rate_period=600
     rate_pattern="linear"
     amplitude_low=1000
-    amplitude_high=2000
-    amplitude_period=1800
+    amplitude_high=2500
+    amplitude_period=360
     amplitude_pattern="stair_4"
     period_low=120
-    period_high=60
-    period_period=1800
+    period_high=30
+    period_period=360
     period_pattern="stair_4"
     noise=0.05
 
     is_treat=false
     autotune=false
     how_type="ds2"
-#    run_one_exp
-#    printf "${EXP_NAME}\n" >> part5_result.txt
+    run_one_exp
+    printf "${EXP_NAME}\n" >> part5_result.txt
     for L in 1000; do # 1500 2000
       is_treat=true
       autotune=true
