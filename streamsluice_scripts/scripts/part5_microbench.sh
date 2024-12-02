@@ -219,7 +219,7 @@ run_scale_test(){
     GRAPH="1split2join1"
     autotuner_bar_lowerbound=350
     autotuner_latency_window=100
-    autotuner_increase_bar_alpha=0.1
+    autotuner_increase_bar_alpha=0.4 #0.1
     epoch=100
     CURVE_TYPE="sine" #"linear"
 
@@ -244,7 +244,7 @@ run_scale_test(){
     how_type="ds2"
 #    run_one_exp
 #    printf "${EXP_NAME}\n" >> part5_result.txt
-    for L in 1000; do # 1500 2000
+    for L in 2000; do # 1500 2000
       is_treat=true
       autotune=true
       how_type="streamsluice"
