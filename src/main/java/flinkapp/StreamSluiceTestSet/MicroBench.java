@@ -80,6 +80,29 @@ public class MicroBench {
                     setParallelism(params.getInt("p1", 1));
         }else if(SOURCE_TYPE.equals("how")) {
             source = env.addSource(new HowSource(PHASE1_TIME, PHASE2_TIME, INTERMEDIATE_TIME, PHASE1_RATE, PHASE2_RATE, INTERMEDIATE_RATE, params.getLong("run_time", 510) * 1000));
+        }else if(SOURCE_TYPE.equals("part5")){
+            long average_rate_low = params.getLong("rateLow", 20) * 1000;
+            long average_rate_high = params.getLong("rateHigh", 20) * 1000;
+            long average_rate_period = params.getLong("ratePeriod", 300) * 1000;
+            String average_rate_pattern = params.get("ratePattern", "sine");
+            long amplitude_low = params.getLong("amplitudeLow", 10) * 1000;
+            long amplitude_high = params.getLong("amplitudeHigh", 10) * 1000;
+            long amplitude_period = params.getLong("amplitudePeriod", 60) * 1000;
+            String amplitude_pattern = params.get("amplitudePattern", "stair_4");
+            long period_low = params.getLong("periodLow", 10) * 1000;
+            long period_high = params.getLong("periodHigh", 10) * 1000;
+            long period_period = params.getLong("periodPeriod", 60) * 1000;
+            String period_pattern = params.get("periodPattern", "stair_4");
+
+            source = env.addSource(new AverageRateChangeAmplitudeChangeWithNoiseSource(
+                    params.getLong("warmupTime", 20) * 1000,
+                    params.getLong("warmupRate", INTERMEDIATE_RATE),
+                    params.getLong("run_time", 510) * 1000,
+                    average_rate_low, average_rate_high, average_rate_period, average_rate_pattern,
+                    amplitude_low, amplitude_high, amplitude_period, amplitude_pattern,
+                    period_low, period_high, period_period, period_pattern,
+                    params.getDouble("noise", 0.05)
+            )).setParallelism(params.getInt("p1", 1));
         }else {
             source = env.addSource(new DynamicAvgRateSineSource(PHASE1_TIME, PHASE2_TIME, INTERMEDIATE_TIME, PHASE1_RATE, PHASE2_RATE, INTERMEDIATE_RATE, INTERMEDIATE_RANGE, INTERMEDIATE_PERIOD, params.getLong("macroInterAmplitude", 0), params.getLong("macroInterPeriod", 60) * 1000, params.getInt("mp2", 8), zipf_skew, nKeys, params.get("curve_type", "sine"), params.getInt("inter_delta", 0)))
                     .setParallelism(params.getInt("p1", 1));
@@ -2201,12 +2224,12 @@ public class MicroBench {
 
         private final Map<Integer, Long> totalOutputNumbers = new HashMap<>();
 
-        public AverageRateChangeAmplitudeChangeWithNoiseSource(long WARMP_TIME, long WARMP_RATE, long TOTAL_TIME,
+        public AverageRateChangeAmplitudeChangeWithNoiseSource(long WARMUP_TIME, long WARMUP_RATE, long TOTAL_TIME,
                                                                long AVERAGE_RATE_LOW, long AVERAGE_RATE_HIGH, long AVERAGE_RATE_PERIOD, String AVERAGE_RATE_PATTERN,
                                                                long AMPLITUDE_LOW, long AMPLITUDE_HIGH, long AMPLITUDE_PERIOD, String AMPLITUDE_PATTERN,
                                                                long PERIOD_LOW, long PERIOD_HIGH, long PERIOD_PERIOD, String PERIOD_PATTERN, double NOISE_LEVEL){
-            this.WARMP_TIME = WARMP_TIME;
-            this.WARMP_RATE = WARMP_RATE;
+            this.WARMP_TIME = WARMUP_TIME;
+            this.WARMP_RATE = WARMUP_RATE;
             this.TOTAL_TIME = TOTAL_TIME;
             this.AVERAGE_RATE_LOW = AVERAGE_RATE_LOW;
             this.AVERAGE_RATE_HIGH = AVERAGE_RATE_HIGH;
@@ -2381,7 +2404,7 @@ public class MicroBench {
                 long baseRate = (low + high) / 2, amplitude = baseRate;
                 value = (long) (baseRate + amplitude * Math.sin((2 * Math.PI * time) / period));
             }else if(pattern >= 3){
-                int n = (int) pattern;
+                int n = (int) (pattern - 1);
                 long period_n = period / n;
                 long stair_rate = (high - low) / n;
                 if(time < period / 2){
