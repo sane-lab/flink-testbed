@@ -101,7 +101,7 @@ init() {
   DELAY2=50
   DELAY3=1666 #8000 # 50
   DELAY4=50 #2000 # 50
-  DELAY5=4000 #1666
+  DELAY5=3333 #4000
 #  DELAY6=10
 #  DELAY7=500
 #  DELAY8=10
@@ -183,7 +183,7 @@ run_stock_test(){
     autotune=true
     for scaling_decision_option in 1; do # 2 0
       for autotuner_increase_bar_alpha in 0.1; do # 0.2 0.4
-        for L in 1000 2000; do #1000 1500 2000 2500 3000
+        for L in 1000 2000 3000; do #1000 1500 2000 2500 3000
             whether_type="streamsluice"
             how_type="streamsluice"
             scalein_type="streamsluice"
@@ -199,9 +199,9 @@ run_stock_test(){
     is_treat=false
     P1=1
     P2=1
-    P3=10
-    P4=2
-    P5=1
+    P3=2 #27
+    P4=1 #4
+    P5=25
     whether_type="ds2"
     how_type="ds2"
     scalein_type="ds2"
@@ -211,9 +211,9 @@ run_stock_test(){
 
     P1=1
     P2=1
-    P3=15
-    P4=4
-    P5=1
+    P3=4 #27
+    P4=1 #4
+    P5=30
 #    run_one_exp
 #    printf "${EXP_NAME}\n" >> lr_result.txt
 

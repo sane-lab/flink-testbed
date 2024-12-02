@@ -692,7 +692,7 @@ def draw_parallelism_curve(rawDir, outputDir, exp_name, windowSize, startTime, e
     plt.close(fig)
     return average_parallelism, arrival_curves
 
-def plot_latency_cdf(latency_per_label, output_dir, workload_name: str):
+def plot_latency_cdf(latency_per_label, latency_bar_this_workload, output_dir, workload_name: str):
     labels = list(latency_per_label.keys())
 
     fig, ax = plt.subplots(figsize=(12, 5))
@@ -708,7 +708,7 @@ def plot_latency_cdf(latency_per_label, output_dir, workload_name: str):
         # plt.ecdf(data, complementary=True, color=CONTROLLER_COLOR[label], label=label)
     # Draw p99
     plt.plot([0, 10000000], [0.99, 0.99], "--", color='red')
-    plt.plot([1000, 1000], [0, 1.0], "--", color='red')
+    plt.plot([latency_bar_this_workload, latency_bar_this_workload], [0, 1.0], "--", color='red')
     # Add labels, title, and custom x-axis tick labels
     ax.set_xlabel('Latency')
     ax.set_ylabel('CDF')
@@ -760,28 +760,30 @@ def main():
         #     "Streamswitch": "tweet-streamswitch-streamswitch-1-1950-90-1500-1-19-6666-9-1000-1-50-1-50-2500-100-true-0.4-1",
         #     "Sluice": "tweet-streamsluice-streamsluice-1-1950-90-1500-1-19-6666-9-1000-1-50-1-50-2500-100-true-0.1-1",
         # },
-        "Stock-Analysis_30min":{
-            "Static": "stock-ds2-ds2-1-1950-90-1000-20-1-200-4-2500-1-200-1-500-1-7-3333-1000-100-0.4-false-false-1",
-            "Static-Adequate": "stock-ds2-ds2-1-1950-90-1000-20-1-200-11-2500-1-200-2-500-1-15-3333-1000-100-0.4-false-false-1",
-            "DS2": "stock-ds2-ds2-1-1950-90-1000-20-1-200-11-2500-1-200-2-500-1-15-3333-1000-100-0.4-true-false-1",
-            "Streamswitch": "stock-streamswitch-streamswitch-1-1950-90-1000-20-1-200-11-2500-1-200-2-500-1-15-3333-1000-100-0.4-true-false-1",
-            "Sluice": "stock-streamsluice-streamsluice-1-1950-90-1000-20-1-200-11-2500-1-200-2-500-1-15-3333-1000-100-0.1-true-true-1",
-        },
+        # "Stock-Analysis_30min":{
+        #     "Static": "stock-ds2-ds2-1-1950-90-1000-20-1-200-4-2500-1-200-1-500-1-7-3333-1000-100-0.4-false-false-1",
+        #     "Static-Adequate": "stock-ds2-ds2-1-1950-90-1000-20-1-200-11-2500-1-200-2-500-1-15-3333-1000-100-0.4-false-false-1",
+        #     "DS2": "stock-ds2-ds2-1-1950-90-1000-20-1-200-11-2500-1-200-2-500-1-15-3333-1000-100-0.4-true-false-1",
+        #     "Streamswitch": "stock-streamswitch-streamswitch-1-1950-90-1000-20-1-200-11-2500-1-200-2-500-1-15-3333-1000-100-0.4-true-false-1",
+        #     "Sluice": "stock-streamsluice-streamsluice-1-1950-90-1000-20-1-200-11-2500-1-200-2-500-1-15-3333-1000-100-0.1-true-true-1",
+        # },
         "Linear-Road_30min": {
-            "lr-ds2-ds2-1-1080-150-1300-10-1-50-10-1666-2-50-1-4000-2000-0.4-100-1-0-0.0-false-2500-0.8-1",
-            "lr-ds2-ds2-1-1080-150-1300-10-1-50-15-1666-4-50-1-4000-2000-0.4-100-1-0-0.0-false-2500-0.8-1",
-            "lr-ds2-ds2-1-1080-150-1300-10-1-50-15-1666-4-50-1-4000-2000-0.4-100-1-0-0.0-true-2500-0.8-1",
-            "lr-streamswitch-streamswitch-1-1080-150-1300-10-1-50-15-1666-4-50-1-4000-2000-0.4-100-1-0-0.0-true-1000-0.8-1"
+            "Static": "lr-ds2-ds2-1-1080-150-1300-10-1-50-10-1666-2-50-1-4000-2000-0.4-100-1-0-0.0-false-2500-0.8-1",
+            "Static-Adequate": "lr-ds2-ds2-1-1080-150-1300-10-1-50-15-1666-4-50-1-4000-2000-0.4-100-1-0-0.0-false-2500-0.8-1",
+            "DS2": "lr-ds2-ds2-1-1080-150-1300-10-1-50-15-1666-4-50-1-4000-2000-0.4-100-1-0-0.0-true-2500-0.8-1",
+            "Streamswitch": "lr-streamswitch-streamswitch-1-1080-150-1300-10-1-50-15-1666-4-50-1-4000-2000-0.4-100-1-0-0.0-true-1000-0.8-1",
+            "Sluice": "lr-streamsluice-streamsluice-1-1080-150-1300-10-1-50-3-1666-1-50-27-4000-2000-0.1-100-1-0-0.0-true-500-0.8-1",
         },
     }
     for workload_name, exps_per_label in exps_per_label_per_setting.items():
+        latency_bar_this_workload = 0
         latency_per_label = {}
         avg_parallelism_per_label = {}
         for label, exps in exps_per_label.items():
             avg_parallelism_per_label[label] = []
             exp_name = exps
             if exp_name.startswith("lr"):
-                latency_bar = int(exp_name.split('-')[-9])
+                latency_bar = int(exp_name.split('-')[-10])
                 start_time = 180
                 exp_length = 1800
             elif exp_name.startswith("tweet"):
@@ -801,10 +803,11 @@ def main():
                                                                           start_time, exp_length, latency_bar, draw_lem_latency_flag)
             avg_parallelism, trash = draw_parallelism_curve(raw_dir, output_dir + exp_name + '/', exp_name, window_size,
                                                             start_time, exp_length, True)
+            latency_bar_this_workload = latency_bar
             latency_per_label[label] = all_latency
             avg_parallelism_per_label[label] = avg_parallelism
         print(avg_parallelism_per_label)
-        plot_latency_cdf(latency_per_label, overall_output_dir, workload_name)
+        plot_latency_cdf(latency_per_label, latency_bar_this_workload, overall_output_dir, workload_name)
         plot_avg_parallelism_bar(avg_parallelism_per_label, overall_output_dir, workload_name)
 
 if __name__ == "__main__":
