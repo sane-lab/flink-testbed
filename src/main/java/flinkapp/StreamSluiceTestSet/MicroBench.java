@@ -2188,12 +2188,14 @@ public class MicroBench {
     }
     public static final class AverageRateChangeAmplitudeChangeWithNoiseSource implements SourceFunction<Tuple3<String, Long, Long>>, CheckpointedFunction {
         final private long WARMP_TIME, WARMP_RATE, TOTAL_TIME, AVERAGE_RATE_LOW, AVERAGE_RATE_HIGH, AVERAGE_RATE_PERIOD, AVERAGE_RATE_PATTERN, AMPLITUDE_LOW, AMPLITUDE_HIGH, AMPLITUDE_PERIOD, AMPLITUDE_PATTERN, PERIOD_LOW, PERIOD_HIGH, PERIOD_PERIOD, PERIOD_PATTERN;
+        final private double NOISE_LEVEL;
         private int count = 0;
         private volatile boolean isRunning = true;
         private transient ListState<Integer> checkpointedCount;
         private int maxParallelism;
         private FastZipfGenerator fastZipfGenerator;
         private RandomDataGenerator randomGen = new RandomDataGenerator();
+        private Random random = new Random(114514);
         private int nKeys;
         private final Map<Integer, List<String>> keyGroupMapping = new HashMap<>();
 
@@ -2202,15 +2204,14 @@ public class MicroBench {
         public AverageRateChangeAmplitudeChangeWithNoiseSource(long WARMP_TIME, long WARMP_RATE, long TOTAL_TIME,
                                                                long AVERAGE_RATE_LOW, long AVERAGE_RATE_HIGH, long AVERAGE_RATE_PERIOD, String AVERAGE_RATE_PATTERN,
                                                                long AMPLITUDE_LOW, long AMPLITUDE_HIGH, long AMPLITUDE_PERIOD, String AMPLITUDE_PATTERN,
-                                                               long PERIOD_LOW, long PERIOD_HIGH, long PERIOD_PERIOD, String PERIOD_PATTERN){
+                                                               long PERIOD_LOW, long PERIOD_HIGH, long PERIOD_PERIOD, String PERIOD_PATTERN, double NOISE_LEVEL){
             this.WARMP_TIME = WARMP_TIME;
             this.WARMP_RATE = WARMP_RATE;
             this.TOTAL_TIME = TOTAL_TIME;
+            this.AVERAGE_RATE_LOW = AVERAGE_RATE_LOW;
             this.AVERAGE_RATE_HIGH = AVERAGE_RATE_HIGH;
             this.AVERAGE_RATE_PERIOD = AVERAGE_RATE_PERIOD;
-            if(){
-
-            }
+            String prefix = "stair_";
             switch(AVERAGE_RATE_PATTERN){
                 case "gradient":
                     this.AVERAGE_RATE_PATTERN = 0;
@@ -2218,17 +2219,15 @@ public class MicroBench {
                 case "linear":
                     this.AVERAGE_RATE_PATTERN = 1;
                     break;
-                case "quarter-sine":
+                case "sine":
                     this.AVERAGE_RATE_PATTERN = 2;
                     break;
-                case "sine":
-                    this.AVERAGE_RATE_PATTERN = 3;
-                    break;
-                case "sudden":
-                    this.AVERAGE_RATE_PATTERN = 4;
-                    break;
                 default:
-                    this.AVERAGE_RATE_PATTERN = 1;
+                    if(AVERAGE_RATE_PATTERN.startsWith(prefix)){
+                        this.AVERAGE_RATE_PATTERN = Integer.parseInt(AVERAGE_RATE_PATTERN.substring(prefix.length()));
+                    }else {
+                        this.AVERAGE_RATE_PATTERN = 1;
+                    }
                     break;
             }
             this.AMPLITUDE_LOW = AMPLITUDE_LOW;
@@ -2241,17 +2240,15 @@ public class MicroBench {
                 case "linear":
                     this.AMPLITUDE_PATTERN = 1;
                     break;
-                case "quarter-sine":
+                case "sine":
                     this.AMPLITUDE_PATTERN = 2;
                     break;
-                case "sine":
-                    this.AMPLITUDE_PATTERN = 3;
-                    break;
-                case "sudden":
-                    this.AMPLITUDE_PATTERN = 4;
-                    break;
                 default:
-                    this.AMPLITUDE_PATTERN = 1;
+                    if(AMPLITUDE_PATTERN.startsWith(prefix)){
+                        this.AMPLITUDE_PATTERN = Integer.parseInt(AMPLITUDE_PATTERN.substring(prefix.length()));
+                    }else {
+                        this.AMPLITUDE_PATTERN = 1;
+                    }
                     break;
             }
             this.PERIOD_LOW = PERIOD_LOW;
@@ -2264,19 +2261,19 @@ public class MicroBench {
                 case "linear":
                     this.PERIOD_PATTERN = 1;
                     break;
-                case "quarter-sine":
+                case "sine":
                     this.PERIOD_PATTERN = 2;
                     break;
-                case "sine":
-                    this.PERIOD_PATTERN = 3;
-                    break;
-                case "sudden":
-                    this.PERIOD_PATTERN = 4;
-                    break;
                 default:
-                    this.PERIOD_PATTERN = 1;
+                    if(PERIOD_PATTERN.startsWith(prefix)){
+                        this.PERIOD_PATTERN = Integer.parseInt(PERIOD_PATTERN.substring(prefix.length()));
+                    }else {
+                        this.PERIOD_PATTERN = 1;
+                    }
                     break;
             }
+            this.NOISE_LEVEL = NOISE_LEVEL;
+            System.out.println("Rate pattern: " + this.AVERAGE_RATE_PATTERN + ", amplitude pattern: " + this.AMPLITUDE_PATTERN + ", period pattern: " + this.PERIOD_PATTERN);
             this.nKeys = 1000;
             this.maxParallelism = 128;
             this.fastZipfGenerator = new FastZipfGenerator(maxParallelism, 0.0, 0, 114514);
@@ -2329,9 +2326,17 @@ public class MicroBench {
                 long emitStartTime = System.currentTimeMillis();
                 elapsedTime = currentTime - phaseStartTime;
 
-                // Calculate the rate using a sine function
+                // Calculate the sine wave rate
                 rate = (long) (baseRate + amplitude * Math.sin((2 * Math.PI * elapsedTime) / time));
 
+                // Add Gaussian noise to the rate, scaled by noise level
+                double noise = random.nextGaussian() * NOISE_LEVEL;
+                rate = (long) (rate * (1 + noise));  // Apply the noise
+
+                // Ensure that the rate is not negative after applying noise
+                if (rate < 0) {
+                    rate = 0;
+                }
 
                 for (int i = 0; i < rate / 20; i++) {
                     int selectedKeygroup = fastZipfGenerator.next();
@@ -2346,33 +2351,67 @@ public class MicroBench {
             }
         }
 
+        private long calculateValueAtCurrentTime(long time, long low, long high, long period, long pattern){
+            long value = 0;
+            time = time % period;
+            if(pattern == 0){
+                long period_four = period / 4;
+                if(time < period_four){
+                    value = (low + high) / 2;
+                }else if(time < period_four * 2){
+                    value = high;
+                }else if(time < period_four * 3){
+                    value = (low + high) / 2;
+                }else{
+                    value = low;
+                }
+            }else if(pattern == 1){
+                long baseRate = (low + high) / 2;
+                long period_four = period / 4;
+                if(time < period_four){
+                    value = (long) ((high - baseRate) * (time / (double) period_four) + baseRate);
+                }else if(time < period_four * 2){
+                    value = (long) (high - (high - baseRate) * ((time - period_four) / (double) period_four));
+                }else if(time < period_four * 3){
+                    value = (long) (baseRate - (baseRate - low) * ((time - period_four * 2) / (double) period_four));
+                }else{
+                    value = (long) ((baseRate - low) * ((time - period_four * 3) / (double) period_four) + low);
+                }
+            }else if(pattern == 2){
+                long baseRate = (low + high) / 2, amplitude = baseRate;
+                value = (long) (baseRate + amplitude * Math.sin((2 * Math.PI * time) / period));
+            }else if(pattern >= 3){
+                int n = (int) pattern;
+                long period_n = period / n;
+                long stair_rate = (high - low) / n;
+                if(time < period / 2){
+                    value = low + stair_rate * (time / period_n);
+                }else{
+                    value = high - stair_rate * ((time - period / 2) / period_n);
+                }
+            }else{
+                value = (low + high) / 2;
+            }
+            return value;
+        }
+
         private void generateCurve(SourceContext<Tuple3<String, Long, Long>> ctx) throws Exception {
             long startTime = System.currentTimeMillis();
             System.out.println("Source start at: " + startTime);
             System.out.println("Source warm up...");
-            // startSteadyPhase(ctx, NORMAL_RATE, 20 * 1000, startTime);
             startSteadyPhase(ctx, WARMP_RATE, WARMP_TIME, startTime);
             startTime = System.currentTimeMillis();
             long round = 0;
             while (isRunning && System.currentTimeMillis() - startTime < TOTAL_TIME) {
-                round++;
-                int this_round_curve;
-                long passed_time = System.currentTimeMillis() - startTime;
-                double ratio = (passed_time / (double)TOTAL_TIME);
-                long AMPLITUDE = (this.INITIAL_RATE - Math.round(ratio * (this.INITIAL_RATE - this.END_RATE))) - NORMAL_RATE;
-                long PERIOD = this.INITIAL_PERIOD - Math.round(ratio * (this.INITIAL_PERIOD - this.END_PERIOD));
-                if(curve_type != 4){
-                    this_round_curve = curve_type;
-                }else{
-                    this_round_curve = (int)((round - 1) % 4);
-                }
-                if(this_round_curve == 3){ // Sine
-                    long roundStartTime = System.currentTimeMillis();
-                    System.out.println("Round " + round + " sine phase start at: " + roundStartTime);
-                    startSinePhase(ctx, AMPLITUDE,  NORMAL_RATE, PERIOD, roundStartTime);
-                    if (!isRunning) {
-                        return;
-                    }
+                round += 1;
+                long roundStartTime = System.currentTimeMillis();
+                long now_average_rate = calculateValueAtCurrentTime(roundStartTime - startTime, AVERAGE_RATE_LOW, AVERAGE_RATE_HIGH, AVERAGE_RATE_PERIOD, AVERAGE_RATE_PATTERN);
+                long now_amplitude = calculateValueAtCurrentTime(roundStartTime - startTime, AMPLITUDE_LOW, AMPLITUDE_HIGH, AMPLITUDE_PERIOD, AMPLITUDE_PATTERN);
+                long now_period = calculateValueAtCurrentTime(roundStartTime - startTime, PERIOD_LOW, PERIOD_HIGH, PERIOD_PERIOD, PERIOD_PATTERN);
+                System.out.println("Round " + round + " sine phase start at: " + roundStartTime);
+                startSinePhase(ctx, now_amplitude,  now_average_rate, now_period, roundStartTime);
+                if (!isRunning) {
+                    return;
                 }
             }
         }
