@@ -772,7 +772,7 @@ def main():
             "Static-Adequate": "lr-ds2-ds2-1-1980-150-1300-10-1-50-4-1000-1-50-30-2500-2000-0.4-100-1-0-0.0-false-2500-0.8-1",
             "DS2": "lr-ds2-ds2-1-1980-150-1300-10-1-50-4-1000-1-50-30-2500-2000-0.4-100-1-0-0.0-true-2500-0.8-1",
             "Streamswitch": "lr-streamswitch-streamswitch-1-1980-150-1300-10-1-50-4-1000-1-50-30-2500-2000-0.4-100-1-0-0.0-true-1000-0.8-1",
-            "Sluice": "lr-streamsluice-streamsluice-1-1080-150-1300-10-1-50-3-1666-1-50-27-4000-2000-0.1-100-1-0-0.0-true-500-0.8-1",
+            "Sluice": "lr-streamsluice-streamsluice-1-1980-150-1300-10-1-50-3-1000-1-50-27-2500-2000-0.1-100-1-0-0.0-true-500-0.8-1",
         },
     }
     for workload_name, exps_per_label in exps_per_label_per_setting.items():

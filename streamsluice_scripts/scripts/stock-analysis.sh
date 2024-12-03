@@ -195,8 +195,8 @@ run_stock_test(){
     how_type="ds2"
     scalein_type="ds2"
     migration_interval=2500
-    run_one_exp
-    printf "${EXP_NAME}\n" >> stock_result.txt
+#    run_one_exp
+#    printf "${EXP_NAME}\n" >> stock_result.txt
     P1=1
     P2=1
     P3=11
@@ -210,16 +210,16 @@ run_stock_test(){
     how_type="ds2"
     scalein_type="ds2"
     migration_interval=2500
-    run_one_exp
-    printf "${EXP_NAME}\n" >> stock_result.txt
+#    run_one_exp
+#    printf "${EXP_NAME}\n" >> stock_result.txt
 
     is_treat=true
     whether_type="ds2"
     how_type="ds2"
     scalein_type="ds2"
     migration_interval=2500
-    run_one_exp
-    printf "${EXP_NAME}\n" >> stock_result.txt
+#    run_one_exp
+#    printf "${EXP_NAME}\n" >> stock_result.txt
 
     whether_type="streamswitch"
     how_type="streamswitch"
