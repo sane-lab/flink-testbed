@@ -244,7 +244,7 @@ run_scale_test(){
     how_type="ds2"
 #    run_one_exp
 #    printf "${EXP_NAME}\n" >> part5_result.txt
-    for L in 2000; do # 1500 2000
+    for L in 1000 2000 3000; do # 1500 2000
       is_treat=true
       autotune=true
       how_type="streamsluice"
