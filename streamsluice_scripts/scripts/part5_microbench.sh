@@ -22,7 +22,7 @@ function analyze() {
 }
 
 run_one_exp() {
-  EXP_NAME=part5-${setting}-${whether_type}-${how_type}-${SOURCE_TYPE}-${CURVE_TYPE}-${GRAPH}-${runtime}-${rate_low}-${rate_high}-${rate_period}-${rate_pattern}-${amplitude_low}-${amplitude_high}-${amplitude_period}-${amplitude_pattern}-${period_low}-${period_high}-${period_period}-${period_pattern}-${P1}-${ZIPF_SKEW}-${P2}-${DELAY2}-${IO2}-${STATE_SIZE2}-${P3}-${DELAY3}-${IO3}-${STATE_SIZE3}-${P4}-${DELAY4}-${IO4}-${STATE_SIZE4}-${P5}-${DELAY5}-${STATE_SIZE5}-${noise}-${L}-${migration_interval}-${epoch}-${decision_interval}-${is_treat}-${repeat}
+  EXP_NAME=part5-${setting}-${whether_type}-${how_type}-${SOURCE_TYPE}-${CURVE_TYPE}-${GRAPH}-${runtime}-${rate_low}-${rate_high}-${rate_period}-${rate_pattern}-${amplitude_low}-${amplitude_high}-${amplitude_period}-${amplitude_pattern}-${period_low}-${period_high}-${period_period}-${period_pattern}-${P1}-${ZIPF_SKEW}-${P2}-${DELAY2}-${IO2}-${STATE_SIZE2}-${P3}-${DELAY3}-${IO3}-${STATE_SIZE3}-${P4}-${DELAY4}-${IO4}-${STATE_SIZE4}-${P5}-${DELAY5}-${STATE_SIZE5}--${noise}-${autotuner_increase_bar_alpha}-${L}-${migration_interval}-${epoch}-${decision_interval}-${is_treat}-${repeat}
   echo "INFO: run exp ${EXP_NAME}"
   configFlink
   runFlink
@@ -219,7 +219,7 @@ run_scale_test(){
     GRAPH="1split2join1"
     autotuner_bar_lowerbound=350
     autotuner_latency_window=100
-    autotuner_increase_bar_alpha=0.4 #0.1
+    autotuner_increase_bar_alpha=0.1 #0.1
     epoch=100
     CURVE_TYPE="sine" #"linear"
 
