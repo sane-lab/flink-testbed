@@ -164,8 +164,8 @@ run_stock_test(){
             whether_type="streamsluice"
             how_type="streamsluice"
             scalein_type="streamsluice"
-            run_one_exp
-            printf "${EXP_NAME}\n" >> tweet_result.txt
+#            run_one_exp
+#            printf "${EXP_NAME}\n" >> tweet_result.txt
         done
       done
     done
@@ -240,8 +240,8 @@ run_stock_test(){
         how_type="streamswitch"
         scalein_type="streamswitch"
         migration_interval=1000
-#        run_one_exp
-#        printf "${EXP_NAME}\n" >> tweet_result.txt
+        run_one_exp
+        printf "${EXP_NAME}\n" >> tweet_result.txt
     done
 
     printf "Part_5\n" >> tweet_result.txt
