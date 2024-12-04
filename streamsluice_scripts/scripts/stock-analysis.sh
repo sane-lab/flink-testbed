@@ -49,7 +49,7 @@ init() {
   how_type="streamsluice"
   scalein_type="streamsuice"
   L=2000
-  runtime=1950 #750 #1950 #750 #2190 #3990 #
+  runtime=750 #1950 #750 #2190 #3990 #
   skip_interval=20 # skip seconds
   warmup=10000
   warmup_time=90 #30
@@ -158,21 +158,21 @@ run_stock_test(){
     autotuner_increase_bar_alpha=0.1 #0.25
     autotune=false
     is_treat=false
-#    run_one_exp
-#    printf "${EXP_NAME}\n" >> stock_result.txt
+    run_one_exp
+    printf "${EXP_NAME}\n" >> stock_result.txt
 
     is_treat=true
     autotune=true
     repeat=1
     for scaling_decision_option in 1; do # 2 0
       for autotuner_increase_bar_alpha in 0.1 0.2 0.4; do # 0.1 0.2 0.4
-        for L in 750 1000 1500 2000 2500; do #
+        for L in 1000; do #  750 1000 1500 2000 2500
             whether_type="streamsluice"
             how_type="streamsluice"
             scalein_type="streamsluice"
 
-#            run_one_exp
-#            printf "${EXP_NAME}\n" >> stock_result.txt
+            run_one_exp
+            printf "${EXP_NAME}\n" >> stock_result.txt
 
         done
       done
@@ -225,8 +225,8 @@ run_stock_test(){
     how_type="streamswitch"
     scalein_type="streamswitch"
     migration_interval=1000
-    run_one_exp
-    printf "${EXP_NAME}\n" >> stock_result.txt
+#    run_one_exp
+#    printf "${EXP_NAME}\n" >> stock_result.txt
 
 
     printf "Part_5\n" >> stock_result.txt
