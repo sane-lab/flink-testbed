@@ -291,10 +291,12 @@ def draw_latency_curves(raw_dir, output_dir, exp_name, window_size, start_time, 
     axes.set_xticklabels([int((x - start_time * 1000) / 1000) for x in
                           np.arange((start_time) * 1000, (start_time + exp_length) * 1000 + (exp_length / 10) * 1000, (exp_length / 10) * 1000)])
 
-    axes.set_ylim(0, 5000)
-    axes.set_yticks(np.arange(0, 5500, 500))
-    # axes.set_ylim(0, 10000)
-    # axes.set_yticks(np.arange(0, 11000, 1000))
+    if(max(sampled_latency[1]) < 5000):
+        axes.set_ylim(0, 5000)
+        axes.set_yticks(np.arange(0, 5500, 500))
+    else:
+        axes.set_ylim(0, 10000)
+        axes.set_yticks(np.arange(0, 11000, 1000))
     plt.grid(True)
     if not os.path.exists(output_dir):
         os.makedirs(output_dir)
@@ -344,10 +346,12 @@ def draw_latency_curves(raw_dir, output_dir, exp_name, window_size, start_time, 
                                         (start_time + focus_range[1]) * 1000 + 5000,
                                         5000)])
 
-        axes.set_ylim(0, 5000)
-        axes.set_yticks(np.arange(0, 5500, 500))
-        # axes.set_ylim(0, 10000)
-        # axes.set_yticks(np.arange(0, 11000, 1000))
+        if (max(sampled_latency[1]) < 5000):
+            axes.set_ylim(0, 5000)
+            axes.set_yticks(np.arange(0, 5500, 500))
+        else:
+            axes.set_ylim(0, 10000)
+            axes.set_yticks(np.arange(0, 11000, 1000))
         plt.grid(True)
         if not os.path.exists(output_dir):
             os.makedirs(output_dir)
@@ -1129,8 +1133,15 @@ def main():
         "Linear-Road_30min": {
             # "arrival_rate" : "lr-streamsluice-streamsluice--1980-150-1300-10-1-50-27-8000-4-2000-1-50-1000-0.1-100-1-0-0.0-false-3000-1",
             "0.1": [
+                "lr-streamsluice-streamsluice-1-1080-150-1300-10-1-50-3-1000-1-50-27-2500-2000-0.1-100-1-0-0.0-true-500-0.8-2",
+                "lr-streamsluice-streamsluice-1-1080-150-1300-10-1-50-3-1000-1-50-27-2500-3000-0.1-100-1-0-0.0-true-500-0.8-2",
+                "lr-streamsluice-streamsluice-1-1080-150-1300-10-1-50-3-1000-1-50-27-2500-4000-0.1-100-1-0-0.0-true-500-0.8-2",
+                "lr-streamsluice-streamsluice-1-1080-150-1300-10-1-50-3-1000-1-50-27-2500-5000-0.1-100-1-0-0.0-true-500-0.8-2",
+                "lr-streamsluice-streamsluice-1-1080-150-1300-10-1-50-3-1000-1-50-27-2500-6000-0.1-100-1-0-0.0-true-500-0.8-2",
+                "lr-streamsluice-streamsluice-1-1080-150-1300-10-1-50-3-1000-1-50-27-2500-7000-0.1-100-1-0-0.0-true-500-0.8-2",
+                "lr-streamsluice-streamsluice-1-1080-150-1300-10-1-50-3-1000-1-50-27-2500-8000-0.1-100-1-0-0.0-true-500-0.8-2"
                # "lr-streamsluice-streamsluice-1-1080-150-1300-10-1-50-3-1000-1-50-27-2500-2000-0.1-100-1-0-0.0-true-500-0.8-1",
-                "lr-streamsluice-streamsluice-1-1080-150-1300-10-1-50-3-1000-1-50-27-2500-3000-0.1-100-1-0-0.0-true-500-0.8-1",
+               # "lr-streamsluice-streamsluice-1-1080-150-1300-10-1-50-3-1000-1-50-27-2500-3000-0.1-100-1-0-0.0-true-500-0.8-1",
                # "lr-streamsluice-streamsluice-1-1080-150-1300-10-1-50-3-1000-1-50-27-2500-4000-0.1-100-1-0-0.0-true-500-0.8-1",
                # "lr-streamsluice-streamsluice-1-1080-150-1300-10-1-50-3-1000-1-50-27-2500-5000-0.1-100-1-0-0.0-true-500-0.8-1",
                 # "lr-streamsluice-streamsluice-1-1980-150-1300-10-1-50-3-1000-1-50-27-2500-1000-0.1-100-1-0-0.0-true-500-0.8-1",
