@@ -1,6 +1,6 @@
 #!/bin/bash
 
-source config-systemsensitivity.sh
+source config-whetherhow.sh
 
 # dump data
 function analyze() {
@@ -153,7 +153,7 @@ run_scale_test(){
     spike_slope=0.7
     autotuner_increase_bar_option=7 # 3 5
     autotuner_increase_bar_alpha=0.1 #0.25
-    echo "Run micro bench system sensitivity..."
+    echo "Run micro bench whether"
     init
 
     # Different cases
@@ -189,7 +189,7 @@ run_scale_test(){
     TIME_I=30
     printf "" > part8_result.txt
 
-    runtime=690
+    runtime=570
 
     # Period Amplitude Change
     printf "MicroBench\n" >> part8_result.txt
@@ -215,23 +215,23 @@ run_scale_test(){
     GRAPH="1split2join1"
     autotuner_bar_lowerbound=350
     autotuner_latency_window=100
-    autotuner_increase_bar_alpha=0.2 #0.1
+    autotuner_increase_bar_alpha=0.1
     epoch=100
     CURVE_TYPE="mixed" #"linear"
     warmupRate=5000
     warmupTime=60
-    rate_low=4000
-    rate_high=6000
-    rate_period=300
+    rate_low=5000
+    rate_high=5000
+    rate_period=960
     rate_pattern="linear"
-    amplitude_low=500
-    amplitude_high=2000
-    amplitude_period=450
-    amplitude_pattern="linear"
+    amplitude_low=2000
+    amplitude_high=1000
+    amplitude_period=960
+    amplitude_pattern="stair_3"
     period_low=120
-    period_high=60
-    period_period=240
-    period_pattern="linear"
+    period_high=1
+    period_period=960
+    period_pattern="stair_3"
     noise=0.05
 
     is_treat=false
@@ -239,11 +239,11 @@ run_scale_test(){
     how_type="ds2"
     run_one_exp
     printf "${EXP_NAME}\n" >> part8_result.txt
-    for L in 1000 2000; do # 1000 3000
-      for autotuner_increase_bar_alpha in 0.1; do
+    whether_type="streamsluice"
+    for L in 1000 2000 3000; do
+      for whether_type in "streamsluice" "ds2" "dhalion" "streamswitch"; do
         is_treat=true
         autotune=false
-        how_type="streamsluice"
         run_one_exp
         printf "${EXP_NAME}\n" >> part8_result.txt
       done
