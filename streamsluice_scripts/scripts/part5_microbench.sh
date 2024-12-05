@@ -200,9 +200,9 @@ run_scale_test(){
     setting="microbench"
     SOURCE_TYPE="part5"
     DELAY2=20
-    DELAY3=333 #500
+    DELAY3=50 #250 #333
     DELAY4=20
-    DELAY5=800 #1000
+    DELAY5=800 #800
     STATE_SIZE2=5000 # 1000 keys, per key (n * 2000 + 36) bytes, n=5000 -> 100 MB
     STATE_SIZE3=5000
     STATE_SIZE4=5000
@@ -219,7 +219,7 @@ run_scale_test(){
     GRAPH="1split2join1"
     autotuner_bar_lowerbound=350
     autotuner_latency_window=100
-    autotuner_increase_bar_alpha=0.1 #0.1
+    autotuner_increase_bar_alpha=0.2 #0.1
     epoch=100
     CURVE_TYPE="sine" #"linear"
 
@@ -244,12 +244,14 @@ run_scale_test(){
     how_type="ds2"
 #    run_one_exp
 #    printf "${EXP_NAME}\n" >> part5_result.txt
-    for L in 1000 2000 3000; do # 1500 2000
-      is_treat=true
-      autotune=true
-      how_type="streamsluice"
-      run_one_exp
-      printf "${EXP_NAME}\n" >> part5_result.txt
+    for L in 4000 5000; do # 1000 3000
+      for autotuner_increase_bar_alpha in 0.1 0.2 0.4; do
+        is_treat=true
+        autotune=true
+        how_type="streamsluice"
+        run_one_exp
+        printf "${EXP_NAME}\n" >> part5_result.txt
+      done
     done
 }
 
