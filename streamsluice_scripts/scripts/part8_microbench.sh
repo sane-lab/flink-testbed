@@ -22,7 +22,7 @@ function analyze() {
 }
 
 run_one_exp() {
-  EXP_NAME=part6-${setting}-${whether_type}-${how_type}-${SOURCE_TYPE}-${CURVE_TYPE}-${GRAPH}-${runtime}-${rate_low}-${rate_high}-${rate_period}-${rate_pattern}-${amplitude_low}-${amplitude_high}-${amplitude_period}-${amplitude_pattern}-${period_low}-${period_high}-${period_period}-${period_pattern}-${P1}-${ZIPF_SKEW}-${P2}-${DELAY2}-${IO2}-${STATE_SIZE2}-${P3}-${DELAY3}-${IO3}-${STATE_SIZE3}-${P4}-${DELAY4}-${IO4}-${STATE_SIZE4}-${P5}-${DELAY5}-${STATE_SIZE5}--${noise}-${autotuner_increase_bar_alpha}-${L}-${migration_interval}-${epoch}-${decision_interval}-${is_treat}-${repeat}
+  EXP_NAME=part8-${setting}-${whether_type}-${how_type}-${SOURCE_TYPE}-${CURVE_TYPE}-${GRAPH}-${runtime}-${rate_low}-${rate_high}-${rate_period}-${rate_pattern}-${amplitude_low}-${amplitude_high}-${amplitude_period}-${amplitude_pattern}-${period_low}-${period_high}-${period_period}-${period_pattern}-${P1}-${ZIPF_SKEW}-${P2}-${DELAY2}-${IO2}-${STATE_SIZE2}-${P3}-${DELAY3}-${IO3}-${STATE_SIZE3}-${P4}-${DELAY4}-${IO4}-${STATE_SIZE4}-${P5}-${DELAY5}-${STATE_SIZE5}--${noise}-${autotuner_increase_bar_alpha}-${L}-${migration_interval}-${epoch}-${decision_interval}-${is_treat}-${repeat}
   echo "INFO: run exp ${EXP_NAME}"
   configFlink
   runFlink
@@ -187,14 +187,14 @@ run_scale_test(){
     TIME2=30
     RATE_I=4000
     TIME_I=30
-    printf "" > part6_result.txt
+    printf "" > part8_result.txt
 
     runtime=690
 
     # Period Amplitude Change
-    printf "MicroBench\n" >> part6_result.txt
+    printf "MicroBench\n" >> part8_result.txt
     setting="microbench"
-    SOURCE_TYPE="part6"
+    SOURCE_TYPE="part8"
     DELAY2=20
     DELAY3=50 #250 #333
     DELAY4=20
@@ -238,14 +238,14 @@ run_scale_test(){
     autotune=false
     how_type="ds2"
     run_one_exp
-    printf "${EXP_NAME}\n" >> part6_result.txt
+    printf "${EXP_NAME}\n" >> part8_result.txt
     for L in 1000 2000; do # 1000 3000
       for autotuner_increase_bar_alpha in 0.1; do
         is_treat=true
         autotune=false
         how_type="streamsluice"
         run_one_exp
-        printf "${EXP_NAME}\n" >> part6_result.txt
+        printf "${EXP_NAME}\n" >> part8_result.txt
       done
     done
 }

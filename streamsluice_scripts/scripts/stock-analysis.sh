@@ -158,8 +158,8 @@ run_stock_test(){
     autotuner_increase_bar_alpha=0.1 #0.25
     autotune=false
     is_treat=false
-    run_one_exp
-    printf "${EXP_NAME}\n" >> stock_result.txt
+#    run_one_exp
+#    printf "${EXP_NAME}\n" >> stock_result.txt
 
     is_treat=true
     autotune=true
@@ -171,8 +171,8 @@ run_stock_test(){
             how_type="streamsluice"
             scalein_type="streamsluice"
 
-            run_one_exp
-            printf "${EXP_NAME}\n" >> stock_result.txt
+#            run_one_exp
+#            printf "${EXP_NAME}\n" >> stock_result.txt
 
         done
       done
@@ -228,16 +228,23 @@ run_stock_test(){
 #    run_one_exp
 #    printf "${EXP_NAME}\n" >> stock_result.txt
 
-
-    printf "Part_5\n" >> stock_result.txt
+    printf "Part_7\n" >> stock_result.txt
+    L=1000
     autotune=false
-    is_treat=true
-    whether_type="streamsluice"
-    how_type="streamsluice"
-    scalein_type="streamsuice"
-    migration_interval=1000
-#    run_one_exp
-#    printf "${EXP_NAME}\n" >> stock_result.txt
 
+    P1=1
+    P2=1
+    P3=4
+    P4=1
+    P5=2
+    P6=1
+    P7=6
+    is_treat=false
+    whether_type="ds2"
+    how_type="ds2"
+    scalein_type="ds2"
+    migration_interval=2500
+    run_one_exp
+    printf "${EXP_NAME}\n" >> stock_result.txt
 }
 run_stock_test
