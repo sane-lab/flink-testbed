@@ -22,6 +22,7 @@ import org.apache.flink.util.MathUtils;
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
+import java.io.Serializable;
 import java.util.*;
 
 public class LinearRoad {
@@ -42,29 +43,22 @@ public class LinearRoad {
         env.setStateBackend(new MemoryStateBackend(1073741824));
         env.setStreamTimeCharacteristic(TimeCharacteristic.EventTime);
         // env.setStreamTimeCharacteristic(TimeCharacteristic.IngestionTime);
-        DataStreamSource<Tuple19<String, Integer, String, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Long, Long>> source =
-                env.addSource(new LinearRoadSource(params.get("file_name", "/home/samza/LR_data/3hr.txt"),
-                                params.getLong("warmup_time", 30L) * 1000,
-                                params.getLong("warmup_rate", 1500L),
-                                params.getLong("skip_interval", 0L) * 20,
-                                        params.getDouble("input_rate_factor", 1.0),
-                                        params.getInt("mp2", 8),
-                                        params.getDouble("skew_factor", 0.0))
-                                )
-                        .setParallelism(params.getInt("p1", 1));
 
-//        DataStream<Tuple19<String, Integer, String, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Long, Long>> afterDispatcher = source
-//                .keyBy(LinearRoadSource.Car_ID)
-//                .flatMap(new Dispatcher(10))
-//                .disableChaining()
-//                .name("Dispatcher")
-//                .uid("op1")
-//                .setParallelism(params.getInt("p1", 1))
-//                .setMaxParallelism(params.getInt("mp1", 64))
-//                .slotSharingGroup("g1");
+        DataStreamSource<Tuple2<String, LinearRoadRecord>> source = env
+                .addSource(new LinearRoadSource(
+                        params.get("file_name", "/home/samza/LR_data/3hr.txt"),
+                        params.getLong("warmup_time", 30L) * 1000,
+                        params.getLong("warmup_rate", 1500L),
+                        params.getLong("skip_interval", 0L) * 20,
+                        params.getDouble("input_rate_factor", 1.0),
+                        params.getInt("mp2", 8),
+                        params.getDouble("skew_factor", 0.0)
+                ))
+                .setParallelism(params.getInt("p1", 1));
 
-        DataStream<Tuple19<String, Integer, String, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Long, Long>> afterAccidentDetection = source
-                .keyBy(LinearRoadSource.Car_ID)
+        // Accident Detection
+        DataStream<Tuple2<String, LinearRoadRecord>> afterAccidentDetection = source
+                .keyBy(0)
                 .flatMap(new AccidentDetection(params.getInt("op2Delay", 1000)))
                 .disableChaining()
                 .name("Accident Detection")
@@ -72,38 +66,10 @@ public class LinearRoad {
                 .setParallelism(params.getInt("p2", 1))
                 .setMaxParallelism(params.getInt("mp2", 8))
                 .slotSharingGroup("g2");
-//        afterAccidentDetection//.union(afterDispatcher)
-//                .keyBy(LinearRoadSource.Car_ID) //.keyBy(LinearRoadSource.Seg_ID)
-//                .map(new AccidentNotification(params.getInt("op3Delay", 1000)))
-//                .disableChaining()
-//                .name("Accident Notification")
-//                .uid("op3")
-//                .setParallelism(params.getInt("p3", 1))
-//                .setMaxParallelism(params.getInt("mp3", 8))
-//                .slotSharingGroup("g3");
 
-//        DataStream<Tuple19<String, Integer, String, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Long, Long>> afterAverageSpeed = afterDispatcher
-//                .keyBy(LinearRoadSource.Car_ID) // .keyBy(LinearRoadSource.Seg_ID)
-//                .flatMap(new AverageSpeed(params.getInt("op4Delay", 1000)))
-//                .disableChaining()
-//                .name("Average Speed")
-//                .uid("op4")
-//                .setParallelism(params.getInt("p4", 1))
-//                .setMaxParallelism(params.getInt("mp4", 8))
-//                .slotSharingGroup("g4");
-//
-//        // Centralized to predict travel time
-//        DataStream<Tuple19<String, Integer, String, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Long, Long>> afterLastAverageSpeed = afterAverageSpeed
-//                .keyBy(LinearRoadSource.Car_ID) // .keyBy(LinearRoadSource.Query_ID)
-//                .flatMap(new LastAverageSpeed(params.getInt("op5Delay", 1000)))
-//                .disableChaining()
-//                .name("Last Average Speed")
-//                .uid("op5")
-//                .setParallelism(params.getInt("p5", 1))
-//                .setMaxParallelism(params.getInt("mp5", 8))
-//                .slotSharingGroup("g5");
-        DataStream<Tuple19<String, Integer, String, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Long, Long>> afterAverageSpeed = source //afterDispatcher
-                .keyBy(LinearRoadSource.Car_ID) // .keyBy(LinearRoadSource.Seg_ID)
+        // Combine Average Speed and Last Average Speed computation
+        DataStream<Tuple2<String, LinearRoadRecord>> afterAverageSpeed = source
+                .keyBy(0)
                 .flatMap(new AverageSpeedAndLastAverageSpeed(params.getInt("op3Delay", 1000), params.getInt("payload", 0)))
                 .disableChaining()
                 .name("Average Speed and Last Average Speed")
@@ -112,9 +78,9 @@ public class LinearRoad {
                 .setMaxParallelism(params.getInt("mp3", 8))
                 .slotSharingGroup("g3");
 
-
-        DataStream<Tuple19<String, Integer, String, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Long, Long>> afterCountVehicles = source //afterDispatcher
-                .keyBy(LinearRoadSource.Car_ID) // .keyBy(LinearRoadSource.Seg_ID)
+        // Count Vehicles operator
+        DataStream<Tuple2<String, LinearRoadRecord>> afterCountVehicles = source
+                .keyBy(0)
                 .flatMap(new CountVehicles(params.getInt("op4Delay", 1000)))
                 .disableChaining()
                 .name("Count Vehicles")
@@ -123,28 +89,13 @@ public class LinearRoad {
                 .setMaxParallelism(params.getInt("mp4", 8))
                 .slotSharingGroup("g4");
 
-//        DataStream<Tuple19<String, Integer, String, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Long, Long>> afterTollNotification = afterAccidentDetection.union(afterLastAverageSpeed).union(afterCountVehicles) // .union(afterDispatcher)
-//                .keyBy(LinearRoadSource.Car_ID) // .keyBy(LinearRoadSource.Seg_ID)
-//                .flatMap(new TollNotification(params.getInt("op7Delay", 1000)))
-//                .disableChaining()
-//                .name("Toll Notification")
-//                .uid("op7")
-//                .setParallelism(params.getInt("p7", 1))
-//                .setMaxParallelism(params.getInt("mp7", 8))
-//                .slotSharingGroup("g7");
-//
-//        DataStream<Tuple19<String, Integer, String, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Long, Long>> afterAccountBalance = afterTollNotification // .union(afterDispatcher)
-//                .keyBy(LinearRoadSource.Car_ID)
-//                .flatMap(new AccountBalanceAndDailyExpense(params.getInt("op8Delay", 1000)))
-//                .disableChaining()
-//                .name("Account Balance")
-//                .uid("op8")
-//                .setParallelism(params.getInt("p8", 1))
-//                .setMaxParallelism(params.getInt("mp8", 8))
-//                .slotSharingGroup("g8");
-
-        DataStream<Tuple19<String, Integer, String, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Long, Long>> afterTollNotification = afterAccidentDetection.union(afterAverageSpeed).union(afterCountVehicles) // .union(afterDispatcher)
-                .keyBy(LinearRoadSource.Car_ID) // .keyBy(LinearRoadSource.Seg_ID)
+        // Toll Notification and Account Balance & Daily Expense
+        // Here we unify the three resulting streams: afterAccidentDetection, afterAverageSpeed, and afterCountVehicles.
+        // The unioned stream is keyed and processed by TollNotificationAndAccountBalanceAndDailyExpense.
+        DataStream<Tuple2<String, LinearRoadRecord>> afterTollNotification = afterAccidentDetection
+                .union(afterAverageSpeed)
+                .union(afterCountVehicles)
+                .keyBy(0)
                 .flatMap(new TollNotificationAndAccountBalanceAndDailyExpense(params.getInt("op5Delay", 1000), params.getInt("payload", 0)))
                 .disableChaining()
                 .name("Toll Notification and Account Balance")
@@ -154,21 +105,158 @@ public class LinearRoad {
                 .slotSharingGroup("g5");
 
 
-//        afterAccountBalance
-//                .keyBy(LinearRoadSource.Car_ID)
-//                .flatMap(new DailyExpense(params.getInt("op9Delay", 1000)))
-//                .disableChaining()
-//                .name("Daily Expense")
-//                .uid("op9")
-//                .setParallelism(params.getInt("p9", 1))
-//                .setMaxParallelism(params.getInt("mp9", 8))
-//                .slotSharingGroup("g9");
-
         env.execute();
     }
 
-    public static class LinearRoadSource extends RichParallelSourceFunction<Tuple19<String, Integer, String, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Long, Long>> {
+    public static class LinearRoadRecord {
+        private String segID;
+        private Integer type;
+        private String carID;
+        private Integer speed;
+        private Integer xway;
+        private Integer lane;
+        private Integer dir;
+        private Integer seg;
+        private Integer pos;
+        private Integer time;
+        private Integer queryID;
+        private Integer qStart;
+        private Integer qEnd;
+        private Integer qDayOfWeek;
+        private Integer qMinutes;
+        private Integer qDay;
+        private Integer outputOperator;
+        private Long arrivalTime;
+        private Long tupleNumber;
+
+        public LinearRoadRecord(String segID,
+                                Integer type,
+                                String carID,
+                                Integer speed,
+                                Integer xway,
+                                Integer lane,
+                                Integer dir,
+                                Integer seg,
+                                Integer pos,
+                                Integer time,
+                                Integer queryID,
+                                Integer qStart,
+                                Integer qEnd,
+                                Integer qDayOfWeek,
+                                Integer qMinutes,
+                                Integer qDay,
+                                Integer outputOperator,
+                                Long arrivalTime,
+                                Long tupleNumber) {
+            this.segID = segID;
+            this.type = type;
+            this.carID = carID;
+            this.speed = speed;
+            this.xway = xway;
+            this.lane = lane;
+            this.dir = dir;
+            this.seg = seg;
+            this.pos = pos;
+            this.time = time;
+            this.queryID = queryID;
+            this.qStart = qStart;
+            this.qEnd = qEnd;
+            this.qDayOfWeek = qDayOfWeek;
+            this.qMinutes = qMinutes;
+            this.qDay = qDay;
+            this.outputOperator = outputOperator;
+            this.arrivalTime = arrivalTime;
+            this.tupleNumber = tupleNumber;
+        }
+
+        // Getters
+        public String getSegID() {
+            return segID;
+        }
+
+        public Integer getType() {
+            return type;
+        }
+
+        public String getCarID() {
+            return carID;
+        }
+
+        public Integer getSpeed() {
+            return speed;
+        }
+
+        public Integer getXway() {
+            return xway;
+        }
+
+        public Integer getLane() {
+            return lane;
+        }
+
+        public Integer getDir() {
+            return dir;
+        }
+
+        public Integer getSeg() {
+            return seg;
+        }
+
+        public Integer getPos() {
+            return pos;
+        }
+
+        public Integer getTime() {
+            return time;
+        }
+
+        public Integer getQueryID() {
+            return queryID;
+        }
+
+        public Integer getQStart() {
+            return qStart;
+        }
+
+        public Integer getQEnd() {
+            return qEnd;
+        }
+
+        public Integer getQDayOfWeek() {
+            return qDayOfWeek;
+        }
+
+        public Integer getQMinutes() {
+            return qMinutes;
+        }
+
+        public Integer getQDay() {
+            return qDay;
+        }
+
+        public Integer getOutputOperator() {
+            return outputOperator;
+        }
+
+        public Long getArrivalTime() {
+            return arrivalTime;
+        }
+
+        public Long getTupleNumber() {
+            return tupleNumber;
+        }
+
+        // Setters (optional, only if you need to modify fields after construction)
+        // public void setSegID(String segID) { this.segID = segID; }
+        // public void setType(Integer type) { this.type = type; }
+        // ... add setters for other fields as needed
+    }
+
+
+    public static class LinearRoadSource extends RichParallelSourceFunction<Tuple2<String, LinearRoadRecord>> {
         private volatile boolean running = true;
+
+        // Field indices as constants for clarity
         private static final int Seg_ID = 0;
         private static final int Type = 1;
         private static final int Car_ID = 2;
@@ -196,12 +284,12 @@ public class LinearRoad {
         private final boolean isSkewed;
         private final Map<Integer, List<String>> keyGroupMapping = new HashMap<>();
 
-        public static String getSegID(int seg){
+        public static String getSegID(int seg) {
             return "A" + seg;
         }
 
-        public static String getCarID(int car_ID){
-            return String.format("A%06d",car_ID);
+        public static String getCarID(int car_ID) {
+            return String.format("A%06d", car_ID);
         }
 
         public LinearRoadSource(String FILE, long warmup, long warmup_rate, long skipCount, double input_rate_factor, int maxParallelism, double zipfSkew) {
@@ -227,48 +315,49 @@ public class LinearRoad {
         }
 
         @Override
-        public void run(SourceContext<Tuple19<String, Integer, String, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Long, Long>> ctx) throws Exception {
+        public void run(SourceContext<Tuple2<String, LinearRoadRecord>> ctx) throws Exception {
             String sCurrentLine;
             List<String> subKeySet;
             FileReader stream = null;
-            // // for loop to generate message
             BufferedReader br = null;
-            int sent_sentences = 0;
-            long cur = 0;
-            long start = 0;
-            int counter = 0, count = 0, input_factor_count = 0;
-
-            int noRecSleepCnt = 0;
-            int sleepCnt = 0;
+            int count = 0, counter = 0, input_factor_count = 0;
+            int sleepCnt = 0, noRecSleepCnt = 0;
 
             long startTime = System.currentTimeMillis();
             System.out.println("Warmup start at: " + startTime);
+
+            // Warmup phase
             while (System.currentTimeMillis() - startTime < warmup) {
                 long emitStartTime = System.currentTimeMillis();
                 for (int i = 0; i < warmp_rate * input_rate_factor / 20; i++) {
-                    int car_id = count % 1000000; // count % 1000000
+                    int car_id = count % 1000000;
                     String key = getCarID(car_id);
-                    if(isSkewed){
+                    if (isSkewed) {
                         int selectedKeygroup = fastZipfGenerator.next();
                         subKeySet = keyGroupMapping.get(selectedKeygroup);
                         key = getSubKeySetChar(count, subKeySet);
                     }
                     int seg = count % 100;
                     String seg_ID = getSegID(seg);
-                    //for(int rep = 0; rep < input_rate_factor; rep ++) {
-                        ctx.collect(Tuple19.of(seg_ID, 0, key, 0, 0, 0, 0, seg, 0, 0, 0, 0, 0, 0, 0, 0, 0, System.currentTimeMillis(), (long) count));
-                        count++;
-                    //}
+
+                    ctx.collect(new Tuple2<>(key, new LinearRoadRecord(
+                            seg_ID, 0, key, 0, 0, 0, 0, seg, 0, 0,
+                            0, 0, 0, 0, 0, 0, 0,
+                            System.currentTimeMillis(),
+                            (long) count)
+                    ));
+                    count++;
                 }
                 Util.pause(emitStartTime);
             }
-//        Thread.sleep(60000);
 
             try {
                 stream = new FileReader(FILE);
                 br = new BufferedReader(stream);
 
-                start = System.currentTimeMillis();
+                long start = System.currentTimeMillis();
+                long cur;
+
                 while ((sCurrentLine = br.readLine()) != null) {
                     if (sCurrentLine.equals("END")) {
                         sleepCnt++;
@@ -276,22 +365,26 @@ public class LinearRoad {
                             noRecSleepCnt++;
                             System.out.println("no record in this sleep !" + noRecSleepCnt);
                         }
-                        // System.out.println("output rate: " + counter);
+
                         if (sleepCnt <= skipCount) {
                             for (int i = 0; i < warmp_rate * input_rate_factor / 20; i++) {
-                                int car_id = count % 1000000; // count % 1000000;
+                                int car_id = count % 1000000;
                                 String key = getCarID(car_id);
-                                if(isSkewed){
+                                if (isSkewed) {
                                     int selectedKeygroup = fastZipfGenerator.next();
                                     subKeySet = keyGroupMapping.get(selectedKeygroup);
                                     key = getSubKeySetChar(count, subKeySet);
                                 }
                                 int seg = count % 100;
                                 String seg_ID = getSegID(seg);
-                                // for(int rep = 0; rep < input_rate_factor; rep ++) {
-                                    ctx.collect(Tuple19.of(seg_ID, 0, key, 0, 0, 0, 0, seg, 0, 0, 0, 0, 0, 0, 0, 0, 0, System.currentTimeMillis(), (long) count));
-                                    count++;
-                                // }
+
+                                ctx.collect(new Tuple2<>(key, new LinearRoadRecord(
+                                        seg_ID, 0, key, 0, 0, 0, 0, seg, 0, 0,
+                                        0, 0, 0, 0, 0, 0, 0,
+                                        System.currentTimeMillis(),
+                                        (long) count)
+                                ));
+                                count++;
                             }
                         }
                         System.out.println("!! C: " + counter + " A: " + input_factor_count + " F: " + input_rate_factor);
@@ -301,70 +394,78 @@ public class LinearRoad {
                         if (cur < sleepCnt * 50 + start) {
                             Thread.sleep((sleepCnt * 50 + start) - cur);
                         } else {
-                            System.out.println("rate exceeds" + 50 + "ms.");
+                            System.out.println("rate exceeds 50 ms.");
                         }
-//                    start = System.currentTimeMillis();
+                        continue;
                     }
 
-                    if (sCurrentLine.split(",").length < 10) {
+                    String[] fields = sCurrentLine.split(",");
+                    if (fields.length < 10) {
                         continue;
                     }
 
                     if (sleepCnt > skipCount) {
                         Long ts = System.currentTimeMillis();
-                        String msg = sCurrentLine;
-                        List<String> stockArr = Arrays.asList(msg.split(","));
                         counter++;
-                        int seg = Integer.parseInt(stockArr.get(Seg - 1)), car_id = Integer.parseInt(stockArr.get(Car_ID - 1));
+                        int seg = Integer.parseInt(fields[Seg - 1]);
+                        int car_id = Integer.parseInt(fields[Car_ID - 1]);
                         String key = getCarID(car_id);
-                        if(isSkewed){
+                        if (isSkewed) {
                             int selectedKeygroup = fastZipfGenerator.next();
                             subKeySet = keyGroupMapping.get(selectedKeygroup);
                             key = getSubKeySetChar(count, subKeySet);
                         }
-                        int round_factor = (int)(input_rate_factor + 1e-9);
-                        for (int rep = 0; rep < round_factor; rep++){
-                            ctx.collect(new Tuple19<>(
+
+                        int round_factor = (int) (input_rate_factor + 1e-9);
+                        for (int rep = 0; rep < round_factor; rep++) {
+                            ctx.collect(new Tuple2<>(key, new LinearRoadRecord(
                                     getSegID(seg),
-                                    Integer.parseInt(stockArr.get(0)),
+                                    Integer.parseInt(fields[0]),
                                     key,
-                                    Integer.parseInt(stockArr.get(2)),
-                                    Integer.parseInt(stockArr.get(3)),
-                                    Integer.parseInt(stockArr.get(4)),
-                                    Integer.parseInt(stockArr.get(5)),
-                                    Integer.parseInt(stockArr.get(6)),
-                                    Integer.parseInt(stockArr.get(7)),
-                                    Integer.parseInt(stockArr.get(8)),
-                                    Integer.parseInt(stockArr.get(9)),
-                                    Integer.parseInt(stockArr.get(10)),
-                                    Integer.parseInt(stockArr.get(11)),
-                                    Integer.parseInt(stockArr.get(12)),
-                                    Integer.parseInt(stockArr.get(13)),
-                                    Integer.parseInt(stockArr.get(14)),
-                                    0, ts, (long) count));
+                                    Integer.parseInt(fields[2]),
+                                    Integer.parseInt(fields[3]),
+                                    Integer.parseInt(fields[4]),
+                                    Integer.parseInt(fields[5]),
+                                    Integer.parseInt(fields[6]),
+                                    Integer.parseInt(fields[7]),
+                                    Integer.parseInt(fields[8]),
+                                    Integer.parseInt(fields[9]),
+                                    Integer.parseInt(fields[10]),
+                                    Integer.parseInt(fields[11]),
+                                    Integer.parseInt(fields[12]),
+                                    Integer.parseInt(fields[13]),
+                                    Integer.parseInt(fields[14]),
+                                    0,
+                                    ts,
+                                    (long) count)
+                            ));
                             count++;
                         }
+
                         int new_input = (int) ((input_rate_factor - round_factor) * counter + 1e-9);
-                        if(new_input > input_factor_count){
+                        if (new_input > input_factor_count) {
                             input_factor_count++;
-                            ctx.collect(new Tuple19<>(
+                            ctx.collect(new Tuple2<>(key, new LinearRoadRecord(
                                     getSegID(seg),
-                                    Integer.parseInt(stockArr.get(0)),
+                                    Integer.parseInt(fields[0]),
                                     key,
-                                    Integer.parseInt(stockArr.get(2)),
-                                    Integer.parseInt(stockArr.get(3)),
-                                    Integer.parseInt(stockArr.get(4)),
-                                    Integer.parseInt(stockArr.get(5)),
-                                    Integer.parseInt(stockArr.get(6)),
-                                    Integer.parseInt(stockArr.get(7)),
-                                    Integer.parseInt(stockArr.get(8)),
-                                    Integer.parseInt(stockArr.get(9)),
-                                    Integer.parseInt(stockArr.get(10)),
-                                    Integer.parseInt(stockArr.get(11)),
-                                    Integer.parseInt(stockArr.get(12)),
-                                    Integer.parseInt(stockArr.get(13)),
-                                    Integer.parseInt(stockArr.get(14)),
-                                    0, ts, (long) count));
+                                    Integer.parseInt(fields[2]),
+                                    Integer.parseInt(fields[3]),
+                                    Integer.parseInt(fields[4]),
+                                    Integer.parseInt(fields[5]),
+                                    Integer.parseInt(fields[6]),
+                                    Integer.parseInt(fields[7]),
+                                    Integer.parseInt(fields[8]),
+                                    Integer.parseInt(fields[9]),
+                                    Integer.parseInt(fields[10]),
+                                    Integer.parseInt(fields[11]),
+                                    Integer.parseInt(fields[12]),
+                                    Integer.parseInt(fields[13]),
+                                    Integer.parseInt(fields[14]),
+                                    0,
+                                    ts,
+                                    (long) count)
+                            ));
                             count++;
                         }
                     }
@@ -389,1117 +490,635 @@ public class LinearRoad {
         }
     }
 
-    public static final class Dispatcher extends RichFlatMapFunction<
-            Tuple19<String, Integer, String, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Long, Long>,
-            Tuple19<String, Integer, String, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Long, Long>> {
+    public static class DelayUtil {
+        private static final RandomDataGenerator randomGen = new RandomDataGenerator();
 
-        private RandomDataGenerator randomGen = new RandomDataGenerator();
-        private int averageDelay; // Microsecond
-
-        public Dispatcher(int _averageDelay) {
-            this.averageDelay = _averageDelay;
-        }
-
-        @Override
-        public void flatMap(Tuple19<String, Integer, String, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Long, Long> input, Collector<Tuple19<String, Integer, String, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Long, Long>> out) throws Exception {
-            out.collect(new Tuple19<>(
-                    input.f0,
-                    input.f1,
-                    input.f2,
-                    input.f3,
-                    input.f4,
-                    input.f5,
-                    input.f6,
-                    input.f7,
-                    input.f8,
-                    input.f9,
-                    input.f10,
-                    input.f11,
-                    input.f12,
-                    input.f13,
-                    input.f14,
-                    input.f15,
-                    Source_Output,
-                    input.f17,
-                    input.f18));
-            delay(averageDelay);
-        }
-
-        private void delay(long interval) {
-            Double ranN = randomGen.nextGaussian(interval, 1);
-            ranN = ranN * 1000;
-            long delay = ranN.intValue();
-            if (delay < 0) delay = interval * 1000;
-            Long start = System.nanoTime();
-            while (System.nanoTime() - start < delay) {
+        public static void delay(long intervalMicroseconds) {
+            Double ranN = randomGen.nextGaussian(intervalMicroseconds, 1) * 1000;
+            long delayNanos = ranN.intValue();
+            if (delayNanos < 0) delayNanos = intervalMicroseconds * 1000;
+            long start = System.nanoTime();
+            while (System.nanoTime() - start < delayNanos) {
+                // Busy waiting
             }
         }
     }
 
-    public static final class AccidentDetection extends RichFlatMapFunction<
-            Tuple19<String, Integer, String, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Long, Long>,
-            Tuple19<String, Integer, String, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Long, Long>> {
 
-        private RandomDataGenerator randomGen = new RandomDataGenerator();
-        private transient MapState<String, Integer> carLastPos, carStayLength;
-        private int averageDelay; // Microsecond
+    public static final class AccidentDetection extends RichFlatMapFunction<Tuple2<String, LinearRoadRecord>, Tuple2<String, LinearRoadRecord>> {
 
-        public AccidentDetection(int _averageDelay) {
-            this.averageDelay = _averageDelay;
+        private static final int ACCIDENT_DETECTION_OUTPUT = 999; // Arbitrary identifier for accident detection output
+
+        private transient MapState<String, Integer> carLastPos;
+        private transient MapState<String, Integer> carStayLength;
+        private int averageDelay; // in microseconds
+
+        public AccidentDetection(int averageDelay) {
+            this.averageDelay = averageDelay;
         }
 
         @Override
-        public void flatMap(Tuple19<String, Integer, String, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Long, Long> input, Collector<Tuple19<String, Integer, String, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Long, Long>> out) throws Exception {
-            String car_id = input.f2;
-            int pos = input.f8;
+        public void flatMap(Tuple2<String, LinearRoadRecord> input, Collector<Tuple2<String, LinearRoadRecord>> out) throws Exception {
+            LinearRoadRecord input_record = input.f1;
+            String car_id = input_record.getCarID();
+            int pos = input_record.getPos();
+            DelayUtil.delay(averageDelay);
+            // Check if the car's position is unchanged
             if (carLastPos.contains(car_id) && carLastPos.get(car_id) == pos) {
                 int stayLength = carStayLength.get(car_id) + 1;
                 if (stayLength >= 4) {
-                    out.collect(new Tuple19<>(
-                            input.f0,
-                            input.f1,
+                    // Accident scenario: set speed to 1
+                    out.collect(new Tuple2<>(car_id, new LinearRoadRecord(
+                            input_record.getSegID(),
+                            input_record.getType(),
                             car_id,
-                            1,
-                            input.f4,
-                            input.f5,
-                            input.f6,
-                            input.f7,
-                            input.f8,
-                            input.f9,
-                            input.f10,
-                            input.f11,
-                            input.f12,
-                            input.f13,
-                            input.f14,
-                            input.f15,
-                            AccidentDetection_Output,
-                            input.f17,
-                            input.f18));
-                }else{
-                    out.collect(new Tuple19<>(
-                            input.f0,
-                            input.f1,
+                            1, // speed = 1 to indicate accident
+                            input_record.getXway(),
+                            input_record.getLane(),
+                            input_record.getDir(),
+                            input_record.getSeg(),
+                            input_record.getPos(),
+                            input_record.getTime(),
+                            input_record.getQueryID(),
+                            input_record.getQStart(),
+                            input_record.getQEnd(),
+                            input_record.getQDayOfWeek(),
+                            input_record.getQMinutes(),
+                            input_record.getQDay(),
+                            ACCIDENT_DETECTION_OUTPUT, // updated operator output
+                            input_record.getArrivalTime(),
+                            input_record.getTupleNumber())
+                    ));
+                } else {
+                    // No accident yet: speed = 0
+                    out.collect(new Tuple2<>(car_id, new LinearRoadRecord(
+                            input_record.getSegID(),
+                            input_record.getType(),
                             car_id,
                             0,
-                            input.f4,
-                            input.f5,
-                            input.f6,
-                            input.f7,
-                            input.f8,
-                            input.f9,
-                            input.f10,
-                            input.f11,
-                            input.f12,
-                            input.f13,
-                            input.f14,
-                            input.f15,
-                            AccidentDetection_Output,
-                            input.f17,
-                            input.f18));
+                            input_record.getXway(),
+                            input_record.getLane(),
+                            input_record.getDir(),
+                            input_record.getSeg(),
+                            input_record.getPos(),
+                            input_record.getTime(),
+                            input_record.getQueryID(),
+                            input_record.getQStart(),
+                            input_record.getQEnd(),
+                            input_record.getQDayOfWeek(),
+                            input_record.getQMinutes(),
+                            input_record.getQDay(),
+                            ACCIDENT_DETECTION_OUTPUT,
+                            input_record.getArrivalTime(),
+                            input_record.getTupleNumber())
+                    ));
                 }
                 carStayLength.put(car_id, stayLength);
             } else {
-                out.collect(new Tuple19<>(
-                        input.f0,
-                        input.f1,
+                // First occurrence or the car moved: reset stay length to 1, speed = 0
+                out.collect(new Tuple2<>(car_id, new LinearRoadRecord(
+                        input_record.getSegID(),
+                        input_record.getType(),
                         car_id,
-                        0,
-                        input.f4,
-                        input.f5,
-                        input.f6,
-                        input.f7,
-                        input.f8,
-                        input.f9,
-                        input.f10,
-                        input.f11,
-                        input.f12,
-                        input.f13,
-                        input.f14,
-                        input.f15,
-                        AccidentDetection_Output,
-                        input.f17,
-                        input.f18));
+                        0, // no accident, speed = 0
+                        input_record.getXway(),
+                        input_record.getLane(),
+                        input_record.getDir(),
+                        input_record.getSeg(),
+                        input_record.getPos(),
+                        input_record.getTime(),
+                        input_record.getQueryID(),
+                        input_record.getQStart(),
+                        input_record.getQEnd(),
+                        input_record.getQDayOfWeek(),
+                        input_record.getQMinutes(),
+                        input_record.getQDay(),
+                        ACCIDENT_DETECTION_OUTPUT,
+                        input_record.getArrivalTime(),
+                        input_record.getTupleNumber())
+                ));
                 carLastPos.put(car_id, pos);
                 carStayLength.put(car_id, 1);
             }
-            delay(averageDelay);
+            // Introduce a processing delay for simulation purposes
 
-            // long currentTime = System.currentTimeMillis();
-            // System.out.println("GT: " + input.f0 + "-" + input.f2 + ", " + currentTime + ", " + (currentTime - input.f17) + ", " + input.f18);
-        }
-
-        private void delay(long interval) {
-            Double ranN = randomGen.nextGaussian(interval, 1);
-            ranN = ranN * 1000;
-            long delay = ranN.intValue();
-            if (delay < 0) delay = interval * 1000;
-            Long start = System.nanoTime();
-            while (System.nanoTime() - start < delay) {
-            }
         }
 
         @Override
         public void open(Configuration config) {
-            MapStateDescriptor<String, Integer> descriptor =
+            MapStateDescriptor<String, Integer> posDescriptor =
                     new MapStateDescriptor<>("accident-detection-pos", String.class, Integer.class);
-            carLastPos = getRuntimeContext().getMapState(descriptor);
-            descriptor = new MapStateDescriptor<>("accident-detection-stay", String.class, Integer.class);
-            carStayLength = getRuntimeContext().getMapState(descriptor);
+            carLastPos = getRuntimeContext().getMapState(posDescriptor);
+
+            MapStateDescriptor<String, Integer> stayDescriptor =
+                    new MapStateDescriptor<>("accident-detection-stay", String.class, Integer.class);
+            carStayLength = getRuntimeContext().getMapState(stayDescriptor);
         }
     }
 
-    public static final class AccidentNotification extends RichMapFunction<
-            Tuple19<String, Integer, String, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Long, Long>,
-            Tuple2<Integer, Integer>> {
-        private RandomDataGenerator randomGen = new RandomDataGenerator();
-        private int averageDelay; // Microsecond
+    public static final class AverageSpeedAndLastAverageSpeed extends RichFlatMapFunction<Tuple2<String, LinearRoadRecord>, Tuple2<String, LinearRoadRecord>> {
 
-        public AccidentNotification(int _averageDelay) {
-            this.averageDelay = _averageDelay;
-        }
+        public static class SegmentMetrics implements Serializable {
+            private int totalSpeed;
+            private int totalCars;
+            private int avgSpeed;
 
-        @Override
-        public Tuple2<Integer, Integer> map(Tuple19<String, Integer, String, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Long, Long> input) throws Exception {
-            int notification_l = 0, notification_r = 0;
-            if (input.f16 == Source_Output) {
-                // TODO: record cars in each seg
-            } else if (input.f16 == AccidentDetection_Output) {
-                int dir = input.f6, seg = input.f7, pos = input.f8;
-                int accident_flag = input.f3;
-                if(accident_flag == 1) {
-                    if (dir == 0) {
-                        notification_l = seg - 4;
-                        if (notification_l < 0) {
-                            notification_l = 0;
-                        }
-                        notification_r = seg;
-                    } else {
-                        notification_r = seg + 4;
-                        if (notification_r >= 100) {
-                            notification_r = 99;
-                        }
-                        notification_l = seg;
-                    }
-                    System.out.println("Accident Notification for Seg: " + notification_l + "-" + notification_r);
-                    // TODO: info the cars in the segs
-                }
+            public SegmentMetrics() {
+                this.totalSpeed = 0;
+                this.totalCars = 0;
+                this.avgSpeed = 0;
             }
-            delay(averageDelay);
-            long currentTime = System.currentTimeMillis();
-            System.out.println("GT: " + input.f0 + "-" + input.f2 + ", " + currentTime + ", " + (currentTime - input.f17) + ", " + input.f18);
-            return new Tuple2<>(notification_l, notification_r);
-        }
 
-        private void delay(long interval) {
-            Double ranN = randomGen.nextGaussian(interval, 1);
-            ranN = ranN * 1000;
-            long delay = ranN.intValue();
-            if (delay < 0) delay = interval * 1000;
-            Long start = System.nanoTime();
-            while (System.nanoTime() - start < delay) {
+            public int getTotalSpeed() {
+                return totalSpeed;
             }
-        }
-    }
 
-    public static final class AverageSpeed extends RichFlatMapFunction<
-            Tuple19<String, Integer, String, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Long, Long>,
-            Tuple19<String, Integer, String, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Long, Long>> {
-
-        private RandomDataGenerator randomGen = new RandomDataGenerator();
-        private transient MapState<Integer, Integer> totalSpeedPerSeg, totalCarsPerSeg;
-        private transient MapState<String, Integer> carSpeed, carSeg;
-        private int averageDelay; // Microsecond
-
-        public AverageSpeed(int _averageDelay) {
-            this.averageDelay = _averageDelay;
-        }
-
-        @Override
-        public void flatMap(Tuple19<String, Integer, String, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Long, Long> input, Collector<Tuple19<String, Integer, String, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Long, Long>> out) throws Exception {
-            String car_id = input.f2;
-            int seg = input.f7, speed = input.f3;
-            if (carSeg.contains(car_id)) {
-                int old_seg = carSeg.get(car_id);
-                int old_speed = carSpeed.get(car_id);
-                int old_cars = totalCarsPerSeg.get(old_seg);
-                totalCarsPerSeg.put(old_seg, old_cars - 1);
-                int old_totalspeed = totalSpeedPerSeg.get(old_seg);
-                totalSpeedPerSeg.put(old_seg, old_totalspeed - old_speed);
-                int old_seg_avgSpeed = 0;
-                if (old_cars > 1) {
-                    old_seg_avgSpeed = (old_totalspeed - old_speed) / (old_cars - 1);
-                }
-                out.collect(new Tuple19<>(
-                        LinearRoadSource.getSegID(old_seg),
-                        input.f1,
-                        car_id,
-                        old_seg_avgSpeed,
-                        input.f4,
-                        input.f5,
-                        input.f6,
-                        old_seg,
-                        input.f8,
-                        input.f9,
-                        input.f10,
-                        input.f11,
-                        input.f12,
-                        input.f13,
-                        input.f14,
-                        input.f15,
-                        AverageSpeed_Output,
-                        input.f17,
-                        input.f18));
+            public void setTotalSpeed(int totalSpeed) {
+                this.totalSpeed = totalSpeed;
             }
-            carSeg.put(car_id, seg);
-            carSpeed.put(car_id, speed);
-            if (!totalSpeedPerSeg.contains(seg)) {
-                totalSpeedPerSeg.put(seg, speed);
-                totalCarsPerSeg.put(seg, 1);
-            } else {
-                int old_cars = totalCarsPerSeg.get(seg);
-                int old_totalspeed = totalSpeedPerSeg.get(seg);
-                totalSpeedPerSeg.put(seg, old_totalspeed + speed);
-                totalCarsPerSeg.put(seg, old_cars + 1);
-            }
-            int avg_speed = totalSpeedPerSeg.get(seg) / totalCarsPerSeg.get(seg);
-            out.collect(new Tuple19<>(
-                    LinearRoadSource.getSegID(seg),
-                    input.f1,
-                    car_id,
-                    avg_speed,
-                    input.f4,
-                    input.f5,
-                    input.f6,
-                    seg,
-                    input.f8,
-                    input.f9,
-                    input.f10,
-                    input.f11,
-                    input.f12,
-                    input.f13,
-                    input.f14,
-                    input.f15,
-                    AverageSpeed_Output,
-                    input.f17,
-                    input.f18));
-            delay(averageDelay);
-        }
 
-        private void delay(long interval) {
-            Double ranN = randomGen.nextGaussian(interval, 1);
-            ranN = ranN * 1000;
-            long delay = ranN.intValue();
-            if (delay < 0) delay = interval * 1000;
-            Long start = System.nanoTime();
-            while (System.nanoTime() - start < delay) {
+            public int getTotalCars() {
+                return totalCars;
+            }
+
+            public void setTotalCars(int totalCars) {
+                this.totalCars = totalCars;
+            }
+
+            public int getAvgSpeed() {
+                return avgSpeed;
+            }
+
+            public void setAvgSpeed(int avgSpeed) {
+                this.avgSpeed = avgSpeed;
             }
         }
 
-        @Override
-        public void open(Configuration config) {
-            MapStateDescriptor<String, Integer> descriptor =
-                    new MapStateDescriptor<>("average-speed-carseg", String.class, Integer.class);
-            carSeg = getRuntimeContext().getMapState(descriptor);
-            descriptor = new MapStateDescriptor<>("average-speed-carspeed", String.class, Integer.class);
-            carSpeed = getRuntimeContext().getMapState(descriptor);
-            MapStateDescriptor<Integer, Integer> descriptor1 = new MapStateDescriptor<>("average-speed-segcars", Integer.class, Integer.class);
-            totalCarsPerSeg = getRuntimeContext().getMapState(descriptor1);
-            descriptor1 = new MapStateDescriptor<>("average-speed-segspeed", Integer.class, Integer.class);
-            totalSpeedPerSeg = getRuntimeContext().getMapState(descriptor1);
-        }
-    }
+        public static class CarMetrics implements Serializable {
+            private int speed;
+            private int seg;
+            private String extraLoad;
 
-    public static final class LastAverageSpeed extends RichFlatMapFunction<
-            Tuple19<String, Integer, String, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Long, Long>,
-            Tuple19<String, Integer, String, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Long, Long>> {
-
-        private RandomDataGenerator randomGen = new RandomDataGenerator();
-        private transient MapState<Integer, Integer> speedPerSeg;
-        private int averageDelay; // Microsecond
-
-        public LastAverageSpeed(int _averageDelay) {
-            this.averageDelay = _averageDelay;
-        }
-
-        @Override
-        public void flatMap(Tuple19<String, Integer, String, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Long, Long> input, Collector<Tuple19<String, Integer, String, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Long, Long>> out) throws Exception {
-            if (input.f16 == AverageSpeed_Output){
-                int seg = input.f7, average_speed = input.f3;
-                speedPerSeg.put(seg, average_speed);
+            public CarMetrics() {
+                this.speed = 0;
+                this.seg = -1; // indicates no known segment yet
+                this.extraLoad = null;
             }
 
-            if (input.f1 == 4){
-                int start_seg = input.f11, end_seg = input.f12;
-                if(start_seg > end_seg){
-                    int t = start_seg;
-                    start_seg = end_seg;
-                    end_seg = t;
-                }
-                int totalTime = 0;
-                for(int i = start_seg; i <= end_seg; i++){
-                    if(speedPerSeg.contains(i)) {
-                        int speed = speedPerSeg.get(i);
-                        int time;
-                        if(speed == 0){
-                            time = 86400;
-                        }else {
-                            time = 3600 / speedPerSeg.get(i);
-                        }
-                        totalTime += time;
-                    }
-                }
-                System.out.println("Travel Time Estimation from " + start_seg + " to "  + end_seg + " is " + totalTime + ".");
+            public int getSpeed() {
+                return speed;
             }
-            out.collect(new Tuple19<>(
-                    input.f0,
-                    input.f1,
-                    input.f2,
-                    input.f3,
-                    input.f4,
-                    input.f5,
-                    input.f6,
-                    input.f7,
-                    input.f8,
-                    input.f9,
-                    input.f10,
-                    input.f11,
-                    input.f12,
-                    input.f13,
-                    input.f14,
-                    input.f15,
-                    LastAverageSpeed_Output,
-                    input.f17,
-                    input.f18
-            ));
-            delay(averageDelay);
-        }
 
-        private void delay(long interval) {
-            Double ranN = randomGen.nextGaussian(interval, 1);
-            ranN = ranN * 1000;
-            long delay = ranN.intValue();
-            if (delay < 0) delay = interval * 1000;
-            Long start = System.nanoTime();
-            while (System.nanoTime() - start < delay) {
+            public void setSpeed(int speed) {
+                this.speed = speed;
+            }
+
+            public int getSeg() {
+                return seg;
+            }
+
+            public void setSeg(int seg) {
+                this.seg = seg;
+            }
+
+            public String getExtraLoad() {
+                return extraLoad;
+            }
+
+            public void setExtraLoad(String extraLoad) {
+                this.extraLoad = extraLoad;
             }
         }
 
-        @Override
-        public void open(Configuration config) {
-            MapStateDescriptor<Integer, Integer> descriptor =
-                    new MapStateDescriptor<>("last-average-speed-per-seg", Integer.class, Integer.class);
-            speedPerSeg = getRuntimeContext().getMapState(descriptor);
-        }
-    }
+        private transient MapState<Integer, SegmentMetrics> segmentStateMap;
+        private transient MapState<String, CarMetrics> carStateMap;
 
-    public static final class AverageSpeedAndLastAverageSpeed extends RichFlatMapFunction<
-            Tuple19<String, Integer, String, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Long, Long>,
-            Tuple19<String, Integer, String, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Long, Long>> {
-
-        private RandomDataGenerator randomGen = new RandomDataGenerator();
-        private transient MapState<Integer, Integer> totalSpeedPerSeg, totalCarsPerSeg, speedPerSeg;
-        private transient MapState<String, Integer> carSpeed, carSeg;
-        private transient MapState<String, String> extraLoadPerCar;
-        private final int averageDelay; // Microsecond
+        private final int averageDelay; // Microseconds
         private final String payload;
         private final boolean payloadFlag;
 
-        public AverageSpeedAndLastAverageSpeed(int _averageDelay, int _payloadLength) {
-            this.averageDelay = _averageDelay;
-            if(_payloadLength > 0) {
+        public AverageSpeedAndLastAverageSpeed(int averageDelay, int payloadLength) {
+            this.averageDelay = averageDelay;
+            if (payloadLength > 0) {
                 this.payloadFlag = true;
-                this.payload = new String(new char[_payloadLength]).replace("\0", "a");
-            }else{
+                this.payload = new String(new char[payloadLength]).replace("\0", "a");
+            } else {
                 this.payloadFlag = false;
                 this.payload = "";
             }
         }
 
         @Override
-        public void flatMap(Tuple19<String, Integer, String, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Long, Long> input, Collector<Tuple19<String, Integer, String, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Long, Long>> out) throws Exception {
-            String car_id = input.f2;
-            int seg = input.f7, speed = input.f3;
-            if (carSeg.contains(car_id)) {
-                int old_seg = carSeg.get(car_id);
-                int old_speed = carSpeed.get(car_id);
-                int old_cars = totalCarsPerSeg.get(old_seg);
-                totalCarsPerSeg.put(old_seg, old_cars - 1);
-                int old_totalspeed = totalSpeedPerSeg.get(old_seg);
-                totalSpeedPerSeg.put(old_seg, old_totalspeed - old_speed);
-                int old_seg_avgSpeed = 0;
-                if (old_cars > 1) {
-                    old_seg_avgSpeed = (old_totalspeed - old_speed) / (old_cars - 1);
-                }
-                speedPerSeg.put(old_seg, old_seg_avgSpeed);
+        public void flatMap(Tuple2<String, LinearRoadRecord> input, Collector<Tuple2<String, LinearRoadRecord>> out) throws Exception {
+            LinearRoadRecord inputRecord = input.f1;
+            String carId = inputRecord.getCarID();
+            int seg = inputRecord.getSeg();
+            int speed = inputRecord.getSpeed();
 
-//                out.collect(new Tuple19<>(
-//                        LinearRoadSource.getSegID(old_seg),
-//                        input.f1,
-//                        car_id,
-//                        old_seg_avgSpeed,
-//                        input.f4,
-//                        input.f5,
-//                        input.f6,
-//                        old_seg,
-//                        input.f8,
-//                        input.f9,
-//                        input.f10,
-//                        input.f11,
-//                        input.f12,
-//                        input.f13,
-//                        input.f14,
-//                        input.f15,
-//                        LastAverageSpeed_Output,
-//                        input.f17,
-//                        input.f18));
-            }
-            carSeg.put(car_id, seg);
-            carSpeed.put(car_id, speed);
-            if(payloadFlag){
-                extraLoadPerCar.put(car_id, new String(payload));
-            }
-            if (!totalSpeedPerSeg.contains(seg)) {
-                totalSpeedPerSeg.put(seg, speed);
-                totalCarsPerSeg.put(seg, 1);
-            } else {
-                int old_cars = totalCarsPerSeg.get(seg);
-                int old_totalspeed = totalSpeedPerSeg.get(seg);
-                totalSpeedPerSeg.put(seg, old_totalspeed + speed);
-                totalCarsPerSeg.put(seg, old_cars + 1);
-            }
-            int avg_speed = totalSpeedPerSeg.get(seg) / totalCarsPerSeg.get(seg);
-            speedPerSeg.put(seg, avg_speed);
+            // Retrieve or initialize car and segment states
+            CarMetrics carMetrics = carStateMap.contains(carId) ? carStateMap.get(carId) : new CarMetrics();
+            SegmentMetrics segMetrics = segmentStateMap.contains(seg) ? segmentStateMap.get(seg) : new SegmentMetrics();
 
-            if (input.f1 == 4){
-                int start_seg = input.f11, end_seg = input.f12;
-                if(start_seg > end_seg){
-                    int t = start_seg;
-                    start_seg = end_seg;
-                    end_seg = t;
+            // If this car was previously associated with a different segment, update that old segment's metrics
+            if (carMetrics.getSeg() != -1 && carMetrics.getSeg() != seg) {
+                int oldSeg = carMetrics.getSeg();
+                CarMetrics oldCarMetrics = carMetrics; // already have
+
+                // Retrieve old segment state
+                SegmentMetrics oldSegMetrics = segmentStateMap.contains(oldSeg) ? segmentStateMap.get(oldSeg) : new SegmentMetrics();
+
+                // Remove old car's contribution
+                oldSegMetrics.setTotalCars(oldSegMetrics.getTotalCars() - 1);
+                oldSegMetrics.setTotalSpeed(oldSegMetrics.getTotalSpeed() - oldCarMetrics.getSpeed());
+
+                int oldCars = oldSegMetrics.getTotalCars();
+                int oldTotalSpeed = oldSegMetrics.getTotalSpeed();
+                int oldSegAvgSpeed = (oldCars > 0) ? (oldTotalSpeed / oldCars) : 0;
+                oldSegMetrics.setAvgSpeed(oldSegAvgSpeed);
+
+                // Store updated old segment state
+                segmentStateMap.put(oldSeg, oldSegMetrics);
+            }
+
+            // Update the current car's position and speed
+            carMetrics.setSeg(seg);
+            carMetrics.setSpeed(speed);
+
+            // Optionally store the payload for the current car
+            if (payloadFlag) {
+                carMetrics.setExtraLoad(payload);
+            }
+
+            // Update metrics for the current segment
+            segMetrics.setTotalCars(segMetrics.getTotalCars() + 1);
+            segMetrics.setTotalSpeed(segMetrics.getTotalSpeed() + speed);
+            int avgSpeed = segMetrics.getTotalSpeed() / segMetrics.getTotalCars();
+            segMetrics.setAvgSpeed(avgSpeed);
+
+            // Store updated states
+            carStateMap.put(carId, carMetrics);
+            segmentStateMap.put(seg, segMetrics);
+
+            // If the operator type is 4, perform travel time estimation
+            if (inputRecord.getType() == 4) {
+                int startSeg = inputRecord.getQStart();
+                int endSeg = inputRecord.getQEnd();
+                if (startSeg > endSeg) {
+                    int temp = startSeg;
+                    startSeg = endSeg;
+                    endSeg = temp;
                 }
+
                 int totalTime = 0;
-                for(int i = start_seg; i <= end_seg; i++){
-                    if(speedPerSeg.contains(i)) {
-                        int now_speed = speedPerSeg.get(i);
-                        int time;
-                        if(now_speed == 0){
-                            time = 86400;
-                        }else {
-                            time = 3600 / now_speed;
-                        }
-                        totalTime += time;
+                for (int i = startSeg; i <= endSeg; i++) {
+                    if (segmentStateMap.contains(i)) {
+                        SegmentMetrics sMetrics = segmentStateMap.get(i);
+                        int currentSpeed = sMetrics.getAvgSpeed();
+                        int segmentTime = (currentSpeed == 0) ? 86400 : (3600 / currentSpeed);
+                        totalTime += segmentTime;
+                    } else {
+                        // If no info, assume default speed of 50 or handle accordingly
+                        int segmentTime = 3600 / 50; // or another default handling
+                        totalTime += segmentTime;
                     }
                 }
-                System.out.println("Travel Time Estimation from " + start_seg + " to "  + end_seg + " is " + totalTime + ".");
+                System.out.println("Travel Time Estimation from " + startSeg + " to " + endSeg + " is " + totalTime + ".");
             }
-            out.collect(new Tuple19<>(
-                    LinearRoadSource.getSegID(seg),
-                    input.f1,
-                    car_id,
-                    avg_speed,
-                    input.f4,
-                    input.f5,
-                    input.f6,
+
+            // Introduce processing delay
+            DelayUtil.delay(averageDelay);
+
+            // Emit updated record with the last average speed
+            out.collect(new Tuple2<>(carId, new LinearRoadRecord(
+                    inputRecord.getSegID(),
+                    inputRecord.getType(),
+                    carId,
+                    avgSpeed,
+                    inputRecord.getXway(),
+                    inputRecord.getLane(),
+                    inputRecord.getDir(),
                     seg,
-                    input.f8,
-                    input.f9,
-                    input.f10,
-                    input.f11,
-                    input.f12,
-                    input.f13,
-                    input.f14,
-                    input.f15,
+                    inputRecord.getPos(),
+                    inputRecord.getTime(),
+                    inputRecord.getQueryID(),
+                    inputRecord.getQStart(),
+                    inputRecord.getQEnd(),
+                    inputRecord.getQDayOfWeek(),
+                    inputRecord.getQMinutes(),
+                    inputRecord.getQDay(),
                     LastAverageSpeed_Output,
-                    input.f17,
-                    input.f18));
-            delay(averageDelay);
-
-            // long currentTime = System.currentTimeMillis();
-            // System.out.println("GT: " + input.f0 + "-" + input.f2 + ", " + currentTime + ", " + (currentTime - input.f17) + ", " + input.f18);
-
-        }
-
-        private void delay(long interval) {
-            Double ranN = randomGen.nextGaussian(interval, 1);
-            ranN = ranN * 1000;
-            long delay = ranN.intValue();
-            if (delay < 0) delay = interval * 1000;
-            Long start = System.nanoTime();
-            while (System.nanoTime() - start < delay) {
-            }
+                    inputRecord.getArrivalTime(),
+                    inputRecord.getTupleNumber())
+            ));
         }
 
         @Override
         public void open(Configuration config) {
-            MapStateDescriptor<String, Integer> descriptor =
-                    new MapStateDescriptor<>("average-speed-carseg", String.class, Integer.class);
-            carSeg = getRuntimeContext().getMapState(descriptor);
-            descriptor = new MapStateDescriptor<>("average-speed-carspeed", String.class, Integer.class);
-            carSpeed = getRuntimeContext().getMapState(descriptor);
-            MapStateDescriptor<Integer, Integer> descriptor1 = new MapStateDescriptor<>("average-speed-segcars", Integer.class, Integer.class);
-            totalCarsPerSeg = getRuntimeContext().getMapState(descriptor1);
-            descriptor1 = new MapStateDescriptor<>("average-speed-segspeed", Integer.class, Integer.class);
-            totalSpeedPerSeg = getRuntimeContext().getMapState(descriptor1);
-            descriptor1 = new MapStateDescriptor<>("last-average-speed-per-seg", Integer.class, Integer.class);
-            speedPerSeg = getRuntimeContext().getMapState(descriptor1);
-            if(payloadFlag) {
-                MapStateDescriptor<String, String> descriptor2 = new MapStateDescriptor<>("average-speed-extraload", String.class, String.class);
-                extraLoadPerCar = getRuntimeContext().getMapState(descriptor2);
-            }
+            MapStateDescriptor<Integer, SegmentMetrics> segmentDesc =
+                    new MapStateDescriptor<>("segment-metrics", Integer.class, SegmentMetrics.class);
+            segmentStateMap = getRuntimeContext().getMapState(segmentDesc);
+
+            MapStateDescriptor<String, CarMetrics> carDesc =
+                    new MapStateDescriptor<>("car-metrics", String.class, CarMetrics.class);
+            carStateMap = getRuntimeContext().getMapState(carDesc);
         }
     }
 
-    public static final class CountVehicles extends RichFlatMapFunction<
-            Tuple19<String, Integer, String, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Long, Long>,
-            Tuple19<String, Integer, String, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Long, Long>> {
+    public static final class CountVehicles extends RichFlatMapFunction<Tuple2<String, LinearRoadRecord>, Tuple2<String, LinearRoadRecord>> {
 
-        private RandomDataGenerator randomGen = new RandomDataGenerator();
         private transient MapState<Integer, Integer> totalCarsPerSeg;
         private transient MapState<String, Integer> carSeg;
-        private int averageDelay; // Microsecond
+        private final int averageDelay; // Microseconds
 
-        public CountVehicles(int _averageDelay) {
-            this.averageDelay = _averageDelay;
+        public CountVehicles(int averageDelay) {
+            this.averageDelay = averageDelay;
         }
 
         @Override
-        public void flatMap(Tuple19<String, Integer, String, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Long, Long> input, Collector<Tuple19<String, Integer, String, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Long, Long>> out) throws Exception {
-            String car_id = input.f2;
-            int seg = input.f7;
-            if (carSeg.contains(car_id)) {
-                int old_seg = carSeg.get(car_id);
-                int old_cars = totalCarsPerSeg.get(old_seg);
-                totalCarsPerSeg.put(old_seg, old_cars - 1);
-//                out.collect(new Tuple19<>(
-//                        LinearRoadSource.getSegID(old_seg),
-//                        input.f1,
-//                        car_id,
-//                        old_cars - 1,
-//                        input.f4,
-//                        input.f5,
-//                        input.f6,
-//                        old_seg,
-//                        input.f8,
-//                        input.f9,
-//                        input.f10,
-//                        input.f11,
-//                        input.f12,
-//                        input.f13,
-//                        input.f14,
-//                        input.f15,
-//                        CountVehicles_Output,
-//                        input.f17,
-//                        input.f18));
+        public void flatMap(Tuple2<String, LinearRoadRecord> input, Collector<Tuple2<String, LinearRoadRecord>> out) throws Exception {
+            LinearRoadRecord input_record = input.f1;
+            String carId = input_record.getCarID();
+            int seg = input_record.getSeg();
+
+            // If this car was previously associated with a different segment, decrement that segment's count
+            if (carSeg.contains(carId)) {
+                int oldSeg = carSeg.get(carId);
+                int oldCars = totalCarsPerSeg.get(oldSeg);
+                totalCarsPerSeg.put(oldSeg, oldCars - 1);
             }
-            carSeg.put(car_id, seg);
-            int old_cars;
-            if (!totalCarsPerSeg.contains(seg)) {
-                old_cars = 0;
-            } else {
-                old_cars = totalCarsPerSeg.get(seg);
-            }
-            totalCarsPerSeg.put(seg, old_cars + 1);
-            out.collect(new Tuple19<>(
-                    LinearRoadSource.getSegID(seg),
-                    input.f1,
-                    car_id,
-                    old_cars + 1,
-                    input.f4,
-                    input.f5,
-                    input.f6,
+
+            // Update the car's current segment
+            carSeg.put(carId, seg);
+
+            // Update the number of cars in the current segment
+            int oldCars = totalCarsPerSeg.contains(seg) ? totalCarsPerSeg.get(seg) : 0;
+            totalCarsPerSeg.put(seg, oldCars + 1);
+
+            // Introduce the delay to simulate processing time
+            DelayUtil.delay(averageDelay);
+
+            // Emit a record reflecting the updated count
+            out.collect(new Tuple2<>(carId, new LinearRoadRecord(
+                    input_record.getSegID(),
+                    input_record.getType(),
+                    carId,
+                    oldCars + 1, // Using the speed field as vehicle count here if consistent with your schema
+                    input_record.getXway(),
+                    input_record.getLane(),
+                    input_record.getDir(),
                     seg,
-                    input.f8,
-                    input.f9,
-                    input.f10,
-                    input.f11,
-                    input.f12,
-                    input.f13,
-                    input.f14,
-                    input.f15,
-                    CountVehicles_Output,
-                    input.f17,
-                    input.f18));
-            delay(averageDelay);
-
-            // long currentTime = System.currentTimeMillis();
-            // System.out.println("GT: " + input.f0 + "-" + input.f2 + ", " + currentTime + ", " + (currentTime - input.f17) + ", " + input.f18);
-
-        }
-
-        private void delay(long interval) {
-            Double ranN = randomGen.nextGaussian(interval, 1);
-            ranN = ranN * 1000;
-            long delay = ranN.intValue();
-            if (delay < 0) delay = interval * 1000;
-            Long start = System.nanoTime();
-            while (System.nanoTime() - start < delay) {
-            }
+                    input_record.getPos(),
+                    input_record.getTime(),
+                    input_record.getQueryID(),
+                    input_record.getQStart(),
+                    input_record.getQEnd(),
+                    input_record.getQDayOfWeek(),
+                    input_record.getQMinutes(),
+                    input_record.getQDay(),
+                    CountVehicles_Output,  // A constant that you must define or reference
+                    input_record.getArrivalTime(),
+                    input_record.getTupleNumber())
+            ));
         }
 
         @Override
         public void open(Configuration config) {
-            MapStateDescriptor<String, Integer> descriptor =
+            MapStateDescriptor<String, Integer> carSegDesc =
                     new MapStateDescriptor<>("count-vehicle-carseg", String.class, Integer.class);
-            carSeg = getRuntimeContext().getMapState(descriptor);
-            MapStateDescriptor<Integer, Integer> descriptor1 = new MapStateDescriptor<>("count-vehicle-carspeed", Integer.class, Integer.class);
-            totalCarsPerSeg = getRuntimeContext().getMapState(descriptor1);
+            carSeg = getRuntimeContext().getMapState(carSegDesc);
+
+            MapStateDescriptor<Integer, Integer> totalCarsPerSegDesc =
+                    new MapStateDescriptor<>("count-vehicle-totalcars", Integer.class, Integer.class);
+            totalCarsPerSeg = getRuntimeContext().getMapState(totalCarsPerSegDesc);
         }
     }
 
-    public static final class TollNotification extends RichFlatMapFunction<
-            Tuple19<String, Integer, String, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Long, Long>,
-            Tuple19<String, Integer, String, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Long, Long>> {
+    public static final class TollNotificationAndAccountBalanceAndDailyExpense
+            extends RichFlatMapFunction<Tuple2<String, LinearRoadRecord>, Tuple2<String, LinearRoadRecord>> {
 
-        private RandomDataGenerator randomGen = new RandomDataGenerator();
-        private transient MapState<Integer, Integer> segAverageSpeed, segLastAccident, segCarCounts;
-        private int averageDelay; // Microsecond
+        public static class SegmentState implements Serializable {
+            private Integer averageSpeed;
+            private Integer lastAccident;
+            private Integer carCounts;
 
-        public TollNotification(int _averageDelay) {
-            this.averageDelay = _averageDelay;
-        }
-
-        @Override
-        public void flatMap(Tuple19<String, Integer, String, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Long, Long> input, Collector<Tuple19<String, Integer, String, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Long, Long>> out) throws Exception {
-            String car_id = input.f2;
-            int seg = input.f7, source = input.f16, time = input.f9;
-            if (source == AccidentDetection_Output){
-                int accident_flag = input.f3;
-                if(accident_flag == 1) {
-                    segLastAccident.put(seg, time);
-                }
-                long currentTime = System.currentTimeMillis();
-                System.out.println("GT: " + input.f0 + "-" + input.f2 + ", " + currentTime + ", " + (currentTime - input.f17) + ", " + input.f18);
-            }else if(source == LastAverageSpeed_Output){
-                segAverageSpeed.put(seg, input.f3);
-                long currentTime = System.currentTimeMillis();
-                System.out.println("GT: " + input.f0 + "-" + input.f2 + ", " + currentTime + ", " + (currentTime - input.f17) + ", " + input.f18);
-            }else if(source == CountVehicles_Output){
-                segCarCounts.put(seg, input.f3);
-            //    long currentTime = System.currentTimeMillis();
-            //    System.out.println("GT: " + input.f0 + "-" + input.f2 + ", " + currentTime + ", " + (currentTime - input.f17) + ", " + input.f18);
-            // }else if(source == Source_Output){
-                int price = 0, carCounts = 0, averageSpeed = 50;
-                if (segCarCounts.contains(seg)){
-                    carCounts = segCarCounts.get(seg);
-                }
-                if (segAverageSpeed.contains(seg)){
-                    averageSpeed = segAverageSpeed.get(seg);
-                }
-                price = carCounts * 5 + (100 - averageSpeed);
-                if (segLastAccident.contains(seg) && segLastAccident.get(seg) >= time - 300){
-                    price /= 2;
-                }
-                System.out.println("Toll Notification: car " + car_id + " enter seg " + seg + " price " + price);
-                out.collect(new Tuple19<>(
-                        input.f0,
-                        input.f1,
-                        car_id,
-                        price,
-                        input.f4,
-                        input.f5,
-                        input.f6,
-                        input.f7,
-                        input.f8,
-                        input.f9,
-                        input.f10,
-                        input.f11,
-                        input.f12,
-                        input.f13,
-                        input.f14,
-                        input.f15,
-                        TollNotification_Output,
-                        input.f17,
-                        input.f18));
+            public SegmentState() {
+                this.averageSpeed = 50; // default average speed if not set
+                this.lastAccident = null;
+                this.carCounts = 0;
             }
-            delay(averageDelay);
-        }
 
-        private void delay(long interval) {
-            Double ranN = randomGen.nextGaussian(interval, 1);
-            ranN = ranN * 1000;
-            long delay = ranN.intValue();
-            if (delay < 0) delay = interval * 1000;
-            Long start = System.nanoTime();
-            while (System.nanoTime() - start < delay) {
+            public Integer getAverageSpeed() {
+                return averageSpeed;
+            }
+
+            public void setAverageSpeed(Integer averageSpeed) {
+                this.averageSpeed = averageSpeed;
+            }
+
+            public Integer getLastAccident() {
+                return lastAccident;
+            }
+
+            public void setLastAccident(Integer lastAccident) {
+                this.lastAccident = lastAccident;
+            }
+
+            public Integer getCarCounts() {
+                return carCounts;
+            }
+
+            public void setCarCounts(Integer carCounts) {
+                this.carCounts = carCounts;
             }
         }
 
-        @Override
-        public void open(Configuration config) {
-            MapStateDescriptor<Integer, Integer> descriptor =
-                    new MapStateDescriptor<>("toll-notification-segspeed", Integer.class, Integer.class);
-            segAverageSpeed = getRuntimeContext().getMapState(descriptor);
-            descriptor = new MapStateDescriptor<>("toll-notification-segaccident", Integer.class, Integer.class);
-            segLastAccident = getRuntimeContext().getMapState(descriptor);
-            descriptor = new MapStateDescriptor<>("toll-notification-segcars", Integer.class, Integer.class);
-            segCarCounts = getRuntimeContext().getMapState(descriptor);
+        public static class CarState implements Serializable {
+            private Integer balance;
+            private Integer dailyExpense;
+            private Integer lastDay;
+            private String extraLoad;
+
+            public CarState() {
+                this.balance = 0;
+                this.dailyExpense = 0;
+                this.lastDay = 0;
+                this.extraLoad = null;
+            }
+
+            public Integer getBalance() {
+                return balance;
+            }
+
+            public void setBalance(Integer balance) {
+                this.balance = balance;
+            }
+
+            public Integer getDailyExpense() {
+                return dailyExpense;
+            }
+
+            public void setDailyExpense(Integer dailyExpense) {
+                this.dailyExpense = dailyExpense;
+            }
+
+            public Integer getLastDay() {
+                return lastDay;
+            }
+
+            public void setLastDay(Integer lastDay) {
+                this.lastDay = lastDay;
+            }
+
+            public String getExtraLoad() {
+                return extraLoad;
+            }
+
+            public void setExtraLoad(String extraLoad) {
+                this.extraLoad = extraLoad;
+            }
         }
-    }
 
-    public static final class TollNotificationAndAccountBalanceAndDailyExpense extends RichFlatMapFunction<
-            Tuple19<String, Integer, String, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Long, Long>,
-            Tuple19<String, Integer, String, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Long, Long>> {
+        private transient MapState<Integer, SegmentState> segmentStateMap;
+        private transient MapState<String, CarState> carStateMap;
 
-        private RandomDataGenerator randomGen = new RandomDataGenerator();
-        private transient MapState<Integer, Integer> segAverageSpeed, segLastAccident, segCarCounts;
-        private transient MapState<String, Integer> balancePerCar, dailyExpensePerCar, dayPerCar;
-        private transient MapState<String, String> extraloadPerCar;
-        private final int averageDelay; // Microsecond
+
+        private final int averageDelay; // Microseconds
         private final String payload;
         private final boolean payloadFlag;
-        public TollNotificationAndAccountBalanceAndDailyExpense(int _averageDelay, int _payloadLength) {
-            this.averageDelay = _averageDelay;
-            if(_payloadLength > 0) {
+
+        public TollNotificationAndAccountBalanceAndDailyExpense(int averageDelay, int payloadLength) {
+            this.averageDelay = averageDelay;
+            if (payloadLength > 0) {
                 this.payloadFlag = true;
-                this.payload = new String(new char[_payloadLength]).replace("\0", "a");
-            }else{
+                this.payload = new String(new char[payloadLength]).replace("\0", "a");
+            } else {
                 this.payloadFlag = false;
                 this.payload = "";
             }
         }
 
         @Override
-        public void flatMap(Tuple19<String, Integer, String, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Long, Long> input, Collector<Tuple19<String, Integer, String, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Long, Long>> out) throws Exception {
-            String car_id = input.f2;
-            int seg = input.f7, source = input.f16, time = input.f9;
-            if (source == AccidentDetection_Output){
-                int accident_flag = input.f3;
-                if(accident_flag == 1) {
-                    segLastAccident.put(seg, time);
-                }
-                long currentTime = System.currentTimeMillis();
-                System.out.println("GT: " + input.f0 + "-" + input.f2 + ", " + currentTime + ", " + (currentTime - input.f17) + ", " + input.f18);
-            }else if(source == LastAverageSpeed_Output){
-                segAverageSpeed.put(seg, input.f3);
-                long currentTime = System.currentTimeMillis();
-                System.out.println("GT: " + input.f0 + "-" + input.f2 + ", " + currentTime + ", " + (currentTime - input.f17) + ", " + input.f18);
-            }else if(source == CountVehicles_Output) {
-                segCarCounts.put(seg, input.f3);
-                //    long currentTime = System.currentTimeMillis();
-                //    System.out.println("GT: " + input.f0 + "-" + input.f2 + ", " + currentTime + ", " + (currentTime - input.f17) + ", " + input.f18);
-                // }else if(source == Source_Output){
-                int price = 0, carCounts = 0, averageSpeed = 50;
-                if (segCarCounts.contains(seg)) {
-                    carCounts = segCarCounts.get(seg);
-                }
-                if (segAverageSpeed.contains(seg)) {
-                    averageSpeed = segAverageSpeed.get(seg);
-                }
-                price = carCounts * 5 + (100 - averageSpeed);
-                if (segLastAccident.contains(seg) && segLastAccident.get(seg) >= time - 300) {
-                    price /= 2;
-                }
-                System.out.println("Toll Notification: car " + car_id + " enter seg " + seg + " price " + price);
+        public void flatMap(Tuple2<String, LinearRoadRecord> input, Collector<Tuple2<String, LinearRoadRecord>> out) throws Exception {
+            LinearRoadRecord inputRecord = input.f1;
+            String carId = inputRecord.getCarID();
+            int seg = inputRecord.getSeg();
+            int source = inputRecord.getOutputOperator();
+            int time = inputRecord.getTime();
 
-                int old_balance = 0;
-                if (balancePerCar.contains(car_id)) {
-                    old_balance = balancePerCar.get(car_id);
+            long currentTime = System.currentTimeMillis();
+            long latency = currentTime - inputRecord.getArrivalTime();
+
+            // Retrieve or initialize segment state
+            SegmentState segState = segmentStateMap.contains(seg) ? segmentStateMap.get(seg) : new SegmentState();
+
+            // Retrieve or initialize car state
+            CarState cState = carStateMap.contains(carId) ? carStateMap.get(carId) : new CarState();
+
+            // Process record based on source operator
+            if (source == AccidentDetection_Output) {
+                int accidentFlag = inputRecord.getSpeed();
+                if (accidentFlag == 1) {
+                    segState.setLastAccident(time);
                 }
-                balancePerCar.put(car_id, old_balance + price);
-                if(payloadFlag){
-                    extraloadPerCar.put(car_id, new String(payload));
+                System.out.println("GT: " + inputRecord.getSegID() + "-" + carId + ", " + currentTime + ", " + latency + ", " + inputRecord.getTupleNumber());
+
+            } else if (source == LastAverageSpeed_Output) {
+                segState.setAverageSpeed(inputRecord.getSpeed());
+                System.out.println("GT: " + inputRecord.getSegID() + "-" + carId + ", " + currentTime + ", " + latency + ", " + inputRecord.getTupleNumber());
+
+            } else if (source == CountVehicles_Output) {
+                segState.setCarCounts(inputRecord.getSpeed()); // using speed field to store car counts as before
+
+                int carCounts = segState.getCarCounts();
+                int averageSpeed = segState.getAverageSpeed();
+
+                int price = carCounts * 5 + (100 - averageSpeed);
+                if (segState.getLastAccident() != null && segState.getLastAccident() >= time - 300) {
+                    price /= 2; // Discount if recent accident
                 }
-                if (input.f1 == 2) {
-                    int balance = 0;
-                    if (balancePerCar.contains(car_id)) {
-                        balance = balancePerCar.get(car_id);
-                    }
-                    System.out.println("Account Balance: car " + car_id + " balance " + balance);
-                    long currentTime = System.currentTimeMillis();
-                    System.out.println("GT: " + input.f0 + "-" + input.f2 + ", " + currentTime + ", " + (currentTime - input.f17) + ", " + input.f18);
+                System.out.println("Toll Notification: car " + carId + " enter seg " + seg + " price " + price);
+
+                cState.setBalance(cState.getBalance() + price);
+
+                if (payloadFlag) {
+                    cState.setExtraLoad(payload);
+                }
+
+                // Account Balance Check (inputRecord.getType() == 2)
+                if (inputRecord.getType() == 2) {
+                    int balance = cState.getBalance();
+                    System.out.println("Account Balance: car " + carId + " balance " + balance);
+                    System.out.println("GT: " + inputRecord.getSegID() + "-" + carId + ", " + currentTime + ", " + latency + ", " + inputRecord.getTupleNumber());
                 } else {
-                    if (dayPerCar.contains(car_id) && time - dayPerCar.get(car_id) >= 86400) {
-                        dayPerCar.put(car_id, time);
-                        dailyExpensePerCar.remove(car_id);
+                    // Daily expense calculation
+                    if (cState.getLastDay() != null && time - cState.getLastDay() >= 86400) {
+                        cState.setLastDay(time);
+                        cState.setDailyExpense(0);
                     }
-                    int old_expense = 0;
-                    if (dailyExpensePerCar.contains(car_id)) {
-                        old_expense = dailyExpensePerCar.get(car_id);
+
+                    // Using speed field as cost component (same logic as before)
+                    cState.setDailyExpense(cState.getDailyExpense() + inputRecord.getSpeed());
+
+                    if (payloadFlag) {
+                        cState.setExtraLoad(payload);
                     }
-                    dailyExpensePerCar.put(car_id, old_expense + input.f3);
-                    if(payloadFlag){
-                        extraloadPerCar.put(car_id, new String(payload));
-                    }
-                    long currentTime = System.currentTimeMillis();
-                    System.out.println("GT: " + input.f0 + "-" + input.f2 + ", " + currentTime + ", " + (currentTime - input.f17) + ", " + input.f18);
-                    // }else if(source == Source_Output){
-                    if (input.f1 == 3) {
-                        int expense = 0;
-                        if (dailyExpensePerCar.contains(car_id)) {
-                            expense = dailyExpensePerCar.get(car_id);
-                        }
-                        System.out.println("Daily Expense: car " + car_id + " expense " + expense);
+
+                    System.out.println("GT: " + inputRecord.getSegID() + "-" + carId + ", " + currentTime + ", " + latency + ", " + inputRecord.getTupleNumber());
+
+                    // Daily Expense Check (inputRecord.getType() == 3)
+                    if (inputRecord.getType() == 3) {
+                        int expense = cState.getDailyExpense();
+                        System.out.println("Daily Expense: car " + carId + " expense " + expense);
                     }
                 }
             }
-            out.collect(new Tuple19<>(
-                    input.f0,
-                    input.f1,
-                    car_id,
-                    input.f3,
-                    input.f4,
-                    input.f5,
-                    input.f6,
+
+            // Delay to simulate processing
+            DelayUtil.delay(averageDelay);
+
+            // Store updated states back to map state
+            segmentStateMap.put(seg, segState);
+            carStateMap.put(carId, cState);
+
+            // Emit updated record with TollNotification_Output
+            out.collect(new Tuple2<>(carId ,new LinearRoadRecord(
+                    inputRecord.getSegID(),
+                    inputRecord.getType(),
+                    carId,
+                    inputRecord.getSpeed(),
+                    inputRecord.getXway(),
+                    inputRecord.getLane(),
+                    inputRecord.getDir(),
                     seg,
-                    input.f8,
-                    input.f9,
-                    input.f10,
-                    input.f11,
-                    input.f12,
-                    input.f13,
-                    input.f14,
-                    input.f15,
+                    inputRecord.getPos(),
+                    inputRecord.getTime(),
+                    inputRecord.getQueryID(),
+                    inputRecord.getQStart(),
+                    inputRecord.getQEnd(),
+                    inputRecord.getQDayOfWeek(),
+                    inputRecord.getQMinutes(),
+                    inputRecord.getQDay(),
                     TollNotification_Output,
-                    input.f17,
-                    input.f18
+                    inputRecord.getArrivalTime(),
+                    inputRecord.getTupleNumber())
             ));
-            delay(averageDelay);
-        }
-
-        private void delay(long interval) {
-            Double ranN = randomGen.nextGaussian(interval, 1);
-            ranN = ranN * 1000;
-            long delay = ranN.intValue();
-            if (delay < 0) delay = interval * 1000;
-            Long start = System.nanoTime();
-            while (System.nanoTime() - start < delay) {
-            }
         }
 
         @Override
         public void open(Configuration config) {
-            MapStateDescriptor<Integer, Integer> descriptor =
-                    new MapStateDescriptor<>("toll-notification-segspeed", Integer.class, Integer.class);
-            segAverageSpeed = getRuntimeContext().getMapState(descriptor);
-            descriptor = new MapStateDescriptor<>("toll-notification-segaccident", Integer.class, Integer.class);
-            segLastAccident = getRuntimeContext().getMapState(descriptor);
-            descriptor = new MapStateDescriptor<>("toll-notification-segcars", Integer.class, Integer.class);
-            segCarCounts = getRuntimeContext().getMapState(descriptor);
-            MapStateDescriptor<String, Integer> descriptor1 =
-                    new MapStateDescriptor<>("account-balance-daily-expense-carbalance", String.class, Integer.class);
-            balancePerCar = getRuntimeContext().getMapState(descriptor1);
-            descriptor1 = new MapStateDescriptor<>("account-balance-daily-expense-carexpense", String.class, Integer.class);
-            dailyExpensePerCar = getRuntimeContext().getMapState(descriptor1);
-            descriptor1 = new MapStateDescriptor<>("account-balance-daily-expense-carday", String.class, Integer.class);
-            dayPerCar = getRuntimeContext().getMapState(descriptor1);
-            if(payloadFlag) {
-                MapStateDescriptor<String, String> descriptor2 =
-                        new MapStateDescriptor<>("account-balance-daily-expense-payload", String.class, String.class);
-                extraloadPerCar = getRuntimeContext().getMapState(descriptor2);
-            }
-        }
-    }
+            MapStateDescriptor<Integer, SegmentState> segmentDesc = new MapStateDescriptor<>(
+                    "segment-state",
+                    Integer.class,
+                    SegmentState.class
+            );
+            segmentStateMap = getRuntimeContext().getMapState(segmentDesc);
 
-    public static final class AccountBalance extends RichFlatMapFunction<
-            Tuple19<String, Integer, String, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Long, Long>,
-            Tuple19<String, Integer, String, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Long, Long>> {
-
-        private RandomDataGenerator randomGen = new RandomDataGenerator();
-        private transient MapState<String, Integer> balancePerCar;
-        private int averageDelay; // Microsecond
-
-        public AccountBalance(int _averageDelay) {
-            this.averageDelay = _averageDelay;
-        }
-
-        @Override
-        public void flatMap(Tuple19<String, Integer, String, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Long, Long> input, Collector<Tuple19<String, Integer, String, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Long, Long>> out) throws Exception {
-            String car_id = input.f2;
-            int source = input.f16;
-            if (source == TollNotification_Output){
-                int old_balance = 0;
-                if(balancePerCar.contains(car_id)){
-                    old_balance = balancePerCar.get(car_id);
-                }
-                balancePerCar.put(car_id, old_balance + input.f3);
-                out.collect(new Tuple19<>(
-                        input.f0,
-                        input.f1,
-                        input.f2,
-                        input.f3,
-                        input.f4,
-                        input.f5,
-                        input.f6,
-                        input.f7,
-                        input.f8,
-                        input.f9,
-                        input.f10,
-                        input.f11,
-                        input.f12,
-                        input.f13,
-                        input.f14,
-                        input.f15,
-                        AccountBalance_Output,
-                        input.f17,
-                        input.f18));
-            // }else if(source == Source_Output){
-                if (input.f1 == 2) {
-                    int balance = 0;
-                    if (balancePerCar.contains(car_id)){
-                        balance = balancePerCar.get(car_id);
-                    }
-                    System.out.println("Account Balance: car " + car_id + " balance " + balance);
-                    long currentTime = System.currentTimeMillis();
-                    System.out.println("GT: " + input.f0 + "-" + input.f2 + ", " + currentTime + ", " + (currentTime - input.f17) + ", " + input.f18);
-                }
-            }
-            delay(averageDelay);
-        }
-
-        private void delay(long interval) {
-            Double ranN = randomGen.nextGaussian(interval, 1);
-            ranN = ranN * 1000;
-            long delay = ranN.intValue();
-            if (delay < 0) delay = interval * 1000;
-            Long start = System.nanoTime();
-            while (System.nanoTime() - start < delay) {
-            }
-        }
-
-        @Override
-        public void open(Configuration config) {
-            MapStateDescriptor<String, Integer> descriptor =
-                    new MapStateDescriptor<>("account-balance-carbalance", String.class, Integer.class);
-            balancePerCar = getRuntimeContext().getMapState(descriptor);
-        }
-    }
-
-    public static final class AccountBalanceAndDailyExpense extends RichFlatMapFunction<
-            Tuple19<String, Integer, String, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Long, Long>,
-            Tuple19<String, Integer, String, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Long, Long>> {
-
-        private RandomDataGenerator randomGen = new RandomDataGenerator();
-        private transient MapState<String, Integer> balancePerCar, dailyExpensePerCar, dayPerCar;
-        private int averageDelay; // Microsecond
-
-        public AccountBalanceAndDailyExpense(int _averageDelay) {
-            this.averageDelay = _averageDelay;
-        }
-
-        @Override
-        public void flatMap(Tuple19<String, Integer, String, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Long, Long> input, Collector<Tuple19<String, Integer, String, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Long, Long>> out) throws Exception {
-            String car_id = input.f2;
-            int source = input.f16, time = input.f9;;
-            if (source == TollNotification_Output){
-                int old_balance = 0;
-                if(balancePerCar.contains(car_id)){
-                    old_balance = balancePerCar.get(car_id);
-                }
-                balancePerCar.put(car_id, old_balance + input.f3);
-                if (input.f1 == 2) {
-                    int balance = 0;
-                    if (balancePerCar.contains(car_id)){
-                        balance = balancePerCar.get(car_id);
-                    }
-                    System.out.println("Account Balance: car " + car_id + " balance " + balance);
-                    long currentTime = System.currentTimeMillis();
-                    System.out.println("GT: " + input.f0 + "-" + input.f2 + ", " + currentTime + ", " + (currentTime - input.f17) + ", " + input.f18);
-                }else{
-                    if(dayPerCar.contains(car_id) && time - dayPerCar.get(car_id) >= 86400){
-                        dayPerCar.put(car_id, time);
-                        dailyExpensePerCar.remove(car_id);
-                    }
-                    int old_expense = 0;
-                    if(dailyExpensePerCar.contains(car_id)){
-                        old_expense = dailyExpensePerCar.get(car_id);
-                    }
-                    dailyExpensePerCar.put(car_id, old_expense + input.f3);
-                    long currentTime = System.currentTimeMillis();
-                    System.out.println("GT: " + input.f0 + "-" + input.f2 + ", " + currentTime + ", " + (currentTime - input.f17) + ", " + input.f18);
-                    // }else if(source == Source_Output){
-                    if (input.f1 == 3) {
-                        int expense = 0;
-                        if (dailyExpensePerCar.contains(car_id)){
-                            expense = dailyExpensePerCar.get(car_id);
-                        }
-                        System.out.println("Daily Expense: car " + car_id + " expense " + expense);
-                    }
-                }
-            }
-            delay(averageDelay);
-        }
-
-        private void delay(long interval) {
-            Double ranN = randomGen.nextGaussian(interval, 1);
-            ranN = ranN * 1000;
-            long delay = ranN.intValue();
-            if (delay < 0) delay = interval * 1000;
-            Long start = System.nanoTime();
-            while (System.nanoTime() - start < delay) {
-            }
-        }
-
-        @Override
-        public void open(Configuration config) {
-            MapStateDescriptor<String, Integer> descriptor =
-                    new MapStateDescriptor<>("account-balance-daily-expense-carbalance", String.class, Integer.class);
-            balancePerCar = getRuntimeContext().getMapState(descriptor);
-            descriptor = new MapStateDescriptor<>("account-balance-daily-expense-carexpense", String.class, Integer.class);
-            dailyExpensePerCar = getRuntimeContext().getMapState(descriptor);
-            descriptor = new MapStateDescriptor<>("account-balance-daily-expense-carday", String.class, Integer.class);
-            dayPerCar = getRuntimeContext().getMapState(descriptor);
-        }
-    }
-
-    public static final class DailyExpense extends RichFlatMapFunction<
-            Tuple19<String, Integer, String, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Long, Long>,
-            Tuple19<String, Integer, String, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Long, Long>> {
-
-        private RandomDataGenerator randomGen = new RandomDataGenerator();
-        private transient MapState<String, Integer> dailyExpensePerCar, dayPerCar;
-        private int averageDelay; // Microsecond
-
-        public DailyExpense(int _averageDelay) {
-            this.averageDelay = _averageDelay;
-        }
-
-        @Override
-        public void flatMap(Tuple19<String, Integer, String, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Long, Long> input, Collector<Tuple19<String, Integer, String, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Long, Long>> out) throws Exception {
-            String car_id = input.f2;
-            int source = input.f16, time = input.f9;
-            if (source == AccountBalance_Output){
-                if(dayPerCar.contains(car_id) && time - dayPerCar.get(car_id) >= 86400){
-                    dayPerCar.put(car_id, time);
-                    dailyExpensePerCar.remove(car_id);
-                }
-                int old_expense = 0;
-                if(dailyExpensePerCar.contains(car_id)){
-                    old_expense = dailyExpensePerCar.get(car_id);
-                }
-                dailyExpensePerCar.put(car_id, old_expense + input.f3);
-                long currentTime = System.currentTimeMillis();
-                System.out.println("GT: " + input.f0 + "-" + input.f2 + ", " + currentTime + ", " + (currentTime - input.f17) + ", " + input.f18);
-            // }else if(source == Source_Output){
-                if (input.f1 == 3) {
-                    int expense = 0;
-                    if (dailyExpensePerCar.contains(car_id)){
-                        expense = dailyExpensePerCar.get(car_id);
-                    }
-                    System.out.println("Daily Expense: car " + car_id + " expense " + expense);
-                    currentTime = System.currentTimeMillis();
-                    System.out.println("GT: " + input.f0 + "-" + input.f2 + ", " + currentTime + ", " + (currentTime - input.f17) + ", " + input.f18);
-                }
-            }
-            delay(averageDelay);
-        }
-
-        private void delay(long interval) {
-            Double ranN = randomGen.nextGaussian(interval, 1);
-            ranN = ranN * 1000;
-            long delay = ranN.intValue();
-            if (delay < 0) delay = interval * 1000;
-            Long start = System.nanoTime();
-            while (System.nanoTime() - start < delay) {
-            }
-        }
-
-        @Override
-        public void open(Configuration config) {
-            MapStateDescriptor<String, Integer> descriptor =
-                    new MapStateDescriptor<>("daily-expense-carexpense", String.class, Integer.class);
-            dailyExpensePerCar = getRuntimeContext().getMapState(descriptor);
-            descriptor = new MapStateDescriptor<>("daily-expense-carday", String.class, Integer.class);
-            dayPerCar = getRuntimeContext().getMapState(descriptor);
+            MapStateDescriptor<String, CarState> carDesc = new MapStateDescriptor<>(
+                    "car-state",
+                    String.class,
+                    CarState.class
+            );
+            carStateMap = getRuntimeContext().getMapState(carDesc);
         }
     }
 
