@@ -1133,13 +1133,9 @@ def main():
         "Linear-Road_30min": {
             # "arrival_rate" : "lr-streamsluice-streamsluice--1980-150-1300-10-1-50-27-8000-4-2000-1-50-1000-0.1-100-1-0-0.0-false-3000-1",
             "0.1": [
-                "lr-streamsluice-streamsluice-1-1080-150-1300-10-1-50-3-1000-1-50-27-2500-2000-0.1-100-1-0-0.0-true-500-0.8-2",
-                "lr-streamsluice-streamsluice-1-1080-150-1300-10-1-50-3-1000-1-50-27-2500-3000-0.1-100-1-0-0.0-true-500-0.8-2",
-                "lr-streamsluice-streamsluice-1-1080-150-1300-10-1-50-3-1000-1-50-27-2500-4000-0.1-100-1-0-0.0-true-500-0.8-2",
-                "lr-streamsluice-streamsluice-1-1080-150-1300-10-1-50-3-1000-1-50-27-2500-5000-0.1-100-1-0-0.0-true-500-0.8-2",
-                "lr-streamsluice-streamsluice-1-1080-150-1300-10-1-50-3-1000-1-50-27-2500-6000-0.1-100-1-0-0.0-true-500-0.8-2",
-                "lr-streamsluice-streamsluice-1-1080-150-1300-10-1-50-3-1000-1-50-27-2500-7000-0.1-100-1-0-0.0-true-500-0.8-2",
-                "lr-streamsluice-streamsluice-1-1080-150-1300-10-1-50-3-1000-1-50-27-2500-8000-0.1-100-1-0-0.0-true-500-0.8-2"
+                #"lr-streamsluice-streamsluice-1-1080-150-1300-10-1-50-3-1000-1-50-27-2500-3000-0.1-100-1-0-0.0-true-500-0.8-2",
+                #"lr-streamsluice-streamsluice-1-1080-150-1300-10-1-50-3-1000-1-50-27-2500-4000-0.1-100-1-0-0.0-true-500-0.8-2",
+                "lr-streamsluice-streamsluice-1-1080-150-1300-10-1-50-3-1000-1-50-27-2500-1000-0.1-100-1-0-0.0-true-500-0.8-2",
                # "lr-streamsluice-streamsluice-1-1080-150-1300-10-1-50-3-1000-1-50-27-2500-2000-0.1-100-1-0-0.0-true-500-0.8-1",
                # "lr-streamsluice-streamsluice-1-1080-150-1300-10-1-50-3-1000-1-50-27-2500-3000-0.1-100-1-0-0.0-true-500-0.8-1",
                # "lr-streamsluice-streamsluice-1-1080-150-1300-10-1-50-3-1000-1-50-27-2500-4000-0.1-100-1-0-0.0-true-500-0.8-1",
@@ -1222,7 +1218,7 @@ def main():
                     else:
                         latency_bar = int(exp_name.split('-')[-9])
                     start_time = 180
-                    exp_length = 600 #1800
+                    exp_length = 900 #1800
                 elif exp_name.startswith("tweet"):
                     latency_bar = int(exp_name.split('-')[-5])
                     start_time = 150
@@ -1235,8 +1231,9 @@ def main():
                     latency_bar = int(exp_name.split('-')[-6])
                     start_time = 120
                     exp_length = 600
-                #focus_ranges = [[225, 255], [315, 345], [435, 465], [490, 520]]
-                focus_ranges = [[360, 390], [435, 465], [550, 580]]
+                #focus_ranges = [[225, 255], [315, 345], [435, 465], [490, 520]] # 4000
+                #focus_ranges = #[[360, 390], [435, 465], [550, 580]] # 3000
+                focus_ranges = []
                 success_rate, weighted_success_rate, first_converge_time, converged_bar = draw_latency_curves(raw_dir, output_dir + exp_name + '/', exp_name,
                                                                               window_size,
                                                                               start_time, exp_length, latency_bar, draw_lem_latency_flag, focus_ranges)

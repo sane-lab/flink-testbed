@@ -187,12 +187,12 @@ run_scale_test(){
     TIME2=30
     RATE_I=4000
     TIME_I=30
-    printf "" > part5_result.txt
+    printf "" > part6_result.txt
 
     runtime=1890
 
     # Period Amplitude Change
-    printf "MicroBench\n" >> part5_result.txt
+    printf "MicroBench\n" >> part6_result.txt
     setting="microbench"
     SOURCE_TYPE="part5"
     DELAY2=20
@@ -239,11 +239,11 @@ run_scale_test(){
     autotune=false
     how_type="ds2"
 #    run_one_exp
-#    printf "${EXP_NAME}\n" >> part5_result.txt
-    for L in 2000; do # 1000 3000
-      for autotuner_increase_bar_alpha in 0.1 0.4; do
+#    printf "${EXP_NAME}\n" >> part6_result.txt
+    for L in 4000 5000; do # 1000 3000
+      for autotuner_increase_bar_alpha in 0.1 0.2 0.4; do
         is_treat=true
-        autotune=true
+        autotune=false
         how_type="streamsluice"
         run_one_exp
         printf "${EXP_NAME}\n" >> part5_result.txt
