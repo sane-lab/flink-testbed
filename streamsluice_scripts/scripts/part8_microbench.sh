@@ -1,6 +1,6 @@
 #!/bin/bash
 
-source config-whetherhow.sh
+source config-systemsensitivity.sh
 
 # dump data
 function analyze() {
@@ -240,7 +240,7 @@ run_scale_test(){
     run_one_exp
     printf "${EXP_NAME}\n" >> part8_result.txt
     whether_type="streamsluice"
-    for L in 1000 2000 3000; do
+    for L in 1000; do # 2000 3000
       for whether_type in "streamsluice" "ds2" "dhalion" "streamswitch"; do
         is_treat=true
         autotune=false
