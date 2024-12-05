@@ -22,7 +22,7 @@ function analyze() {
 }
 
 run_one_exp() {
-  EXP_NAME=part5-${setting}-${whether_type}-${how_type}-${SOURCE_TYPE}-${CURVE_TYPE}-${GRAPH}-${runtime}-${rate_low}-${rate_high}-${rate_period}-${rate_pattern}-${amplitude_low}-${amplitude_high}-${amplitude_period}-${amplitude_pattern}-${period_low}-${period_high}-${period_period}-${period_pattern}-${P1}-${ZIPF_SKEW}-${P2}-${DELAY2}-${IO2}-${STATE_SIZE2}-${P3}-${DELAY3}-${IO3}-${STATE_SIZE3}-${P4}-${DELAY4}-${IO4}-${STATE_SIZE4}-${P5}-${DELAY5}-${STATE_SIZE5}--${noise}-${autotuner_increase_bar_alpha}-${L}-${migration_interval}-${epoch}-${decision_interval}-${is_treat}-${repeat}
+  EXP_NAME=part6-${setting}-${whether_type}-${how_type}-${SOURCE_TYPE}-${CURVE_TYPE}-${GRAPH}-${runtime}-${rate_low}-${rate_high}-${rate_period}-${rate_pattern}-${amplitude_low}-${amplitude_high}-${amplitude_period}-${amplitude_pattern}-${period_low}-${period_high}-${period_period}-${period_pattern}-${P1}-${ZIPF_SKEW}-${P2}-${DELAY2}-${IO2}-${STATE_SIZE2}-${P3}-${DELAY3}-${IO3}-${STATE_SIZE3}-${P4}-${DELAY4}-${IO4}-${STATE_SIZE4}-${P5}-${DELAY5}-${STATE_SIZE5}--${noise}-${autotuner_increase_bar_alpha}-${L}-${migration_interval}-${epoch}-${decision_interval}-${is_treat}-${repeat}
   echo "INFO: run exp ${EXP_NAME}"
   configFlink
   runFlink
@@ -189,12 +189,12 @@ run_scale_test(){
     TIME_I=30
     printf "" > part6_result.txt
 
-    runtime=1890
+    runtime=690
 
     # Period Amplitude Change
     printf "MicroBench\n" >> part6_result.txt
     setting="microbench"
-    SOURCE_TYPE="part5"
+    SOURCE_TYPE="part6"
     DELAY2=20
     DELAY3=50 #250 #333
     DELAY4=20
@@ -217,31 +217,30 @@ run_scale_test(){
     autotuner_latency_window=100
     autotuner_increase_bar_alpha=0.2 #0.1
     epoch=100
-    CURVE_TYPE="sine" #"linear"
-
+    CURVE_TYPE="mixed" #"linear"
     warmupRate=5000
     warmupTime=60
     rate_low=4000
     rate_high=6000
-    rate_period=600
+    rate_period=300
     rate_pattern="linear"
     amplitude_low=500
     amplitude_high=2000
-    amplitude_period=1800
-    amplitude_pattern="stair_4"
+    amplitude_period=450
+    amplitude_pattern="linear"
     period_low=120
     period_high=60
-    period_period=1800
-    period_pattern="stair_4"
+    period_period=240
+    period_pattern="linear"
     noise=0.05
 
     is_treat=false
     autotune=false
     how_type="ds2"
-#    run_one_exp
-#    printf "${EXP_NAME}\n" >> part6_result.txt
-    for L in 4000 5000; do # 1000 3000
-      for autotuner_increase_bar_alpha in 0.1 0.2 0.4; do
+    run_one_exp
+    printf "${EXP_NAME}\n" >> part6_result.txt
+    for L in 1000 2000; do # 1000 3000
+      for autotuner_increase_bar_alpha in 0.1; do
         is_treat=true
         autotune=false
         how_type="streamsluice"

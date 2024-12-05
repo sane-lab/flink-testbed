@@ -80,7 +80,7 @@ public class MicroBench {
                     setParallelism(params.getInt("p1", 1));
         }else if(SOURCE_TYPE.equals("how")) {
             source = env.addSource(new HowSource(PHASE1_TIME, PHASE2_TIME, INTERMEDIATE_TIME, PHASE1_RATE, PHASE2_RATE, INTERMEDIATE_RATE, params.getLong("run_time", 510) * 1000));
-        }else if(SOURCE_TYPE.equals("part5")){
+        }else if(SOURCE_TYPE.equals("part5") || SOURCE_TYPE.equals("part6")){
             long average_rate_low = params.getLong("rateLow", 5000);
             long average_rate_high = params.getLong("rateHigh", 5000);
             long average_rate_period = params.getLong("ratePeriod", 300) * 1000;
@@ -93,11 +93,11 @@ public class MicroBench {
             long period_high = params.getLong("periodHigh", 10) * 1000;
             long period_period = params.getLong("periodPeriod", 60) * 1000;
             String period_pattern = params.get("periodPattern", "stair_4");
-            System.out.println("!!!! Source");
             source = env.addSource(new AverageRateChangeAmplitudeChangeWithNoiseSource(
                     params.getLong("warmupTime", 20) * 1000,
                     params.getLong("warmupRate", INTERMEDIATE_RATE),
                     params.getLong("run_time", 510) * 1000,
+                    params.get("curve_type", "sine"),
                     average_rate_low, average_rate_high, average_rate_period, average_rate_pattern,
                     amplitude_low, amplitude_high, amplitude_period, amplitude_pattern,
                     period_low, period_high, period_period, period_pattern,
@@ -2210,7 +2210,7 @@ public class MicroBench {
         }
     }
     public static final class AverageRateChangeAmplitudeChangeWithNoiseSource implements SourceFunction<Tuple3<String, Long, Long>>, CheckpointedFunction {
-        final private long WARMP_TIME, WARMP_RATE, TOTAL_TIME, AVERAGE_RATE_LOW, AVERAGE_RATE_HIGH, AVERAGE_RATE_PERIOD, AVERAGE_RATE_PATTERN, AMPLITUDE_LOW, AMPLITUDE_HIGH, AMPLITUDE_PERIOD, AMPLITUDE_PATTERN, PERIOD_LOW, PERIOD_HIGH, PERIOD_PERIOD, PERIOD_PATTERN;
+        final private long WARMP_TIME, WARMP_RATE, TOTAL_TIME, PATTERN, AVERAGE_RATE_LOW, AVERAGE_RATE_HIGH, AVERAGE_RATE_PERIOD, AVERAGE_RATE_PATTERN, AMPLITUDE_LOW, AMPLITUDE_HIGH, AMPLITUDE_PERIOD, AMPLITUDE_PATTERN, PERIOD_LOW, PERIOD_HIGH, PERIOD_PERIOD, PERIOD_PATTERN;
         final private double NOISE_LEVEL;
         private int count = 0;
         private volatile boolean isRunning = true;
@@ -2224,13 +2224,30 @@ public class MicroBench {
 
         private final Map<Integer, Long> totalOutputNumbers = new HashMap<>();
 
-        public AverageRateChangeAmplitudeChangeWithNoiseSource(long WARMUP_TIME, long WARMUP_RATE, long TOTAL_TIME,
+        public AverageRateChangeAmplitudeChangeWithNoiseSource(long WARMUP_TIME, long WARMUP_RATE, long TOTAL_TIME, String PATTERN,
                                                                long AVERAGE_RATE_LOW, long AVERAGE_RATE_HIGH, long AVERAGE_RATE_PERIOD, String AVERAGE_RATE_PATTERN,
                                                                long AMPLITUDE_LOW, long AMPLITUDE_HIGH, long AMPLITUDE_PERIOD, String AMPLITUDE_PATTERN,
                                                                long PERIOD_LOW, long PERIOD_HIGH, long PERIOD_PERIOD, String PERIOD_PATTERN, double NOISE_LEVEL){
             this.WARMP_TIME = WARMUP_TIME;
             this.WARMP_RATE = WARMUP_RATE;
             this.TOTAL_TIME = TOTAL_TIME;
+            switch(PATTERN) {
+                case "gradient":
+                    this.PATTERN = 0;
+                    break;
+                case "linear":
+                    this.PATTERN = 1;
+                    break;
+                case "sine":
+                    this.PATTERN = 2;
+                    break;
+                case "mixed":
+                    this.PATTERN = 3;
+                    break;
+                default:
+                    this.PATTERN = 2;
+                    break;
+            }
             this.AVERAGE_RATE_LOW = AVERAGE_RATE_LOW;
             this.AVERAGE_RATE_HIGH = AVERAGE_RATE_HIGH;
             this.AVERAGE_RATE_PERIOD = AVERAGE_RATE_PERIOD;
@@ -2327,7 +2344,17 @@ public class MicroBench {
         void startSteadyPhase(SourceContext<Tuple3<String, Long, Long>> ctx, long rate, long time, long phaseStartTime)throws Exception {
             while (isRunning && System.currentTimeMillis() - phaseStartTime < time) {
                 long emitStartTime = System.currentTimeMillis();
-                for (int i = 0; i < rate / 20; i++) {
+
+                // Add Gaussian noise to the rate, scaled by noise level
+                double noise = random.nextGaussian() * NOISE_LEVEL;
+                long noised_rate = (long) (rate * (1 + noise));  // Apply the noise
+
+                // Ensure that the rate is not negative after applying noise
+                if (noised_rate < 0) {
+                    noised_rate = 0;
+                }
+
+                for (int i = 0; i < noised_rate / 20; i++) {
                     int selectedKeygroup = fastZipfGenerator.next();
                     List<String> subKeySet = keyGroupMapping.get(selectedKeygroup);
                     totalOutputNumbers.put(selectedKeygroup, totalOutputNumbers.getOrDefault(selectedKeygroup, 0l) + 1);
@@ -2335,6 +2362,40 @@ public class MicroBench {
                     ctx.collect(Tuple3.of(key, System.currentTimeMillis(), (long) count));
                     count++;
                 }
+                Util.pause(emitStartTime);
+            }
+        }
+
+        void startLinearPhase(SourceContext<Tuple3<String, Long, Long>> ctx, long rate1, long rate2, long time, long phaseStartTime)throws Exception {
+            long currentTime;
+            long elapsedTime;
+            long rate;
+
+            while (isRunning && (currentTime = System.currentTimeMillis()) - phaseStartTime < time) {
+                long emitStartTime = System.currentTimeMillis();
+                elapsedTime = currentTime - phaseStartTime;
+
+                // Calculate the current rate using linear interpolation between rate1 and rate2
+                rate = rate1 + ((rate2 - rate1) * elapsedTime) / time;
+
+                // Add Gaussian noise to the rate, scaled by noise level
+                double noise = random.nextGaussian() * NOISE_LEVEL;
+                rate = (long) (rate * (1 + noise));  // Apply the noise
+
+                // Ensure that the rate is not negative after applying noise
+                if (rate < 0) {
+                    rate = 0;
+                }
+
+                for (int i = 0; i < rate / 20; i++) {
+                    int selectedKeygroup = fastZipfGenerator.next();
+                    List<String> subKeySet = keyGroupMapping.get(selectedKeygroup);
+                    totalOutputNumbers.put(selectedKeygroup, totalOutputNumbers.getOrDefault(selectedKeygroup, 0L) + 1);
+                    String key = getSubKeySetChar(count, subKeySet);
+                    ctx.collect(Tuple3.of(key, System.currentTimeMillis(), (long) count));
+                    count++;
+                }
+
                 Util.pause(emitStartTime);
             }
         }
@@ -2434,9 +2495,49 @@ public class MicroBench {
                 long now_average_rate = calculateValueAtCurrentTime(roundStartTime - startTime, AVERAGE_RATE_LOW, AVERAGE_RATE_HIGH, AVERAGE_RATE_PERIOD, AVERAGE_RATE_PATTERN);
                 long now_amplitude = calculateValueAtCurrentTime(roundStartTime - startTime, AMPLITUDE_LOW, AMPLITUDE_HIGH, AMPLITUDE_PERIOD, AMPLITUDE_PATTERN);
                 long now_period = calculateValueAtCurrentTime(roundStartTime - startTime, PERIOD_LOW, PERIOD_HIGH, PERIOD_PERIOD, PERIOD_PATTERN);
-                System.out.println("Round " + round + " sine phase start at: " + roundStartTime);
-                System.out.println("phase paras: " + now_average_rate + ", " + now_amplitude + ", " + now_period);
-                startSinePhase(ctx, now_amplitude,  now_average_rate, now_period, roundStartTime);
+                long pattern_this_round;
+                if (this.PATTERN != 3){
+                    pattern_this_round = this.PATTERN;
+                }else{
+                    pattern_this_round = round % 3;
+                }
+                if (pattern_this_round == 0){
+                    System.out.println("Round " + round + " stair phase start at: " + roundStartTime);
+                    System.out.println("phase paras: " + now_average_rate + ", " + now_amplitude + ", " + now_period);
+                    startSteadyPhase(ctx, now_average_rate, now_period / 8, roundStartTime);
+                    roundStartTime = System.currentTimeMillis();
+                    startSteadyPhase(ctx, now_average_rate + now_amplitude, now_period / 4, roundStartTime);
+                    roundStartTime = System.currentTimeMillis();
+                    startSteadyPhase(ctx, now_average_rate, now_period / 4, roundStartTime);
+                    roundStartTime = System.currentTimeMillis();
+                    startSteadyPhase(ctx, now_average_rate - now_amplitude, now_period / 4, roundStartTime);
+                    roundStartTime = System.currentTimeMillis();
+                    startSteadyPhase(ctx, now_average_rate, now_period / 8, roundStartTime);
+                }else if(pattern_this_round == 1){
+                    System.out.println("Round " + round + " linear phase start at: " + roundStartTime);
+                    System.out.println("phase paras: " + now_average_rate + ", " + now_amplitude + ", " + now_period);
+                    startSteadyPhase(ctx, now_average_rate, now_period / 16, roundStartTime);
+                    roundStartTime = System.currentTimeMillis();
+                    startLinearPhase(ctx, now_average_rate, now_average_rate + now_amplitude, now_period / 8, roundStartTime);
+                    roundStartTime = System.currentTimeMillis();
+                    startSteadyPhase(ctx, now_average_rate + now_amplitude, now_period / 8, roundStartTime);
+                    roundStartTime = System.currentTimeMillis();
+                    startLinearPhase(ctx, now_average_rate + now_amplitude, now_average_rate, now_period / 8, roundStartTime);
+                    roundStartTime = System.currentTimeMillis();
+                    startSteadyPhase(ctx, now_average_rate, now_period / 8, roundStartTime);
+                    roundStartTime = System.currentTimeMillis();
+                    startLinearPhase(ctx, now_average_rate, now_average_rate - now_amplitude, now_period / 8, roundStartTime);
+                    roundStartTime = System.currentTimeMillis();
+                    startSteadyPhase(ctx, now_average_rate - now_amplitude, now_period / 8, roundStartTime);
+                    roundStartTime = System.currentTimeMillis();
+                    startLinearPhase(ctx, now_average_rate - now_amplitude, now_average_rate, now_period / 8, roundStartTime);
+                    roundStartTime = System.currentTimeMillis();
+                    startSteadyPhase(ctx, now_average_rate, now_period / 16, roundStartTime);
+                }else if (pattern_this_round == 2) {
+                    System.out.println("Round " + round + " sine phase start at: " + roundStartTime);
+                    System.out.println("phase paras: " + now_average_rate + ", " + now_amplitude + ", " + now_period);
+                    startSinePhase(ctx, now_amplitude, now_average_rate, now_period, roundStartTime);
+                }
                 if (!isRunning) {
                     return;
                 }
