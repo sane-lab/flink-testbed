@@ -270,7 +270,6 @@ def draw(rawDir, outputDir, exps):
         for job in parallelisms.keys():
             if job == "TOTAL":
                 totalParallelismPerExps[expindex] = parallelisms[job]
-                overall_resource[app][expindex] = []
                 for i in range(0, len(parallelisms[job][1])):
                     l = 0
                     r = 0
@@ -278,9 +277,6 @@ def draw(rawDir, outputDir, exps):
                         r = parallelisms[job][0][i + 1]
                     l = max(parallelisms[job][0][i], startTime * 1000)
                     r = min(r, (startTime + exp_length) * 1000)
-                    if (l < r):
-                        for j in range(0, r - l):
-                            overall_resource[app][expindex] += [parallelisms[job][1][i]]
                 continue
             if job not in parallelismsPerJob:
                 parallelismsPerJob[job] = []
@@ -364,7 +360,7 @@ def draw(rawDir, outputDir, exps):
             linewidth = LINEWIDTH / 2.0
         ax1.plot(line[0], line[1], color=exps[expindex][2], linewidth=linewidth)
         print("Average parallelism " + exps[expindex][0] + " : " + str(totalParallelism / (exp_length * 1000)))
-    ax1.plot(scalingPoints[0], scalingPoints[1], 'o', color="orange", mfc='none', markersize=MARKERSIZE * 2, label="Scaling")
+    #ax1.plot(scalingPoints[0], scalingPoints[1], 'o', color="orange", mfc='none', markersize=MARKERSIZE * 2, label="Scaling")
     ax1.legend(legend, loc='upper left', bbox_to_anchor=(-0.1, 1.3), ncol=3, markerscale=4.)
     # ax1.set_ylabel('OP_'+str(jobIndex+1)+' Parallelism')
     # ax1.set_ylim(4, 17)
@@ -412,94 +408,23 @@ outputDir = "/Users/swrrt/Workplace/BacklogDelayPaper/experiments/results/"
 #expName = "streamsluice-scaletest-400-600-500-5-2000-1000-100-1"
 #expName = "autotune_4op-false-390-10000-12500-60-15000-60-12500-60-1-0-2-125-1-5000-2-120-1-5000-3-250-1-5000-6-500-5000-2000-1500-100-true-1"
 windowSize=1000
-exps = {
-    # "Stock": [
-    #     ["DS2",
-    #      "stock_analysis-ds2-ds2-3990-30-1000-20-2-500-6-5000-3-1000-4-3000-1-5-4000-2000-100-true-3-true-1",
-    #      "purple", "d"],
-    #     ["StreamSwitch",
-    #      #"stock_analysis-streamswitch-streamswitch-2190-30-1000-20-2-500-6-5000-3-1000-4-3000-1-5-4000-2000-100-true-3-true-2",
-    #      "stock_analysis-streamswitch-streamswitch-3990-30-1000-20-2-500-6-5000-3-1000-4-3000-1-5-4000-2000-100-true-3-true-2",
-    #      "green", "p"],
-    #     ["Sluice",
-    #       "stock_analysis-streamsluice-streamsluice-3990-30-1000-20-2-500-6-5000-3-1000-4-3000-1-5-4000-2000-100-true-3-true-1",
-    #       "blue", "o"],
-    # ],
-    # "Tweet": [
-    #     ["DS2",
-    #      "tweet_alert-ds2-ds2-2190-30-1800-1-30-5000-10-1000-1-50-1-100-2000-100-true-3-true-1",
-    #      "purple", "d"],
-    #     ["StreamSwitch",
-    #      "tweet_alert-streamswitch-streamswitch-2190-30-1800-1-30-5000-10-1000-1-50-1-100-2000-100-true-3-true-1",
-    #      "green", "p"],
-    #     ["Sluice",
-    #       "tweet_alert-streamsluice-streamsluice-2190-30-1800-1-30-5000-10-1000-1-50-1-100-2000-100-true-3-true-2",
-    #       "blue", "o"],
-    # ],
-    "Linear_Road": [
-        ["Static",
-         #"system-streamsluice-ds2-true-true-false-when-mixed-1split2join1-760-6000-3000-4000-1-0-2-300-1-5000-2-300-1-5000-2-300-1-5000-6-510-5000-1000-3000-100-1-false-1",
-         "part8-microbench-streamsluice-ds2-part8-mixed-1split2join1-570-5000-5000-960-linear-2000-1000-960-stair_3-120-1-960-stair_3-1-0-1-20-1-5000-2-50-1-5000-1-20-1-5000-17-800-5000--0.05-0.1-1000-3000-100-1-false-1",
-         "green", "o"],
-        # ["Earlier",
-        #  "systemsensitivity-streamsluice_earlier-streamsluice-when-1split2join1-400-6000-3000-4000-1-0-2-300-1-10000-2-300-1-10000-2-300-1-10000-6-510-10000-2500-3000-100-10-true-1",
-        #  "green", "o"],
-        # ["Later",
-        #  "systemsensitivity-streamsluice_later-streamsluice-when-1split2join1-400-6000-3000-4000-1-0-2-300-1-10000-2-300-1-10000-2-300-1-10000-6-510-10000-2500-3000-100-10-true-1",
-        #  "orange", "o"],
-        # ["Sluice",
-        #  "systemsensitivity-streamsluice-streamsluice-when-1split2join1-400-6000-3000-4000-1-0-2-300-1-10000-2-300-1-10000-2-300-1-10000-6-510-10000-2500-3000-100-10-true-1",
-        #  "blue", "o"],
-        # ["Earlier",
-        #  "systemsensitivity-streamsluice_earlier-streamsluice-when-1split2join1-400-6000-3000-4000-1-0-2-300-1-10000-2-300-1-10000-2-300-1-10000-6-510-10000-2000-3000-100-10-true-1",
-        #  "green", "o"],
-        # ["Later",
-        #  "systemsensitivity-streamsluice_later-streamsluice-when-1split2join1-400-6000-3000-4000-1-0-2-300-1-10000-2-300-1-10000-2-300-1-10000-6-510-10000-2000-3000-100-10-true-1",
-        #  "orange", "o"],
-        # ["Sluice",
-        #  "systemsensitivity-streamsluice-streamsluice-when-1split2join1-400-6000-3000-4000-1-0-2-300-1-5000-2-300-1-5000-2-300-1-5000-6-510-5000-2000-3000-100-10-true-1",
-        #  "blue", "o"],
-        ["Sluice",
-         #"systemsensitivity-streamsluice-streamsluice-when-1split2join1-400-6000-3000-4000-1-0-2-300-1-5000-2-300-1-5000-2-300-1-5000-6-510-5000-2000-3000-100-10-true-1",
-         #"system-streamsluice-streamsluice-true-true-false-when-mixed-1split2join1-760-6000-3000-4000-1-0-2-300-1-5000-2-300-1-5000-2-300-1-5000-6-510-5000-2000-3000-100-1-true-1",
-         "part8-microbench-streamsluice-ds2-part8-mixed-1split2join1-570-5000-5000-960-linear-2000-1000-960-stair_3-120-1-960-stair_3-1-0-1-20-1-5000-2-50-1-5000-1-20-1-5000-17-800-5000--0.05-0.1-1000-3000-100-1-false-1",
-         "blue", "o"],
-
-        # ["Static",
-        #  "systemsensitivity-streamsluice-streamsluice-how-1split2join1-400-6000-3000-4000-1-0-2-300-1-10000-2-300-1-10000-2-300-1-10000-6-510-10000-2500-3000-100-10-false-1",
-        #  "purple", "o"],
-        # ["Not_Bottleneck",
-        #  "systemsensitivity-streamsluice-streamsluice_not_bottleneck-how-1split2join1-400-6000-3000-4000-1-0-2-300-1-10000-2-300-1-10000-2-300-1-10000-6-510-10000-2500-3000-100-10-true-1",
-        #  "orange", "o"],
-        # ["No_Balance",
-        #  "systemsensitivity-streamsluice-streamsluice_no_balance-how-1split2join1-400-6000-3000-4000-1-0-2-300-1-10000-2-300-1-10000-2-300-1-10000-6-510-10000-2500-3000-100-10-true-1",
-        #  "purple", "o"],
-        # ["More",
-        #  "systemsensitivity-streamsluice-streamsluice_more-how-1split2join1-400-6000-3000-4000-1-0-2-300-1-10000-2-300-1-10000-2-300-1-10000-6-510-10000-2500-3000-100-10-true-1",
-        #  "green", "o"],
-        # ["Less",
-        #  "systemsensitivity-streamsluice-streamsluice_less-how-1split2join1-400-6000-3000-4000-1-0-2-300-1-10000-2-300-1-10000-2-300-1-10000-6-510-10000-2500-3000-100-10-true-1",
-        #  "orange", "o"],
-        # ["Sluice",
-        #  "systemsensitivity-streamsluice-streamsluice-how-1split2join1-400-6000-3000-4000-1-0-2-300-1-10000-2-300-1-10000-2-300-1-10000-6-510-10000-2500-3000-100-10-true-1",
-        #  "blue", "o"],
-        # ["Not_Bottleneck",
-        #  "systemsensitivity-streamsluice-streamsluice_not_bottleneck-how-1split2join1-400-6000-3000-4000-1-0-2-300-1-10000-2-300-1-10000-2-300-1-10000-6-510-10000-2500-3000-100-10-true-1",
-        #  "orange", "o"],
-        # ["No_Balance",
-        #  "systemsensitivity-streamsluice-streamsluice_no_balance-how-1split2join1-400-6000-3000-4000-1-0-2-300-1-10000-2-300-1-10000-2-300-1-10000-6-510-10000-2500-3000-100-10-true-1",
-        #  "purple", "o"],
-        # ["More",
-        #  "systemsensitivity-streamsluice-streamsluice_more-how-1split2join1-400-6000-3000-4000-1-0-2-300-1-10000-2-300-1-10000-2-300-1-10000-6-510-10000-2500-3000-100-10-true-1",
-        #  "green", "o"],
-        # ["Less",
-        #  "systemsensitivity-streamsluice-streamsluice_less-how-1split2join1-400-6000-3000-4000-1-0-2-300-1-10000-2-300-1-10000-2-300-1-10000-6-510-10000-2500-3000-100-10-true-1",
-        #  "orange", "o"],
-        # ["Sluice",
-        #  "systemsensitivity-streamsluice-streamsluice-how-1split2join1-400-6000-3000-4000-1-0-2-300-1-5000-2-300-1-5000-2-300-1-5000-6-510-5000-2000-3000-100-10-true-1",
-        #  "blue", "o"],
-    ],
-}
+exps = [
+    ["Static",
+     "part8-microbench-streamsluice-ds2-part8-mixed-1split2join1-570-5000-5000-960-linear-2000-1-1440-stair_3-120-1-1440-stair_3-1-0-1-20-1-5000-2-50-1-5000-1-20-1-5000-17-800-5000--0.05-0.1-1000-3000-100-1-false-1",
+     "black", "o"],
+    ["DS2",
+     "part8-microbench-ds2-streamsluice-part8-mixed-1split2join1-570-5000-5000-960-linear-2000-1-1440-stair_3-120-1-1440-stair_3-1-0-1-20-1-5000-2-50-1-5000-1-20-1-5000-17-800-5000--0.05-0.1-1000-3000-100-1-true-1",
+     "purple", "o"],
+    ["Dhalion",
+     "part8-microbench-dhalion-streamsluice-part8-mixed-1split2join1-570-5000-5000-960-linear-2000-1-1440-stair_3-120-1-1440-stair_3-1-0-1-20-1-5000-2-50-1-5000-1-20-1-5000-17-800-5000--0.05-0.1-1000-3000-100-1-true-1",
+     "green", "o"],
+    ["StreamSwitch",
+     "part8-microbench-streamswitch-streamsluice-part8-mixed-1split2join1-570-5000-5000-960-linear-2000-1-1440-stair_3-120-1-1440-stair_3-1-0-1-20-1-5000-2-50-1-5000-1-20-1-5000-17-800-5000--0.05-0.1-1000-3000-100-1-true-1",
+     "orange", "o"],
+    ["Sluice",
+     "part8-microbench-streamsluice-streamsluice-part8-mixed-1split2join1-570-5000-5000-960-linear-2000-1-1440-stair_3-120-1-1440-stair_3-1-0-1-20-1-5000-2-50-1-5000-1-20-1-5000-17-800-5000--0.05-0.1-1000-3000-100-1-true-1",
+     "blue", "o"],
+]
 startTime=60 #30+300 #30
 perOperatorFlag = False
 weightedTotalParallelismFlag = False
@@ -524,20 +449,12 @@ arrivalrate_ylim_app = {
     "Tweet": 10000,
     "Linear_Road": 10000,
 }
-overall_resource = {}
-trickFlag = True
-for app in exps.keys():
-    expName:str = [exp[1] for exp in exps[app] if exp[0] == "StreamSluice" or exp[0] == "Sluice"][0]
-    if expName.startswith("stock-") or expName.startswith("tweet-"):
-        exp_length = 600
-        startTime = 90
-    elif expName.startswith("lr-"):
-        exp_length = 600
-        startTime = 150
-    else:
-        exp_length = 480
-        startTime = 30
-    print(expName)
-    overall_resource[app] = {}
-    draw(rawDir, outputDir + expName + "/", exps[app])
+isSingleOperator = False #True
+expName = exps[0][1]
+print(expName)
+trickFlag = False #True
+startTime = 60 #+300 #30
+exp_length = 480
+exp_resource = []
+draw(rawDir, outputDir + expName + "/", exps)
 #drawOverallResource(outputDir + expName + "/", overall_resource)

@@ -254,14 +254,14 @@ def readLEMLatencyAndSpike(rawDir, expName) -> [list[int], list[float], list[flo
             counter += 1
             if (counter % 5000 == 0):
                 print("Processed to line:" + str(counter))
-            if (len(split) >= 10 and split[0] == "+++" and split[1] == "[MODEL]" and split[6] == "cur_ete_l:" and (split[
-                8] == "n_epoch_l:" or split[11] == "n_epoch_l:")):
+            if (len(split) >= 10 and split[0] == "+++" and split[1] == "[MODEL]" and split[6] == "cur_ete_l:" and (
+                    "n_epoch_l:" in split)):
                 time = int(split[3])
                 estimated_l = float(split[7])
-                #estimated_spike = float(split[13]) - float(split[7])
+                # estimated_spike = float(split[13]) - float(split[7])
                 lem_latency[0] += [time]
                 lem_latency[1] += [estimated_l]
-                #lem_latency[2] += [estimated_spike]
+                # lem_latency[2] += [estimated_spike]
     return lem_latency
 
 def retrieve_scaling_info(rawDir, expName):
@@ -400,29 +400,8 @@ def draw(rawDir, outputDir, exps, windowSize):
         else:
             linewidth = 3 / 2.0
         plt.plot(sampledLatency[0], sampledLatency[1], '-', color=exps[i][2], markersize=4,
-                 linewidth=linewidth * 2, label="Ground Truth P99") #exps[i][0])
-        # plt.plot(averageGroundTruthLatencies_FromMetricsManager[i][0], averageGroundTruthLatencies_FromMetricsManager[i][1], '-', color="orange", markersize=4,
-        #         linewidth=1, label="Ground Truth P99 Metrics Manager")
-        #averageGroundTruthLatencies_FromMetricsManager = averageGroundTruthLatencies_FromMetricsManager_PerOperator[i]["op-2"]
-        # y = np.vstack(
-        #     [averageGroundTruthLatencies_FromMetricsManager[2], averageGroundTruthLatencies_FromMetricsManager[3]])
-        # ax.stackplot(averageGroundTruthLatencies_FromMetricsManager[0],
-        #              y,
-        #              colors=['orange', 'purple'],
-        #              labels=["Except Processing", "Processing"])
-        # plt.plot(averageGroundTruthLatencies_FromMetricsManager[i][0],
-        #          averageGroundTruthLatencies_FromMetricsManager[i][2], '-', color="orange", markersize=4,
-        #          linewidth=1.5, label="P99 (Deserialize start - Arrival)")
-        # plt.plot(averageGroundTruthLatencies_FromMetricsManager[i][0],
-        #          averageGroundTruthLatencies_FromMetricsManager[i][3], '-', color="brown", markersize=4,
-        #          linewidth=1.5, label="P99 (Deserialize)")
-        # plt.plot(averageGroundTruthLatencies_FromMetricsManager[i][0],
-        #          averageGroundTruthLatencies_FromMetricsManager[i][4], '-', color="purple", markersize=4,
-        #          linewidth=1.5, label="P99 (Processing)")
-        if (show_avg_flag):
-            plt.plot(sampledLatency[0], sampledLatency[2], '-', color="orange", markersize=4,
-                     linewidth=linewidth, label="Ground Truth Average")
-        plt.plot(lem_latencies[i][0], lem_latencies[i][1], '-', color="green", markersize=2, linewidth=linewidth, label='Estimated Latency')
+                 linewidth=linewidth, label=exps[i][0]) #exps[i][0])
+        #plt.plot(lem_latencies[i][0], lem_latencies[i][1], '-', color="green", markersize=2, linewidth=linewidth, label=exps[i][0] + 'Estimated Latency')
 
         # Add Scaling Marker
         if (show_scaling_flag):
@@ -447,7 +426,7 @@ def draw(rawDir, outputDir, exps, windowSize):
             newHandles.append(handle)
     plt.legend(newHandles, newLabels, bbox_to_anchor=(0.45, 1.4), loc='upper center', ncol=3, markerscale=4.) # How2
     #plt.xlabel('Time (min)')
-    plt.ylabel('Latency (ms)')
+    plt.ylabel('Ground Truth\nLatency (ms)')
     #plt.title('Latency Curves')
     #axes.set_ylim(0, 5000)
     axes = plt.gca()
@@ -475,6 +454,88 @@ def draw(rawDir, outputDir, exps, windowSize):
         os.makedirs(outputDir)
     #plt.savefig(outputDir + 'ground_truth_latency_curves.png', bbox_inches='tight')
     plt.savefig(outputDir + 'ground_truth_latency_curves.png', bbox_inches='tight')
+    plt.close(fig)
+
+    fig, ax = plt.subplots(figsize=(12, 5))
+    print("Draw intrinsic curve...")
+    for i in range(0, len(exps)):
+        averageGroundTruthLatency = averageGroundTruthLatencies[i]
+
+        sample_factor = 1  # 5
+        sampledLatency = [[], [], []]
+        sampledLatency[0] = [averageGroundTruthLatency[0][i] for i in
+                             range(0, len(averageGroundTruthLatency[0]), sample_factor)]
+        sampledLatency[1] = [max([averageGroundTruthLatency[1][y] for y in
+                                  range(x, min(x + sample_factor, len(averageGroundTruthLatency[1])))]) for x in
+                             range(0, len(averageGroundTruthLatency[0]), sample_factor)]
+        sampledLatency[2] = [max([averageGroundTruthLatency[2][y] for y in
+                                  range(x, min(x + sample_factor, len(averageGroundTruthLatency[2])))]) for x in
+                             range(0, len(averageGroundTruthLatency[0]), sample_factor)]
+
+        # plt.plot(averageGroundTruthLatency[0], averageGroundTruthLatency[1], 'o-', color=exps[i][2], markersize=2, linewidth=2)
+        if exps[i][0] == 'Sluice':
+            linewidth = 3
+        else:
+            linewidth = 3 / 2.0
+        #plt.plot(sampledLatency[0], sampledLatency[1], '-', color=exps[i][2], markersize=4,
+        #         linewidth=linewidth * 2, label=exps[i][0] + " Ground Truth P99")  # exps[i][0])
+        plt.plot(lem_latencies[i][0], lem_latencies[i][1], '-', color=exps[i][2], markersize=2, linewidth=linewidth,
+                 label=exps[i][0] )
+
+        # Add Scaling Marker
+        if (show_scaling_flag):
+            for scaling_info in scaling_infos[i]:
+                plt.plot([scaling_info[0], scaling_info[0]], [0, 1000000], '-',
+                         color=("red" if scaling_info[2] == "out" else "orange"), linewidth=1,
+                         label=("Scaling " + scaling_info[2]))
+                plt.plot([scaling_info[1], scaling_info[1]], [0, 1000000], '-',
+                         color=("green"), linewidth=1,
+                         label=("Scaling Complete"))
+                plt.plot([scaling_info[0], scaling_info[1]], [4000, 4000], '-',
+                         color=("black"), linewidth=1)
+        # plt.plot([x - initial_times[i] for x in lem_latencies[i][0]], [lem_latencies[i][1][x] + lem_latencies[i][2][x] for x in range(0, len(lem_latencies[i][1]))], 'd', color="gray", markersize=2, linewidth=linewidth)
+    addLatencyLimitMarker(plt)
+    # legend += ["Limit + Spike"]
+    # addLatencyLimitWithSpikeMarker(plt)
+    # plt.legend(legend, bbox_to_anchor=(0.45, 1.3), loc='upper center', ncol=4, markerscale=4.)  # When
+    # plt.legend(legend, bbox_to_anchor=(0.45, 1.3), loc='upper center', ncol=3, markerscale=4.)  # How1
+    handles, labels = plt.gca().get_legend_handles_labels()
+    newLabels, newHandles = [], []
+    for handle, label in zip(handles, labels):
+        if label not in newLabels:
+            newLabels.append(label)
+            newHandles.append(handle)
+    plt.legend(newHandles, newLabels, bbox_to_anchor=(0.45, 1.4), loc='upper center', ncol=3, markerscale=4.)  # How2
+    # plt.xlabel('Time (min)')
+    plt.ylabel('Estimated Intrinsic\nLatency (ms)')
+    # plt.title('Latency Curves')
+    # axes.set_ylim(0, 5000)
+    axes = plt.gca()
+    axes.set_xlim((startTime) * 1000, (startTime + expLength) * 1000)
+    axes.set_xticks(np.arange((startTime) * 1000, (startTime + expLength) * 1000 + 60000, 60000))
+    axes.set_xticklabels([int((x - startTime * 1000) / 1000) for x in
+                          np.arange((startTime) * 1000, (startTime + expLength) * 1000 + 60000, 60000)])
+    # axes.set_yticks(np.arange(0, 6000, 1000))
+    # axes.set_ylim(0, 5000)
+    # axes.set_yticks(np.arange(0, 6250, 1250))
+    if max(lem_latencies[i][1] + [0]) > 2000 or max(sampledLatency[2]) > 2000:
+        axes.set_ylim(0, 5000)  # 3000)
+        # axes.set_yticks(np.arange(0, 3500, 500))
+    elif max(lem_latencies[i][1] + [0]) > 500 or max(sampledLatency[2]) > 500:
+        axes.set_ylim(0, 2000)
+        axes.set_yticks(np.arange(0, 2200, 200))
+    else:
+        axes.set_ylim(-1, 500)
+        axes.set_yticks(np.arange(0, 550, 50))
+    if trickFlag:
+        axes.set_yticklabels([int(x / 1250 * 1000) for x in np.arange(0, 6250, 1250)])
+    # axes.set_yscale('log')
+    plt.grid(True)
+    import os
+    if not os.path.exists(outputDir):
+        os.makedirs(outputDir)
+    # plt.savefig(outputDir + 'ground_truth_latency_curves.png', bbox_inches='tight')
+    plt.savefig(outputDir + 'intrinsic_latency_curves.png', bbox_inches='tight')
     plt.close(fig)
 
 
@@ -524,24 +585,21 @@ rawDir = "/Users/swrrt/Workplace/BacklogDelayPaper/experiments/raw/"
 outputDir = "/Users/swrrt/Workplace/BacklogDelayPaper/experiments/results/"
 
 exps = [
-    ["static",
-      "part8-microbench-streamsluice-ds2-part8-mixed-1split2join1-570-5000-5000-960-linear-2000-1000-960-stair_3-120-1-960-stair_3-1-0-1-20-1-5000-2-50-1-5000-1-20-1-5000-17-800-5000--0.05-0.1-1000-3000-100-1-false-1",
+    ["Static",
+      "part8-microbench-streamsluice-ds2-part8-mixed-1split2join1-570-5000-5000-960-linear-2000-1-1440-stair_3-120-1-1440-stair_3-1-0-1-20-1-5000-2-50-1-5000-1-20-1-5000-17-800-5000--0.05-0.1-1000-3000-100-1-false-1",
      "black", "o"],
-    # ["Not_Bottleneck",
-    #  "systemsensitivity-streamsluice-streamsluice_not_bottleneck-how-1split2join1-400-6000-3000-4000-1-0-2-300-1-10000-2-300-1-10000-2-300-1-10000-6-510-10000-2500-3000-100-10-true-1",
-    #  "orange", "o"],
-    # ["No_Balance",
-    #  "systemsensitivity-streamsluice-streamsluice_no_balance-how-1split2join1-400-6000-3000-4000-1-0-2-300-1-10000-2-300-1-10000-2-300-1-10000-6-510-10000-2500-3000-100-10-true-1",
-    #  "purple", "o"],
-    # ["More",
-    #  "systemsensitivity-streamsluice-streamsluice_more-how-1split2join1-400-6000-3000-4000-1-0-2-300-1-10000-2-300-1-10000-2-300-1-10000-6-510-10000-2500-3000-100-10-true-1",
-    #  "green", "o"],
-    # ["Less",
-    #  "systemsensitivity-streamsluice-streamsluice_less-how-1split2join1-400-6000-3000-4000-1-0-2-300-1-10000-2-300-1-10000-2-300-1-10000-6-510-10000-2500-3000-100-10-true-1",
-    #  "orange", "o"],
-    # ["Sluice",
-    #  "systemsensitivity-streamsluice-streamsluice-how-1split2join1-400-6000-3000-4000-1-0-2-300-1-10000-2-300-1-10000-2-300-1-10000-6-510-10000-2500-3000-100-10-true-1",
-    #  "blue", "o"],
+    ["DS2",
+     "part8-microbench-ds2-streamsluice-part8-mixed-1split2join1-570-5000-5000-960-linear-2000-1-1440-stair_3-120-1-1440-stair_3-1-0-1-20-1-5000-2-50-1-5000-1-20-1-5000-17-800-5000--0.05-0.1-1000-3000-100-1-true-1",
+     "purple", "o"],
+    ["Dhalion",
+     "part8-microbench-dhalion-streamsluice-part8-mixed-1split2join1-570-5000-5000-960-linear-2000-1-1440-stair_3-120-1-1440-stair_3-1-0-1-20-1-5000-2-50-1-5000-1-20-1-5000-17-800-5000--0.05-0.1-1000-3000-100-1-true-1",
+     "green", "o"],
+    ["StreamSwitch",
+     "part8-microbench-streamswitch-streamsluice-part8-mixed-1split2join1-570-5000-5000-960-linear-2000-1-1440-stair_3-120-1-1440-stair_3-1-0-1-20-1-5000-2-50-1-5000-1-20-1-5000-17-800-5000--0.05-0.1-1000-3000-100-1-true-1",
+     "orange", "o"],
+    ["Sluice",
+     "part8-microbench-streamsluice-streamsluice-part8-mixed-1split2join1-570-5000-5000-960-linear-2000-1-1440-stair_3-120-1-1440-stair_3-1-0-1-20-1-5000-2-50-1-5000-1-20-1-5000-17-800-5000--0.05-0.1-1000-3000-100-1-true-1",
+     "blue", "o"],
 ]
 
 import sys
@@ -554,8 +612,8 @@ windowSize = 100 #500 #500
 latencyLimit = int(exps[0][1].split('-')[-6])
 spike = 2500 #1500
 #latencyLimit = 2500 #1000
-startTime = 120 #+300 #30
-expLength = 600 #900 #480 #480 #480 #480 #360
+startTime = 60 #+300 #30
+expLength = 480 #900 #480 #480 #480 #480 #360
 show_avg_flag = False
 ground_truth_component_flag = False
 show_scaling_flag = False #True

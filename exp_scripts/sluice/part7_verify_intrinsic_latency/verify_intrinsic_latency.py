@@ -295,20 +295,8 @@ def draw_latency_curves(raw_dir, output_dir, exp_name, window_size, start_time, 
     axes.set_xticks(np.arange((start_time) * 1000, (start_time + exp_length) * 1000 + (exp_length / 10) * 1000, (exp_length / 10) * 1000))
     axes.set_xticklabels([int((x - start_time * 1000) / 1000) for x in
                           np.arange((start_time) * 1000, (start_time + exp_length) * 1000 + (exp_length / 10) * 1000, (exp_length / 10) * 1000)])
-    axes.set_ylim(0, 4000)
-    axes.set_yticks(np.arange(0, 4400, 400))
-    # if (max([lem_latencies[i][1][x] for x in range(0, len(lem_latencies[i][1])) if lem_latencies[i][0][x] >= start_time * 1000]) < 2000):
-    #     axes.set_ylim(0, 1000)
-    #     axes.set_yticks(np.arange(0, 1100, 100))
-    # if (max(lem_latencies[i][1]) < 4000):
-    #     axes.set_ylim(0, 4000)
-    #     axes.set_yticks(np.arange(0, 4400, 400))
-    # elif(max(sampled_latency[1]) < 5000):
-    #     axes.set_ylim(0, 5000)
-    #     axes.set_yticks(np.arange(0, 5500, 500))
-    # else:
-    #     axes.set_ylim(0, 10000)
-    #     axes.set_yticks(np.arange(0, 11000, 1000))
+    axes.set_ylim(0, 5000)
+    axes.set_yticks(np.arange(0, 5500, 500))
     plt.grid(True)
     if not os.path.exists(output_dir):
         os.makedirs(output_dir)
@@ -559,8 +547,10 @@ def draw_parallelism_curve(rawDir, outputDir, exp_name, windowSize, startTime, e
         ax2.set_ylim(500, 2000)
         ax2.set_yticks(np.arange(500, 2100, 200))
     else:
-        ax2.set_ylim(1000, 4000)
-        ax2.set_yticks(np.arange(1000, 4500, 500))
+        ax2.set_ylim(500, 2500)
+        ax2.set_yticks(np.arange(500, 3000, 500))
+        #ax2.set_ylim(1000, 4000)
+        #ax2.set_yticks(np.arange(1000, 4500, 500))
     # legend = ["OP_" + str(jobIndex + 1) +"Arrival Rate"]
     legend = ["Arrival Rate"]
     # ax2.set_xlim(startTime * 1000, (startTime + exp_length) * 1000)
@@ -647,11 +637,12 @@ def main():
     window_size = 100
     draw_lem_latency_flag = True
     exps = [
-        "tweet-streamsluice-streamsluice-1-750-90-1500-1-15-6666-5-1000-1-50-1-50-2500-100-false-0.1-1",
+        #"tweet-streamsluice-streamsluice-1-750-90-1500-1-15-6666-5-1000-1-50-1-50-2500-100-false-0.1-1",
+        #"stock-ds2-ds2-1-750-90-1000-20-1-200-4-2500-1-200-2-500-1-6-3333-1000-100-0.1-false-false-1",
         #"tweet-streamsluice-streamsluice-1-750-90-1500-1-19-6666-9-1000-1-50-1-50-3500-100-true-0.1-1",
-        #"stock-streamsluice-streamsluice--750-90-1000-20-1-200-11-2500-1-200-2-500-1-15-3333-1000-100-0.1-false-false-1",
         #"stock-streamsluice-streamsluice-1-750-90-1000-20-1-200-11-2500-1-200-2-500-1-15-3333-1000-100-0.1-true-true-1",
-        #"lr-streamsluice-streamsluice-1-1080-150-1300-10-1-50-3-1000-1-50-27-2500-8000-0.1-100-1-0-0.0-true-500-0.8-2",
+        "lr-ds2-ds2-1-1980-150-1300-10-1-50-2-1000-1-50-12-2500-2000-0.4-100-1-0-0.0-false-2500-0.8-2",
+        #"lr-streamsluice-streamsluice-1-1980-150-1300-10-1-50-3-1000-1-50-27-2500-2000-0.1-100-1-0-0.0-true-500-0.8-2",
     ]
     for exp_name in exps:
         if exp_name.startswith("lr"):
@@ -667,8 +658,8 @@ def main():
             exp_length = 120 #300
         elif exp_name.startswith("stock"):
             latency_bar = int(exp_name.split('-')[-6])
-            start_time = 150
-            exp_length = 300
+            start_time = 30 #150
+            exp_length = 120 #300
         else:
             latency_bar = int(exp_name.split('-')[-6])
             start_time = 120
