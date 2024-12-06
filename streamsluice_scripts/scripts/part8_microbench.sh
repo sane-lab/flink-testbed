@@ -225,12 +225,12 @@ run_scale_test(){
     rate_period=960
     rate_pattern="linear"
     amplitude_low=2000
-    amplitude_high=1000
-    amplitude_period=960
+    amplitude_high=1
+    amplitude_period=1440
     amplitude_pattern="stair_3"
     period_low=120
     period_high=1
-    period_period=960
+    period_period=1440
     period_pattern="stair_3"
     noise=0.05
 
@@ -239,7 +239,7 @@ run_scale_test(){
     how_type="ds2"
     run_one_exp
     printf "${EXP_NAME}\n" >> part8_result.txt
-    whether_type="streamsluice"
+    how_type="streamsluice"
     for L in 1000; do # 2000 3000
       for whether_type in "streamsluice" "ds2" "dhalion" "streamswitch"; do
         is_treat=true

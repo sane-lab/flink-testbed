@@ -295,18 +295,20 @@ def draw_latency_curves(raw_dir, output_dir, exp_name, window_size, start_time, 
     axes.set_xticks(np.arange((start_time) * 1000, (start_time + exp_length) * 1000 + (exp_length / 10) * 1000, (exp_length / 10) * 1000))
     axes.set_xticklabels([int((x - start_time * 1000) / 1000) for x in
                           np.arange((start_time) * 1000, (start_time + exp_length) * 1000 + (exp_length / 10) * 1000, (exp_length / 10) * 1000)])
-    if (max([lem_latencies[i][1][x] for x in range(0, len(lem_latencies[i][1])) if lem_latencies[i][0][x] >= start_time * 1000]) < 2000):
-        axes.set_ylim(0, 1000)
-        axes.set_yticks(np.arange(0, 1100, 100))
-    if (max(lem_latencies[i][1]) < 4000):
-        axes.set_ylim(0, 4000)
-        axes.set_yticks(np.arange(0, 4400, 400))
-    elif(max(sampled_latency[1]) < 5000):
-        axes.set_ylim(0, 5000)
-        axes.set_yticks(np.arange(0, 5500, 500))
-    else:
-        axes.set_ylim(0, 10000)
-        axes.set_yticks(np.arange(0, 11000, 1000))
+    axes.set_ylim(0, 4000)
+    axes.set_yticks(np.arange(0, 4400, 400))
+    # if (max([lem_latencies[i][1][x] for x in range(0, len(lem_latencies[i][1])) if lem_latencies[i][0][x] >= start_time * 1000]) < 2000):
+    #     axes.set_ylim(0, 1000)
+    #     axes.set_yticks(np.arange(0, 1100, 100))
+    # if (max(lem_latencies[i][1]) < 4000):
+    #     axes.set_ylim(0, 4000)
+    #     axes.set_yticks(np.arange(0, 4400, 400))
+    # elif(max(sampled_latency[1]) < 5000):
+    #     axes.set_ylim(0, 5000)
+    #     axes.set_yticks(np.arange(0, 5500, 500))
+    # else:
+    #     axes.set_ylim(0, 10000)
+    #     axes.set_yticks(np.arange(0, 11000, 1000))
     plt.grid(True)
     if not os.path.exists(output_dir):
         os.makedirs(output_dir)
@@ -662,7 +664,7 @@ def main():
         elif exp_name.startswith("tweet"):
             latency_bar = int(exp_name.split('-')[-5])
             start_time = 150
-            exp_length = 300
+            exp_length = 120 #300
         elif exp_name.startswith("stock"):
             latency_bar = int(exp_name.split('-')[-6])
             start_time = 150
