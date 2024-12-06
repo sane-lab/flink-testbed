@@ -237,8 +237,8 @@ run_scale_test(){
     is_treat=false
     autotune=false
     how_type="ds2"
-    run_one_exp
-    printf "${EXP_NAME}\n" >> part8_result.txt
+#    run_one_exp
+#    printf "${EXP_NAME}\n" >> part8_result.txt
     how_type="streamsluice"
     for L in 1000; do # 2000 3000
       for whether_type in "streamsluice" "ds2" "dhalion" "streamswitch"; do
