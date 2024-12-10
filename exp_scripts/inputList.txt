@@ -1,2 +1,2 @@
-tweet-streamsluice-streamsluice-1-750-90-1500-1-19-6666-9-1000-1-50-1-50-3000-100-true-0.2-1
-tweet-streamsluice-streamsluice-1-750-90-1500-1-19-6666-9-1000-1-50-1-50-3500-100-true-0.2-1
+tweet-streamsluice-streamsluice-1-1950-90-1500-1-19-6666-9-1000-1-50-1-50-3500-100-true-0.2-1
+tweet-streamsluice-streamsluice-1-1950-90-1500-1-19-6666-9-1000-1-50-1-50-3500-100-true-0.4-1

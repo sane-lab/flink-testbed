@@ -1202,7 +1202,7 @@ def main():
                     else:
                         latency_bar = int(exp_name.split('-')[-9])
                     start_time = 180
-                    exp_length = 900 #1800
+                    exp_length = 1800
                 elif exp_name.startswith("tweet"):
                     latency_bar = int(exp_name.split('-')[-5])
                     start_time = 150

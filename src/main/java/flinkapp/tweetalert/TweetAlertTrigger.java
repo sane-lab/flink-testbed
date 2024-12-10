@@ -1,7 +1,7 @@
 package flinkapp.tweetalert;
 
 import Nexmark.sources.Util;
-import flinkapp.StreamSluiceTestSet.StockAnalysisApplication;
+import org.apache.beam.sdk.extensions.joinlibrary.Join;
 import org.apache.commons.math3.random.RandomDataGenerator;
 import org.apache.flink.api.common.functions.RichFlatMapFunction;
 import org.apache.flink.api.common.functions.RichMapFunction;
@@ -33,6 +33,170 @@ public class TweetAlertTrigger {
     private static final int Aggregation_Output = 5;
     private static final int AlertTrigger_Output = 6;
 
+    public static class TweetRecord {
+        private String tweetId;
+        private String userId;
+        private String content;
+        private int timestamp;
+        private int followerCount;
+        private long arrivalTime;
+        private long tupleNumber;
+
+        // Default constructor
+        public TweetRecord() {}
+
+        public TweetRecord(String tweetId, String userId, String content, int timestamp, int followerCount, long arrivalTime, long tupleNumber) {
+            this.tweetId = tweetId;
+            this.userId = userId;
+            this.content = content;
+            this.timestamp = timestamp;
+            this.followerCount = followerCount;
+            this.arrivalTime = arrivalTime;
+            this.tupleNumber = tupleNumber;
+        }
+
+        // Getters and Setters
+        public String getTweetId() { return tweetId; }
+        public void setTweetId(String tweetId) { this.tweetId = tweetId; }
+
+        public String getUserId() { return userId; }
+        public void setUserId(String userId) { this.userId = userId; }
+
+        public String getContent() { return content; }
+        public void setContent(String content) { this.content = content; }
+
+        public int getTimestamp() { return timestamp; }
+        public void setTimestamp(int timestamp) { this.timestamp = timestamp; }
+
+        public int getFollowerCount() { return followerCount; }
+        public void setFollowerCount(int followerCount) { this.followerCount = followerCount; }
+
+        public long getArrivalTime() { return arrivalTime; }
+        public void setArrivalTime(long arrivalTime) { this.arrivalTime = arrivalTime; }
+
+        public long getTupleNumber() { return tupleNumber; }
+        public void setTupleNumber(long tupleNumber) { this.tupleNumber = tupleNumber; }
+    }
+
+    public static class TweetResult {
+        private String tweetId;
+        private String userId;
+        private String content;
+        private int timestamp;
+        private int followerCount;
+        private int operatorType;
+        private double result_value;
+        private String topic;
+        private long arrivalTime;
+        private long tupleNumber;
+
+        // Default constructor
+        public TweetResult() {}
+
+        public TweetResult(String tweetId, String userId, String content, int timestamp, int followerCount,
+                           int operatorType, double result_value, String topic, long arrivalTime, long tupleNumber) {
+            this.tweetId = tweetId;
+            this.userId = userId;
+            this.content = content;
+            this.timestamp = timestamp;
+            this.followerCount = followerCount;
+            this.operatorType = operatorType;
+            this.result_value = result_value;
+            this.topic = topic;
+            this.arrivalTime = arrivalTime;
+            this.tupleNumber = tupleNumber;
+        }
+
+        // Getters and Setters
+        public String getTweetId() { return tweetId; }
+        public void setTweetId(String tweetId) { this.tweetId = tweetId; }
+
+        public String getUserId() { return userId; }
+        public void setUserId(String userId) { this.userId = userId; }
+
+        public String getContent() { return content; }
+        public void setContent(String content) { this.content = content; }
+
+        public int getTimestamp() { return timestamp; }
+        public void setTimestamp(int timestamp) { this.timestamp = timestamp; }
+
+        public int getFollowerCount() { return followerCount; }
+        public void setFollowerCount(int followerCount) { this.followerCount = followerCount; }
+
+        public int getOperatorType() { return operatorType; }
+        public void setOperatorType(int operatorType) { this.operatorType = operatorType; }
+
+        public double getResult_value() { return result_value; }
+        public void setResult_value(double result_value) { this.result_value = result_value; }
+
+        public String getTopic() { return topic; }
+        public void setTopic(String topic) { this.topic = topic; }
+
+        public long getArrivalTime() { return arrivalTime; }
+        public void setArrivalTime(long arrivalTime) { this.arrivalTime = arrivalTime; }
+
+        public long getTupleNumber() { return tupleNumber; }
+        public void setTupleNumber(long tupleNumber) { this.tupleNumber = tupleNumber; }
+    }
+
+    public static class JoinedResult {
+        private String tweetId;
+        private String userId;
+        private String content;
+        private int timestamp;
+        private int followerCount;
+        private double sentiment;
+        private double influence;
+        private String topic;
+        private long arrivalTime;
+        private long tupleNumber;
+
+        // Default constructor
+        public JoinedResult () {}
+
+        public JoinedResult(String tweetId, String userId, String content, int timestamp, int followerCount, double sentiment, double influence, String topic, long arrivalTime, long tupleNumber) {
+            this.tweetId = tweetId;
+            this.userId = userId;
+            this.content = content;
+            this.timestamp = timestamp;
+            this.followerCount = followerCount;
+            this.sentiment = sentiment;
+            this.influence = influence;
+            this.topic = topic;
+            this.arrivalTime = arrivalTime;
+            this.tupleNumber = tupleNumber;
+        }
+
+        // Getters and Setters
+        public String getTweetId() { return tweetId; }
+        public void setTweetId(String tweetId) { this.tweetId = tweetId; }
+
+        public String getUserId() { return userId; }
+        public void setUserId(String userId) { this.userId = userId; }
+
+        public String getContent() { return content; }
+        public void setContent(String content) { this.content = content; }
+
+        public int getTimestamp() { return timestamp; }
+        public void setTimestamp(int timestamp) { this.timestamp = timestamp; }
+
+        public int getFollowerCount() { return followerCount; }
+        public void setFollowerCount(int followerCount) { this.followerCount = followerCount; }
+        public double getSentiment() { return sentiment; }
+        public void setSentiment(double sentiment) { this.sentiment = sentiment; }
+        public double getInfluence() { return influence; }
+        public void setInfluence(double influence) { this.influence = influence; }
+
+        public String getTopic() { return topic; }
+        public void setTopic(String topic) { this.topic = topic; }
+
+        public long getArrivalTime() { return arrivalTime; }
+        public void setArrivalTime(long arrivalTime) { this.arrivalTime = arrivalTime; }
+
+        public long getTupleNumber() { return tupleNumber; }
+        public void setTupleNumber(long tupleNumber) { this.tupleNumber = tupleNumber; }
+    }
+
     public static void main(String[] args) throws Exception {
         // Checking input parameters
         final ParameterTool params = ParameterTool.fromArgs(args);
@@ -44,25 +208,15 @@ public class TweetAlertTrigger {
         env.setStreamTimeCharacteristic(TimeCharacteristic.EventTime);
         // env.setStreamTimeCharacteristic(TimeCharacteristic.IngestionTime);
 
-        DataStreamSource<Tuple7<String, String, String, Integer, Integer, Long, Long>> source =
+        DataStreamSource<Tuple2<String, TweetRecord>> source =
                 env.addSource(new TweetSource(params.get("file_name", "/home/samza/Tweet_data/3hr.txt"),
                                 params.getLong("warmup_time", 30L) * 1000,
                                 params.getLong("warmup_rate", 1500L),
                                 params.getLong("skip_interval", 0L) * 20))
                         .setParallelism(params.getInt("p1", 1));
 
-//        DataStream<Tuple7<String, String, String, Integer, Integer, Long, Long>> afterPreprocess = source
-//                .keyBy(TweetSource.Tweet_ID)
-//                .flatMap(new TweetPreprocess(params.getInt("op1Delay", 10)))
-//                .disableChaining()
-//                .name("Preprocess")
-//                .uid("op1")
-//                .setParallelism(params.getInt("p1", 1))
-//                .setMaxParallelism(params.getInt("mp1", 1))
-//                .slotSharingGroup("g1");
-
-        DataStream<Tuple10<String, String, String, Integer, Integer, Integer, Double, String, Long, Long>> afterSentimentAnalysis = source
-                .keyBy(TweetSource.Tweet_ID)
+        DataStream<Tuple2<String, TweetResult>> afterSentimentAnalysis = source
+                .keyBy(0)
                 .flatMap(new SentimentAnalysis(params.getInt("op2Delay", 1000)))
                 .disableChaining()
                 .name("Sentiment Analysis")
@@ -71,26 +225,8 @@ public class TweetAlertTrigger {
                 .setMaxParallelism(params.getInt("mp2", 8))
                 .slotSharingGroup("g2");
 
-//        DataStream<Tuple10<String, String, String, Integer, Integer, Integer, Double, String, Long, Long>> afterInfluenceScoring = source
-//                .keyBy(TweetSource.Tweet_ID)
-//                .flatMap(new InfluenceScoring(params.getInt("op3Delay", 1000)))
-//                .disableChaining()
-//                .name("Influence Scoring")
-//                .uid("op3")
-//                .setParallelism(params.getInt("p3", 1))
-//                .setMaxParallelism(params.getInt("mp3", 8))
-//                .slotSharingGroup("g3");
-//        DataStream<Tuple10<String, String, String, Integer, Integer, Integer, Double, String, Long, Long>> afterContentCategorization = source
-//                .keyBy(TweetSource.Tweet_ID)
-//                .flatMap(new ContentCategorization(params.getInt("op4Delay", 1000)))
-//                .disableChaining()
-//                .name("Content Categorization")
-//                .uid("op4")
-//                .setParallelism(params.getInt("p4", 1))
-//                .setMaxParallelism(params.getInt("mp4", 8))
-//                .slotSharingGroup("g4");
-        DataStream<Tuple10<String, String, String, Integer, Integer, Integer, Double, String, Long, Long>> afterInfluenceScoring = source
-                .keyBy(TweetSource.Tweet_ID)
+        DataStream<Tuple2<String, TweetResult>> afterInfluenceScoring = source
+                .keyBy(0)
                 .flatMap(new InfluenceScoringAndContentCategorization(params.getInt("op3Delay", 1000)))
                 .disableChaining()
                 .name("Influence Scoring And Content Categorization")
@@ -99,8 +235,8 @@ public class TweetAlertTrigger {
                 .setMaxParallelism(params.getInt("mp3", 8))
                 .slotSharingGroup("g3");
 
-        DataStream<Tuple10<String, String, String, Integer, Integer, Double, Double, String, Long, Long>> afterJoin = afterSentimentAnalysis.union(afterInfluenceScoring)
-                .keyBy(TweetSource.Tweet_ID)
+        DataStream<Tuple2<String, JoinedResult>> afterJoin = afterSentimentAnalysis.union(afterInfluenceScoring)
+                .keyBy(0)
                 .flatMap(new TweetJoin(params.getInt("op4Delay", 1000)))
                 .disableChaining()
                 .name("Join")
@@ -109,7 +245,7 @@ public class TweetAlertTrigger {
                 .setMaxParallelism(params.getInt("mp4", 8))
                 .slotSharingGroup("g4");
         afterJoin
-                .keyBy(TweetSource.Tweet_ID)
+                .keyBy(0)
                 .map(new TweetAggregateAndAlertTrigger(params.getInt("op5Delay", 1000)))
                 .disableChaining()
                 .name("Aggregate")
@@ -118,43 +254,17 @@ public class TweetAlertTrigger {
                 .setMaxParallelism(params.getInt("mp5", 8))
                 .slotSharingGroup("g5");
 
-//        DataStream<Tuple10<String, String, String, Integer, Integer, Double, Double, String, Long, Long>> afterAggregate = afterJoin
-//                .keyBy(TweetSource.Tweet_ID)
-//                .flatMap(new TweetAggregate(params.getInt("op5Delay", 1000)))
-//                .disableChaining()
-//                .name("Aggregate")
-//                .uid("op5")
-//                .setParallelism(params.getInt("p5", 1))
-//                .setMaxParallelism(params.getInt("mp5", 8))
-//                .slotSharingGroup("g5");
-//        afterAggregate
-//                .keyBy(TweetSource.Tweet_ID)
-//                .flatMap(new AlertTrigger(params.getInt("op6Delay", 1000)))
-//                .disableChaining()
-//                .name("Alert Trigger")
-//                .uid("op6")
-//                .setParallelism(params.getInt("p6", 1))
-//                .setMaxParallelism(params.getInt("mp6", 8))
-//                .slotSharingGroup("g6");
         env.execute();
     }
-    public static final class TweetSource extends RichParallelSourceFunction<Tuple7<String, String, String, Integer, Integer, Long, Long>> {
+    public static final class TweetSource extends RichParallelSourceFunction<Tuple2<String, TweetRecord>> {
         private volatile boolean running = true;
-        private static final int Tweet_ID = 0;
-        private static final int User_ID = 1;
-        private static final int Content = 2;
-        private static final int Timestamp = 3;
-        private static final int Follower_Count = 4;
-        private static final int Arrival_Time = 5;
-        private static final int Tuple_Number = 6;
 
         private final String FILE;
         private final long warmup, warmp_rate, skipCount;
 
-        public static String getTweetID(int tweet_ID){
+        public static String getTweetID(int tweet_ID) {
             return "Tweet_" + tweet_ID;
         }
-
 
         public TweetSource(String FILE, long warmup, long warmup_rate, long skipCount) {
             this.FILE = FILE;
@@ -164,52 +274,64 @@ public class TweetAlertTrigger {
         }
 
         @Override
-        public void run(SourceContext<Tuple7<String, String, String, Integer, Integer, Long, Long>> ctx) throws Exception {
+        public void run(SourceContext<Tuple2<String, TweetRecord>> ctx) throws Exception {
             String sCurrentLine;
-            List<String> textList = new ArrayList<>();
             FileReader stream = null;
-            // // for loop to generate message
             BufferedReader br = null;
-            long cur = 0;
-            long start = 0;
             int counter = 0, count = 0;
-
             int noRecSleepCnt = 0;
             int sleepCnt = 0;
 
             long startTime = System.currentTimeMillis();
             System.out.println("Warmup start at: " + startTime);
+
+            // Warm-up phase
             while (System.currentTimeMillis() - startTime < warmup) {
                 long emitStartTime = System.currentTimeMillis();
                 for (int i = 0; i < warmp_rate / 20; i++) {
                     String tweet_id = getTweetID(count % 1000000);
                     String user_id = getTweetID(count % 10000);
-                    ctx.collect(Tuple7.of(tweet_id, user_id, "test test", 0, 0, System.currentTimeMillis(), (long) count));
+                    ctx.collect(new Tuple2<>(tweet_id, new TweetRecord(
+                            tweet_id,
+                            user_id,
+                            "test test",
+                            0,
+                            0,
+                            System.currentTimeMillis(),
+                            count
+                    )));
                     count++;
                 }
                 Util.pause(emitStartTime);
             }
-//        Thread.sleep(60000);
 
             try {
                 stream = new FileReader(FILE);
                 br = new BufferedReader(stream);
 
-                start = System.currentTimeMillis();
+                long start = System.currentTimeMillis();
+                long cur;
 
-                while ((sCurrentLine = br.readLine()) != null) {
+                while ((sCurrentLine = br.readLine()) != null && running) {
                     if (sCurrentLine.equals("END")) {
                         sleepCnt++;
                         if (counter == 0) {
                             noRecSleepCnt++;
                             System.out.println("no record in this sleep !" + noRecSleepCnt);
                         }
-                        // System.out.println("output rate: " + counter);
                         if (sleepCnt <= skipCount) {
                             for (int i = 0; i < warmp_rate / 20; i++) {
                                 String tweet_id = getTweetID(count % 1000000);
                                 String user_id = getTweetID(count % 10000);
-                                ctx.collect(Tuple7.of(tweet_id, user_id, "test test", 0, 0, System.currentTimeMillis(), (long) count));
+                                ctx.collect(new Tuple2<>(tweet_id, new TweetRecord(
+                                        tweet_id,
+                                        user_id,
+                                        "test test",
+                                        0,
+                                        0,
+                                        System.currentTimeMillis(),
+                                        count
+                                )));
                                 count++;
                             }
                         }
@@ -218,26 +340,33 @@ public class TweetAlertTrigger {
                         if (cur < sleepCnt * 50 + start) {
                             Thread.sleep((sleepCnt * 50 + start) - cur);
                         } else {
-                            System.out.println("rate exceeds" + 50 + "ms.");
+                            System.out.println("rate exceeds 50ms.");
                         }
-//                    start = System.currentTimeMillis();
+                        continue;
                     }
 
-                    if (sCurrentLine.split(",").length < 5) {
+                    String[] fields = sCurrentLine.split(",");
+                    if (fields.length < 5) {
                         continue;
                     }
 
                     if (sleepCnt > skipCount) {
-                        Long ts = System.currentTimeMillis();
-                        String msg = sCurrentLine;
-                        List<String> stockArr = Arrays.asList(msg.split(","));
-                        ctx.collect(new Tuple7<>(
-                                stockArr.get(0),
-                                stockArr.get(1),
-                                stockArr.get(2),
-                                Integer.parseInt(stockArr.get(3)),
-                                Integer.parseInt(stockArr.get(4)),
-                                ts, (long) count));
+                        long ts = System.currentTimeMillis();
+                        String tweet_id = fields[0];
+                        String user_id = fields[1];
+                        String content = fields[2];
+                        int timestamp = Integer.parseInt(fields[3]);
+                        int followerCount = Integer.parseInt(fields[4]);
+
+                        ctx.collect(new Tuple2<>(tweet_id, new TweetRecord(
+                                tweet_id,
+                                user_id,
+                                content,
+                                timestamp,
+                                followerCount,
+                                ts,
+                                count
+                        )));
                         count++;
                     }
                     counter++;
@@ -245,15 +374,10 @@ public class TweetAlertTrigger {
             } catch (IOException e) {
                 e.printStackTrace();
             } finally {
-                try {
-                    if (stream != null) stream.close();
-                    if (br != null) br.close();
-                } catch (IOException ex) {
-                    ex.printStackTrace();
-                }
+                if (stream != null) stream.close();
+                if (br != null) br.close();
+                ctx.close();
             }
-
-            ctx.close();
         }
 
         @Override
@@ -262,36 +386,27 @@ public class TweetAlertTrigger {
         }
     }
 
-    public static final class TweetPreprocess extends RichFlatMapFunction<Tuple7<String, String, String, Integer, Integer, Long, Long>, Tuple7<String, String, String, Integer, Integer, Long, Long>> {
-        private RandomDataGenerator randomGen = new RandomDataGenerator();
-        private int averageDelay; // Microsecond
-        public TweetPreprocess(int _averageDelay){
-            this.averageDelay = _averageDelay;
-        }
+    public static class DelayUtil {
+        private static final RandomDataGenerator randomGen = new RandomDataGenerator();
 
-        @Override
-        public void flatMap(Tuple7<String, String, String, Integer, Integer, Long, Long> input, Collector<Tuple7<String, String, String, Integer, Integer, Long, Long>> out) throws Exception {
-            out.collect(new Tuple7<String, String, String, Integer, Integer, Long, Long>(input.f0, input.f1, input.f2, input.f3, input.f4, input.f5, input.f6));
-            delay(averageDelay);
-        }
-
-        private void delay(long interval) {
-            Double ranN = randomGen.nextGaussian(interval, 1);
-            ranN = ranN*1000;
-            long delay = ranN.intValue();
-            if (delay < 0) delay = interval * 1000;
-            Long start = System.nanoTime();
-            while (System.nanoTime() - start < delay) {}
+        public static void delay(long intervalMicroseconds) {
+            double ranN = randomGen.nextGaussian(intervalMicroseconds, 1) * 1000;
+            long delayNanos = (int) ranN;
+            if (delayNanos < 0) delayNanos = intervalMicroseconds * 1000;
+            long start = System.nanoTime();
+            while (System.nanoTime() - start < delayNanos) {
+                // Busy waiting
+            }
         }
     }
 
-    public static final class SentimentAnalysis extends RichFlatMapFunction<
-            Tuple7<String, String, String, Integer, Integer, Long, Long>,
-            Tuple10<String, String, String, Integer, Integer, Integer, Double, String, Long, Long>> {
 
-        private RandomDataGenerator randomGen = new RandomDataGenerator();
-        private int averageDelay; // Microsecond
-        private Map<String, Double> sentimentDict;
+    public static final class SentimentAnalysis extends RichFlatMapFunction<Tuple2<String, TweetRecord>, Tuple2<String, TweetResult>> {
+
+        private final RandomDataGenerator randomGen = new RandomDataGenerator();
+        private final int averageDelay; // in microseconds
+        private final Map<String, Double> sentimentDict;
+
         public SentimentAnalysis(int _averageDelay) {
             this.averageDelay = _averageDelay;
             sentimentDict = new HashMap<>();
@@ -307,222 +422,108 @@ public class TweetAlertTrigger {
             sentimentDict.put("ugly", -1.0);
         }
 
-        private double getSentiment(String text){
-            // TODO: replace with NLP model
+        private double getSentiment(String text) {
+            // TODO: Replace with an actual NLP model
             double sentiment = 0;
             int n = 0;
-            for(String word: text.split(" ")){
+            for (String word : text.split(" ")) {
                 sentiment += sentimentDict.getOrDefault(word, randomGen.nextUniform(-0.5, 0.5));
                 n++;
             }
-            if(n==0){
-                return 0.0;
-            }
-            return sentiment/n;
+            return (n == 0) ? 0.0 : sentiment / n;
         }
+
         @Override
-        public void flatMap(Tuple7<String, String, String, Integer, Integer, Long, Long> input, Collector<Tuple10<String, String, String, Integer, Integer, Integer, Double, String, Long, Long>> out) throws Exception {
-            double sentiment = getSentiment(input.f2);
-            delay(averageDelay);
-            out.collect(new Tuple10<>(
-                    input.f0,
-                    input.f1,
-                    input.f2,
-                    input.f3,
-                    input.f4,
-                    SentimentAnalysis_Output,
+        public void flatMap(Tuple2<String, TweetRecord> rawInput, Collector<Tuple2<String, TweetResult>> out) throws Exception {
+            TweetRecord input = rawInput.f1;
+            double sentiment = getSentiment(input.getContent());
+            DelayUtil.delay(averageDelay);
+
+            TweetResult result = new TweetResult(
+                    input.getTweetId(),
+                    input.getUserId(),
+                    input.getContent(),
+                    input.getTimestamp(),
+                    input.getFollowerCount(),
+                    SentimentAnalysis_Output, // constant defined elsewhere
                     sentiment,
-                    "",
-                    input.f5,
-                    input.f6
-            ));
-        }
+                    "", // no topic assigned here
+                    input.getArrivalTime(),
+                    input.getTupleNumber()
+            );
 
-        private void delay(long interval) {
-            Double ranN = randomGen.nextGaussian(interval, 1);
-            ranN = ranN * 1000;
-            long delay = ranN.intValue();
-            if (delay < 0) delay = interval * 1000;
-            Long start = System.nanoTime();
-            while (System.nanoTime() - start < delay) {
-            }
+            out.collect(new Tuple2<>(input.getTweetId(), result));
         }
 
         @Override
         public void open(Configuration config) {
+            // Optional: Add initialization logic if needed
         }
     }
 
-    public static final class InfluenceScoring extends RichFlatMapFunction<
-            Tuple7<String, String, String, Integer, Integer, Long, Long>,
-            Tuple10<String, String, String, Integer, Integer, Integer, Double, String, Long, Long>> {
-
-        private RandomDataGenerator randomGen = new RandomDataGenerator();
-        private int averageDelay; // Microsecond
-
-        public InfluenceScoring(int _averageDelay) {
-            this.averageDelay = _averageDelay;
-        }
-
-        private double getInfluenceScore(String userId, int follower_count){
-            return Math.log(follower_count);
-        }
-        @Override
-        public void flatMap(Tuple7<String, String, String, Integer, Integer, Long, Long> input, Collector<Tuple10<String, String, String, Integer, Integer, Integer, Double, String, Long, Long>> out) throws Exception {
-            double influence = getInfluenceScore(input.f1, input.f4);
-            delay(averageDelay);
-            out.collect(new Tuple10<>(
-                    input.f0,
-                    input.f1,
-                    input.f2,
-                    input.f3,
-                    input.f4,
-                    InfluenceScoring_Output,
-                    influence,
-                    "",
-                    input.f5,
-                    input.f6
-            ));
-        }
-
-        private void delay(long interval) {
-            Double ranN = randomGen.nextGaussian(interval, 1);
-            ranN = ranN * 1000;
-            long delay = ranN.intValue();
-            if (delay < 0) delay = interval * 1000;
-            Long start = System.nanoTime();
-            while (System.nanoTime() - start < delay) {
-            }
-        }
-
-        @Override
-        public void open(Configuration config) {
-        }
-    }
-
-    public static final class ContentCategorization extends RichFlatMapFunction<
-            Tuple7<String, String, String, Integer, Integer, Long, Long>,
-            Tuple10<String, String, String, Integer, Integer, Integer, Double, String, Long, Long>> {
-
-        private RandomDataGenerator randomGen = new RandomDataGenerator();
-        private int averageDelay; // Microsecond
-
-        public ContentCategorization(int _averageDelay) {
-            this.averageDelay = _averageDelay;
-        }
-
-        private String getTopic(String text) {
-            // TODO: replace with topic model
-            String [] splits = text.split(" ");
-            if (splits.length > 0) {
-                return splits[0];
-            }else{
-                return "Empty";
-            }
-        }
-
-        @Override
-        public void flatMap(Tuple7<String, String, String, Integer, Integer, Long, Long> input, Collector<Tuple10<String, String, String, Integer, Integer, Integer, Double, String, Long, Long>> out) throws Exception {
-            String topic = getTopic(input.f2);
-            delay(averageDelay);
-            out.collect(new Tuple10<>(
-                    input.f0,
-                    input.f1,
-                    input.f2,
-                    input.f3,
-                    input.f4,
-                    ContentCategorization_Output,
-                    0.0,
-                    topic,
-                    input.f5,
-                    input.f6
-            ));
-        }
-
-        private void delay(long interval) {
-            Double ranN = randomGen.nextGaussian(interval, 1);
-            ranN = ranN * 1000;
-            long delay = ranN.intValue();
-            if (delay < 0) delay = interval * 1000;
-            Long start = System.nanoTime();
-            while (System.nanoTime() - start < delay) {
-            }
-        }
-
-        @Override
-        public void open(Configuration config) {
-        }
-    }
 
     public static final class InfluenceScoringAndContentCategorization extends RichFlatMapFunction<
-            Tuple7<String, String, String, Integer, Integer, Long, Long>,
-            Tuple10<String, String, String, Integer, Integer, Integer, Double, String, Long, Long>> {
+            Tuple2<String, TweetRecord>,
+            Tuple2<String, TweetResult>> {
 
-        private RandomDataGenerator randomGen = new RandomDataGenerator();
-        private int averageDelay; // Microsecond
+        private final RandomDataGenerator randomGen = new RandomDataGenerator();
+        private final int averageDelay; // in microseconds
 
         public InfluenceScoringAndContentCategorization(int _averageDelay) {
             this.averageDelay = _averageDelay;
         }
 
-        private double getInfluenceScore(String userId, int follower_count){
-            return Math.log(follower_count);
+        private double getInfluenceScore(String userId, int followerCount) {
+            // Simple influence score model, can be replaced with a more sophisticated model
+            return Math.log(followerCount);
         }
 
         private String getTopic(String text) {
-            // TODO: replace with topic model
-            String [] splits = text.split(" ");
+            // TODO: replace with a more advanced topic model
+            String[] splits = text.split(" ");
             if (splits.length > 0) {
-                if(splits[0].length() > 5){
-                    return splits[0].substring(0, 5);
-                }else {
-                    return splits[0];
-                }
-            }else{
+                return splits[0].length() > 5 ? splits[0].substring(0, 5) : splits[0];
+            } else {
                 return "Empty";
             }
         }
 
         @Override
-        public void flatMap(Tuple7<String, String, String, Integer, Integer, Long, Long> input, Collector<Tuple10<String, String, String, Integer, Integer, Integer, Double, String, Long, Long>> out) throws Exception {
-            double influence = getInfluenceScore(input.f1, input.f4);
-            String topic = getTopic(input.f2);
-            delay(averageDelay);
-            out.collect(new Tuple10<>(
-                    input.f0,
-                    input.f1,
-                    input.f2,
-                    input.f3,
-                    input.f4,
-                    InfluenceScoringAndContentCategorization_Output,
+        public void flatMap(Tuple2<String, TweetRecord> rawInput, Collector<Tuple2<String, TweetResult>> out) throws Exception {
+            TweetRecord input = rawInput.f1;
+            double influence = getInfluenceScore(input.getUserId(), input.getFollowerCount());
+            String topic = getTopic(input.getContent());
+
+            DelayUtil.delay(averageDelay); // Use the same delay utility as in SentimentAnalysis
+
+            TweetResult result = new TweetResult(
+                    input.getTweetId(),
+                    input.getUserId(),
+                    input.getContent(),
+                    input.getTimestamp(),
+                    input.getFollowerCount(),
+                    InfluenceScoringAndContentCategorization_Output,  // previously a constant
                     influence,
                     topic,
-                    input.f5,
-                    input.f6
-            ));
-        }
+                    input.getArrivalTime(),
+                    input.getTupleNumber()
+            );
 
-        private void delay(long interval) {
-            Double ranN = randomGen.nextGaussian(interval, 1);
-            ranN = ranN * 1000;
-            long delay = ranN.intValue();
-            if (delay < 0) delay = interval * 1000;
-            Long start = System.nanoTime();
-            while (System.nanoTime() - start < delay) {
-            }
+            // Output is (key, result) where key = tweetId
+            out.collect(new Tuple2<>(input.getTweetId(), result));
         }
 
         @Override
         public void open(Configuration config) {
+            // Add initialization logic if needed
         }
     }
 
 
     public static final class TweetJoin extends RichFlatMapFunction<
-            Tuple10<String, String, String, Integer, Integer, Integer, Double, String, Long, Long>,
-            Tuple10<String, String, String, Integer, Integer, Double, Double, String, Long, Long>> {
+            Tuple2<String, TweetResult>,
+            Tuple2<String, JoinedResult>> {
 
-        private RandomDataGenerator randomGen = new RandomDataGenerator();
         private int averageDelay; // Microsecond
 
         private transient MapState<String, Double> tweetSentiment, tweetInfluence;
@@ -533,181 +534,69 @@ public class TweetAlertTrigger {
         }
 
         @Override
-        public void flatMap(Tuple10<String, String, String, Integer, Integer, Integer, Double, String, Long, Long> input, Collector<Tuple10<String, String, String, Integer, Integer, Double, Double, String, Long, Long>> out) throws Exception {
-            String tweetId = input.f0;
-            int type = input.f5;
-            if(type == SentimentAnalysis_Output){
-                double sentiment = input.f6;
+        public void flatMap(Tuple2<String, TweetResult> inputTuple, Collector<Tuple2<String, JoinedResult>> out) throws Exception {
+            String tweetId = inputTuple.f0;
+            TweetResult input = inputTuple.f1;
+            int type = input.getOperatorType();
+
+            // Store partial results based on operator type
+            if (type == SentimentAnalysis_Output) {
+                double sentiment = input.getResult_value();
                 tweetSentiment.put(tweetId, sentiment);
-            }else if(type == InfluenceScoringAndContentCategorization_Output){
-                double influence = input.f6;
-                String topic = input.f7;
+            } else if (type == InfluenceScoringAndContentCategorization_Output) {
+                double influence = input.getResult_value(); // reused sentiment field as influence in previous code?
+                String topic = input.getTopic();
                 tweetInfluence.put(tweetId, influence);
                 tweetTopic.put(tweetId, topic);
             }
 
-            if(tweetSentiment.contains(tweetId) && tweetTopic.contains(tweetId) && tweetInfluence.contains(tweetId)) {
-                double sentiment = tweetSentiment.get(tweetId), influence = tweetInfluence.get(tweetId);
+            // Check if we have all pieces: sentiment, influence, and topic
+            if (tweetSentiment.contains(tweetId) && tweetInfluence.contains(tweetId) && tweetTopic.contains(tweetId)) {
+                double sentiment = tweetSentiment.get(tweetId);
+                double influence = tweetInfluence.get(tweetId);
                 String topic = tweetTopic.get(tweetId);
+
+                // Remove them after join
                 tweetSentiment.remove(tweetId);
                 tweetInfluence.remove(tweetId);
                 tweetTopic.remove(tweetId);
-                out.collect(new Tuple10<>(
-                        input.f0,
-                        input.f1,
-                        input.f2,
-                        input.f3,
-                        input.f4,
+
+                // Construct the final joined result
+                JoinedResult joinedResult = new JoinedResult(
+                        input.getTweetId(),
+                        input.getUserId(),
+                        input.getContent(),
+                        input.getTimestamp(),
+                        input.getFollowerCount(),
                         sentiment,
                         influence,
                         topic,
-                        input.f8,
-                        input.f9
-                ));
-            }
-            delay(averageDelay);
-        }
+                        input.getArrivalTime(),
+                        input.getTupleNumber()
+                );
 
-        private void delay(long interval) {
-            Double ranN = randomGen.nextGaussian(interval, 1);
-            ranN = ranN * 1000;
-            long delay = ranN.intValue();
-            if (delay < 0) delay = interval * 1000;
-            Long start = System.nanoTime();
-            while (System.nanoTime() - start < delay) {
+                out.collect(new Tuple2<>(tweetId, joinedResult));
             }
+
+            DelayUtil.delay(averageDelay);
         }
 
         @Override
         public void open(Configuration config) {
-            MapStateDescriptor<String, Double> descriptor =
-                    new MapStateDescriptor<>("join-sentiment", String.class, Double.class);
-            tweetSentiment = getRuntimeContext().getMapState(descriptor);
-            descriptor = new MapStateDescriptor<>("join-influence", String.class, Double.class);
-            tweetInfluence = getRuntimeContext().getMapState(descriptor);
-            MapStateDescriptor<String, String> descriptor1 =
-                    new MapStateDescriptor<>("join-topic", String.class, String.class);
-            tweetTopic = getRuntimeContext().getMapState(descriptor1);
-        }
-    }
+            MapStateDescriptor<String, Double> sentimentDesc = new MapStateDescriptor<>("join-sentiment", String.class, Double.class);
+            tweetSentiment = getRuntimeContext().getMapState(sentimentDesc);
 
-    public static final class TweetAggregate extends RichFlatMapFunction<
-            Tuple10<String, String, String, Integer, Integer, Double, Double, String, Long, Long>,
-            Tuple10<String, String, String, Integer, Integer, Double, Double, String, Long, Long>> {
+            MapStateDescriptor<String, Double> influenceDesc = new MapStateDescriptor<>("join-influence", String.class, Double.class);
+            tweetInfluence = getRuntimeContext().getMapState(influenceDesc);
 
-        private RandomDataGenerator randomGen = new RandomDataGenerator();
-        private int averageDelay; // Microsecond
-
-        private transient MapState<String, Double> topicTotalSentiment, topicTotalInfluence;
-
-        public TweetAggregate(int _averageDelay) {
-            this.averageDelay = _averageDelay;
-        }
-
-        @Override
-        public void flatMap(Tuple10<String, String, String, Integer, Integer, Double, Double, String, Long, Long> input, Collector<Tuple10<String, String, String, Integer, Integer, Double, Double, String, Long, Long>> out) throws Exception {
-            String tweetId = input.f0;
-            String topic = input.f7;
-            double old_sentiment = 0.0, old_influence = 0.0;
-            if(topicTotalSentiment.contains(topic)){
-                old_sentiment = topicTotalSentiment.get(topic);
-            }
-            if(topicTotalInfluence.contains(topic)){
-                old_influence = topicTotalInfluence.get(topic);
-            }
-            double sentiment = old_sentiment + input.f5, influence = old_influence + input.f6;
-            topicTotalSentiment.put(topic, sentiment);
-            topicTotalInfluence.put(topic, influence);
-            out.collect(new Tuple10<>(
-                    input.f0,
-                    input.f1,
-                    input.f2,
-                    input.f3,
-                    input.f4,
-                    sentiment,
-                    influence,
-                    topic,
-                    input.f8,
-                    input.f9
-            ));
-            delay(averageDelay);
-        }
-
-        private void delay(long interval) {
-            Double ranN = randomGen.nextGaussian(interval, 1);
-            ranN = ranN * 1000;
-            long delay = ranN.intValue();
-            if (delay < 0) delay = interval * 1000;
-            Long start = System.nanoTime();
-            while (System.nanoTime() - start < delay) {
-            }
-        }
-
-        @Override
-        public void open(Configuration config) {
-            MapStateDescriptor<String, Double> descriptor =
-                    new MapStateDescriptor<>("aggregate-sentiment", String.class, Double.class);
-            topicTotalSentiment = getRuntimeContext().getMapState(descriptor);
-            descriptor = new MapStateDescriptor<>("aggregate-influence", String.class, Double.class);
-            topicTotalInfluence = getRuntimeContext().getMapState(descriptor);
-        }
-    }
-
-    public static final class AlertTrigger extends RichFlatMapFunction<
-            Tuple10<String, String, String, Integer, Integer, Double, Double, String, Long, Long>,
-            Tuple10<String, String, String, Integer, Integer, Double, Double, String, Long, Long>> {
-
-        private RandomDataGenerator randomGen = new RandomDataGenerator();
-        private int averageDelay; // Microsecond
-
-        public AlertTrigger(int _averageDelay) {
-            this.averageDelay = _averageDelay;
-        }
-
-        @Override
-        public void flatMap(Tuple10<String, String, String, Integer, Integer, Double, Double, String, Long, Long> input, Collector<Tuple10<String, String, String, Integer, Integer, Double, Double, String, Long, Long>> out) throws Exception {
-            delay(averageDelay);
-            String tweetId = input.f0, topic = input.f7;
-            double sentiment = input.f5, influence = input.f6;
-            if(Math.abs(sentiment) > 10.0 && influence >= 10.0){
-                System.out.println("Topic Alert: " + topic + " sentiment=" + sentiment + " influence=" + influence);
-            }
-            long currentTime = System.currentTimeMillis();
-            System.out.println("GT: " + input.f0 + ", " + currentTime + ", " + (currentTime - input.f8) + ", " + input.f9);
-            out.collect(new Tuple10<>(
-                    input.f0,
-                    input.f1,
-                    input.f2,
-                    input.f3,
-                    input.f4,
-                    input.f5,
-                    input.f6,
-                    input.f7,
-                    input.f8,
-                    input.f9
-            ));
-
-        }
-
-        private void delay(long interval) {
-            Double ranN = randomGen.nextGaussian(interval, 1);
-            ranN = ranN * 1000;
-            long delay = ranN.intValue();
-            if (delay < 0) delay = interval * 1000;
-            Long start = System.nanoTime();
-            while (System.nanoTime() - start < delay) {
-            }
-        }
-        @Override
-        public void open(Configuration config) {
+            MapStateDescriptor<String, String> topicDesc = new MapStateDescriptor<>("join-topic", String.class, String.class);
+            tweetTopic = getRuntimeContext().getMapState(topicDesc);
         }
     }
 
     public static final class TweetAggregateAndAlertTrigger extends RichMapFunction<
-            Tuple10<String, String, String, Integer, Integer, Double, Double, String, Long, Long>,
-            Tuple10<String, String, String, Integer, Integer, Double, Double, String, Long, Long>> {
-
-        private RandomDataGenerator randomGen = new RandomDataGenerator();
+            Tuple2<String, JoinedResult>,
+            Tuple2<String, JoinedResult>> {
         private int averageDelay; // Microsecond
 
         private transient MapState<String, Double> topicTotalSentiment, topicTotalInfluence;
@@ -717,9 +606,10 @@ public class TweetAlertTrigger {
         }
 
         @Override
-        public Tuple10<String, String, String, Integer, Integer, Double, Double, String, Long, Long> map(Tuple10<String, String, String, Integer, Integer, Double, Double, String, Long, Long> input) throws Exception {
-            String tweetId = input.f0;
-            String topic = input.f7;
+        public Tuple2<String, JoinedResult> map(Tuple2<String, JoinedResult> inputTuple) throws Exception {
+            String tweetId = inputTuple.f0;
+            JoinedResult input = inputTuple.f1;
+            String topic = input.getTopic();
             double old_sentiment = 0.0, old_influence = 0.0;
             if(topicTotalSentiment.contains(topic)){
                 old_sentiment = topicTotalSentiment.get(topic);
@@ -727,40 +617,29 @@ public class TweetAlertTrigger {
             if(topicTotalInfluence.contains(topic)){
                 old_influence = topicTotalInfluence.get(topic);
             }
-            double sentiment = old_sentiment + input.f5, influence = old_influence + input.f6;
+            double sentiment = old_sentiment + input.getSentiment(), influence = old_influence + input.getInfluence();
             topicTotalSentiment.put(topic, sentiment);
             topicTotalInfluence.put(topic, influence);
 
-            delay(averageDelay);
+            DelayUtil.delay(averageDelay);
 
             if(Math.abs(sentiment) > 10.0 && influence >= 10.0){
                 System.out.println("Topic Alert: " + topic + " sentiment=" + sentiment + " influence=" + influence);
             }
             long currentTime = System.currentTimeMillis();
-            System.out.println("GT: " + input.f0 + ", " + currentTime + ", " + (currentTime - input.f8) + ", " + input.f9);
-            return new Tuple10<>(
-                    input.f0,
-                    input.f1,
-                    input.f2,
-                    input.f3,
-                    input.f4,
-                    input.f5,
-                    input.f6,
-                    input.f7,
-                    input.f8,
-                    input.f9
-            );
-
-        }
-
-        private void delay(long interval) {
-            Double ranN = randomGen.nextGaussian(interval, 1);
-            ranN = ranN * 1000;
-            long delay = ranN.intValue();
-            if (delay < 0) delay = interval * 1000;
-            Long start = System.nanoTime();
-            while (System.nanoTime() - start < delay) {
-            }
+            System.out.println("GT: " + tweetId + ", " + currentTime + ", " + (currentTime - input.getArrivalTime()) + ", " + input.getTupleNumber());
+            return new Tuple2<>(tweetId, new JoinedResult(
+                    input.getTweetId(),
+                    input.getUserId(),
+                    input.getContent(),
+                    input.getTimestamp(),
+                    input.getFollowerCount(),
+                    input.getSentiment(),
+                    input.getInfluence(),
+                    input.getTopic(),
+                    input.getArrivalTime(),
+                    input.getTupleNumber()
+            ));
         }
 
         @Override
@@ -772,6 +651,5 @@ public class TweetAlertTrigger {
             topicTotalInfluence = getRuntimeContext().getMapState(descriptor);
         }
     }
-
 }
 
