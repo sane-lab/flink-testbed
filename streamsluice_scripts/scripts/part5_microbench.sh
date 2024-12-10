@@ -135,7 +135,7 @@ run_scale_test(){
     new_metrics_retriever_flag=true
 
     autotune=true
-    autotune_interval=60
+    autotune_interval=120
     autotuner="UserLimitTuner"
     autotuner_latency_window=100
     autotuner_bar_lowerbound=350 #300
