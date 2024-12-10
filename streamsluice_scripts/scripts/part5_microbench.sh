@@ -139,7 +139,6 @@ run_scale_test(){
     autotuner="UserLimitTuner"
     autotuner_latency_window=100
     autotuner_bar_lowerbound=350 #300
-    autotuner_initial_value_option=4 # 1
     autotuner_adjustment_option=1
     autotuner_increase_bar_option=1 # 2
     autotuner_initial_value_alpha=1.2
@@ -151,7 +150,10 @@ run_scale_test(){
     L=1000 #2000 #2500
     migration_interval=1000 #500
     spike_slope=0.7
-    autotuner_increase_bar_option=7 # 3 5
+    autotuner_initial_value_option=4
+    autotuner_increase_bar_option=7
+    autotuner_initial_value_option=5
+    autotuner_increase_bar_option=8
     autotuner_increase_bar_alpha=0.1 #0.25
     echo "Run micro bench system sensitivity..."
     init
