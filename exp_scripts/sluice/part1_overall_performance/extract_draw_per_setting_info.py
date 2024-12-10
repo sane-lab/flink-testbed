@@ -1031,8 +1031,8 @@ def plot_weighted_success_rate_bar(user_limits_per_label, weighted_success_rate_
     # Add labels, title, and custom x-axis tick labels
     ax.set_xlabel('User Limits')
     ax.set_ylabel('Weighted Success Rate')
-    ax.set_ylim(0.95, 1.01)
-    ax.set_yticks(np.arange(0.95, 1.01, 0.01))
+    ax.set_ylim(0.90, 1.005)
+    ax.set_yticks(np.arange(0.90, 1.02, 0.02))
     ax.set_xticks(x + bar_width * (len(labels) - 1) / 2)
     ax.set_xticklabels(user_limits)
     ax.set_title('Weighted Success Rates by User Limits')
