@@ -999,10 +999,14 @@ def plot_weighted_success_rate_curve(user_limits_per_label, weighted_success_rat
     for label in labels:
         plt.plot(user_limits_per_label[label], weighted_success_rate_per_label[label], marker='o', label=("$\\alpha$="+label))
 
+    plt.plot([0, 10000], [0.99, 0.99], "-", color="red")
     plt.xlabel('User Limits')
     plt.ylabel('Weighted Success Rate')
-    plt.ylim(0.90, 1.005)
-    plt.yticks(np.arange(0.90, 1.02, 0.02))
+    #plt.ylim(0.90, 1.005)
+    #plt.yticks(np.arange(0.90, 1.02, 0.02))
+    plt.ylim(0.0, 1.001)
+    plt.yticks(np.arange(0.9, 1.1, 0.1))
+
     plt.xticks(user_limits_per_label[label])
     plt.title('Weighted Success Rates by User Limits')
     plt.legend()
@@ -1027,12 +1031,14 @@ def plot_weighted_success_rate_bar(user_limits_per_label, weighted_success_rate_
     for i, label in enumerate(labels):
         success_rates = weighted_success_rate_per_label[label]
         ax.bar(x + i * bar_width, success_rates, width=bar_width, label=("$\\alpha$=" + label))
-
+    plt.plot([0, 10000], [0.99, 0.99], "-", color="red")
     # Add labels, title, and custom x-axis tick labels
     ax.set_xlabel('User Limits')
     ax.set_ylabel('Weighted Success Rate')
-    ax.set_ylim(0.90, 1.005)
-    ax.set_yticks(np.arange(0.90, 1.02, 0.02))
+    # ax.set_ylim(0.90, 1.005)
+    # ax.set_yticks(np.arange(0.90, 1.02, 0.02))
+    plt.ylim(0.0, 1.001)
+    plt.yticks(np.arange(0.9, 1.1, 0.1))
     ax.set_xticks(x + bar_width * (len(labels) - 1) / 2)
     ax.set_xticklabels(user_limits)
     ax.set_title('Weighted Success Rates by User Limits')
