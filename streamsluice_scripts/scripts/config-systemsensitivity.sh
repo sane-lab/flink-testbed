@@ -78,7 +78,7 @@ function configFlink() {
     sed 's/^\(\s*model.use_DP_algorithm_flag\s*:\s*\).*/\1'"$lem_dp_algorithm_flag"'/' tmp41 > tmp42
     sed 's/^\(\s*controller.scale_in.type\s*:\s*\).*/\1'"$scalein_type"'/' tmp42 > ${FLINK_CONF_DIR}/flink-conf.yaml
     rm tmp*
-    echo ${FLINK_CONF_DIR}/flink-conf.yaml
+    echo ${FLINK_CONF_DIR}/flink-conf-systemsensitivity.yaml
     cp ${FLINK_CONF_DIR}/* ${FLINK_DIR}/conf
     cp ${FLINK_CONF_DIR}/slaves_systemsensitivity ${FLINK_DIR}/conf/slaves
     for host in "dragon" "eagle"; do
