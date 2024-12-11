@@ -11,21 +11,21 @@ def format_to_script(input_string):
 
 # Example usage
 input_string = """
-lr-streamsluice-streamsluice-1-1980-150-1300-10-1-50-3-1000-1-50-27-2500-1000-0.1-100-1-0-0.0-true-500-0.8-2
-lr-streamsluice-streamsluice-1-1980-150-1300-10-1-50-3-1000-1-50-27-2500-1500-0.1-100-1-0-0.0-true-500-0.8-2
-lr-streamsluice-streamsluice-1-1980-150-1300-10-1-50-3-1000-1-50-27-2500-2000-0.1-100-1-0-0.0-true-500-0.8-2
-lr-streamsluice-streamsluice-1-1980-150-1300-10-1-50-3-1000-1-50-27-2500-2500-0.1-100-1-0-0.0-true-500-0.8-2
-lr-streamsluice-streamsluice-1-1980-150-1300-10-1-50-3-1000-1-50-27-2500-3000-0.1-100-1-0-0.0-true-500-0.8-2
-lr-streamsluice-streamsluice-1-1980-150-1300-10-1-50-3-1000-1-50-27-2500-1000-0.2-100-1-0-0.0-true-500-0.8-2
-lr-streamsluice-streamsluice-1-1980-150-1300-10-1-50-3-1000-1-50-27-2500-1500-0.2-100-1-0-0.0-true-500-0.8-2
-lr-streamsluice-streamsluice-1-1980-150-1300-10-1-50-3-1000-1-50-27-2500-2000-0.2-100-1-0-0.0-true-500-0.8-2
-lr-streamsluice-streamsluice-1-1980-150-1300-10-1-50-3-1000-1-50-27-2500-2500-0.2-100-1-0-0.0-true-500-0.8-2
-lr-streamsluice-streamsluice-1-1980-150-1300-10-1-50-3-1000-1-50-27-2500-3000-0.2-100-1-0-0.0-true-500-0.8-2
-lr-streamsluice-streamsluice-1-1980-150-1300-10-1-50-3-1000-1-50-27-2500-1000-0.4-100-1-0-0.0-true-500-0.8-2
-lr-streamsluice-streamsluice-1-1980-150-1300-10-1-50-3-1000-1-50-27-2500-1500-0.4-100-1-0-0.0-true-500-0.8-2
-lr-streamsluice-streamsluice-1-1980-150-1300-10-1-50-3-1000-1-50-27-2500-2000-0.4-100-1-0-0.0-true-500-0.8-2
-lr-streamsluice-streamsluice-1-1980-150-1300-10-1-50-3-1000-1-50-27-2500-2500-0.4-100-1-0-0.0-true-500-0.8-2
-lr-streamsluice-streamsluice-1-1980-150-1300-10-1-50-3-1000-1-50-27-2500-3000-0.4-100-1-0-0.0-true-500-0.8-2
+tweet-streamsluice-streamsluice-5-8-1950-90-1500-1-19-6666-9-1000-1-50-1-50-1000-100-true-0.1-1
+tweet-streamsluice-streamsluice-5-8-1950-90-1500-1-19-6666-9-1000-1-50-1-50-1500-100-true-0.1-1
+tweet-streamsluice-streamsluice-5-8-1950-90-1500-1-19-6666-9-1000-1-50-1-50-2000-100-true-0.1-1
+tweet-streamsluice-streamsluice-5-8-1950-90-1500-1-19-6666-9-1000-1-50-1-50-2500-100-true-0.1-1
+tweet-streamsluice-streamsluice-5-8-1950-90-1500-1-19-6666-9-1000-1-50-1-50-3000-100-true-0.1-1
+tweet-streamsluice-streamsluice-5-8-1950-90-1500-1-19-6666-9-1000-1-50-1-50-1000-100-true-0.2-1
+tweet-streamsluice-streamsluice-5-8-1950-90-1500-1-19-6666-9-1000-1-50-1-50-1500-100-true-0.2-1
+tweet-streamsluice-streamsluice-5-8-1950-90-1500-1-19-6666-9-1000-1-50-1-50-2000-100-true-0.2-1
+tweet-streamsluice-streamsluice-5-8-1950-90-1500-1-19-6666-9-1000-1-50-1-50-2500-100-true-0.2-1
+tweet-streamsluice-streamsluice-5-8-1950-90-1500-1-19-6666-9-1000-1-50-1-50-3000-100-true-0.2-1
+tweet-streamsluice-streamsluice-5-8-1950-90-1500-1-19-6666-9-1000-1-50-1-50-1000-100-true-0.4-1
+tweet-streamsluice-streamsluice-5-8-1950-90-1500-1-19-6666-9-1000-1-50-1-50-1500-100-true-0.4-1
+tweet-streamsluice-streamsluice-5-8-1950-90-1500-1-19-6666-9-1000-1-50-1-50-2000-100-true-0.4-1
+tweet-streamsluice-streamsluice-5-8-1950-90-1500-1-19-6666-9-1000-1-50-1-50-2500-100-true-0.4-1
+tweet-streamsluice-streamsluice-5-8-1950-90-1500-1-19-6666-9-1000-1-50-1-50-3000-100-true-0.4-1
 """
 
 

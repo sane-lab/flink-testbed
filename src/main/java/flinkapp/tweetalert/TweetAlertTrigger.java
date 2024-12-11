@@ -21,6 +21,7 @@ import org.apache.flink.util.Collector;
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
+import java.io.Serializable;
 import java.util.*;
 
 public class TweetAlertTrigger {
@@ -525,7 +526,41 @@ public class TweetAlertTrigger {
             Tuple2<String, JoinedResult>> {
 
         private int averageDelay; // Microsecond
+        public static class TweetMetrics implements Serializable {
+            private int speed;
+            private int seg;
+            private String extraLoad;
 
+            public TweetMetrics() {
+                this.speed = 0;
+                this.seg = -1; // indicates no known segment yet
+                this.extraLoad = null;
+            }
+
+            public int getSpeed() {
+                return speed;
+            }
+
+            public void setSpeed(int speed) {
+                this.speed = speed;
+            }
+
+            public int getSeg() {
+                return seg;
+            }
+
+            public void setSeg(int seg) {
+                this.seg = seg;
+            }
+
+            public String getExtraLoad() {
+                return extraLoad;
+            }
+
+            public void setExtraLoad(String extraLoad) {
+                this.extraLoad = extraLoad;
+            }
+        }
         private transient MapState<String, Double> tweetSentiment, tweetInfluence;
         private transient MapState<String, String> tweetTopic;
 
