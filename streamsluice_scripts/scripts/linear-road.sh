@@ -22,7 +22,7 @@ function analyze() {
 }
 
 run_one_exp() {
-  EXP_NAME=lr-${whether_type}-${how_type}-${scaling_decision_option}-${runtime}-${warmup_time}-${warmup_rate}-${skip_interval}-${P2}-${DELAY2}-${P3}-${DELAY3}-${P4}-${DELAY4}-${P5}-${DELAY5}-${L}-${autotuner_increase_bar_alpha}-${epoch}-${input_rate_factor}-${PAYLOAD}-${SKEWNESS}-${is_treat}-${migration_interval}-${conservative_factor}-${repeat}
+  EXP_NAME=lr-${whether_type}-${how_type}-${autotuner_initial_value_option}-${autotuner_increase_bar_option}-${runtime}-${warmup_time}-${warmup_rate}-${skip_interval}-${P2}-${DELAY2}-${P3}-${DELAY3}-${P4}-${DELAY4}-${P5}-${DELAY5}-${L}-${autotuner_increase_bar_alpha}-${epoch}-${input_rate_factor}-${PAYLOAD}-${SKEWNESS}-${is_treat}-${migration_interval}-${conservative_factor}-${repeat}
 
   echo "INFO: run exp ${EXP_NAME}"
   configFlink
@@ -160,7 +160,6 @@ run_stock_test(){
     autotuner="UserLimitTuner"
     autotuner_latency_window=100
     autotuner_bar_lowerbound=350
-    autotuner_initial_value_option=4 # 1
     autotuner_adjustment_option=1
     autotuner_increase_bar_option=1 # 2
     autotuner_initial_value_alpha=1.2
@@ -171,7 +170,8 @@ run_stock_test(){
     L=1000 #2000 #2500
     migration_interval=1000 #500
     spike_slope=0.7
-    autotuner_increase_bar_option=7 # 3 5
+    autotuner_initial_value_option=5
+    autotuner_increase_bar_option=8 # 3 5
     autotuner_increase_bar_alpha=0.1 #0.25
     repeat=1
     autotune=false
@@ -183,7 +183,7 @@ run_stock_test(){
     autotune=true
     repeat=2
     for scaling_decision_option in 1; do # 2 0
-      for autotuner_increase_bar_alpha in 0.1 0.2; do # 0.1 0.2 0.4
+      for autotuner_increase_bar_alpha in 0.2; do # 0.1 0.2 0.4
         for L in 1500 2000 2500 3000; do # 1000 1500 2000 2500 3000
             whether_type="streamsluice"
             how_type="streamsluice"

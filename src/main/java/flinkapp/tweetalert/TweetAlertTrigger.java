@@ -293,7 +293,7 @@ public class TweetAlertTrigger {
                 for (int i = 0; i < warmp_rate / 20; i++) {
                     String tweet_id = getTweetID(count % 1000000);
                     String user_id = getTweetID(count % 10000);
-                    ctx.collect(new Tuple2<>(tweet_id, new TweetRecord(
+                    ctx.collect(new Tuple2<>(user_id, new TweetRecord(
                             tweet_id,
                             user_id,
                             "test test",
@@ -325,7 +325,7 @@ public class TweetAlertTrigger {
                             for (int i = 0; i < warmp_rate / 20; i++) {
                                 String tweet_id = getTweetID(count % 1000000);
                                 String user_id = getTweetID(count % 10000);
-                                ctx.collect(new Tuple2<>(tweet_id, new TweetRecord(
+                                ctx.collect(new Tuple2<>(user_id, new TweetRecord(
                                         tweet_id,
                                         user_id,
                                         "test test",
@@ -355,12 +355,12 @@ public class TweetAlertTrigger {
                     if (sleepCnt > skipCount) {
                         long ts = System.currentTimeMillis();
                         String tweet_id = fields[0];
-                        String user_id = fields[1];
+                        String user_id = getTweetID(count % 10000); // fields[1];
                         String content = fields[2];
                         int timestamp = Integer.parseInt(fields[3]);
                         int followerCount = Integer.parseInt(fields[4]);
 
-                        ctx.collect(new Tuple2<>(tweet_id, new TweetRecord(
+                        ctx.collect(new Tuple2<>(user_id, new TweetRecord(
                                 tweet_id,
                                 user_id,
                                 content,
@@ -454,7 +454,7 @@ public class TweetAlertTrigger {
                     input.getTupleNumber()
             );
 
-            out.collect(new Tuple2<>(input.getTweetId(), result));
+            out.collect(new Tuple2<>(rawInput.f0, result));
         }
 
         @Override
@@ -512,7 +512,7 @@ public class TweetAlertTrigger {
             );
 
             // Output is (key, result) where key = tweetId
-            out.collect(new Tuple2<>(input.getTweetId(), result));
+            out.collect(new Tuple2<>(rawInput.f0, result));
         }
 
         @Override
