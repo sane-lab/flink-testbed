@@ -527,42 +527,42 @@ public class TweetAlertTrigger {
 
         private int averageDelay; // Microsecond
         public static class TweetMetrics implements Serializable {
-            private int speed;
-            private int seg;
-            private String extraLoad;
+            private double sentiment;
+            private double influence;
+            private String topic;
 
             public TweetMetrics() {
-                this.speed = 0;
-                this.seg = -1; // indicates no known segment yet
-                this.extraLoad = null;
+                this.sentiment = 0;
+                this.influence = -1;
+                this.topic = null;
             }
 
-            public int getSpeed() {
-                return speed;
+            public double getSentiment() {
+                return sentiment;
             }
 
-            public void setSpeed(int speed) {
-                this.speed = speed;
+            public void setSentiment(double sentiment) {
+                this.sentiment = sentiment;
             }
 
-            public int getSeg() {
-                return seg;
+            public double getInfluence() {
+                return influence;
             }
 
-            public void setSeg(int seg) {
-                this.seg = seg;
+            public void setInfluence(double influence) {
+                this.influence = influence;
             }
 
-            public String getExtraLoad() {
-                return extraLoad;
+            public String getTopic() {
+                return topic;
             }
 
-            public void setExtraLoad(String extraLoad) {
-                this.extraLoad = extraLoad;
+            public void setTopic(String topic) {
+                this.topic = topic;
             }
         }
-        private transient MapState<String, Double> tweetSentiment, tweetInfluence;
-        private transient MapState<String, String> tweetTopic;
+        // Instead of multiple separate states, use one MapState for TweetMetrics
+        private transient MapState<String, TweetMetrics> tweetMetricsState;
 
         public TweetJoin(int _averageDelay) {
             this.averageDelay = _averageDelay;
@@ -574,28 +574,33 @@ public class TweetAlertTrigger {
             TweetResult input = inputTuple.f1;
             int type = input.getOperatorType();
 
-            // Store partial results based on operator type
-            if (type == SentimentAnalysis_Output) {
-                double sentiment = input.getResult_value();
-                tweetSentiment.put(tweetId, sentiment);
-            } else if (type == InfluenceScoringAndContentCategorization_Output) {
-                double influence = input.getResult_value(); // reused sentiment field as influence in previous code?
-                String topic = input.getTopic();
-                tweetInfluence.put(tweetId, influence);
-                tweetTopic.put(tweetId, topic);
+            // Retrieve existing metrics or create a new one
+            TweetMetrics metrics = tweetMetricsState.get(tweetId);
+            if (metrics == null) {
+                metrics = new TweetMetrics();
             }
 
+            // Update the metrics based on the operator type
+            if (type == SentimentAnalysis_Output) {
+                // The sentiment value is stored in result_value
+                double sentiment = input.getResult_value();
+                metrics.setSentiment(sentiment);
+            } else if (type == InfluenceScoringAndContentCategorization_Output) {
+                double influence = input.getResult_value();
+                String topic = input.getTopic();
+                metrics.setInfluence(influence);
+                metrics.setTopic(topic);
+            }
+
+            // Store updated metrics back into state
+            tweetMetricsState.put(tweetId, metrics);
+
             // Check if we have all pieces: sentiment, influence, and topic
-            if (tweetSentiment.contains(tweetId) && tweetInfluence.contains(tweetId) && tweetTopic.contains(tweetId)) {
-                double sentiment = tweetSentiment.get(tweetId);
-                double influence = tweetInfluence.get(tweetId);
-                String topic = tweetTopic.get(tweetId);
-
-                // Remove them after join
-                tweetSentiment.remove(tweetId);
-                tweetInfluence.remove(tweetId);
-                tweetTopic.remove(tweetId);
-
+            // Based on the TweetMetrics default values, we know:
+            // sentiment defaults to 0, influence defaults to -1, topic defaults to null
+            // We only proceed once influence != -1 and topic != null
+            if (metrics.getInfluence() != -1 && metrics.getTopic() != null) {
+                // We have sentiment, influence, and topic
                 // Construct the final joined result
                 JoinedResult joinedResult = new JoinedResult(
                         input.getTweetId(),
@@ -603,14 +608,18 @@ public class TweetAlertTrigger {
                         input.getContent(),
                         input.getTimestamp(),
                         input.getFollowerCount(),
-                        sentiment,
-                        influence,
-                        topic,
+                        metrics.getSentiment(),
+                        metrics.getInfluence(),
+                        metrics.getTopic(),
                         input.getArrivalTime(),
                         input.getTupleNumber()
                 );
 
+                // Output the joined result
                 out.collect(new Tuple2<>(tweetId, joinedResult));
+
+                // Remove the entry from the state since we've completed the join for this tweet
+                tweetMetricsState.remove(tweetId);
             }
 
             DelayUtil.delay(averageDelay);
@@ -618,23 +627,65 @@ public class TweetAlertTrigger {
 
         @Override
         public void open(Configuration config) {
-            MapStateDescriptor<String, Double> sentimentDesc = new MapStateDescriptor<>("join-sentiment", String.class, Double.class);
-            tweetSentiment = getRuntimeContext().getMapState(sentimentDesc);
-
-            MapStateDescriptor<String, Double> influenceDesc = new MapStateDescriptor<>("join-influence", String.class, Double.class);
-            tweetInfluence = getRuntimeContext().getMapState(influenceDesc);
-
-            MapStateDescriptor<String, String> topicDesc = new MapStateDescriptor<>("join-topic", String.class, String.class);
-            tweetTopic = getRuntimeContext().getMapState(topicDesc);
+            MapStateDescriptor<String, TweetMetrics> metricsDesc =
+                    new MapStateDescriptor<>("join-metrics", String.class, TweetMetrics.class);
+            tweetMetricsState = getRuntimeContext().getMapState(metricsDesc);
         }
     }
+
 
     public static final class TweetAggregateAndAlertTrigger extends RichMapFunction<
             Tuple2<String, JoinedResult>,
             Tuple2<String, JoinedResult>> {
-        private int averageDelay; // Microsecond
+        public static class TopicMetrics implements Serializable {
+            private double totalSentiment;
+            private double totalInfluence;
 
-        private transient MapState<String, Double> topicTotalSentiment, topicTotalInfluence;
+            // Default constructor
+            public TopicMetrics() {
+                this.totalSentiment = 0.0;
+                this.totalInfluence = 0.0;
+            }
+
+            // Parameterized constructor
+            public TopicMetrics(double totalSentiment, double totalInfluence) {
+                this.totalSentiment = totalSentiment;
+                this.totalInfluence = totalInfluence;
+            }
+
+            // Getters and Setters
+            public double getTotalSentiment() {
+                return totalSentiment;
+            }
+
+            public void setTotalSentiment(double totalSentiment) {
+                this.totalSentiment = totalSentiment;
+            }
+
+            public double getTotalInfluence() {
+                return totalInfluence;
+            }
+
+            public void setTotalInfluence(double totalInfluence) {
+                this.totalInfluence = totalInfluence;
+            }
+
+            // Method to update metrics
+            public void addSentiment(double sentiment) {
+                this.totalSentiment += sentiment;
+            }
+
+            public void addInfluence(double influence) {
+                this.totalInfluence += influence;
+            }
+        }
+
+        private static final long serialVersionUID = 1L;
+
+        private final int averageDelay; // Microseconds
+
+        // Single MapState to hold both sentiment and influence per topic
+        private transient MapState<String, TopicMetrics> topicMetricsState;
 
         public TweetAggregateAndAlertTrigger(int _averageDelay) {
             this.averageDelay = _averageDelay;
@@ -645,45 +696,47 @@ public class TweetAlertTrigger {
             String tweetId = inputTuple.f0;
             JoinedResult input = inputTuple.f1;
             String topic = input.getTopic();
-            double old_sentiment = 0.0, old_influence = 0.0;
-            if(topicTotalSentiment.contains(topic)){
-                old_sentiment = topicTotalSentiment.get(topic);
-            }
-            if(topicTotalInfluence.contains(topic)){
-                old_influence = topicTotalInfluence.get(topic);
-            }
-            double sentiment = old_sentiment + input.getSentiment(), influence = old_influence + input.getInfluence();
-            topicTotalSentiment.put(topic, sentiment);
-            topicTotalInfluence.put(topic, influence);
 
+            // Retrieve existing metrics or initialize if not present
+            TopicMetrics metrics = topicMetricsState.get(topic);
+            if (metrics == null) {
+                metrics = new TopicMetrics();
+            }
+
+            // Update the metrics with the current tweet's sentiment and influence
+            metrics.addSentiment(input.getSentiment());
+            metrics.addInfluence(input.getInfluence());
+
+            // Update the state
+            topicMetricsState.put(topic, metrics);
+
+            // Simulate processing delay
             DelayUtil.delay(averageDelay);
 
-            if(Math.abs(sentiment) > 10.0 && influence >= 10.0){
-                System.out.println("Topic Alert: " + topic + " sentiment=" + sentiment + " influence=" + influence);
+            // Check for alert conditions
+            if (Math.abs(metrics.getTotalSentiment()) > 10.0 && metrics.getTotalInfluence() >= 10.0) {
+                System.out.println("Topic Alert: " + topic + " sentiment=" + metrics.getTotalSentiment()
+                        + " influence=" + metrics.getTotalInfluence());
             }
+
+            // Log the processing information
             long currentTime = System.currentTimeMillis();
-            System.out.println("GT: " + tweetId + ", " + currentTime + ", " + (currentTime - input.getArrivalTime()) + ", " + input.getTupleNumber());
-            return new Tuple2<>(tweetId, new JoinedResult(
-                    input.getTweetId(),
-                    input.getUserId(),
-                    input.getContent(),
-                    input.getTimestamp(),
-                    input.getFollowerCount(),
-                    input.getSentiment(),
-                    input.getInfluence(),
-                    input.getTopic(),
-                    input.getArrivalTime(),
-                    input.getTupleNumber()
-            ));
+            System.out.println("GT: " + tweetId + ", " + currentTime + ", "
+                    + (currentTime - input.getArrivalTime()) + ", " + input.getTupleNumber());
+
+            // Emit the same JoinedResult without modification
+            return new Tuple2<>(tweetId, input);
         }
 
         @Override
         public void open(Configuration config) {
-            MapStateDescriptor<String, Double> descriptor =
-                    new MapStateDescriptor<>("aggregate-alert-sentiment", String.class, Double.class);
-            topicTotalSentiment = getRuntimeContext().getMapState(descriptor);
-            descriptor = new MapStateDescriptor<>("aggregate-alert-influence", String.class, Double.class);
-            topicTotalInfluence = getRuntimeContext().getMapState(descriptor);
+            MapStateDescriptor<String, TopicMetrics> descriptor =
+                    new MapStateDescriptor<>(
+                            "aggregate-alert-metrics", // State name
+                            String.class,               // Key type
+                            TopicMetrics.class          // Value type
+                    );
+            topicMetricsState = getRuntimeContext().getMapState(descriptor);
         }
     }
 }
