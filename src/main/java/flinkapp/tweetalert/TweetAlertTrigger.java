@@ -527,9 +527,11 @@ public class TweetAlertTrigger {
         private int averageDelay; // Microsecond
         private transient MapState<String, Double> tweetSentiment, tweetInfluence;
         private transient MapState<String, String> tweetTopic;
+        private long lastStateSizeTime;
 
         public TweetJoin(int _averageDelay) {
             this.averageDelay = _averageDelay;
+            lastStateSizeTime = System.currentTimeMillis();
         }
 
         @Override
@@ -548,7 +550,7 @@ public class TweetAlertTrigger {
                 tweetInfluence.put(tweetId, influence);
                 tweetTopic.put(tweetId, topic);
             }
-
+            DelayUtil.delay(averageDelay);
             // Check if we have all pieces: sentiment, influence, and topic
             if (tweetSentiment.contains(tweetId) && tweetInfluence.contains(tweetId) && tweetTopic.contains(tweetId)) {
                 double sentiment = tweetSentiment.get(tweetId);
@@ -590,8 +592,6 @@ public class TweetAlertTrigger {
                 );
                 out.collect(new Tuple2<>(tweetId, joinedResult));
             }
-
-            DelayUtil.delay(averageDelay);
         }
 
         @Override

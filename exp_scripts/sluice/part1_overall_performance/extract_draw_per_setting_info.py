@@ -1116,8 +1116,8 @@ def main():
                 # "tweet-streamsluice-streamsluice-5-8-1950-90-1500-1-19-6666-9-1000-1-50-1-50-1000-100-true-0.1-1",
                 # "tweet-streamsluice-streamsluice-5-8-1950-90-1500-1-19-6666-9-1000-1-50-1-50-1500-100-true-0.1-1",
                 # "tweet-streamsluice-streamsluice-5-8-1950-90-1500-1-19-6666-9-1000-1-50-1-50-2000-100-true-0.1-1",
-                #"tweet-streamsluice-streamsluice-5-8-1950-90-1500-1-19-6666-9-1000-1-50-1-50-2500-100-true-0.1-2",
-                "tweet-streamsluice-streamsluice-5-8-1950-90-1500-1-19-6666-9-1000-1-50-1-50-3000-100-true-0.1-2",
+                "tweet-streamsluice-streamsluice-5-8-1950-90-1500-1-19-6666-9-1000-1-50-1-50-2500-100-true-0.1-2",
+                #"tweet-streamsluice-streamsluice-5-8-1950-90-1500-1-19-6666-9-1000-1-50-1-50-3000-100-true-0.1-1",
             ],
             # "0.2": [
             #     #"tweet-streamsluice-streamsluice-1-1950-90-1500-1-19-6666-9-1000-1-50-1-50-1000-100-true-0.2-1",
@@ -1215,8 +1215,7 @@ def main():
                     latency_bar = int(exp_name.split('-')[-6])
                     start_time = 120
                     exp_length = 600
-                #focus_ranges = [[225, 255], [315, 345], [435, 465], [490, 520]] # 4000
-                #focus_ranges = #[[360, 390], [435, 465], [550, 580]] # 3000
+                #focus_ranges = [[1170, 1260]]#[[1035, 1125]]
                 focus_ranges = []
                 success_rate, weighted_success_rate, first_converge_time, converged_bar = draw_latency_curves(raw_dir, output_dir + exp_name + '/', exp_name,
                                                                               window_size,
