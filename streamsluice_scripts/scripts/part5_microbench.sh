@@ -168,7 +168,7 @@ run_scale_test(){
 
 
     L=1000 #2000 #2500
-    migration_interval=1000
+    migration_interval=500 #1000
 
     STATE_SIZE2=5000
     STATE_SIZE3=5000
@@ -200,7 +200,7 @@ run_scale_test(){
     DELAY4=20
     DELAY5=800 #800
     STATE_SIZE2=5000 # 1000 keys, per key (n * 2000 + 36) bytes, n=5000 -> 100 MB
-    STATE_SIZE3=5000
+    STATE_SIZE3=10000
     STATE_SIZE4=10000
     STATE_SIZE5=10000 # 5000
     LP2=1
@@ -226,9 +226,9 @@ run_scale_test(){
     rate_period=600
     rate_pattern="linear"
     amplitude_low=1000 #500
-    amplitude_high=3000 #1500
+    amplitude_high=2000 #1500
     amplitude_period=480 #1440
-    amplitude_pattern="stair_4"
+    amplitude_pattern="stair_3"
     period_low=90
     period_high=30
     period_period=480 #1440
