@@ -83,17 +83,15 @@ init() {
   LP3=10
   LP4=1
   LP5=1
-  #LP6=1
 
   P1=1
-  P2=19
-  P3=9
+  P2=1 #19
+  P3=1 #9
   P4=1
   P5=1
-  #P6=1
 
-  DELAY2=6666 #5000
-  DELAY3=1000 #1000
+  DELAY2=50 #6666 #5000
+  DELAY3=50 #1000 #1000
   DELAY4=50
   DELAY5=50
   #DELAY6=100
@@ -162,9 +160,9 @@ run_stock_test(){
     is_treat=true
     autotune=true
     repeat=2
-    for scaling_decision_option in 2; do # 2 0
-      for autotuner_increase_bar_alpha in 0.1 0.2 0.4; do #   0.2 0.4
-        for L in 1000 1500 2000 2500 3000 3500; do # 1000 1500 2000 2500 3000
+    for repeat in 3 4; do
+      for autotuner_increase_bar_alpha in 0.1; do # 0.1 0.2 0.4
+        for L in 3000; do # 1500 2000 2500 3000 3500
             whether_type="streamsluice"
             how_type="streamsluice"
             scalein_type="streamsluice"
