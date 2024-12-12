@@ -229,7 +229,7 @@ run_scale_test(){
     amplitude_high=2000 #1500
     amplitude_period=480 #1440
     amplitude_pattern="stair_3"
-    period_low=90
+    period_low=60
     period_high=30
     period_period=480 #1440
     period_pattern="stair_3"
