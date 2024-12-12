@@ -159,10 +159,9 @@ run_stock_test(){
 
     is_treat=true
     autotune=true
-    repeat=2
-    for repeat in 5; do
+    for repeat in 1; do
       for autotuner_increase_bar_alpha in 0.1; do # 0.1 0.2 0.4
-        for L in 3000; do # 1500 2000 2500 3000 3500
+        for L in 2500; do # 1500 2000 2500 3000 3500
             whether_type="streamsluice"
             how_type="streamsluice"
             scalein_type="streamsluice"
@@ -248,27 +247,28 @@ run_stock_test(){
 
 
     # Part 3 System sensitivity
+    migration_interval=1000
     whether_type="streamsluice"
     how_type="streamsluice"
     scalein_type="streamsluice"
-    printf "Part_3\n" >> tweet_result.txt
-    printf "Epoch Length\n" >> system_sensitivity_result.txt
-    for epoch in 25 50 200 500; do
-      for L in 2500; do
-        run_one_exp
-        printf "${EXP_NAME}\n" >> tweet_result.txt
-      done
-    done
-    epoch=100
-
-    printf "Tuning window Length\n" >> system_sensitivity_result.txt
-    for autotune_interval in 15 30 90 120; do #
-      for L in 2500; do
-        run_one_exp
-        printf "${EXP_NAME}\n" >> tweet_result.txt
-      done
-    done
-    autotune_interval=60
+#    printf "Part_3\n" >> tweet_result.txt
+#    printf "Epoch Length\n" >> system_sensitivity_result.txt
+#    for epoch in 25 50 200 500; do
+#      for L in 2500; do
+#        run_one_exp
+#        printf "${EXP_NAME}\n" >> tweet_result.txt
+#      done
+#    done
+#    epoch=100
+#
+#    printf "Tuning window Length\n" >> system_sensitivity_result.txt
+#    for autotune_interval in 15 30 90 120; do #
+#      for L in 2500; do
+#        run_one_exp
+#        printf "${EXP_NAME}\n" >> tweet_result.txt
+#      done
+#    done
+#    autotune_interval=60
 
 
     printf "Part_7\n" >> tweet_result.txt
