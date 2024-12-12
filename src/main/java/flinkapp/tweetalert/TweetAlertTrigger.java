@@ -88,13 +88,15 @@ public class TweetAlertTrigger {
         private double result_value;
         private String topic;
         private long arrivalTime;
+        private long processArrivalTime;
+        private long processCompleteTime;
         private long tupleNumber;
 
         // Default constructor
         public TweetResult() {}
 
         public TweetResult(String tweetId, String userId, String content, int timestamp, int followerCount,
-                           int operatorType, double result_value, String topic, long arrivalTime, long tupleNumber) {
+                           int operatorType, double result_value, String topic, long arrivalTime, long processArrivalTime, long processCompleteTime, long tupleNumber) {
             this.tweetId = tweetId;
             this.userId = userId;
             this.content = content;
@@ -104,6 +106,8 @@ public class TweetAlertTrigger {
             this.result_value = result_value;
             this.topic = topic;
             this.arrivalTime = arrivalTime;
+            this.processArrivalTime = processArrivalTime;
+            this.processCompleteTime = processCompleteTime;
             this.tupleNumber = tupleNumber;
         }
 
@@ -134,7 +138,8 @@ public class TweetAlertTrigger {
 
         public long getArrivalTime() { return arrivalTime; }
         public void setArrivalTime(long arrivalTime) { this.arrivalTime = arrivalTime; }
-
+        public long getProcessArrivalTime() { return processArrivalTime;}
+        public long getProcessCompleteTime() { return processArrivalTime;}
         public long getTupleNumber() { return tupleNumber; }
         public void setTupleNumber(long tupleNumber) { this.tupleNumber = tupleNumber; }
     }
@@ -149,6 +154,8 @@ public class TweetAlertTrigger {
         private double influence;
         private String topic;
         private long arrivalTime;
+        private long processArrivalTime;
+        private long processCompleteTime;
         private long tupleNumber;
 
         // Default constructor
@@ -192,6 +199,9 @@ public class TweetAlertTrigger {
 
         public long getArrivalTime() { return arrivalTime; }
         public void setArrivalTime(long arrivalTime) { this.arrivalTime = arrivalTime; }
+
+        public long getProcessArrivalTime() { return process;}
+        public long getProcessCompleteTime() { return }
 
         public long getTupleNumber() { return tupleNumber; }
         public void setTupleNumber(long tupleNumber) { this.tupleNumber = tupleNumber; }
