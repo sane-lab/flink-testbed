@@ -189,7 +189,7 @@ run_scale_test(){
     TIME_I=30
     printf "" > part5_result.txt
 
-    runtime=690 #1890
+    runtime=570 #690 #1890
 
     # Period Amplitude Change
     printf "MicroBench\n" >> part5_result.txt
@@ -202,7 +202,7 @@ run_scale_test(){
     STATE_SIZE2=5000 # 1000 keys, per key (n * 2000 + 36) bytes, n=5000 -> 100 MB
     STATE_SIZE3=5000
     STATE_SIZE4=5000
-    STATE_SIZE5=7500 # 5000
+    STATE_SIZE5=10000 # 5000
     LP2=1
     LP3=6 #9
     LP4=1
@@ -228,7 +228,7 @@ run_scale_test(){
     amplitude_low=1000 #500
     amplitude_high=2000 #1500
     amplitude_period=480 #1440
-    amplitude_pattern="stair_3"
+    amplitude_pattern="stair_4"
     period_low=90
     period_high=30
     period_period=480 #1440
