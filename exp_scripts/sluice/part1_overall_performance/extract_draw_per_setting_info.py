@@ -160,12 +160,12 @@ def add_latency_bar_curve(plt, latency_bar:dict[int, int], initial_time):
     for time in latency_bar.keys():
         x = [last_time, time - initial_time]
         y = [last_y, last_y]
-        plt.plot(x, y, 'o--', label="Latency Bar", color='green', linewidth=1.5)
+        plt.plot(x, y, 'o--', label="Latency Bar", color='orange', linewidth=1.5)
         last_y = latency_bar[time]
         last_time = time - initial_time
     x = [last_time, 10000000]
     y = [last_y, last_y]
-    plt.plot(x, y, 'o--', label="Latency Bar", color='green', linewidth=1.5)
+    plt.plot(x, y, 'o--', label="Latency Bar", color='orange', linewidth=1.5)
 
 def draw_latency_curves(raw_dir, output_dir, exp_name, window_size, start_time, exp_length, latency_limit, draw_lem_latency_flag, focus_ranges):
     exps = [
@@ -268,11 +268,12 @@ def draw_latency_curves(raw_dir, output_dir, exp_name, window_size, start_time, 
                                    range(x, min(x + sample_factor, len(average_ground_truth_latency[2])))]) for x in
                               range(0, len(average_ground_truth_latency[0]), sample_factor)]
 
-        plt.plot(sampled_latency[0], sampled_latency[1], '-', color=exps[i][2], markersize=4, linewidth=3,
+        plt.plot(sampled_latency[0], sampled_latency[1], '-', color="blue", markersize=4, linewidth=3,
                  label="Ground Truth P99")
         if(draw_lem_latency_flag):
-            plt.plot(lem_latencies[i][0], lem_latencies[i][1], '-', color="blue", markersize=2, linewidth=2,
+            plt.plot(lem_latencies[i][0], lem_latencies[i][1], '-', color="green", markersize=2, linewidth=2,
                  label='Estimated Latency')
+            add_latency_bar_curve(plt, latency_bar[i], initial_times[i])
         add_latency_limit_marker(plt, latency_limit)
         add_scaling_marker(plt, scalings[i])
 
@@ -297,7 +298,7 @@ def draw_latency_curves(raw_dir, output_dir, exp_name, window_size, start_time, 
     # else:
     #     axes.set_ylim(0, 10000)
     #     axes.set_yticks(np.arange(0, 11000, 1000))
-    plt.grid(True)
+    #plt.grid(True)
     if not os.path.exists(output_dir):
         os.makedirs(output_dir)
     plt.savefig(output_dir + 'ground_truth_latency_curves.png', bbox_inches='tight')
@@ -396,42 +397,42 @@ def draw_latency_curves(raw_dir, output_dir, exp_name, window_size, start_time, 
     #     index += 1
 
 
-    # Plotting the latency curve
-    fig, ax = plt.subplots(figsize=(12, 5))
-    for i in range(len(exps)):
-         # lem_latencies[i][0] = [x - initial_times[0] for x in lem_latencies[i][0]]
-         # plt.plot(lem_latencies[i][0], lem_latencies[i][1], '-', color=exps[i][2], markersize=4, linewidth=3,
-         #          label="Estimated Latency")
-        add_p99_bar_curve(plt, p99_bar[i], initial_times[i])
-        add_latency_bar_curve(plt, latency_bar[i], initial_times[i])
-    add_latency_limit_marker(plt, latency_limit)
-    handles, labels = plt.gca().get_legend_handles_labels()
-    new_labels, new_handles = [], []
-    for handle, label in zip(handles, labels):
-        if label not in new_labels:
-            new_labels.append(label)
-            new_handles.append(handle)
-    plt.legend(new_handles, new_labels, bbox_to_anchor=(0.45, 1.4), loc='upper center', ncol=3, markerscale=4.)
-    plt.ylabel('Latency (ms)')
-    axes = plt.gca()
-    axes.set_xlim((start_time) * 1000, (start_time + exp_length) * 1000)
-    axes.set_xticks(np.arange((start_time) * 1000, (start_time + exp_length) * 1000 + (exp_length / 10) * 1000, (exp_length / 10) * 1000))
-    axes.set_xticklabels([int((x - start_time * 1000) / 1000) for x in
-                          np.arange((start_time) * 1000, (start_time + exp_length) * 1000 + (exp_length / 10) * 1000, (exp_length / 10) * 1000)])
-    if (latency_limit < 3000):
-        axes.set_ylim(0, 3000)
-        axes.set_yticks(np.arange(0, 3300, 300))
-    elif (latency_limit < 6000):
-        axes.set_ylim(0, 10050)
-        axes.set_yticks(np.arange(0, 11000, 1000))
-    else:
-        axes.set_ylim(0, 25000)
-        axes.set_yticks(np.arange(0, 27500, 2500))
-    plt.grid(True)
-    if not os.path.exists(output_dir):
-        os.makedirs(output_dir)
-    plt.savefig(output_dir + 'latency_bar.png', bbox_inches='tight')
-    plt.close(fig)
+    # # Plotting the latency curve
+    # fig, ax = plt.subplots(figsize=(12, 5))
+    # for i in range(len(exps)):
+    #      # lem_latencies[i][0] = [x - initial_times[0] for x in lem_latencies[i][0]]
+    #      # plt.plot(lem_latencies[i][0], lem_latencies[i][1], '-', color=exps[i][2], markersize=4, linewidth=3,
+    #      #          label="Estimated Latency")
+    #     add_p99_bar_curve(plt, p99_bar[i], initial_times[i])
+    #     add_latency_bar_curve(plt, latency_bar[i], initial_times[i])
+    # add_latency_limit_marker(plt, latency_limit)
+    # handles, labels = plt.gca().get_legend_handles_labels()
+    # new_labels, new_handles = [], []
+    # for handle, label in zip(handles, labels):
+    #     if label not in new_labels:
+    #         new_labels.append(label)
+    #         new_handles.append(handle)
+    # plt.legend(new_handles, new_labels, bbox_to_anchor=(0.45, 1.4), loc='upper center', ncol=3, markerscale=4.)
+    # plt.ylabel('Latency (ms)')
+    # axes = plt.gca()
+    # axes.set_xlim((start_time) * 1000, (start_time + exp_length) * 1000)
+    # axes.set_xticks(np.arange((start_time) * 1000, (start_time + exp_length) * 1000 + (exp_length / 10) * 1000, (exp_length / 10) * 1000))
+    # axes.set_xticklabels([int((x - start_time * 1000) / 1000) for x in
+    #                       np.arange((start_time) * 1000, (start_time + exp_length) * 1000 + (exp_length / 10) * 1000, (exp_length / 10) * 1000)])
+    # if (latency_limit < 3000):
+    #     axes.set_ylim(0, 3000)
+    #     axes.set_yticks(np.arange(0, 3300, 300))
+    # elif (latency_limit < 6000):
+    #     axes.set_ylim(0, 10050)
+    #     axes.set_yticks(np.arange(0, 11000, 1000))
+    # else:
+    #     axes.set_ylim(0, 25000)
+    #     axes.set_yticks(np.arange(0, 27500, 2500))
+    # plt.grid(True)
+    # if not os.path.exists(output_dir):
+    #     os.makedirs(output_dir)
+    # plt.savefig(output_dir + 'latency_bar.png', bbox_inches='tight')
+    # plt.close(fig)
 
     # Plotting the estimated latency curve
     fig, ax = plt.subplots(figsize=(12, 5))

@@ -22,7 +22,7 @@ function analyze() {
 }
 
 run_one_exp() {
-  EXP_NAME=tweet-${whether_type}-${how_type}-${autotuner_initial_value_option}-${autotuner_increase_bar_option}-${runtime}-${warmup_time}-${warmup_rate}-${skip_interval}-${P2}-${DELAY2}-${P3}-${DELAY3}-${P4}-${DELAY4}-${P5}-${DELAY5}-${L}-${epoch}-${is_treat}-${autotuner_increase_bar_alpha}-${repeat}
+  EXP_NAME=tweet-${whether_type}-${how_type}-${autotuner_initial_value_option}-${autotune_interval}-${runtime}-${warmup_time}-${warmup_rate}-${skip_interval}-${P2}-${DELAY2}-${P3}-${DELAY3}-${P4}-${DELAY4}-${P5}-${DELAY5}-${L}-${epoch}-${is_treat}-${autotuner_increase_bar_alpha}-${repeat}
 
   echo "INFO: run exp ${EXP_NAME}"
   configFlink
@@ -160,7 +160,7 @@ run_stock_test(){
     is_treat=true
     autotune=true
     repeat=2
-    for repeat in 3 4; do
+    for repeat in 5; do
       for autotuner_increase_bar_alpha in 0.1; do # 0.1 0.2 0.4
         for L in 3000; do # 1500 2000 2500 3000 3500
             whether_type="streamsluice"
@@ -245,6 +245,31 @@ run_stock_test(){
         run_one_exp
         printf "${EXP_NAME}\n" >> tweet_result.txt
     done
+
+
+    # Part 3 System sensitivity
+    whether_type="streamsluice"
+    how_type="streamsluice"
+    scalein_type="streamsluice"
+    printf "Part_3\n" >> tweet_result.txt
+    printf "Epoch Length\n" >> system_sensitivity_result.txt
+    for epoch in 25 50 200 500; do
+      for L in 2500; do
+        run_one_exp
+        printf "${EXP_NAME}\n" >> tweet_result.txt
+      done
+    done
+    epoch=100
+
+    printf "Tuning window Length\n" >> system_sensitivity_result.txt
+    for autotune_interval in 15 30 90 120; do #
+      for L in 2500; do
+        run_one_exp
+        printf "${EXP_NAME}\n" >> tweet_result.txt
+      done
+    done
+    autotune_interval=60
+
 
     printf "Part_7\n" >> tweet_result.txt
     autotune=false

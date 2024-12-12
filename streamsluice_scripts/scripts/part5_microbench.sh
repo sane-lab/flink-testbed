@@ -150,8 +150,6 @@ run_scale_test(){
     L=1000 #2000 #2500
     migration_interval=1000 #500
     spike_slope=0.7
-    autotuner_initial_value_option=4
-    autotuner_increase_bar_option=7
     autotuner_initial_value_option=5
     autotuner_increase_bar_option=8
     autotuner_increase_bar_alpha=0.1 #0.25
@@ -191,7 +189,7 @@ run_scale_test(){
     TIME_I=30
     printf "" > part5_result.txt
 
-    runtime=1890
+    runtime=690 #1890
 
     # Period Amplitude Change
     printf "MicroBench\n" >> part5_result.txt
@@ -204,7 +202,7 @@ run_scale_test(){
     STATE_SIZE2=5000 # 1000 keys, per key (n * 2000 + 36) bytes, n=5000 -> 100 MB
     STATE_SIZE3=5000
     STATE_SIZE4=5000
-    STATE_SIZE5=5000 #10000
+    STATE_SIZE5=5000 # 5000
     LP2=1
     LP3=6 #9
     LP4=1
@@ -223,17 +221,17 @@ run_scale_test(){
 
     warmupRate=5000
     warmupTime=60
-    rate_low=4000
-    rate_high=6000
+    rate_low=5000 #4000
+    rate_high=5000 #6000
     rate_period=600
     rate_pattern="linear"
-    amplitude_low=500
-    amplitude_high=1500
-    amplitude_period=1440
+    amplitude_low=1000 #500
+    amplitude_high=2000 #1500
+    amplitude_period=480 #1440
     amplitude_pattern="stair_3"
     period_low=120
     period_high=60
-    period_period=1440
+    period_period=480 #1440
     period_pattern="stair_3"
     noise=0.05
 
@@ -243,7 +241,7 @@ run_scale_test(){
 #    run_one_exp
 #    printf "${EXP_NAME}\n" >> part5_result.txt
     for L in 2000; do # 1000 3000
-      for autotuner_increase_bar_alpha in 0.1 0.4; do
+      for autotuner_increase_bar_alpha in 0.1 0.2; do #0.4
         is_treat=true
         autotune=true
         how_type="streamsluice"
