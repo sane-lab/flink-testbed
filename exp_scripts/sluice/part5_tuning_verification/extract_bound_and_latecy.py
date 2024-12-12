@@ -689,8 +689,8 @@ def draw_parallelism_curve(rawDir, outputDir, exp_name, windowSize, startTime, e
                  label="Scaling")
         ax1.legend(legend, loc='upper left', bbox_to_anchor=(-0.1, 1.3), ncol=3, markerscale=4.)
         # ax1.set_ylabel('OP_'+str(jobIndex+1)+' Parallelism')
-        ax1.set_ylim(0, 32)
-        ax1.set_yticks(np.arange(0, 36, 4))  # (4, 34, 2)) #18, 1))
+        ax1.set_ylim(0, 40)
+        ax1.set_yticks(np.arange(0, 45, 5))  # (4, 34, 2)) #18, 1))
 
         ax1.set_xlim(startTime * 1000, (startTime + exp_length) * 1000)
         ax1.set_xticks(np.arange(startTime * 1000, (startTime + exp_length) * 1000 + (exp_length / 10) * 1000,
@@ -719,7 +719,7 @@ def main():
         "Microbench_1": {
             #"static": "part5-microbench-streamsluice-ds2-part5-sine-1split2join1-1890-4500-5500-600-linear-1000-2500-360-stair_4-120-30-360-stair_4-1-0-1-20-1-5000-3-500-1-5000-1-20-1-5000-17-1000-10000-0.05-1000-3000-100-1-false-1",
             "scale": [
-                "part5-microbench-streamsluice-streamsluice-part5-sine-1split2join1-690-5000-5000-600-linear-1000-2000-480-stair_3-120-60-480-stair_3-1-0-1-20-1-5000-2-50-1-5000-1-20-1-5000-17-800-5000--0.05-0.1-2000-3000-100-1-true-1",
+                "part5-microbench-streamsluice-streamsluice-part5-sine-1split2join1-690-5000-5000-600-linear-1000-2000-480-stair_3-120-60-480-stair_3-1-0-1-20-1-5000-2-333-1-5000-1-20-1-5000-17-800-5000--0.05-0.1-2000-3000-100-1-true-1",
                 #"part5-microbench-streamsluice-streamsluice-part5-sine-1split2join1-690-5000-5000-600-linear-1000-2000-480-stair_3-120-60-480-stair_3-1-0-1-20-1-5000-2-50-1-5000-1-20-1-5000-17-800-5000--0.05-0.2-2000-3000-100-1-true-1",
                 #"part5-microbench-streamsluice-streamsluice-part5-sine-1split2join1-1890-4000-6000-600-linear-500-1500-1440-stair_3-120-60-1440-stair_3-1-0-1-20-1-5000-2-50-1-5000-1-20-1-5000-17-800-5000--0.05-0.1-2000-3000-100-1-true-1",
                 #"part5-microbench-streamsluice-streamsluice-part5-sine-1split2join1-1890-4000-6000-600-linear-500-1500-1440-stair_3-120-60-1440-stair_3-1-0-1-20-1-5000-2-50-1-5000-1-20-1-5000-17-800-5000--0.05-0.4-2000-3000-100-1-true-1",

@@ -168,7 +168,7 @@ run_scale_test(){
 
 
     L=1000 #2000 #2500
-    migration_interval=3000
+    migration_interval=1000
 
     STATE_SIZE2=5000
     STATE_SIZE3=5000
@@ -196,13 +196,13 @@ run_scale_test(){
     setting="microbench"
     SOURCE_TYPE="part5"
     DELAY2=20
-    DELAY3=333 #50 #250 #333
+    DELAY3=50 #50 #250 #333
     DELAY4=20
     DELAY5=800 #800
     STATE_SIZE2=5000 # 1000 keys, per key (n * 2000 + 36) bytes, n=5000 -> 100 MB
     STATE_SIZE3=5000
     STATE_SIZE4=5000
-    STATE_SIZE5=5000 # 5000
+    STATE_SIZE5=7500 # 5000
     LP2=1
     LP3=6 #9
     LP4=1
@@ -229,8 +229,8 @@ run_scale_test(){
     amplitude_high=2000 #1500
     amplitude_period=480 #1440
     amplitude_pattern="stair_3"
-    period_low=120
-    period_high=60
+    period_low=90
+    period_high=30
     period_period=480 #1440
     period_pattern="stair_3"
     noise=0.05
