@@ -800,16 +800,18 @@ def main():
                 latency_bar = int(exp_name.split('-')[-6])
                 start_time = 120
                 exp_length = 600
-            all_latency = draw_latency_curves(raw_dir, output_dir + exp_name + '/', exp_name,
+            all_latency, success_rate = draw_latency_curves(raw_dir, output_dir + exp_name + '/', exp_name,
                                                                           window_size,
                                                                           start_time, exp_length, latency_bar, draw_lem_latency_flag)
             avg_parallelism, trash = draw_parallelism_curve(raw_dir, output_dir + exp_name + '/', exp_name, window_size,
                                                             start_time, exp_length, True)
             latency_bar_this_workload = latency_bar
             latency_per_label[label] = all_latency
+            success_rate_per_label[label] = success_rate
             avg_parallelism_per_label[label] = avg_parallelism
         print(avg_parallelism_per_label)
         plot_latency_cdf(latency_per_label, latency_bar_this_workload, overall_output_dir, workload_name)
+        plot_success_rate_bar(success_rate_per_label, latency_bar_this_workload, overall_output_dir, workload_name)
         plot_avg_parallelism_bar(avg_parallelism_per_label, overall_output_dir, workload_name)
 
 if __name__ == "__main__":

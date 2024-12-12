@@ -156,12 +156,14 @@ public class TweetAlertTrigger {
         private long arrivalTime;
         private long processArrivalTime;
         private long processCompleteTime;
+        private long joinArrivalTime;
+        private long joinCompleteTime;
         private long tupleNumber;
 
         // Default constructor
         public JoinedResult () {}
 
-        public JoinedResult(String tweetId, String userId, String content, int timestamp, int followerCount, double sentiment, double influence, String topic, long arrivalTime, long tupleNumber) {
+        public JoinedResult(String tweetId, String userId, String content, int timestamp, int followerCount, double sentiment, double influence, String topic, long arrivalTime, long processArrivalTime, long processCompleteTime, long joinArrivalTime, long joinCompleteTime, long tupleNumber) {
             this.tweetId = tweetId;
             this.userId = userId;
             this.content = content;
@@ -171,6 +173,10 @@ public class TweetAlertTrigger {
             this.influence = influence;
             this.topic = topic;
             this.arrivalTime = arrivalTime;
+            this.processArrivalTime = processArrivalTime;
+            this.processCompleteTime = processCompleteTime;
+            this.joinArrivalTime = joinArrivalTime;
+            this.joinCompleteTime = joinCompleteTime;
             this.tupleNumber = tupleNumber;
         }
 
@@ -199,10 +205,10 @@ public class TweetAlertTrigger {
 
         public long getArrivalTime() { return arrivalTime; }
         public void setArrivalTime(long arrivalTime) { this.arrivalTime = arrivalTime; }
-
-        public long getProcessArrivalTime() { return process;}
-        public long getProcessCompleteTime() { return }
-
+        public long getProcessArrivalTime() { return processArrivalTime;}
+        public long getProcessCompleteTime() { return processCompleteTime;}
+        public long getJoinArrivalTime() { return joinArrivalTime;}
+        public long getJoinCompleteTime() { return joinCompleteTime;}
         public long getTupleNumber() { return tupleNumber; }
         public void setTupleNumber(long tupleNumber) { this.tupleNumber = tupleNumber; }
     }
@@ -445,10 +451,11 @@ public class TweetAlertTrigger {
 
         @Override
         public void flatMap(Tuple2<String, TweetRecord> rawInput, Collector<Tuple2<String, TweetResult>> out) throws Exception {
+            long processArrivalTime = System.currentTimeMillis();
             TweetRecord input = rawInput.f1;
             double sentiment = getSentiment(input.getContent());
             DelayUtil.delay(averageDelay);
-
+            long processCompleteTime = System.currentTimeMillis();
             TweetResult result = new TweetResult(
                     input.getTweetId(),
                     input.getUserId(),
@@ -459,6 +466,8 @@ public class TweetAlertTrigger {
                     sentiment,
                     "", // no topic assigned here
                     input.getArrivalTime(),
+                    processArrivalTime,
+                    processCompleteTime,
                     input.getTupleNumber()
             );
 
@@ -500,12 +509,14 @@ public class TweetAlertTrigger {
 
         @Override
         public void flatMap(Tuple2<String, TweetRecord> rawInput, Collector<Tuple2<String, TweetResult>> out) throws Exception {
+            long processArrivalTime = System.currentTimeMillis();
             TweetRecord input = rawInput.f1;
             double influence = getInfluenceScore(input.getUserId(), input.getFollowerCount());
             String topic = getTopic(input.getContent());
 
             DelayUtil.delay(averageDelay); // Use the same delay utility as in SentimentAnalysis
 
+            long processCompleteTime = System.currentTimeMillis();
             TweetResult result = new TweetResult(
                     input.getTweetId(),
                     input.getUserId(),
@@ -516,6 +527,8 @@ public class TweetAlertTrigger {
                     influence,
                     topic,
                     input.getArrivalTime(),
+                    processArrivalTime,
+                    processCompleteTime,
                     input.getTupleNumber()
             );
 
@@ -590,6 +603,7 @@ public class TweetAlertTrigger {
 
         @Override
         public void flatMap(Tuple2<String, TweetResult> inputTuple, Collector<Tuple2<String, JoinedResult>> out) throws Exception {
+            long joinArrivalTime = System.currentTimeMillis();
             String userId = inputTuple.f0;
             TweetResult input = inputTuple.f1;
             int type = input.getOperatorType();
@@ -615,7 +629,7 @@ public class TweetAlertTrigger {
             // Simulate processing delay
             DelayUtil.delay(averageDelay);
 
-            // Check if the metrics are complete
+            long joinCompleteTime = System.currentTimeMillis();
             JoinedResult joinedResult = new JoinedResult(
                     input.getTweetId(),
                     input.getUserId(),
@@ -626,6 +640,10 @@ public class TweetAlertTrigger {
                     metrics.getTotalInfluence(),
                     input.getTopic(),
                     input.getArrivalTime(),
+                    input.getProcessArrivalTime(),
+                    input.getProcessCompleteTime(),
+                    joinArrivalTime,
+                    joinCompleteTime,
                     input.getTupleNumber()
             );
 
@@ -662,6 +680,7 @@ public class TweetAlertTrigger {
 
         @Override
         public Tuple2<String, JoinedResult> map(Tuple2<String, JoinedResult> inputTuple) throws Exception {
+            long triggerArrivalTime = System.currentTimeMillis();
             String userId = inputTuple.f0;
             JoinedResult input = inputTuple.f1;
             String topic = input.getTopic();
@@ -680,7 +699,15 @@ public class TweetAlertTrigger {
             long currentTime = System.currentTimeMillis();
             System.out.println("GT: " + userId + ", " + currentTime + ", "
                     + (currentTime - input.getArrivalTime()) + ", " + input.getTupleNumber());
-
+            if(input.getTupleNumber() % 3 == 0){
+                System.out.println("LC: " + input.getArrivalTime()
+                        + ", " + (input.getProcessArrivalTime() - input.getArrivalTime())
+                        + ", " + (input.getProcessCompleteTime() - input.getProcessArrivalTime())
+                        + ", " + (input.getJoinArrivalTime() - input.getProcessCompleteTime())
+                        + ", " + (input.getJoinCompleteTime() - input.getJoinArrivalTime())
+                        + ", " + (triggerArrivalTime - input.getJoinCompleteTime())
+                        + ", " + (currentTime - triggerArrivalTime) + ", " + input.getTupleNumber());
+            }
             // Emit the same JoinedResult without modification
             return new Tuple2<>(userId, input);
         }
