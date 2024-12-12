@@ -196,7 +196,7 @@ run_scale_test(){
     setting="microbench"
     SOURCE_TYPE="part5"
     DELAY2=20
-    DELAY3=50 #250 #333
+    DELAY3=333 #50 #250 #333
     DELAY4=20
     DELAY5=800 #800
     STATE_SIZE2=5000 # 1000 keys, per key (n * 2000 + 36) bytes, n=5000 -> 100 MB
@@ -241,7 +241,7 @@ run_scale_test(){
 #    run_one_exp
 #    printf "${EXP_NAME}\n" >> part5_result.txt
     for L in 2000; do # 1000 3000
-      for autotuner_increase_bar_alpha in 0.1 0.2; do #0.4
+      for autotuner_increase_bar_alpha in 0.1; do # 0.2 0.4
         is_treat=true
         autotune=true
         how_type="streamsluice"
