@@ -226,7 +226,7 @@ run_scale_test(){
     rate_period=600
     rate_pattern="linear"
     amplitude_low=1000 #500
-    amplitude_high=2000 #1500
+    amplitude_high=3000 #1500
     amplitude_period=480 #1440
     amplitude_pattern="stair_4"
     period_low=90

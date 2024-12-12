@@ -49,7 +49,7 @@ init() {
   how_type="streamsluice"
   scalein_type="streamsluice"
   L=2000
-  runtime=1080 #1980 #780 #2190
+  runtime=1980 #780 #2190
   skip_interval=10 #120 #300 # skip seconds
   warmup=10000
   warmup_time=150 #300
@@ -184,12 +184,12 @@ run_stock_test(){
     repeat=2
     for scaling_decision_option in 1; do # 2 0
       for autotuner_increase_bar_alpha in 0.1; do # 0.1 0.2 0.4
-        for L in 1500 2000 2500 3000; do # 1000 1500 2000 2500 3000
+        for L in 1000 1500 2000 2500 3000; do # 1000 1500 2000 2500 3000
             whether_type="streamsluice"
             how_type="streamsluice"
             scalein_type="streamsluice"
-#            run_one_exp
-#            printf "${EXP_NAME}\n" >> lr_result.txt
+            run_one_exp
+            printf "${EXP_NAME}\n" >> lr_result.txt
         done
       done
     done
@@ -238,5 +238,39 @@ run_stock_test(){
     migration_interval=2500 #1000
     run_one_exp
     printf "${EXP_NAME}\n" >> lr_result.txt
+
+    # Part 3 System sensitivity
+    migration_interval=1000
+    whether_type="streamsluice"
+    how_type="streamsluice"
+    scalein_type="streamsluice"
+    printf "Part_3\n" >> lr_result.txt
+    printf "Epoch Length\n" >> lr_result.txt
+    for epoch in 25 50 200 500; do
+      for L in 2000; do
+        run_one_exp
+        printf "${EXP_NAME}\n" >> lr_result.txt
+      done
+    done
+    epoch=100
+
+    printf "Tuning window Length\n" >> lr_result.txt
+    for autotune_interval in 15 30 90 120; do #
+      for L in 2000; do
+        run_one_exp
+        printf "${EXP_NAME}\n" >> lr_result.txt
+      done
+    done
+    autotune_interval=60
+
+    printf "Alpha\n" >> lr_result.txt
+    for autotuner_increase_bar_alpha in 0.2 0.3 0.4 0.5; do
+      for L in 2000; do
+        run_one_exp
+        printf "${EXP_NAME}\n" >> lr_result.txt
+      done
+    done
+    autotuner_increase_bar_alpha=0.1
+
 }
 run_stock_test
