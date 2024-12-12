@@ -201,7 +201,7 @@ run_scale_test(){
     DELAY5=800 #800
     STATE_SIZE2=5000 # 1000 keys, per key (n * 2000 + 36) bytes, n=5000 -> 100 MB
     STATE_SIZE3=5000
-    STATE_SIZE4=5000
+    STATE_SIZE4=10000
     STATE_SIZE5=10000 # 5000
     LP2=1
     LP3=6 #9
