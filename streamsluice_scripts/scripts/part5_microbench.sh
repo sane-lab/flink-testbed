@@ -199,10 +199,10 @@ run_scale_test(){
     DELAY3=50 #50 #250 #333
     DELAY4=20
     DELAY5=800 #800
-    STATE_SIZE2=5000 # 1000 keys, per key (n * 2000 + 36) bytes, n=5000 -> 100 MB
+    STATE_SIZE2=10000 # 1000 keys, per key (n * 2000 + 36) bytes, n=5000 -> 100 MB
     STATE_SIZE3=10000
     STATE_SIZE4=10000
-    STATE_SIZE5=10000 # 5000
+    STATE_SIZE5=12500 # 5000
     LP2=1
     LP3=6 #9
     LP4=1
@@ -240,8 +240,8 @@ run_scale_test(){
     how_type="ds2"
 #    run_one_exp
 #    printf "${EXP_NAME}\n" >> part5_result.txt
-    for L in 2000; do # 1000 3000
-      for autotuner_increase_bar_alpha in 0.1; do # 0.2 0.4
+    for L in 1500 2000 2500; do # 1000 3000
+      for autotuner_increase_bar_alpha in 0.1 0.5; do # 0.2 0.4
         is_treat=true
         autotune=true
         how_type="streamsluice"
