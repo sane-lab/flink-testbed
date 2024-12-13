@@ -716,6 +716,17 @@ def main():
     window_size = 100
     draw_lem_latency_flag = True
     exps_per_label_per_setting = {
+#         "lr-streamsluice-streamsluice-5-8-1980-150-1300-10-1-50-3-1000-1-50-27-2500-2000-0.1-100-1-0-0.0-true-1000-0.8-2/
+# lr-streamsluice-streamsluice-5-8-1980-150-1300-10-1-50-3-1000-1-50-27-2500-2000-0.1-200-1-0-0.0-true-1000-0.8-2/
+# lr-streamsluice-streamsluice-5-8-1980-150-1300-10-1-50-3-1000-1-50-27-2500-2000-0.1-25-1-0-0.0-true-1000-0.8-2/
+# lr-streamsluice-streamsluice-5-8-1980-150-1300-10-1-50-3-1000-1-50-27-2500-2000-0.1-500-1-0-0.0-true-1000-0.8-2/
+# lr-streamsluice-streamsluice-5-8-1980-150-1300-10-1-50-3-1000-1-50-27-2500-2000-0.1-50-1-0-0.0-true-1000-0.8-2/
+# "
+        "lr-streamsluice-streamsluice-5-8-15-1980-150-1300-10-1-50-3-1000-1-50-27-2500-2000-0.1-100-1-0-0.0-true-1000-0.8-2"
+"lr-streamsluice-streamsluice-5-8-30-1980-150-1300-10-1-50-3-1000-1-50-27-2500-2000-0.1-100-1-0-0.0-true-1000-0.8-2",
+"lr-streamsluice-streamsluice-5-8-90-1980-150-1300-10-1-50-3-1000-1-50-27-2500-2000-0.1-100-1-0-0.0-true-1000-0.8-2",
+"lr-streamsluice-streamsluice-5-8-120-1980-150-1300-10-1-50-3-1000-1-50-27-2500-2000-0.1-100-1-0-0.0-true-1000-0.8-2",
+
         # "setting_1": {
         #     "Dimension": "Epoch Length (ms)",
         #     "25": [

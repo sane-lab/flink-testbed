@@ -241,7 +241,7 @@ run_scale_test(){
 #    run_one_exp
 #    printf "${EXP_NAME}\n" >> part5_result.txt
     for L in 2000; do # 1000 3000
-      for autotuner_increase_bar_alpha in 0.1 0.5; do # 0.2 0.4
+      for autotuner_increase_bar_alpha in 0.1; do # 0.2 0.4 0.5
         is_treat=true
         autotune=true
         how_type="streamsluice"
