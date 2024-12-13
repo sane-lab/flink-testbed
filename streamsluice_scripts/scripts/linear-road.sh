@@ -254,23 +254,23 @@ run_stock_test(){
 #    done
 #    epoch=100
 
-#    printf "Tuning window Length\n" >> lr_result.txt
-#    for autotune_interval in 15 30 90 120; do #
-#      for L in 2000; do
-#        run_one_exp
-#        printf "${EXP_NAME}\n" >> lr_result.txt
-#      done
-#    done
-#    autotune_interval=60
+    printf "Tuning window Length\n" >> lr_result.txt
+    for autotune_interval in 15 30 90 120; do #
+      for L in 2000; do
+        run_one_exp
+        printf "${EXP_NAME}\n" >> lr_result.txt
+      done
+    done
+    autotune_interval=60
 
-#    printf "Alpha\n" >> lr_result.txt
-#    for autotuner_increase_bar_alpha in 0.2 0.3 0.4 0.5; do
-#      for L in 2000; do
-#        run_one_exp
-#        printf "${EXP_NAME}\n" >> lr_result.txt
-#      done
-#    done
-#    autotuner_increase_bar_alpha=0.1
+    printf "Alpha\n" >> lr_result.txt
+    for autotuner_increase_bar_alpha in 0.2 0.3 0.4 0.5; do
+      for L in 2000; do
+        run_one_exp
+        printf "${EXP_NAME}\n" >> lr_result.txt
+      done
+    done
+    autotuner_increase_bar_alpha=0.1
 
 }
 run_stock_test

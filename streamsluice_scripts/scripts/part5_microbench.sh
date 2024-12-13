@@ -196,22 +196,22 @@ run_scale_test(){
     setting="microbench"
     SOURCE_TYPE="part5"
     DELAY2=20
-    DELAY3=50 #50 #250 #333
-    DELAY4=20
-    DELAY5=800 #800
-    STATE_SIZE2=10000 # 1000 keys, per key (n * 2000 + 36) bytes, n=5000 -> 100 MB
-    STATE_SIZE3=10000
-    STATE_SIZE4=10000
-    STATE_SIZE5=12500 # 5000
+    DELAY3=500 #50
+    DELAY4=2100 #20
+    DELAY5=20 #800
+    STATE_SIZE2=5000 # 1000 keys, per key (n * 2000 + 36) bytes, n=5000 -> 100 MB
+    STATE_SIZE3=5000
+    STATE_SIZE4=5000
+    STATE_SIZE5=5000 # 5000
     LP2=1
-    LP3=6 #9
-    LP4=1
-    LP5=31 #28
+    LP3=7 #6
+    LP4=30 #1
+    LP5=1 #31
 
     P2=1
-    P3=2 #3
-    P4=1
-    P5=17
+    P3=3 #2
+    P4=16
+    P5=1 #17
     GRAPH="1split2join1"
     autotuner_bar_lowerbound=350
     autotuner_latency_window=100
@@ -240,7 +240,7 @@ run_scale_test(){
     how_type="ds2"
 #    run_one_exp
 #    printf "${EXP_NAME}\n" >> part5_result.txt
-    for L in 1500 2000 2500; do # 1000 3000
+    for L in 2000; do # 1000 3000
       for autotuner_increase_bar_alpha in 0.1 0.5; do # 0.2 0.4
         is_treat=true
         autotune=true
