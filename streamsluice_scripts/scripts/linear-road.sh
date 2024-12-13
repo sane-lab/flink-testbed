@@ -22,7 +22,7 @@ function analyze() {
 }
 
 run_one_exp() {
-  EXP_NAME=lr-${whether_type}-${how_type}-${autotuner_initial_value_option}-${autotuner_increase_bar_option}-${runtime}-${warmup_time}-${warmup_rate}-${skip_interval}-${P2}-${DELAY2}-${P3}-${DELAY3}-${P4}-${DELAY4}-${P5}-${DELAY5}-${L}-${autotuner_increase_bar_alpha}-${epoch}-${input_rate_factor}-${PAYLOAD}-${SKEWNESS}-${is_treat}-${migration_interval}-${conservative_factor}-${repeat}
+  EXP_NAME=lr-${whether_type}-${how_type}-${autotuner_initial_value_option}-${autotuner_increase_bar_option}-${autotune_interval}-${runtime}-${warmup_time}-${warmup_rate}-${skip_interval}-${P2}-${DELAY2}-${P3}-${DELAY3}-${P4}-${DELAY4}-${P5}-${DELAY5}-${L}-${autotuner_increase_bar_alpha}-${epoch}-${input_rate_factor}-${PAYLOAD}-${SKEWNESS}-${is_treat}-${migration_interval}-${conservative_factor}-${repeat}
 
   echo "INFO: run exp ${EXP_NAME}"
   configFlink
@@ -184,7 +184,7 @@ run_stock_test(){
     repeat=2
     for scaling_decision_option in 1; do # 2 0
       for autotuner_increase_bar_alpha in 0.1; do # 0.1 0.2 0.4
-        for L in 1000 1500 2000 2500 3000; do # 1000 1500 2000 2500 3000
+        for L in 2000; do # 1000 1500 2000 2500 3000
             whether_type="streamsluice"
             how_type="streamsluice"
             scalein_type="streamsluice"
@@ -207,16 +207,16 @@ run_stock_test(){
     how_type="ds2"
     scalein_type="ds2"
     migration_interval=2500
-    run_one_exp
-    printf "${EXP_NAME}\n" >> lr_result.txt
+#    run_one_exp
+#    printf "${EXP_NAME}\n" >> lr_result.txt
 
     P1=1
     P2=1
     P3=4 #27
     P4=1 #4
     P5=20
-    run_one_exp
-    printf "${EXP_NAME}\n" >> lr_result.txt
+#    run_one_exp
+#    printf "${EXP_NAME}\n" >> lr_result.txt
 
     P1=1
     P2=1
@@ -229,15 +229,15 @@ run_stock_test(){
     how_type="ds2"
     scalein_type="ds2"
     migration_interval=2500
-    run_one_exp
-    printf "${EXP_NAME}\n" >> lr_result.txt
+#    run_one_exp
+#    printf "${EXP_NAME}\n" >> lr_result.txt
 
     whether_type="streamswitch"
     how_type="streamswitch"
     scalein_type="streamswitch"
     migration_interval=2500 #1000
-    run_one_exp
-    printf "${EXP_NAME}\n" >> lr_result.txt
+#    run_one_exp
+#    printf "${EXP_NAME}\n" >> lr_result.txt
 
     # Part 3 System sensitivity
     migration_interval=1000
@@ -245,32 +245,32 @@ run_stock_test(){
     how_type="streamsluice"
     scalein_type="streamsluice"
     printf "Part_3\n" >> lr_result.txt
-    printf "Epoch Length\n" >> lr_result.txt
-    for epoch in 25 50 200 500; do
-      for L in 2000; do
-        run_one_exp
-        printf "${EXP_NAME}\n" >> lr_result.txt
-      done
-    done
-    epoch=100
+#    printf "Epoch Length\n" >> lr_result.txt
+#    for epoch in 25 50 200 500; do
+#      for L in 2000; do
+#        run_one_exp
+#        printf "${EXP_NAME}\n" >> lr_result.txt
+#      done
+#    done
+#    epoch=100
 
-    printf "Tuning window Length\n" >> lr_result.txt
-    for autotune_interval in 15 30 90 120; do #
-      for L in 2000; do
-        run_one_exp
-        printf "${EXP_NAME}\n" >> lr_result.txt
-      done
-    done
-    autotune_interval=60
+#    printf "Tuning window Length\n" >> lr_result.txt
+#    for autotune_interval in 15 30 90 120; do #
+#      for L in 2000; do
+#        run_one_exp
+#        printf "${EXP_NAME}\n" >> lr_result.txt
+#      done
+#    done
+#    autotune_interval=60
 
-    printf "Alpha\n" >> lr_result.txt
-    for autotuner_increase_bar_alpha in 0.2 0.3 0.4 0.5; do
-      for L in 2000; do
-        run_one_exp
-        printf "${EXP_NAME}\n" >> lr_result.txt
-      done
-    done
-    autotuner_increase_bar_alpha=0.1
+#    printf "Alpha\n" >> lr_result.txt
+#    for autotuner_increase_bar_alpha in 0.2 0.3 0.4 0.5; do
+#      for L in 2000; do
+#        run_one_exp
+#        printf "${EXP_NAME}\n" >> lr_result.txt
+#      done
+#    done
+#    autotuner_increase_bar_alpha=0.1
 
 }
 run_stock_test
