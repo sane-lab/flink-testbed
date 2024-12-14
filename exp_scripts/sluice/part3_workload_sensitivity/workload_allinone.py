@@ -127,7 +127,7 @@ def plot_avg_parallelism_bar(x_per_label, avg_parallelism_per_label, output_dir,
 def main():
     overall_output_dir = "/Users/swrrt/Workplace/BacklogDelayPaper/experiments/figures/part3/"
     success_rate_per_label = {}
-    with open("workload_results.txt", "r") as file:
+    with open("workload_results_old.txt", "r") as file:
         lines = file.readlines()
     dimension = ""
     for line in lines:
