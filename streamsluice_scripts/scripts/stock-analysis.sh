@@ -22,7 +22,7 @@ function analyze() {
 }
 
 run_one_exp() {
-  EXP_NAME=stock-${whether_type}-${how_type}-${scaling_decision_option}-${runtime}-${warmup_time}-${warmup_rate}-${skip_interval}-${P2}-${DELAY2}-${P3}-${DELAY3}-${P4}-${DELAY4}-${P5}-${DELAY5}-${P6}-${P7}-${DELAY7}-${L}-${epoch}-${autotuner_increase_bar_alpha}-${is_treat}-${autotune}-${repeat}
+  EXP_NAME=stock-${whether_type}-${how_type}-${autotuner_initial_value_option}-${autotuner_increase_bar_option}-${runtime}-${warmup_time}-${warmup_rate}-${skip_interval}-${P2}-${DELAY2}-${P3}-${DELAY3}-${P4}-${DELAY4}-${P5}-${DELAY5}-${P6}-${P7}-${DELAY7}-${L}-${epoch}-${autotuner_increase_bar_alpha}-${is_treat}-${autotune}-${repeat}
 
   echo "INFO: run exp ${EXP_NAME}"
   configFlink
@@ -154,7 +154,8 @@ run_stock_test(){
     L=1000 #2000 #2500
     migration_interval=1000 #500
     spike_slope=0.7
-    autotuner_increase_bar_option=7 # 3 5
+    autotuner_initial_value_option=5
+    autotuner_increase_bar_option=8
     autotuner_increase_bar_alpha=0.1 #0.25
     autotune=false
     is_treat=false
@@ -166,7 +167,7 @@ run_stock_test(){
     repeat=1
     for scaling_decision_option in 1; do # 2 0
       for autotuner_increase_bar_alpha in 0.1; do # 0.1 0.2 0.4
-        for L in 500 750 1000 1250 1500; do #  750 1000 1500 2000 2500
+        for L in 1000; do # 500 750 1000 1250 1500
             whether_type="streamsluice"
             how_type="streamsluice"
             scalein_type="streamsluice"
@@ -233,33 +234,33 @@ run_stock_test(){
     whether_type="streamsluice"
     how_type="streamsluice"
     scalein_type="streamsluice"
-    printf "Part_3\n" >> stock_result.txt
-    printf "Epoch Length\n" >> stock_result.txt
-    for epoch in 25 50 200 500; do
-      for L in 1000; do
-        run_one_exp
-        printf "${EXP_NAME}\n" >> stock_result.txt
-      done
-    done
-    epoch=100
-
-    printf "Tuning window Length\n" >> stock_result.txt
-    for autotune_interval in 15 30 90 120; do #
-      for L in 1000; do
-        run_one_exp
-        printf "${EXP_NAME}\n" >> stock_result.txt
-      done
-    done
-    autotune_interval=60
-
-    printf "Alpha\n" >> stock_result.txt
-    for autotuner_increase_bar_alpha in 0.2 0.3 0.4 0.5; do
-      for L in 1000; do
-        run_one_exp
-        printf "${EXP_NAME}\n" >> stock_result.txt
-      done
-    done
-    autotuner_increase_bar_alpha=0.1
+#    printf "Part_3\n" >> stock_result.txt
+#    printf "Epoch Length\n" >> stock_result.txt
+#    for epoch in 25 50 200 500; do
+#      for L in 1000; do
+#        run_one_exp
+#        printf "${EXP_NAME}\n" >> stock_result.txt
+#      done
+#    done
+#    epoch=100
+#
+#    printf "Tuning window Length\n" >> stock_result.txt
+#    for autotune_interval in 15 30 90 120; do #
+#      for L in 1000; do
+#        run_one_exp
+#        printf "${EXP_NAME}\n" >> stock_result.txt
+#      done
+#    done
+#    autotune_interval=60
+#
+#    printf "Alpha\n" >> stock_result.txt
+#    for autotuner_increase_bar_alpha in 0.2 0.3 0.4 0.5; do
+#      for L in 1000; do
+#        run_one_exp
+#        printf "${EXP_NAME}\n" >> stock_result.txt
+#      done
+#    done
+#    autotuner_increase_bar_alpha=0.1
 
 }
 run_stock_test

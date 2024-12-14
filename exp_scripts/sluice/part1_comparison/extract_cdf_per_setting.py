@@ -81,10 +81,11 @@ def read_ground_truth_latency(raw_dir, exp_name, window_size):
 
     return [average_ground_truth_latency, initial_time]
 
-def readLEMLatencyAndSpikeAndBar(rawDir, expName) -> [[list[int], list[float], list[float]], dict[int, int]]:
+def readLEMLatencyAndSpikeAndBarAndScalingMarker(rawDir, expName) -> [[list[int], list[float], list[float]], dict[int, int]]:
     lem_latency = [[], [], []]
     latency_bar = {}
     p99_bar = {}
+    scalings = [[], []]
 
     streamsluiceOutput = "flink-samza-standalonesession-0-eagle-sane.out"
     import os
@@ -105,14 +106,25 @@ def readLEMLatencyAndSpikeAndBar(rawDir, expName) -> [[list[int], list[float], l
             if (counter % 5000 == 0):
                 print("Processed to line:" + str(counter))
             if (len(split) >= 10 and split[0] == "+++" and split[1] == "[MODEL]" and split[6] == "cur_ete_l:" and (
-                    split[
-                        8] == "n_epoch_l:" or split[11] == "n_epoch_l:")):
+                    "n_epoch_l:" in split)):
                 time = int(split[3])
                 estimated_l = float(split[7])
                 # estimated_spike = float(split[13]) - float(split[7])
                 lem_latency[0] += [time]
                 lem_latency[1] += [estimated_l]
                 # lem_latency[2] += [estimated_spike]
+            if (len(split) >= 10 and split[0] == "+++" and split[1] == "[CONTROL]" and split[6] == "scale" and split[
+                8] == "operator:"):
+                time = int(split[3])
+                scalings[0].append(time)
+                scalings[1].append(0)
+
+            if (len(split) >= 8 and split[0] == "+++" and split[1] == "[CONTROL]" and split[4] == "all" and split[
+                5] == "scaling" and split[6] == "plan" and split[7] == "deployed."):
+                time = int(split[3])
+                scalings[0].append(time)
+                scalings[1].append(1)
+
             if (len(split) >= 8 and split[0] == "[AUTOTUNE]" and split[4] == "initial" and split[5] == "latency" and split[6] == "bar:"):
                 time = int(split[2])
                 bar = int(split[7].rstrip(','))
@@ -132,7 +144,7 @@ def readLEMLatencyAndSpikeAndBar(rawDir, expName) -> [[list[int], list[float], l
                 latency_bar[time] = bar
                 p99_bar[time] = int(split[11].rstrip(','))
 
-    return [lem_latency, latency_bar, p99_bar]
+    return [lem_latency, latency_bar, p99_bar, scalings]
 
 def add_latency_limit_marker(plt, latency_limit):
     x = [0, 10000000]
@@ -173,15 +185,19 @@ def draw_latency_curves(raw_dir, output_dir, exp_name, window_size, start_time, 
     latency_bar = []
     p99_bar = []
     initial_times = []
+    scalings = []
     for i in range(len(exps)):
         result = read_ground_truth_latency(raw_dir, exps[i][1], window_size)
         average_ground_truth_latencies += [result[0]]
         initial_times += [result[1]]
-        result = readLEMLatencyAndSpikeAndBar(raw_dir, exps[i][1])
+        result = readLEMLatencyAndSpikeAndBarAndScalingMarker(raw_dir, exps[i][1])
         result[0][0] = [x - initial_times[i] for x in result[0][0]]
+        result[3][0] = [x - initial_times[i] for x in result[3][0]]
         lem_latencies += [result[0]]
         latency_bar += [result[1]]
         p99_bar += [result[2]]
+        scalings += [result[3]]
+
     #print(p99_bar)
     for i in range(len(exps)):
         groundtruth_p99_latency_in_range = [average_ground_truth_latencies[i][1][x] for x in
@@ -241,6 +257,15 @@ def draw_latency_curves(raw_dir, output_dir, exp_name, window_size, start_time, 
         print("Weighted success rate: " + str(weighted_success_rate))
     # Plotting the latency curve
     fig, ax = plt.subplots(figsize=(12, 5))
+
+    def add_scaling_marker(plt, scalings):
+        for scaling_index in range(0, len(scalings[0])):
+            scaling_time = scalings[0][scaling_index]
+            if (scalings[1][scaling_index] == 0):
+                plt.plot([scaling_time, scaling_time], [0, 100000], "--", color="orange", linewidth=1)
+            else:
+                plt.plot([scaling_time, scaling_time], [0, 100000], "--", color="gray", linewidth=1)
+
     for i in range(len(exps)):
         average_ground_truth_latency = average_ground_truth_latencies[i]
         sample_factor = 1
@@ -254,12 +279,31 @@ def draw_latency_curves(raw_dir, output_dir, exp_name, window_size, start_time, 
                                    range(x, min(x + sample_factor, len(average_ground_truth_latency[2])))]) for x in
                               range(0, len(average_ground_truth_latency[0]), sample_factor)]
 
-        plt.plot(sampled_latency[0], sampled_latency[1], '-', color=exps[i][2], markersize=4, linewidth=3,
+        plt.plot(sampled_latency[0], sampled_latency[1], '-', color="blue", markersize=4, linewidth=3,
                  label="Ground Truth P99")
-        if(draw_lem_latency_flag):
+        if (draw_lem_latency_flag):
             plt.plot(lem_latencies[i][0], lem_latencies[i][1], '-', color="green", markersize=2, linewidth=2,
-                 label='Estimated Latency')
+                     label='Estimated Latency')
+            add_latency_bar_curve(plt, latency_bar[i], initial_times[i])
         add_latency_limit_marker(plt, latency_limit)
+        #add_scaling_marker(plt, scalings[i])
+
+    handles, labels = plt.gca().get_legend_handles_labels()
+    new_labels, new_handles = [], []
+    for handle, label in zip(handles, labels):
+        if label not in new_labels:
+            new_labels.append(label)
+            new_handles.append(handle)
+
+    plt.legend(new_handles, new_labels, bbox_to_anchor=(0.45, 1.4), loc='upper center', ncol=3, markerscale=4.)
+    plt.ylabel('Latency (ms)')
+    axes = plt.gca()
+    axes.set_xlim((start_time) * 1000, (start_time + exp_length) * 1000)
+    axes.set_xticks(np.arange((start_time) * 1000, (start_time + exp_length) * 1000 + (exp_length / 10) * 1000,
+                              (exp_length / 10) * 1000))
+    axes.set_xticklabels([int((x - start_time * 1000) / 1000) for x in
+                          np.arange((start_time) * 1000, (start_time + exp_length) * 1000 + (exp_length / 10) * 1000,
+                                    (exp_length / 10) * 1000)])
 
     handles, labels = plt.gca().get_legend_handles_labels()
     new_labels, new_handles = [], []
@@ -607,12 +651,12 @@ def draw_parallelism_curve(rawDir, outputDir, exp_name, windowSize, startTime, e
     ay = [totalArrivalRatesPerJob[job][0][x] / (windowSize / 100) for x in ax]
     arrival_curves = [ax, ay]
     ax2.plot(ax, ay, '-', color='red', markersize=MARKERSIZE / 2, label="Arrival Rate")
-    #ax2.set_ylabel('Rate (tps)')
-    # ax2.set_ylim(0, 30000)
-    # ax2.set_yticks(np.arange(0, 35000, 5000))
-    if max(ay) <= 2000:
-        ax2.set_ylim(500, 2000)
-        ax2.set_yticks(np.arange(500, 2100, 200))
+    if (exp_name.startswith("lr-")):
+        ax2.set_ylim(400, 2000)
+        ax2.set_yticks(np.arange(400, 2200, 200))
+    elif (exp_name.startswith("stock-")):
+        ax2.set_ylim(400, 2000)
+        ax2.set_yticks(np.arange(400, 2200, 200))
     else:
         ax2.set_ylim(1000, 4000)
         ax2.set_yticks(np.arange(1000, 4500, 500))
@@ -635,7 +679,7 @@ def draw_parallelism_curve(rawDir, outputDir, exp_name, windowSize, startTime, e
             totalParallelism = 0
             Parallelism = totalParallelismPerExps[expindex]
             # print(job + " " + str(expindex) + " " + str(Parallelism))
-            legend += [exps[expindex][0]]
+            legend += ["# of Slots"]
             line = [[], []]
             for i in range(0, len(Parallelism[0])):
                 x0 = Parallelism[0][i]
@@ -776,26 +820,21 @@ def main():
     window_size = 100
     draw_lem_latency_flag = True
     exps_per_label_per_setting = {
-        # "Twitter_30min": {
-        #     "Static": "tweet-streamsluice-streamsluice-5-60-1950-90-1500-1-14-6666-5-1000-1-50-1-50-2500-100-false-0.1-1",
-        #     "Static-Adequate": "tweet-streamsluice-streamsluice-5-60-1950-90-1500-1-19-6666-9-1000-1-50-1-50-2500-100-false-0.1-1",
-        #     "DS2": "tweet-ds2-ds2-5-60-1950-90-1500-1-19-6666-9-1000-1-50-1-50-2500-100-true-0.1-1",
-        #     "Streamswitch": "tweet-streamswitch-streamswitch-5-60-1950-90-1500-1-19-6666-9-1000-1-50-1-50-2500-100-true-0.1-1",
-        #     "Sluice": "tweet-streamsluice-streamsluice-5-8-1950-90-1500-1-19-6666-9-1000-1-50-1-50-2500-100-true-0.1-2",
-        # },
-        # "Stock-Analysis_30min":{
-        #     "Static": "stock-ds2-ds2-1-1950-90-1000-20-1-200-4-2500-1-200-1-500-1-7-3333-1000-100-0.4-false-false-1",
-        #     "Static-Adequate": "stock-ds2-ds2-1-1950-90-1000-20-1-200-11-2500-1-200-2-500-1-15-3333-1000-100-0.4-false-false-1",
-        #     "DS2": "stock-ds2-ds2-1-1950-90-1000-20-1-200-11-2500-1-200-2-500-1-15-3333-1000-100-0.4-true-false-1",
-        #     "Streamswitch": "stock-streamswitch-streamswitch-1-1950-90-1000-20-1-200-11-2500-1-200-2-500-1-15-3333-1000-100-0.4-true-false-1",
-        #     "Sluice": "stock-streamsluice-streamsluice-1-1950-90-1000-20-1-200-11-2500-1-200-2-500-1-15-3333-1000-100-0.1-true-true-1",
-        # },
+        "Twitter_30min": {
+            "Static": "tweet-streamsluice-streamsluice-5-60-1950-90-1500-1-14-6666-5-1000-1-50-1-50-2500-100-false-0.1-1",
+            "Static-Adequate": "tweet-streamsluice-streamsluice-5-60-1950-90-1500-1-19-6666-9-1000-1-50-1-50-2500-100-false-0.1-1",
+            "DS2": "tweet-ds2-ds2-5-60-1950-90-1500-1-19-6666-9-1000-1-50-1-50-2500-100-true-0.1-1",
+            "Streamswitch": "tweet-streamswitch-streamswitch-5-60-1950-90-1500-1-19-6666-9-1000-1-50-1-50-2500-100-true-0.1-1",
+            "Sluice": "tweet-streamsluice-streamsluice-5-8-1950-90-1500-1-19-6666-9-1000-1-50-1-50-2500-100-true-0.1-2",
+        },
+        "Stock-Analysis_30min":{
+            "Static": "stock-ds2-ds2-1-1950-90-1000-20-1-200-4-2500-1-200-1-500-1-7-3333-1000-100-0.4-false-false-1",
+            "Static-Adequate": "stock-ds2-ds2-1-1950-90-1000-20-1-200-11-2500-1-200-2-500-1-15-3333-1000-100-0.4-false-false-1",
+            "DS2": "stock-ds2-ds2-1-1950-90-1000-20-1-200-11-2500-1-200-2-500-1-15-3333-1000-100-0.4-true-false-1",
+            "Streamswitch": "stock-streamswitch-streamswitch-1-1950-90-1000-20-1-200-11-2500-1-200-2-500-1-15-3333-1000-100-0.4-true-false-1",
+            "Sluice": "stock-streamsluice-streamsluice-1-1350-90-1000-20-1-200-11-2500-1-200-2-500-1-15-3333-1000-100-0.1-true-true-1",
+        },
         "Linear-Road_30min": {
-            # "Static": "lr-ds2-ds2-5-8-1080-150-1300-10-1-50-2-1000-1-50-12-2500-2000-0.1-100-1-0-0.0-false-2500-0.8-2",
-            # "Static-Adequate": "lr-ds2-ds2-5-8-1080-150-1300-10-1-50-4-1000-1-50-20-2500-2000-0.1-100-1-0-0.0-false-2500-0.8-2",
-            # "DS2": "lr-ds2-ds2-5-8-1080-150-1300-10-1-50-3-1000-1-50-27-2500-2000-0.1-100-1-0-0.0-true-2500-0.8-2",
-            # "Streamswitch": "lr-streamswitch-streamswitch-5-8-1080-150-1300-10-1-50-3-1000-1-50-27-2500-2000-0.1-100-1-0-0.0-true-2500-0.8-2",
-            # "Sluice": "lr-streamsluice-streamsluice-5-8-1080-150-1300-10-1-50-3-1000-1-50-27-2500-2000-0.1-100-1-0-0.0-true-1000-0.8-2",
             "Static": "lr-ds2-ds2-5-8-1980-150-1300-10-1-50-2-1000-1-50-12-2500-2000-0.1-100-1-0-0.0-false-2500-0.8-2",
             "Static-Adequate": "lr-ds2-ds2-5-8-1980-150-1300-10-1-50-4-1000-1-50-20-2500-2000-0.1-100-1-0-0.0-false-2500-0.8-2",
             "DS2": "lr-ds2-ds2-5-8-1980-150-1300-10-1-50-3-1000-1-50-27-2500-2000-0.1-100-1-0-0.0-true-2500-0.8-2",
@@ -814,15 +853,15 @@ def main():
             if exp_name.startswith("lr"):
                 latency_bar = int(exp_name.split('-')[-10])
                 start_time = 180
-                exp_length = 1800 #900
+                exp_length = 1200
             elif exp_name.startswith("tweet"):
                 latency_bar = int(exp_name.split('-')[-5])
                 start_time = 150
-                exp_length = 1800 #600
+                exp_length = 1200
             elif exp_name.startswith("stock"):
                 latency_bar = int(exp_name.split('-')[-6])
                 start_time = 150
-                exp_length = 1800
+                exp_length = 1200
             else:
                 latency_bar = int(exp_name.split('-')[-6])
                 start_time = 120
