@@ -139,7 +139,8 @@ run_scale_test(){
     L=1000 #2000 #2500
     migration_interval=1000 #500
     spike_slope=0.7
-    autotuner_increase_bar_option=7 # 3 5
+    autotuner_initial_value_option=5
+    autotuner_increase_bar_option=8
     autotuner_increase_bar_alpha=0.1 #0.25
     echo "Run micro bench workload sensitivity..."
     init
@@ -467,7 +468,7 @@ run_scale_test(){
     LP2=1
     LP3=1
     LP4=1
-    LP5=36
+    LP5=56
 
     P2=1
     P3=1
@@ -486,7 +487,7 @@ run_scale_test(){
     TIME1=45
     TIME2=45
     for DELAY5 in 2000 1333 800 666; do #
-      P5=21
+      P5=30
       is_treat=false
       autotune=false
       how_type="ds2"
@@ -496,8 +497,8 @@ run_scale_test(){
         is_treat=true
         autotune=true
         how_type="streamsluice"
-#        run_one_exp
-#        printf "${EXP_NAME}\n" >> workload_sensitivity_result.txt
+        run_one_exp
+        printf "${EXP_NAME}\n" >> workload_sensitivity_result.txt
       done
     done
 
@@ -518,7 +519,7 @@ run_scale_test(){
     LP2=1
     LP3=1
     LP4=1
-    LP5=28
+    LP5=56
 
     P2=1
     P3=1
@@ -548,8 +549,8 @@ run_scale_test(){
         is_treat=true
         autotune=true
         how_type="streamsluice"
-#        run_one_exp
-#        printf "${EXP_NAME}\n" >> workload_sensitivity_result.txt
+        run_one_exp
+        printf "${EXP_NAME}\n" >> workload_sensitivity_result.txt
       done
     done
 
@@ -568,7 +569,7 @@ run_scale_test(){
     LP2=1
     LP3=1
     LP4=1
-    LP5=28
+    LP5=56
 
     P2=1
     P3=1
@@ -595,8 +596,8 @@ run_scale_test(){
         is_treat=true
         autotune=true
         how_type="streamsluice"
-#        run_one_exp
-#        printf "${EXP_NAME}\n" >> workload_sensitivity_result.txt
+        run_one_exp
+        printf "${EXP_NAME}\n" >> workload_sensitivity_result.txt
       done
     done
 }
