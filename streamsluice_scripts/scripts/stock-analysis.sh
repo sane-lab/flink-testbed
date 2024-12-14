@@ -49,7 +49,7 @@ init() {
   how_type="streamsluice"
   scalein_type="streamsuice"
   L=2000
-  runtime=750 #1950 #750 #2190 #3990 #
+  runtime=1350 #1950 #750 #2190 #3990 #
   skip_interval=20 # skip seconds
   warmup=10000
   warmup_time=90 #30
@@ -170,8 +170,8 @@ run_stock_test(){
             whether_type="streamsluice"
             how_type="streamsluice"
             scalein_type="streamsluice"
-#            run_one_exp
-#            printf "${EXP_NAME}\n" >> stock_result.txt
+            run_one_exp
+            printf "${EXP_NAME}\n" >> stock_result.txt
         done
       done
     done

@@ -49,7 +49,7 @@ init() {
   how_type="streamsluice"
   scalein_type="streamsluice"
   L=2000
-  runtime=1980 #780 #2190
+  runtime=1380 #1980 #780 #2190
   skip_interval=10 #120 #300 # skip seconds
   warmup=10000
   warmup_time=150 #300
@@ -240,24 +240,24 @@ run_stock_test(){
 #    printf "${EXP_NAME}\n" >> lr_result.txt
 
     # Part 3 System sensitivity
+    autotune=true
+    is_treat=true
     migration_interval=1000
     whether_type="streamsluice"
     how_type="streamsluice"
     scalein_type="streamsluice"
     printf "Part_3\n" >> lr_result.txt
-#    printf "Epoch Length\n" >> lr_result.txt
-#    for epoch in 25 50 200 500; do
-#      for L in 2000; do
-#        run_one_exp
-#        printf "${EXP_NAME}\n" >> lr_result.txt
-#      done
-#    done
-#    epoch=100
+    printf "Epoch Length\n" >> lr_result.txt
+    for epoch in 25 50 200 500; do
+      for L in 2000; do
+        run_one_exp
+        printf "${EXP_NAME}\n" >> lr_result.txt
+      done
+    done
+    epoch=100
 
     printf "Tuning window Length\n" >> lr_result.txt
-    autotune=true
-    is_treat=true
-    for autotune_interval in 15 30 90 120; do #
+    for autotune_interval in 15 30 90 120; do
       for L in 2000; do
         run_one_exp
         printf "${EXP_NAME}\n" >> lr_result.txt

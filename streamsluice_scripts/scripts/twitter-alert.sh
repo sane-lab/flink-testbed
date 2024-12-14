@@ -240,7 +240,7 @@ run_stock_test(){
     autotune_interval=60
 
     printf "Alpha\n" >> tweet_result.txt
-    for autotuner_increase_bar_alpha in 0.3 0.5; do # 0.2 0.4
+    for autotuner_increase_bar_alpha in 0.2 0.3 0.4 0.5; do # 0.2 0.4
       for L in 2500; do
         run_one_exp
         printf "${EXP_NAME}\n" >> tweet_result.txt
