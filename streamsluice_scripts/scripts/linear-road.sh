@@ -255,6 +255,8 @@ run_stock_test(){
 #    epoch=100
 
     printf "Tuning window Length\n" >> lr_result.txt
+    autotune=true
+    is_treat=true
     for autotune_interval in 15 30 90 120; do #
       for L in 2000; do
         run_one_exp

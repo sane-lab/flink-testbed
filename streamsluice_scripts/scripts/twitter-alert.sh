@@ -49,7 +49,7 @@ init() {
   how_type="streamsluice"
   scalein_type="streamsluice"
   L=2000 #4000
-  runtime=1950 #750
+  runtime=1350 #1950 #750
   skip_interval=1 # skip seconds
   warmup=10000
   warmup_time=90
@@ -214,6 +214,8 @@ run_stock_test(){
 
 
     # Part 3 System sensitivity
+    is_treat=true
+    autotune=true
     migration_interval=1000
     whether_type="streamsluice"
     how_type="streamsluice"

@@ -227,6 +227,8 @@ run_stock_test(){
 #    printf "${EXP_NAME}\n" >> stock_result.txt
 
     # Part 3 System sensitivity
+    autotune=true
+    is_treat=true
     migration_interval=1000
     whether_type="streamsluice"
     how_type="streamsluice"
