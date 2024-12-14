@@ -1,5 +1,6 @@
 #!/usr/bin/env bash
 FLINK_DIR="/home/samza/workspace/flink-related/flink-extended-ete/build-target"
+FLINK_DIST_CONF_DIR="flink-dist/target/flink-1.8.1-bin/flink-1.8.1/conf/"
 FLINK_APP_DIR="/home/samza/workspace/flink-related/flink-testbed-sane"
 SCRIPT_DIR="/home/samza/workspace/flink-related/flink-testbed-sane/streamsluice_scripts"
 FLINK_CONF_DIR="${SCRIPT_DIR}/conf-server"
