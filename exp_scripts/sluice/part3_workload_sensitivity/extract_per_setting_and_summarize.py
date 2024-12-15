@@ -722,9 +722,6 @@ def main():
             "Dimension": "Pattern",
             "sine": [
                 #"setting1--streamsluice-streamsluice-false-true-false-when-sine-1split2join1-720-7000-25-3000-5000-20-1-0-1-20-1-5000-1-20-1-5000-17-1000-1-5000-1-20-5000--1000-3000-100-1-true-1",
-                "setting1--streamsluice-streamsluice-false-true-false-when-sine-1split2join1-720-7000-25-3000-5000-20-1-0-1-20-1-5000-15-1000-1-5000-17-1000-1-5000-1-20-5000--1000-3000-100-1-true-1",
-                "setting1--streamsluice-streamsluice-false-true-false-when-sine-1split2join1-720-7000-25-3000-5000-20-1-0-1-20-1-5000-15-1500-1-5000-17-1000-1-5000-1-20-5000--1000-3000-100-1-true-1",
-                "setting1--streamsluice-streamsluice-false-true-false-when-sine-1split2join1-720-7000-25-3000-5000-20-1-0-1-20-1-5000-15-2000-1-5000-17-1000-1-5000-1-20-5000--1000-3000-100-1-true-1",
             ],
             # "linear": [
             #     "setting1--streamsluice-streamsluice-false-true-false-when-linear-1split2join1-720-7000-25-3000-5000-20-1-0-1-20-1-5000-1-20-1-5000-17-1000-1-5000-1-20-5000--1000-3000-100-1-true-1",

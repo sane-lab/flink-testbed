@@ -2,7 +2,7 @@
 
 # List of your script files
 scripts=(
-  "stock-analysis.sh"
+  #"stock-analysis.sh"
   "twitter-alert.sh"
   "linear-road.sh"
   # Add more scripts as needed

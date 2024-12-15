@@ -171,8 +171,8 @@ run_stock_test(){
             whether_type="streamsluice"
             how_type="streamsluice"
             scalein_type="streamsluice"
-#            run_one_exp
-#            printf "${EXP_NAME}\n" >> stock_result.txt
+            run_one_exp
+            printf "${EXP_NAME}\n" >> stock_result.txt
         done
       done
     done
@@ -236,12 +236,12 @@ run_stock_test(){
     scalein_type="streamsluice"
     printf "Part_3\n" >> stock_result.txt
     printf "Epoch Length\n" >> stock_result.txt
-#    for epoch in 25 50 200 500; do
-#      for L in 1500; do
-#        run_one_exp
-#        printf "${EXP_NAME}\n" >> stock_result.txt
-#      done
-#    done
+    for epoch in 25 50 200 500; do
+      for L in 1500; do
+        run_one_exp
+        printf "${EXP_NAME}\n" >> stock_result.txt
+      done
+    done
     epoch=100
 
     printf "Tuning window Length\n" >> stock_result.txt
@@ -254,12 +254,12 @@ run_stock_test(){
     autotune_interval=60
 
     printf "Alpha\n" >> stock_result.txt
-#    for autotuner_increase_bar_alpha in 0.2 0.3 0.4 0.5; do
-#      for L in 1500; do
-#        run_one_exp
-#        printf "${EXP_NAME}\n" >> stock_result.txt
-#      done
-#    done
+    for autotuner_increase_bar_alpha in 0.2 0.3 0.4 0.5; do
+      for L in 1500; do
+        run_one_exp
+        printf "${EXP_NAME}\n" >> stock_result.txt
+      done
+    done
     autotuner_increase_bar_alpha=0.1
 
 }
