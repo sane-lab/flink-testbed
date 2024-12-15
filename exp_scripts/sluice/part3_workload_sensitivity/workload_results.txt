@@ -1,17 +1,46 @@
 Setting1 Pattern
-end
-Setting2 Amplitude
-end
-Setting3 Period
-end
-Setting4 Topology
-end
-Setting5 Service_Rate
-end
-Setting6 State_Size
-end
-Setting7 Skewness
-end
 setting1--streamsluice-streamsluice-false-true-false-when-sine-1split2join1-720-7000-25-3000-5000-20-1-0-1-20-1-5000-1-20-1-5000-17-1000-1-5000-1-20-5000--1000-3000-100-1-true-1 0 sine 1000 0.9998321866084914 0.9998278842475001 9.577881666666666
 setting1--streamsluice-streamsluice-false-true-false-when-linear-1split2join1-720-7000-25-3000-5000-20-1-0-1-20-1-5000-1-20-1-5000-17-1000-1-5000-1-20-5000--1000-3000-100-1-true-1 0 linear 1000 0.9991612145613152 0.9992664265740566 9.760815
 setting1--streamsluice-streamsluice-false-true-false-when-gradient-1split2join1-720-7000-25-3000-5000-20-1-0-1-20-1-5000-1-20-1-5000-17-1000-1-5000-1-20-5000--1000-3000-100-1-true-1 0 gradient 1000 0.9860738255033556 0.9882407402663516 13.98691
+end
+Setting2 Amplitude
+setting2--streamsluice-streamsluice-false-true-false-when-sine-1split2join1-720-5500-45-3500-5000-0-1-0-1-20-1-5000-1-20-1-5000-17-1000-1-5000-1-20-5000--1000-3000-100-1-true-1 0 10% 1000 1.0 1.0 9.314413333333333
+setting2--streamsluice-streamsluice-false-true-false-when-sine-1split2join1-720-6000-45-3500-5000-0-1-0-1-20-1-5000-1-20-1-5000-17-1000-1-5000-1-20-5000--1000-3000-100-1-true-1 0 20% 1000 1.0 1.0 9.37342
+setting2--streamsluice-streamsluice-false-true-false-when-sine-1split2join1-720-6500-45-3500-5000-0-1-0-1-20-1-5000-1-20-1-5000-17-1000-1-5000-1-20-5000--1000-3000-100-1-true-1 0 30% 1000 1.0 1.0 9.49792
+setting2--streamsluice-streamsluice-false-true-false-when-sine-1split2join1-720-7000-45-3500-5000-0-1-0-1-20-1-5000-1-20-1-5000-17-1000-1-5000-1-20-5000--1000-3000-100-1-true-1 0 40% 1000 1.0 1.0 9.546016666666667
+setting2--streamsluice-streamsluice-false-true-false-when-sine-1split2join1-720-7500-45-3500-5000-0-1-0-1-20-1-5000-1-20-1-5000-17-1000-1-5000-1-20-5000--1000-3000-100-1-true-1 0 50% 1000 0.9986579432981043 0.9989122345658004 9.74649
+end
+Setting3 Period
+setting3--streamsluice-streamsluice-false-true-false-when-sine-1split2join1-720-6500-15-3500-5000-0-1-0-1-20-1-5000-1-20-1-5000-1-20-1-5000-17-1000-5000--1000-3000-100-1-true-1 0 30s 1000 0.9959643517740037 0.9952966217575007 18.574306666666665
+setting3--streamsluice-streamsluice-false-true-false-when-sine-1split2join1-720-6500-30-3500-5000-0-1-0-1-20-1-5000-1-20-1-5000-1-20-1-5000-17-1000-5000--1000-3000-100-1-true-1 0 60s 1000 0.999327391962334 0.9992608855280939 15.992271666666667
+setting3--streamsluice-streamsluice-false-true-false-when-sine-1split2join1-720-6500-45-3500-5000-0-1-0-1-20-1-5000-1-20-1-5000-1-20-1-5000-17-1000-5000--1000-3000-100-1-true-1 0 90s 1000 1.0 1.0 15.916445
+setting3--streamsluice-streamsluice-false-true-false-when-sine-1split2join1-720-6500-60-3500-5000-0-1-0-1-20-1-5000-1-20-1-5000-1-20-1-5000-17-1000-5000--1000-3000-100-1-true-1 0 120s 1000 1.0 1.0 15.592401666666667
+setting3--streamsluice-streamsluice-false-true-false-when-sine-1split2join1-720-6500-75-3500-5000-0-1-0-1-20-1-5000-1-20-1-5000-1-20-1-5000-17-1000-5000--1000-3000-100-1-true-1 0 150s 1000 1.0 1.0 15.720176666666667
+end
+Setting4 Topology
+setting4--streamsluice-streamsluice-false-true-false-when-sine-1op-720-6500-45-3500-5000-0-1-0-17-2000-1-5000-1-20-1-5000-1-20-1-5000-17-20-5000--1000-3000-100-1-true-1 0 1op 1000 1.0 1.0 12.728718333333333
+setting4--streamsluice-streamsluice-false-true-false-when-sine-2op-720-6500-45-3500-5000-0-1-0-1-20-1-5000-17-2000-1-5000-1-20-1-5000-17-20-5000--1000-3000-100-1-true-1 0 2op 1000 1.0 1.0 13.85459
+setting4--streamsluice-streamsluice-false-true-false-when-sine-3op-720-6500-45-3500-5000-0-1-0-1-20-1-5000-1-20-1-5000-17-2000-1-5000-17-20-5000--1000-3000-100-1-true-1 0 3op 1000 1.0 1.0 15.035845
+setting4--streamsluice-streamsluice-false-true-false-when-sine-4op-720-6500-45-3500-5000-0-1-0-1-20-1-5000-1-20-1-5000-1-20-1-5000-17-2000-5000--1000-3000-100-1-true-1 0 4op 1000 1.0 1.0 17.642745
+end
+Setting5 Service_Rate
+setting5--streamsluice-streamsluice-false-true-false-when-sine-1split2join1-720-6500-45-3500-5000-0-1-0-1-20-1-5000-1-20-1-5000-1-20-1-5000-30-2000-5000--1000-3000-100-1-true-1 0 0.5x 1000 0.9993276180870735 0.9993068852129059 33.106065
+setting5--streamsluice-streamsluice-false-true-false-when-sine-1split2join1-720-6500-45-3500-5000-0-1-0-1-20-1-5000-1-20-1-5000-1-20-1-5000-30-1333-5000--1000-3000-100-1-true-1 0 0.75x 1000 1.0 1.0 20.876006666666665
+setting3--streamsluice-streamsluice-false-true-false-when-sine-1split2join1-720-6500-45-3500-5000-0-1-0-1-20-1-5000-1-20-1-5000-1-20-1-5000-17-1000-5000--1000-3000-100-1-true-1 0 1.0x 1000 1.0 1.0 15.916445
+setting5--streamsluice-streamsluice-false-true-false-when-sine-1split2join1-720-6500-45-3500-5000-0-1-0-1-20-1-5000-1-20-1-5000-1-20-1-5000-30-800-5000--1000-3000-100-1-true-1 0 1.25x 1000 1.0 1.0 13.880066666666666
+setting5--streamsluice-streamsluice-false-true-false-when-sine-1split2join1-720-6500-45-3500-5000-0-1-0-1-20-1-5000-1-20-1-5000-1-20-1-5000-30-666-5000--1000-3000-100-1-true-1 0 1.5x 1000 1.0 1.0 12.376611666666667
+end
+Setting6 State_Size
+setting6--streamsluice-streamsluice-false-true-false-when-sine-1split2join1-720-6500-45-3500-5000-0-1-0-1-20-1-1250-1-20-1-1250-1-20-1-1250-17-1000-1250--1000-3000-100-1-true-1 0 25MB 1000 1.0 1.0 16.042453333333334
+setting6--streamsluice-streamsluice-false-true-false-when-sine-1split2join1-720-6500-45-3500-5000-0-1-0-1-20-1-2500-1-20-1-2500-1-20-1-2500-17-1000-2500--1000-3000-100-1-true-1 0 50MB 1000 1.0 1.0 16.025255
+setting3--streamsluice-streamsluice-false-true-false-when-sine-1split2join1-720-6500-45-3500-5000-0-1-0-1-20-1-5000-1-20-1-5000-1-20-1-5000-17-1000-5000--1000-3000-100-1-true-1 0 100MB 1000 1.0 1.0 15.916445
+setting6--streamsluice-streamsluice-false-true-false-when-sine-1split2join1-720-6500-45-3500-5000-0-1-0-1-20-1-10000-1-20-1-10000-1-20-1-10000-17-1000-10000--1000-3000-100-1-true-1 0 200MB 1000 0.9956353869397347 0.9968917733977692 16.012875
+setting6--streamsluice-streamsluice-false-true-false-when-sine-1split2join1-720-6500-45-3500-5000-0-1-0-1-20-1-20000-1-20-1-20000-1-20-1-20000-17-1000-20000--1000-3000-100-1-true-1 0 400MB 1000 0.9862300587741394 0.988712022748195 18.528743333333335
+end
+Setting7 Skewness
+setting3--streamsluice-streamsluice-false-true-false-when-sine-1split2join1-720-6500-45-3500-5000-0-1-0-1-20-1-5000-1-20-1-5000-1-20-1-5000-17-1000-5000--1000-3000-100-1-true-1 0 0.0 1000 1.0 1.0 15.916445
+setting7--streamsluice-streamsluice-false-true-false-when-sine-1split2join1-720-6500-45-3500-5000-0-1-0-1-20-1-5000-1-20-1-5000-1-20-1-5000-17-1000-5000-0.1-1000-3000-100-1-true-1 0 0.1 1000 1.0 0.5131450735840728 14.248396666666666
+setting7--streamsluice-streamsluice-false-true-false-when-sine-1split2join1-720-6500-45-3500-5000-0-1-0-1-20-1-5000-1-20-1-5000-1-20-1-5000-17-1000-5000-0.2-1000-3000-100-1-true-1 0 0.2 1000 1.0 1.0 15.882208333333333
+setting7--streamsluice-streamsluice-false-true-false-when-sine-1split2join1-720-6500-45-3500-5000-0-1-0-1-20-1-5000-1-20-1-5000-1-20-1-5000-17-1000-5000-0.3-1000-3000-100-1-true-1 0 0.3 1000 1.0 1.0 15.802718333333333
+setting7--streamsluice-streamsluice-false-true-false-when-sine-1split2join1-720-6500-45-3500-5000-0-1-0-1-20-1-5000-1-20-1-5000-1-20-1-5000-17-1000-5000-0.4-1000-3000-100-1-true-1 0 0.4 1000 1.0 1.0 15.928495
+end

@@ -768,7 +768,7 @@ def main():
         #     ],
         # },
         # "setting_3": {
-        #     "Dimension": "Tuning Window (s)",
+        #     "Dimension": "Tuning Frequency (s)",
         #     "15": [
         #         "system_d3--streamsluice-streamsluice-false-true-false-when-sine-1split2join1-720-7000-45-3000-5000-0-1-0-1-20-1-5000-1-20-1-5000-1-20-1-5000-17-1000-10000-750-3000-100-15-0.1-1-true-1",
         #         "system_d3--streamsluice-streamsluice-false-true-false-when-sine-1split2join1-720-7000-45-3000-5000-0-1-0-1-20-1-5000-1-20-1-5000-1-20-1-5000-17-1000-10000-1000-3000-100-15-0.1-1-true-1",
