@@ -720,35 +720,35 @@ def main():
         "setting_1": {
             "Dimension": "User Limit (ms)",
             "1000": [
-                "stock-streamsluice-streamsluice-1-1950-90-1000-20-1-200-11-2500-1-200-2-500-1-15-3333-1000-100-0.1-true-true-1",
+                "stock-streamsluice-streamsluice-5-8-1350-90-1000-20-1-200-11-2500-1-200-2-500-1-15-3333-1000-100-0.1-true-true-1",
+            ],
+            "1250":[
+                "stock-streamsluice-streamsluice-5-8-1350-90-1000-20-1-200-11-2500-1-200-2-500-1-15-3333-1250-100-0.1-true-true-1",
             ],
             "1500":[
-                "stock-streamsluice-streamsluice-1-1950-90-1000-20-1-200-11-2500-1-200-2-500-1-15-3333-1500-100-0.1-true-true-1",
+                "stock-streamsluice-streamsluice-5-8-1350-90-1000-20-1-200-11-2500-1-200-2-500-1-15-3333-1500-100-0.1-true-true-1",
             ],
-            "100":[
+            "1750":[
+                "stock-streamsluice-streamsluice-5-8-1350-90-1000-20-1-200-11-2500-1-200-2-500-1-15-3333-1750-100-0.1-true-true-1",
             ],
-            "200":[
-                ""
-            ],
-            "500":[
-                ""
+            "2000":[
+                "stock-streamsluice-streamsluice-5-8-1350-90-1000-20-1-200-11-2500-1-200-2-500-1-15-3333-2000-100-0.1-true-true-1",
             ]
         },
         "setting_2": {
             "Dimension": "Epoch Length (ms)",
             "25": [
-                "",
+                "stock-streamsluice-streamsluice-5-8-1350-90-1000-20-1-200-11-2500-1-200-2-500-1-15-3333-1500-25-0.1-true-true-1",
             ],
             "50":[
-                "",
+                "stock-streamsluice-streamsluice-5-8-1350-90-1000-20-1-200-11-2500-1-200-2-500-1-15-3333-1500-50-0.1-true-true-1",
             ],
-            "100":[
-            ],
+
             "200":[
-                ""
+                "stock-streamsluice-streamsluice-5-8-1350-90-1000-20-1-200-11-2500-1-200-2-500-1-15-3333-1500-200-0.1-true-true-1",
             ],
             "500":[
-                ""
+                "stock-streamsluice-streamsluice-5-8-1350-90-1000-20-1-200-11-2500-1-200-2-500-1-15-3333-1500-500-0.1-true-true-1",
             ]
         },
         "setting_3": {
@@ -769,16 +769,16 @@ def main():
         "setting_4": {
             "Dimension": "Tuning Frequency (s)",
             "15": [
-                ""
+                "stock-streamsluice-streamsluice-5-8-1350-90-1000-20-1-200-11-2500-1-200-2-500-1-15-3333-1500-100-0.1-true-true-1",
             ],
             "30": [
-                ""
+                "stock-streamsluice-streamsluice-5-8-1350-90-1000-20-1-200-11-2500-1-200-2-500-1-15-3333-1500-100-0.1-true-true-1"
             ],
             "90": [
-                ""
+                "stock-streamsluice-streamsluice-5-8-1350-90-1000-20-1-200-11-2500-1-200-2-500-1-15-3333-1500-100-0.1-true-true-1"
             ],
             "120": [
-                ""
+                "stock-streamsluice-streamsluice-5-8-1350-90-1000-20-1-200-11-2500-1-200-2-500-1-15-3333-1500-100-0.1-true-true-1""
             ],
         },
     }
