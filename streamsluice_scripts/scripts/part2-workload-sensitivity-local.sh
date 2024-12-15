@@ -588,8 +588,8 @@ run_scale_test(){
     RATE2=3500
     TIME1=45
     TIME2=45
-    for zipf_skew in 0.1  0.2 0.3 0.4
-                               is_treat=false; do #
+    for zipf_skew in 0.1; do #  0.2 0.3 0.4
+      is_treat=false
       autotune=false
       how_type="ds2"
 #      run_one_exp
