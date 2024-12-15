@@ -185,12 +185,12 @@ run_scale_test(){
     STATE_SIZE4=5000
     STATE_SIZE5=5000
     LP2=1
-    LP3=1
+    LP3=15 #1
     LP4=28
     LP5=1
 
     P2=1
-    P3=1
+    P3=15
     P4=17
     P5=1
     GRAPH="1split2join1"
@@ -204,18 +204,20 @@ run_scale_test(){
     TIME2=25
     RATE1=7000
     RATE2=3000
-    for CURVE_TYPE in "sine" "linear" "gradient"; do #
-      is_treat=false
-      autotune=false
-      how_type="ds2"
-#      run_one_exp
-#      printf "${EXP_NAME}\n" >> workload_sensitivity_result.txt
-      for L in 1000; do
-        is_treat=true
-        autotune=true
-        how_type="streamsluice"
-#        run_one_exp
-#        printf "${EXP_NAME}\n" >> workload_sensitivity_result.txt
+    for DELAY3 in 1000 1500 2000; do #
+      for CURVE_TYPE in "sine"; do # "linear" "gradient"
+        is_treat=false
+        autotune=false
+        how_type="ds2"
+  #      run_one_exp
+  #      printf "${EXP_NAME}\n" >> workload_sensitivity_result.txt
+        for L in 1000; do
+          is_treat=true
+          autotune=true
+          how_type="streamsluice"
+          run_one_exp
+          printf "${EXP_NAME}\n" >> workload_sensitivity_result.txt
+        done
       done
     done
 
@@ -586,8 +588,8 @@ run_scale_test(){
     RATE2=3500
     TIME1=45
     TIME2=45
-    for zipf_skew in 0.1; do #  0.2 0.3 0.4
-      is_treat=false
+    for zipf_skew in 0.1  0.2 0.3 0.4
+                               is_treat=false; do #
       autotune=false
       how_type="ds2"
 #      run_one_exp
@@ -596,8 +598,8 @@ run_scale_test(){
         is_treat=true
         autotune=true
         how_type="streamsluice"
-        run_one_exp
-        printf "${EXP_NAME}\n" >> workload_sensitivity_result.txt
+#        run_one_exp
+#        printf "${EXP_NAME}\n" >> workload_sensitivity_result.txt
       done
     done
 }
