@@ -76,10 +76,11 @@ def read_ground_truth_latency(raw_dir, exp_name, window_size):
     return [average_ground_truth_latency, initial_time]
 
 
-def readLEMLatencyAndSpikeAndBar(rawDir, expName) -> [[list[int], list[float], list[float]], dict[int, int]]:
+def readLEMLatencyAndSpikeAndBarAndScalingMarker(rawDir, expName) -> [[list[int], list[float], list[float]], dict[int, int]]:
     lem_latency = [[], [], []]
     latency_bar = {}
     p99_bar = {}
+    scalings = [[], []]
 
     streamsluiceOutput = "flink-samza-standalonesession-0-eagle-sane.out"
     import os
@@ -100,37 +101,45 @@ def readLEMLatencyAndSpikeAndBar(rawDir, expName) -> [[list[int], list[float], l
             if (counter % 5000 == 0):
                 print("Processed to line:" + str(counter))
             if (len(split) >= 10 and split[0] == "+++" and split[1] == "[MODEL]" and split[6] == "cur_ete_l:" and (
-                    split[
-                        8] == "n_epoch_l:" or split[11] == "n_epoch_l:")):
+                    "n_epoch_l:" in split)):
                 time = int(split[3])
                 estimated_l = float(split[7])
                 # estimated_spike = float(split[13]) - float(split[7])
                 lem_latency[0] += [time]
                 lem_latency[1] += [estimated_l]
                 # lem_latency[2] += [estimated_spike]
-            if (len(split) >= 8 and split[0] == "[AUTOTUNE]" and split[4] == "initial" and split[5] == "latency" and
-                    split[6] == "bar:"):
+            if (len(split) >= 10 and split[0] == "+++" and split[1] == "[CONTROL]" and split[6] == "scale" and split[
+                8] == "operator:"):
+                time = int(split[3])
+                scalings[0].append(time)
+                scalings[1].append(0)
+
+            if (len(split) >= 8 and split[0] == "+++" and split[1] == "[CONTROL]" and split[4] == "all" and split[
+                5] == "scaling" and split[6] == "plan" and split[7] == "deployed."):
+                time = int(split[3])
+                scalings[0].append(time)
+                scalings[1].append(1)
+
+            if (len(split) >= 8 and split[0] == "[AUTOTUNE]" and split[4] == "initial" and split[5] == "latency" and split[6] == "bar:"):
                 time = int(split[2])
                 bar = int(split[7].rstrip(','))
                 latency_bar[time] = bar
-            if (len(split) >= 8 and split[1] == "[AUTOTUNE]" and split[4] == "user" and split[5] == "limit" and split[
-                6] == "is"):
+            if (len(split) >= 8 and split[1] == "[AUTOTUNE]" and split[4] == "user" and split[5] == "limit" and split[6] == "is"):
                 time = int(split[3])
                 for index in range(7, 15):
-                    if (split[index] == "bar:"):
+                    if(split[index] == "bar:"):
                         bar = int(split[index + 1].rstrip(','))
                         p99 = int(split[index + 4].rstrip(','))
                         break
                 latency_bar[time] = bar
                 p99_bar[time] = p99
-            if (len(split) >= 8 and split[1] == "[AUTOTUNE]" and split[4] == "set" and split[5] == "bar" and split[
-                6] == "to" and split[7] == "lowerbound:"):
+            if (len(split) >= 8 and split[1] == "[AUTOTUNE]" and split[4] == "set" and split[5] == "bar" and split[6] == "to" and split[7] == "lowerbound:"):
                 time = int(split[3])
                 bar = int(split[8].rstrip(','))
                 latency_bar[time] = bar
                 p99_bar[time] = int(split[11].rstrip(','))
 
-    return [lem_latency, latency_bar, p99_bar]
+    return [lem_latency, latency_bar, p99_bar, scalings]
 
 
 def add_latency_limit_marker(plt, latency_limit):
@@ -179,8 +188,9 @@ def draw_latency_curves(raw_dir, output_dir, exp_name, window_size, start_time, 
         result = read_ground_truth_latency(raw_dir, exps[i][1], window_size)
         average_ground_truth_latencies += [result[0]]
         initial_times += [result[1]]
-        result = readLEMLatencyAndSpikeAndBar(raw_dir, exps[i][1])
+        result = readLEMLatencyAndSpikeAndBarAndScalingMarker(raw_dir, exps[i][1])
         result[0][0] = [x - initial_times[i] for x in result[0][0]]
+        result[3][0] = [x - initial_times[i] for x in result[3][0]]
         lem_latencies += [result[0]]
         latency_bar += [result[1]]
         p99_bar += [result[2]]
@@ -283,8 +293,8 @@ def draw_latency_curves(raw_dir, output_dir, exp_name, window_size, start_time, 
                           np.arange((start_time) * 1000, (start_time + exp_length) * 1000 + (exp_length / 10) * 1000,
                                     (exp_length / 10) * 1000)])
 
-    axes.set_ylim(0, 2000)
-    axes.set_yticks(np.arange(0, 2200, 200))
+    axes.set_ylim(0, 5000)
+    axes.set_yticks(np.arange(0, 5500, 500))
     # axes.set_ylim(0, 10000)
     # axes.set_yticks(np.arange(0, 11000, 1000))
     plt.grid(True)
@@ -690,8 +700,8 @@ def draw_parallelism_curve(rawDir, outputDir, exp_name, windowSize, startTime, e
                  label="Scaling")
         ax1.legend(legend, loc='upper left', bbox_to_anchor=(-0.1, 1.3), ncol=3, markerscale=4.)
         # ax1.set_ylabel('OP_'+str(jobIndex+1)+' Parallelism')
-        ax1.set_ylim(0, 32)
-        ax1.set_yticks(np.arange(0, 36, 4))  # (4, 34, 2)) #18, 1))
+        ax1.set_ylim(10, 60)
+        ax1.set_yticks(np.arange(10, 65, 5))  # (4, 34, 2)) #18, 1))
 
         ax1.set_xlim(startTime * 1000, (startTime + exp_length) * 1000)
         ax1.set_xticks(np.arange(startTime * 1000, (startTime + exp_length) * 1000 + (exp_length / 10) * 1000,
@@ -718,37 +728,38 @@ def main():
     window_size = 100
     draw_lem_latency_flag = True
     exps_per_label_per_setting = {
-        # "setting_1": {
-        #     "Dimension": "Pattern",
-        #     "sine": [
-        #         "setting1--streamsluice-streamsluice-false-true-false-when-sine-1split2join1-720-7000-25-3000-5000-20-1-0-1-20-1-5000-17-1500-1-5000-17-1000-1-5000-1-20-5000--1000-3000-100-1-true-1"",
-        #     ],
-        #     "linear": [
-        #         "setting1--streamsluice-streamsluice-false-true-false-when-linear-1split2join1-720-7000-25-3000-5000-20-1-0-1-20-1-5000-17-1500-1-5000-17-1000-1-5000-1-20-5000--1000-3000-100-1-true-1",
-        #     ],
-        #     # "gradient": [
-        #     #     "setting1--streamsluice-streamsluice-false-true-false-when-gradient-1split2join1-720-7000-25-3000-5000-20-1-0-1-20-1-5000-17-1500-1-5000-17-1000-1-5000-1-20-5000--1000-3000-100-1-true-1",
-        #     # ],
-        # },
-        # "setting_2": {
-        #     "Dimension": "Amplitude",
-        #     "10%": [
-        #         "setting2--streamsluice-streamsluice-false-true-false-when-sine-1split2join1-720-5500-45-3500-5000-0-1-0-1-20-1-5000-17-1500-1-5000-17-1000-1-5000-1-20-5000--1000-3000-100-1-true-1",
-        #
-        #     ],
-        #     "20%": [
-        #         "setting2--streamsluice-streamsluice-false-true-false-when-sine-1split2join1-720-6000-45-3500-5000-0-1-0-1-20-1-5000-17-1500-1-5000-17-1000-1-5000-1-20-5000--1000-3000-100-1-true-1",
-        #     ],
-        #     "30%": [
-        #         "setting2--streamsluice-streamsluice-false-true-false-when-sine-1split2join1-720-6500-45-3500-5000-0-1-0-1-20-1-5000-17-1500-1-5000-17-1000-1-5000-1-20-5000--1000-3000-100-1-true-1",
-        #     ],
-        #     "40%": [
-        #         "setting2--streamsluice-streamsluice-false-true-false-when-sine-1split2join1-720-7000-45-3500-5000-0-1-0-1-20-1-5000-17-1500-1-5000-17-1000-1-5000-1-20-5000--1000-3000-100-1-true-1",
-        #     ],
-        #     "50%": [
-        #         "setting2--streamsluice-streamsluice-false-true-false-when-sine-1split2join1-720-7500-45-3500-5000-0-1-0-1-20-1-5000-17-1500-1-5000-17-1000-1-5000-1-20-5000--1000-3000-100-1-true-1",
-        #     ],
-        # },
+        "setting_1": {
+            "Dimension": "Pattern",
+            "sine": [
+                #"setting1--streamsluice-streamsluice-false-true-false-when-sine-1split2join1-720-7000-25-3000-5000-20-1-0-1-20-1-5000-17-1500-1-5000-17-1000-1-5000-1-20-5000--1000-3000-100-1-true-1"",
+                "setting1--streamsluice-streamsluice-false-true-false-when-sine-1split2join1-720-7000-25-3000-5000-20-1-0-1-20-1-10000-17-1500-1-10000-17-1000-1-10000-1-20-10000--1000-2000-100-1-true-1",
+            ],
+            # "linear": [
+            #     "setting1--streamsluice-streamsluice-false-true-false-when-linear-1split2join1-720-7000-25-3000-5000-20-1-0-1-20-1-5000-17-1500-1-5000-17-1000-1-5000-1-20-5000--1000-3000-100-1-true-1",
+            # ],
+            # "gradient": [
+            #     "setting1--streamsluice-streamsluice-false-true-false-when-gradient-1split2join1-720-7000-25-3000-5000-20-1-0-1-20-1-5000-17-1500-1-5000-17-1000-1-5000-1-20-5000--1000-3000-100-1-true-1",
+            # ],
+        },
+        "setting_2": {
+            "Dimension": "Amplitude",
+            "10%": [
+                "setting2--streamsluice-streamsluice-false-true-false-when-sine-1split2join1-720-5500-45-3500-5000-0-1-0-1-20-1-10000-17-1500-1-10000-17-1000-1-10000-1-20-10000--1000-2000-100-1-true-1",
+
+            ],
+            "20%": [
+                "setting2--streamsluice-streamsluice-false-true-false-when-sine-1split2join1-720-6000-45-3500-5000-0-1-0-1-20-1-10000-17-1500-1-10000-17-1000-1-10000-1-20-10000--1000-2000-100-1-true-1",
+            ],
+            "30%": [
+                "setting2--streamsluice-streamsluice-false-true-false-when-sine-1split2join1-720-6000-45-3500-5000-0-1-0-1-20-1-10000-17-1500-1-10000-17-1000-1-10000-1-20-10000--1000-2000-100-1-true-1",
+            ],
+            # "40%": [
+            #     "setting2--streamsluice-streamsluice-false-true-false-when-sine-1split2join1-720-7000-45-3500-5000-0-1-0-1-20-1-5000-17-1500-1-5000-17-1000-1-5000-1-20-5000--1000-3000-100-1-true-1",
+            # ],
+            # "50%": [
+            #     "setting2--streamsluice-streamsluice-false-true-false-when-sine-1split2join1-720-7500-45-3500-5000-0-1-0-1-20-1-5000-17-1500-1-5000-17-1000-1-5000-1-20-5000--1000-3000-100-1-true-1",
+            # ],
+        },
         # "setting_3": {
         #     "Dimension": "Period",
         #     "30s": [
@@ -798,21 +809,21 @@ def main():
         #         "setting5--streamsluice-streamsluice-false-true-false-when-sine-1split2join1-720-6500-45-3500-5000-0-1-0-1-20-1-5000-1-20-1-5000-1-20-1-5000-30-666-5000--1000-3000-100-1-true-1",
         #     ],
         # },
-        "setting_6": {
-            "Dimension": "State_size",
-            # "25MB": [
-            #     "setting6--streamsluice-streamsluice-false-true-false-when-sine-1split2join1-720-6500-45-3500-5000-0-1-0-1-20-1-1250-1-20-1-1250-1-20-1-1250-17-1000-1250--1000-3000-100-1-true-1",
-            # ],
-            # "50MB": [
-            #     "setting6--streamsluice-streamsluice-false-true-false-when-sine-1split2join1-720-6500-45-3500-5000-0-1-0-1-20-1-2500-1-20-1-2500-1-20-1-2500-17-1000-2500--1000-3000-100-1-true-1",
-            # ],
-            "200MB": [
-                "setting6--streamsluice-streamsluice-false-true-false-when-sine-1split2join1-720-6500-45-3500-5000-0-1-0-1-20-1-10000-17-1500-1-10000-17-1000-1-10000-1-20-10000--1000-3000-100-1-true-1",
-            ],
-            "400MB": [
-                "setting6--streamsluice-streamsluice-false-true-false-when-sine-1split2join1-720-6500-45-3500-5000-0-1-0-1-20-1-20000-17-1500-1-20000-17-1000-1-20000-1-20-20000--1000-3000-100-1-true-1",
-            ],
-        },
+        # "setting_6": {
+        #     "Dimension": "State_size",
+        #     # "25MB": [
+        #     #     "setting6--streamsluice-streamsluice-false-true-false-when-sine-1split2join1-720-6500-45-3500-5000-0-1-0-1-20-1-1250-1-20-1-1250-1-20-1-1250-17-1000-1250--1000-3000-100-1-true-1",
+        #     # ],
+        #     # "50MB": [
+        #     #     "setting6--streamsluice-streamsluice-false-true-false-when-sine-1split2join1-720-6500-45-3500-5000-0-1-0-1-20-1-2500-1-20-1-2500-1-20-1-2500-17-1000-2500--1000-3000-100-1-true-1",
+        #     # ],
+        #     "200MB": [
+        #         "setting6--streamsluice-streamsluice-false-true-false-when-sine-1split2join1-720-6500-45-3500-5000-0-1-0-1-20-1-10000-17-1500-1-10000-17-1000-1-10000-1-20-10000--1000-3000-100-1-true-1",
+        #     ],
+        #     "400MB": [
+        #         "setting6--streamsluice-streamsluice-false-true-false-when-sine-1split2join1-720-6500-45-3500-5000-0-1-0-1-20-1-20000-17-1500-1-20000-17-1000-1-20000-1-20-20000--1000-3000-100-1-true-1",
+        #     ],
+        # },
         # "setting_7": {
         #     "Dimension": "Skewness",
         #     "0.1": [
