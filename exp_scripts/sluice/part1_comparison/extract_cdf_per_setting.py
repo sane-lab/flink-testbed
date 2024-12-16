@@ -820,20 +820,20 @@ def main():
     window_size = 100
     draw_lem_latency_flag = True
     exps_per_label_per_setting = {
-        # "Twitter_30min": {
-        #     "Static": "tweet-streamsluice-streamsluice-5-60-1950-90-1500-1-14-6666-5-1000-1-50-1-50-2500-100-false-0.1-1",
-        #     "Static-Adequate": "tweet-streamsluice-streamsluice-5-60-1950-90-1500-1-19-6666-9-1000-1-50-1-50-2500-100-false-0.1-1",
-        #     "DS2": "tweet-ds2-ds2-5-60-1950-90-1500-1-19-6666-9-1000-1-50-1-50-2500-100-true-0.1-1",
-        #     "Streamswitch": "tweet-streamswitch-streamswitch-5-60-1950-90-1500-1-19-6666-9-1000-1-50-1-50-2500-100-true-0.1-1",
-        #     "Sluice": "tweet-streamsluice-streamsluice-5-8-1950-90-1500-1-19-6666-9-1000-1-50-1-50-2500-100-true-0.1-2",
-        # },
-        "Stock-Analysis_30min":{
-            "Static": "stock-ds2-ds2-1-1950-90-1000-20-1-200-4-2500-1-200-1-500-1-7-3333-1000-100-0.4-false-false-1",
-            "Static-Adequate": "stock-ds2-ds2-1-1950-90-1000-20-1-200-11-2500-1-200-2-500-1-15-3333-1000-100-0.4-false-false-1",
-            "DS2": "stock-ds2-ds2-5-8-1350-90-1000-20-1-200-11-2500-1-200-2-500-1-15-3333-1500-100-0.1-true-false-1",
-            "Streamswitch": "stock-streamswitch-streamswitch-5-8-1350-90-1000-20-1-200-11-2500-1-200-2-500-1-15-3333-1500-100-0.1-true-false-1",
-            "Sluice": "stock-streamsluice-streamsluice-5-8-1350-90-1000-20-1-200-11-2500-1-200-2-500-1-15-3333-1500-100-0.1-true-true-1",
+        "Twitter_30min": {
+            "Static": "tweet-streamsluice-streamsluice-5-60-1950-90-1500-1-14-6666-5-1000-1-50-1-50-2500-100-false-0.1-1",
+            "Static-Adequate": "tweet-streamsluice-streamsluice-5-60-1950-90-1500-1-19-6666-9-1000-1-50-1-50-2500-100-false-0.1-1",
+            "DS2": "tweet-ds2-ds2-5-60-1950-90-1500-1-19-6666-9-1000-1-50-1-50-2500-100-true-0.1-1",
+            "Streamswitch": "tweet-streamswitch-streamswitch-5-60-1950-90-1500-1-19-6666-9-1000-1-50-1-50-2500-100-true-0.1-1",
+            "Sluice": "tweet-streamsluice-streamsluice-5-8-1950-90-1500-1-19-6666-9-1000-1-50-1-50-2500-100-true-0.1-2",
         },
+        # "Stock-Analysis_30min":{
+        #     "Static": "stock-ds2-ds2-1-1950-90-1000-20-1-200-4-2500-1-200-1-500-1-7-3333-1000-100-0.4-false-false-1",
+        #     "Static-Adequate": "stock-ds2-ds2-1-1950-90-1000-20-1-200-11-2500-1-200-2-500-1-15-3333-1000-100-0.4-false-false-1",
+        #     "DS2": "stock-ds2-ds2-5-8-1350-90-1000-20-1-200-11-2500-1-200-2-500-1-15-3333-1500-100-0.1-true-false-1",
+        #     "Streamswitch": "stock-streamswitch-streamswitch-5-8-1350-90-1000-20-1-200-11-2500-1-200-2-500-1-15-3333-1500-100-0.1-true-false-1",
+        #     "Sluice": "stock-streamsluice-streamsluice-5-8-1350-90-1000-20-1-200-11-2500-1-200-2-500-1-15-3333-1500-100-0.1-true-true-1",
+        # },
         # "Linear-Road_30min": {
         #     "Static": "lr-ds2-ds2-5-8-1980-150-1300-10-1-50-2-1000-1-50-12-2500-2000-0.1-100-1-0-0.0-false-2500-0.8-2",
         #     "Static-Adequate": "lr-ds2-ds2-5-8-1980-150-1300-10-1-50-4-1000-1-50-20-2500-2000-0.1-100-1-0-0.0-false-2500-0.8-2",
@@ -857,7 +857,7 @@ def main():
             elif exp_name.startswith("tweet"):
                 latency_bar = int(exp_name.split('-')[-5])
                 start_time = 150
-                exp_length = 1200
+                exp_length = 900
             elif exp_name.startswith("stock"):
                 latency_bar = int(exp_name.split('-')[-6])
                 start_time = 150

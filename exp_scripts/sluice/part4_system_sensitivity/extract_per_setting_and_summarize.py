@@ -295,8 +295,8 @@ def draw_latency_curves(raw_dir, output_dir, exp_name, window_size, start_time, 
                           np.arange((start_time) * 1000, (start_time + exp_length) * 1000 + (exp_length / 10) * 1000,
                                     (exp_length / 10) * 1000)])
 
-    axes.set_ylim(0, 2000)
-    axes.set_yticks(np.arange(0, 2200, 200))
+    axes.set_ylim(0, 5000)
+    axes.set_yticks(np.arange(0, 5500, 500))
     # axes.set_ylim(0, 10000)
     # axes.set_yticks(np.arange(0, 11000, 1000))
     plt.grid(True)
@@ -791,146 +791,146 @@ def main():
     #         ],
     #     },
     # }
-    exps_per_label_per_setting = {
-        # Twitter
-        # "setting_1": {
-        #     "Dimension": "User Limit (ms)",
-        #     "1500": [
-        #          "tweet-streamsluice-streamsluice-5-8-1950-90-1500-1-19-6666-9-1000-1-50-1-50-1500-100-true-0.1-2",
-        #     ],
-        #     "2000": [
-        #         "tweet-streamsluice-streamsluice-5-8-1950-90-1500-1-19-6666-9-1000-1-50-1-50-2000-100-true-0.1-2",
-        #
-        #     ],
-        #     "2500": [
-        #         "tweet-streamsluice-streamsluice-5-8-1950-90-1500-1-19-6666-9-1000-1-50-1-50-2500-100-true-0.1-2",
-        #
-        #     ],
-        #     "3000": [
-        #         "tweet-streamsluice-streamsluice-5-8-1950-90-1500-1-19-6666-9-1000-1-50-1-50-3000-100-true-0.1-2",
-        #     ],
-        #     "3500": [
-        #         "tweet-streamsluice-streamsluice-5-8-1950-90-1500-1-19-6666-9-1000-1-50-1-50-3500-100-true-0.1-2",
-        #     ]
-        # },
-        "setting_2": {
-            "Dimension": "Epoch Length (ms)",
-            # "25": [
-            #     "tweet-streamsluice-streamsluice-5-60-1350-90-1500-1-19-6666-9-1000-1-50-1-50-2500-25-true-0.1-1",
-            # ],
-            "50": [
-                "tweet-streamsluice-streamsluice-5-60-1350-90-1500-1-19-6666-9-1000-1-50-1-50-2500-50-true-0.1-1",
-            ],
-            "100": [
-                "tweet-streamsluice-streamsluice-5-60-1350-90-1500-1-19-6666-9-1000-1-50-1-50-2500-100-true-0.1-1",
-            ],
-            # "200": [
-            #     "tweet-streamsluice-streamsluice-5-60-1350-90-1500-1-19-6666-9-1000-1-50-1-50-2500-200-true-0.1-1",
-            # ],
-            # "500": [
-            #     "tweet-streamsluice-streamsluice-5-60-1350-90-1500-1-19-6666-9-1000-1-50-1-50-2500-500-true-0.1-1",
-            # ]
-        },
-        # "setting_3": {
-        #     "Dimension": "Resource Sensitivity (Alpha)",
-        #     "0.2": [
-        #         "tweet-streamsluice-streamsluice-5-60-1350-90-1500-1-19-6666-9-1000-1-50-1-50-2500-100-true-0.2-1",
-        #     ],
-        #     "0.3": [
-        #         "tweet-streamsluice-streamsluice-5-60-1350-90-1500-1-19-6666-9-1000-1-50-1-50-2500-100-true-0.3-1",
-        #     ],
-        #     "0.4": [
-        #         "tweet-streamsluice-streamsluice-5-60-1350-90-1500-1-19-6666-9-1000-1-50-1-50-2500-100-true-0.4-1",
-        #     ],
-        #     "0.5": [
-        #         "tweet-streamsluice-streamsluice-5-60-1350-90-1500-1-19-6666-9-1000-1-50-1-50-2500-100-true-0.5-1",
-        #     ],
-        # },
-        # "setting_4": {
-        #     "Dimension": "Tuning Frequency (s)",
-        #     "15": [
-        #         "tweet-streamsluice-streamsluice-5-15-1350-90-1500-1-19-6666-9-1000-1-50-1-50-2500-100-true-0.1-1",
-        #     ],
-        #     "30": [
-        #         "tweet-streamsluice-streamsluice-5-30-1350-90-1500-1-19-6666-9-1000-1-50-1-50-2500-100-true-0.1-1",
-        #     ],
-        #     "90": [
-        #         "tweet-streamsluice-streamsluice-5-90-1350-90-1500-1-19-6666-9-1000-1-50-1-50-2500-100-true-0.1-1",
-        #     ],
-        #     "120": [
-        #         "tweet-streamsluice-streamsluice-5-120-1350-90-1500-1-19-6666-9-1000-1-50-1-50-2500-100-true-0.1-1",
-        #     ],
-        # },
-    }
-
     # exps_per_label_per_setting = {
-    #     #Linear-road
+    #     #Twitter
     #     "setting_1": {
     #         "Dimension": "User Limit (ms)",
-    #         # "1000":[
-    #         #     "lr-streamsluice-streamsluice-5-8-1980-150-1300-10-1-50-3-1000-1-50-27-2500-1000-0.1-100-1-0-0.0-true-1000-0.8-2"
-    #         # ],
-    #         # "1500": [
-    #         #     "lr-streamsluice-streamsluice-5-8-1980-150-1300-10-1-50-3-1000-1-50-27-2500-1500-0.1-100-1-0-0.0-true-1000-0.8-2",
-    #         # ],
-    #         # "2000": [
-    #         #     "lr-streamsluice-streamsluice-5-8-1980-150-1300-10-1-50-3-1000-1-50-27-2500-2000-0.1-100-1-0-0.0-true-1000-0.8-2",
-    #         # ],
+    #         "1500": [
+    #              "tweet-streamsluice-streamsluice-5-8-1950-90-1500-1-19-6666-9-1000-1-50-1-50-1500-100-true-0.1-2",
+    #         ],
+    #         "2000": [
+    #             "tweet-streamsluice-streamsluice-5-8-1950-90-1500-1-19-6666-9-1000-1-50-1-50-2000-100-true-0.1-2",
+    #
+    #         ],
     #         "2500": [
-    #             "lr-streamsluice-streamsluice-5-8-1980-150-1300-10-1-50-3-1000-1-50-27-2500-2500-0.1-100-1-0-0.0-true-1000-0.8-2",
+    #             "tweet-streamsluice-streamsluice-5-8-1950-90-1500-1-19-6666-9-1000-1-50-1-50-2500-100-true-0.1-2",
     #
     #         ],
     #         "3000": [
-    #             "lr-streamsluice-streamsluice-5-8-1980-150-1300-10-1-50-3-1000-1-50-27-2500-3000-0.1-100-1-0-0.0-true-1000-0.8-2",
+    #             "tweet-streamsluice-streamsluice-5-8-1950-90-1500-1-19-6666-9-1000-1-50-1-50-3000-100-true-0.1-2",
     #         ],
+    #         "3500": [
+    #             "tweet-streamsluice-streamsluice-5-8-1950-90-1500-1-19-6666-9-1000-1-50-1-50-3500-100-true-0.1-2",
+    #         ]
     #     },
     #     "setting_2": {
     #         "Dimension": "Epoch Length (ms)",
     #         "25": [
-    #             "lr-streamsluice-streamsluice-5-8-60-1380-150-1300-10-1-50-3-1000-1-50-27-2500-2000-0.1-25-1-0-0.0-true-1000-0.8-2",
+    #             "tweet-streamsluice-streamsluice-5-60-1350-90-1500-1-19-6666-9-1000-1-50-1-50-2500-25-true-0.1-1",
     #         ],
     #         "50": [
-    #             "lr-streamsluice-streamsluice-5-8-60-1380-150-1300-10-1-50-3-1000-1-50-27-2500-2000-0.1-50-1-0-0.0-true-1000-0.8-2",
+    #             "tweet-streamsluice-streamsluice-5-60-1350-90-1500-1-19-6666-9-1000-1-50-1-50-2500-50-true-0.1-1",
     #         ],
-    #
+    #         "100": [
+    #             "tweet-streamsluice-streamsluice-5-60-1350-90-1500-1-19-6666-9-1000-1-50-1-50-2500-100-true-0.1-1",
+    #         ],
     #         "200": [
-    #             "lr-streamsluice-streamsluice-5-8-60-1380-150-1300-10-1-50-3-1000-1-50-27-2500-2000-0.1-200-1-0-0.0-true-1000-0.8-2",
+    #             "tweet-streamsluice-streamsluice-5-60-1350-90-1500-1-19-6666-9-1000-1-50-1-50-2500-200-true-0.1-1",
     #         ],
     #         "500": [
-    #             "lr-streamsluice-streamsluice-5-8-60-1380-150-1300-10-1-50-3-1000-1-50-27-2500-2000-0.1-500-1-0-0.0-true-1000-0.8-2",
+    #             "tweet-streamsluice-streamsluice-5-60-1350-90-1500-1-19-6666-9-1000-1-50-1-50-2500-500-true-0.1-1",
     #         ]
     #     },
     #     "setting_3": {
     #         "Dimension": "Resource Sensitivity (Alpha)",
     #         "0.2": [
-    #             "lr-streamsluice-streamsluice-5-8-60-1380-150-1300-10-1-50-3-1000-1-50-27-2500-2000-0.2-100-1-0-0.0-true-1000-0.8-2",
+    #             "tweet-streamsluice-streamsluice-5-60-1350-90-1500-1-19-6666-9-1000-1-50-1-50-2500-100-true-0.2-1",
     #         ],
     #         "0.3": [
-    #             "lr-streamsluice-streamsluice-5-8-60-1380-150-1300-10-1-50-3-1000-1-50-27-2500-2000-0.3-100-1-0-0.0-true-1000-0.8-2",
+    #             "tweet-streamsluice-streamsluice-5-60-1350-90-1500-1-19-6666-9-1000-1-50-1-50-2500-100-true-0.3-1",
     #         ],
     #         "0.4": [
-    #             "lr-streamsluice-streamsluice-5-8-60-1380-150-1300-10-1-50-3-1000-1-50-27-2500-2000-0.4-100-1-0-0.0-true-1000-0.8-2",
+    #             "tweet-streamsluice-streamsluice-5-60-1350-90-1500-1-19-6666-9-1000-1-50-1-50-2500-100-true-0.4-1",
     #         ],
     #         "0.5": [
-    #             "lr-streamsluice-streamsluice-5-8-60-1380-150-1300-10-1-50-3-1000-1-50-27-2500-2000-0.5-100-1-0-0.0-true-1000-0.8-2",
+    #             "tweet-streamsluice-streamsluice-5-60-1350-90-1500-1-19-6666-9-1000-1-50-1-50-2500-100-true-0.5-1",
     #         ],
     #     },
     #     "setting_4": {
     #         "Dimension": "Tuning Frequency (s)",
     #         "15": [
-    #             "lr-streamsluice-streamsluice-5-8-15-1380-150-1300-10-1-50-3-1000-1-50-27-2500-2000-0.1-100-1-0-0.0-true-1000-0.8-2",
+    #             "tweet-streamsluice-streamsluice-5-15-1350-90-1500-1-19-6666-9-1000-1-50-1-50-2500-100-true-0.1-1",
     #         ],
     #         "30": [
-    #             "lr-streamsluice-streamsluice-5-8-30-1380-150-1300-10-1-50-3-1000-1-50-27-2500-2000-0.1-100-1-0-0.0-true-1000-0.8-2",
+    #             "tweet-streamsluice-streamsluice-5-30-1350-90-1500-1-19-6666-9-1000-1-50-1-50-2500-100-true-0.1-1",
     #         ],
     #         "90": [
-    #             "lr-streamsluice-streamsluice-5-8-90-1380-150-1300-10-1-50-3-1000-1-50-27-2500-2000-0.1-100-1-0-0.0-true-1000-0.8-2",
+    #             "tweet-streamsluice-streamsluice-5-90-1350-90-1500-1-19-6666-9-1000-1-50-1-50-2500-100-true-0.1-1",
     #         ],
     #         "120": [
-    #             "lr-streamsluice-streamsluice-5-8-120-1380-150-1300-10-1-50-3-1000-1-50-27-2500-2000-0.1-100-1-0-0.0-true-1000-0.8-2",
+    #             "tweet-streamsluice-streamsluice-5-120-1350-90-1500-1-19-6666-9-1000-1-50-1-50-2500-100-true-0.1-1",
     #         ],
     #     },
     # }
+
+    exps_per_label_per_setting = {
+        #Linear-road
+        "setting_1": {
+            "Dimension": "User Limit (ms)",
+            # "1000":[
+            #     "lr-streamsluice-streamsluice-5-8-1980-150-1300-10-1-50-3-1000-1-50-27-2500-1000-0.1-100-1-0-0.0-true-1000-0.8-2"
+            # ],
+            # "1500": [
+            #     "lr-streamsluice-streamsluice-5-8-1980-150-1300-10-1-50-3-1000-1-50-27-2500-1500-0.1-100-1-0-0.0-true-1000-0.8-2",
+            # ],
+            # "2000": [
+            #     "lr-streamsluice-streamsluice-5-8-1980-150-1300-10-1-50-3-1000-1-50-27-2500-2000-0.1-100-1-0-0.0-true-1000-0.8-2",
+            # ],
+            "2500": [
+                "lr-streamsluice-streamsluice-5-8-1980-150-1300-10-1-50-3-1000-1-50-27-2500-2500-0.1-100-1-0-0.0-true-1000-0.8-2",
+
+            ],
+            "3000": [
+                "lr-streamsluice-streamsluice-5-8-1980-150-1300-10-1-50-3-1000-1-50-27-2500-3000-0.1-100-1-0-0.0-true-1000-0.8-2",
+            ],
+        },
+        "setting_2": {
+            "Dimension": "Epoch Length (ms)",
+            "25": [
+                "lr-streamsluice-streamsluice-5-8-60-1380-150-1300-10-1-50-3-1000-1-50-27-2500-2000-0.1-25-1-0-0.0-true-1000-0.8-2",
+            ],
+            "50": [
+                "lr-streamsluice-streamsluice-5-8-60-1380-150-1300-10-1-50-3-1000-1-50-27-2500-2000-0.1-50-1-0-0.0-true-1000-0.8-2",
+            ],
+
+            "200": [
+                "lr-streamsluice-streamsluice-5-8-60-1380-150-1300-10-1-50-3-1000-1-50-27-2500-2000-0.1-200-1-0-0.0-true-1000-0.8-2",
+            ],
+            "500": [
+                "lr-streamsluice-streamsluice-5-8-60-1380-150-1300-10-1-50-3-1000-1-50-27-2500-2000-0.1-500-1-0-0.0-true-1000-0.8-2",
+            ]
+        },
+        "setting_3": {
+            "Dimension": "Resource Sensitivity (Alpha)",
+            "0.2": [
+                "lr-streamsluice-streamsluice-5-8-60-1380-150-1300-10-1-50-3-1000-1-50-27-2500-2000-0.2-100-1-0-0.0-true-1000-0.8-2",
+            ],
+            "0.3": [
+                "lr-streamsluice-streamsluice-5-8-60-1380-150-1300-10-1-50-3-1000-1-50-27-2500-2000-0.3-100-1-0-0.0-true-1000-0.8-2",
+            ],
+            "0.4": [
+                "lr-streamsluice-streamsluice-5-8-60-1380-150-1300-10-1-50-3-1000-1-50-27-2500-2000-0.4-100-1-0-0.0-true-1000-0.8-2",
+            ],
+            "0.5": [
+                "lr-streamsluice-streamsluice-5-8-60-1380-150-1300-10-1-50-3-1000-1-50-27-2500-2000-0.5-100-1-0-0.0-true-1000-0.8-2",
+            ],
+        },
+        "setting_4": {
+            "Dimension": "Tuning Frequency (s)",
+            "15": [
+                "lr-streamsluice-streamsluice-5-8-15-1380-150-1300-10-1-50-3-1000-1-50-27-2500-2000-0.1-100-1-0-0.0-true-1000-0.8-2",
+            ],
+            "30": [
+                "lr-streamsluice-streamsluice-5-8-30-1380-150-1300-10-1-50-3-1000-1-50-27-2500-2000-0.1-100-1-0-0.0-true-1000-0.8-2",
+            ],
+            "90": [
+                "lr-streamsluice-streamsluice-5-8-90-1380-150-1300-10-1-50-3-1000-1-50-27-2500-2000-0.1-100-1-0-0.0-true-1000-0.8-2",
+            ],
+            "120": [
+                "lr-streamsluice-streamsluice-5-8-120-1380-150-1300-10-1-50-3-1000-1-50-27-2500-2000-0.1-100-1-0-0.0-true-1000-0.8-2",
+            ],
+        },
+    }
     for workload_name, exps_per_label in exps_per_label_per_setting.items():
         success_rate_per_label = {}
         avg_parallelism_per_label = {}
@@ -953,7 +953,7 @@ def main():
                     exp_length = 1200
                 elif exp_name.startswith("tweet"):
                     latency_bar = int(exp_name.split('-')[-5])
-                    start_time = 0 #150
+                    start_time = 150
                     exp_length = 1200  # 600
                 elif exp_name.startswith("stock"):
                     latency_bar = int(exp_name.split('-')[-6])

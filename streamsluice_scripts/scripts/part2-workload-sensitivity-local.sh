@@ -157,7 +157,7 @@ run_scale_test(){
 
 
     L=1000 #2000 #2500
-    migration_interval=3000
+    migration_interval=2000 #3000
 
     STATE_SIZE2=5000
     STATE_SIZE3=5000
@@ -180,10 +180,10 @@ run_scale_test(){
     DELAY3=1500
     DELAY4=1000
     DELAY5=20
-    STATE_SIZE2=5000 # 1000 keys, per key (n * 2000 + 36) bytes, n=5000 -> 100 MB
-    STATE_SIZE3=5000
-    STATE_SIZE4=5000
-    STATE_SIZE5=5000
+    STATE_SIZE2=10000 # 1000 keys, per key (n * 2000 + 36) bytes, n=5000 -> 100 MB
+    STATE_SIZE3=10000
+    STATE_SIZE4=10000
+    STATE_SIZE5=10000
     LP2=1
     LP3=28 #1
     LP4=28
@@ -228,10 +228,10 @@ run_scale_test(){
     DELAY3=1500
     DELAY4=1000
     DELAY5=20
-    STATE_SIZE2=5000 # 1000 keys, per key (n * 2000 + 36) bytes, n=5000 -> 100 MB
-    STATE_SIZE3=5000
-    STATE_SIZE4=5000
-    STATE_SIZE5=5000
+    STATE_SIZE2=10000 # 1000 keys, per key (n * 2000 + 36) bytes, n=5000 -> 100 MB
+    STATE_SIZE3=10000
+    STATE_SIZE4=10000
+    STATE_SIZE5=10000
     LP2=1
     LP3=28 #1
     LP4=28
@@ -307,8 +307,8 @@ run_scale_test(){
         is_treat=true
         autotune=true
         how_type="streamsluice"
-        run_one_exp
-        printf "${EXP_NAME}\n" >> workload_sensitivity_result.txt
+#        run_one_exp
+#        printf "${EXP_NAME}\n" >> workload_sensitivity_result.txt
       done
     done
 
@@ -368,8 +368,8 @@ run_scale_test(){
       is_treat=true
       autotune=true
       how_type="streamsluice"
-      run_one_exp
-      printf "${EXP_NAME}\n" >> workload_sensitivity_result.txt
+#      run_one_exp
+#      printf "${EXP_NAME}\n" >> workload_sensitivity_result.txt
     done
 
     GRAPH="2op"
@@ -395,8 +395,8 @@ run_scale_test(){
       is_treat=true
       autotune=true
       how_type="streamsluice"
-      run_one_exp
-      printf "${EXP_NAME}\n" >> workload_sensitivity_result.txt
+#      run_one_exp
+#      printf "${EXP_NAME}\n" >> workload_sensitivity_result.txt
     done
     GRAPH="3op"
     vertex_id="a84740bacf923e828852cc4966f2247c,eabd4c11f6c6fbdf011f0f1fc42097b1,d01047f852abd5702a0dabeedac99ff5"
@@ -421,8 +421,8 @@ run_scale_test(){
       is_treat=true
       autotune=true
       how_type="streamsluice"
-      run_one_exp
-      printf "${EXP_NAME}\n" >> workload_sensitivity_result.txt
+#      run_one_exp
+#      printf "${EXP_NAME}\n" >> workload_sensitivity_result.txt
     done
     GRAPH="4op"
     LP2=1
@@ -447,8 +447,8 @@ run_scale_test(){
       is_treat=true
       autotune=true
       how_type="streamsluice"
-      run_one_exp
-      printf "${EXP_NAME}\n" >> workload_sensitivity_result.txt
+#      run_one_exp
+#      printf "${EXP_NAME}\n" >> workload_sensitivity_result.txt
     done
 
 
@@ -487,8 +487,8 @@ run_scale_test(){
     RATE2=3500
     TIME1=45
     TIME2=45
-    for DELAY5 in 2000 1333 800 666; do #
-      P5=30
+    for DELAY4 in 2000 1333 800 666; do #
+      P4=28
       is_treat=false
       autotune=false
       how_type="ds2"
@@ -498,8 +498,8 @@ run_scale_test(){
         is_treat=true
         autotune=true
         how_type="streamsluice"
-        run_one_exp
-        printf "${EXP_NAME}\n" >> workload_sensitivity_result.txt
+#        run_one_exp
+#        printf "${EXP_NAME}\n" >> workload_sensitivity_result.txt
       done
     done
 
@@ -550,8 +550,8 @@ run_scale_test(){
         is_treat=true
         autotune=true
         how_type="streamsluice"
-        run_one_exp
-        printf "${EXP_NAME}\n" >> workload_sensitivity_result.txt
+#        run_one_exp
+#        printf "${EXP_NAME}\n" >> workload_sensitivity_result.txt
       done
     done
 
@@ -587,7 +587,7 @@ run_scale_test(){
     RATE2=3500
     TIME1=45
     TIME2=45
-    for zipf_skew in 0.1; do #  0.2 0.3 0.4
+    for zipf_skew in 0.1 0.2 0.3 0.4; do #
       is_treat=false
       autotune=false
       how_type="ds2"
@@ -597,8 +597,8 @@ run_scale_test(){
         is_treat=true
         autotune=true
         how_type="streamsluice"
-        run_one_exp
-        printf "${EXP_NAME}\n" >> workload_sensitivity_result.txt
+#        run_one_exp
+#        printf "${EXP_NAME}\n" >> workload_sensitivity_result.txt
       done
     done
 }

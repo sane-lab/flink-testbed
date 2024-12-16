@@ -188,8 +188,8 @@ run_stock_test(){
             whether_type="streamsluice"
             how_type="streamsluice"
             scalein_type="streamsluice"
-#            run_one_exp
-#            printf "${EXP_NAME}\n" >> lr_result.txt
+            run_one_exp
+            printf "${EXP_NAME}\n" >> lr_result.txt
         done
       done
     done
@@ -248,31 +248,31 @@ run_stock_test(){
     scalein_type="streamsluice"
     printf "Part_3\n" >> lr_result.txt
     printf "Epoch Length\n" >> lr_result.txt
-    for epoch in 25 50 100 200 500; do
-      for L in 2000; do
-        run_one_exp
-        printf "${EXP_NAME}\n" >> lr_result.txt
-      done
-    done
-    epoch=100
-
-    printf "Tuning window Length\n" >> lr_result.txt
-    for autotune_interval in 15 30 90 120; do
-      for L in 2000; do
-        run_one_exp
-        printf "${EXP_NAME}\n" >> lr_result.txt
-      done
-    done
-    autotune_interval=60
-
-    printf "Alpha\n" >> lr_result.txt
-    for autotuner_increase_bar_alpha in 0.2 0.3 0.4 0.5; do
-      for L in 2000; do
-        run_one_exp
-        printf "${EXP_NAME}\n" >> lr_result.txt
-      done
-    done
-    autotuner_increase_bar_alpha=0.1
+#    for epoch in 25 50 100 200 500; do
+#      for L in 2000; do
+#        run_one_exp
+#        printf "${EXP_NAME}\n" >> lr_result.txt
+#      done
+#    done
+#    epoch=100
+#
+#    printf "Tuning window Length\n" >> lr_result.txt
+#    for autotune_interval in 15 30 90 120; do
+#      for L in 2000; do
+#        run_one_exp
+#        printf "${EXP_NAME}\n" >> lr_result.txt
+#      done
+#    done
+#    autotune_interval=60
+#
+#    printf "Alpha\n" >> lr_result.txt
+#    for autotuner_increase_bar_alpha in 0.2 0.3 0.4 0.5; do
+#      for L in 2000; do
+#        run_one_exp
+#        printf "${EXP_NAME}\n" >> lr_result.txt
+#      done
+#    done
+#    autotuner_increase_bar_alpha=0.1
 
 }
 run_stock_test
