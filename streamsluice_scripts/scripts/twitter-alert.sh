@@ -53,7 +53,7 @@ init() {
   skip_interval=1 # skip seconds
   warmup=10000
   warmup_time=90
-  warmup_rate=1500 #1800
+  warmup_rate=1700 #1500
   repeat=1
   spike_estimation="linear_regression"
   spike_slope=0.75
@@ -161,7 +161,7 @@ run_stock_test(){
     autotune=true
     for repeat in 1; do
       for autotuner_increase_bar_alpha in 0.1; do # 0.1 0.2 0.4
-        for L in 2000 2500; do # 1500 2000 2500 3000 3500
+        for L in 1500 2000 2500 3000 3500; do # 1500 2000 2500 3000 3500
             whether_type="streamsluice"
             how_type="streamsluice"
             scalein_type="streamsluice"
@@ -223,31 +223,31 @@ run_stock_test(){
 
     printf "Part_3\n" >> tweet_result.txt
     printf "Epoch Length\n" >> tweet_result.txt
-#    for epoch in 25 50 100 200 500; do
-#      for L in 2500; do
-#        run_one_exp
-#        printf "${EXP_NAME}\n" >> tweet_result.txt
-#      done
-#    done
-#    epoch=100
-#
-#    printf "Tuning window Length\n" >> tweet_result.txt
-#    for autotune_interval in 15 30 90 120; do #
-#      for L in 2500; do
-#        run_one_exp
-#        printf "${EXP_NAME}\n" >> tweet_result.txt
-#      done
-#    done
-#    autotune_interval=60
-#
-#    printf "Alpha\n" >> tweet_result.txt
-#    for autotuner_increase_bar_alpha in 0.2 0.3 0.4 0.5; do # 0.2 0.4
-#      for L in 2500; do
-#        run_one_exp
-#        printf "${EXP_NAME}\n" >> tweet_result.txt
-#      done
-#    done
-#    autotuner_increase_bar_alpha=0.1
+    for epoch in 25 50 100 200 500 1000 2000; do
+      for L in 2500; do
+        run_one_exp
+        printf "${EXP_NAME}\n" >> tweet_result.txt
+      done
+    done
+    epoch=100
+
+    printf "Tuning window Length\n" >> tweet_result.txt
+    for autotune_interval in 30 120 240 480; do #
+      for L in 2500; do
+        run_one_exp
+        printf "${EXP_NAME}\n" >> tweet_result.txt
+      done
+    done
+    autotune_interval=60
+
+    printf "Alpha\n" >> tweet_result.txt
+    for autotuner_increase_bar_alpha in 0.2 0.4 0.8 1.0; do # 0.2 0.4
+      for L in 2500; do
+        run_one_exp
+        printf "${EXP_NAME}\n" >> tweet_result.txt
+      done
+    done
+    autotuner_increase_bar_alpha=0.1
 
 
     printf "Part_7\n" >> tweet_result.txt

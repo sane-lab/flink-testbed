@@ -101,13 +101,13 @@ init() {
   DELAY2=50
   DELAY3=1000 #8000 # 50
   DELAY4=50 #2000 # 50
-  DELAY5=2500 #3333 #4000
+  DELAY5=3333 #2500 #3333 #4000
 #  DELAY6=10
 #  DELAY7=500
 #  DELAY8=10
 #  DELAY9=100
   input_rate_factor=1
-  PAYLOAD=100 #0 # about (100 + 2 * PAYLOAD) MB in every operator (1000000 keys, every key contains about 100 bytes)
+  PAYLOAD=25 #100 #0 # about (100 + 2 * PAYLOAD) MB in every operator (1000000 keys, every key contains about 100 bytes)
   SKEWNESS=0.0 # ZIPF factor
 }
 
@@ -184,7 +184,7 @@ run_stock_test(){
     repeat=2
     for scaling_decision_option in 1; do # 2 0
       for autotuner_increase_bar_alpha in 0.1; do # 0.1 0.2 0.4
-        for L in 1500 2000; do # 1000 1500 2000 2500 3000
+        for L in 1000 1500 2000 2500 3000; do #
             whether_type="streamsluice"
             how_type="streamsluice"
             scalein_type="streamsluice"
@@ -248,31 +248,31 @@ run_stock_test(){
     scalein_type="streamsluice"
     printf "Part_3\n" >> lr_result.txt
     printf "Epoch Length\n" >> lr_result.txt
-#    for epoch in 25 50 100 200 500; do
-#      for L in 2000; do
-#        run_one_exp
-#        printf "${EXP_NAME}\n" >> lr_result.txt
-#      done
-#    done
-#    epoch=100
-#
-#    printf "Tuning window Length\n" >> lr_result.txt
-#    for autotune_interval in 15 30 90 120; do
-#      for L in 2000; do
-#        run_one_exp
-#        printf "${EXP_NAME}\n" >> lr_result.txt
-#      done
-#    done
-#    autotune_interval=60
-#
-#    printf "Alpha\n" >> lr_result.txt
-#    for autotuner_increase_bar_alpha in 0.2 0.3 0.4 0.5; do
-#      for L in 2000; do
-#        run_one_exp
-#        printf "${EXP_NAME}\n" >> lr_result.txt
-#      done
-#    done
-#    autotuner_increase_bar_alpha=0.1
+    for epoch in 25 50 100 200 500 1000 2000; do
+      for L in 2000; do
+        run_one_exp
+        printf "${EXP_NAME}\n" >> lr_result.txt
+      done
+    done
+    epoch=100
+
+    printf "Tuning window Length\n" >> lr_result.txt
+    for autotune_interval in 30 120 240 480; do
+      for L in 2000; do
+        run_one_exp
+        printf "${EXP_NAME}\n" >> lr_result.txt
+      done
+    done
+    autotune_interval=60
+
+    printf "Alpha\n" >> lr_result.txt
+    for autotuner_increase_bar_alpha in 0.2 0.4 0.8 1.0; do
+      for L in 2000; do
+        run_one_exp
+        printf "${EXP_NAME}\n" >> lr_result.txt
+      done
+    done
+    autotuner_increase_bar_alpha=0.1
 
 }
 run_stock_test
