@@ -145,8 +145,8 @@ public class TweetAlertTrigger {
         private String content;
         private int timestamp;
         private int followerCount;
-        private double sentiment;
-        private double influence;
+        private long sentiment;
+        private long influence;
         private String topic;
         private long arrivalTime;
         private long tupleNumber;
@@ -154,7 +154,7 @@ public class TweetAlertTrigger {
         // Default constructor
         public JoinedResult () {}
 
-        public JoinedResult(String tweetId, String userId, String content, int timestamp, int followerCount, double sentiment, double influence, String topic, long arrivalTime, long tupleNumber) {
+        public JoinedResult(String tweetId, String userId, String content, int timestamp, int followerCount, long sentiment, long influence, String topic, long arrivalTime, long tupleNumber) {
             this.tweetId = tweetId;
             this.userId = userId;
             this.content = content;
@@ -182,10 +182,10 @@ public class TweetAlertTrigger {
 
         public int getFollowerCount() { return followerCount; }
         public void setFollowerCount(int followerCount) { this.followerCount = followerCount; }
-        public double getSentiment() { return sentiment; }
-        public void setSentiment(double sentiment) { this.sentiment = sentiment; }
-        public double getInfluence() { return influence; }
-        public void setInfluence(double influence) { this.influence = influence; }
+        public long getSentiment() { return sentiment; }
+        public void setSentiment(long sentiment) { this.sentiment = sentiment; }
+        public long getInfluence() { return influence; }
+        public void setInfluence(long influence) { this.influence = influence; }
 
         public String getTopic() { return topic; }
         public void setTopic(String topic) { this.topic = topic; }
@@ -290,7 +290,7 @@ public class TweetAlertTrigger {
                 long emitStartTime = System.currentTimeMillis();
                 for (int i = 0; i < warmp_rate / 20; i++) {
                     String tweet_id = getTweetID(count % 1000000);
-                    String user_id = getTweetID(count % 10000);
+                    String user_id = getTweetID(count % 20000);
                     ctx.collect(new Tuple2<>(user_id, new TweetRecord(
                             tweet_id,
                             user_id,
@@ -322,7 +322,7 @@ public class TweetAlertTrigger {
                         if (sleepCnt <= skipCount) {
                             for (int i = 0; i < warmp_rate / 20; i++) {
                                 String tweet_id = getTweetID(count % 1000000);
-                                String user_id = getTweetID(count % 10000);
+                                String user_id = getTweetID(count % 20000);
                                 ctx.collect(new Tuple2<>(user_id, new TweetRecord(
                                         tweet_id,
                                         user_id,
@@ -353,7 +353,7 @@ public class TweetAlertTrigger {
                     if (sleepCnt > skipCount) {
                         // long ts = System.currentTimeMillis();
                         String tweet_id = fields[0];
-                        String user_id = getTweetID(count % 10000); // fields[1];
+                        String user_id = getTweetID(count % 20000); // 10000); // fields[1];
                         String content = fields[2];
                         int timestamp = Integer.parseInt(fields[3]);
                         int followerCount = Integer.parseInt(fields[4]);
@@ -527,45 +527,29 @@ public class TweetAlertTrigger {
 
         private static final long serialVersionUID = 1L;
         public static class UserMetrics implements Serializable {
-            private double totalSentiment;
-            private double totalInfluence;
+            private long totalSentiment;
+            private long totalInfluence;
 
             // Default constructor
             public UserMetrics() {
-                this.totalSentiment = 0.0;
-                this.totalInfluence = 0.0;
-            }
-
-            // Parameterized constructor
-            public UserMetrics(double totalSentiment, double totalInfluence) {
-                this.totalSentiment = totalSentiment;
-                this.totalInfluence = totalInfluence;
+                this.totalSentiment = 0;
+                this.totalInfluence = 0;
             }
 
             // Getters and Setters
-            public double getTotalSentiment() {
+            public long getTotalSentiment() {
                 return totalSentiment;
             }
-
-            public void setTotalSentiment(double totalSentiment) {
-                this.totalSentiment = totalSentiment;
-            }
-
-            public double getTotalInfluence() {
+            public long getTotalInfluence() {
                 return totalInfluence;
             }
-
-            public void setTotalInfluence(double totalInfluence) {
-                this.totalInfluence = totalInfluence;
-            }
-
             // Methods to update metrics
             public void addSentiment(double sentiment) {
-                this.totalSentiment += sentiment;
+                this.totalSentiment += (long) (sentiment * 10);
             }
 
             public void addInfluence(double influence) {
-                this.totalInfluence += influence;
+                this.totalInfluence += (long) (influence * 10);
             }
         }
 

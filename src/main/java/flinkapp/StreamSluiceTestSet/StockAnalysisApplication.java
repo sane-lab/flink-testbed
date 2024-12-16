@@ -1,6 +1,7 @@
 package flinkapp.StreamSluiceTestSet;
 
 import Nexmark.sources.Util;
+import flinkapp.linearroad.LinearRoad;
 import org.apache.commons.math3.random.RandomDataGenerator;
 import org.apache.flink.api.common.functions.FlatJoinFunction;
 import org.apache.flink.api.common.functions.RichFlatMapFunction;
@@ -102,7 +103,7 @@ public class StockAnalysisApplication {
 //                .slotSharingGroup("g6");
 
         joined.keyBy(0)
-                .map(new Analysis(params.getInt("op7Delay", 3000)))
+                .map(new Analysis(params.getInt("op7Delay", 3000), params.getInt("payload", 0)))
                 .disableChaining()
                 .name("Analysis")
                 .uid("op7")
@@ -360,8 +361,11 @@ public class StockAnalysisApplication {
 
         private RandomDataGenerator randomGen = new RandomDataGenerator();
         private int averageDelay; // Microsecond
-        Analysis(int _averageDelay){
+        private transient MapState<String, String> payloadPerKey;
+        private final String payload;
+        Analysis(int _averageDelay, int payloadLength){
             this.averageDelay = _averageDelay;
+            this.payload = new String(new char[payloadLength]).replace("\0", "a");
         }
         @Override
         public Tuple4<String, String, Long, Long> map(Tuple5<String, Double, Double, Long, Long> input) throws Exception {
@@ -372,6 +376,7 @@ public class StockAnalysisApplication {
             }else{
                 result = "";
             }
+            payloadPerKey.put(input.f0, payload);
             long currentTime = System.currentTimeMillis();
             System.out.println("GT: " + input.f0 + ", " + currentTime + ", " + (currentTime - input.f3) + ", " + input.f4);
             return new Tuple4<String, String, Long, Long>(input.f0, result, currentTime - input.f3, input.f4);
@@ -383,6 +388,12 @@ public class StockAnalysisApplication {
             if (delay < 0) delay = interval * 1000;
             Long start = System.nanoTime();
             while (System.nanoTime() - start < delay) {}
+        }
+        @Override
+        public void open(Configuration config){
+            MapStateDescriptor<String, String> payloadDesc =
+                    new MapStateDescriptor<>("analysis-state", String.class, String.class);
+            payloadPerKey = getRuntimeContext().getMapState(payloadDesc);
         }
     }
 

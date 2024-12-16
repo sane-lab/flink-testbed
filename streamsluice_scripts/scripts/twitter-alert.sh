@@ -129,7 +129,7 @@ run_stock_test(){
     autotune_interval=60
     autotuner="UserLimitTuner"
     autotuner_latency_window=100
-    autotuner_bar_lowerbound=450 #350
+    autotuner_bar_lowerbound=350 #350
     # Old setting, no limitation on maximum bound value, binary incrase.
 #    autotuner_initial_value_option=4
 #    autotuner_increase_bar_option=7
@@ -161,7 +161,7 @@ run_stock_test(){
     autotune=true
     for repeat in 1; do
       for autotuner_increase_bar_alpha in 0.1; do # 0.1 0.2 0.4
-        for L in 1500 2000 2500 3000 3500; do #
+        for L in 2000; do # 1500 2000 2500 3000 3500
             whether_type="streamsluice"
             how_type="streamsluice"
             scalein_type="streamsluice"
