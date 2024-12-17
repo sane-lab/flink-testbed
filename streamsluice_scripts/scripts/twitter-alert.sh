@@ -223,7 +223,7 @@ run_stock_test(){
 
     printf "Part_3\n" >> tweet_result.txt
     printf "Epoch Length\n" >> tweet_result.txt
-    for epoch in 25 50 100 200 500 1000 2000; do
+    for epoch in 25 50 200 500 1000 2000; do
       for L in 2500; do
         run_one_exp
         printf "${EXP_NAME}\n" >> tweet_result.txt
