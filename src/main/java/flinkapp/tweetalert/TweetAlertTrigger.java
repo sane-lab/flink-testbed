@@ -361,7 +361,7 @@ public class TweetAlertTrigger {
                         ctx.collect(new Tuple2<>(user_id, new TweetRecord(
                                 tweet_id,
                                 user_id,
-                                content,
+                                tweet_id, // content,
                                 timestamp,
                                 followerCount,
                                 System.currentTimeMillis(),

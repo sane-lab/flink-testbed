@@ -96,11 +96,12 @@ init() {
 
   # Original setting
   DELAY2=200
-  DELAY3=2500
+  DELAY3=3333 #2500
   DELAY4=200
-  DELAY5=500 #1500
-  DELAY7=3333
-  PAYLOAD=50
+  DELAY5=500
+  DELAY7=5000 #3333
+
+  PAYLOAD=200
 }
 
 # run applications
@@ -151,7 +152,7 @@ run_stock_test(){
     autotuner_adjustment_beta=2.0
     epoch=100
     decision_interval=1 #10
-    snapshot_size=20
+    snapshot_size=40 #20
     L=1000 #2000 #2500
     migration_interval=1000 #500
     spike_slope=0.7
@@ -168,7 +169,7 @@ run_stock_test(){
     repeat=1
     for scaling_decision_option in 1; do # 2 0
       for autotuner_increase_bar_alpha in 0.1; do # 0.1 0.2 0.4
-        for L in 1000 1250 1500 1750 2000; do # 1250 1500 1750 2000
+        for L in 2000 3000; do # 1250 1500 1750 2000
             whether_type="streamsluice"
             how_type="streamsluice"
             scalein_type="streamsluice"
@@ -237,31 +238,31 @@ run_stock_test(){
     scalein_type="streamsluice"
     printf "Part_3\n" >> stock_result.txt
     printf "Epoch Length\n" >> stock_result.txt
-    for epoch in 25 50 200 500 1000 2000; do
-      for L in 1500; do
-        run_one_exp
-        printf "${EXP_NAME}\n" >> stock_result.txt
-      done
-    done
-    epoch=100
+#    for epoch in 25 50 200 500 1000 2000; do
+#      for L in 1500; do
+#        run_one_exp
+#        printf "${EXP_NAME}\n" >> stock_result.txt
+#      done
+#    done
+#    epoch=100
+##
+#    printf "Tuning window Length\n" >> stock_result.txt
+#    for autotune_interval in 30 120 240 480; do #
+#      for L in 1500; do
+#        run_one_exp
+#        printf "${EXP_NAME}\n" >> stock_result.txt
+#      done
+#    done
+#    autotune_interval=60
 #
-    printf "Tuning window Length\n" >> stock_result.txt
-    for autotune_interval in 30 120 240 480; do #
-      for L in 1500; do
-        run_one_exp
-        printf "${EXP_NAME}\n" >> stock_result.txt
-      done
-    done
-    autotune_interval=60
-
-    printf "Alpha\n" >> stock_result.txt
-    for autotuner_increase_bar_alpha in 0.2 0.4 0.8 1.0; do
-      for L in 1500; do
-        run_one_exp
-        printf "${EXP_NAME}\n" >> stock_result.txt
-      done
-    done
-    autotuner_increase_bar_alpha=0.1
+#    printf "Alpha\n" >> stock_result.txt
+#    for autotuner_increase_bar_alpha in 0.2 0.4 0.8 1.0; do
+#      for L in 1500; do
+#        run_one_exp
+#        printf "${EXP_NAME}\n" >> stock_result.txt
+#      done
+#    done
+#    autotuner_increase_bar_alpha=0.1
 
 }
 run_stock_test

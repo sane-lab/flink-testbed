@@ -317,6 +317,7 @@ public class StockAnalysisApplication {
         public void flatMap(Tuple5<String, Double, Integer, Long, Long> input, Collector<Tuple5<String, Double, Double, Long, Long>> out) throws Exception {
             String s = input.f0;
             int type = input.f2;
+            delay(100);
             if (type == 0){ // From Split 1
                  if(dataFromSplit2.contains(input.f4)){
                      double value = dataFromSplit2.get(input.f4);
@@ -340,7 +341,6 @@ public class StockAnalysisApplication {
                     timeFromSplit2.put(input.f4, input.f3);
                 }
             }
-            delay(100);
         }
         @Override
         public void open(Configuration config) {
