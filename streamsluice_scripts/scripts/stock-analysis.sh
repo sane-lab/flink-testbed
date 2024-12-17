@@ -101,7 +101,7 @@ init() {
   DELAY5=500
   DELAY7=5000 #3333
 
-  PAYLOAD=100
+  PAYLOAD=5000
 }
 
 # run applications
@@ -169,7 +169,7 @@ run_stock_test(){
     repeat=1
     for scaling_decision_option in 1; do # 2 0
       for autotuner_increase_bar_alpha in 0.1; do # 0.1 0.2 0.4
-        for L in 2000 3000; do # 1250 1500 1750 2000
+        for L in 2000; do # 1250 1500 1750 2000
             whether_type="streamsluice"
             how_type="streamsluice"
             scalein_type="streamsluice"

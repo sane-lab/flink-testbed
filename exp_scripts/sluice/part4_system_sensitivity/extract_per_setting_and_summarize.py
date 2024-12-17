@@ -938,7 +938,7 @@ def main():
             ],
         },
     }
-    for workload_name, exps_per_label in exps_per_label_per_setting_twitter.items():
+    for workload_name, exps_per_label in exps_per_label_per_setting_stock.items():
         success_rate_per_label = {}
         avg_parallelism_per_label = {}
         user_limit_per_label = {}
