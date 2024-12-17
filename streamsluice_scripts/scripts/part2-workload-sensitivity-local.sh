@@ -526,7 +526,7 @@ run_scale_test(){
     RATE2=3500
     TIME1=45
     TIME2=45
-    for STATE_SIZE5 in 0 5000 15000 20000; do
+    for STATE_SIZE5 in 15000 20000; do # 0 5000 15000 20000
       STATE_SIZE2=${STATE_SIZE5}
       STATE_SIZE3=${STATE_SIZE5}
       STATE_SIZE4=${STATE_SIZE5}
@@ -535,12 +535,12 @@ run_scale_test(){
       how_type="ds2"
 #      run_one_exp
 #      printf "${EXP_NAME}\n" >> workload_sensitivity_result.txt
-      for L in 2000; do
+      for L in 2000 3000; do
         is_treat=true
         autotune=true
         how_type="streamsluice"
-#        run_one_exp
-#        printf "${EXP_NAME}\n" >> workload_sensitivity_result.txt
+        run_one_exp
+        printf "${EXP_NAME}\n" >> workload_sensitivity_result.txt
       done
     done
 
