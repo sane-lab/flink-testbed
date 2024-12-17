@@ -107,7 +107,7 @@ init() {
 #  DELAY8=10
 #  DELAY9=100
   input_rate_factor=1
-  PAYLOAD=25 #100 #0 # about (100 + 2 * PAYLOAD) MB in every operator (1000000 keys, every key contains about 100 bytes)
+  PAYLOAD=5000 #100 #0 # about (100 + 2 * PAYLOAD) MB in every operator (1000000 keys, every key contains about 100 bytes)
   SKEWNESS=0.0 # ZIPF factor
 }
 

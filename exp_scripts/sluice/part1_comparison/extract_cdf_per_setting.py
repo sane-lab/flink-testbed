@@ -5,6 +5,7 @@ import matplotlib
 matplotlib.use('Agg')
 import matplotlib.pyplot as plt
 import os
+from brokenaxes import brokenaxes
 
 # Set up matplotlib font sizes
 SMALL_SIZE = 25
@@ -739,7 +740,8 @@ def draw_parallelism_curve(rawDir, outputDir, exp_name, windowSize, startTime, e
 def plot_latency_cdf(latency_per_label, latency_bar_this_workload, output_dir, workload_name: str):
     labels = list(latency_per_label.keys())
 
-    fig, ax = plt.subplots(figsize=(12, 5))
+    fig = plt.figure(figsize=(12, 5))
+    bax = brokenaxes(ylims=((0, 0.1), (0.6, 1.0)), hspace=.05)
 
     for label, data in latency_per_label.items():
         line_width = 1
@@ -747,22 +749,22 @@ def plot_latency_cdf(latency_per_label, latency_bar_this_workload, output_dir, w
             line_width = 1.5
         data_sorted = np.sort(data)
         cdf = np.arange(1, len(data_sorted) + 1) / len(data_sorted)
-        plt.plot(data_sorted, cdf, marker='none', linestyle='-', linewidth=line_width, color=CONTROLLER_COLOR[label], label=label)
+        bax.plot(data_sorted, cdf, marker='none', linestyle='-', linewidth=line_width, color=CONTROLLER_COLOR[label], label=label)
         # data.sort()
         # plt.ecdf(data, complementary=True, color=CONTROLLER_COLOR[label], label=label)
     # Draw p99
-    plt.plot([0, 10000000], [0.99, 0.99], "--", color='red')
-    plt.plot([latency_bar_this_workload, latency_bar_this_workload], [0, 1.0], "--", color='red')
+    bax.plot([0, 10000000], [0.99, 0.99], "--", color='red')
+    bax.plot([latency_bar_this_workload, latency_bar_this_workload], [0, 1.0], "--", color='red')
     # Add labels, title, and custom x-axis tick labels
-    ax.set_xlabel('Latency')
-    ax.set_ylabel('CDF')
-    ax.set_ylim(0.5, 1.001)
-    ax.set_yticks(np.arange(0.5, 1.001, 0.05))
-    ax.set_xlim(0, 5000)
-    ax.set_xticks(np.arange(0, 5000, 500))
-    ax.set_title('Cumulative Distribution Function (CDF) of Latency')
-    ax.legend(loc='lower right', bbox_to_anchor=(1, -0.15), ncol=1)
-    ax.grid(True, axis='y')
+    bax.set_xlabel('Latency')
+    bax.set_ylabel('CDF')
+    # bax.set_ylim(0.5, 1.001)
+    # bax.set_yticks(np.arange(0.5, 1.001, 0.05))
+    bax.set_xlim(0, 5000)
+    bax.set_xticks(np.arange(0, 5000, 500))
+    bax.set_title('Cumulative Distribution Function (CDF) of Latency')
+    bax.legend(loc='lower right', bbox_to_anchor=(1, -0.15), ncol=1)
+    bax.grid(True, axis='y')
     # Save the plot
     if not os.path.exists(output_dir):
         os.makedirs(output_dir)
@@ -821,10 +823,10 @@ def main():
     draw_lem_latency_flag = True
     exps_per_label_per_setting = {
         "Twitter_30min": {
-            "Static": "tweet-streamsluice-streamsluice-5-60-1950-90-1500-1-14-6666-5-1000-1-50-1-50-2500-100-false-0.1-1",
-            "Static-Adequate": "tweet-streamsluice-streamsluice-5-60-1950-90-1500-1-19-6666-9-1000-1-50-1-50-2500-100-false-0.1-1",
-            "DS2": "tweet-ds2-ds2-5-60-1950-90-1500-1-19-6666-9-1000-1-50-1-50-2500-100-true-0.1-1",
-            "Streamswitch": "tweet-streamswitch-streamswitch-5-60-1950-90-1500-1-19-6666-9-1000-1-50-1-50-2500-100-true-0.1-1",
+            # "Static": "tweet-streamsluice-streamsluice-5-60-1950-90-1500-1-14-6666-5-1000-1-50-1-50-2500-100-false-0.1-1",
+            # "Static-Adequate": "tweet-streamsluice-streamsluice-5-60-1950-90-1500-1-19-6666-9-1000-1-50-1-50-2500-100-false-0.1-1",
+            # "DS2": "tweet-ds2-ds2-5-60-1950-90-1500-1-19-6666-9-1000-1-50-1-50-2500-100-true-0.1-1",
+            # "Streamswitch": "tweet-streamswitch-streamswitch-5-60-1950-90-1500-1-19-6666-9-1000-1-50-1-50-2500-100-true-0.1-1",
             "Sluice": "tweet-streamsluice-streamsluice-5-8-1950-90-1500-1-19-6666-9-1000-1-50-1-50-2500-100-true-0.1-2",
         },
         # "Stock-Analysis_30min":{

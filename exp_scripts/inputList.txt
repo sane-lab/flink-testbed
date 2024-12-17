@@ -1,5 +1,1 @@
-stock-streamsluice-streamsluice-5-8-60-1350-90-1000-20-1-200-11-2500-1-200-2-500-1-15-3333-1000-100-0.1-true-true-1
-stock-streamsluice-streamsluice-5-8-60-1350-90-1000-20-1-200-11-2500-1-200-2-500-1-15-3333-1250-100-0.1-true-true-1
-stock-streamsluice-streamsluice-5-8-60-1350-90-1000-20-1-200-11-2500-1-200-2-500-1-15-3333-1500-100-0.1-true-true-1
-stock-streamsluice-streamsluice-5-8-60-1350-90-1000-20-1-200-11-2500-1-200-2-500-1-15-3333-1750-100-0.1-true-true-1
-stock-streamsluice-streamsluice-5-8-60-1350-90-1000-20-1-200-11-2500-1-200-2-500-1-15-3333-2000-100-0.1-true-true-1
+stock-streamsluice-streamsluice-5-8-60-1350-90-1000-20-1-200-11-3333-1-200-2-500-1-15-5000-3000-100-0.1-true-true-1
