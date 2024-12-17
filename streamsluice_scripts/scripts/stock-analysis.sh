@@ -101,7 +101,7 @@ init() {
   DELAY5=500
   DELAY7=5000 #3333
 
-  PAYLOAD=2000
+  PAYLOAD=100
 }
 
 # run applications
@@ -122,7 +122,7 @@ function runApp() {
         -p4 ${P4} -mp4 ${MP4} -op4Delay ${DELAY4} \
         -p5 ${P5} -mp5 ${MP5} -op5Delay ${DELAY5} \
         -p6 ${P6} -mp6 ${MP6} \
-        -p7 ${P7} -mp7 ${MP7} -op7Delay ${DELAY7} \
+        -p7 ${P7} -mp7 ${MP7} -op7Delay ${DELAY7} -payload ${PAYLOAD}\
         -file_name ${stock_path}${stock_file_name} -warmup_rate ${warmup_rate} -warmup_time ${warmup_time} -skip_interval ${skip_interval} &
 }
 
