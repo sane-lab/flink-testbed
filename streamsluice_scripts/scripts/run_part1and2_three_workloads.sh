@@ -4,7 +4,7 @@
 scripts=(
   "linear-road.sh"
   "stock-analysis.sh"
-  #"twitter-alert.sh"
+  "twitter-alert.sh"
   # Add more scripts as needed
 )
 

@@ -408,21 +408,21 @@ public class TweetAlertTrigger {
 
         private final RandomDataGenerator randomGen = new RandomDataGenerator();
         private final int averageDelay; // in microseconds
-        private final Map<String, Double> sentimentDict;
+        // private final Map<String, Double> sentimentDict;
 
         public SentimentAnalysis(int _averageDelay) {
             this.averageDelay = _averageDelay;
-            sentimentDict = new HashMap<>();
-            sentimentDict.put("good", 1.0);
-            sentimentDict.put("excellent", 1.0);
-            sentimentDict.put("well", 1.0);
-            sentimentDict.put("wonderful", 1.0);
-            sentimentDict.put("nice", 1.0);
-            sentimentDict.put("bad", -1.0);
-            sentimentDict.put("terrible", -1.0);
-            sentimentDict.put("awful", -1.0);
-            sentimentDict.put("worse", -1.0);
-            sentimentDict.put("ugly", -1.0);
+//            sentimentDict = new HashMap<>();
+//            sentimentDict.put("good", 1.0);
+//            sentimentDict.put("excellent", 1.0);
+//            sentimentDict.put("well", 1.0);
+//            sentimentDict.put("wonderful", 1.0);
+//            sentimentDict.put("nice", 1.0);
+//            sentimentDict.put("bad", -1.0);
+//            sentimentDict.put("terrible", -1.0);
+//            sentimentDict.put("awful", -1.0);
+//            sentimentDict.put("worse", -1.0);
+//            sentimentDict.put("ugly", -1.0);
         }
 
         private double getSentiment(String text) {
@@ -430,8 +430,12 @@ public class TweetAlertTrigger {
             double sentiment = 0;
             int n = 0;
             for (String word : text.split(" ")) {
-                sentiment += sentimentDict.getOrDefault(word, randomGen.nextUniform(-0.5, 0.5));
+                // sentiment += sentimentDict.getOrDefault(word, randomGen.nextUniform(-0.5, 0.5));
+                sentiment += randomGen.nextUniform(-0.5, 0.5);
                 n++;
+                if (n > 10){
+                    break;
+                }
             }
             return (n == 0) ? 0.0 : sentiment / n;
         }
@@ -478,7 +482,7 @@ public class TweetAlertTrigger {
 
         private double getInfluenceScore(String userId, int followerCount) {
             // Simple influence score model, can be replaced with a more sophisticated model
-            return Math.log(followerCount);
+            return followerCount; // Math.log(followerCount);
         }
 
         private String getTopic(String text) {

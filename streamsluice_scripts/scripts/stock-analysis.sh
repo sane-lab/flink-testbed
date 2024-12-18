@@ -169,7 +169,7 @@ run_stock_test(){
     repeat=1
     for scaling_decision_option in 1; do # 2 0
       for autotuner_increase_bar_alpha in 0.1; do # 0.1 0.2 0.4
-        for L in 1500 2000 2500 3000; do # 1250 1500 1750 2000
+        for L in 2500 3500 4000; do # 1500 2000 3000
             whether_type="streamsluice"
             how_type="streamsluice"
             scalein_type="streamsluice"
@@ -181,7 +181,7 @@ run_stock_test(){
 
 
     printf "Part_2\n" >> stock_result.txt
-    L=1500
+    L=3000
     autotune=false
 
     P1=1
@@ -196,8 +196,8 @@ run_stock_test(){
     how_type="ds2"
     scalein_type="ds2"
     migration_interval=2500
-#    run_one_exp
-#    printf "${EXP_NAME}\n" >> stock_result.txt
+    run_one_exp
+    printf "${EXP_NAME}\n" >> stock_result.txt
     P1=1
     P2=1
     P3=11
@@ -211,23 +211,23 @@ run_stock_test(){
     how_type="ds2"
     scalein_type="ds2"
     migration_interval=2500
-#    run_one_exp
-#    printf "${EXP_NAME}\n" >> stock_result.txt
+    run_one_exp
+    printf "${EXP_NAME}\n" >> stock_result.txt
 
     is_treat=true
     whether_type="ds2"
     how_type="ds2"
     scalein_type="ds2"
     migration_interval=2500
-#    run_one_exp
-#    printf "${EXP_NAME}\n" >> stock_result.txt
+    run_one_exp
+    printf "${EXP_NAME}\n" >> stock_result.txt
 
     whether_type="streamswitch"
     how_type="streamswitch"
     scalein_type="streamswitch"
     migration_interval=1000
-#    run_one_exp
-#    printf "${EXP_NAME}\n" >> stock_result.txt
+    run_one_exp
+    printf "${EXP_NAME}\n" >> stock_result.txt
 
     # Part 3 System sensitivity
     autotune=true
@@ -239,7 +239,7 @@ run_stock_test(){
     printf "Part_3\n" >> stock_result.txt
     printf "Epoch Length\n" >> stock_result.txt
     for epoch in 25 50 200 500 1000 2000; do
-      for L in 2000; do
+      for L in 3000; do
         run_one_exp
         printf "${EXP_NAME}\n" >> stock_result.txt
       done
@@ -248,7 +248,7 @@ run_stock_test(){
 
     printf "Tuning window Length\n" >> stock_result.txt
     for autotune_interval in 30 120 240 480; do #
-      for L in 2000; do
+      for L in 3000; do
         run_one_exp
         printf "${EXP_NAME}\n" >> stock_result.txt
       done
@@ -257,7 +257,7 @@ run_stock_test(){
 
     printf "Alpha\n" >> stock_result.txt
     for autotuner_increase_bar_alpha in 0.2 0.4 0.8 1.0; do
-      for L in 2000; do
+      for L in 3000; do
         run_one_exp
         printf "${EXP_NAME}\n" >> stock_result.txt
       done
