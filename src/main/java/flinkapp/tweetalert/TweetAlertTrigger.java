@@ -353,6 +353,9 @@ public class TweetAlertTrigger {
                     if (sleepCnt > skipCount) {
                         // long ts = System.currentTimeMillis();
                         String tweet_id = fields[0];
+                        if (tweet_id.length() > 10){
+                            tweet_id = tweet_id.substring(0, 10);
+                        }
                         String user_id = getTweetID(count % 20000); // 10000); // fields[1];
                         String content = fields[2];
                         int timestamp = Integer.parseInt(fields[3]);
