@@ -743,9 +743,9 @@ def main():
             "2000": [
                 "stock-streamsluice-streamsluice-5-8-60-1350-90-1000-20-1-200-11-3333-1-200-2-500-1-15-5000-2000-100-0.1-true-true-1",
             ],
-            "3000": [
-                "stock-streamsluice-streamsluice-5-8-60-1350-90-1000-20-1-200-11-3333-1-200-2-500-1-15-5000-3000-100-0.1-true-true-1",
-            ]
+            # "3000": [
+            #     "stock-streamsluice-streamsluice-5-8-60-1350-90-1000-20-1-200-11-3333-1-200-2-500-1-15-5000-3000-100-0.1-true-true-1",
+            # ]
         },
         # "setting_2": {
         #     "Dimension": "Epoch Length (ms)",
