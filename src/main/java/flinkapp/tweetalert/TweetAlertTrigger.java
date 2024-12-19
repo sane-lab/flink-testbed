@@ -427,17 +427,18 @@ public class TweetAlertTrigger {
 
         private double getSentiment(String text) {
             // TODO: Replace with an actual NLP model
-            double sentiment = 0;
-            int n = 0;
-            for (String word : text.split(" ")) {
-                // sentiment += sentimentDict.getOrDefault(word, randomGen.nextUniform(-0.5, 0.5));
-                sentiment += randomGen.nextUniform(-0.5, 0.5);
-                n++;
-                if (n > 10){
-                    break;
-                }
-            }
-            return (n == 0) ? 0.0 : sentiment / n;
+//            double sentiment = 0;
+//            int n = 0;
+            return randomGen.nextUniform(-0.5, 0.5);
+//            for (String word : text.split(" ")) {
+//                // sentiment += sentimentDict.getOrDefault(word, randomGen.nextUniform(-0.5, 0.5));
+//                sentiment += randomGen.nextUniform(-0.5, 0.5);
+//                n++;
+//                if (n > 10){
+//                    break;
+//                }
+//            }
+//            return (n == 0) ? 0.0 : sentiment / n;
         }
 
         @Override
@@ -487,12 +488,13 @@ public class TweetAlertTrigger {
 
         private String getTopic(String text) {
             // TODO: replace with a more advanced topic model
-            String[] splits = text.split(" ");
-            if (splits.length > 0) {
-                return splits[0].length() > 5 ? splits[0].substring(0, 5) : splits[0];
-            } else {
-                return "Empty";
-            }
+//            String[] splits = text.split(" ");
+//            if (splits.length > 0) {
+//                return splits[0].length() > 5 ? splits[0].substring(0, 5) : splits[0];
+//            } else {
+//                return "Empty";
+//            }
+            return "Empty";
         }
 
         @Override
@@ -582,13 +584,13 @@ public class TweetAlertTrigger {
             }
 
             // Update the metrics based on operator type
-            if (type == SentimentAnalysis_Output) {
-                double sentiment = input.getResult_value();
-                metrics.addSentiment(sentiment);
-            } else if (type == InfluenceScoringAndContentCategorization_Output) {
-                double influence = input.getResult_value();
-                metrics.addInfluence(influence);
-            }
+//            if (type == SentimentAnalysis_Output) {
+//                double sentiment = input.getResult_value();
+//                metrics.addSentiment(sentiment);
+//            } else if (type == InfluenceScoringAndContentCategorization_Output) {
+//                double influence = input.getResult_value();
+//                metrics.addInfluence(influence);
+//            }
 
             // Update the state with the new metrics
             userMetricsState.put(userId, metrics);
@@ -651,10 +653,10 @@ public class TweetAlertTrigger {
             DelayUtil.delay(averageDelay);
 
             // Check for alert conditions
-            if (Math.abs(input.getSentiment()) > 10.0 && input.getSentiment() >= 10.0) {
-                System.out.println("User Alert: " + userId + " sentiment=" + input.getSentiment()
-                        + " influence=" + input.getSentiment());
-            }
+//            if (Math.abs(input.getSentiment()) > 10.0 && input.getSentiment() >= 10.0) {
+//                System.out.println("User Alert: " + userId + " sentiment=" + input.getSentiment()
+//                        + " influence=" + input.getSentiment());
+//            }
 
 
             // Log the processing information
