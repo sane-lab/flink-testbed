@@ -61,7 +61,7 @@ init() {
   errorcase_number=3
   #calibrate_selectivity=false
   calibrate_selectivity=true
-  vertex_id="a84740bacf923e828852cc4966f2247c,eabd4c11f6c6fbdf011f0f1fc42097b1,d01047f852abd5702a0dabeedac99ff5,d2336f79a0d60b5a4b16c8769ec82e47" #feccfb8648621345be01b71938abfb72,36fcfcb61a35d065e60ee34fccb0541a" #,c395b989724fa728d0a2640c6ccdb8a1"
+  vertex_id="a84740bacf923e828852cc4966f2247c" #,eabd4c11f6c6fbdf011f0f1fc42097b1,d01047f852abd5702a0dabeedac99ff5,d2336f79a0d60b5a4b16c8769ec82e47" #feccfb8648621345be01b71938abfb72,36fcfcb61a35d065e60ee34fccb0541a" #,c395b989724fa728d0a2640c6ccdb8a1"
   is_treat=true
   migration_interval=500
   epoch=100
@@ -79,19 +79,19 @@ init() {
   MP6=128
   MP7=128
 
-  LP2=10 #27
-  LP3=27 #10
+  LP2=27
+  LP3=10
   LP4=1
   LP5=1
 
   P1=1
-  P2=9 #19
-  P3=19 #9
+  P2=19
+  P3=9
   P4=1
   P5=1
 
-  DELAY2=50 #3333 #3333 # 6666 #5000
-  DELAY3=3333 #500 # 1000 #1000
+  DELAY2=3333 #3333 #3333 # 6666 #5000
+  DELAY3=500 # 1000 #1000
   DELAY4=50
   DELAY5=50
   #DELAY6=100

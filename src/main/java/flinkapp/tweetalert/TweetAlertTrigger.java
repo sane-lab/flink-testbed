@@ -235,24 +235,24 @@ public class TweetAlertTrigger {
                 .setMaxParallelism(params.getInt("mp3", 8))
                 .slotSharingGroup("g3");
 
-        DataStream<Tuple2<String, JoinedResult>> afterJoin = afterSentimentAnalysis.union(afterInfluenceScoring)
-                .keyBy(0)
-                .flatMap(new TweetJoin(params.getInt("op4Delay", 1000)))
-                .disableChaining()
-                .name("Join")
-                .uid("op4")
-                .setParallelism(params.getInt("p4", 1))
-                .setMaxParallelism(params.getInt("mp4", 8))
-                .slotSharingGroup("g4");
-        afterJoin
-                .keyBy(0)
-                .map(new TweetUserAlertTrigger(params.getInt("op5Delay", 1000)))
-                .disableChaining()
-                .name("Aggregate")
-                .uid("op5")
-                .setParallelism(params.getInt("p5", 1))
-                .setMaxParallelism(params.getInt("mp5", 8))
-                .slotSharingGroup("g5");
+//        DataStream<Tuple2<String, JoinedResult>> afterJoin = afterSentimentAnalysis.union(afterInfluenceScoring)
+//                .keyBy(0)
+//                .flatMap(new TweetJoin(params.getInt("op4Delay", 1000)))
+//                .disableChaining()
+//                .name("Join")
+//                .uid("op4")
+//                .setParallelism(params.getInt("p4", 1))
+//                .setMaxParallelism(params.getInt("mp4", 8))
+//                .slotSharingGroup("g4");
+//        afterJoin
+//                .keyBy(0)
+//                .map(new TweetUserAlertTrigger(params.getInt("op5Delay", 1000)))
+//                .disableChaining()
+//                .name("Aggregate")
+//                .uid("op5")
+//                .setParallelism(params.getInt("p5", 1))
+//                .setMaxParallelism(params.getInt("mp5", 8))
+//                .slotSharingGroup("g5");
 
         env.execute();
     }

@@ -727,82 +727,159 @@ def main():
     output_dir = "/Users/swrrt/Workplace/BacklogDelayPaper/experiments/results/"
     window_size = 100
     draw_lem_latency_flag = True
+    # exps_per_label_per_setting_stock = {
+    #     # Stock
+    #     "static": "stock-ds2-ds2-5-8-60-1350-90-1000-20-1-200-11-3333-1-200-2-500-1-15-5000-3000-100-0.1-false-false-1",
+    #     "setting_1": {
+    #         "Dimension": "User Limit (ms)",
+    #         "1500":[
+    #             "stock-streamsluice-streamsluice-5-8-60-1350-90-1000-20-1-200-11-3333-1-200-2-500-1-15-5000-1500-100-0.1-true-true-1",
+    #         ],
+    #         "2000": [
+    #             "stock-streamsluice-streamsluice-5-8-60-1350-90-1000-20-1-200-11-3333-1-200-2-500-1-15-5000-2000-100-0.1-true-true-1",
+    #         ],
+    #         "2500": [
+    #             "stock-streamsluice-streamsluice-5-8-60-1350-90-1000-20-1-200-11-3333-1-200-2-500-1-15-5000-2500-100-0.1-true-true-1",
+    #         ],
+    #         "3000": [
+    #             "stock-streamsluice-streamsluice-5-8-60-1350-90-1000-20-1-200-11-3333-1-200-2-500-1-15-5000-3000-100-0.1-true-true-1",
+    #         ],
+    #         "3500": [
+    #             "stock-streamsluice-streamsluice-5-8-60-1350-90-1000-20-1-200-11-3333-1-200-2-500-1-15-5000-3500-100-0.1-true-true-1",
+    #         ],
+    #         "4000": [
+    #             "stock-streamsluice-streamsluice-5-8-60-1350-90-1000-20-1-200-11-3333-1-200-2-500-1-15-5000-4000-100-0.1-true-true-1",
+    #         ]
+    #     },
+    #     "setting_2": {
+    #         "Dimension": "Epoch Length (ms)",
+    #         "25": [
+    #             "stock-streamsluice-streamsluice-5-8-60-1350-90-1000-20-1-200-11-3333-1-200-2-500-1-15-5000-3000-25-0.1-true-true-1",
+    #         ],
+    #         "50":[
+    #             "stock-streamsluice-streamsluice-5-8-60-1350-90-1000-20-1-200-11-3333-1-200-2-500-1-15-5000-3000-50-0.1-true-true-1",
+    #         ],
+    #         "200": [
+    #             "stock-streamsluice-streamsluice-5-8-60-1350-90-1000-20-1-200-11-3333-1-200-2-500-1-15-5000-3000-200-0.1-true-true-1",
+    #         ],
+    #         "500":[
+    #             "stock-streamsluice-streamsluice-5-8-60-1350-90-1000-20-1-200-11-3333-1-200-2-500-1-15-5000-3000-500-0.1-true-true-1",
+    #         ],
+    #         "1000":[
+    #             "stock-streamsluice-streamsluice-5-8-60-1350-90-1000-20-1-200-11-3333-1-200-2-500-1-15-5000-3000-1000-0.1-true-true-1",
+    #         ],
+    #         "2000": [
+    #             "stock-streamsluice-streamsluice-5-8-60-1350-90-1000-20-1-200-11-3333-1-200-2-500-1-15-5000-3000-2000-0.1-true-true-1",
+    #         ],
+    #     },
+    #     "setting_3": {
+    #         "Dimension": "Resource Sensitivity (Alpha)",
+    #         "0.2": [
+    #             "stock-streamsluice-streamsluice-5-8-60-1350-90-1000-20-1-200-11-3333-1-200-2-500-1-15-5000-3000-100-0.2-true-true-1"
+    #             ,
+    #         ],
+    #         "0.4": [
+    #             "stock-streamsluice-streamsluice-5-8-60-1350-90-1000-20-1-200-11-3333-1-200-2-500-1-15-5000-3000-100-0.4-true-true-1",
+    #         ],
+    #         "0.8": [
+    #             "stock-streamsluice-streamsluice-5-8-60-1350-90-1000-20-1-200-11-3333-1-200-2-500-1-15-5000-3000-100-0.8-true-true-1",
+    #         ],
+    #         "1.0": [
+    #             "stock-streamsluice-streamsluice-5-8-60-1350-90-1000-20-1-200-11-3333-1-200-2-500-1-15-5000-3000-100-1.0-true-true-1",
+    #         ],
+    #     },
+    #     "setting_4": {
+    #         "Dimension": "Tuning Frequency (s)",
+    #         "30": [
+    #             "stock-streamsluice-streamsluice-5-8-30-1350-90-1000-20-1-200-11-3333-1-200-2-500-1-15-5000-3000-100-0.1-true-true-1",
+    #         ],
+    #         "120": [
+    #             "stock-streamsluice-streamsluice-5-8-120-1350-90-1000-20-1-200-11-3333-1-200-2-500-1-15-5000-3000-100-0.1-true-true-1",
+    #         ],
+    #         "240": [
+    #             "stock-streamsluice-streamsluice-5-8-240-1350-90-1000-20-1-200-11-3333-1-200-2-500-1-15-5000-3000-100-0.1-true-true-1",
+    #         ],
+    #         "480": [
+    #             "stock-streamsluice-streamsluice-5-8-480-1350-90-1000-20-1-200-11-3333-1-200-2-500-1-15-5000-3000-100-0.1-true-true-1",
+    #         ],
+    #     },
+    # }
     exps_per_label_per_setting_stock = {
         # Stock
         "static": "stock-ds2-ds2-5-8-60-1350-90-1000-20-1-200-11-3333-1-200-2-500-1-15-5000-3000-100-0.1-false-false-1",
         "setting_1": {
             "Dimension": "User Limit (ms)",
-            "1500":[
-                "stock-streamsluice-streamsluice-5-8-60-1350-90-1000-20-1-200-11-3333-1-200-2-500-1-15-5000-1500-100-0.1-true-true-1",
-            ],
-            "2000": [
-                "stock-streamsluice-streamsluice-5-8-60-1350-90-1000-20-1-200-11-3333-1-200-2-500-1-15-5000-2000-100-0.1-true-true-1",
-            ],
-            "2500": [
-                "stock-streamsluice-streamsluice-5-8-60-1350-90-1000-20-1-200-11-3333-1-200-2-500-1-15-5000-2500-100-0.1-true-true-1",
-            ],
-            "3000": [
-                "stock-streamsluice-streamsluice-5-8-60-1350-90-1000-20-1-200-11-3333-1-200-2-500-1-15-5000-3000-100-0.1-true-true-1",
-            ],
-            "3500": [
-                "stock-streamsluice-streamsluice-5-8-60-1350-90-1000-20-1-200-11-3333-1-200-2-500-1-15-5000-3500-100-0.1-true-true-1",
-            ],
-            "4000": [
-                "stock-streamsluice-streamsluice-5-8-60-1350-90-1000-20-1-200-11-3333-1-200-2-500-1-15-5000-4000-100-0.1-true-true-1",
-            ]
+            # "1500": [
+            #     "stock-streamsluice-streamsluice-5-8-60-1350-90-1000-20-1-200-11-3333-1-200-2-500-1-15-5000-1500-100-0.1-true-true-1",
+            # ],
+            # "2000": [
+            #     "stock-streamsluice-streamsluice-5-8-60-1350-90-1000-20-1-200-11-3333-1-200-2-500-1-15-5000-2000-100-0.1-true-true-1",
+            # ],
+            # "2500": [
+            #     "stock-streamsluice-streamsluice-5-8-60-1350-90-1000-20-1-200-11-3333-1-200-2-500-1-15-5000-2500-100-0.1-true-true-1",
+            # ],
+            # "3000": [
+            #     "stock-streamsluice-streamsluice-5-8-60-1350-90-1000-20-1-200-11-3333-1-200-2-500-1-15-5000-3000-100-0.1-true-true-1",
+            # ],
+            # "3500": [
+            #     "stock-streamsluice-streamsluice-5-8-60-1350-90-1000-20-1-200-11-3333-1-200-2-500-1-15-5000-3500-100-0.1-true-true-1",
+            # ],
+            # "4000": [
+            #     "stock-streamsluice-streamsluice-5-8-60-1350-90-1000-20-1-200-11-3333-1-200-2-500-1-15-5000-4000-100-0.1-true-true-1",
+            # ]
         },
-        "setting_2": {
-            "Dimension": "Epoch Length (ms)",
-            "25": [
-                "stock-streamsluice-streamsluice-5-8-60-1350-90-1000-20-1-200-11-3333-1-200-2-500-1-15-5000-3000-25-0.1-true-true-1",
-            ],
-            "50":[
-                "stock-streamsluice-streamsluice-5-8-60-1350-90-1000-20-1-200-11-3333-1-200-2-500-1-15-5000-3000-50-0.1-true-true-1",
-            ],
-            "200": [
-                "stock-streamsluice-streamsluice-5-8-60-1350-90-1000-20-1-200-11-3333-1-200-2-500-1-15-5000-3000-200-0.1-true-true-1",
-            ],
-            "500":[
-                "stock-streamsluice-streamsluice-5-8-60-1350-90-1000-20-1-200-11-3333-1-200-2-500-1-15-5000-3000-500-0.1-true-true-1",
-            ],
-            "1000":[
-                "stock-streamsluice-streamsluice-5-8-60-1350-90-1000-20-1-200-11-3333-1-200-2-500-1-15-5000-3000-1000-0.1-true-true-1",
-            ],
-            "2000": [
-                "stock-streamsluice-streamsluice-5-8-60-1350-90-1000-20-1-200-11-3333-1-200-2-500-1-15-5000-3000-2000-0.1-true-true-1",
-            ],
-        },
-        "setting_3": {
-            "Dimension": "Resource Sensitivity (Alpha)",
-            "0.2": [
-                "stock-streamsluice-streamsluice-5-8-60-1350-90-1000-20-1-200-11-3333-1-200-2-500-1-15-5000-3000-100-0.2-true-true-1"
-                ,
-            ],
-            "0.4": [
-                "stock-streamsluice-streamsluice-5-8-60-1350-90-1000-20-1-200-11-3333-1-200-2-500-1-15-5000-3000-100-0.4-true-true-1",
-            ],
-            "0.8": [
-                "stock-streamsluice-streamsluice-5-8-60-1350-90-1000-20-1-200-11-3333-1-200-2-500-1-15-5000-3000-100-0.8-true-true-1",
-            ],
-            "1.0": [
-                "stock-streamsluice-streamsluice-5-8-60-1350-90-1000-20-1-200-11-3333-1-200-2-500-1-15-5000-3000-100-1.0-true-true-1",
-            ],
-        },
-        "setting_4": {
-            "Dimension": "Tuning Frequency (s)",
-            "30": [
-                "stock-streamsluice-streamsluice-5-8-30-1350-90-1000-20-1-200-11-3333-1-200-2-500-1-15-5000-3000-100-0.1-true-true-1",
-            ],
-            "120": [
-                "stock-streamsluice-streamsluice-5-8-120-1350-90-1000-20-1-200-11-3333-1-200-2-500-1-15-5000-3000-100-0.1-true-true-1",
-            ],
-            "240": [
-                "stock-streamsluice-streamsluice-5-8-240-1350-90-1000-20-1-200-11-3333-1-200-2-500-1-15-5000-3000-100-0.1-true-true-1",
-            ],
-            "480": [
-                "stock-streamsluice-streamsluice-5-8-480-1350-90-1000-20-1-200-11-3333-1-200-2-500-1-15-5000-3000-100-0.1-true-true-1",
-            ],
-        },
+        # "setting_2": {
+        #     "Dimension": "Epoch Length (ms)",
+        #     "25": [
+        #         "stock-streamsluice-streamsluice-5-8-60-1350-90-1000-20-1-200-11-3333-1-200-2-500-1-15-5000-2000-25-0.1-true-true-1",
+        #     ],
+        #     "50": [
+        #         "stock-streamsluice-streamsluice-5-8-60-1350-90-1000-20-1-200-11-3333-1-200-2-500-1-15-5000-2000-50-0.1-true-true-1",
+        #     ],
+        #     "200": [
+        #         "stock-streamsluice-streamsluice-5-8-60-1350-90-1000-20-1-200-11-3333-1-200-2-500-1-15-5000-2000-200-0.1-true-true-1",
+        #     ],
+        #     "500": [
+        #         "stock-streamsluice-streamsluice-5-8-60-1350-90-1000-20-1-200-11-3333-1-200-2-500-1-15-5000-2000-500-0.1-true-true-1",
+        #     ],
+        #     "1000": [
+        #         "stock-streamsluice-streamsluice-5-8-60-1350-90-1000-20-1-200-11-3333-1-200-2-500-1-15-5000-2000-1000-0.1-true-true-1",
+        #     ],
+        #     "2000": [
+        #         "stock-streamsluice-streamsluice-5-8-60-1350-90-1000-20-1-200-11-3333-1-200-2-500-1-15-5000-2000-2000-0.1-true-true-1",
+        #     ],
+        # },
+        # "setting_3": {
+        #     "Dimension": "Resource Sensitivity (Alpha)",
+        #     "0.2": [
+        #         "stock-streamsluice-streamsluice-5-8-60-1350-90-1000-20-1-200-11-3333-1-200-2-500-1-15-5000-2000-100-0.2-true-true-1"
+        #         ,
+        #     ],
+        #     "0.4": [
+        #         "stock-streamsluice-streamsluice-5-8-60-1350-90-1000-20-1-200-11-3333-1-200-2-500-1-15-5000-2000-100-0.4-true-true-1",
+        #     ],
+        #     "0.8": [
+        #         "stock-streamsluice-streamsluice-5-8-60-1350-90-1000-20-1-200-11-3333-1-200-2-500-1-15-5000-2000-100-0.8-true-true-1",
+        #     ],
+        #     "1.0": [
+        #         "stock-streamsluice-streamsluice-5-8-60-1350-90-1000-20-1-200-11-3333-1-200-2-500-1-15-5000-2000-100-1.0-true-true-1",
+        #     ],
+        # },
+        # "setting_4": {
+        #     "Dimension": "Tuning Frequency (s)",
+        #     "30": [
+        #         "stock-streamsluice-streamsluice-5-8-30-1350-90-1000-20-1-200-11-3333-1-200-2-500-1-15-5000-2000-100-0.1-true-true-1",
+        #     ],
+        #     "120": [
+        #         "stock-streamsluice-streamsluice-5-8-120-1350-90-1000-20-1-200-11-3333-1-200-2-500-1-15-5000-2000-100-0.1-true-true-1",
+        #     ],
+        #     "240": [
+        #         "stock-streamsluice-streamsluice-5-8-240-1350-90-1000-20-1-200-11-3333-1-200-2-500-1-15-5000-2000-100-0.1-true-true-1",
+        #     ],
+        #     "480": [
+        #         "stock-streamsluice-streamsluice-5-8-480-1350-90-1000-20-1-200-11-3333-1-200-2-500-1-15-5000-2000-100-0.1-true-true-1",
+        #     ],
+        # },
     }
 
     exps_per_label_per_setting_twitter = {
