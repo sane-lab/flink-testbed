@@ -140,8 +140,8 @@ def main():
     success_rate_per_label = {}
     name_list = [
         #"tweet",
-        "lr",
-        #"stock",
+        #"lr",
+        "stock",
     ]
     for name in name_list:
         overall_output_dir = "/Users/swrrt/Workplace/BacklogDelayPaper/experiments/figures/part4/" + name + "/"

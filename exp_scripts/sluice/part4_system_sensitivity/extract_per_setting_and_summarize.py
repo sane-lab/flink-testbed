@@ -573,7 +573,7 @@ def readParallelism(rawDir, expName, windowSize):
     return [ParallelismPerJob, totalArrivalRatePerJob, initialTime, scalings]
 
 
-def draw_parallelism_curve(rawDir, outputDir, exp_name, windowSize, startTime, exp_length, draw_parallelism_flag) -> [float, [list[int], list[float]]]:
+def draw_parallelism_curve(rawDir, outputDir, exp_name, windowSize, startTime, exp_length, draw_parallelism_flag, arrival_curves) -> [float, [list[int], list[float]]]:
     exps = [
         ["Sluice", exp_name, "blue", "o"]
     ]
@@ -631,7 +631,10 @@ def draw_parallelism_curve(rawDir, outputDir, exp_name, windowSize, startTime, e
     job = jobList[0]
     ax = sorted(totalArrivalRatesPerJob[job][0].keys())
     ay = [totalArrivalRatesPerJob[job][0][x] / (windowSize / 100) for x in ax]
-    arrival_curves = [ax, ay]
+    if (len(arrival_curves) == 0):
+        arrival_curves = [ax, ay]
+    else:
+        ax, ay = arrival_curves
     ax2.plot(ax, ay, '-', color='red', markersize=MARKERSIZE / 2, label="Arrival Rate")
     if (exp_name.startswith("lr-")):
         ax2.set_ylim(400, 2000)
@@ -726,11 +729,12 @@ def main():
     draw_lem_latency_flag = True
     exps_per_label_per_setting_stock = {
         # Stock
+        "static": "stock-ds2-ds2-5-8-60-1350-90-1000-20-1-200-11-3333-1-200-2-500-1-15-5000-3000-100-0.1-false-false-1",
         "setting_1": {
             "Dimension": "User Limit (ms)",
-            # "1500":[
-            #     "stock-streamsluice-streamsluice-5-8-60-1350-90-1000-20-1-200-11-3333-1-200-2-500-1-15-5000-1500-100-0.1-true-true-1",
-            # ],
+            "1500":[
+                "stock-streamsluice-streamsluice-5-8-60-1350-90-1000-20-1-200-11-3333-1-200-2-500-1-15-5000-1500-100-0.1-true-true-1",
+            ],
             "2000": [
                 "stock-streamsluice-streamsluice-5-8-60-1350-90-1000-20-1-200-11-3333-1-200-2-500-1-15-5000-2000-100-0.1-true-true-1",
             ],
@@ -771,31 +775,32 @@ def main():
         "setting_3": {
             "Dimension": "Resource Sensitivity (Alpha)",
             "0.2": [
-                "stock-streamsluice-streamsluice-5-8-30-1350-90-1000-20-1-200-11-3333-1-200-2-500-1-15-5000-3000-100-0.1-true-true-1",
+                "stock-streamsluice-streamsluice-5-8-60-1350-90-1000-20-1-200-11-3333-1-200-2-500-1-15-5000-3000-100-0.2-true-true-1"
+                ,
             ],
             "0.4": [
-                "stock-streamsluice-streamsluice-5-8-120-1350-90-1000-20-1-200-11-3333-1-200-2-500-1-15-5000-3000-100-0.1-true-true-1",
+                "stock-streamsluice-streamsluice-5-8-60-1350-90-1000-20-1-200-11-3333-1-200-2-500-1-15-5000-3000-100-0.4-true-true-1",
             ],
             "0.8": [
-                "stock-streamsluice-streamsluice-5-8-240-1350-90-1000-20-1-200-11-3333-1-200-2-500-1-15-5000-3000-100-0.1-true-true-1",
+                "stock-streamsluice-streamsluice-5-8-60-1350-90-1000-20-1-200-11-3333-1-200-2-500-1-15-5000-3000-100-0.8-true-true-1",
             ],
             "1.0": [
-                "stock-streamsluice-streamsluice-5-8-480-1350-90-1000-20-1-200-11-3333-1-200-2-500-1-15-5000-3000-100-0.1-true-true-1",
+                "stock-streamsluice-streamsluice-5-8-60-1350-90-1000-20-1-200-11-3333-1-200-2-500-1-15-5000-3000-100-1.0-true-true-1",
             ],
         },
         "setting_4": {
             "Dimension": "Tuning Frequency (s)",
             "30": [
-                "stock-streamsluice-streamsluice-5-8-60-1350-90-1000-20-1-200-11-3333-1-200-2-500-1-15-5000-3000-100-0.2-true-true-1",
+                "stock-streamsluice-streamsluice-5-8-30-1350-90-1000-20-1-200-11-3333-1-200-2-500-1-15-5000-3000-100-0.1-true-true-1",
             ],
             "120": [
-                "stock-streamsluice-streamsluice-5-8-60-1350-90-1000-20-1-200-11-3333-1-200-2-500-1-15-5000-3000-100-0.4-true-true-1",
+                "stock-streamsluice-streamsluice-5-8-120-1350-90-1000-20-1-200-11-3333-1-200-2-500-1-15-5000-3000-100-0.1-true-true-1",
             ],
             "240": [
-                "stock-streamsluice-streamsluice-5-8-60-1350-90-1000-20-1-200-11-3333-1-200-2-500-1-15-5000-3000-100-0.8-true-true-1",
+                "stock-streamsluice-streamsluice-5-8-240-1350-90-1000-20-1-200-11-3333-1-200-2-500-1-15-5000-3000-100-0.1-true-true-1",
             ],
             "480": [
-                "stock-streamsluice-streamsluice-5-8-60-1350-90-1000-20-1-200-11-3333-1-200-2-500-1-15-5000-3000-100-1.0-true-true-1",
+                "stock-streamsluice-streamsluice-5-8-480-1350-90-1000-20-1-200-11-3333-1-200-2-500-1-15-5000-3000-100-0.1-true-true-1",
             ],
         },
     }
@@ -808,7 +813,7 @@ def main():
             #      "",
             # ],
             "2000": [
-                "tweet-streamsluice-streamsluice-5-60-1350-90-1700-1-19-3333-9-50-1-50-1-50-2000-100-true-0.1-1",
+                "tweet-streamsluice-streamsluice-5-60-1350-90-1700-1-19-50-9-3333-1-50-1-50-2000-100-true-0.1-1",
             ],
             # "2500": [
             #     "tweet-streamsluice-streamsluice-5-60-1350-90-1500-1-19-6666-9-1000-1-50-1-50-2500-100-true-0.1-1",
@@ -871,6 +876,7 @@ def main():
     }
 
     exps_per_label_per_setting_lr = {
+        "static": "lr-ds2-ds2-5-8-60-1380-150-1300-10-1-50-4-1000-1-50-20-3333-2000-0.1-100-1-25-0.0-false-2500-0.8-2",
         #Linear-road
         "setting_1": {
             "Dimension": "User Limit (ms)",
@@ -943,7 +949,41 @@ def main():
             ],
         },
     }
+
+    def getStartTimeAndExpLength(exp_name):
+        if exp_name.startswith("lr"):
+            if (exp_name.split('-')[-9].startswith("0.") or exp_name.split('-')[-9].startswith("1.")):
+                latency_bar = int(exp_name.split('-')[-10])
+            else:
+                latency_bar = int(exp_name.split('-')[-9])
+            start_time = 180
+            exp_length = 1200
+        elif exp_name.startswith("tweet"):
+            latency_bar = int(exp_name.split('-')[-5])
+            start_time = 120  # 150
+            exp_length = 1200  # 600
+        elif exp_name.startswith("stock"):
+            latency_bar = int(exp_name.split('-')[-6])
+            start_time = 120  # 0
+            exp_length = 1200
+        elif exp_name.startswith("system_"):
+            latency_bar = int(exp_name.split('-')[-8])
+            start_time = 60
+            exp_length = 600
+        else:
+            latency_bar = int(exp_name.split('-')[-6])
+            start_time = 60
+            exp_length = 1800
+        return start_time, exp_length, latency_bar
+
+    arrival_curves = []
     for workload_name, exps_per_label in exps_per_label_per_setting_twitter.items():
+        if workload_name == "static":
+            exp_name = exps_per_label
+            start_time, exp_length, latency_bar = getStartTimeAndExpLength(exp_name)
+            avg_parallelism, arrival_curves = draw_parallelism_curve(raw_dir, output_dir + exp_name + '/', exp_name, window_size,
+                                                            start_time, exp_length, True, [])
+            continue
         success_rate_per_label = {}
         avg_parallelism_per_label = {}
         user_limit_per_label = {}
@@ -956,29 +996,7 @@ def main():
             user_limit_per_label[label] = []
             weighted_success_rate_per_label[label] = []
             for exp_name in exps:
-                if exp_name.startswith("lr"):
-                    if(exp_name.split('-')[-9].startswith("0.") or exp_name.split('-')[-9].startswith("1.")):
-                        latency_bar = int(exp_name.split('-')[-10])
-                    else:
-                        latency_bar = int(exp_name.split('-')[-9])
-                    start_time = 180
-                    exp_length = 1200
-                elif exp_name.startswith("tweet"):
-                    latency_bar = int(exp_name.split('-')[-5])
-                    start_time = 120 #150
-                    exp_length = 1200  # 600
-                elif exp_name.startswith("stock"):
-                    latency_bar = int(exp_name.split('-')[-6])
-                    start_time = 0 #150
-                    exp_length = 1200
-                elif exp_name.startswith("system_"):
-                    latency_bar = int(exp_name.split('-')[-8])
-                    start_time = 60
-                    exp_length = 600
-                else:
-                    latency_bar = int(exp_name.split('-')[-6])
-                    start_time = 60
-                    exp_length = 1800
+                start_time, exp_length, latency_bar = getStartTimeAndExpLength(exp_name)
                 success_rate, weighted_success_rate, first_converge_time, converged_bar = draw_latency_curves(raw_dir,
                                                                                                               output_dir + exp_name + '/',
                                                                                                               exp_name,
@@ -989,7 +1007,7 @@ def main():
                                                                                                               draw_lem_latency_flag)
                 avg_parallelism, trash = draw_parallelism_curve(raw_dir, output_dir + exp_name + '/', exp_name,
                                                                 window_size,
-                                                                start_time, exp_length, True)
+                                                                start_time, exp_length, True, arrival_curves)
                 user_limit_per_label[label] += [latency_bar]
                 success_rate_per_label[label] += [success_rate]
                 weighted_success_rate_per_label[label] += [weighted_success_rate]
