@@ -808,7 +808,7 @@ def main():
             #      "",
             # ],
             "2000": [
-                "tweet-streamsluice-streamsluice-5-60-1350-90-1700-1-19-6666-9-1000-1-50-1-50-2000-100-true-0.1-1",
+                "tweet-streamsluice-streamsluice-5-60-1350-90-1700-1-19-333-9-500-1-50-1-50-2000-100-true-0.1-1",
             ],
             # "2500": [
             #     "tweet-streamsluice-streamsluice-5-60-1350-90-1500-1-19-6666-9-1000-1-50-1-50-2500-100-true-0.1-1",
@@ -943,7 +943,7 @@ def main():
             ],
         },
     }
-    for workload_name, exps_per_label in exps_per_label_per_setting_lr.items():
+    for workload_name, exps_per_label in exps_per_label_per_setting_twitter.items():
         success_rate_per_label = {}
         avg_parallelism_per_label = {}
         user_limit_per_label = {}
