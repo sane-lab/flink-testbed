@@ -726,42 +726,48 @@ def main():
     draw_lem_latency_flag = True
     exps_per_label_per_setting_stock = {
         # Stock
-        # "setting_1": {
-        #     "Dimension": "User Limit (ms)",
-        #     "1500":[
-        #         "stock-streamsluice-streamsluice-5-8-60-1350-90-1000-20-1-200-11-3333-1-200-2-500-1-15-5000-1500-100-0.1-true-true-1",
-        #     ],
-        #     "2000": [
-        #         "stock-streamsluice-streamsluice-5-8-60-1350-90-1000-20-1-200-11-3333-1-200-2-500-1-15-5000-2000-100-0.1-true-true-1",
-        #     ],
-        #     "2500": [
-        #         "stock-streamsluice-streamsluice-5-8-60-1350-90-1000-20-1-200-11-3333-1-200-2-500-1-15-5000-2500-100-0.1-true-true-1",
-        #     ],
-        #     "3000": [
-        #         "stock-streamsluice-streamsluice-5-8-60-1350-90-1000-20-1-200-11-3333-1-200-2-500-1-15-5000-3000-100-0.1-true-true-1",
-        #     ]
-        # },
-        # "setting_2": {
-        #     "Dimension": "Epoch Length (ms)",
-        #     "25": [
-        #         "stock-streamsluice-streamsluice-5-8-60-1350-90-1000-20-1-200-11-3333-1-200-2-500-1-15-5000-2000-25-0.1-true-true-1",
-        #     ],
-        #     "50":[
-        #         "stock-streamsluice-streamsluice-5-8-60-1350-90-1000-20-1-200-11-3333-1-200-2-500-1-15-5000-2000-50-0.1-true-true-1",
-        #     ],
-        #     "200": [
-        #         "stock-streamsluice-streamsluice-5-8-60-1350-90-1000-20-1-200-11-3333-1-200-2-500-1-15-5000-2000-200-0.1-true-true-1",
-        #     ],
-        #     "500":[
-        #         "stock-streamsluice-streamsluice-5-8-60-1350-90-1000-20-1-200-11-3333-1-200-2-500-1-15-5000-2000-500-0.1-true-true-1",
-        #     ],
-        #     "1000":[
-        #         "stock-streamsluice-streamsluice-5-8-60-1350-90-1000-20-1-200-11-3333-1-200-2-500-1-15-5000-2000-1000-0.1-true-true-1",
-        #     ],
-        #     "2000": [
-        #         "stock-streamsluice-streamsluice-5-8-60-1350-90-1000-20-1-200-11-3333-1-200-2-500-1-15-5000-2000-2000-0.1-true-true-1",
-        #     ],
-        # },
+        "setting_1": {
+            "Dimension": "User Limit (ms)",
+            # "1500":[
+            #     "stock-streamsluice-streamsluice-5-8-60-1350-90-1000-20-1-200-11-3333-1-200-2-500-1-15-5000-1500-100-0.1-true-true-1",
+            # ],
+            "2000": [
+                "stock-streamsluice-streamsluice-5-8-60-1350-90-1000-20-1-200-11-3333-1-200-2-500-1-15-5000-2000-100-0.1-true-true-1",
+            ],
+            "2500": [
+                "stock-streamsluice-streamsluice-5-8-60-1350-90-1000-20-1-200-11-3333-1-200-2-500-1-15-5000-2500-100-0.1-true-true-1",
+            ],
+            "3000": [
+                "stock-streamsluice-streamsluice-5-8-60-1350-90-1000-20-1-200-11-3333-1-200-2-500-1-15-5000-3000-100-0.1-true-true-1",
+            ],
+            "3500": [
+                "stock-streamsluice-streamsluice-5-8-60-1350-90-1000-20-1-200-11-3333-1-200-2-500-1-15-5000-3500-100-0.1-true-true-1",
+            ],
+            "4000": [
+                "stock-streamsluice-streamsluice-5-8-60-1350-90-1000-20-1-200-11-3333-1-200-2-500-1-15-5000-4000-100-0.1-true-true-1",
+            ]
+        },
+        "setting_2": {
+            "Dimension": "Epoch Length (ms)",
+            "25": [
+                "stock-streamsluice-streamsluice-5-8-60-1350-90-1000-20-1-200-11-3333-1-200-2-500-1-15-5000-3000-25-0.1-true-true-1",
+            ],
+            "50":[
+                "stock-streamsluice-streamsluice-5-8-60-1350-90-1000-20-1-200-11-3333-1-200-2-500-1-15-5000-2000-50-0.1-true-true-1",
+            ],
+            "200": [
+                "stock-streamsluice-streamsluice-5-8-60-1350-90-1000-20-1-200-11-3333-1-200-2-500-1-15-5000-2000-200-0.1-true-true-1",
+            ],
+            "500":[
+                "stock-streamsluice-streamsluice-5-8-60-1350-90-1000-20-1-200-11-3333-1-200-2-500-1-15-5000-2000-500-0.1-true-true-1",
+            ],
+            "1000":[
+                "stock-streamsluice-streamsluice-5-8-60-1350-90-1000-20-1-200-11-3333-1-200-2-500-1-15-5000-2000-1000-0.1-true-true-1",
+            ],
+            "2000": [
+                "stock-streamsluice-streamsluice-5-8-60-1350-90-1000-20-1-200-11-3333-1-200-2-500-1-15-5000-2000-2000-0.1-true-true-1",
+            ],
+        },
         "setting_3": {
             "Dimension": "Resource Sensitivity (Alpha)",
             "0.2": [

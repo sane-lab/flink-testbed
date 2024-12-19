@@ -33,4 +33,10 @@ public class Util {
             Thread.sleep(1000/20 - emitTime);
         }
     }
+    public static void pauseTwo(long emitStartTime) throws InterruptedException {
+        long emitTime = System.currentTimeMillis() - emitStartTime;
+        if (emitTime < 1000/40) {
+            Thread.sleep(1000/40 - emitTime);
+        }
+    }
 }

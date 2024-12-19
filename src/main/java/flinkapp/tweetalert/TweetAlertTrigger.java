@@ -288,7 +288,7 @@ public class TweetAlertTrigger {
             // Warm-up phase
             while (System.currentTimeMillis() - startTime < warmup) {
                 long emitStartTime = System.currentTimeMillis();
-                for (int i = 0; i < warmp_rate / 20; i++) {
+                for (int i = 0; i < warmp_rate / 40; i++) {
                     String tweet_id = getTweetID(count % 1000000);
                     String user_id = getTweetID(count % 20000);
                     ctx.collect(new Tuple2<>(user_id, new TweetRecord(
@@ -302,7 +302,7 @@ public class TweetAlertTrigger {
                     )));
                     count++;
                 }
-                Util.pause(emitStartTime);
+                Util.pauseTwo(emitStartTime);
             }
 
             try {
@@ -320,7 +320,7 @@ public class TweetAlertTrigger {
                             System.out.println("no record in this sleep !" + noRecSleepCnt);
                         }
                         if (sleepCnt <= skipCount) {
-                            for (int i = 0; i < warmp_rate / 20; i++) {
+                            for (int i = 0; i < warmp_rate / 40; i++) {
                                 String tweet_id = getTweetID(count % 1000000);
                                 String user_id = getTweetID(count % 20000);
                                 ctx.collect(new Tuple2<>(user_id, new TweetRecord(
@@ -337,8 +337,8 @@ public class TweetAlertTrigger {
                         }
                         counter = 0;
                         cur = System.currentTimeMillis();
-                        if (cur < sleepCnt * 50 + start) {
-                            Thread.sleep((sleepCnt * 50 + start) - cur);
+                        if (cur < sleepCnt * 25 + start) {
+                            Thread.sleep((sleepCnt * 25 + start) - cur);
                         } else {
                             System.out.println("rate exceeds 50ms.");
                         }
