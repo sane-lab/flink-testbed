@@ -192,10 +192,10 @@ run_scale_test(){
     DELAY3=500
     DELAY4=20
     DELAY5=1000
-    STATE_SIZE2=10000 # 1000 keys, per key (n * 2000 + 36) bytes, n=5000 -> 100 MB
-    STATE_SIZE3=10000
-    STATE_SIZE4=10000
-    STATE_SIZE5=10000
+    STATE_SIZE2=20000 # 1000 keys, per key (n * 2000 + 36) bytes, n=5000 -> 100 MB
+    STATE_SIZE3=20000
+    STATE_SIZE4=20000
+    STATE_SIZE5=20000
     LP2=1
     LP3=7
     LP4=1
@@ -244,10 +244,10 @@ run_scale_test(){
     DELAY3=20
     DELAY4=20
     DELAY5=1000
-    STATE_SIZE2=10000 # 1000 keys, per key (n * 2000 + 36) bytes, n=5000 -> 100 MB
-    STATE_SIZE3=10000
-    STATE_SIZE4=10000
-    STATE_SIZE5=10000
+    STATE_SIZE2=20000 # 1000 keys, per key (n * 2000 + 36) bytes, n=5000 -> 100 MB
+    STATE_SIZE3=20000
+    STATE_SIZE4=20000
+    STATE_SIZE5=20000
     LP2=1
     LP3=1
     LP4=1
@@ -297,10 +297,10 @@ run_scale_test(){
     DELAY3=500
     DELAY4=20
     DELAY5=1000
-    STATE_SIZE2=10000 # 1000 keys, per key (n * 2000 + 36) bytes, n=5000 -> 100 MB
-    STATE_SIZE3=10000
-    STATE_SIZE4=10000
-    STATE_SIZE5=10000
+    STATE_SIZE2=20000 # 1000 keys, per key (n * 2000 + 36) bytes, n=5000 -> 100 MB
+    STATE_SIZE3=20000
+    STATE_SIZE4=20000
+    STATE_SIZE5=20000
     LP2=1
     LP3=7
     LP4=1
@@ -335,8 +335,8 @@ run_scale_test(){
         is_treat=true
         autotune=true
         how_type="streamsluice"
-        run_one_exp
-        printf "${EXP_NAME}\n" >> system_sensitivity_result.txt
+#        run_one_exp
+#        printf "${EXP_NAME}\n" >> system_sensitivity_result.txt
       done
     done
 
