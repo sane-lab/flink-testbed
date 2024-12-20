@@ -225,15 +225,15 @@ public class TweetAlertTrigger {
                 .setMaxParallelism(params.getInt("mp2", 8))
                 .slotSharingGroup("g2");
 
-//        DataStream<Tuple2<String, TweetResult>> afterInfluenceScoring = source
-//                .keyBy(0)
-//                .flatMap(new InfluenceScoringAndContentCategorization(params.getInt("op3Delay", 1000)))
-//                .disableChaining()
-//                .name("Influence Scoring And Content Categorization")
-//                .uid("op3")
-//                .setParallelism(params.getInt("p3", 1))
-//                .setMaxParallelism(params.getInt("mp3", 8))
-//                .slotSharingGroup("g3");
+        DataStream<Tuple2<String, TweetResult>> afterInfluenceScoring = source
+                .keyBy(0)
+                .flatMap(new InfluenceScoringAndContentCategorization(params.getInt("op3Delay", 1000)))
+                .disableChaining()
+                .name("Influence Scoring And Content Categorization")
+                .uid("op3")
+                .setParallelism(params.getInt("p3", 1))
+                .setMaxParallelism(params.getInt("mp3", 8))
+                .slotSharingGroup("g3");
 
 //        DataStream<Tuple2<String, JoinedResult>> afterJoin = afterSentimentAnalysis.union(afterInfluenceScoring)
 //                .keyBy(0)
@@ -520,6 +520,11 @@ public class TweetAlertTrigger {
                     input.getArrivalTime(),
                     input.getTupleNumber()
             );
+
+            long currentTime = System.currentTimeMillis();
+            System.out.println("GT: " + input.getUserId() + ", " + currentTime + ", "
+                    + (currentTime - input.getArrivalTime()) + ", " + input.getTupleNumber());
+
 
             // Output is (key, result) where key = tweetId
             out.collect(new Tuple2<>(rawInput.f0, result));
