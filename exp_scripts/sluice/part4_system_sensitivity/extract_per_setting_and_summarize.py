@@ -1105,7 +1105,9 @@ def main():
         "setting_3": {
             "Dimension": "Resource Sensitivity (Alpha)",
             "0.0": [
-                "system_d3--streamsluice-streamsluice-false-true-false-systemsensitivity-sine-1split2join1-900-6000-30-3000-5000-0-1-0-1-20-1-10000-1-20-1-10000-1-20-1-10000-17-1000-10000-2000-1000-100-60-0.0-1-true-1",
+                #"system_d3--streamsluice-streamsluice-false-true-false-systemsensitivity-sine-1split2join1-900-6000-30-3000-5000-0-1-0-1-20-1-10000-1-20-1-10000-1-20-1-10000-17-1000-10000-2000-1000-100-60-0.0-1-true-1",
+                #"system_d3--streamsluice-streamsluice-false-true-false-systemsensitivity-sine-1split2join1-900-6000-30-3000-5000-0-1-0-1-20-1-10000-3-500-1-10000-1-20-1-10000-17-1000-10000-2000-1000-100-60-0.0-1-true-1",
+                "system_d3--streamsluice-streamsluice-false-true-false-systemsensitivity-sine-1split2join1-900-6000-30-3000-5000-0-1-0-1-20-1-20000-1-20-1-20000-1-20-1-20000-17-1000-20000-2000-1000-100-60-0.0-1-true-1",
             ],
             # "0.5": [
             #     "system_d3--streamsluice-streamsluice-false-true-false-systemsensitivity-sine-1split2join1-900-6000-30-3000-5000-0-1-0-1-20-1-10000-1-20-1-10000-1-20-1-10000-17-1000-10000-2000-1000-100-60-0.5-1-true-1"
@@ -1136,7 +1138,7 @@ def main():
         elif exp_name.startswith("system_"):
             latency_bar = int(exp_name.split('-')[-8])
             start_time = 60
-            exp_length = 600
+            exp_length = 900
         else:
             latency_bar = int(exp_name.split('-')[-6])
             start_time = 60

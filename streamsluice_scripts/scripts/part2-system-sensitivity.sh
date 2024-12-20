@@ -181,7 +181,7 @@ run_scale_test(){
 
 
     L=1000 #2000 #2500
-    migration_interval=1000
+    migration_interval=500 #1000
 
     printf "" > system_sensitivity_result.txt
     # Epoch length
@@ -206,7 +206,7 @@ run_scale_test(){
     P4=1
     P5=17
     GRAPH="1split2join1"
-    autotuner_bar_lowerbound=350
+    autotuner_bar_lowerbound=450
     autotuner_latency_window=100
     autotuner_increase_bar_alpha=0.1
     epoch=100
@@ -227,7 +227,7 @@ run_scale_test(){
       how_type="ds2"
 #      run_one_exp
 #      printf "${EXP_NAME}\n" >> workload_sensitivity_result.txt
-      for L in 750 1000 1250; do # 1000
+      for L in 2000; do # 1000
         is_treat=true
         autotune=true
         how_type="streamsluice"
@@ -269,11 +269,11 @@ run_scale_test(){
     RATE_I=5000
     TIME_I=0
     STAIRS=4
-    amplitude_low=0
-    amplitude_high=3000
-    period_low=50
-    period_high=50
-    for autotuner_increase_bar_alpha in 0.0 0.5 1.0; do
+    amplitude_low=1000
+    amplitude_high=4000
+    period_low=60
+    period_high=30
+    for autotuner_increase_bar_alpha in 0.0 0.5 1.0; do # 0.5 1.0
       is_treat=false
       autotune=false
       how_type="ds2"
@@ -325,7 +325,7 @@ run_scale_test(){
     amplitude_high=3000
     period_low=75
     period_high=45
-    for autotune_interval in 15 60 240; do #
+    for autotune_interval in 15; do # 60 240
       is_treat=false
       autotune=false
       how_type="ds2"

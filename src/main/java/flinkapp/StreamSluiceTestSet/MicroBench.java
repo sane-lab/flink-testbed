@@ -2808,13 +2808,13 @@ public class MicroBench {
             if (pattern_this_round == 0){
                 System.out.println("Round " + round + " stair phase start at: " + roundStartTime);
                 System.out.println("phase paras: " + now_average_rate + ", " + now_amplitude + ", " + now_period);
-                startSteadyPhase(ctx, now_average_rate, 10000, roundStartTime);
+                startSteadyPhase(ctx, now_average_rate, 20000, roundStartTime);
                 roundStartTime = System.currentTimeMillis();
                 startSteadyPhase(ctx, now_average_rate + now_amplitude, now_period, roundStartTime);
             }else if(pattern_this_round == 1){
                 System.out.println("Round " + round + " linear phase start at: " + roundStartTime);
                 System.out.println("phase paras: " + now_average_rate + ", " + now_amplitude + ", " + now_period);
-                startSteadyPhase(ctx, now_average_rate, 10000, roundStartTime);
+                startSteadyPhase(ctx, now_average_rate, 20000, roundStartTime);
                 roundStartTime = System.currentTimeMillis();
                 startLinearPhase(ctx, now_average_rate, now_average_rate + now_amplitude, now_period / 2, roundStartTime);
                 roundStartTime = System.currentTimeMillis();
@@ -2822,7 +2822,7 @@ public class MicroBench {
             }else if (pattern_this_round == 2) {
                 System.out.println("Round " + round + " sine phase start at: " + roundStartTime);
                 System.out.println("phase paras: " + now_average_rate + ", " + now_amplitude + ", " + now_period);
-                startSteadyPhase(ctx, now_average_rate, 10000, roundStartTime);
+                startSteadyPhase(ctx, now_average_rate, 20000, roundStartTime);
                 roundStartTime = System.currentTimeMillis();
                 startSemiSinePhase(ctx, now_amplitude, now_average_rate, now_period, roundStartTime);
             }
