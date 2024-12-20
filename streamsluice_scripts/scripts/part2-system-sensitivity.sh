@@ -141,7 +141,7 @@ run_scale_test(){
     autotuner_initial_value_alpha=1.2
     autotuner_adjustment_beta=2.0
 
-
+    noise=0.05
     runtime=900
     epoch=100
     decision_interval=1 #10

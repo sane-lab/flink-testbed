@@ -1120,7 +1120,7 @@ def main():
         return start_time, exp_length, latency_bar
 
     arrival_curves = []
-    for workload_name, exps_per_label in exps_per_label_per_setting_stock.items():
+    for workload_name, exps_per_label in exps_per_label_per_setting_twitter.items():
         if workload_name == "static":
             exp_name = exps_per_label
             start_time, exp_length, latency_bar = getStartTimeAndExpLength(exp_name)
