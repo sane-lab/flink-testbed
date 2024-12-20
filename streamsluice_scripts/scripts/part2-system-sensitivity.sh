@@ -241,7 +241,7 @@ run_scale_test(){
     setting="system_d3"
     SOURCE_TYPE="systemsensitivity"
     DELAY2=20
-    DELAY3=500
+    DELAY3=20
     DELAY4=20
     DELAY5=1000
     STATE_SIZE2=10000 # 1000 keys, per key (n * 2000 + 36) bytes, n=5000 -> 100 MB
@@ -249,12 +249,12 @@ run_scale_test(){
     STATE_SIZE4=10000
     STATE_SIZE5=10000
     LP2=1
-    LP3=7
+    LP3=1
     LP4=1
-    LP5=30
+    LP5=36
 
     P2=1
-    P3=3
+    P3=1
     P4=1
     P5=17
     GRAPH="1split2join1"
@@ -268,11 +268,11 @@ run_scale_test(){
     warmupTime=60
     RATE_I=5000
     TIME_I=0
-    STAIRS=3
-    amplitude_low=1000
+    STAIRS=4
+    amplitude_low=0
     amplitude_high=3000
-    period_low=75
-    period_high=45
+    period_low=50
+    period_high=50
     for autotuner_increase_bar_alpha in 0.0 0.5 1.0; do
       is_treat=false
       autotune=false

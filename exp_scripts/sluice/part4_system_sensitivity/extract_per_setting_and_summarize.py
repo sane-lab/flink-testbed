@@ -1094,7 +1094,7 @@ def main():
     }
 
     exps_per_label_per_setting_microbench = {
-        "static": "system_d3--streamsluice-streamsluice-false-true-false-systemsensitivity-sine-1split2join1-300-6000-30-3000-5000-0-1-0-1-20-1-10000-1-20-1-10000-1-20-1-10000-17-1000-10000-2000-3000-100-60-0.0-1-true-1",
+        "static": "system_d3--streamsluice-streamsluice-false-true-false-systemsensitivity-sine-1split2join1-900-6000-30-3000-5000-0-1-0-1-20-1-10000-3-500-1-10000-1-20-1-10000-17-1000-10000-2000-1000-100-60-0.0-1-true-1",
         # Linear-road
         "setting_1": {
             "Dimension": "User Limit (ms)",
@@ -1105,14 +1105,12 @@ def main():
         "setting_3": {
             "Dimension": "Resource Sensitivity (Alpha)",
             "0.0": [
-                "system_d3--streamsluice-streamsluice-false-true-false-systemsensitivity-sine-1split2join1-300-6000-30-3000-5000-0-1-0-1-20-1-10000-1-20-1-10000-1-20-1-10000-17-1000-10000-2000-3000-100-60-0.0-1-true-1",
+                "system_d3--streamsluice-streamsluice-false-true-false-systemsensitivity-sine-1split2join1-900-6000-30-3000-5000-0-1-0-1-20-1-10000-3-500-1-10000-1-20-1-10000-17-1000-10000-2000-1000-100-60-0.0-1-true-1",
             ],
-            "0.5": [
-                "system_d3--streamsluice-streamsluice-false-true-false-systemsensitivity-sine-1split2join1-300-6000-30-3000-5000-0-1-0-1-20-1-10000-1-20-1-10000-1-20-1-10000-17-1000-10000-2000-3000-100-60-0.5-1-true-1",
-            ],
-            "1.0": [
-                "system_d3--streamsluice-streamsluice-false-true-false-systemsensitivity-sine-1split2join1-300-6000-30-3000-5000-0-1-0-1-20-1-10000-1-20-1-10000-1-20-1-10000-17-1000-10000-2000-3000-100-60-1.0-1-true-1",
-            ],
+            # "0.5": [
+            # ],
+            # "1.0": [
+            # ],
         },
         "setting_4": {
             "Dimension": "Tuning Frequency (s)",
