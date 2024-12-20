@@ -103,6 +103,19 @@ public class MicroBench {
                     period_low, period_high, period_period, period_pattern,
                     params.getDouble("noise", 0.05)
             )).setParallelism(params.getInt("p1", 1));
+        }else if(SOURCE_TYPE.equals("systemsensitivity")) {
+            long stair = params.getLong("stairs", 3);
+            long period_low = params.getLong("periodLow", 10) * 1000;
+            long period_high = params.getLong("periodHigh", 10) * 1000;
+            long amplitude_low = params.getLong("amplitudeLow", 5000);
+            long amplitude_high = params.getLong("amplitudeHigh", 5000);
+            source = env.addSource(new SystemSensitivityWithNoiseSource(params.getLong("warmupTime", 20) * 1000,
+                    params.getLong("warmupRate", INTERMEDIATE_RATE),
+                    params.getLong("run_time", 510) * 1000,
+                    params.get("curve_type", "sine"),
+                    amplitude_low, amplitude_high, period_low, period_high, stair,
+                    params.getDouble("noise", 0.05)
+            )).setParallelism(params.getInt("p1", 1));
         }else {
             source = env.addSource(new DynamicAvgRateSineSource(PHASE1_TIME, PHASE2_TIME, INTERMEDIATE_TIME, PHASE1_RATE, PHASE2_RATE, INTERMEDIATE_RATE, INTERMEDIATE_RANGE, INTERMEDIATE_PERIOD, params.getLong("macroInterAmplitude", 0), params.getLong("macroInterPeriod", 60) * 1000, params.getInt("mp2", 8), zipf_skew, nKeys, params.get("curve_type", "sine"), params.getInt("inter_delta", 0)))
                     .setParallelism(params.getInt("p1", 1));
@@ -2560,6 +2573,281 @@ public class MicroBench {
             isRunning = false;
         }
     }
+    public static final class SystemSensitivityWithNoiseSource implements SourceFunction<Tuple3<String, Long, Long>>, CheckpointedFunction {
+    final private long WARMP_TIME, WARMP_RATE, TOTAL_TIME, PATTERN, AMPLITUDE_LOW, AMPLITUDE_HIGH, PERIOD_LOW, PERIOD_HIGH, STAIR;
+    final private double NOISE_LEVEL;
+    private int count = 0;
+    private volatile boolean isRunning = true;
+    private transient ListState<Integer> checkpointedCount;
+    private int maxParallelism;
+    private FastZipfGenerator fastZipfGenerator;
+    private RandomDataGenerator randomGen = new RandomDataGenerator();
+    private Random random = new Random(114514);
+    private int nKeys;
+    private final Map<Integer, List<String>> keyGroupMapping = new HashMap<>();
+
+    private final Map<Integer, Long> totalOutputNumbers = new HashMap<>();
+
+    public SystemSensitivityWithNoiseSource(long WARMUP_TIME, long WARMUP_RATE, long TOTAL_TIME, String PATTERN,
+                                            long AMPLITUDE_LOW, long AMPLITUDE_HIGH,
+                                            long PERIOD_LOW, long PERIOD_HIGH, long stairs, double NOISE_LEVEL){
+        this.WARMP_TIME = WARMUP_TIME;
+        this.WARMP_RATE = WARMUP_RATE;
+        this.TOTAL_TIME = TOTAL_TIME;
+        switch(PATTERN) {
+            case "gradient":
+                this.PATTERN = 0;
+                break;
+            case "linear":
+                this.PATTERN = 1;
+                break;
+            case "sine":
+                this.PATTERN = 2;
+                break;
+            case "mixed":
+                this.PATTERN = 3;
+                break;
+            default:
+                this.PATTERN = 2;
+                break;
+        }
+        this.AMPLITUDE_LOW = AMPLITUDE_LOW;
+        this.AMPLITUDE_HIGH = AMPLITUDE_HIGH;
+        this.PERIOD_LOW = PERIOD_LOW;
+        this.PERIOD_HIGH = PERIOD_HIGH;
+        this.STAIR = stairs;
+        this.NOISE_LEVEL = NOISE_LEVEL;
+        this.nKeys = 1000;
+        this.maxParallelism = 128;
+        this.fastZipfGenerator = new FastZipfGenerator(maxParallelism, 0.0, 0, 114514);
+        for (int i = 0; i < this.nKeys; i++) {
+            String key = "A" + i;
+            int keygroup = MathUtils.murmurHash(key.hashCode()) % maxParallelism;
+            List<String> keys = keyGroupMapping.computeIfAbsent(keygroup, t -> new ArrayList<>());
+            keys.add(key);
+        }
+    }
+    @Override
+    public void snapshotState(FunctionSnapshotContext functionSnapshotContext) throws Exception {
+        this.checkpointedCount.clear();
+        this.checkpointedCount.add(count);
+    }
+
+    @Override
+    public void initializeState(FunctionInitializationContext context) throws Exception {
+        this.checkpointedCount = context
+                .getOperatorStateStore()
+                .getListState(new ListStateDescriptor<>("checkpointedCount", Integer.class));
+
+        if (context.isRestored()) {
+            for (Integer count : this.checkpointedCount.get()) {
+                this.count = count;
+            }
+        }
+    }
+    void startSteadyPhase(SourceContext<Tuple3<String, Long, Long>> ctx, long rate, long time, long phaseStartTime)throws Exception {
+        while (isRunning && System.currentTimeMillis() - phaseStartTime < time) {
+            long emitStartTime = System.currentTimeMillis();
+
+            // Add Gaussian noise to the rate, scaled by noise level
+            double noise = random.nextGaussian() * NOISE_LEVEL;
+            long noised_rate = (long) (rate * (1 + noise));  // Apply the noise
+
+            // Ensure that the rate is not negative after applying noise
+            if (noised_rate < 0) {
+                noised_rate = 0;
+            }
+
+            for (int i = 0; i < noised_rate / 20; i++) {
+                int selectedKeygroup = fastZipfGenerator.next();
+                List<String> subKeySet = keyGroupMapping.get(selectedKeygroup);
+                totalOutputNumbers.put(selectedKeygroup, totalOutputNumbers.getOrDefault(selectedKeygroup, 0l) + 1);
+                String key = getSubKeySetChar(count, subKeySet);
+                ctx.collect(Tuple3.of(key, System.currentTimeMillis(), (long) count));
+                count++;
+            }
+            Util.pause(emitStartTime);
+        }
+    }
+
+    void startLinearPhase(SourceContext<Tuple3<String, Long, Long>> ctx, long rate1, long rate2, long time, long phaseStartTime)throws Exception {
+        long currentTime;
+        long elapsedTime;
+        long rate;
+
+        while (isRunning && (currentTime = System.currentTimeMillis()) - phaseStartTime < time) {
+            long emitStartTime = System.currentTimeMillis();
+            elapsedTime = currentTime - phaseStartTime;
+
+            // Calculate the current rate using linear interpolation between rate1 and rate2
+            rate = rate1 + ((rate2 - rate1) * elapsedTime) / time;
+
+            // Add Gaussian noise to the rate, scaled by noise level
+            double noise = random.nextGaussian() * NOISE_LEVEL;
+            rate = (long) (rate * (1 + noise));  // Apply the noise
+
+            // Ensure that the rate is not negative after applying noise
+            if (rate < 0) {
+                rate = 0;
+            }
+
+            for (int i = 0; i < rate / 20; i++) {
+                int selectedKeygroup = fastZipfGenerator.next();
+                List<String> subKeySet = keyGroupMapping.get(selectedKeygroup);
+                totalOutputNumbers.put(selectedKeygroup, totalOutputNumbers.getOrDefault(selectedKeygroup, 0L) + 1);
+                String key = getSubKeySetChar(count, subKeySet);
+                ctx.collect(Tuple3.of(key, System.currentTimeMillis(), (long) count));
+                count++;
+            }
+
+            Util.pause(emitStartTime);
+        }
+    }
+
+    void startSinePhase(SourceContext<Tuple3<String, Long, Long>> ctx, long amplitude, long baseRate, long time, long phaseStartTime) throws Exception {
+        long currentTime;
+        long elapsedTime;
+        long rate;
+
+        while (isRunning && (currentTime = System.currentTimeMillis()) - phaseStartTime < time) {
+            long emitStartTime = System.currentTimeMillis();
+            elapsedTime = currentTime - phaseStartTime;
+
+            // Calculate the sine wave rate
+            rate = (long) (baseRate + amplitude * Math.sin((2 * Math.PI * elapsedTime) / time));
+
+            // Add Gaussian noise to the rate, scaled by noise level
+            double noise = random.nextGaussian() * NOISE_LEVEL;
+            rate = (long) (rate * (1 + noise));  // Apply the noise
+
+            // Ensure that the rate is not negative after applying noise
+            if (rate < 0) {
+                rate = 0;
+            }
+
+            for (int i = 0; i < rate / 20; i++) {
+                int selectedKeygroup = fastZipfGenerator.next();
+                List<String> subKeySet = keyGroupMapping.get(selectedKeygroup);
+                totalOutputNumbers.put(selectedKeygroup, totalOutputNumbers.getOrDefault(selectedKeygroup, 0L) + 1);
+                String key = getSubKeySetChar(count, subKeySet);
+                ctx.collect(Tuple3.of(key, System.currentTimeMillis(), (long) count));
+                count++;
+            }
+
+            Util.pause(emitStartTime);
+        }
+    }
+    void startSemiSinePhase(SourceContext<Tuple3<String, Long, Long>> ctx, long amplitude, long baseRate, long time, long phaseStartTime) throws Exception {
+        long currentTime;
+        long elapsedTime;
+        long rate;
+
+        while (isRunning && (currentTime = System.currentTimeMillis()) - phaseStartTime < time) {
+            long emitStartTime = System.currentTimeMillis();
+            elapsedTime = currentTime - phaseStartTime;
+
+            // Calculate the semi-sine wave rate
+            rate = (long) (baseRate + amplitude * Math.sin(Math.PI * elapsedTime / time));
+
+            // Add Gaussian noise to the rate, scaled by noise level
+            double noise = random.nextGaussian() * NOISE_LEVEL;
+            rate = (long) (rate * (1 + noise));  // Apply the noise
+
+            // Ensure that the rate is not negative after applying noise
+            if (rate < 0) {
+                rate = 0;
+            }
+
+            for (int i = 0; i < rate / 20; i++) {
+                int selectedKeygroup = fastZipfGenerator.next();
+                List<String> subKeySet = keyGroupMapping.get(selectedKeygroup);
+                totalOutputNumbers.put(selectedKeygroup, totalOutputNumbers.getOrDefault(selectedKeygroup, 0L) + 1);
+                String key = getSubKeySetChar(count, subKeySet);
+                ctx.collect(Tuple3.of(key, System.currentTimeMillis(), (long) count));
+                count++;
+            }
+
+            Util.pause(emitStartTime);
+        }
+    }
+
+    private long calculateValueAtCurrentRound(long round, long low, long high, long stairs){
+        round = (round - 1) % (stairs * 2) + 1;
+        long value = low;
+        if (round <= stairs){
+            value = (high - low) / (stairs - 1) * (round - 1) + low;
+        }else{
+            value = high - (high - low) / (stairs - 1) * (round - stairs - 1) ;
+        }
+        return value;
+    }
+
+    private void generateCurve(SourceContext<Tuple3<String, Long, Long>> ctx) throws Exception {
+        long startTime = System.currentTimeMillis();
+        System.out.println("Rate paras: " + "\nAmplitude paras: " + this.AMPLITUDE_LOW + ", " + this.AMPLITUDE_HIGH
+                + "\nPeriod pattern: " + this.PERIOD_LOW + ", " + this.PERIOD_HIGH + ", "
+                + "\nNoise: " + this.NOISE_LEVEL);
+        System.out.println("Source start at: " + startTime);
+        System.out.println("Source warm up...");
+        startSteadyPhase(ctx, WARMP_RATE, WARMP_TIME, startTime);
+        startTime = System.currentTimeMillis();
+        long round = 0;
+        while (isRunning && System.currentTimeMillis() - startTime < TOTAL_TIME) {
+            round += 1;
+            long roundStartTime = System.currentTimeMillis();
+            long now_average_rate = WARMP_RATE;
+            long now_amplitude = calculateValueAtCurrentRound(round, AMPLITUDE_LOW, AMPLITUDE_HIGH, STAIR);
+            long now_period = calculateValueAtCurrentRound(round, PERIOD_LOW, PERIOD_HIGH, STAIR);
+            long pattern_this_round;
+            if (this.PATTERN != 3){
+                pattern_this_round = this.PATTERN;
+            }else{
+                pattern_this_round = round % 3;
+            }
+
+            if (pattern_this_round == 0){
+                System.out.println("Round " + round + " stair phase start at: " + roundStartTime);
+                System.out.println("phase paras: " + now_average_rate + ", " + now_amplitude + ", " + now_period);
+                startSteadyPhase(ctx, now_average_rate, 10, roundStartTime);
+                roundStartTime = System.currentTimeMillis();
+                startSteadyPhase(ctx, now_average_rate + now_amplitude, now_period, roundStartTime);
+            }else if(pattern_this_round == 1){
+                System.out.println("Round " + round + " linear phase start at: " + roundStartTime);
+                System.out.println("phase paras: " + now_average_rate + ", " + now_amplitude + ", " + now_period);
+                startSteadyPhase(ctx, now_average_rate, 10, roundStartTime);
+                roundStartTime = System.currentTimeMillis();
+                startLinearPhase(ctx, now_average_rate, now_average_rate + now_amplitude, now_period / 2, roundStartTime);
+                roundStartTime = System.currentTimeMillis();
+                startLinearPhase(ctx, now_average_rate + now_amplitude, now_average_rate, now_period / 2, roundStartTime);
+            }else if (pattern_this_round == 2) {
+                System.out.println("Round " + round + " sine phase start at: " + roundStartTime);
+                System.out.println("phase paras: " + now_average_rate + ", " + now_amplitude + ", " + now_period);
+                startSteadyPhase(ctx, now_average_rate, 10, roundStartTime);
+                roundStartTime = System.currentTimeMillis();
+                startSemiSinePhase(ctx, now_amplitude, now_average_rate, now_period, roundStartTime);
+            }
+            if (!isRunning) {
+                return;
+            }
+        }
+    }
+    public void run(SourceContext<Tuple3<String, Long, Long>> ctx) throws Exception {
+        generateCurve(ctx);
+    }
+
+    private String getChar(int cur) {
+        return "A" + (cur % nKeys);
+    }
+
+    private String getSubKeySetChar(int cur, List<String> subKeySet) {
+        return subKeySet.get(cur % subKeySet.size());
+    }
+
+    @Override
+    public void cancel() {
+        isRunning = false;
+    }
+}
     public static final class HowSource implements SourceFunction<Tuple3<String, Long, Long>>, CheckpointedFunction {
         private long NORMAL_TIME, NORMAL_RATE, PHASE1_TIME, PHASE1_RATE, PHASE2_TIME, PHASE2_RATE, TOTAL_TIME;
         private int count = 0;

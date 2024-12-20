@@ -30,7 +30,7 @@
 # automatically configure the host name based on the hostname of the node where the
 # JobManager runs.
 
-jobmanager.rpc.address: camel
+jobmanager.rpc.address: eagle
 
 # The RPC port where the JobManager is reachable.
 
@@ -50,7 +50,7 @@ taskmanager.heap.size: 10240m
 # The number of task slots that each TaskManager offers. Each slot runs one parallel pipeline.
 
 #taskmanager.hostname: camel
-taskmanager.numberOfTaskSlots: 15 # 63
+taskmanager.numberOfTaskSlots: 20 # 63
 #taskmanager.rpc.port: 33033
 #taskmanager.data.port: 33034
 
@@ -262,7 +262,7 @@ parallelism.default: 1
 policy.windowSize: 100000000
 
 # kafka broker list
-policy.metrics.servers: camel:9092
+policy.metrics.servers: eagle:9092
 
 # kafka topic
 policy.metrics.topic: flink_metrics

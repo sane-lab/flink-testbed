@@ -15,7 +15,7 @@ function analyze() {
     mv ${EXP_DIR}/streamsluice/ ${EXP_DIR}/raw/${EXP_NAME}
     mkdir ${EXP_DIR}/streamsluice/
 
-    for host in "dragon" "eagle"; do
+    for host in "dragon"; do # "eagle"
       scp ${host}:${FLINK_DIR}/log/* ${EXP_DIR}/raw/${EXP_NAME}/
       ssh ${host} "rm ${FLINK_DIR}/log/*"
     done
@@ -104,17 +104,20 @@ function runApp() {
     -nkeys ${NKEYS} -phase1Time ${TIME1} -phase1Rate ${RATE1} -phase2Time ${TIME2} \
     -phase2Rate ${RATE2} -interTime ${TIME_I} -interRate ${RATE_I} -warmupTime ${warmupTime} -warmupRate ${warmupRate} \
     -source ${SOURCE_TYPE} -curve_type ${CURVE_TYPE} -run_time ${runtime} \
-    -zipf_skew ${ZIPF_SKEW} &"
+    -amplitudeLow ${amplitude_low} -amplitudeHigh ${amplitude_high} \
+    -periodLow ${period_low} -periodHigh ${period_high} -stairs ${STAIRS} \
+    -noise ${noise} -zipf_skew ${ZIPF_SKEW} &"
     ${FLINK_DIR}/bin/flink run -c ${job} ${JAR} \
     -graph ${GRAPH} \
     -p1 ${P1} -mp1 ${MP1} -p2 ${P2} -mp2 ${MP2} -op2Delay ${DELAY2} -op2IoRate ${IO2} -op2KeyStateSize ${STATE_SIZE2} \
     -p3 ${P3} -mp3 ${MP3} -op3Delay ${DELAY3} -op3IoRate ${IO3} -op3KeyStateSize ${STATE_SIZE3} \
     -p4 ${P4} -mp4 ${MP4} -op4Delay ${DELAY4} -op4IoRate ${IO4} -op4KeyStateSize ${STATE_SIZE4} \
-    -p5 ${P5} -mp5 ${MP5} -op5Delay ${DELAY5} -op5KeyStateSize ${STATE_SIZE5} \
     -nkeys ${NKEYS} -phase1Time ${TIME1} -phase1Rate ${RATE1} -phase2Time ${TIME2} \
     -phase2Rate ${RATE2} -interTime ${TIME_I} -interRate ${RATE_I} -warmupTime ${warmupTime} -warmupRate ${warmupRate} \
     -source ${SOURCE_TYPE} -curve_type ${CURVE_TYPE} -run_time ${runtime} \
-    -zipf_skew ${ZIPF_SKEW} &
+    -amplitudeLow ${amplitude_low} -amplitudeHigh ${amplitude_high} \
+    -periodLow ${period_low} -periodHigh ${period_high} -stairs ${STAIRS} \
+    -noise ${noise} -zipf_skew ${ZIPF_SKEW} &
 }
 
 run_scale_test(){
@@ -138,13 +141,16 @@ run_scale_test(){
     autotuner_initial_value_alpha=1.2
     autotuner_adjustment_beta=2.0
 
+
+    runtime=900
     epoch=100
     decision_interval=1 #10
     snapshot_size=20
     L=1000 #2000 #2500
     migration_interval=1000 #500
     spike_slope=0.7
-    autotuner_increase_bar_option=7 # 3 5
+    autotuner_initial_value_option=5
+    autotuner_increase_bar_option=8
     autotuner_increase_bar_alpha=0.1 #0.25
     echo "Run micro bench system sensitivity..."
     init
@@ -163,34 +169,23 @@ run_scale_test(){
     L=1000 #2000 #2500
     migration_interval=3000
 
-    STATE_SIZE2=5000
-    STATE_SIZE3=5000
-    STATE_SIZE4=5000
-    STATE_SIZE5=5000
-    runtime=720
-    DELTA_I=270
-    LP2=1
-    LP3=1
-    LP4=1
-    LP5=28 #16
-
     printf "" > system_sensitivity_result.txt
     # Epoch length
     printf "Epoch Length\n" >> system_sensitivity_result.txt
-    setting="system_d1"
-    SOURCE_TYPE="when"
+    setting="system_d2"
+    SOURCE_TYPE="systemsensitivity"
     DELAY2=20
     DELAY3=20
     DELAY4=20
     DELAY5=1000
-    STATE_SIZE2=5000 # 1000 keys, per key (n * 2000 + 36) bytes, n=5000 -> 100 MB
-    STATE_SIZE3=5000
-    STATE_SIZE4=5000
+    STATE_SIZE2=10000 # 1000 keys, per key (n * 2000 + 36) bytes, n=5000 -> 100 MB
+    STATE_SIZE3=10000
+    STATE_SIZE4=10000
     STATE_SIZE5=10000
     LP2=1
     LP3=1
     LP4=1
-    LP5=28
+    LP5=36
 
     P2=1
     P3=1
@@ -206,10 +201,11 @@ run_scale_test(){
     warmupTime=60
     RATE_I=5000
     TIME_I=0
-    RATE1=7000
-    RATE2=3000
-    TIME1=45
-    TIME2=45
+    STAIRS=3
+    amplitude_low=1000
+    amplitude_high=3000
+    period_low=75
+    period_high=45
 
     for epoch in 25 50 100 200 500; do #
       is_treat=false
@@ -221,27 +217,27 @@ run_scale_test(){
         is_treat=true
         autotune=true
         how_type="streamsluice"
-        run_one_exp
-        printf "${EXP_NAME}\n" >> system_sensitivity_result.txt
+#        run_one_exp
+#        printf "${EXP_NAME}\n" >> system_sensitivity_result.txt
       done
     done
 
     # Resource sensitivity
     printf "Resource sensitivity\n" >> system_sensitivity_result.txt
-    setting="system_d2"
-    SOURCE_TYPE="when"
+    setting="system_d3"
+    SOURCE_TYPE="systemsensitivity"
     DELAY2=20
     DELAY3=20
     DELAY4=20
     DELAY5=1000
-    STATE_SIZE2=5000 # 1000 keys, per key (n * 2000 + 36) bytes, n=5000 -> 100 MB
-    STATE_SIZE3=5000
-    STATE_SIZE4=5000
+    STATE_SIZE2=10000 # 1000 keys, per key (n * 2000 + 36) bytes, n=5000 -> 100 MB
+    STATE_SIZE3=10000
+    STATE_SIZE4=10000
     STATE_SIZE5=10000
     LP2=1
     LP3=1
     LP4=1
-    LP5=28
+    LP5=36
 
     P2=1
     P3=1
@@ -251,48 +247,50 @@ run_scale_test(){
     autotuner_bar_lowerbound=350
     autotuner_latency_window=100
     autotuner_increase_bar_alpha=0.1
+    autotune_interval=60
     epoch=100
     CURVE_TYPE="sine" #"linear"
     warmupRate=5000
     warmupTime=60
     RATE_I=5000
     TIME_I=0
-    RATE1=7000
-    RATE2=3000
-    TIME1=45
-    TIME2=45
-    for autotuner_increase_bar_alpha in 0.2 0.4 0.6 0.8; do
+    STAIRS=3
+    amplitude_low=1000
+    amplitude_high=3000
+    period_low=75
+    period_high=45
+    for autotuner_increase_bar_alpha in 0.0 0.5 1.0; do
       is_treat=false
       autotune=false
       how_type="ds2"
 #      run_one_exp
 #      printf "${EXP_NAME}\n" >> workload_sensitivity_result.txt
-      for L in 750 1000 1250; do #
+      for L in 2000; do #
         is_treat=true
         autotune=true
         how_type="streamsluice"
-#        run_one_exp
-#        printf "${EXP_NAME}\n" >> system_sensitivity_result.txt
+        run_one_exp
+        printf "${EXP_NAME}\n" >> system_sensitivity_result.txt
       done
     done
 
 
     # Tuning window length
     printf "Tuning window Length\n" >> system_sensitivity_result.txt
-    setting="system_d3"
-    SOURCE_TYPE="when"
+    setting="system_d4"
+    SOURCE_TYPE="systemsensitivity"
     DELAY2=20
     DELAY3=20
     DELAY4=20
     DELAY5=1000
-    STATE_SIZE2=5000 # 1000 keys, per key (n * 2000 + 36) bytes, n=5000 -> 100 MB
-    STATE_SIZE3=5000
-    STATE_SIZE4=5000
+    STATE_SIZE2=10000 # 1000 keys, per key (n * 2000 + 36) bytes, n=5000 -> 100 MB
+    STATE_SIZE3=10000
+    STATE_SIZE4=10000
     STATE_SIZE5=10000
     LP2=1
     LP3=1
     LP4=1
-    LP5=28
+    LP5=36
 
     P2=1
     P3=1
@@ -301,29 +299,30 @@ run_scale_test(){
     GRAPH="1split2join1"
     autotuner_bar_lowerbound=350
     autotuner_latency_window=100
-    autotuner_increase_bar_alpha=0.1
+    autotuner_increase_bar_alpha=0.5
     epoch=100
     CURVE_TYPE="sine" #"linear"
     warmupRate=5000
     warmupTime=60
     RATE_I=5000
     TIME_I=0
-    RATE1=7000
-    RATE2=3000
-    TIME1=45
-    TIME2=45
-    for autotune_interval in 15 30 90 120; do #
+    STAIRS=3
+    amplitude_low=1000
+    amplitude_high=3000
+    period_low=75
+    period_high=45
+    for autotune_interval in 15 60 240; do #
       is_treat=false
       autotune=false
       how_type="ds2"
 #      run_one_exp
 #      printf "${EXP_NAME}\n" >> workload_sensitivity_result.txt
-      for L in 750 1000 1250; do # 750 1250
+      for L in 2000; do # 750 1250
         is_treat=true
         autotune=true
         how_type="streamsluice"
-#        run_one_exp
-#        printf "${EXP_NAME}\n" >> system_sensitivity_result.txt
+        run_one_exp
+        printf "${EXP_NAME}\n" >> system_sensitivity_result.txt
       done
     done
 
