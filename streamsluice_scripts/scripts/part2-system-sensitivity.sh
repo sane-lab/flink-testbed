@@ -325,7 +325,7 @@ run_scale_test(){
     amplitude_high=3000
     period_low=75
     period_high=45
-    for autotune_interval in 15; do # 60 240
+    for autotune_interval in 15 60 240; do # 60 240
       is_treat=false
       autotune=false
       how_type="ds2"
@@ -335,8 +335,8 @@ run_scale_test(){
         is_treat=true
         autotune=true
         how_type="streamsluice"
-#        run_one_exp
-#        printf "${EXP_NAME}\n" >> system_sensitivity_result.txt
+        run_one_exp
+        printf "${EXP_NAME}\n" >> system_sensitivity_result.txt
       done
     done
 
