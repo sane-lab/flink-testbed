@@ -152,6 +152,19 @@ run_scale_test(){
     autotuner_initial_value_option=5
     autotuner_increase_bar_option=8
     autotuner_increase_bar_alpha=0.1 #0.25
+
+    DELTA_I=270
+    LP2=1
+    LP3=1
+    LP4=1
+    LP5=28 #16
+
+    RATE1=6000
+    TIME1=30
+    RATE2=3000
+    TIME2=30
+    RATE_I=4000
+    TIME_I=30
     echo "Run micro bench system sensitivity..."
     init
 
