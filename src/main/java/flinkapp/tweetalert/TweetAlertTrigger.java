@@ -224,17 +224,44 @@ public class TweetAlertTrigger {
                 .setParallelism(params.getInt("p2", 1))
                 .setMaxParallelism(params.getInt("mp2", 8))
                 .slotSharingGroup("g2");
-
-        DataStream<Tuple2<String, TweetResult>> afterInfluenceScoring = source
+        DataStream<Tuple2<String, TweetResult>> afterDumbMap1 = afterSentimentAnalysis
                 .keyBy(0)
-                .flatMap(new InfluenceScoringAndContentCategorization(params.getInt("op3Delay", 1000)))
+                .flatMap(new DumbTwitterMap(params.getInt("op3Delay", 1000), false))
                 .disableChaining()
-                .name("Influence Scoring And Content Categorization")
+                .name("Map 1")
                 .uid("op3")
                 .setParallelism(params.getInt("p3", 1))
                 .setMaxParallelism(params.getInt("mp3", 8))
                 .slotSharingGroup("g3");
+        DataStream<Tuple2<String, TweetResult>> afterDumbMap2 = afterDumbMap1
+                .keyBy(0)
+                .flatMap(new DumbTwitterMap(params.getInt("op4Delay", 1000), false))
+                .disableChaining()
+                .name("Map 2")
+                .uid("op4")
+                .setParallelism(params.getInt("p4", 1))
+                .setMaxParallelism(params.getInt("mp4", 8))
+                .slotSharingGroup("g4");
+        DataStream<Tuple2<String, TweetResult>> afterDumbMap3 = afterDumbMap2
+                .keyBy(0)
+                .flatMap(new DumbTwitterMap(params.getInt("op5Delay", 1000), true))
+                .disableChaining()
+                .name("Map 3")
+                .uid("op5")
+                .setParallelism(params.getInt("p5", 1))
+                .setMaxParallelism(params.getInt("mp5", 8))
+                .slotSharingGroup("g5");
 
+
+//        DataStream<Tuple2<String, TweetResult>> afterInfluenceScoring = source
+//                .keyBy(0)
+//                .flatMap(new InfluenceScoringAndContentCategorization(params.getInt("op3Delay", 1000)))
+//                .disableChaining()
+//                .name("Influence Scoring And Content Categorization")
+//                .uid("op3")
+//                .setParallelism(params.getInt("p3", 1))
+//                .setMaxParallelism(params.getInt("mp3", 8))
+//                .slotSharingGroup("g3");
 //        DataStream<Tuple2<String, JoinedResult>> afterJoin = afterSentimentAnalysis.union(afterInfluenceScoring)
 //                .keyBy(0)
 //                .flatMap(new TweetJoin(params.getInt("op4Delay", 1000)))
@@ -460,8 +487,8 @@ public class TweetAlertTrigger {
                     input.getTupleNumber()
             );
             long currentTime = System.currentTimeMillis();
-            System.out.println("GT: " + input.getUserId() + ", " + currentTime + ", "
-                    + (currentTime - input.getArrivalTime()) + ", " + input.getTupleNumber());
+//            System.out.println("GT: " + input.getUserId() + ", " + currentTime + ", "
+//                    + (currentTime - input.getArrivalTime()) + ", " + input.getTupleNumber());
 
             out.collect(new Tuple2<>(rawInput.f0, result));
         }
@@ -472,6 +499,33 @@ public class TweetAlertTrigger {
         }
     }
 
+    public static final class DumbTwitterMap extends RichFlatMapFunction<Tuple2<String, TweetResult>, Tuple2<String, TweetResult>> {
+
+        private final RandomDataGenerator randomGen = new RandomDataGenerator();
+        private final int averageDelay; // in microseconds
+        private final boolean outputGroundTruthFlag;
+        // private final Map<String, Double> sentimentDict;
+
+        public DumbTwitterMap(int _averageDelay, boolean _outputGroundTruthFlag) {
+            this.averageDelay = _averageDelay;
+            this.outputGroundTruthFlag = _outputGroundTruthFlag;
+        }
+        @Override
+        public void flatMap(Tuple2<String, TweetResult> rawInput, Collector<Tuple2<String, TweetResult>> out) throws Exception {
+            TweetResult input = rawInput.f1;
+            DelayUtil.delay(averageDelay);
+            if(outputGroundTruthFlag) {
+                long currentTime = System.currentTimeMillis();
+                System.out.println("GT: " + input.getUserId() + ", " + currentTime + ", "
+                        + (currentTime - input.getArrivalTime()) + ", " + input.getTupleNumber());
+            }
+            out.collect(new Tuple2<>(rawInput.f0, input));
+        }
+
+        @Override
+        public void open(Configuration config) {
+        }
+    }
 
     public static final class InfluenceScoringAndContentCategorization extends RichFlatMapFunction<
             Tuple2<String, TweetRecord>,
