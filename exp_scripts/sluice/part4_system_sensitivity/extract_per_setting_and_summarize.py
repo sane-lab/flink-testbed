@@ -642,9 +642,9 @@ def draw_parallelism_curve(rawDir, outputDir, exp_name, windowSize, startTime, e
     elif (exp_name.startswith("stock-")):
         ax2.set_ylim(400, 2000)
         ax2.set_yticks(np.arange(400, 2200, 200))
-    else:
-        ax2.set_ylim(1000, 4000)
-        ax2.set_yticks(np.arange(1000, 4500, 500))
+    elif (exp_name.startswith("system_")):
+        ax2.set_ylim(0, 10000)
+        ax2.set_yticks(np.arange(5000, 11000, 1000))
     # legend = ["OP_" + str(jobIndex + 1) +"Arrival Rate"]
     legend = ["Arrival Rate"]
     # ax2.set_xlim(startTime * 1000, (startTime + exp_length) * 1000)
@@ -1093,6 +1093,31 @@ def main():
         },
     }
 
+    exps_per_label_per_setting_microbench = {
+        "static": "system_d3--streamsluice-streamsluice-false-true-false-systemsensitivity-sine-1split2join1-300-6000-30-3000-5000-0-1-0-1-20-1-10000-1-20-1-10000-1-20-1-10000-17-1000-10000-2000-3000-100-60-0.0-1-true-1",
+        # Linear-road
+        "setting_1": {
+            "Dimension": "User Limit (ms)",
+        },
+        "setting_2": {
+            "Dimension": "Epoch Length (ms)",
+        },
+        "setting_3": {
+            "Dimension": "Resource Sensitivity (Alpha)",
+            "0.0": [
+                "system_d3--streamsluice-streamsluice-false-true-false-systemsensitivity-sine-1split2join1-300-6000-30-3000-5000-0-1-0-1-20-1-10000-1-20-1-10000-1-20-1-10000-17-1000-10000-2000-3000-100-60-0.0-1-true-1",
+            ],
+            "0.5": [
+                "system_d3--streamsluice-streamsluice-false-true-false-systemsensitivity-sine-1split2join1-300-6000-30-3000-5000-0-1-0-1-20-1-10000-1-20-1-10000-1-20-1-10000-17-1000-10000-2000-3000-100-60-0.5-1-true-1",
+            ],
+            "1.0": [
+                "system_d3--streamsluice-streamsluice-false-true-false-systemsensitivity-sine-1split2join1-300-6000-30-3000-5000-0-1-0-1-20-1-10000-1-20-1-10000-1-20-1-10000-17-1000-10000-2000-3000-100-60-1.0-1-true-1",
+            ],
+        },
+        "setting_4": {
+            "Dimension": "Tuning Frequency (s)",
+        },
+    }
     def getStartTimeAndExpLength(exp_name):
         if exp_name.startswith("lr"):
             if (exp_name.split('-')[-9].startswith("0.") or exp_name.split('-')[-9].startswith("1.")):
@@ -1120,7 +1145,7 @@ def main():
         return start_time, exp_length, latency_bar
 
     arrival_curves = []
-    for workload_name, exps_per_label in exps_per_label_per_setting_twitter.items():
+    for workload_name, exps_per_label in exps_per_label_per_setting_microbench.items():
         if workload_name == "static":
             exp_name = exps_per_label
             start_time, exp_length, latency_bar = getStartTimeAndExpLength(exp_name)

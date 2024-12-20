@@ -55,7 +55,7 @@ init() {
   JAR="${FLINK_APP_DIR}/target/testbed-1.0-SNAPSHOT.jar"
   job="flinkapp.StreamSluiceTestSet.MicroBench"
   # only used in script
-  runtime=300
+  runtime=900
   # set in Flink app
   GRAPH=3op
   ZIPF_SKEW=0
@@ -144,7 +144,6 @@ run_scale_test(){
     autotuner_adjustment_beta=2.0
 
     noise=0.05
-    runtime=900
     epoch=100
     decision_interval=1 #10
     snapshot_size=20
@@ -182,7 +181,7 @@ run_scale_test(){
 
 
     L=1000 #2000 #2500
-    migration_interval=3000
+    migration_interval=1000
 
     printf "" > system_sensitivity_result.txt
     # Epoch length
@@ -190,7 +189,7 @@ run_scale_test(){
     setting="system_d2"
     SOURCE_TYPE="systemsensitivity"
     DELAY2=20
-    DELAY3=20
+    DELAY3=500
     DELAY4=20
     DELAY5=1000
     STATE_SIZE2=10000 # 1000 keys, per key (n * 2000 + 36) bytes, n=5000 -> 100 MB
@@ -198,12 +197,12 @@ run_scale_test(){
     STATE_SIZE4=10000
     STATE_SIZE5=10000
     LP2=1
-    LP3=1
+    LP3=7
     LP4=1
-    LP5=36
+    LP5=30
 
     P2=1
-    P3=1
+    P3=3
     P4=1
     P5=17
     GRAPH="1split2join1"
@@ -242,7 +241,7 @@ run_scale_test(){
     setting="system_d3"
     SOURCE_TYPE="systemsensitivity"
     DELAY2=20
-    DELAY3=20
+    DELAY3=500
     DELAY4=20
     DELAY5=1000
     STATE_SIZE2=10000 # 1000 keys, per key (n * 2000 + 36) bytes, n=5000 -> 100 MB
@@ -250,12 +249,12 @@ run_scale_test(){
     STATE_SIZE4=10000
     STATE_SIZE5=10000
     LP2=1
-    LP3=1
+    LP3=7
     LP4=1
-    LP5=36
+    LP5=30
 
     P2=1
-    P3=1
+    P3=3
     P4=1
     P5=17
     GRAPH="1split2join1"
@@ -295,7 +294,7 @@ run_scale_test(){
     setting="system_d4"
     SOURCE_TYPE="systemsensitivity"
     DELAY2=20
-    DELAY3=20
+    DELAY3=500
     DELAY4=20
     DELAY5=1000
     STATE_SIZE2=10000 # 1000 keys, per key (n * 2000 + 36) bytes, n=5000 -> 100 MB
@@ -303,12 +302,12 @@ run_scale_test(){
     STATE_SIZE4=10000
     STATE_SIZE5=10000
     LP2=1
-    LP3=1
+    LP3=7
     LP4=1
-    LP5=36
+    LP5=30
 
     P2=1
-    P3=1
+    P3=3
     P4=1
     P5=17
     GRAPH="1split2join1"
