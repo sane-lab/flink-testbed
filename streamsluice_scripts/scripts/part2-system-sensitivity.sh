@@ -268,9 +268,9 @@ run_scale_test(){
     warmupTime=60
     RATE_I=5000
     TIME_I=0
-    STAIRS=4
+    STAIRS=3
     amplitude_low=1000
-    amplitude_high=4000
+    amplitude_high=3000
     period_low=60
     period_high=30
     for autotuner_increase_bar_alpha in 0.0 0.5 1.0; do # 0.5 1.0
@@ -287,7 +287,6 @@ run_scale_test(){
         printf "${EXP_NAME}\n" >> system_sensitivity_result.txt
       done
     done
-
 
     # Tuning window length
     printf "Tuning window Length\n" >> system_sensitivity_result.txt
