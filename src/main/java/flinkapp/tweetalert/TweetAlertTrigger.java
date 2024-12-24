@@ -1,6 +1,7 @@
 package flinkapp.tweetalert;
 
 import Nexmark.sources.Util;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.math3.random.RandomDataGenerator;
 import org.apache.flink.api.common.functions.RichFlatMapFunction;
 import org.apache.flink.api.common.functions.RichMapFunction;
@@ -217,7 +218,7 @@ public class TweetAlertTrigger {
 
         DataStream<Tuple2<String, TweetResult>> afterSentimentAnalysis = source
                 .keyBy(0)
-                .flatMap(new SentimentAnalysis(params.getInt("op2Delay", 1000)))
+                .flatMap(new SentimentAnalysis(params.getInt("op2Delay", 1000), params.getInt("payload", 100)))
                 .disableChaining()
                 .name("Sentiment Analysis")
                 .uid("op2")
@@ -436,9 +437,12 @@ public class TweetAlertTrigger {
         private final RandomDataGenerator randomGen = new RandomDataGenerator();
         private final int averageDelay; // in microseconds
         // private final Map<String, Double> sentimentDict;
+        private final String payload;
+        private transient MapState<String, String> countMap;
 
-        public SentimentAnalysis(int _averageDelay) {
+        public SentimentAnalysis(int _averageDelay, int perKeyStateSize) {
             this.averageDelay = _averageDelay;
+            this.payload = StringUtils.repeat("A", perKeyStateSize);
 //            sentimentDict = new HashMap<>();
 //            sentimentDict.put("good", 1.0);
 //            sentimentDict.put("excellent", 1.0);
@@ -472,6 +476,8 @@ public class TweetAlertTrigger {
         public void flatMap(Tuple2<String, TweetRecord> rawInput, Collector<Tuple2<String, TweetResult>> out) throws Exception {
             TweetRecord input = rawInput.f1;
             double sentiment = getSentiment(input.getContent());
+
+            countMap.put(rawInput.f0, payload);
             DelayUtil.delay(averageDelay);
 
             TweetResult result = new TweetResult(
@@ -495,7 +501,9 @@ public class TweetAlertTrigger {
 
         @Override
         public void open(Configuration config) {
-            // Optional: Add initialization logic if needed
+            MapStateDescriptor<String, String> descriptor =
+                    new MapStateDescriptor<>("word-count", String.class, String.class);
+            countMap = getRuntimeContext().getMapState(descriptor);
         }
     }
 

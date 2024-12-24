@@ -184,6 +184,57 @@ run_scale_test(){
     migration_interval=500 #1000
 
     printf "" > system_sensitivity_result.txt
+    # Limit
+    printf "User Latency Limit\n" >> system_sensitivity_result.txt
+    setting="system_d1"
+    SOURCE_TYPE="systemsensitivity"
+    DELAY2=20
+    DELAY3=500
+    DELAY4=20
+    DELAY5=1000
+    STATE_SIZE2=20000 # 1000 keys, per key (n * 2000 + 36) bytes, n=5000 -> 100 MB
+    STATE_SIZE3=20000
+    STATE_SIZE4=20000
+    STATE_SIZE5=20000
+    LP2=1
+    LP3=7
+    LP4=1
+    LP5=30
+
+    P2=1
+    P3=3
+    P4=1
+    P5=17
+    GRAPH="1split2join1"
+    autotuner_bar_lowerbound=350
+    autotuner_latency_window=100
+    autotuner_increase_bar_alpha=0.5
+    epoch=100
+    CURVE_TYPE="sine" #"linear"
+    warmupRate=5000
+    warmupTime=60
+    RATE_I=5000
+    TIME_I=0
+    STAIRS=3
+    amplitude_low=1000
+    amplitude_high=3000
+    period_low=75
+    period_high=45
+    for L in 500 1000 1500 2000 2500 3000; do #
+      is_treat=false
+      autotune=false
+      how_type="ds2"
+#      run_one_exp
+#      printf "${EXP_NAME}\n" >> workload_sensitivity_result.txt
+      is_treat=true
+      autotune=true
+      how_type="streamsluice"
+      run_one_exp
+      printf "${EXP_NAME}\n" >> system_sensitivity_result.txt
+    done
+
+
+
     # Epoch length
     printf "Epoch Length\n" >> system_sensitivity_result.txt
     setting="system_d2"
@@ -206,9 +257,9 @@ run_scale_test(){
     P4=1
     P5=17
     GRAPH="1split2join1"
-    autotuner_bar_lowerbound=450
+    autotuner_bar_lowerbound=350
     autotuner_latency_window=100
-    autotuner_increase_bar_alpha=0.1
+    autotuner_increase_bar_alpha=0.5
     epoch=100
     CURVE_TYPE="sine" #"linear"
     warmupRate=5000
@@ -220,7 +271,6 @@ run_scale_test(){
     amplitude_high=3000
     period_low=75
     period_high=45
-
     for epoch in 25 50 100 200 500; do #
       is_treat=false
       autotune=false
@@ -231,8 +281,8 @@ run_scale_test(){
         is_treat=true
         autotune=true
         how_type="streamsluice"
-#        run_one_exp
-#        printf "${EXP_NAME}\n" >> system_sensitivity_result.txt
+        run_one_exp
+        printf "${EXP_NAME}\n" >> system_sensitivity_result.txt
       done
     done
 
@@ -241,7 +291,7 @@ run_scale_test(){
     setting="system_d3"
     SOURCE_TYPE="systemsensitivity"
     DELAY2=20
-    DELAY3=20
+    DELAY3=500
     DELAY4=20
     DELAY5=1000
     STATE_SIZE2=20000 # 1000 keys, per key (n * 2000 + 36) bytes, n=5000 -> 100 MB
@@ -249,19 +299,18 @@ run_scale_test(){
     STATE_SIZE4=20000
     STATE_SIZE5=20000
     LP2=1
-    LP3=1
+    LP3=7
     LP4=1
-    LP5=36
+    LP5=30
 
     P2=1
-    P3=1
+    P3=3
     P4=1
     P5=17
     GRAPH="1split2join1"
     autotuner_bar_lowerbound=350
     autotuner_latency_window=100
-    autotuner_increase_bar_alpha=0.1
-    autotune_interval=60
+    autotuner_increase_bar_alpha=0.5
     epoch=100
     CURVE_TYPE="sine" #"linear"
     warmupRate=5000
@@ -271,8 +320,8 @@ run_scale_test(){
     STAIRS=3
     amplitude_low=1000
     amplitude_high=3000
-    period_low=60
-    period_high=30
+    period_low=75
+    period_high=45
     for autotuner_increase_bar_alpha in 0.0 0.5 1.0; do # 0.5 1.0
       is_treat=false
       autotune=false

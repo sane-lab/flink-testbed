@@ -879,21 +879,27 @@ def main():
         #Twitter
         "setting_1": {
             "Dimension": "User Limit (ms)",
-            # "1500": [
-            #      "",
-            # ],
+            "500": [
+                 "tweet-streamsluice-streamsluice-5-60-1350-90-1700-1-19-3333-9-500-1-50-1-50-500-100-true-0.1-1",
+            ],
+            "1000": [
+                "tweet-streamsluice-streamsluice-5-60-1350-90-1700-1-19-3333-9-500-1-50-1-50-1000-100-true-0.1-1",
+            ],
+            "1500": [
+                 "tweet-streamsluice-streamsluice-5-60-1350-90-1700-1-19-3333-9-500-1-50-1-50-1500-100-true-0.1-1",
+            ],
             "2000": [
                 "tweet-streamsluice-streamsluice-5-60-1350-90-1700-1-19-3333-9-500-1-50-1-50-2000-100-true-0.1-1",
             ],
-            # "2500": [
-            #     "tweet-streamsluice-streamsluice-5-60-1350-90-1500-1-19-6666-9-1000-1-50-1-50-2500-100-true-0.1-1",
-            # ],
-            # "3000": [
-            #     "tweet-streamsluice-streamsluice-5-8-1950-90-1500-1-19-6666-9-1000-1-50-1-50-3000-100-true-0.1-2",
-            # ],
-            # "3500": [
-            #     "tweet-streamsluice-streamsluice-5-8-1950-90-1500-1-19-6666-9-1000-1-50-1-50-3500-100-true-0.1-2",
-            # ]
+            "2500": [
+                "tweet-streamsluice-streamsluice-5-60-1350-90-1700-1-19-3333-9-500-1-50-1-50-2500-100-true-0.1-1",
+            ],
+            "3000": [
+                "tweet-streamsluice-streamsluice-5-60-1350-90-1700-1-19-3333-9-500-1-50-1-50-3000-100-true-0.1-1",
+            ],
+            "3500": [
+                "tweet-streamsluice-streamsluice-5-60-1350-90-1700-1-19-3333-9-500-1-50-1-50-3500-100-true-0.1-1",
+            ]
         },
         # "setting_2": {
         #     "Dimension": "Epoch Length (ms)",
