@@ -96,7 +96,7 @@ init() {
   DELAY5=50
   #DELAY6=100
 
-  PAYLOAD=100
+  PAYLOAD=5000
 }
 
 # run applications
