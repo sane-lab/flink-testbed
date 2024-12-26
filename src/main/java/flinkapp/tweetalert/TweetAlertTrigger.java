@@ -475,7 +475,7 @@ public class TweetAlertTrigger {
         @Override
         public void flatMap(Tuple2<String, TweetRecord> rawInput, Collector<Tuple2<String, TweetResult>> out) throws Exception {
             TweetRecord input = rawInput.f1;
-            double sentiment = getSentiment(input.getContent());
+            double sentiment = 0.5; // getSentiment(input.getContent());
 
             countMap.put(rawInput.f0, payload);
             DelayUtil.delay(averageDelay);

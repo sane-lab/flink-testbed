@@ -29,7 +29,7 @@ def plot_success_rate_bar(xs_per_label, success_rate_per_label, output_dir, work
     fig, ax = plt.subplots(figsize=(12, 5))
 
     # Set width of bars and positions
-    bar_width = 0.15
+    bar_width = 0.3 #0.15
     x = np.arange(len(xs))
 
     # Plot bars for each label
@@ -43,21 +43,21 @@ def plot_success_rate_bar(xs_per_label, success_rate_per_label, output_dir, work
     # Add labels, title, and custom x-axis tick labels
     ax.set_xlabel(dimension)
     ax.set_ylabel('Success Rate')
-    # if min([min(x) for x in success_rate_per_label.values()]) < 0.90:
-    #     ax.set_ylim(0.85, 1.00)
-    #     ax.set_yticks(np.arange(0.85, 1.00, 0.03))
-    # elif min([min(x) for x in success_rate_per_label.values()]) < 0.95:
-    #     ax.set_ylim(0.90, 1.00)
-    #     ax.set_yticks(np.arange(0.90, 1.00, 0.02))
-    # else:
-    #     ax.set_ylim(0.95, 1.00)
-    #     ax.set_yticks(np.arange(0.95, 1.00, 0.01))
-    ax.set_ylim(0.0, 1.0)
-    ax.set_yticks(np.arange(0.0, 1.1, 0.1))
+    min_rate = min([min(rates) for rates in success_rate_per_label.values()])
+    if min_rate >= 0.9:
+        ax.set_ylim(0.9, 1.0)
+        ax.set_yticks(np.arange(0.9, 1.00, 0.01))
+    elif min_rate >= 0.85:
+        ax.set_ylim(0.85, 1.0)
+        ax.set_yticks(np.arange(0.85, 1.00, 0.03))
+    else:
+        ax.set_ylim(0.0, 1.0)
+        ax.set_yticks(np.arange(0.0, 1.0, 0.1))
+
     ax.set_xticks(x + bar_width * (len(labels) - 1) / 2)
     ax.set_xticklabels(xs)
     ax.set_title('Success Rates by ' + dimension)
-    ax.legend()
+    #ax.legend()
     ax.grid(True, axis='y')
 
     # Save the plot
@@ -67,14 +67,14 @@ def plot_success_rate_bar(xs_per_label, success_rate_per_label, output_dir, work
     plt.close(fig)
 
 
-def plot_weighted_success_rate_bar(x_per_label, weighted_success_rate_per_label, output_dir, workload_name: str, dimension: str):
+def plot_avg_latency(x_per_label, weighted_success_rate_per_label, output_dir, workload_name: str, dimension: str):
     labels = list(weighted_success_rate_per_label.keys())
     user_limits = x_per_label[labels[0]]  # Assuming all labels have the same user limits for simplicity
 
     fig, ax = plt.subplots(figsize=(12, 5))
 
     # Set width of bars and positions
-    bar_width = 0.15
+    bar_width = 0.3 #0.15
     x = np.arange(len(user_limits))
 
     # Plot bars for each label
@@ -84,26 +84,19 @@ def plot_weighted_success_rate_bar(x_per_label, weighted_success_rate_per_label,
 
     # Add labels, title, and custom x-axis tick labels
     ax.set_xlabel(dimension)
-    ax.set_ylabel('Weighted Success Rate')
-    if min([min(x) for x in weighted_success_rate_per_label.values()]) < 0.90:
-        ax.set_ylim(0.85, 1.00)
-        ax.set_yticks(np.arange(0.85, 1.03, 0.03))
-    elif min([min(x) for x in weighted_success_rate_per_label.values()]) < 0.95:
-        ax.set_ylim(0.90, 1.00)
-        ax.set_yticks(np.arange(0.90, 1.02, 0.02))
-    else:
-        ax.set_ylim(0.95, 1.00)
-        ax.set_yticks(np.arange(0.95, 1.00, 0.01))
+    ax.set_ylabel('Average GT Latency')
+
     ax.set_xticks(x + bar_width * (len(labels) - 1) / 2)
     ax.set_xticklabels(user_limits)
-    ax.set_title('Weighted Success Rates by ' + dimension)
-    ax.legend()
+    ax.set_title('Average Ground Truth Latency by ' + dimension)
+    #ax.legend()
     ax.grid(True, axis='y')
 
     if not os.path.exists(output_dir):
         os.makedirs(output_dir)
-    plt.savefig(output_dir + 'weighted_success_rate_' + str(workload_name) + '.png', bbox_inches='tight')
+    plt.savefig(output_dir + 'avg_latency_' + str(workload_name) + '.png', bbox_inches='tight')
     plt.close(fig)
+
 
 
 def plot_avg_parallelism_bar(x_per_label, avg_parallelism_per_label, output_dir, workload_name: str, dimension:str):
@@ -113,7 +106,7 @@ def plot_avg_parallelism_bar(x_per_label, avg_parallelism_per_label, output_dir,
     fig, ax = plt.subplots(figsize=(12, 5))
 
     # Set width of bars and positions
-    bar_width = 0.15
+    bar_width = 0.3 #0.15
     x = np.arange(len(xs))
 
     # Plot bars for each label
@@ -127,7 +120,7 @@ def plot_avg_parallelism_bar(x_per_label, avg_parallelism_per_label, output_dir,
     plt.xlabel(dimension)
     plt.ylabel('Avg Parallelism')
     plt.title('Avg Parallelism by ' + dimension)
-    ax.legend()
+    #ax.legend()
     ax.grid(True, axis='y')
 
     if not os.path.exists(output_dir):
@@ -141,7 +134,8 @@ def main():
     name_list = [
         #"tweet",
         #"lr",
-        "stock",
+        #"stock",
+        "micro",
     ]
     for name in name_list:
         overall_output_dir = "/Users/swrrt/Workplace/BacklogDelayPaper/experiments/figures/part4/" + name + "/"
@@ -157,14 +151,14 @@ def main():
                 dimension = splits[1]
                 success_rate_per_label = {}
                 avg_parallelism_per_label = {}
-                weighted_success_rate_per_label = {}
+                avg_latency_per_label = {}
                 x_per_label = {}
             elif len(splits) == 1 and splits[0] == "end":
                 print(success_rate_per_label)
-                print(weighted_success_rate_per_label)
+                print(avg_latency_per_label)
                 print(avg_parallelism_per_label)
                 plot_success_rate_bar(x_per_label, success_rate_per_label, overall_output_dir, workload_name, dimension)
-                plot_weighted_success_rate_bar(x_per_label, weighted_success_rate_per_label, overall_output_dir, workload_name, dimension)
+                plot_avg_latency(x_per_label, avg_latency_per_label, overall_output_dir, workload_name, dimension)
                 plot_avg_parallelism_bar(x_per_label, avg_parallelism_per_label, overall_output_dir, workload_name, dimension)
             elif len(splits) > 1:
                 label = splits[3]
@@ -179,10 +173,10 @@ def main():
                     success_rate_per_label[label] = []
                     avg_parallelism_per_label[label] = []
                     x_per_label[label] = []
-                    weighted_success_rate_per_label[label] = []
+                    avg_latency_per_label[label] = []
                 x_per_label[label].append(x)
                 success_rate_per_label[label].append(success_rate)
-                weighted_success_rate_per_label[label].append(weighted_success_rate)
+                avg_latency_per_label[label].append(weighted_success_rate)
                 avg_parallelism_per_label[label].append(avg_parallelism)
                 print(label)
 

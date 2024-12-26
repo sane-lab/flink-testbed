@@ -203,6 +203,7 @@ def draw_latency_curves(raw_dir, output_dir, exp_name, window_size, start_time, 
                                             average_ground_truth_latencies[i][0][x] <= (start_time + exp_length) * 1000]
         success_rate = len([x for x in groundtruth_p99_latency_in_range if x <= latency_limit]) / len(
             groundtruth_p99_latency_in_range)
+        avg_ground_truth_latency_in_range = sum(groundtruth_p99_latency_in_range)/len(groundtruth_p99_latency_in_range)
 
         def compute_weighted_success_rate(average_ground_truth_latencies, start_time, exp_length, latency_limit,
                                           window_size=30):
@@ -391,7 +392,7 @@ def draw_latency_curves(raw_dir, output_dir, exp_name, window_size, start_time, 
     plt.savefig(output_dir + 'latency_bar.png', bbox_inches='tight')
     plt.close(fig)
 
-    return success_rate, weighted_success_rate, first_converge_time, converged_bar
+    return success_rate, avg_ground_truth_latency_in_range, first_converge_time, converged_bar
 
 
 def parseMapping(split):
@@ -1104,32 +1105,65 @@ def main():
         # Linear-road
         "setting_1": {
             "Dimension": "User Limit (ms)",
+            "500":[
+                "system_d1--streamsluice-streamsluice-false-true-false-systemsensitivity-sine-1split2join1-900-6000-30-3000-5000-0-1-0-1-20-1-20000-3-500-1-20000-1-20-1-20000-17-1000-20000-500-500-100-60-0.5-1-true-1",
+            ],
+            "1000": [
+                "system_d1--streamsluice-streamsluice-false-true-false-systemsensitivity-sine-1split2join1-900-6000-30-3000-5000-0-1-0-1-20-1-20000-3-500-1-20000-1-20-1-20000-17-1000-20000-1000-500-100-60-0.5-1-true-1",
+            ],
+            "1500": [
+                "system_d1--streamsluice-streamsluice-false-true-false-systemsensitivity-sine-1split2join1-900-6000-30-3000-5000-0-1-0-1-20-1-20000-3-500-1-20000-1-20-1-20000-17-1000-20000-1500-500-100-60-0.5-1-true-1",
+            ],
+            "2000": [
+                "system_d1--streamsluice-streamsluice-false-true-false-systemsensitivity-sine-1split2join1-900-6000-30-3000-5000-0-1-0-1-20-1-20000-3-500-1-20000-1-20-1-20000-17-1000-20000-2000-500-100-60-0.5-1-true-1",
+            ],
+            "2500": [
+                "system_d1--streamsluice-streamsluice-false-true-false-systemsensitivity-sine-1split2join1-900-6000-30-3000-5000-0-1-0-1-20-1-20000-3-500-1-20000-1-20-1-20000-17-1000-20000-2500-500-100-60-0.5-1-true-1",
+            ],
+            "3000": [
+                "system_d1--streamsluice-streamsluice-false-true-false-systemsensitivity-sine-1split2join1-900-6000-30-3000-5000-0-1-0-1-20-1-20000-3-500-1-20000-1-20-1-20000-17-1000-20000-3000-500-100-60-0.5-1-true-1",
+            ],
         },
         "setting_2": {
             "Dimension": "Epoch Length (ms)",
+            "25": [
+                "system_d2--streamsluice-streamsluice-false-true-false-systemsensitivity-sine-1split2join1-900-6000-30-3000-5000-0-1-0-1-20-1-20000-3-500-1-20000-1-20-1-20000-17-1000-20000-2000-500-25-60-0.5-1-true-1",
+            ],
+            "50": [
+                "system_d2--streamsluice-streamsluice-false-true-false-systemsensitivity-sine-1split2join1-900-6000-30-3000-5000-0-1-0-1-20-1-20000-3-500-1-20000-1-20-1-20000-17-1000-20000-2000-500-50-60-0.5-1-true-1",
+            ],
+            "100": [
+                "system_d2--streamsluice-streamsluice-false-true-false-systemsensitivity-sine-1split2join1-900-6000-30-3000-5000-0-1-0-1-20-1-20000-3-500-1-20000-1-20-1-20000-17-1000-20000-2000-500-100-60-0.5-1-true-1",
+            ],
+            "200": [
+                "system_d2--streamsluice-streamsluice-false-true-false-systemsensitivity-sine-1split2join1-900-6000-30-3000-5000-0-1-0-1-20-1-20000-3-500-1-20000-1-20-1-20000-17-1000-20000-2000-500-200-60-0.5-1-true-1",
+            ],
+            "500": [
+                "system_d2--streamsluice-streamsluice-false-true-false-systemsensitivity-sine-1split2join1-900-6000-30-3000-5000-0-1-0-1-20-1-20000-3-500-1-20000-1-20-1-20000-17-1000-20000-2000-500-500-60-0.5-1-true-1",
+            ],
         },
         "setting_3": {
             "Dimension": "Resource Sensitivity (Alpha)",
             "0.0": [
-                "system_d3--streamsluice-streamsluice-false-true-false-systemsensitivity-sine-1split2join1-900-6000-30-3000-5000-0-1-0-1-20-1-20000-1-20-1-20000-1-20-1-20000-17-1000-20000-2000-500-100-60-0.0-1-true-1",
+                "system_d3--streamsluice-streamsluice-false-true-false-systemsensitivity-sine-1split2join1-900-6000-30-3000-5000-0-1-0-1-20-1-20000-3-500-1-20000-1-20-1-20000-17-1000-20000-2000-500-100-60-0.0-1-true-1",
             ],
             "0.5": [
-                "system_d3--streamsluice-streamsluice-false-true-false-systemsensitivity-sine-1split2join1-900-6000-30-3000-5000-0-1-0-1-20-1-20000-1-20-1-20000-1-20-1-20000-17-1000-20000-2000-500-100-60-0.5-1-true-1",
+                "system_d3--streamsluice-streamsluice-false-true-false-systemsensitivity-sine-1split2join1-900-6000-30-3000-5000-0-1-0-1-20-1-20000-3-500-1-20000-1-20-1-20000-17-1000-20000-2000-500-100-60-0.5-1-true-1",
             ],
             "1.0": [
-                "system_d3--streamsluice-streamsluice-false-true-false-systemsensitivity-sine-1split2join1-900-6000-30-3000-5000-0-1-0-1-20-1-20000-1-20-1-20000-1-20-1-20000-17-1000-20000-2000-500-100-60-1.0-1-true-1",
+                "system_d3--streamsluice-streamsluice-false-true-false-systemsensitivity-sine-1split2join1-900-6000-30-3000-5000-0-1-0-1-20-1-20000-3-500-1-20000-1-20-1-20000-17-1000-20000-2000-500-100-60-1.0-1-true-1",
             ],
         },
         "setting_4": {
             "Dimension": "Tuning Frequency (s)",
             "15": [
-                "system_d4--streamsluice-streamsluice-false-true-false-systemsensitivity-sine-1split2join1-900-6000-30-3000-5000-0-1-0-1-20-1-20000-3-500-1-20000-1-20-1-20000-17-1000-20000-2000-500-100-15-0.5-1-true-1"
+                "system_d4--streamsluice-streamsluice-false-true-false-systemsensitivity-sine-1split2join1-900-6000-30-3000-5000-0-1-0-1-20-1-20000-3-500-1-20000-1-20-1-20000-17-1000-20000-2000-500-100-15-0.5-1-true-1",
             ],
             "60": [
-                "system_d4--streamsluice-streamsluice-false-true-false-systemsensitivity-sine-1split2join1-900-6000-30-3000-5000-0-1-0-1-20-1-20000-3-500-1-20000-1-20-1-20000-17-1000-20000-2000-500-100-60-0.5-1-true-1"
+                "system_d4--streamsluice-streamsluice-false-true-false-systemsensitivity-sine-1split2join1-900-6000-30-3000-5000-0-1-0-1-20-1-20000-3-500-1-20000-1-20-1-20000-17-1000-20000-2000-500-100-60-0.5-1-true-1",
             ],
             "240": [
-                "system_d4--streamsluice-streamsluice-false-true-false-systemsensitivity-sine-1split2join1-900-6000-30-3000-5000-0-1-0-1-20-1-20000-3-500-1-20000-1-20-1-20000-17-1000-20000-2000-500-100-240-0.5-1-true-1"
+                "system_d4--streamsluice-streamsluice-false-true-false-systemsensitivity-sine-1split2join1-900-6000-30-3000-5000-0-1-0-1-20-1-20000-3-500-1-20000-1-20-1-20000-17-1000-20000-2000-500-100-240-0.5-1-true-1",
             ],
         },
     }
@@ -1168,6 +1202,7 @@ def main():
                                                             start_time, exp_length, True, [])
             continue
         success_rate_per_label = {}
+        avg_ground_truth_latency_per_label = {}
         avg_parallelism_per_label = {}
         user_limit_per_label = {}
         weighted_success_rate_per_label = {}
@@ -1175,12 +1210,13 @@ def main():
         exps_per_label.pop("Dimension")
         for label, exps in exps_per_label.items():
             success_rate_per_label[label] = []
+            avg_ground_truth_latency_per_label[label] = []
             avg_parallelism_per_label[label] = []
             user_limit_per_label[label] = []
             weighted_success_rate_per_label[label] = []
             for exp_name in exps:
                 start_time, exp_length, latency_bar = getStartTimeAndExpLength(exp_name)
-                success_rate, weighted_success_rate, first_converge_time, converged_bar = draw_latency_curves(raw_dir,
+                success_rate, avg_ground_truth_latency, first_converge_time, converged_bar = draw_latency_curves(raw_dir,
                                                                                                               output_dir + exp_name + '/',
                                                                                                               exp_name,
                                                                                                               window_size,
@@ -1193,14 +1229,14 @@ def main():
                                                                 start_time, exp_length, True, arrival_curves)
                 user_limit_per_label[label] += [latency_bar]
                 success_rate_per_label[label] += [success_rate]
-                weighted_success_rate_per_label[label] += [weighted_success_rate]
+                avg_ground_truth_latency_per_label[label] += [avg_ground_truth_latency]
                 avg_parallelism_per_label[label] += [avg_parallelism]
                 f = open("system_results.txt", "a")
                 f.write(exp_name + " " + str(0) + " " + str(label) + " " + str(latency_bar) + " " + str(
-                    success_rate) + " " + str(weighted_success_rate) + " " + str(avg_parallelism) + "\n")
+                    success_rate) + " " + str(avg_ground_truth_latency) + " " + str(avg_parallelism) + "\n")
                 f.close()
         print(success_rate_per_label)
-        print(weighted_success_rate_per_label)
+        print(avg_ground_truth_latency_per_label)
         print(avg_parallelism_per_label)
 
         # user_limits = user_limit_per_label["0.1"]

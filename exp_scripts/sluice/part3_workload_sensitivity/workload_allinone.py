@@ -59,7 +59,7 @@ def plot_success_rate_bar(xs_per_label, success_rate_per_label, output_dir, work
     plt.close(fig)
 
 
-def plot_weighted_success_rate_bar(x_per_label, weighted_success_rate_per_label, output_dir, workload_name: str, dimension: str):
+def plot_avg_latency(x_per_label, weighted_success_rate_per_label, output_dir, workload_name: str, dimension: str):
     labels = list(weighted_success_rate_per_label.keys())
     user_limits = x_per_label[labels[0]]  # Assuming all labels have the same user limits for simplicity
 
@@ -76,7 +76,7 @@ def plot_weighted_success_rate_bar(x_per_label, weighted_success_rate_per_label,
 
     # Add labels, title, and custom x-axis tick labels
     ax.set_xlabel(dimension)
-    ax.set_ylabel('Weighted Success Rate')
+    ax.set_ylabel('Average Ground Truth Latency')
     if min([min(x) for x in weighted_success_rate_per_label.values()]) < 0.95:
         ax.set_ylim(0.90, 1.00)
         ax.set_yticks(np.arange(0.90, 1.02, 0.02))
@@ -85,13 +85,13 @@ def plot_weighted_success_rate_bar(x_per_label, weighted_success_rate_per_label,
         ax.set_yticks(np.arange(0.95, 1.01, 0.01))
     ax.set_xticks(x + bar_width * (len(labels) - 1) / 2)
     ax.set_xticklabels(user_limits)
-    ax.set_title('Weighted Success Rates by ' + dimension)
-    ax.legend()
+    ax.set_title('Average Latency by ' + dimension)
+    #ax.legend()
     ax.grid(True, axis='y')
 
     if not os.path.exists(output_dir):
         os.makedirs(output_dir)
-    plt.savefig(output_dir + 'weighted_success_rate_' + str(workload_name) + '.png', bbox_inches='tight')
+    plt.savefig(output_dir + 'avg_latency_' + str(workload_name) + '.png', bbox_inches='tight')
     plt.close(fig)
 
 
@@ -139,14 +139,14 @@ def main():
             dimension = splits[1]
             success_rate_per_label = {}
             avg_parallelism_per_label = {}
-            weighted_success_rate_per_label = {}
+            avg_latency_per_label = {}
             x_per_label = {}
         elif len(splits) == 1 and splits[0] == "end":
             print(success_rate_per_label)
-            print(weighted_success_rate_per_label)
+            print(avg_latency_per_label)
             print(avg_parallelism_per_label)
             plot_success_rate_bar(x_per_label, success_rate_per_label, overall_output_dir, workload_name, dimension)
-            plot_weighted_success_rate_bar(x_per_label, weighted_success_rate_per_label, overall_output_dir, workload_name, dimension)
+            plot_avg_latency(x_per_label, avg_latency_per_label, overall_output_dir, workload_name, dimension)
             plot_avg_parallelism_bar(x_per_label, avg_parallelism_per_label, overall_output_dir, workload_name, dimension)
         elif len(splits) > 1:
             label = splits[3]
@@ -158,10 +158,10 @@ def main():
                 success_rate_per_label[label] = []
                 avg_parallelism_per_label[label] = []
                 x_per_label[label] = []
-                weighted_success_rate_per_label[label] = []
+                avg_latency_per_label[label] = []
             x_per_label[label].append(x)
             success_rate_per_label[label].append(success_rate)
-            weighted_success_rate_per_label[label].append(weighted_success_rate)
+            avg_latency_per_label[label].append(weighted_success_rate)
             avg_parallelism_per_label[label].append(avg_parallelism)
 
 
