@@ -835,7 +835,7 @@ def main():
             # "Static-Adequate": "tweet-streamsluice-streamsluice-5-60-1350-90-1700-1-19-3333-9-500-1-50-1-50-2500-100-false-0.1-1",
             # "DS2": "tweet-ds2-ds2-5-60-1350-90-1700-1-19-3333-9-500-1-50-1-50-2500-100-true-0.1-1",
             # "Streamswitch": "tweet-streamswitch-streamswitch-5-60-1350-90-1700-1-19-3333-9-500-1-50-1-50-2500-100-true-0.1-1",
-            "Sluice": "tweet-streamsluice-streamsluice-5-60-1350-90-1700-1-19-3333-9-500-1-50-1-50-100-2000-100-true-0.1-1",
+            "Sluice": "tweet-streamsluice-streamsluice-5-60-1350-90-1700-1-19-3333-9-500-1-50-1-50-5000-2000-100-true-0.1-1",
         },
         # "Stock-Analysis_30min":{
         #     "Static": "stock-ds2-ds2-5-8-60-1350-90-1000-20-1-200-4-3333-1-200-1-500-1-7-5000-3000-100-0.1-false-false-1",
