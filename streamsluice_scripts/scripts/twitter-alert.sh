@@ -53,7 +53,7 @@ init() {
   skip_interval=1 # skip seconds
   warmup=10000
   warmup_time=90
-  warmup_rate=1700 #1500
+  warmup_rate=3400 #1700 #1500
   repeat=1
   spike_estimation="linear_regression"
   spike_slope=0.75
