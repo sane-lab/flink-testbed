@@ -229,8 +229,8 @@ run_scale_test(){
       is_treat=true
       autotune=true
       how_type="streamsluice"
-      run_one_exp
-      printf "${EXP_NAME}\n" >> system_sensitivity_result.txt
+#      run_one_exp
+#      printf "${EXP_NAME}\n" >> system_sensitivity_result.txt
     done
 
 
@@ -281,8 +281,8 @@ run_scale_test(){
         is_treat=true
         autotune=true
         how_type="streamsluice"
-        run_one_exp
-        printf "${EXP_NAME}\n" >> system_sensitivity_result.txt
+#        run_one_exp
+#        printf "${EXP_NAME}\n" >> system_sensitivity_result.txt
       done
     done
 
