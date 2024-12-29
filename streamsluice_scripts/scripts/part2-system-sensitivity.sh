@@ -328,7 +328,7 @@ run_scale_test(){
       how_type="ds2"
 #      run_one_exp
 #      printf "${EXP_NAME}\n" >> workload_sensitivity_result.txt
-      for L in 2000; do #
+      for L in 2000 3000 4000; do #
         is_treat=true
         autotune=true
         how_type="streamsluice"
@@ -373,13 +373,13 @@ run_scale_test(){
     amplitude_high=3000
     period_low=75
     period_high=45
-    for autotune_interval in 15 60 240; do # 60 240
+    for autotune_interval in 5 15 60 240 480; do # 60 240
       is_treat=false
       autotune=false
       how_type="ds2"
 #      run_one_exp
 #      printf "${EXP_NAME}\n" >> workload_sensitivity_result.txt
-      for L in 2000; do # 750 1250
+      for L in 2000 3000; do # 750 1250
         is_treat=true
         autotune=true
         how_type="streamsluice"
