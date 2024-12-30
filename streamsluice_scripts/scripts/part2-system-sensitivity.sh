@@ -106,7 +106,7 @@ function runApp() {
     -phase2Rate ${RATE2} -interTime ${TIME_I} -interRate ${RATE_I} -warmupTime ${warmupTime} -warmupRate ${warmupRate} \
     -source ${SOURCE_TYPE} -curve_type ${CURVE_TYPE} -run_time ${runtime} \
     -amplitudeLow ${amplitude_low} -amplitudeHigh ${amplitude_high} \
-    -periodLow ${period_low} -periodHigh ${period_high} -stairs ${STAIRS} \
+    -periodLow ${period_low} -periodHigh ${period_high} -stairs ${STAIRS} -stair_repeats ${STAIR_REPEATS} \
     -noise ${noise} -zipf_skew ${ZIPF_SKEW} &"
     ${FLINK_DIR}/bin/flink run -c ${job} ${JAR} \
     -graph ${GRAPH} \
@@ -118,7 +118,7 @@ function runApp() {
     -phase2Rate ${RATE2} -interTime ${TIME_I} -interRate ${RATE_I} -warmupTime ${warmupTime} -warmupRate ${warmupRate} \
     -source ${SOURCE_TYPE} -curve_type ${CURVE_TYPE} -run_time ${runtime} \
     -amplitudeLow ${amplitude_low} -amplitudeHigh ${amplitude_high} \
-    -periodLow ${period_low} -periodHigh ${period_high} -stairs ${STAIRS} \
+    -periodLow ${period_low} -periodHigh ${period_high} -stairs ${STAIRS} -stair_repeats ${STAIR_REPEATS} \
     -noise ${noise} -zipf_skew ${ZIPF_SKEW} &
 }
 
@@ -216,6 +216,7 @@ run_scale_test(){
     RATE_I=5000
     TIME_I=0
     STAIRS=3
+    STAIR_REPEATS=1
     amplitude_low=1000
     amplitude_high=3000
     period_low=75
@@ -267,6 +268,7 @@ run_scale_test(){
     RATE_I=5000
     TIME_I=0
     STAIRS=3
+    STAIR_REPEATS=1
     amplitude_low=1000
     amplitude_high=3000
     period_low=75
@@ -332,8 +334,8 @@ run_scale_test(){
         is_treat=true
         autotune=true
         how_type="streamsluice"
-        run_one_exp
-        printf "${EXP_NAME}\n" >> system_sensitivity_result.txt
+#        run_one_exp
+#        printf "${EXP_NAME}\n" >> system_sensitivity_result.txt
       done
     done
 
@@ -342,22 +344,22 @@ run_scale_test(){
     setting="system_d4"
     SOURCE_TYPE="systemsensitivity"
     DELAY2=20
-    DELAY3=500
-    DELAY4=20
-    DELAY5=1000
-    STATE_SIZE2=20000 # 1000 keys, per key (n * 2000 + 36) bytes, n=5000 -> 100 MB
-    STATE_SIZE3=20000
-    STATE_SIZE4=20000
-    STATE_SIZE5=20000
+    DELAY3=1000
+    DELAY4=666
+    DELAY5=20
+    STATE_SIZE2=25000 # 1000 keys, per key (n * 2000 + 36) bytes, n=5000 -> 100 MB
+    STATE_SIZE3=25000
+    STATE_SIZE4=25000
+    STATE_SIZE5=25000
     LP2=1
-    LP3=7
-    LP4=1
-    LP5=30
+    LP3=19
+    LP4=18
+    LP5=1
 
     P2=1
-    P3=3
-    P4=1
-    P5=17
+    P3=12
+    P4=12
+    P5=1
     GRAPH="1split2join1"
     autotuner_bar_lowerbound=350
     autotuner_latency_window=100
@@ -368,18 +370,20 @@ run_scale_test(){
     warmupTime=60
     RATE_I=5000
     TIME_I=0
-    STAIRS=3
+    STAIRS=2
+    STAIR_REPEATS=3
     amplitude_low=1000
     amplitude_high=3000
-    period_low=75
-    period_high=45
-    for autotune_interval in 5 15 60 240 480; do # 60 240
-      is_treat=false
-      autotune=false
-      how_type="ds2"
-#      run_one_exp
-#      printf "${EXP_NAME}\n" >> workload_sensitivity_result.txt
-      for L in 2000 3000; do # 750 1250
+    period_low=50
+    period_high=50
+    is_treat=false
+    autotune=false
+    how_type="ds2"
+    run_one_exp
+    printf "${EXP_NAME}\n" >> workload_sensitivity_result.txt
+
+    for autotune_interval in 15 30 60 180 360; do # 60 240
+      for L in 3000; do # 750 1250 2000
         is_treat=true
         autotune=true
         how_type="streamsluice"

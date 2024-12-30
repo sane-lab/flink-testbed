@@ -105,6 +105,7 @@ public class MicroBench {
             )).setParallelism(params.getInt("p1", 1));
         }else if(SOURCE_TYPE.equals("systemsensitivity")) {
             long stair = params.getLong("stairs", 3);
+            long stair_repeats = params.getLong("stair_repeats", 2);
             long period_low = params.getLong("periodLow", 10) * 1000;
             long period_high = params.getLong("periodHigh", 10) * 1000;
             long amplitude_low = params.getLong("amplitudeLow", 5000);
@@ -113,7 +114,7 @@ public class MicroBench {
                     params.getLong("warmupRate", INTERMEDIATE_RATE),
                     params.getLong("run_time", 510) * 1000,
                     params.get("curve_type", "sine"),
-                    amplitude_low, amplitude_high, period_low, period_high, stair,
+                    amplitude_low, amplitude_high, period_low, period_high, stair, stair_repeats,
                     params.getDouble("noise", 0.05)
             )).setParallelism(params.getInt("p1", 1));
         }else {
@@ -2574,7 +2575,7 @@ public class MicroBench {
         }
     }
     public static final class SystemSensitivityWithNoiseSource implements SourceFunction<Tuple3<String, Long, Long>>, CheckpointedFunction {
-    final private long WARMP_TIME, WARMP_RATE, TOTAL_TIME, PATTERN, AMPLITUDE_LOW, AMPLITUDE_HIGH, PERIOD_LOW, PERIOD_HIGH, STAIR;
+    final private long WARMP_TIME, WARMP_RATE, TOTAL_TIME, PATTERN, AMPLITUDE_LOW, AMPLITUDE_HIGH, PERIOD_LOW, PERIOD_HIGH, STAIR, STAIR_REPEAT;
     final private double NOISE_LEVEL;
     private int count = 0;
     private volatile boolean isRunning = true;
@@ -2590,7 +2591,7 @@ public class MicroBench {
 
     public SystemSensitivityWithNoiseSource(long WARMUP_TIME, long WARMUP_RATE, long TOTAL_TIME, String PATTERN,
                                             long AMPLITUDE_LOW, long AMPLITUDE_HIGH,
-                                            long PERIOD_LOW, long PERIOD_HIGH, long stairs, double NOISE_LEVEL){
+                                            long PERIOD_LOW, long PERIOD_HIGH, long stairs, long stair_repeats, double NOISE_LEVEL){
         this.WARMP_TIME = WARMUP_TIME;
         this.WARMP_RATE = WARMUP_RATE;
         this.TOTAL_TIME = TOTAL_TIME;
@@ -2616,6 +2617,7 @@ public class MicroBench {
         this.PERIOD_LOW = PERIOD_LOW;
         this.PERIOD_HIGH = PERIOD_HIGH;
         this.STAIR = stairs;
+        this.STAIR_REPEAT = stair_repeats;
         this.NOISE_LEVEL = NOISE_LEVEL;
         this.nKeys = 1000;
         this.maxParallelism = 128;
@@ -2771,7 +2773,8 @@ public class MicroBench {
         }
     }
 
-    private long calculateValueAtCurrentRound(long round, long low, long high, long stairs){
+    private long calculateValueAtCurrentRound(long round, long low, long high, long stairs, long stair_repeat){
+        round = round / stair_repeat;
         round = (round - 1) % (stairs * 2) + 1;
         long value = low;
         if (round <= stairs){
@@ -2796,8 +2799,8 @@ public class MicroBench {
             round += 1;
             long roundStartTime = System.currentTimeMillis();
             long now_average_rate = WARMP_RATE;
-            long now_amplitude = calculateValueAtCurrentRound(round, AMPLITUDE_LOW, AMPLITUDE_HIGH, STAIR);
-            long now_period = calculateValueAtCurrentRound(round, PERIOD_LOW, PERIOD_HIGH, STAIR);
+            long now_amplitude = calculateValueAtCurrentRound(round, AMPLITUDE_LOW, AMPLITUDE_HIGH, STAIR, STAIR_REPEAT);
+            long now_period = calculateValueAtCurrentRound(round, PERIOD_LOW, PERIOD_HIGH, STAIR, STAIR_REPEAT);
             long pattern_this_round;
             if (this.PATTERN != 3){
                 pattern_this_round = this.PATTERN;
