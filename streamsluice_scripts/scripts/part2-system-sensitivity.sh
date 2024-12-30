@@ -293,22 +293,22 @@ run_scale_test(){
     setting="system_d3"
     SOURCE_TYPE="systemsensitivity"
     DELAY2=20
-    DELAY3=500
-    DELAY4=20
-    DELAY5=1000
+    DELAY3=1000
+    DELAY4=666
+    DELAY5=20
     STATE_SIZE2=20000 # 1000 keys, per key (n * 2000 + 36) bytes, n=5000 -> 100 MB
     STATE_SIZE3=20000
     STATE_SIZE4=20000
     STATE_SIZE5=20000
     LP2=1
-    LP3=7
-    LP4=1
-    LP5=30
+    LP3=19
+    LP4=18
+    LP5=1
 
     P2=1
-    P3=3
-    P4=1
-    P5=17
+    P3=12
+    P4=12
+    P5=1
     GRAPH="1split2join1"
     autotuner_bar_lowerbound=350
     autotuner_latency_window=100
@@ -319,23 +319,26 @@ run_scale_test(){
     warmupTime=60
     RATE_I=5000
     TIME_I=0
-    STAIRS=3
+    STAIRS=1
+    STAIR_REPEATS=2
     amplitude_low=1000
-    amplitude_high=3000
-    period_low=75
-    period_high=45
-    for autotuner_increase_bar_alpha in 0.0 0.5 1.0; do # 0.5 1.0
+    amplitude_high=2000
+    period_low=50
+    period_high=50
+    for autotuner_increase_bar_alpha in 0.0 0.25 0.5 0.75 1.0; do # 0.5 1.0
       is_treat=false
       autotune=false
       how_type="ds2"
 #      run_one_exp
 #      printf "${EXP_NAME}\n" >> workload_sensitivity_result.txt
-      for L in 2000 3000 4000; do #
-        is_treat=true
-        autotune=true
-        how_type="streamsluice"
-#        run_one_exp
-#        printf "${EXP_NAME}\n" >> system_sensitivity_result.txt
+      for L in 3000; do #
+        for repeat in 1 2 3 4 5; do
+          is_treat=true
+          autotune=true
+          how_type="streamsluice"
+          run_one_exp
+          printf "${EXP_NAME}\n" >> system_sensitivity_result.txt
+        done
       done
     done
 
@@ -388,8 +391,8 @@ run_scale_test(){
           is_treat=true
           autotune=true
           how_type="streamsluice"
-          run_one_exp
-          printf "${EXP_NAME}\n" >> system_sensitivity_result.txt
+#          run_one_exp
+#          printf "${EXP_NAME}\n" >> system_sensitivity_result.txt
         done
       done
     done
