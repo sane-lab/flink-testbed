@@ -67,8 +67,8 @@ def plot_success_rate_bar(xs_per_label, success_rate_per_label, output_dir, work
     plt.close(fig)
 
 
-def plot_avg_latency(x_per_label, weighted_success_rate_per_label, output_dir, workload_name: str, dimension: str):
-    labels = list(weighted_success_rate_per_label.keys())
+def plot_avg_latency(x_per_label, avg_latency_per_label, output_dir, workload_name: str, dimension: str):
+    labels = list(avg_latency_per_label.keys())
     user_limits = x_per_label[labels[0]]  # Assuming all labels have the same user limits for simplicity
 
     fig, ax = plt.subplots(figsize=(12, 5))
@@ -79,7 +79,7 @@ def plot_avg_latency(x_per_label, weighted_success_rate_per_label, output_dir, w
 
     # Plot bars for each label
     for i, label in enumerate(labels):
-        success_rates = weighted_success_rate_per_label[label]
+        success_rates = avg_latency_per_label[label]
         ax.bar(x + i * bar_width, success_rates, width=bar_width, label=("User_Limit=" + label))
 
     # Add labels, title, and custom x-axis tick labels
@@ -167,7 +167,7 @@ def main():
                     label = ""
 
                 success_rate = float(splits[4])
-                weighted_success_rate = float(splits[5])
+                avg_latency = float(splits[5])
                 avg_parallelism = float(splits[6])
                 if(label not in success_rate_per_label):
                     success_rate_per_label[label] = []
@@ -176,7 +176,7 @@ def main():
                     avg_latency_per_label[label] = []
                 x_per_label[label].append(x)
                 success_rate_per_label[label].append(success_rate)
-                avg_latency_per_label[label].append(weighted_success_rate)
+                avg_latency_per_label[label].append(avg_latency)
                 avg_parallelism_per_label[label].append(avg_parallelism)
                 print(label)
 

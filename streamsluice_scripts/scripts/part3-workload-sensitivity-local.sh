@@ -180,10 +180,10 @@ run_scale_test(){
     DELAY3=1500
     DELAY4=1000
     DELAY5=20
-    STATE_SIZE2=15000 # 1000 keys, per key (n * 2000 + 36) bytes, n=5000 -> 100 MB
-    STATE_SIZE3=15000
-    STATE_SIZE4=15000
-    STATE_SIZE5=15000
+    STATE_SIZE2=10000 # 1000 keys, per key (n * 2000 + 36) bytes, n=5000 -> 100 MB
+    STATE_SIZE3=10000
+    STATE_SIZE4=10000
+    STATE_SIZE5=10000
     LP2=1
     LP3=28 #1
     LP4=28
@@ -215,8 +215,8 @@ run_scale_test(){
         is_treat=true
         autotune=true
         how_type="streamsluice"
-        run_one_exp
-        printf "${EXP_NAME}\n" >> workload_sensitivity_result.txt
+#        run_one_exp
+#        printf "${EXP_NAME}\n" >> workload_sensitivity_result.txt
       done
     done
 
@@ -251,7 +251,7 @@ run_scale_test(){
     TIME1=45
     TIME2=45
     RATE2=3500
-    for RATE1 in 5500 6000 6500 7000 7500; do
+    for RATE1 in 8000 8500; do # 5500 6000 6500 7000 7500
       is_treat=false
       autotune=false
       how_type="ds2"
@@ -261,8 +261,8 @@ run_scale_test(){
         is_treat=true
         autotune=true
         how_type="streamsluice"
-#        run_one_exp
-#        printf "${EXP_NAME}\n" >> workload_sensitivity_result.txt
+        run_one_exp
+        printf "${EXP_NAME}\n" >> workload_sensitivity_result.txt
       done
     done
 
@@ -296,7 +296,7 @@ run_scale_test(){
     TIME_I=0
     RATE1=6500
     RATE2=3500
-    for TIME1 in 90 60 45 30 15 10; do #   90 60 45 30 20
+    for TIME1 in 5 15 30 120; do #   90 60 45 30 15 10
       TIME2=${TIME1}
       is_treat=false
       autotune=false
@@ -307,8 +307,8 @@ run_scale_test(){
         is_treat=true
         autotune=true
         how_type="streamsluice"
-#        run_one_exp
-#        printf "${EXP_NAME}\n" >> workload_sensitivity_result.txt
+        run_one_exp
+        printf "${EXP_NAME}\n" >> workload_sensitivity_result.txt
       done
     done
 
@@ -385,9 +385,10 @@ run_scale_test(){
       is_treat=true
       autotune=true
       how_type="streamsluice"
-#      run_one_exp
-#      printf "${EXP_NAME}\n" >> workload_sensitivity_result.txt
+      run_one_exp
+      printf "${EXP_NAME}\n" >> workload_sensitivity_result.txt
     done
+
     GRAPH="3op"
     vertex_id="a84740bacf923e828852cc4966f2247c,eabd4c11f6c6fbdf011f0f1fc42097b1,d01047f852abd5702a0dabeedac99ff5"
     LP2=1
@@ -409,8 +410,8 @@ run_scale_test(){
       is_treat=true
       autotune=true
       how_type="streamsluice"
-#      run_one_exp
-#      printf "${EXP_NAME}\n" >> workload_sensitivity_result.txt
+      run_one_exp
+      printf "${EXP_NAME}\n" >> workload_sensitivity_result.txt
     done
 
     GRAPH="4op"
@@ -576,7 +577,7 @@ run_scale_test(){
     RATE2=3500
     TIME1=45
     TIME2=45
-    for zipf_skew in 0.1 0.2 0.4 0.8; do #
+    for zipf_skew in 2 4 8; do # 0.1 0.2 0.4 0.8
       is_treat=false
       autotune=false
       how_type="ds2"
@@ -586,8 +587,8 @@ run_scale_test(){
         is_treat=true
         autotune=true
         how_type="streamsluice"
-#        run_one_exp
-#        printf "${EXP_NAME}\n" >> workload_sensitivity_result.txt
+        run_one_exp
+        printf "${EXP_NAME}\n" >> workload_sensitivity_result.txt
       done
     done
 }

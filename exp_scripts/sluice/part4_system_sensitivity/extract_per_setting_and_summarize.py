@@ -166,12 +166,12 @@ def add_latency_bar_curve(plt, latency_bar: dict[int, int], initial_time):
     for time in latency_bar.keys():
         x = [last_time, time - initial_time]
         y = [last_y, last_y]
-        plt.plot(x, y, 'o--', label="Latency Bar", color='orange', linewidth=1.5)
+        plt.plot(x, y, 'o--', label="Latency Bound", color='orange', linewidth=1.5)
         last_y = latency_bar[time]
         last_time = time - initial_time
     x = [last_time, 10000000]
     y = [last_y, last_y]
-    plt.plot(x, y, 'o--', label="Latency Bar", color='orange', linewidth=1.5)
+    plt.plot(x, y, 'o--', label="Latency Bound", color='orange', linewidth=1.5)
 
 
 def draw_latency_curves(raw_dir, output_dir, exp_name, window_size, start_time, exp_length, latency_limit,
@@ -1101,7 +1101,7 @@ def main():
     }
 
     exps_per_label_per_setting_microbench = {
-        "static": "system_d3--streamsluice-streamsluice-false-true-false-systemsensitivity-sine-1split2join1-900-6000-30-3000-5000-0-1-0-1-20-1-10000-1-20-1-10000-1-20-1-10000-17-1000-10000-2000-1000-100-60-0.0-1-true-1",
+        "static": "system_d4--streamsluice-streamsluice-false-true-false-systemsensitivity-sine-1split2join1-900-6000-30-3000-5000-0-1-0-1-20-1-20000-3-500-1-20000-1-20-1-20000-17-1000-20000-3000-500-100-60-0.5-1-true-1",
         # "setting_1": {
         #     "Dimension": "User Limit (ms)",
         #     "500":[
@@ -1251,7 +1251,7 @@ def main():
 
         # user_limits = user_limit_per_label["0.1"]
         # plot_success_rate_bar(user_limit_per_label, success_rate_per_label, overall_output_dir, workload_name)
-        # plot_weighted_success_rate_bar(user_limit_per_label, weighted_success_rate_per_label, overall_output_dir, workload_name)
+        # plot_weighted_success_rate_bar(user_limit_per_label, avg_latency_per_label, overall_output_dir, workload_name)
         # plot_avg_parallelism_bar(user_limit_per_label, avg_parallelism_per_label, overall_output_dir, workload_name)
 
 
