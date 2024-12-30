@@ -53,7 +53,7 @@ init() {
   skip_interval=1 # skip seconds
   warmup=10000
   warmup_time=90
-  warmup_rate=3400 #1700 #1500
+  warmup_rate=1700 #3400 #1500
   repeat=1
   spike_estimation="linear_regression"
   spike_slope=0.75
@@ -169,15 +169,15 @@ run_stock_test(){
             whether_type="streamsluice"
             how_type="streamsluice"
             scalein_type="streamsluice"
-            run_one_exp
-            printf "${EXP_NAME}\n" >> tweet_result.txt
+            #run_one_exp
+            #printf "${EXP_NAME}\n" >> tweet_result.txt
         done
       done
     done
 
     printf "Part_2\n" >> tweet_result.txt
     autotune=false
-    L=2500
+    L=2000
     for repeat in 1; do # 2 3 4 5; do
         whether_type="streamsluice"
         how_type="streamsluice"
