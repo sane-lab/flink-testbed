@@ -202,6 +202,7 @@ def draw_latency_curves(raw_dir, output_dir, exp_name, window_size, start_time, 
                                             average_ground_truth_latencies[i][0][x] <= (start_time + exp_length) * 1000]
         success_rate = len([x for x in groundtruth_p99_latency_in_range if x <= latency_limit]) / len(
             groundtruth_p99_latency_in_range)
+        avg_ground_truth_latency_in_range = sum(groundtruth_p99_latency_in_range)/len(groundtruth_p99_latency_in_range)
 
         def compute_weighted_success_rate(average_ground_truth_latencies, start_time, exp_length, latency_limit,
                                           window_size=30):
@@ -276,6 +277,7 @@ def draw_latency_curves(raw_dir, output_dir, exp_name, window_size, start_time, 
                      label='Estimated Latency')
             add_latency_bar_curve(plt, latency_bar[i], initial_times[i])
         add_latency_limit_marker(plt, latency_limit)
+        # add_scaling_marker(plt, scalings[i])
 
     handles, labels = plt.gca().get_legend_handles_labels()
     new_labels, new_handles = [], []
@@ -283,7 +285,7 @@ def draw_latency_curves(raw_dir, output_dir, exp_name, window_size, start_time, 
         if label not in new_labels:
             new_labels.append(label)
             new_handles.append(handle)
-    plt.legend(new_handles, new_labels, bbox_to_anchor=(0.45, 1.4), loc='upper center', ncol=2, markerscale=4.)
+    plt.legend(new_handles, new_labels, bbox_to_anchor=(0.45, 1.4), loc='upper center', ncol=3, markerscale=4.)
     plt.ylabel('Latency (ms)')
     axes = plt.gca()
     axes.set_xlim((start_time) * 1000, (start_time + exp_length) * 1000)
@@ -389,7 +391,7 @@ def draw_latency_curves(raw_dir, output_dir, exp_name, window_size, start_time, 
     plt.savefig(output_dir + 'latency_bar.png', bbox_inches='tight')
     plt.close(fig)
 
-    return success_rate, weighted_success_rate, first_converge_time, converged_bar
+    return success_rate, avg_ground_truth_latency_in_range, first_converge_time, converged_bar
 
 
 def parseMapping(split):
@@ -730,111 +732,119 @@ def main():
     exps_per_label_per_setting = {
         "setting_1": {
             "Dimension": "Pattern",
-            "sine": [
-                "setting1--streamsluice-streamsluice-false-true-false-when-sine-1split2join1-720-7000-25-3000-5000-20-1-0-1-20-1-5000-1-20-1-5000-17-1000-1-5000-1-20-5000--1000-3000-100-1-true-1",
-            ],
+            # "sine": [
+            #     "workload-setting1-streamsluice-streamsluice-false-true-false-when-sine-1split2join1-720-7000-25-3000-5000-20-1-0-1-20-1-15000-17-1500-1-15000-17-1000-1-15000-1-20-15000--2000-1000-100-1-true-1",
+            # ],
             "linear": [
-                "setting1--streamsluice-streamsluice-false-true-false-when-linear-1split2join1-720-7000-25-3000-5000-20-1-0-1-20-1-5000-1-20-1-5000-17-1000-1-5000-1-20-5000--1000-3000-100-1-true-1",
+                "workload-setting1-streamsluice-streamsluice-false-true-false-when-linear-1split2join1-720-7000-25-3000-5000-20-1-0-1-20-1-15000-17-1500-1-15000-17-1000-1-15000-1-20-15000--2000-1000-100-1-true-1",
             ],
             "gradient": [
-                "setting1--streamsluice-streamsluice-false-true-false-when-gradient-1split2join1-720-7000-25-3000-5000-20-1-0-1-20-1-5000-1-20-1-5000-17-1000-1-5000-1-20-5000--1000-3000-100-1-true-1",
+                "workload-setting1-streamsluice-streamsluice-false-true-false-when-gradient-1split2join1-720-7000-25-3000-5000-20-1-0-1-20-1-15000-17-1500-1-15000-17-1000-1-15000-1-20-15000--2000-1000-100-1-true-1",
             ],
         },
         "setting_2": {
             "Dimension": "Amplitude",
             "10%": [
-                "setting2--streamsluice-streamsluice-false-true-false-when-sine-1split2join1-720-5500-45-3500-5000-0-1-0-1-20-1-5000-1-20-1-5000-17-1000-1-5000-1-20-5000--1000-3000-100-1-true-1",
-
-            ],
+                "workload-setting2-streamsluice-streamsluice-false-true-false-when-sine-1split2join1-720-5500-45-3500-5000-0-1-0-1-20-1-10000-17-1500-1-10000-17-1000-1-10000-1-20-10000--2000-1000-100-1-true-1",
+           ],
             "20%": [
-                "setting2--streamsluice-streamsluice-false-true-false-when-sine-1split2join1-720-6000-45-3500-5000-0-1-0-1-20-1-10000-17-1500-1-10000-17-1000-1-10000-1-20-10000--2000-2000-100-1-true-1",
+                "workload-setting2-streamsluice-streamsluice-false-true-false-when-sine-1split2join1-720-6000-45-3500-5000-0-1-0-1-20-1-10000-17-1500-1-10000-17-1000-1-10000-1-20-10000--2000-1000-100-1-true-1",
             ],
             "30%": [
-                "setting2--streamsluice-streamsluice-false-true-false-when-sine-1split2join1-720-6500-45-3500-5000-0-1-0-1-20-1-10000-17-1500-1-10000-17-1000-1-10000-1-20-10000--2000-2000-100-1-true-1",
+                "workload-setting2-streamsluice-streamsluice-false-true-false-when-sine-1split2join1-720-6500-45-3500-5000-0-1-0-1-20-1-10000-17-1500-1-10000-17-1000-1-10000-1-20-10000--2000-1000-100-1-true-1",
             ],
             "40%": [
-                "setting2--streamsluice-streamsluice-false-true-false-when-sine-1split2join1-720-7000-45-3500-5000-0-1-0-1-20-1-10000-17-1500-1-10000-17-1000-1-10000-1-20-10000--2000-2000-100-1-true-1",
+                "workload-setting2-streamsluice-streamsluice-false-true-false-when-sine-1split2join1-720-7000-45-3500-5000-0-1-0-1-20-1-10000-17-1500-1-10000-17-1000-1-10000-1-20-10000--2000-1000-100-1-true-1",
             ],
             "50%": [
-                "setting2--streamsluice-streamsluice-false-true-false-when-sine-1split2join1-720-7500-45-3500-5000-0-1-0-1-20-1-10000-17-1500-1-10000-17-1000-1-10000-1-20-10000--2000-2000-100-1-true-1",
+                "workload-setting2-streamsluice-streamsluice-false-true-false-when-sine-1split2join1-720-7500-45-3500-5000-0-1-0-1-20-1-10000-17-1500-1-10000-17-1000-1-10000-1-20-10000--2000-1000-100-1-true-1",
             ],
         },
         "setting_3": {
             "Dimension": "Period",
+            "20s": [
+                "workload-setting3-streamsluice-streamsluice-false-true-false-when-sine-1split2join1-720-6500-10-3500-5000-0-1-0-1-20-1-10000-17-1500-1-10000-17-1000-1-10000-1-20-10000--2000-1000-100-1-true-1",
+            ],
             "30s": [
-                "setting3--streamsluice-streamsluice-false-true-false-when-sine-1split2join1-720-6500-75-3500-5000-0-1-0-1-20-1-10000-17-1500-1-10000-17-1000-1-10000-1-20-10000--2000-2000-100-1-true-1",
+                "workload-setting3-streamsluice-streamsluice-false-true-false-when-sine-1split2join1-720-6500-15-3500-5000-0-1-0-1-20-1-10000-17-1500-1-10000-17-1000-1-10000-1-20-10000--2000-1000-100-1-true-1",
             ],
             "60s": [
-                "setting3--streamsluice-streamsluice-false-true-false-when-sine-1split2join1-720-6500-60-3500-5000-0-1-0-1-20-1-10000-17-1500-1-10000-17-1000-1-10000-1-20-10000--2000-2000-100-1-true-1",
+                "workload-setting3-streamsluice-streamsluice-false-true-false-when-sine-1split2join1-720-6500-30-3500-5000-0-1-0-1-20-1-10000-17-1500-1-10000-17-1000-1-10000-1-20-10000--2000-1000-100-1-true-1",
             ],
             "90s": [
-                "setting3--streamsluice-streamsluice-false-true-false-when-sine-1split2join1-720-6500-45-3500-5000-0-1-0-1-20-1-10000-17-1500-1-10000-17-1000-1-10000-1-20-10000--2000-2000-100-1-true-1",
+                "workload-setting3-streamsluice-streamsluice-false-true-false-when-sine-1split2join1-720-6500-45-3500-5000-0-1-0-1-20-1-10000-17-1500-1-10000-17-1000-1-10000-1-20-10000--2000-1000-100-1-true-1",
             ],
             "120s": [
-                "setting3--streamsluice-streamsluice-false-true-false-when-sine-1split2join1-720-6500-30-3500-5000-0-1-0-1-20-1-10000-17-1500-1-10000-17-1000-1-10000-1-20-10000--2000-2000-100-1-true-1",
+                "workload-setting3-streamsluice-streamsluice-false-true-false-when-sine-1split2join1-720-6500-60-3500-5000-0-1-0-1-20-1-10000-17-1500-1-10000-17-1000-1-10000-1-20-10000--2000-1000-100-1-true-1",
             ],
-            "150s": [
-                "setting3--streamsluice-streamsluice-false-true-false-when-sine-1split2join1-720-6500-15-3500-5000-0-1-0-1-20-1-10000-17-1500-1-10000-17-1000-1-10000-1-20-10000--2000-2000-100-1-true-1",
+            "180s": [
+                "workload-setting3-streamsluice-streamsluice-false-true-false-when-sine-1split2join1-720-6500-90-3500-5000-0-1-0-1-20-1-10000-17-1500-1-10000-17-1000-1-10000-1-20-10000--2000-1000-100-1-true-1",
             ],
         },
         "setting_4": {
             "Dimension": "Topology",
             "1op": [
-                "setting4--streamsluice-streamsluice-false-true-false-when-sine-1op-720-6500-45-3500-5000-0-1-0-17-1500-1-10000-17-20-1-10000-17-20-1-10000-1-20-10000--2000-2000-100-1-true-1",
+                "workload-setting4-streamsluice-streamsluice-false-true-false-when-sine-1op-720-6500-45-3500-5000-0-1-0-17-1500-1-10000-17-20-1-10000-17-20-1-10000-1-20-10000--2000-1000-100-1-true-1",
             ],
             "2op": [
-                "setting4--streamsluice-streamsluice-false-true-false-when-sine-2op-720-6500-45-3500-5000-0-1-0-17-1500-1-10000-17-1000-1-10000-17-20-1-10000-1-20-10000--2000-2000-100-1-true-1",
-            ],
-            "3op": [
-                "setting4--streamsluice-streamsluice-false-true-false-when-sine-3op-720-6500-45-3500-5000-0-1-0-1-20-1-10000-17-1500-1-10000-17-1000-1-10000-1-20-10000--2000-2000-100-1-true-1",
+                "workload-setting4-streamsluice-streamsluice-false-true-false-when-sine-2op-720-6500-45-3500-5000-0-1-0-17-1500-1-10000-17-1000-1-10000-17-20-1-10000-1-20-10000--2000-1000-100-1-true-1",
             ],
             "4op": [
-                "setting4--streamsluice-streamsluice-false-true-false-when-sine-4op-720-6500-45-3500-5000-0-1-0-1-20-1-10000-1-20-1-10000-17-1500-1-10000-17-1000-10000--2000-2000-100-1-true-1",
+                "workload-setting4-streamsluice-streamsluice-false-true-false-when-sine-4op-720-6500-45-3500-5000-0-1-0-1-20-1-10000-1-20-1-10000-17-1500-1-10000-17-1000-10000--2000-1000-100-1-true-1",
             ],
         },
         "setting_5": {
             "Dimension": "Service_Rate",
+            "0.3x": [
+                "workload-setting5-streamsluice-streamsluice-false-true-false-when-sine-1split2join1-720-6500-45-3500-5000-0-1-0-1-20-1-10000-17-1500-1-10000-24-3333-1-10000-1-20-10000--2000-1000-100-1-true-1",
+            ],
             "0.5x": [
-                "setting5--streamsluice-streamsluice-false-true-false-when-sine-1split2join1-720-6500-45-3500-5000-0-1-0-1-20-1-10000-17-1500-1-10000-24-2000-1-10000-1-20-10000--2000-2000-100-1-true-1",
+                "workload-setting5-streamsluice-streamsluice-false-true-false-when-sine-1split2join1-720-6500-45-3500-5000-0-1-0-1-20-1-10000-17-1500-1-10000-24-2000-1-10000-1-20-10000--2000-1000-100-1-true-1",
             ],
             "0.75x": [
-                "setting5--streamsluice-streamsluice-false-true-false-when-sine-1split2join1-720-6500-45-3500-5000-0-1-0-1-20-1-10000-17-1500-1-10000-24-1333-1-10000-1-20-10000--2000-2000-100-1-true-1",
+                "workload-setting5-streamsluice-streamsluice-false-true-false-when-sine-1split2join1-720-6500-45-3500-5000-0-1-0-1-20-1-10000-17-1500-1-10000-24-1333-1-10000-1-20-10000--2000-1000-100-1-true-1",
             ],
             "1.25x": [
-                "setting5--streamsluice-streamsluice-false-true-false-when-sine-1split2join1-720-6500-45-3500-5000-0-1-0-1-20-1-10000-17-1500-1-10000-24-800-1-10000-1-20-10000--2000-2000-100-1-true-1",
+                "workload-setting5-streamsluice-streamsluice-false-true-false-when-sine-1split2join1-720-6500-45-3500-5000-0-1-0-1-20-1-10000-17-1500-1-10000-24-800-1-10000-1-20-10000--2000-1000-100-1-true-1",
             ],
             "1.5x": [
-                "setting5--streamsluice-streamsluice-false-true-false-when-sine-1split2join1-720-6500-45-3500-5000-0-1-0-1-20-1-10000-17-1500-1-10000-24-666-1-10000-1-20-10000--2000-2000-100-1-true-1",
+                "workload-setting5-streamsluice-streamsluice-false-true-false-when-sine-1split2join1-720-6500-45-3500-5000-0-1-0-1-20-1-10000-17-1500-1-10000-24-666-1-10000-1-20-10000--2000-1000-100-1-true-1",
+            ],
+            "2.0x": [
+                "workload-setting5-streamsluice-streamsluice-false-true-false-when-sine-1split2join1-720-6500-45-3500-5000-0-1-0-1-20-1-10000-17-1500-1-10000-24-500-1-10000-1-20-10000--2000-1000-100-1-true-1",
             ],
         },
         "setting_6": {
             "Dimension": "State_size",
-            "25MB": [
-                "setting6--streamsluice-streamsluice-false-true-false-when-sine-1split2join1-720-6500-45-3500-5000-0-1-0-1-20-1-0-17-1500-1-0-17-1000-1-0-1-20-0--2000-2000-100-1-true-1",
+            "1MB": [
+                "workload-setting6-streamsluice-streamsluice-false-true-false-when-sine-1split2join1-720-6500-45-3500-5000-0-1-0-1-20-1-0-17-1500-1-0-17-1000-1-0-1-20-0--2000-1000-100-1-true-1",
             ],
-            "50MB": [
-                "setting6--streamsluice-streamsluice-false-true-false-when-sine-1split2join1-720-6500-45-3500-5000-0-1-0-1-20-1-5000-17-1500-1-5000-17-1000-1-5000-1-20-5000--2000-2000-100-1-true-1",
-            ],
-            "200MB": [
-                "setting6--streamsluice-streamsluice-false-true-false-when-sine-1split2join1-720-6500-45-3500-5000-0-1-0-1-20-1-15000-17-1500-1-15000-17-1000-1-15000-1-20-15000--2000-2000-100-1-true-1",
+            "100MB": [
+                "workload-setting6-streamsluice-streamsluice-false-true-false-when-sine-1split2join1-720-6500-45-3500-5000-0-1-0-1-20-1-5000-17-1500-1-5000-17-1000-1-5000-1-20-5000--2000-1000-100-1-true-1",
             ],
             "400MB": [
-                "setting6--streamsluice-streamsluice-false-true-false-when-sine-1split2join1-720-6500-45-3500-5000-0-1-0-1-20-1-20000-17-1500-1-20000-17-1000-1-20000-1-20-20000--2000-2000-100-1-true-1",
+                "workload-setting6-streamsluice-streamsluice-false-true-false-when-sine-1split2join1-720-6500-45-3500-5000-0-1-0-1-20-1-20000-17-1500-1-20000-17-1000-1-20000-1-20-20000--2000-1000-100-1-true-1",
             ],
+            "800MB": [
+                "workload-setting6-streamsluice-streamsluice-false-true-false-when-sine-1split2join1-720-6500-45-3500-5000-0-1-0-1-20-1-40000-17-1500-1-40000-17-1000-1-40000-1-20-40000--2000-1000-100-1-true-1",
+            ],
+            "1600MB": [
+                "workload-setting6-streamsluice-streamsluice-false-true-false-when-sine-1split2join1-720-6500-45-3500-5000-0-1-0-1-20-1-80000-17-1500-1-80000-17-1000-1-80000-1-20-80000--2000-1000-100-1-true-1",
+            ]
         },
         "setting_7": {
             "Dimension": "Skewness",
             "0.1": [
-                "setting7--streamsluice-streamsluice-false-true-false-when-sine-1split2join1-720-6500-45-3500-5000-0-1-0-1-20-1-10000-17-1500-1-10000-17-1000-1-10000-1-20-10000-0.1-2000-2000-100-1-true-1",
+                "workload-setting7-streamsluice-streamsluice-false-true-false-when-sine-1split2join1-720-6500-45-3500-5000-0-1-0-1-20-1-10000-17-1500-1-10000-17-1000-1-10000-1-20-10000-0.1-2000-1000-100-1-true-1",
             ],
             "0.2": [
-                "setting7--streamsluice-streamsluice-false-true-false-when-sine-1split2join1-720-6500-45-3500-5000-0-1-0-1-20-1-10000-17-1500-1-10000-17-1000-1-10000-1-20-10000-0.2-2000-2000-100-1-true-1",
-            ],
-            "0.3": [
-                "setting7--streamsluice-streamsluice-false-true-false-when-sine-1split2join1-720-6500-45-3500-5000-0-1-0-1-20-1-10000-17-1500-1-10000-17-1000-1-10000-1-20-10000-0.3-2000-2000-100-1-true-1",
+                "workload-setting7-streamsluice-streamsluice-false-true-false-when-sine-1split2join1-720-6500-45-3500-5000-0-1-0-1-20-1-10000-17-1500-1-10000-17-1000-1-10000-1-20-10000-0.2-2000-1000-100-1-true-1",
             ],
             "0.4": [
-                "setting7--streamsluice-streamsluice-false-true-false-when-sine-1split2join1-720-6500-45-3500-5000-0-1-0-1-20-1-10000-17-1500-1-10000-17-1000-1-10000-1-20-10000-0.4-2000-2000-100-1-true-1"
+                "workload-setting7-streamsluice-streamsluice-false-true-false-when-sine-1split2join1-720-6500-45-3500-5000-0-1-0-1-20-1-10000-17-1500-1-10000-17-1000-1-10000-1-20-10000-0.4-2000-1000-100-1-true-1",
+            ],
+            "0.8": [
+                "workload-setting7-streamsluice-streamsluice-false-true-false-when-sine-1split2join1-720-6500-45-3500-5000-0-1-0-1-20-1-10000-17-1500-1-10000-17-1000-1-10000-1-20-10000-0.8-2000-1000-100-1-true-1",
             ],
         },
     }
@@ -842,14 +852,14 @@ def main():
         success_rate_per_label = {}
         avg_parallelism_per_label = {}
         user_limit_per_label = {}
-        weighted_success_rate_per_label = {}
+        avg_ground_truth_latency_per_label = {}
         dimension_label = exps_per_label["Dimension"]
         exps_per_label.pop("Dimension")
         for label, exps in exps_per_label.items():
             success_rate_per_label[label] = []
             avg_parallelism_per_label[label] = []
             user_limit_per_label[label] = []
-            weighted_success_rate_per_label[label] = []
+            avg_ground_truth_latency_per_label[label] = []
             for exp_name in exps:
                 if exp_name.startswith("lr"):
                     latency_bar = int(exp_name.split('-')[-9])
@@ -867,27 +877,27 @@ def main():
                     latency_bar = int(exp_name.split('-')[-6])
                     start_time = 60 #10
                     exp_length = 600
-                success_rate, weighted_success_rate, first_converge_time, converged_bar = draw_latency_curves(raw_dir,
-                                                                                                              output_dir + exp_name + '/',
-                                                                                                              exp_name,
-                                                                                                              window_size,
-                                                                                                              start_time,
-                                                                                                              exp_length,
-                                                                                                              latency_bar,
-                                                                                                              draw_lem_latency_flag)
+                success_rate, avg_ground_truth_latency, first_converge_time, converged_bar = draw_latency_curves(raw_dir,
+                                                                                                                 output_dir + exp_name + '/',
+                                                                                                                 exp_name,
+                                                                                                                 window_size,
+                                                                                                                 start_time,
+                                                                                                                 exp_length,
+                                                                                                                 latency_bar,
+                                                                                                                 draw_lem_latency_flag)
                 avg_parallelism, trash = draw_parallelism_curve(raw_dir, output_dir + exp_name + '/', exp_name,
                                                                 window_size,
                                                                 start_time, exp_length, True)
                 user_limit_per_label[label] += [latency_bar]
                 success_rate_per_label[label] += [success_rate]
-                weighted_success_rate_per_label[label] += [weighted_success_rate]
+                avg_ground_truth_latency_per_label[label] += [avg_ground_truth_latency]
                 avg_parallelism_per_label[label] += [avg_parallelism]
                 f = open("workload_results.txt", "a")
                 f.write(exp_name + " " + str(0) + " " + str(label) + " " + str(latency_bar) + " " + str(
-                    success_rate) + " " + str(weighted_success_rate) + " " + str(avg_parallelism) + "\n")
+                    success_rate) + " " + str(avg_ground_truth_latency) + " " + str(avg_parallelism) + "\n")
                 f.close()
         print(success_rate_per_label)
-        print(weighted_success_rate_per_label)
+        print(avg_ground_truth_latency_per_label)
         print(avg_parallelism_per_label)
 
         # user_limits = user_limit_per_label["0.1"]
