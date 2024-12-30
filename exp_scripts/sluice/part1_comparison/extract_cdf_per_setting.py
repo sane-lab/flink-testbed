@@ -320,8 +320,12 @@ def draw_latency_curves(raw_dir, output_dir, exp_name, window_size, start_time, 
     axes.set_xticklabels([int((x - start_time * 1000) / 1000) for x in
                           np.arange((start_time) * 1000, (start_time + exp_length) * 1000 + (exp_length / 10) * 1000, (exp_length / 10) * 1000)])
 
-    axes.set_ylim(0, 5000)
-    axes.set_yticks(np.arange(0, 5500, 500))
+    if max(sampled_latency[1]) <= 5000:
+        axes.set_ylim(0, 5000)
+        axes.set_yticks(np.arange(0, 5500, 500))
+    else:
+        axes.set_ylim(0, 20000)
+        axes.set_yticks(np.arange(0, 20000, 2000))
     # axes.set_ylim(0, 10000)
     # axes.set_yticks(np.arange(0, 11000, 1000))
     plt.grid(True)
@@ -662,8 +666,8 @@ def draw_parallelism_curve(rawDir, outputDir, exp_name, windowSize, startTime, e
         ax2.set_ylim(400, 2000)
         ax2.set_yticks(np.arange(400, 2200, 200))
     else:
-        ax2.set_ylim(1000, 4000)
-        ax2.set_yticks(np.arange(1000, 4500, 500))
+        ax2.set_ylim(1000, 8000)
+        ax2.set_yticks(np.arange(1000, 8000, 1000))
     # legend = ["OP_" + str(jobIndex + 1) +"Arrival Rate"]
     legend = ["Arrival Rate"]
     # ax2.set_xlim(startTime * 1000, (startTime + exp_length) * 1000)
@@ -835,7 +839,7 @@ def main():
             "Static-Adequate": "tweet-streamsluice-streamsluice-5-60-1350-90-1700-1-19-3333-9-500-1-50-1-50-1250-2000-100-false-0.1-1",
             "DS2": "tweet-ds2-ds2-5-60-1350-90-1700-1-19-3333-9-500-1-50-1-50-1250-2000-100-true-0.1-1",
             "Streamswitch": "tweet-streamswitch-streamswitch-5-60-1350-90-1700-1-19-3333-9-500-1-50-1-50-1250-2000-100-true-0.1-1",
-            "Sluice": "tweet-streamsluice-streamsluice-5-60-1350-90-3400-1-19-3333-9-500-1-50-1-50-1250-2500-100-true-0.1-1",
+            "Sluice": "tweet-streamsluice-streamsluice-5-60-1350-90-3400-1-19-3333-9-500-1-50-1-50-1250-2000-100-true-0.1-1",
         },
         # "Stock-Analysis_30min":{
         #     "Static": "stock-ds2-ds2-5-8-60-1350-90-1000-20-1-200-4-3333-1-200-1-500-1-7-5000-3000-100-0.1-false-false-1",
@@ -867,7 +871,7 @@ def main():
                 exp_length = 1200
             elif exp_name.startswith("tweet"):
                 latency_bar = int(exp_name.split('-')[-5])
-                start_time = 0 #150
+                start_time = 30 #0 #150
                 exp_length = 900
             elif exp_name.startswith("stock"):
                 latency_bar = int(exp_name.split('-')[-6])

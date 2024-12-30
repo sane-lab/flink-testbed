@@ -347,10 +347,10 @@ run_scale_test(){
     DELAY3=1000
     DELAY4=666
     DELAY5=20
-    STATE_SIZE2=25000 # 1000 keys, per key (n * 2000 + 36) bytes, n=5000 -> 100 MB
-    STATE_SIZE3=25000
-    STATE_SIZE4=25000
-    STATE_SIZE5=25000
+    STATE_SIZE2=20000 # 1000 keys, per key (n * 2000 + 36) bytes, n=5000 -> 100 MB
+    STATE_SIZE3=20000
+    STATE_SIZE4=20000
+    STATE_SIZE5=20000
     LP2=1
     LP3=19
     LP4=18
@@ -370,10 +370,10 @@ run_scale_test(){
     warmupTime=60
     RATE_I=5000
     TIME_I=0
-    STAIRS=2
-    STAIR_REPEATS=3
+    STAIRS=1
+    STAIR_REPEATS=2
     amplitude_low=1000
-    amplitude_high=3000
+    amplitude_high=2000
     period_low=50
     period_high=50
     is_treat=false
@@ -382,8 +382,8 @@ run_scale_test(){
     run_one_exp
     printf "${EXP_NAME}\n" >> workload_sensitivity_result.txt
 
-    for autotune_interval in 15 30 60 180 360; do # 60 240
-      for L in 3000; do # 750 1250 2000
+    for autotune_interval in 15 30 60 180 360; do # 15 30 60 180 360
+      for L in 3000; do #
         is_treat=true
         autotune=true
         how_type="streamsluice"

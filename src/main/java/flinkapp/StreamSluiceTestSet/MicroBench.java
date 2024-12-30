@@ -2774,7 +2774,7 @@ public class MicroBench {
     }
 
     private long calculateValueAtCurrentRound(long round, long low, long high, long stairs, long stair_repeat){
-        round = round / stair_repeat;
+        round = (round - 1) / stair_repeat + 1;
         round = (round - 1) % (stairs * 2) + 1;
         long value = low;
         if (round <= stairs){
