@@ -17,7 +17,7 @@ function analyze() {
 }
 
 run_one_exp() {
-  EXP_NAME=workload-${setting}-${whether_type}-${how_type}-${how_conservative_flag}-${conservative_service_rate_flag}-${smooth_backlog_flag}-${SOURCE_TYPE}-${CURVE_TYPE}-${GRAPH}-${runtime}-${RATE1}-${TIME1}-${RATE2}-${RATE_I}-${TIME_I}-${P1}-${ZIPF_SKEW}-${P2}-${DELAY2}-${IO2}-${STATE_SIZE2}-${P3}-${DELAY3}-${IO3}-${STATE_SIZE3}-${P4}-${DELAY4}-${IO4}-${STATE_SIZE4}-${P5}-${DELAY5}-${STATE_SIZE5}-${zipf_skew}-${L}-${migration_interval}-${epoch}-${decision_interval}-${is_treat}-${repeat}
+  EXP_NAME=workload-${setting}-${whether_type}-${how_type}-${how_conservative_flag}-${conservative_service_rate_flag}-${smooth_backlog_flag}-${SOURCE_TYPE}-${CURVE_TYPE}-${GRAPH}-${runtime}-${RATE1}-${TIME1}-${RATE2}-${RATE_I}-${TIME_I}-${P1}-${P2}-${DELAY2}-${IO2}-${STATE_SIZE2}-${P3}-${DELAY3}-${IO3}-${STATE_SIZE3}-${P4}-${DELAY4}-${IO4}-${STATE_SIZE4}-${P5}-${DELAY5}-${STATE_SIZE5}-${zipf_skew}-${L}-${migration_interval}-${epoch}-${decision_interval}-${is_treat}-${repeat}
 
   echo "INFO: run exp ${EXP_NAME}"
   configFlink
@@ -99,7 +99,7 @@ function runApp() {
     -nkeys ${NKEYS} -phase1Time ${TIME1} -phase1Rate ${RATE1} -phase2Time ${TIME2} \
     -phase2Rate ${RATE2} -interTime ${TIME_I} -interRate ${RATE_I} -warmupTime ${warmupTime} -warmupRate ${warmupRate} \
     -source ${SOURCE_TYPE} -curve_type ${CURVE_TYPE} -run_time ${runtime} \
-    -zipf_skew ${ZIPF_SKEW} &"
+    -zipf_skew ${zipf_skew} &"
     ${FLINK_DIR}/bin/flink run -c ${job} ${JAR} \
     -graph ${GRAPH} \
     -p1 ${P1} -mp1 ${MP1} -p2 ${P2} -mp2 ${MP2} -op2Delay ${DELAY2} -op2IoRate ${IO2} -op2KeyStateSize ${STATE_SIZE2} \
@@ -109,7 +109,7 @@ function runApp() {
     -nkeys ${NKEYS} -phase1Time ${TIME1} -phase1Rate ${RATE1} -phase2Time ${TIME2} \
     -phase2Rate ${RATE2} -interTime ${TIME_I} -interRate ${RATE_I} -warmupTime ${warmupTime} -warmupRate ${warmupRate} \
     -source ${SOURCE_TYPE} -curve_type ${CURVE_TYPE} -run_time ${runtime} \
-    -zipf_skew ${ZIPF_SKEW} &
+    -zipf_skew ${zipf_skew} &
 }
 
 run_scale_test(){
@@ -228,10 +228,10 @@ run_scale_test(){
     DELAY3=1500
     DELAY4=1000
     DELAY5=20
-    STATE_SIZE2=10000 # 1000 keys, per key (n * 2000 + 36) bytes, n=5000 -> 100 MB
-    STATE_SIZE3=10000
-    STATE_SIZE4=10000
-    STATE_SIZE5=10000
+    STATE_SIZE2=20000 # 1000 keys, per key (n * 2000 + 36) bytes, n=5000 -> 100 MB
+    STATE_SIZE3=20000
+    STATE_SIZE4=20000
+    STATE_SIZE5=20000
     LP2=1
     LP3=28 #1
     LP4=28
@@ -251,7 +251,7 @@ run_scale_test(){
     TIME1=45
     TIME2=45
     RATE2=3500
-    for RATE1 in 8000 8500; do # 5500 6000 6500 7000 7500
+    for RATE1 in 5500 6500 7500; do # 5500 6000 6500 7000 7500
       is_treat=false
       autotune=false
       how_type="ds2"
@@ -307,8 +307,8 @@ run_scale_test(){
         is_treat=true
         autotune=true
         how_type="streamsluice"
-        run_one_exp
-        printf "${EXP_NAME}\n" >> workload_sensitivity_result.txt
+#        run_one_exp
+#        printf "${EXP_NAME}\n" >> workload_sensitivity_result.txt
       done
     done
 
@@ -385,8 +385,8 @@ run_scale_test(){
       is_treat=true
       autotune=true
       how_type="streamsluice"
-      run_one_exp
-      printf "${EXP_NAME}\n" >> workload_sensitivity_result.txt
+#      run_one_exp
+#      printf "${EXP_NAME}\n" >> workload_sensitivity_result.txt
     done
 
     GRAPH="3op"
@@ -410,8 +410,8 @@ run_scale_test(){
       is_treat=true
       autotune=true
       how_type="streamsluice"
-      run_one_exp
-      printf "${EXP_NAME}\n" >> workload_sensitivity_result.txt
+#      run_one_exp
+#      printf "${EXP_NAME}\n" >> workload_sensitivity_result.txt
     done
 
     GRAPH="4op"
@@ -477,7 +477,7 @@ run_scale_test(){
     RATE2=3500
     TIME1=45
     TIME2=45
-    for DELAY4 in 3333 2000 1333 800 666 500; do #
+    for DELAY4 in 3333 2000 1333 1000 800 666 500; do #
       P4=24
       is_treat=false
       autotune=false
@@ -587,8 +587,8 @@ run_scale_test(){
         is_treat=true
         autotune=true
         how_type="streamsluice"
-        run_one_exp
-        printf "${EXP_NAME}\n" >> workload_sensitivity_result.txt
+#        run_one_exp
+#        printf "${EXP_NAME}\n" >> workload_sensitivity_result.txt
       done
     done
 }
