@@ -849,18 +849,18 @@ def main():
         # },
         "setting_7": {
             "Dimension": "Skewness",
-            # "0.1": [
-            #     "workload-setting7-streamsluice-streamsluice-false-true-false-when-sine-1split2join1-720-6500-45-3500-5000-0-1-0-1-20-1-10000-17-1500-1-10000-17-1000-1-10000-1-20-10000-0.1-2000-1000-100-1-true-1",
-            # ],
-            # "0.2": [
-            #     "workload-setting7-streamsluice-streamsluice-false-true-false-when-sine-1split2join1-720-6500-45-3500-5000-0-1-0-1-20-1-10000-17-1500-1-10000-17-1000-1-10000-1-20-10000-0.2-2000-1000-100-1-true-1",
-            # ],
-            # "0.4": [
-            #     "workload-setting7-streamsluice-streamsluice-false-true-false-when-sine-1split2join1-720-6500-45-3500-5000-0-1-0-1-20-1-10000-17-1500-1-10000-17-1000-1-10000-1-20-10000-0.4-2000-1000-100-1-true-1",
-            # ],
-            # "0.8": [
-            #     "workload-setting7-streamsluice-streamsluice-false-true-false-when-sine-1split2join1-720-6500-45-3500-5000-0-1-0-1-20-1-10000-17-1500-1-10000-17-1000-1-10000-1-20-10000-0.8-2000-1000-100-1-true-1",
-            # ],
+            "0.1": [
+                "workload-setting7-streamsluice-streamsluice-false-true-false-when-sine-1split2join1-720-6500-45-3500-5000-0-1-0-1-20-1-10000-17-1500-1-10000-17-1000-1-10000-1-20-10000-0.1-2000-1000-100-1-true-1",
+            ],
+            "0.2": [
+                "workload-setting7-streamsluice-streamsluice-false-true-false-when-sine-1split2join1-720-6500-45-3500-5000-0-1-0-1-20-1-10000-17-1500-1-10000-17-1000-1-10000-1-20-10000-0.2-2000-1000-100-1-true-1",
+            ],
+            "0.4": [
+                "workload-setting7-streamsluice-streamsluice-false-true-false-when-sine-1split2join1-720-6500-45-3500-5000-0-1-0-1-20-1-10000-17-1500-1-10000-17-1000-1-10000-1-20-10000-0.4-2000-1000-100-1-true-1",
+            ],
+            "0.8": [
+                "workload-setting7-streamsluice-streamsluice-false-true-false-when-sine-1split2join1-720-6500-45-3500-5000-0-1-0-1-20-1-10000-17-1500-1-10000-17-1000-1-10000-1-20-10000-0.8-2000-1000-100-1-true-1",
+            ],
             "2.0": [
                 "workload-setting7-streamsluice-streamsluice-false-true-false-when-sine-1split2join1-720-6500-45-3500-5000-0-1-0-1-20-1-10000-17-1500-1-10000-17-1000-1-10000-1-20-10000-2-2000-1000-100-1-true-1",
             ],

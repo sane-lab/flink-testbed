@@ -87,6 +87,7 @@ init() {
   is_treat=true
   repeat=1
   warmup=10000
+  zipf_skew=0
 }
 
 # run applications
