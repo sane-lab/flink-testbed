@@ -50,6 +50,9 @@ def plot_success_rate_bar(xs_per_label, success_rate_per_label, output_dir, work
     elif min_rate >= 0.85:
         ax.set_ylim(0.85, 1.0)
         ax.set_yticks(np.arange(0.85, 1.00, 0.03))
+    elif min_rate >= 0.8:
+        ax.set_ylim(0.8, 1.0)
+        ax.set_yticks(np.arange(0.80, 1.00, 0.04))
     else:
         ax.set_ylim(0.0, 1.0)
         ax.set_yticks(np.arange(0.0, 1.0, 0.1))

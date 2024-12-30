@@ -1153,23 +1153,24 @@ def main():
         #         "system_d3--streamsluice-streamsluice-false-true-false-systemsensitivity-sine-1split2join1-900-6000-30-3000-5000-0-1-0-1-20-1-20000-3-500-1-20000-1-20-1-20000-17-1000-20000-2000-500-100-60-1.0-1-true-1",
         #     ],
         # },
-        "static": "system_d4--streamsluice-streamsluice-false-true-false-systemsensitivity-sine-1split2join1-900-6000-30-3000-5000-0-1-0-1-20-1-25000-12-1000-1-25000-12-666-1-25000-1-20-25000-3000-500-100-60-0.5-1-true-1",
+        "static": "system_d4--streamsluice-streamsluice-false-true-false-systemsensitivity-sine-1split2join1-900-6000-30-3000-5000-0-1-0-1-20-1-20000-12-1000-1-20000-12-666-1-20000-1-20-20000-3000-500-100-30-0.5-1-true-1",
+
         "setting_4": {
             "Dimension": "Tuning Frequency (s)",
             "15": [
-                "system_d4--streamsluice-streamsluice-false-true-false-systemsensitivity-sine-1split2join1-900-6000-30-3000-5000-0-1-0-1-20-1-25000-12-1000-1-25000-12-666-1-25000-1-20-25000-3000-500-100-15-0.5-1-true-1",
+                "system_d4--streamsluice-streamsluice-false-true-false-systemsensitivity-sine-1split2join1-900-6000-30-3000-5000-0-1-0-1-20-1-20000-12-1000-1-20000-12-666-1-20000-1-20-20000-3000-500-100-15-0.5-1-true-1",
             ],
             "30": [
-                "system_d4--streamsluice-streamsluice-false-true-false-systemsensitivity-sine-1split2join1-900-6000-30-3000-5000-0-1-0-1-20-1-25000-12-1000-1-25000-12-666-1-25000-1-20-25000-3000-500-100-30-0.5-1-true-1"
+                "system_d4--streamsluice-streamsluice-false-true-false-systemsensitivity-sine-1split2join1-900-6000-30-3000-5000-0-1-0-1-20-1-20000-12-1000-1-20000-12-666-1-20000-1-20-20000-3000-500-100-30-0.5-1-true-1",
             ],
             "60": [
-                "system_d4--streamsluice-streamsluice-false-true-false-systemsensitivity-sine-1split2join1-900-6000-30-3000-5000-0-1-0-1-20-1-25000-12-1000-1-25000-12-666-1-25000-1-20-25000-3000-500-100-60-0.5-1-true-1",
+                "system_d4--streamsluice-streamsluice-false-true-false-systemsensitivity-sine-1split2join1-900-6000-30-3000-5000-0-1-0-1-20-1-20000-12-1000-1-20000-12-666-1-20000-1-20-20000-3000-500-100-60-0.5-1-true-1",
             ],
             "180": [
-                "system_d4--streamsluice-streamsluice-false-true-false-systemsensitivity-sine-1split2join1-900-6000-30-3000-5000-0-1-0-1-20-1-25000-12-1000-1-25000-12-666-1-25000-1-20-25000-3000-500-100-180-0.5-1-true-1",
+                "system_d4--streamsluice-streamsluice-false-true-false-systemsensitivity-sine-1split2join1-900-6000-30-3000-5000-0-1-0-1-20-1-20000-12-1000-1-20000-12-666-1-20000-1-20-20000-3000-500-100-180-0.5-1-true-1",
             ],
             "360": [
-                "system_d4--streamsluice-streamsluice-false-true-false-systemsensitivity-sine-1split2join1-900-6000-30-3000-5000-0-1-0-1-20-1-25000-12-1000-1-25000-12-666-1-25000-1-20-25000-3000-500-100-360-0.5-1-true-1",
+                "system_d4--streamsluice-streamsluice-false-true-false-systemsensitivity-sine-1split2join1-900-6000-30-3000-5000-0-1-0-1-20-1-20000-12-1000-1-20000-12-666-1-20000-1-20-20000-3000-500-100-360-0.5-1-true-1",
             ],
         },
     }
@@ -1191,8 +1192,8 @@ def main():
             exp_length = 1200
         elif exp_name.startswith("system_"):
             latency_bar = int(exp_name.split('-')[-8])
-            start_time = 120 #60
-            exp_length = 900
+            start_time = 60 #120
+            exp_length = 660 #900
         else:
             latency_bar = int(exp_name.split('-')[-6])
             start_time = 60
