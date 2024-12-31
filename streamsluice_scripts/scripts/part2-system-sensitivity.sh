@@ -273,18 +273,20 @@ run_scale_test(){
     amplitude_high=3000
     period_low=75
     period_high=45
-    for epoch in 25 50 100 200 500; do #
+    for epoch in 50 100 200 1000; do # 25 50 100 200 500 1000
       is_treat=false
       autotune=false
       how_type="ds2"
 #      run_one_exp
 #      printf "${EXP_NAME}\n" >> workload_sensitivity_result.txt
-      for L in 2000; do # 1000
-        is_treat=true
-        autotune=true
-        how_type="streamsluice"
-#        run_one_exp
-#        printf "${EXP_NAME}\n" >> system_sensitivity_result.txt
+      for repeat in 1 2 3 4 5; do
+        for L in 2000; do # 1000
+          is_treat=true
+          autotune=true
+          how_type="streamsluice"
+          run_one_exp
+          printf "${EXP_NAME}\n" >> system_sensitivity_result.txt
+        done
       done
     done
 
@@ -336,8 +338,8 @@ run_scale_test(){
           is_treat=true
           autotune=true
           how_type="streamsluice"
-          run_one_exp
-          printf "${EXP_NAME}\n" >> system_sensitivity_result.txt
+#          run_one_exp
+#          printf "${EXP_NAME}\n" >> system_sensitivity_result.txt
         done
       done
     done
@@ -385,14 +387,14 @@ run_scale_test(){
     run_one_exp
     printf "${EXP_NAME}\n" >> workload_sensitivity_result.txt
 
-    for autotune_interval in 30 60; do # 15 30 60 180 360
-      for repeat in 2 3; do
+    for autotune_interval in 15 30 60; do # 15 30 60 180 360
+      for repeat in 4 5; do
         for L in 3000; do #
           is_treat=true
           autotune=true
           how_type="streamsluice"
-#          run_one_exp
-#          printf "${EXP_NAME}\n" >> system_sensitivity_result.txt
+          run_one_exp
+          printf "${EXP_NAME}\n" >> system_sensitivity_result.txt
         done
       done
     done
