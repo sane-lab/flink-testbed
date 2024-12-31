@@ -239,7 +239,7 @@ run_scale_test(){
     how_type="ds2"
     run_one_exp
     printf "${EXP_NAME}\n" >> part6_result.txt
-    for L in 1000 2000; do # 1000 3000
+    for L in 1000 2000 3000; do # 1000 3000
       for autotuner_increase_bar_alpha in 0.1; do
         is_treat=true
         autotune=false
