@@ -252,7 +252,7 @@ run_scale_test(){
     TIME1=45
     TIME2=45
     RATE2=3500
-    for RATE1 in 5500 6000 6500 7000 7500; do # 5500 6000 6500 7000 7500
+    for RATE1 in 5500; do # 5500 6000 6500 7000 7500
       is_treat=false
       autotune=false
       how_type="ds2"
@@ -262,8 +262,8 @@ run_scale_test(){
         is_treat=true
         autotune=true
         how_type="streamsluice"
-#        run_one_exp
-#        printf "${EXP_NAME}\n" >> workload_sensitivity_result.txt
+        run_one_exp
+        printf "${EXP_NAME}\n" >> workload_sensitivity_result.txt
       done
     done
 
@@ -309,8 +309,8 @@ run_scale_test(){
           is_treat=true
           autotune=true
           how_type="streamsluice"
-          run_one_exp
-          printf "${EXP_NAME}\n" >> workload_sensitivity_result.txt
+#          run_one_exp
+#          printf "${EXP_NAME}\n" >> workload_sensitivity_result.txt
         done
       done
     done
@@ -366,8 +366,8 @@ run_scale_test(){
         is_treat=true
         autotune=true
         how_type="streamsluice"
-        run_one_exp
-        printf "${EXP_NAME}\n" >> workload_sensitivity_result.txt
+#        run_one_exp
+#        printf "${EXP_NAME}\n" >> workload_sensitivity_result.txt
       done
     done
 
@@ -391,8 +391,8 @@ run_scale_test(){
         is_treat=true
         autotune=true
         how_type="streamsluice"
-        run_one_exp
-        printf "${EXP_NAME}\n" >> workload_sensitivity_result.txt
+#        run_one_exp
+#        printf "${EXP_NAME}\n" >> workload_sensitivity_result.txt
       done
     done
 
@@ -418,8 +418,8 @@ run_scale_test(){
         is_treat=true
         autotune=true
         how_type="streamsluice"
-        run_one_exp
-        printf "${EXP_NAME}\n" >> workload_sensitivity_result.txt
+#        run_one_exp
+#        printf "${EXP_NAME}\n" >> workload_sensitivity_result.txt
       done
     done
 
@@ -447,8 +447,8 @@ run_scale_test(){
         is_treat=true
         autotune=true
         how_type="streamsluice"
-        run_one_exp
-        printf "${EXP_NAME}\n" >> workload_sensitivity_result.txt
+#        run_one_exp
+#        printf "${EXP_NAME}\n" >> workload_sensitivity_result.txt
       done
     done
 
@@ -500,8 +500,8 @@ run_scale_test(){
           is_treat=true
           autotune=true
           how_type="streamsluice"
-          run_one_exp
-          printf "${EXP_NAME}\n" >> workload_sensitivity_result.txt
+#          run_one_exp
+#          printf "${EXP_NAME}\n" >> workload_sensitivity_result.txt
         done
       done
     done
@@ -601,8 +601,8 @@ run_scale_test(){
           is_treat=true
           autotune=true
           how_type="streamsluice"
-          run_one_exp
-          printf "${EXP_NAME}\n" >> workload_sensitivity_result.txt
+#          run_one_exp
+#          printf "${EXP_NAME}\n" >> workload_sensitivity_result.txt
         done
       done
     done
