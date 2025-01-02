@@ -80,7 +80,7 @@ public class MicroBench {
                     setParallelism(params.getInt("p1", 1));
         }else if(SOURCE_TYPE.equals("how")) {
             source = env.addSource(new HowSource(PHASE1_TIME, PHASE2_TIME, INTERMEDIATE_TIME, PHASE1_RATE, PHASE2_RATE, INTERMEDIATE_RATE, params.getLong("run_time", 510) * 1000));
-        }else if(SOURCE_TYPE.equals("part5") || SOURCE_TYPE.equals("part6") || SOURCE_TYPE.equals("part8") || SOURCE_TYPE.equals("part9")){
+        }else if(SOURCE_TYPE.equals("part5") || SOURCE_TYPE.equals("part6") || SOURCE_TYPE.equals("part7") || SOURCE_TYPE.equals("part8") || SOURCE_TYPE.equals("part9")){
             long average_rate_low = params.getLong("rateLow", 5000);
             long average_rate_high = params.getLong("rateHigh", 5000);
             long average_rate_period = params.getLong("ratePeriod", 300) * 1000;
