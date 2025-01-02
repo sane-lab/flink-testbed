@@ -184,16 +184,16 @@ run_stock_test(){
         scalein_type="streamsluice"
 
         is_treat=false
-        run_one_exp
-        printf "${EXP_NAME}\n" >> tweet_result.txt
+#        run_one_exp
+#        printf "${EXP_NAME}\n" >> tweet_result.txt
         P1=1
         P2=14
         P3=5
         P4=1
         P5=1
         is_treat=false
-        run_one_exp
-        printf "${EXP_NAME}\n" >> tweet_result.txt
+#        run_one_exp
+#        printf "${EXP_NAME}\n" >> tweet_result.txt
         is_treat=true
 
         P1=1
@@ -205,15 +205,15 @@ run_stock_test(){
         how_type="ds2"
         scalein_type="ds2"
         migration_interval=1000
-        run_one_exp
-        printf "${EXP_NAME}\n" >> tweet_result.txt
+#        run_one_exp
+#        printf "${EXP_NAME}\n" >> tweet_result.txt
 
         whether_type="streamswitch"
         how_type="streamswitch"
         scalein_type="streamswitch"
         migration_interval=1000
-        run_one_exp
-        printf "${EXP_NAME}\n" >> tweet_result.txt
+#        run_one_exp
+#        printf "${EXP_NAME}\n" >> tweet_result.txt
     done
 
 
