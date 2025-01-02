@@ -697,6 +697,7 @@ def draw_parallelism_curve(rawDir, outputDir, exp_name, windowSize, startTime, e
         arrival_curves = [ax, ay]
     else:
         arrival_curves = static_arrival_curve
+        ax, ay = static_arrival_curve
     ax2.plot(ax, ay, '-', color='red', markersize=MARKERSIZE / 2, label="Arrival Rate")
     # ax2.set_ylabel('Rate (tps)')
     # ax2.set_ylim(0, 30000)
@@ -791,9 +792,11 @@ def main():
     draw_lem_latency_flag = True
     exps_per_label_per_setting = {
         "Microbench_1": {
-            "static": "part4-system_d4-streamsluice-ds2-systemsensitivity-sine-1split2join1-960-----1000-3000---50-50---1-0-1-20-1-20000-12-1000-1-20000-12-666-1-20000-1-20-20000--0.05-false-0.5-3000-1000-100-1-false-1",
-            "no-tune": "part4-system_d4-streamsluice-streamsluice-systemsensitivity-sine-1split2join1-960-----1000-3000---50-50---1-0-1-20-1-20000-12-1000-1-20000-12-666-1-20000-1-20-20000--0.05-true-0.5-3000-1000-100-1-true-1",
-            "scale": "part4-system_d4-streamsluice-streamsluice-systemsensitivity-sine-1split2join1-960-----1000-3000---50-50---1-0-1-20-1-20000-12-1000-1-20000-12-666-1-20000-1-20-20000--0.05-false-0.5-3000-1000-100-1-true-1",
+            "static":   "part4-microbench-streamsluice-ds2-systemsensitivity-sine-1split2join1-960-----1000-3000---50-50---1-0-1-20-1-15000-12-1000-1-15000-12-666-1-15000-1-135-15000--0.05-false-0.5-3000-1000-100-1-false-1",
+            "no-tune":  "part4-microbench-streamsluice-streamsluice-systemsensitivity-sine-1split2join1-960-----1000-3000---50-50---1-0-1-20-1-15000-12-1000-1-15000-12-666-1-15000-1-135-15000--0.05-false-0.5-3000-1000-100-1-true-1",
+            "scale":    "part4-microbench-streamsluice-streamsluice-systemsensitivity-sine-1split2join1-960-----1000-3000---50-50---1-0-1-20-1-15000-12-1000-1-15000-12-666-1-15000-1-135-15000--0.05-true-0.5-3000-1000-100-1-true-1",
+            "no-tune-2": "part4-microbench-streamsluice-streamsluice-systemsensitivity-sine-1split2join1-960-----1000-3000---50-50---1-0-1-20-1-15000-12-1000-1-15000-12-666-1-15000-1-135-15000--0.05-false-0.5-3000-1000-100-1-true-2",
+            "scale-2": "part4-microbench-streamsluice-streamsluice-systemsensitivity-sine-1split2join1-960-----1000-3000---50-50---1-0-1-20-1-15000-12-1000-1-15000-12-666-1-15000-1-135-15000--0.05-true-0.5-3000-1000-100-1-true-2",
         }
     }
     for workload_name, exps_per_label in exps_per_label_per_setting.items():
@@ -819,9 +822,9 @@ def main():
                 latency_bar = int(exp_name.split('-')[-6])
                 start_time = 150
                 exp_length = 1800
-            elif exp_name.startswith("part4-system"):
+            elif exp_name.startswith("part4-micro"):
                 latency_bar = int(exp_name.split('-')[-6])
-                start_time = 60
+                start_time = 0
                 exp_length = 900 #1800
             else:
                 latency_bar = int(exp_name.split('-')[-6])

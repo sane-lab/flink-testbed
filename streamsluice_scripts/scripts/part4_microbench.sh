@@ -22,7 +22,7 @@ function analyze() {
 }
 
 run_one_exp() {
-  EXP_NAME=part4-${setting}-${whether_type}-${how_type}-${SOURCE_TYPE}-${CURVE_TYPE}-${GRAPH}-${runtime}-${rate_low}-${rate_high}-${rate_period}-${rate_pattern}-${amplitude_low}-${amplitude_high}-${amplitude_period}-${amplitude_pattern}-${period_low}-${period_high}-${period_period}-${period_pattern}-${P1}-${ZIPF_SKEW}-${P2}-${DELAY2}-${IO2}-${STATE_SIZE2}-${P3}-${DELAY3}-${IO3}-${STATE_SIZE3}-${P4}-${DELAY4}-${IO4}-${STATE_SIZE4}-${P5}-${DELAY5}-${STATE_SIZE5}--${noise}-${autotune}-${autotuner_increase_bar_alpha}-${L}-${migration_interval}-${epoch}-${decision_interval}-${is_treat}-${repeat}
+  EXP_NAME=part4-${setting}-${whether_type}-${how_type}-${SOURCE_TYPE}-${CURVE_TYPE}-${GRAPH}-${runtime}-${amplitude_low}-${amplitude_high}-${period_low}-${period_high}-${P1}-${ZIPF_SKEW}-${P2}-${DELAY2}-${IO2}-${STATE_SIZE2}-${P3}-${DELAY3}-${IO3}-${STATE_SIZE3}-${P4}-${DELAY4}-${IO4}-${STATE_SIZE4}-${P5}-${DELAY5}-${STATE_SIZE5}--${noise}-${autotune}-${autotuner_increase_bar_alpha}-${L}-${migration_interval}-${epoch}-${decision_interval}-${is_treat}-${repeat}
   echo "INFO: run exp ${EXP_NAME}"
   configFlink
   runFlink
@@ -198,7 +198,7 @@ run_scale_test(){
     DELAY2=20
     DELAY3=1000
     DELAY4=666
-    DELAY5=135 #20
+    DELAY5=67 #20
     STATE_SIZE2=15000 #20000 # 1000 keys, per key (n * 2000 + 36) bytes, n=5000 -> 100 MB
     STATE_SIZE3=15000 #20000
     STATE_SIZE4=15000 #20000
@@ -235,14 +235,17 @@ run_scale_test(){
     run_one_exp
     printf "${EXP_NAME}\n" >> part4_result.txt
     autotune_interval=60
-    for repeat in 1 2 3; do
+    for repeat in 1 2 3 4 5; do
       is_treat=true
-      autotune=false
+      autotune=true
       how_type="streamsluice"
       run_one_exp
       printf "${EXP_NAME}\n" >> part4_result.txt
+    done
+    for repeat in 1 2 3 4 5; do
+      L=1000
       is_treat=true
-      autotune=true
+      autotune=false
       how_type="streamsluice"
       run_one_exp
       printf "${EXP_NAME}\n" >> part4_result.txt
