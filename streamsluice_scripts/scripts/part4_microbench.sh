@@ -22,7 +22,7 @@ function analyze() {
 }
 
 run_one_exp() {
-  EXP_NAME=part5-${setting}-${whether_type}-${how_type}-${SOURCE_TYPE}-${CURVE_TYPE}-${GRAPH}-${runtime}-${rate_low}-${rate_high}-${rate_period}-${rate_pattern}-${amplitude_low}-${amplitude_high}-${amplitude_period}-${amplitude_pattern}-${period_low}-${period_high}-${period_period}-${period_pattern}-${P1}-${ZIPF_SKEW}-${P2}-${DELAY2}-${IO2}-${STATE_SIZE2}-${P3}-${DELAY3}-${IO3}-${STATE_SIZE3}-${P4}-${DELAY4}-${IO4}-${STATE_SIZE4}-${P5}-${DELAY5}-${STATE_SIZE5}--${noise}-${autotuner_increase_bar_alpha}-${L}-${migration_interval}-${epoch}-${decision_interval}-${is_treat}-${repeat}
+  EXP_NAME=part4-${setting}-${whether_type}-${how_type}-${SOURCE_TYPE}-${CURVE_TYPE}-${GRAPH}-${runtime}-${rate_low}-${rate_high}-${rate_period}-${rate_pattern}-${amplitude_low}-${amplitude_high}-${amplitude_period}-${amplitude_pattern}-${period_low}-${period_high}-${period_period}-${period_pattern}-${P1}-${ZIPF_SKEW}-${P2}-${DELAY2}-${IO2}-${STATE_SIZE2}-${P3}-${DELAY3}-${IO3}-${STATE_SIZE3}-${P4}-${DELAY4}-${IO4}-${STATE_SIZE4}-${P5}-${DELAY5}-${STATE_SIZE5}--${noise}-${autotune}-${autotuner_increase_bar_alpha}-${L}-${migration_interval}-${epoch}-${decision_interval}-${is_treat}-${repeat}
   echo "INFO: run exp ${EXP_NAME}"
   configFlink
   runFlink
@@ -100,14 +100,13 @@ function runApp() {
     -p1 ${P1} -mp1 ${MP1} -p2 ${P2} -mp2 ${MP2} -op2Delay ${DELAY2} -op2IoRate ${IO2} -op2KeyStateSize ${STATE_SIZE2} \
     -p3 ${P3} -mp3 ${MP3} -op3Delay ${DELAY3} -op3IoRate ${IO3} -op3KeyStateSize ${STATE_SIZE3} \
     -p4 ${P4} -mp4 ${MP4} -op4Delay ${DELAY4} -op4IoRate ${IO4} -op4KeyStateSize ${STATE_SIZE4} \
+    -p5 ${P5} -mp5 ${MP5} -op5Delay ${DELAY5} -op5KeyStateSize ${STATE_SIZE5} \
     -nkeys ${NKEYS} -phase1Time ${TIME1} -phase1Rate ${RATE1} -phase2Time ${TIME2} \
     -phase2Rate ${RATE2} -interTime ${TIME_I} -interRate ${RATE_I} -warmupTime ${warmupTime} -warmupRate ${warmupRate} \
     -source ${SOURCE_TYPE} -curve_type ${CURVE_TYPE} -run_time ${runtime} \
-    -zipf_skew ${ZIPF_SKEW} \
-    -rateLow ${rate_low} -rateHigh ${rate_high} -ratePeriod ${rate_period} -ratePattern ${rate_pattern} \
-    -amplitudeLow ${amplitude_low} -amplitudeHigh ${amplitude_high} -amplitudePeriod ${amplitude_period} -amplitudePattern ${amplitude_pattern} \
-    -periodLow ${period_low} -periodHigh ${period_high} -periodPeriod ${period_period} -periodPattern ${period_pattern} \
-    -noise ${noise} &"
+    -amplitudeLow ${amplitude_low} -amplitudeHigh ${amplitude_high} \
+    -periodLow ${period_low} -periodHigh ${period_high} -stairs ${STAIRS} -stair_repeats ${STAIR_REPEATS} \
+    -noise ${noise} -zipf_skew ${ZIPF_SKEW} &"
     ${FLINK_DIR}/bin/flink run -c ${job} ${JAR} \
     -graph ${GRAPH} \
     -p1 ${P1} -mp1 ${MP1} -p2 ${P2} -mp2 ${MP2} -op2Delay ${DELAY2} -op2IoRate ${IO2} -op2KeyStateSize ${STATE_SIZE2} \
@@ -117,11 +116,9 @@ function runApp() {
     -nkeys ${NKEYS} -phase1Time ${TIME1} -phase1Rate ${RATE1} -phase2Time ${TIME2} \
     -phase2Rate ${RATE2} -interTime ${TIME_I} -interRate ${RATE_I} -warmupTime ${warmupTime} -warmupRate ${warmupRate} \
     -source ${SOURCE_TYPE} -curve_type ${CURVE_TYPE} -run_time ${runtime} \
-    -zipf_skew ${ZIPF_SKEW} \
-    -rateLow ${rate_low} -rateHigh ${rate_high} -ratePeriod ${rate_period} -ratePattern ${rate_pattern} \
-    -amplitudeLow ${amplitude_low} -amplitudeHigh ${amplitude_high} -amplitudePeriod ${amplitude_period} -amplitudePattern ${amplitude_pattern} \
-    -periodLow ${period_low} -periodHigh ${period_high} -periodPeriod ${period_period} -periodPattern ${period_pattern} \
-    -noise ${noise} &
+    -amplitudeLow ${amplitude_low} -amplitudeHigh ${amplitude_high} \
+    -periodLow ${period_low} -periodHigh ${period_high} -stairs ${STAIRS} -stair_repeats ${STAIR_REPEATS} \
+    -noise ${noise} -zipf_skew ${ZIPF_SKEW} &
 }
 
 run_scale_test(){
@@ -153,7 +150,7 @@ run_scale_test(){
     autotuner_initial_value_option=5
     autotuner_increase_bar_option=8
     autotuner_increase_bar_alpha=0.1 #0.25
-    echo "Run micro bench system sensitivity..."
+    echo "Run micro bench bound tuning verification..."
     init
 
     # Different cases
@@ -164,17 +161,8 @@ run_scale_test(){
     autotune=false
     epoch=100
     decision_interval=1 #10
+    migration_interval=1000 #500
     snapshot_size=20
-
-
-    L=1000 #2000 #2500
-    migration_interval=500 #1000
-
-    STATE_SIZE2=5000
-    STATE_SIZE3=5000
-    STATE_SIZE4=5000
-    STATE_SIZE5=5000
-    runtime=520 #520 #400
     DELTA_I=270
     LP2=1
     LP3=1
@@ -187,67 +175,63 @@ run_scale_test(){
     TIME2=30
     RATE_I=4000
     TIME_I=30
-    printf "" > part5_result.txt
-
-    runtime=570 #690 #1890
-
-    # Period Amplitude Change
-    printf "MicroBench\n" >> part5_result.txt
+    printf "" > part4_result.txt
+    printf "MicroBench\n" >> part4_result.txt
+    runtime=960
     setting="microbench"
-    SOURCE_TYPE="part5"
+    setting="system_d4"
+    SOURCE_TYPE="systemsensitivity"
     DELAY2=20
-    DELAY3=500 #50
-    DELAY4=2100 #20
-    DELAY5=20 #800
-    STATE_SIZE2=5000 # 1000 keys, per key (n * 2000 + 36) bytes, n=5000 -> 100 MB
-    STATE_SIZE3=5000
-    STATE_SIZE4=5000
-    STATE_SIZE5=5000 # 5000
+    DELAY3=1000
+    DELAY4=666
+    DELAY5=20
+    STATE_SIZE2=20000 # 1000 keys, per key (n * 2000 + 36) bytes, n=5000 -> 100 MB
+    STATE_SIZE3=20000
+    STATE_SIZE4=20000
+    STATE_SIZE5=20000
     LP2=1
-    LP3=7 #6
-    LP4=30 #1
-    LP5=1 #31
+    LP3=19
+    LP4=18
+    LP5=1
 
     P2=1
-    P3=3 #2
-    P4=16
-    P5=1 #17
+    P3=12
+    P4=12
+    P5=1
     GRAPH="1split2join1"
     autotuner_bar_lowerbound=350
     autotuner_latency_window=100
-    autotuner_increase_bar_alpha=0.2 #0.1
+    autotuner_increase_bar_alpha=0.5
     epoch=100
+    L=3000
     CURVE_TYPE="sine" #"linear"
-
     warmupRate=5000
     warmupTime=60
-    rate_low=5000 #4000
-    rate_high=5000 #6000
-    rate_period=600
-    rate_pattern="linear"
-    amplitude_low=1000 #500
-    amplitude_high=2000 #1500
-    amplitude_period=480 #1440
-    amplitude_pattern="stair_3"
-    period_low=60
-    period_high=30
-    period_period=480 #1440
-    period_pattern="stair_3"
-    noise=0.05
-
+    RATE_I=5000
+    TIME_I=0
+    STAIRS=2
+    STAIR_REPEATS=1
+    amplitude_low=1000
+    amplitude_high=3000
+    period_low=50
+    period_high=50
     is_treat=false
     autotune=false
     how_type="ds2"
-#    run_one_exp
-#    printf "${EXP_NAME}\n" >> part5_result.txt
-    for L in 2000; do # 1000 3000
-      for autotuner_increase_bar_alpha in 0.1; do # 0.2 0.4 0.5
-        is_treat=true
-        autotune=true
-        how_type="streamsluice"
-        run_one_exp
-        printf "${EXP_NAME}\n" >> part5_result.txt
-      done
+    run_one_exp
+    printf "${EXP_NAME}\n" >> part4_result.txt
+    autotune_interval=60
+    for repeat in 1; do
+      is_treat=true
+      autotune=false
+      how_type="streamsluice"
+      run_one_exp
+      printf "${EXP_NAME}\n" >> part4_result.txt
+      is_treat=true
+      autotune=true
+      how_type="streamsluice"
+      run_one_exp
+      printf "${EXP_NAME}\n" >> part4_result.txt
     done
 }
 

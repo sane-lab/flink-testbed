@@ -332,7 +332,7 @@ run_scale_test(){
       autotune=false
       how_type="ds2"
 #      run_one_exp
-#      printf "${EXP_NAME}\n" >> workload_sensitivity_result.txt
+#      printf "${EXP_NAME}\n" >> system_sensitivity_result.txt
       for L in 3000; do #
         for repeat in 1 2 3 4 5; do
           is_treat=true
@@ -385,7 +385,7 @@ run_scale_test(){
     autotune=false
     how_type="ds2"
     run_one_exp
-    printf "${EXP_NAME}\n" >> workload_sensitivity_result.txt
+    printf "${EXP_NAME}\n" >> system_sensitivity_result.txt
 
     for autotune_interval in 15 30 60; do # 15 30 60 180 360
       for repeat in 4 5; do
