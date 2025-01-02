@@ -194,20 +194,19 @@ run_scale_test(){
     printf "MicroBench\n" >> part4_result.txt
     runtime=960
     setting="microbench"
-    setting="system_d4"
     SOURCE_TYPE="systemsensitivity"
     DELAY2=20
     DELAY3=1000
     DELAY4=666
-    DELAY5=20
-    STATE_SIZE2=20000 # 1000 keys, per key (n * 2000 + 36) bytes, n=5000 -> 100 MB
-    STATE_SIZE3=20000
-    STATE_SIZE4=20000
-    STATE_SIZE5=20000
+    DELAY5=135 #20
+    STATE_SIZE2=15000 #20000 # 1000 keys, per key (n * 2000 + 36) bytes, n=5000 -> 100 MB
+    STATE_SIZE3=15000 #20000
+    STATE_SIZE4=15000 #20000
+    STATE_SIZE5=15000 #20000
     LP2=1
     LP3=19
-    LP4=18
-    LP5=1
+    LP4=15 #18
+    LP5=4 #1
 
     P2=1
     P3=12
@@ -225,7 +224,7 @@ run_scale_test(){
     RATE_I=5000
     TIME_I=0
     STAIRS=2
-    STAIR_REPEATS=1
+    STAIR_REPEATS=2
     amplitude_low=1000
     amplitude_high=3000
     period_low=50
@@ -236,7 +235,7 @@ run_scale_test(){
     run_one_exp
     printf "${EXP_NAME}\n" >> part4_result.txt
     autotune_interval=60
-    for repeat in 1; do
+    for repeat in 1 2 3; do
       is_treat=true
       autotune=false
       how_type="streamsluice"

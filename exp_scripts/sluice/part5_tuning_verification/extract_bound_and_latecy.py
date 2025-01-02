@@ -155,15 +155,81 @@ def add_latency_bar_curve(plt, latency_bar: dict[int, int], initial_time):
     for time in latency_bar.keys():
         x = [last_time, time - initial_time]
         y = [last_y, last_y]
-        plt.plot(x, y, '--', label="Latency Bar", color='orange', linewidth=1.5)
+        plt.plot(x, y, 'o--', label="Latency Bound", color='orange', linewidth=1.5)
         last_y = latency_bar[time]
         last_time = time - initial_time
     x = [last_time, 10000000]
     y = [last_y, last_y]
-    plt.plot(x, y, '--', label="Latency Bar", color='orange', linewidth=1.5)
+    plt.plot(x, y, 'o--', label="Latency Bound", color='orange', linewidth=1.5)
 
 
-def draw_latency_curves(raw_dir, output_dir, exp_name, window_size, start_time, exp_length, latency_limit, draw_lem_latency_flag):
+def readLEMLatencyAndSpikeAndBarAndScalingMarker(rawDir, expName) -> [[list[int], list[float], list[float]], dict[int, int]]:
+    lem_latency = [[], [], []]
+    latency_bar = {}
+    p99_bar = {}
+    scalings = [[], []]
+
+    streamsluiceOutput = "flink-samza-standalonesession-0-eagle-sane.out"
+    import os
+    for file in os.listdir(rawDir + expName + "/"):
+        if file.endswith(".out"):
+            # print(os.path.join(rawDir + expName + "/", file))
+            if file.count("standalonesession") == 1:
+                streamsluiceOutput = file
+    streamSluiceOutputPath = rawDir + expName + "/" + streamsluiceOutput
+    print("Reading streamsluice output:" + streamSluiceOutputPath)
+    counter = 0
+    with open(streamSluiceOutputPath) as f:
+        lines = f.readlines()
+        for i in range(0, len(lines)):
+            line = lines[i]
+            split = line.rstrip().split()
+            counter += 1
+            if (counter % 5000 == 0):
+                print("Processed to line:" + str(counter))
+            if (len(split) >= 10 and split[0] == "+++" and split[1] == "[MODEL]" and split[6] == "cur_ete_l:" and (
+                    "n_epoch_l:" in split)):
+                time = int(split[3])
+                estimated_l = float(split[7])
+                # estimated_spike = float(split[13]) - float(split[7])
+                lem_latency[0] += [time]
+                lem_latency[1] += [estimated_l]
+                # lem_latency[2] += [estimated_spike]
+            if (len(split) >= 10 and split[0] == "+++" and split[1] == "[CONTROL]" and split[6] == "scale" and split[
+                8] == "operator:"):
+                time = int(split[3])
+                scalings[0].append(time)
+                scalings[1].append(0)
+
+            if (len(split) >= 8 and split[0] == "+++" and split[1] == "[CONTROL]" and split[4] == "all" and split[
+                5] == "scaling" and split[6] == "plan" and split[7] == "deployed."):
+                time = int(split[3])
+                scalings[0].append(time)
+                scalings[1].append(1)
+
+            if (len(split) >= 8 and split[0] == "[AUTOTUNE]" and split[4] == "initial" and split[5] == "latency" and split[6] == "bar:"):
+                time = int(split[2])
+                bar = int(split[7].rstrip(','))
+                latency_bar[time] = bar
+            if (len(split) >= 8 and split[1] == "[AUTOTUNE]" and split[4] == "user" and split[5] == "limit" and split[6] == "is"):
+                time = int(split[3])
+                for index in range(7, 15):
+                    if(split[index] == "bar:"):
+                        bar = int(split[index + 1].rstrip(','))
+                        p99 = int(split[index + 4].rstrip(','))
+                        break
+                latency_bar[time] = bar
+                p99_bar[time] = p99
+            if (len(split) >= 8 and split[1] == "[AUTOTUNE]" and split[4] == "set" and split[5] == "bar" and split[6] == "to" and split[7] == "lowerbound:"):
+                time = int(split[3])
+                bar = int(split[8].rstrip(','))
+                latency_bar[time] = bar
+                p99_bar[time] = int(split[11].rstrip(','))
+
+    return [lem_latency, latency_bar, p99_bar, scalings]
+
+def draw_latency_curves(raw_dir, output_dir, exp_name, window_size, start_time, exp_length, latency_limit,
+                        draw_lem_latency_flag):
     exps = [
         ["GroundTruth", exp_name, "blue", "o"]
     ]
@@ -177,18 +243,21 @@ def draw_latency_curves(raw_dir, output_dir, exp_name, window_size, start_time, 
         result = read_ground_truth_latency(raw_dir, exps[i][1], window_size)
         average_ground_truth_latencies += [result[0]]
         initial_times += [result[1]]
-        result = readLEMLatencyAndSpikeAndBar(raw_dir, exps[i][1])
+        result = readLEMLatencyAndSpikeAndBarAndScalingMarker(raw_dir, exps[i][1])
         result[0][0] = [x - initial_times[i] for x in result[0][0]]
+        result[3][0] = [x - initial_times[i] for x in result[3][0]]
         lem_latencies += [result[0]]
         latency_bar += [result[1]]
         p99_bar += [result[2]]
-    #print(p99_bar)
+    # print(p99_bar)
     for i in range(len(exps)):
         groundtruth_p99_latency_in_range = [average_ground_truth_latencies[i][1][x] for x in
                                             range(len(average_ground_truth_latencies[i][0])) if
                                             average_ground_truth_latencies[i][0][x] >= start_time * 1000 and
                                             average_ground_truth_latencies[i][0][x] <= (start_time + exp_length) * 1000]
-        success_rate = len([x for x in groundtruth_p99_latency_in_range if x <= latency_limit])/len(groundtruth_p99_latency_in_range)
+        success_rate = len([x for x in groundtruth_p99_latency_in_range if x <= latency_limit]) / len(
+            groundtruth_p99_latency_in_range)
+        avg_ground_truth_latency_in_range = sum(groundtruth_p99_latency_in_range)/len(groundtruth_p99_latency_in_range)
 
         def compute_weighted_success_rate(average_ground_truth_latencies, start_time, exp_length, latency_limit,
                                           window_size=30):
@@ -236,7 +305,9 @@ def draw_latency_curves(raw_dir, output_dir, exp_name, window_size, start_time, 
                 print(f"Weighted Success Rate for workload {i}: {final_wsr}")
 
             return final_wsr
-        weighted_success_rate = compute_weighted_success_rate(average_ground_truth_latencies, start_time, exp_length, latency_limit, 30)
+
+        weighted_success_rate = compute_weighted_success_rate(average_ground_truth_latencies, start_time, exp_length,
+                                                              latency_limit, 30)
         print("Success rate: " + str(success_rate))
         print("Weighted success rate: " + str(weighted_success_rate))
     # Plotting the latency curve
@@ -254,12 +325,14 @@ def draw_latency_curves(raw_dir, output_dir, exp_name, window_size, start_time, 
                                    range(x, min(x + sample_factor, len(average_ground_truth_latency[2])))]) for x in
                               range(0, len(average_ground_truth_latency[0]), sample_factor)]
 
-        plt.plot(sampled_latency[0], sampled_latency[1], '-', color=exps[i][2], markersize=4, linewidth=3,
+        plt.plot(sampled_latency[0], sampled_latency[1], '-', color="blue", markersize=4, linewidth=3,
                  label="Ground Truth P99")
-        plt.plot(lem_latencies[i][0], lem_latencies[i][1], '-', color="green", markersize=2, linewidth=2,
-             label='Estimated Latency')
+        if (draw_lem_latency_flag):
+            plt.plot(lem_latencies[i][0], lem_latencies[i][1], '-', color="green", markersize=2, linewidth=2,
+                     label='Estimated Latency')
+            add_latency_bar_curve(plt, latency_bar[i], initial_times[i])
         add_latency_limit_marker(plt, latency_limit)
-        add_latency_bar_curve(plt, latency_bar[i], initial_times[i])
+        # add_scaling_marker(plt, scalings[i])
 
     handles, labels = plt.gca().get_legend_handles_labels()
     new_labels, new_handles = [], []
@@ -271,29 +344,24 @@ def draw_latency_curves(raw_dir, output_dir, exp_name, window_size, start_time, 
     plt.ylabel('Latency (ms)')
     axes = plt.gca()
     axes.set_xlim((start_time) * 1000, (start_time + exp_length) * 1000)
-    axes.set_xticks(np.arange((start_time) * 1000, (start_time + exp_length) * 1000 + (exp_length / 10) * 1000, (exp_length / 10) * 1000))
+    axes.set_xticks(np.arange((start_time) * 1000, (start_time + exp_length) * 1000 + (exp_length / 10) * 1000,
+                              (exp_length / 10) * 1000))
     axes.set_xticklabels([int((x - start_time * 1000) / 1000) for x in
-                          np.arange((start_time) * 1000, (start_time + exp_length) * 1000 + (exp_length / 10) * 1000, (exp_length / 10) * 1000)])
-    if (latency_limit < 2000):
-        axes.set_ylim(0, 2000)
-        axes.set_yticks(np.arange(0, 2200, 200))
-    elif (latency_limit < 3000):
-        axes.set_ylim(0, 3000)
-        axes.set_yticks(np.arange(0, 3300, 300))
-    elif (latency_limit < 6000):
-        axes.set_ylim(0, 10050)
-        axes.set_yticks(np.arange(0, 11000, 1000))
-    else:
-        axes.set_ylim(0, 25000)
-        axes.set_yticks(np.arange(0, 27500, 2500))
+                          np.arange((start_time) * 1000, (start_time + exp_length) * 1000 + (exp_length / 10) * 1000,
+                                    (exp_length / 10) * 1000)])
+
+    axes.set_ylim(0, 5000)
+    axes.set_yticks(np.arange(0, 5500, 500))
+    # axes.set_ylim(0, 10000)
+    # axes.set_yticks(np.arange(0, 11000, 1000))
     plt.grid(True)
     if not os.path.exists(output_dir):
         os.makedirs(output_dir)
     plt.savefig(output_dir + 'ground_truth_latency_curves.png', bbox_inches='tight')
     plt.close(fig)
 
-    #Calculate the bar converge time
-    #tune_window_success_rates = {}
+    # Calculate the bar converge time
+    # tune_window_success_rates = {}
     last_time = 0
     last_bar = 0
     index = 0
@@ -331,21 +399,20 @@ def draw_latency_curves(raw_dir, output_dir, exp_name, window_size, start_time, 
     #     tune_window_groundtruth_p99_latency_in_range)
     #     tune_window_success_rates[last_time - initial_times[0]] = tune_window_success_rate
     converged_bar = last_bar
-    #print("tune window success rates: " + str(tune_window_success_rates))
-    #first_converge_time = 0
-    #index = 0
+    # print("tune window success rates: " + str(tune_window_success_rates))
+    # first_converge_time = 0
+    # index = 0
     # for time, tune_window_success_rate in tune_window_success_rates.items():
     #     if tune_window_success_rate < 0.99:
     #         first_converge_time = index + 1
     #     index += 1
 
-
     # Plotting the latency curve
     fig, ax = plt.subplots(figsize=(12, 5))
     for i in range(len(exps)):
-         # lem_latencies[i][0] = [x - initial_times[0] for x in lem_latencies[i][0]]
-         # plt.plot(lem_latencies[i][0], lem_latencies[i][1], '-', color=exps[i][2], markersize=4, linewidth=3,
-         #          label="Estimated Latency")
+        # lem_latencies[i][0] = [x - initial_times[0] for x in lem_latencies[i][0]]
+        # plt.plot(lem_latencies[i][0], lem_latencies[i][1], '-', color=exps[i][2], markersize=4, linewidth=3,
+        #          label="Estimated Latency")
         add_p99_bar_curve(plt, p99_bar[i], initial_times[i])
         add_latency_bar_curve(plt, latency_bar[i], initial_times[i])
     add_latency_limit_marker(plt, latency_limit)
@@ -359,15 +426,17 @@ def draw_latency_curves(raw_dir, output_dir, exp_name, window_size, start_time, 
     plt.ylabel('Latency (ms)')
     axes = plt.gca()
     axes.set_xlim((start_time) * 1000, (start_time + exp_length) * 1000)
-    axes.set_xticks(np.arange((start_time) * 1000, (start_time + exp_length) * 1000 + (exp_length / 10) * 1000, (exp_length / 10) * 1000))
+    axes.set_xticks(np.arange((start_time) * 1000, (start_time + exp_length) * 1000 + (exp_length / 10) * 1000,
+                              (exp_length / 10) * 1000))
     axes.set_xticklabels([int((x - start_time * 1000) / 1000) for x in
-                          np.arange((start_time) * 1000, (start_time + exp_length) * 1000 + (exp_length / 10) * 1000, (exp_length / 10) * 1000)])
-    if (latency_limit < 3000):
-        axes.set_ylim(0, 3000)
-        axes.set_yticks(np.arange(0, 3300, 300))
-    elif (latency_limit < 6000):
-        axes.set_ylim(0, 10050)
-        axes.set_yticks(np.arange(0, 11000, 1000))
+                          np.arange((start_time) * 1000, (start_time + exp_length) * 1000 + (exp_length / 10) * 1000,
+                                    (exp_length / 10) * 1000)])
+    if (latency_limit < 2000):
+        axes.set_ylim(0, 2000)
+        axes.set_yticks(np.arange(0, 2200, 200))
+    elif (latency_limit < 5000):
+        axes.set_ylim(0, 5500)
+        axes.set_yticks(np.arange(0, 5500, 500))
     else:
         axes.set_ylim(0, 25000)
         axes.set_yticks(np.arange(0, 27500, 2500))
@@ -377,7 +446,8 @@ def draw_latency_curves(raw_dir, output_dir, exp_name, window_size, start_time, 
     plt.savefig(output_dir + 'latency_bar.png', bbox_inches='tight')
     plt.close(fig)
 
-    return success_rate, weighted_success_rate, first_converge_time, converged_bar
+    return success_rate, avg_ground_truth_latency_in_range, first_converge_time, converged_bar
+
 
 
 
@@ -560,7 +630,7 @@ def readParallelism(rawDir, expName, windowSize):
     return [ParallelismPerJob, totalArrivalRatePerJob, initialTime, scalings]
 
 
-def draw_parallelism_curve(rawDir, outputDir, exp_name, windowSize, startTime, exp_length, draw_parallelism_flag) -> [
+def draw_parallelism_curve(rawDir, outputDir, exp_name, windowSize, startTime, exp_length, draw_parallelism_flag, static_arrival_curve) -> [
     float, [list[int], list[float]]]:
     exps = [
         ["Sluice", exp_name, "blue", "o"]
@@ -622,7 +692,11 @@ def draw_parallelism_curve(rawDir, outputDir, exp_name, windowSize, startTime, e
     job = jobList[0]
     ax = sorted(totalArrivalRatesPerJob[job][0].keys())
     ay = [totalArrivalRatesPerJob[job][0][x] / (windowSize / 100) for x in ax]
-    arrival_curves = [ax, ay]
+    arrival_curves = []
+    if static_arrival_curve == []:
+        arrival_curves = [ax, ay]
+    else:
+        arrival_curves = static_arrival_curve
     ax2.plot(ax, ay, '-', color='red', markersize=MARKERSIZE / 2, label="Arrival Rate")
     # ax2.set_ylabel('Rate (tps)')
     # ax2.set_ylim(0, 30000)
@@ -689,8 +763,8 @@ def draw_parallelism_curve(rawDir, outputDir, exp_name, windowSize, startTime, e
                  label="Scaling")
         ax1.legend(legend, loc='upper left', bbox_to_anchor=(-0.1, 1.3), ncol=3, markerscale=4.)
         # ax1.set_ylabel('OP_'+str(jobIndex+1)+' Parallelism')
-        ax1.set_ylim(0, 40)
-        ax1.set_yticks(np.arange(0, 45, 5))  # (4, 34, 2)) #18, 1))
+        ax1.set_ylim(10, 60)
+        ax1.set_yticks(np.arange(10, 65, 5))  # (4, 34, 2)) #18, 1))
 
         ax1.set_xlim(startTime * 1000, (startTime + exp_length) * 1000)
         ax1.set_xticks(np.arange(startTime * 1000, (startTime + exp_length) * 1000 + (exp_length / 10) * 1000,
@@ -717,60 +791,64 @@ def main():
     draw_lem_latency_flag = True
     exps_per_label_per_setting = {
         "Microbench_1": {
-            #"static": "part5-microbench-streamsluice-ds2-part5-sine-1split2join1-1890-4500-5500-600-linear-1000-2500-360-stair_4-120-30-360-stair_4-1-0-1-20-1-5000-3-500-1-5000-1-20-1-5000-17-1000-10000-0.05-1000-3000-100-1-false-1",
-            "scale": [
-                "part5-microbench-streamsluice-streamsluice-part5-sine-1split2join1-570-5000-5000-600-linear-1000-2000-480-stair_3-60-30-480-stair_3-1-0-1-20-1-5000-3-500-1-5000-16-2100-1-5000-1-20-5000--0.05-0.1-2000-500-100-1-true-1",
-            ]
+            "static": "part4-system_d4-streamsluice-ds2-systemsensitivity-sine-1split2join1-960-----1000-3000---50-50---1-0-1-20-1-20000-12-1000-1-20000-12-666-1-20000-1-20-20000--0.05-false-0.5-3000-1000-100-1-false-1",
+            "no-tune": "part4-system_d4-streamsluice-streamsluice-systemsensitivity-sine-1split2join1-960-----1000-3000---50-50---1-0-1-20-1-20000-12-1000-1-20000-12-666-1-20000-1-20-20000--0.05-true-0.5-3000-1000-100-1-true-1",
+            "scale": "part4-system_d4-streamsluice-streamsluice-systemsensitivity-sine-1split2join1-960-----1000-3000---50-50---1-0-1-20-1-20000-12-1000-1-20000-12-666-1-20000-1-20-20000--0.05-false-0.5-3000-1000-100-1-true-1",
         }
     }
     for workload_name, exps_per_label in exps_per_label_per_setting.items():
         success_rate_per_label = {}
         avg_parallelism_per_label = {}
         user_limit_per_label = {}
-        weighted_success_rate_per_label = {}
-        for label, exps in exps_per_label.items():
+        avg_ground_truth_latency_per_label = {}
+        static_arrival_curve = []
+        for label, exp_name in exps_per_label.items():
             success_rate_per_label[label] = []
             avg_parallelism_per_label[label] = []
             user_limit_per_label[label] = []
-            weighted_success_rate_per_label[label] = []
-            for exp_name in exps:
-                if exp_name.startswith("part5-lr"):
-                    latency_bar = int(exp_name.split('-')[-9])
-                    start_time = 180
-                    exp_length = 1800
-                elif exp_name.startswith("part5-tweet"):
-                    latency_bar = int(exp_name.split('-')[-5])
-                    start_time = 150
-                    exp_length = 1800  # 600
-                elif exp_name.startswith("part5-stock"):
-                    latency_bar = int(exp_name.split('-')[-6])
-                    start_time = 150
-                    exp_length = 1800
-                elif exp_name.startswith("part5-microbench"):
-                    latency_bar = int(exp_name.split('-')[-6])
-                    start_time = 60
-                    exp_length = 600 #1800
-                else:
-                    latency_bar = int(exp_name.split('-')[-6])
-                    start_time = 60
-                    exp_length = 600
-                success_rate, weighted_success_rate, first_converge_time, converged_bar = draw_latency_curves(raw_dir,
-                                                                                                              output_dir + exp_name + '/',
-                                                                                                              exp_name,
-                                                                                                              window_size,
-                                                                                                              start_time,
-                                                                                                              exp_length,
-                                                                                                              latency_bar,
-                                                                                                              draw_lem_latency_flag)
+            avg_ground_truth_latency_per_label[label] = []
+            if exp_name.startswith("part4-lr"):
+                latency_bar = int(exp_name.split('-')[-9])
+                start_time = 180
+                exp_length = 1800
+            elif exp_name.startswith("part4-tweet"):
+                latency_bar = int(exp_name.split('-')[-5])
+                start_time = 150
+                exp_length = 1800  # 600
+            elif exp_name.startswith("part4-stock"):
+                latency_bar = int(exp_name.split('-')[-6])
+                start_time = 150
+                exp_length = 1800
+            elif exp_name.startswith("part4-system"):
+                latency_bar = int(exp_name.split('-')[-6])
+                start_time = 60
+                exp_length = 900 #1800
+            else:
+                latency_bar = int(exp_name.split('-')[-6])
+                start_time = 60
+                exp_length = 600
+            success_rate, avg_ground_truth_latency, first_converge_time, converged_bar = draw_latency_curves(raw_dir,
+                                                                                                             output_dir + exp_name + '/',
+                                                                                                             exp_name,
+                                                                                                             window_size,
+                                                                                                             start_time,
+                                                                                                             exp_length,
+                                                                                                             latency_bar,
+                                                                                                             draw_lem_latency_flag)
+            if label == "static":
+                avg_parallelism, static_arrival_curve = draw_parallelism_curve(raw_dir, output_dir + exp_name + '/', exp_name,
+                                                                window_size,
+                                                                start_time, exp_length, True, static_arrival_curve)
+            else:
                 avg_parallelism, trash = draw_parallelism_curve(raw_dir, output_dir + exp_name + '/', exp_name,
                                                                 window_size,
-                                                                start_time, exp_length, True)
-                user_limit_per_label[label] += [latency_bar]
-                success_rate_per_label[label] += [success_rate]
-                weighted_success_rate_per_label[label] += [weighted_success_rate]
-                avg_parallelism_per_label[label] += [avg_parallelism]
+                                                                start_time, exp_length, True, static_arrival_curve)
+            user_limit_per_label[label] += [latency_bar]
+            success_rate_per_label[label] += [success_rate]
+            avg_ground_truth_latency_per_label[label] += [avg_ground_truth_latency]
+            avg_parallelism_per_label[label] += [avg_parallelism]
         print(success_rate_per_label)
-        print(weighted_success_rate_per_label)
+        print(avg_ground_truth_latency_per_label)
         print(avg_parallelism_per_label)
 
 if __name__ == "__main__":
