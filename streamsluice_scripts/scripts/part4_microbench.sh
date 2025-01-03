@@ -192,7 +192,7 @@ run_scale_test(){
     TIME_I=30
     printf "" > part4_result.txt
     printf "MicroBench\n" >> part4_result.txt
-    runtime=960
+    runtime=1500 #960
     setting="microbench"
     SOURCE_TYPE="systemsensitivity"
     DELAY2=20
@@ -224,17 +224,17 @@ run_scale_test(){
     RATE_I=5000
     TIME_I=0
     STAIRS=2
-    STAIR_REPEATS=1
+    STAIR_REPEATS=2
     amplitude_low=1000
     amplitude_high=3000
-    period_low=60
-    period_high=60
+    period_low=90
+    period_high=90
     is_treat=false
     autotune=false
     how_type="ds2"
 #    run_one_exp
 #    printf "${EXP_NAME}\n" >> part4_result.txt
-    autotune_interval=90
+    autotune_interval=120
     for repeat in 1; do # 1 2 3 4 5
       is_treat=true
       autotune=true
@@ -247,8 +247,8 @@ run_scale_test(){
       is_treat=true
       autotune=false
       how_type="streamsluice"
-      run_one_exp
-      printf "${EXP_NAME}\n" >> part4_result.txt
+#      run_one_exp
+#      printf "${EXP_NAME}\n" >> part4_result.txt
     done
 }
 

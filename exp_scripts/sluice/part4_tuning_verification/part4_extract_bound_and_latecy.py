@@ -792,20 +792,21 @@ def main():
     draw_lem_latency_flag = True
     exps_per_label_per_setting = {
         "Microbench_1": {
-            "static":   "part4-microbench-streamsluice-ds2-systemsensitivity-sine-1split2join1-960-1000-3000-50-50-1-0-1-20-1-15000-12-1000-1-15000-12-666-1-15000-1-67-15000--0.05-false-0.5-3000-1000-100-1-false-1",
-            "no-tune": [
-                "part4-microbench-streamsluice-streamsluice-systemsensitivity-sine-1split2join1-960-1000-3000-50-50-1-0-1-20-1-15000-12-1000-1-15000-12-666-1-15000-1-67-15000--0.05-false-0.5-1000-1000-100-1-true-1",
-                "part4-microbench-streamsluice-streamsluice-systemsensitivity-sine-1split2join1-960-1000-3000-50-50-1-0-1-20-1-15000-12-1000-1-15000-12-666-1-15000-1-67-15000--0.05-false-0.5-1000-1000-100-1-true-2",
-                "part4-microbench-streamsluice-streamsluice-systemsensitivity-sine-1split2join1-960-1000-3000-50-50-1-0-1-20-1-15000-12-1000-1-15000-12-666-1-15000-1-67-15000--0.05-false-0.5-1000-1000-100-1-true-3",
-                "part4-microbench-streamsluice-streamsluice-systemsensitivity-sine-1split2join1-960-1000-3000-50-50-1-0-1-20-1-15000-12-1000-1-15000-12-666-1-15000-1-67-15000--0.05-false-0.5-1000-1000-100-1-true-4",
-                "part4-microbench-streamsluice-streamsluice-systemsensitivity-sine-1split2join1-960-1000-3000-50-50-1-0-1-20-1-15000-12-1000-1-15000-12-666-1-15000-1-67-15000--0.05-false-0.5-1000-1000-100-1-true-5"
-            ],
+            #"static":   "part4-microbench-streamsluice-ds2-systemsensitivity-sine-1split2join1-960-1000-3000-50-50-1-0-1-20-1-15000-12-1000-1-15000-12-666-1-15000-1-67-15000--0.05-false-0.5-3000-1000-100-1-false-1",
+            # "no-tune": [
+            #     # "part4-microbench-streamsluice-streamsluice-systemsensitivity-sine-1split2join1-960-1000-3000-50-50-1-0-1-20-1-15000-12-1000-1-15000-12-666-1-15000-1-67-15000--0.05-false-0.5-1000-1000-100-1-true-1",
+            #     # "part4-microbench-streamsluice-streamsluice-systemsensitivity-sine-1split2join1-960-1000-3000-50-50-1-0-1-20-1-15000-12-1000-1-15000-12-666-1-15000-1-67-15000--0.05-false-0.5-1000-1000-100-1-true-2",
+            #     # "part4-microbench-streamsluice-streamsluice-systemsensitivity-sine-1split2join1-960-1000-3000-50-50-1-0-1-20-1-15000-12-1000-1-15000-12-666-1-15000-1-67-15000--0.05-false-0.5-1000-1000-100-1-true-3",
+            #     # "part4-microbench-streamsluice-streamsluice-systemsensitivity-sine-1split2join1-960-1000-3000-50-50-1-0-1-20-1-15000-12-1000-1-15000-12-666-1-15000-1-67-15000--0.05-false-0.5-1000-1000-100-1-true-4",
+            #     # "part4-microbench-streamsluice-streamsluice-systemsensitivity-sine-1split2join1-960-1000-3000-50-50-1-0-1-20-1-15000-12-1000-1-15000-12-666-1-15000-1-67-15000--0.05-false-0.5-1000-1000-100-1-true-5"
+            # ],
             "scale": [
-                "part4-microbench-streamsluice-streamsluice-systemsensitivity-sine-1split2join1-960-1000-3000-50-50-1-0-1-20-1-15000-12-1000-1-15000-12-666-1-15000-1-67-15000--0.05-true-0.5-3000-1000-100-1-true-1",
-                "part4-microbench-streamsluice-streamsluice-systemsensitivity-sine-1split2join1-960-1000-3000-50-50-1-0-1-20-1-15000-12-1000-1-15000-12-666-1-15000-1-67-15000--0.05-true-0.5-3000-1000-100-1-true-2",
-                "part4-microbench-streamsluice-streamsluice-systemsensitivity-sine-1split2join1-960-1000-3000-50-50-1-0-1-20-1-15000-12-1000-1-15000-12-666-1-15000-1-67-15000--0.05-true-0.5-3000-1000-100-1-true-3",
-                "part4-microbench-streamsluice-streamsluice-systemsensitivity-sine-1split2join1-960-1000-3000-50-50-1-0-1-20-1-15000-12-1000-1-15000-12-666-1-15000-1-67-15000--0.05-true-0.5-3000-1000-100-1-true-4",
-                "part4-microbench-streamsluice-streamsluice-systemsensitivity-sine-1split2join1-960-1000-3000-50-50-1-0-1-20-1-15000-12-1000-1-15000-12-666-1-15000-1-67-15000--0.05-true-0.5-3000-1000-100-1-true-5",
+                # "part4-microbench-streamsluice-streamsluice-systemsensitivity-sine-1split2join1-960-1000-3000-50-50-1-0-1-20-1-15000-12-1000-1-15000-12-666-1-15000-1-67-15000--0.05-true-0.5-3000-1000-100-1-true-1",
+                # "part4-microbench-streamsluice-streamsluice-systemsensitivity-sine-1split2join1-960-1000-3000-50-50-1-0-1-20-1-15000-12-1000-1-15000-12-666-1-15000-1-67-15000--0.05-true-0.5-3000-1000-100-1-true-2",
+                # "part4-microbench-streamsluice-streamsluice-systemsensitivity-sine-1split2join1-960-1000-3000-50-50-1-0-1-20-1-15000-12-1000-1-15000-12-666-1-15000-1-67-15000--0.05-true-0.5-3000-1000-100-1-true-3",
+                # "part4-microbench-streamsluice-streamsluice-systemsensitivity-sine-1split2join1-960-1000-3000-50-50-1-0-1-20-1-15000-12-1000-1-15000-12-666-1-15000-1-67-15000--0.05-true-0.5-3000-1000-100-1-true-4",
+                # "part4-microbench-streamsluice-streamsluice-systemsensitivity-sine-1split2join1-960-1000-3000-50-50-1-0-1-20-1-15000-12-1000-1-15000-12-666-1-15000-1-67-15000--0.05-true-0.5-3000-1000-100-1-true-5",
+                "part4-microbench-streamsluice-streamsluice-systemsensitivity-sine-1split2join1-960-1000-3000-60-60-1-0-1-20-1-15000-10-1000-1-15000-10-600-1-15000-1-67-15000-0.05-true-0.5-3000-1000-100-1-true-1",
             ],
         }
     }
