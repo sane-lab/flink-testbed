@@ -792,45 +792,70 @@ def main():
     draw_lem_latency_flag = True
     exps_per_label_per_setting = {
         "Microbench_1": {
-            "static":   "part4-microbench-streamsluice-ds2-systemsensitivity-sine-1split2join1-960-----1000-3000---50-50---1-0-1-20-1-15000-12-1000-1-15000-12-666-1-15000-1-135-15000--0.05-false-0.5-3000-1000-100-1-false-1",
-            "no-tune":  "part4-microbench-streamsluice-streamsluice-systemsensitivity-sine-1split2join1-960-----1000-3000---50-50---1-0-1-20-1-15000-12-1000-1-15000-12-666-1-15000-1-135-15000--0.05-false-0.5-3000-1000-100-1-true-1",
-            "scale":    "part4-microbench-streamsluice-streamsluice-systemsensitivity-sine-1split2join1-960-----1000-3000---50-50---1-0-1-20-1-15000-12-1000-1-15000-12-666-1-15000-1-135-15000--0.05-true-0.5-3000-1000-100-1-true-1",
-            "no-tune-2": "part4-microbench-streamsluice-streamsluice-systemsensitivity-sine-1split2join1-960-----1000-3000---50-50---1-0-1-20-1-15000-12-1000-1-15000-12-666-1-15000-1-135-15000--0.05-false-0.5-3000-1000-100-1-true-2",
-            "scale-2": "part4-microbench-streamsluice-streamsluice-systemsensitivity-sine-1split2join1-960-----1000-3000---50-50---1-0-1-20-1-15000-12-1000-1-15000-12-666-1-15000-1-135-15000--0.05-true-0.5-3000-1000-100-1-true-2",
+            "static":   "part4-microbench-streamsluice-ds2-systemsensitivity-sine-1split2join1-960-1000-3000-50-50-1-0-1-20-1-15000-12-1000-1-15000-12-666-1-15000-1-67-15000--0.05-false-0.5-3000-1000-100-1-false-1",
+            "no-tune": [
+                "part4-microbench-streamsluice-streamsluice-systemsensitivity-sine-1split2join1-960-1000-3000-50-50-1-0-1-20-1-15000-12-1000-1-15000-12-666-1-15000-1-67-15000--0.05-false-0.5-1000-1000-100-1-true-1",
+                "part4-microbench-streamsluice-streamsluice-systemsensitivity-sine-1split2join1-960-1000-3000-50-50-1-0-1-20-1-15000-12-1000-1-15000-12-666-1-15000-1-67-15000--0.05-false-0.5-1000-1000-100-1-true-2",
+                "part4-microbench-streamsluice-streamsluice-systemsensitivity-sine-1split2join1-960-1000-3000-50-50-1-0-1-20-1-15000-12-1000-1-15000-12-666-1-15000-1-67-15000--0.05-false-0.5-1000-1000-100-1-true-3",
+                "part4-microbench-streamsluice-streamsluice-systemsensitivity-sine-1split2join1-960-1000-3000-50-50-1-0-1-20-1-15000-12-1000-1-15000-12-666-1-15000-1-67-15000--0.05-false-0.5-1000-1000-100-1-true-4",
+                "part4-microbench-streamsluice-streamsluice-systemsensitivity-sine-1split2join1-960-1000-3000-50-50-1-0-1-20-1-15000-12-1000-1-15000-12-666-1-15000-1-67-15000--0.05-false-0.5-1000-1000-100-1-true-5"
+            ],
+            "scale": [
+                "part4-microbench-streamsluice-streamsluice-systemsensitivity-sine-1split2join1-960-1000-3000-50-50-1-0-1-20-1-15000-12-1000-1-15000-12-666-1-15000-1-67-15000--0.05-true-0.5-3000-1000-100-1-true-1",
+                "part4-microbench-streamsluice-streamsluice-systemsensitivity-sine-1split2join1-960-1000-3000-50-50-1-0-1-20-1-15000-12-1000-1-15000-12-666-1-15000-1-67-15000--0.05-true-0.5-3000-1000-100-1-true-2",
+                "part4-microbench-streamsluice-streamsluice-systemsensitivity-sine-1split2join1-960-1000-3000-50-50-1-0-1-20-1-15000-12-1000-1-15000-12-666-1-15000-1-67-15000--0.05-true-0.5-3000-1000-100-1-true-3",
+                "part4-microbench-streamsluice-streamsluice-systemsensitivity-sine-1split2join1-960-1000-3000-50-50-1-0-1-20-1-15000-12-1000-1-15000-12-666-1-15000-1-67-15000--0.05-true-0.5-3000-1000-100-1-true-4",
+                "part4-microbench-streamsluice-streamsluice-systemsensitivity-sine-1split2join1-960-1000-3000-50-50-1-0-1-20-1-15000-12-1000-1-15000-12-666-1-15000-1-67-15000--0.05-true-0.5-3000-1000-100-1-true-5",
+            ],
         }
     }
+
+    def getStartTimeAndExpLength(exp_name):
+        if exp_name.startswith("part4-lr"):
+            latency_bar = int(exp_name.split('-')[-9])
+            start_time = 180
+            exp_length = 1800
+        elif exp_name.startswith("part4-tweet"):
+            latency_bar = int(exp_name.split('-')[-5])
+            start_time = 150
+            exp_length = 1800  # 600
+        elif exp_name.startswith("part4-stock"):
+            latency_bar = int(exp_name.split('-')[-6])
+            start_time = 150
+            exp_length = 1800
+        elif exp_name.startswith("part4-micro"):
+            latency_bar = int(exp_name.split('-')[-6])
+            start_time = 0
+            exp_length = 900  # 1800
+        else:
+            latency_bar = int(exp_name.split('-')[-6])
+            start_time = 60
+            exp_length = 600
+        return start_time, exp_length, latency_bar
+
     for workload_name, exps_per_label in exps_per_label_per_setting.items():
         success_rate_per_label = {}
         avg_parallelism_per_label = {}
         user_limit_per_label = {}
         avg_ground_truth_latency_per_label = {}
         static_arrival_curve = []
-        for label, exp_name in exps_per_label.items():
+        for label, exps in exps_per_label.items():
             success_rate_per_label[label] = []
             avg_parallelism_per_label[label] = []
             user_limit_per_label[label] = []
             avg_ground_truth_latency_per_label[label] = []
-            if exp_name.startswith("part4-lr"):
-                latency_bar = int(exp_name.split('-')[-9])
-                start_time = 180
-                exp_length = 1800
-            elif exp_name.startswith("part4-tweet"):
-                latency_bar = int(exp_name.split('-')[-5])
-                start_time = 150
-                exp_length = 1800  # 600
-            elif exp_name.startswith("part4-stock"):
-                latency_bar = int(exp_name.split('-')[-6])
-                start_time = 150
-                exp_length = 1800
-            elif exp_name.startswith("part4-micro"):
-                latency_bar = int(exp_name.split('-')[-6])
-                start_time = 0
-                exp_length = 900 #1800
-            else:
-                latency_bar = int(exp_name.split('-')[-6])
-                start_time = 60
-                exp_length = 600
-            success_rate, avg_ground_truth_latency, first_converge_time, converged_bar = draw_latency_curves(raw_dir,
+            if label == "static":
+                exp_name = exps
+                start_time, exp_length, latency_bar = getStartTimeAndExpLength(exp_name)
+                avg_parallelism, static_arrival_curve = draw_parallelism_curve(raw_dir, output_dir + exp_name + '/',
+                                                                               exp_name,
+                                                                               window_size,
+                                                                               start_time, exp_length, True,
+                                                                               static_arrival_curve)
+                continue
+            for exp_name in exps:
+                start_time, exp_length, latency_bar = getStartTimeAndExpLength(exp_name)
+                success_rate, avg_ground_truth_latency, first_converge_time, converged_bar = draw_latency_curves(raw_dir,
                                                                                                              output_dir + exp_name + '/',
                                                                                                              exp_name,
                                                                                                              window_size,
@@ -838,18 +863,13 @@ def main():
                                                                                                              exp_length,
                                                                                                              latency_bar,
                                                                                                              draw_lem_latency_flag)
-            if label == "static":
-                avg_parallelism, static_arrival_curve = draw_parallelism_curve(raw_dir, output_dir + exp_name + '/', exp_name,
-                                                                window_size,
-                                                                start_time, exp_length, True, static_arrival_curve)
-            else:
                 avg_parallelism, trash = draw_parallelism_curve(raw_dir, output_dir + exp_name + '/', exp_name,
                                                                 window_size,
                                                                 start_time, exp_length, True, static_arrival_curve)
-            user_limit_per_label[label] += [latency_bar]
-            success_rate_per_label[label] += [success_rate]
-            avg_ground_truth_latency_per_label[label] += [avg_ground_truth_latency]
-            avg_parallelism_per_label[label] += [avg_parallelism]
+                user_limit_per_label[label] += [latency_bar]
+                success_rate_per_label[label] += [success_rate]
+                avg_ground_truth_latency_per_label[label] += [avg_ground_truth_latency]
+                avg_parallelism_per_label[label] += [avg_parallelism]
         print(success_rate_per_label)
         print(avg_ground_truth_latency_per_label)
         print(avg_parallelism_per_label)
