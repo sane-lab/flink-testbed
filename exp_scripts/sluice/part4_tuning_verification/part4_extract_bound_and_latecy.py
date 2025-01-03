@@ -826,8 +826,8 @@ def main():
             exp_length = 1800
         elif exp_name.startswith("part4-micro"):
             latency_bar = int(exp_name.split('-')[-6])
-            start_time = 0
-            exp_length = 900  # 1800
+            start_time = 60
+            exp_length = 1440 #900  # 1800
         else:
             latency_bar = int(exp_name.split('-')[-6])
             start_time = 60

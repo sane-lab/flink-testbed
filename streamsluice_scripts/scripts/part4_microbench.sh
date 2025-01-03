@@ -86,6 +86,7 @@ init() {
   STATE_SIZE5=1000
 
   scaling_decision_option=1
+
   spike_estimation="linear_regression"
   spike_slope=0.65
   spike_intercept=250
@@ -136,7 +137,7 @@ run_scale_test(){
     autotune_interval=60
     autotuner="UserLimitTuner"
     autotuner_latency_window=100
-    autotuner_bar_lowerbound=350 #300
+    autotuner_bar_lowerbound=450 #350
     autotuner_initial_value_option=4 # 1
     autotuner_adjustment_option=1
     autotuner_increase_bar_option=1 # 2
@@ -148,7 +149,6 @@ run_scale_test(){
     decision_interval=1 #10
     snapshot_size=20
     L=1000 #2000 #2500
-    migration_interval=1000 #500
     spike_slope=0.7
     autotuner_initial_value_option=5
     autotuner_increase_bar_option=8
@@ -177,7 +177,7 @@ run_scale_test(){
     autotune=false
     epoch=100
     decision_interval=1 #10
-    migration_interval=1000 #500
+    migration_interval=500 #1000 #500
     snapshot_size=20
     DELTA_I=270
     LP2=1
@@ -197,20 +197,20 @@ run_scale_test(){
     setting="microbench"
     SOURCE_TYPE="systemsensitivity"
     DELAY2=20
-    DELAY3=1000 #1000
+    DELAY3=1400 #1000
     DELAY4=600 #666
     DELAY5=67 #67 #20
-    STATE_SIZE2=15000 #20000 # 1000 keys, per key (n * 2000 + 36) bytes, n=5000 -> 100 MB
-    STATE_SIZE3=15000 #20000
-    STATE_SIZE4=15000 #20000
-    STATE_SIZE5=15000 #20000
+    STATE_SIZE2=7500 #20000 # 1000 keys, per key (n * 2000 + 36) bytes, n=5000 -> 100 MB
+    STATE_SIZE3=7500 #20000
+    STATE_SIZE4=7500 #20000
+    STATE_SIZE5=7500 #20000
     LP2=1
     LP3=18 #19
     LP4=12 #15 #18
-    LP5=4 #4 #1
+    LP5=1 #4 #1
 
     P2=1
-    P3=10 #12
+    P3=14 #12
     P4=10 #12
     P5=1
     GRAPH="1split2join1"
@@ -218,7 +218,7 @@ run_scale_test(){
     autotuner_latency_window=100
     autotuner_increase_bar_alpha=0.5
     epoch=100
-    L=3000
+    L=3000 #3000
     CURVE_TYPE="sine" #"linear"
     warmupRate=5000
     warmupTime=60
@@ -228,8 +228,8 @@ run_scale_test(){
     STAIR_REPEATS=2
     amplitude_low=1000
     amplitude_high=3000
-    period_low=90
-    period_high=90
+    period_low=60
+    period_high=60
     is_treat=false
     autotune=false
     how_type="ds2"
@@ -237,20 +237,21 @@ run_scale_test(){
 #    printf "${EXP_NAME}\n" >> part4_result.txt
     autotune_interval=120
     for repeat in 1; do # 1 2 3 4 5
+      L=1500
+      is_treat=true
+      autotune=false
+      how_type="streamsluice"
+      run_one_exp
+      printf "${EXP_NAME}\n" >> part4_result.txt
+    done
+    for repeat in 1; do # 1 2 3 4 5
       is_treat=true
       autotune=true
       how_type="streamsluice"
       run_one_exp
       printf "${EXP_NAME}\n" >> part4_result.txt
     done
-    for repeat in 1; do # 1 2 3 4 5
-      L=1000
-      is_treat=true
-      autotune=false
-      how_type="streamsluice"
-#      run_one_exp
-#      printf "${EXP_NAME}\n" >> part4_result.txt
-    done
+
 }
 
 run_scale_test
