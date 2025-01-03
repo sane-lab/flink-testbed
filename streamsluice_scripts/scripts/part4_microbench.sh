@@ -85,6 +85,7 @@ init() {
   DELAY5=510
   STATE_SIZE5=1000
 
+  scaling_decision_option=1
   spike_estimation="linear_regression"
   spike_slope=0.65
   spike_intercept=250
