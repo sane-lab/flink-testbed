@@ -193,17 +193,17 @@ run_scale_test(){
     TIME_I=30
     printf "" > part4_result.txt
     printf "MicroBench Fluctuation vs Extrinsic Latency\n" >> part4_result.txt
-    runtime=600 #1500 #960
+    runtime=900 #1500 #960
     setting="microbench"
     SOURCE_TYPE="systemsensitivity"
     DELAY2=20
     DELAY3=2000 #1050 #1000
     DELAY4=20 #600 #666
     DELAY5=10 #67 #20
-    STATE_SIZE2=5000 #7500 #20000 # 1000 keys, per key (n * 2000 + 36) bytes, n=5000 -> 100 MB
-    STATE_SIZE3=5000 #7500 #20000
-    STATE_SIZE4=5000 #7500 #20000
-    STATE_SIZE5=5000 #7500 #20000
+    STATE_SIZE2=10000 #7500 #20000 # 1000 keys, per key (n * 2000 + 36) bytes, n=5000 -> 100 MB
+    STATE_SIZE3=10000 #7500 #20000
+    STATE_SIZE4=10000 #7500 #20000
+    STATE_SIZE5=10000 #7500 #20000
     LP2=1
     LP3=35 #20 #19
     LP4=1 #14 #15 #18
@@ -227,7 +227,7 @@ run_scale_test(){
     STAIRS=3
     STAIR_REPEATS=1
     amplitude_low=1000
-    amplitude_high=3500
+    amplitude_high=4000
     period_high=45
     period_low=90
     is_treat=false
