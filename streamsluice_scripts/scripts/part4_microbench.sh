@@ -193,7 +193,7 @@ run_scale_test(){
     TIME_I=30
     printf "" > part4_result.txt
     printf "MicroBench Fluctuation vs Extrinsic Latency\n" >> part4_result.txt
-    runtime=900 #1500 #960
+    runtime=1500 #1500 #960
     setting="microbench"
     SOURCE_TYPE="systemsensitivity"
     DELAY2=20
@@ -210,7 +210,7 @@ run_scale_test(){
     LP5=1 #4 #1
 
     P2=1
-    P3=14 #12
+    P3=17 #12
     P4=1 #10 #12
     P5=1
     GRAPH="1split2join1"
@@ -224,8 +224,8 @@ run_scale_test(){
     warmupTime=60
     RATE_I=5000
     TIME_I=0
-    STAIRS=3
-    STAIR_REPEATS=1
+    STAIRS=2
+    STAIR_REPEATS=2
     amplitude_low=1000
     amplitude_high=4000
     period_high=45

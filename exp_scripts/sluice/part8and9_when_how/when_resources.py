@@ -417,6 +417,7 @@ exps = [
      "purple", "o"],
     ["Dhalion",
      "part6and7-microbench-dhalion-streamsluice-part6-mixed-1split2join1-570-5000-5000-960-linear-2000-1-1440-stair_3-120-1-1440-stair_3-1-0-1-20-1-1-2-50-1-1-1-20-1-1-17-800-1--0.05-0.1-1000-3000-100-1-true-1",
+     #"part6and7-microbench-dhalion-streamsluice-part6-mixed-1split2join1-570-5000-5000-960-linear-2000-1-1440-stair_3-120-1-1440-stair_3-1-0-1-20-1-1-2-50-1-1-1-20-1-1-17-800-1--0.05-0.1-1000-3000-100-1-true-2",
      "green", "o"],
     ["StreamSwitch",
      "part6and7-microbench-streamswitch-streamsluice-part6-mixed-1split2join1-570-5000-5000-960-linear-2000-1-1440-stair_3-120-1-1440-stair_3-1-0-1-20-1-1-2-50-1-1-1-20-1-1-17-800-1--0.05-0.1-1000-3000-100-1-true-1",
