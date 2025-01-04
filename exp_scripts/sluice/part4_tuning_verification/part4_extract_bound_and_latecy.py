@@ -350,10 +350,12 @@ def draw_latency_curves(raw_dir, output_dir, exp_name, window_size, start_time, 
                           np.arange((start_time) * 1000, (start_time + exp_length) * 1000 + (exp_length / 10) * 1000,
                                     (exp_length / 10) * 1000)])
 
-    axes.set_ylim(0, 5000)
-    axes.set_yticks(np.arange(0, 5500, 500))
-    # axes.set_ylim(0, 10000)
-    # axes.set_yticks(np.arange(0, 11000, 1000))
+    if max(sampled_latency[1]) <= 2000:
+        axes.set_ylim(0, 2000)
+        axes.set_yticks(np.arange(0, 2200, 200))
+    else:
+        axes.set_ylim(0, 5000)
+        axes.set_yticks(np.arange(0, 5500, 500))
     plt.grid(True)
     if not os.path.exists(output_dir):
         os.makedirs(output_dir)
@@ -703,8 +705,8 @@ def draw_parallelism_curve(rawDir, outputDir, exp_name, windowSize, startTime, e
     # ax2.set_ylim(0, 30000)
     # ax2.set_yticks(np.arange(0, 35000, 5000))
     #if max(ay) <= 8000:
-    ax2.set_ylim(2000, 8000)
-    ax2.set_yticks(np.arange(2000, 8000, 1000))
+    ax2.set_ylim(2000, 9000)
+    ax2.set_yticks(np.arange(2000, 11000, 1000))
     # else:
     #     ax2.set_ylim(0, 20000)
     #     ax2.set_yticks(np.arange(1000, 4500, 500))
@@ -799,7 +801,7 @@ def main():
                 # "part4-microbench-streamsluice-streamsluice-systemsensitivity-sine-1split2join1-960-1000-3000-50-50-1-0-1-20-1-15000-12-1000-1-15000-12-666-1-15000-1-67-15000--0.05-false-0.5-1000-1000-100-1-true-3",
                 # "part4-microbench-streamsluice-streamsluice-systemsensitivity-sine-1split2join1-960-1000-3000-50-50-1-0-1-20-1-15000-12-1000-1-15000-12-666-1-15000-1-67-15000--0.05-false-0.5-1000-1000-100-1-true-4",
                 # "part4-microbench-streamsluice-streamsluice-systemsensitivity-sine-1split2join1-960-1000-3000-50-50-1-0-1-20-1-15000-12-1000-1-15000-12-666-1-15000-1-67-15000--0.05-false-0.5-1000-1000-100-1-true-5"
-                "part4-microbench-streamsluice-streamsluice-systemsensitivity-sine-1split2join1-900-1000-4000-90-45-1-0-1-20-1-10000-14-2000-1-10000-1-20-1-10000-1-10-10000-0.05-false-0.5-1000-500-100-1-true-1",
+                "part4-microbench-streamsluice-streamsluice-systemsensitivity-sine-1split2join1-1500-1000-4000-90-45-1-0-1-20-1-10000-17-2000-1-10000-1-20-1-10000-1-10-10000-0.05-false-0.5-1000-500-100-1-true-1",
             ],
             "scale": [
                 # "part4-microbench-streamsluice-streamsluice-systemsensitivity-sine-1split2join1-960-1000-3000-50-50-1-0-1-20-1-15000-12-1000-1-15000-12-666-1-15000-1-67-15000--0.05-true-0.5-3000-1000-100-1-true-1",
@@ -828,8 +830,8 @@ def main():
             exp_length = 1800
         elif exp_name.startswith("part4-micro"):
             latency_bar = int(exp_name.split('-')[-6])
-            start_time = 0 #60
-            exp_length = 1440 #900  # 1800
+            start_time = 60 #60
+            exp_length = 1000 #900  # 1800
         else:
             latency_bar = int(exp_name.split('-')[-6])
             start_time = 60

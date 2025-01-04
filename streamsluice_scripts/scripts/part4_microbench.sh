@@ -240,8 +240,8 @@ run_scale_test(){
       is_treat=true
       autotune=false
       how_type="streamsluice"
-      run_one_exp
-      printf "${EXP_NAME}\n" >> part4_result.txt
+#      run_one_exp
+#      printf "${EXP_NAME}\n" >> part4_result.txt
     done
 
     printf "MicroBench Intrinsic Bound Tuning Verification\n" >> part4_result.txt
@@ -251,11 +251,11 @@ run_scale_test(){
     DELAY2=20
     DELAY3=1050 #1000
     DELAY4=600 #666
-    DELAY5=20 #67 #20
-    STATE_SIZE2=7500 #20000 # 1000 keys, per key (n * 2000 + 36) bytes, n=5000 -> 100 MB
-    STATE_SIZE3=7500 #20000
-    STATE_SIZE4=7500 #20000
-    STATE_SIZE5=7500 #20000
+    DELAY5=10 #67 #20
+    STATE_SIZE2=15000 #20000 # 1000 keys, per key (n * 2000 + 36) bytes, n=5000 -> 100 MB
+    STATE_SIZE3=15000 #20000
+    STATE_SIZE4=15000 #20000
+    STATE_SIZE5=15000 #20000
     LP2=1
     LP3=18 #19
     LP4=12 #15 #18
@@ -268,7 +268,7 @@ run_scale_test(){
     GRAPH="1split2join1"
     autotuner_bar_lowerbound=450 #350
     autotuner_latency_window=100
-    autotuner_increase_bar_alpha=0.5
+    autotuner_increase_bar_alpha=0.8
     epoch=100
     L=3000 #3000
     CURVE_TYPE="sine" #"linear"
@@ -278,7 +278,7 @@ run_scale_test(){
     TIME_I=0
     STAIRS=2
     STAIR_REPEATS=2
-    amplitude_low=1500
+    amplitude_low=500
     amplitude_high=3000
     period_low=90
     period_high=90
@@ -292,8 +292,8 @@ run_scale_test(){
       is_treat=true
       autotune=true
       how_type="streamsluice"
-#      run_one_exp
-#      printf "${EXP_NAME}\n" >> part4_result.txt
+      run_one_exp
+      printf "${EXP_NAME}\n" >> part4_result.txt
     done
 
 }
