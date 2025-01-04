@@ -193,32 +193,32 @@ run_scale_test(){
     TIME_I=30
     printf "" > part4_result.txt
     printf "MicroBench Fluctuation vs Extrinsic Latency\n" >> part4_result.txt
-    runtime=1500 #960
+    runtime=600 #1500 #960
     setting="microbench"
     SOURCE_TYPE="systemsensitivity"
     DELAY2=20
-    DELAY3=1050 #1000
-    DELAY4=600 #666
+    DELAY3=2000 #1050 #1000
+    DELAY4=20 #600 #666
     DELAY5=10 #67 #20
-    STATE_SIZE2=7500 #20000 # 1000 keys, per key (n * 2000 + 36) bytes, n=5000 -> 100 MB
-    STATE_SIZE3=7500 #20000
-    STATE_SIZE4=7500 #20000
-    STATE_SIZE5=7500 #20000
+    STATE_SIZE2=5000 #7500 #20000 # 1000 keys, per key (n * 2000 + 36) bytes, n=5000 -> 100 MB
+    STATE_SIZE3=5000 #7500 #20000
+    STATE_SIZE4=5000 #7500 #20000
+    STATE_SIZE5=5000 #7500 #20000
     LP2=1
-    LP3=20 #19
-    LP4=14 #15 #18
+    LP3=35 #20 #19
+    LP4=1 #14 #15 #18
     LP5=1 #4 #1
 
     P2=1
     P3=14 #12
-    P4=10 #12
+    P4=1 #10 #12
     P5=1
     GRAPH="1split2join1"
     autotuner_bar_lowerbound=450 #350
     autotuner_latency_window=100
     autotuner_increase_bar_alpha=0.5
     epoch=100
-    L=1500
+    L=1000 #1500
     CURVE_TYPE="sine" #"linear"
     warmupRate=5000
     warmupTime=60
@@ -226,9 +226,9 @@ run_scale_test(){
     TIME_I=0
     STAIRS=3
     STAIR_REPEATS=1
-    amplitude_low=1500
-    amplitude_high=3000
-    period_high=60
+    amplitude_low=1000
+    amplitude_high=3500
+    period_high=45
     period_low=90
     is_treat=false
     autotune=false
@@ -236,7 +236,7 @@ run_scale_test(){
 #    run_one_exp
 #    printf "${EXP_NAME}\n" >> part4_result.txt
     autotune_interval=120
-    for repeat in 1 2 3; do # 1 2 3 4 5
+    for repeat in 1; do # 1 2 3 4 5
       is_treat=true
       autotune=false
       how_type="streamsluice"
