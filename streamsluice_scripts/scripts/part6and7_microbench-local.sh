@@ -236,8 +236,8 @@ run_scale_test(){
     printf "${EXP_NAME}\n" >> part6and7_result.txt
     how_type="streamsluice"
     for L in 1000; do # 2000 3000
-      for whether_type in "streamsluice" "ds2" "dhalion" "streamswitch"; do
-        for repeat in 1; do
+      for whether_type in "dhalion"; do # "streamsluice" "ds2" "dhalion" "streamswitch"
+        for repeat in 1 2 3; do
           is_treat=true
           autotune=false
           run_one_exp
@@ -253,8 +253,8 @@ run_scale_test(){
         for repeat in 1; do
           is_treat=true
           autotune=false
-          run_one_exp
-          printf "${EXP_NAME}\n" >> part6and7_result.txt
+#          run_one_exp
+#          printf "${EXP_NAME}\n" >> part6and7_result.txt
         done
       done
     done
