@@ -197,7 +197,7 @@ run_scale_test(){
     setting="microbench"
     SOURCE_TYPE="systemsensitivity"
     DELAY2=20
-    DELAY3=1400 #1000
+    DELAY3=1050 #1000
     DELAY4=600 #666
     DELAY5=67 #67 #20
     STATE_SIZE2=7500 #20000 # 1000 keys, per key (n * 2000 + 36) bytes, n=5000 -> 100 MB
@@ -214,7 +214,7 @@ run_scale_test(){
     P4=10 #12
     P5=1
     GRAPH="1split2join1"
-    autotuner_bar_lowerbound=350
+    autotuner_bar_lowerbound=450 #350
     autotuner_latency_window=100
     autotuner_increase_bar_alpha=0.5
     epoch=100
@@ -245,6 +245,7 @@ run_scale_test(){
       printf "${EXP_NAME}\n" >> part4_result.txt
     done
     for repeat in 1; do # 1 2 3 4 5
+      L=3000
       is_treat=true
       autotune=true
       how_type="streamsluice"

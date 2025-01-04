@@ -404,25 +404,25 @@ controller_color = {
 
 
 rawDir = "/Users/swrrt/Workplace/BacklogDelayPaper/experiments/raw/"
-outputDir = "/Users/swrrt/Workplace/BacklogDelayPaper/experiments/results/"
+outputDir = "/Users/swrrt/Workplace/BacklogDelayPaper/experiments/figures/part7/" #"/Users/swrrt/Workplace/BacklogDelayPaper/experiments/results/"
 #expName = "streamsluice-scaletest-400-600-500-5-2000-1000-100-1"
 #expName = "autotune_4op-false-390-10000-12500-60-15000-60-12500-60-1-0-2-125-1-5000-2-120-1-5000-3-250-1-5000-6-500-5000-2000-1500-100-true-1"
 windowSize=1000
 exps = [
     ["Static",
-     "part8-microbench-streamsluice-ds2-part8-mixed-1split2join1-570-5000-5000-960-linear-2000-1-1440-stair_3-120-1-1440-stair_3-1-0-1-20-1-5000-2-50-1-5000-1-20-1-5000-17-800-5000--0.05-0.1-1000-3000-100-1-false-1",
+     "part6and7-microbench-streamsluice-ds2-part6-mixed-1split2join1-570-5000-5000-960-linear-2000-1-1440-stair_3-120-1-1440-stair_3-1-0-1-20-1-1-2-50-1-1-1-20-1-1-17-800-1--0.05-0.1-1000-3000-100-1-false-1",
      "black", "o"],
     ["DS2",
-     "part8-microbench-streamsluice-ds2-part9-mixed-1split2join1-570-5000-5000-960-linear-2000-1-1440-stair_3-120-1-1440-stair_3-1-0-1-20-1-5000-2-50-1-5000-1-20-1-5000-17-800-5000--0.05-0.1-1000-3000-100-1-true-1",
+     "part6and7-microbench-streamsluice-ds2-part7-mixed-1split2join1-570-5000-5000-960-linear-2000-1-1440-stair_3-120-1-1440-stair_3-1-0-1-20-1-1-2-50-1-1-1-20-1-1-17-800-1--0.05-0.1-1000-3000-100-1-true-1",
      "purple", "o"],
     ["DRS",
-     "part8-microbench-streamsluice-drs-part9-mixed-1split2join1-570-5000-5000-960-linear-2000-1-1440-stair_3-120-1-1440-stair_3-1-0-1-20-1-5000-2-50-1-5000-1-20-1-5000-17-800-5000--0.05-0.1-1000-3000-100-1-true-1",
+     "part6and7-microbench-streamsluice-drs-part7-mixed-1split2join1-570-5000-5000-960-linear-2000-1-1440-stair_3-120-1-1440-stair_3-1-0-1-20-1-1-2-50-1-1-1-20-1-1-17-800-1--0.05-0.1-1000-3000-100-1-true-1",
      "green", "o"],
     ["StreamSwitch",
-     "part8-microbench-streamsluice-streamswitch-part9-mixed-1split2join1-570-5000-5000-960-linear-2000-1-1440-stair_3-120-1-1440-stair_3-1-0-1-20-1-5000-2-50-1-5000-1-20-1-5000-17-800-5000--0.05-0.1-1000-3000-100-1-true-1",
+     "part6and7-microbench-streamsluice-streamswitch-part7-mixed-1split2join1-570-5000-5000-960-linear-2000-1-1440-stair_3-120-1-1440-stair_3-1-0-1-20-1-1-2-50-1-1-1-20-1-1-17-800-1--0.05-0.1-1000-3000-100-1-true-1",
      "orange", "o"],
     ["Sluice",
-     "part8-microbench-streamsluice-streamsluice-part8-mixed-1split2join1-570-5000-5000-960-linear-2000-1-1440-stair_3-120-1-1440-stair_3-1-0-1-20-1-5000-2-50-1-5000-1-20-1-5000-17-800-5000--0.05-0.1-1000-3000-100-1-true-1",
+     "part6and7-microbench-streamsluice-streamsluice-part6-mixed-1split2join1-570-5000-5000-960-linear-2000-1-1440-stair_3-120-1-1440-stair_3-1-0-1-20-1-1-2-50-1-1-1-20-1-1-17-800-1--0.05-0.1-1000-3000-100-1-true-1",
      "blue", "o"],
 ]
 startTime=60 #30+300 #30
