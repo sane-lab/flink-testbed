@@ -252,10 +252,10 @@ run_scale_test(){
     DELAY3=1050 #1000
     DELAY4=600 #666
     DELAY5=10 #67 #20
-    STATE_SIZE2=20000 #20000 # 1000 keys, per key (n * 2000 + 36) bytes, n=5000 -> 100 MB
-    STATE_SIZE3=20000 #20000
-    STATE_SIZE4=20000 #20000
-    STATE_SIZE5=20000 #20000
+    STATE_SIZE2=15000 #20000 # 1000 keys, per key (n * 2000 + 36) bytes, n=5000 -> 100 MB
+    STATE_SIZE3=15000 #20000
+    STATE_SIZE4=15000 #20000
+    STATE_SIZE5=15000 #20000
     LP2=1
     LP3=18 #19
     LP4=12 #15 #18
@@ -288,8 +288,8 @@ run_scale_test(){
     autotune_interval=120
 #    run_one_exp
 #    printf "${EXP_NAME}\n" >> part4_result.txt
-    for repeat in 1 2 3 4 5; do # 1 2 3 4 5
-      L=3000
+    for repeat in 1; do # 1 2 3 4 5
+      L=2500
       is_treat=true
       autotune=true
       how_type="streamsluice"
