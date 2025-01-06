@@ -245,7 +245,7 @@ run_scale_test(){
     done
 
     printf "MicroBench Intrinsic Bound Tuning Verification\n" >> part4_result.txt
-    runtime=300 #1500 #960
+    runtime=600 #1500 #960
     setting="microbench"
     SOURCE_TYPE="systemsensitivity"
     DELAY2=20
@@ -288,7 +288,7 @@ run_scale_test(){
     autotune_interval=120
 #    run_one_exp
 #    printf "${EXP_NAME}\n" >> part4_result.txt
-    for repeat in 1 2 3; do # 1 2 3 4 5
+    for repeat in  1 2 3; do #  4 5
       L=3000
       is_treat=true
       autotune=true
