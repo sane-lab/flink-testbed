@@ -792,6 +792,7 @@ def main():
     output_dir = "/Users/swrrt/Workplace/BacklogDelayPaper/experiments/results/"
     window_size = 100
     draw_lem_latency_flag = True
+
     exps_per_label_per_setting = {
         "Microbench_1": {
             #"static":   "part4-microbench-streamsluice-ds2-systemsensitivity-sine-1split2join1-960-1000-3000-50-50-1-0-1-20-1-15000-12-1000-1-15000-12-666-1-15000-1-67-15000--0.05-false-0.5-3000-1000-100-1-false-1",
@@ -808,13 +809,14 @@ def main():
                 # "part4-microbench-streamsluice-streamsluice-systemsensitivity-sine-1split2join1-1500-1500-3000-90-60-1-0-1-20-1-7500-14-1050-1-7500-10-600-1-7500-1-10-7500-0.05-false-0.5-1500-500-100-1-true-3",
                 #"part4-microbench-streamsluice-streamsluice-systemsensitivity-sine-1split2join1-1500-500-3000-90-90-1-0-1-20-1-20000-14-1050-1-20000-10-600-1-20000-1-10-20000-0.05-true-0.8-3000-500-100-1-true-1",
                 #"part4-microbench-streamsluice-streamsluice-systemsensitivity-sine-1split2join1-1500-500-3000-90-90-1-0-1-20-1-20000-14-1050-1-20000-10-600-1-20000-1-10-20000-0.05-true-0.8-3000-500-100-1-true-2",
-                "part4-microbench-streamsluice-streamsluice-systemsensitivity-sine-1split2join1-600-1500-3500-90-90-1-0-1-20-1-15000-14-1050-1-15000-10-600-1-15000-1-10-15000-0.05-true-0.8-3000-500-100-1-true-1",
-                "part4-microbench-streamsluice-streamsluice-systemsensitivity-sine-1split2join1-600-1500-3500-90-90-1-0-1-20-1-15000-14-1050-1-15000-10-600-1-15000-1-10-15000-0.05-true-0.8-3000-500-100-1-true-2",
-                "part4-microbench-streamsluice-streamsluice-systemsensitivity-sine-1split2join1-600-1500-3500-90-90-1-0-1-20-1-15000-14-1050-1-15000-10-600-1-15000-1-10-15000-0.05-true-0.8-3000-500-100-1-true-3",
+                "part4-microbench-streamsluice-streamsluice-systemsensitivity-sine-1split2join1-2460-1500-3500-90-90-1-0-1-20-1-15000-14-1050-1-15000-10-600-1-15000-1-10-15000-0.05-true-0.8-3000-500-100-1-true-1",
+                "part4-microbench-streamsluice-streamsluice-systemsensitivity-sine-1split2join1-2460-1500-3500-90-90-1-0-1-20-1-15000-14-1050-1-15000-10-600-1-15000-1-10-15000-0.05-true-0.8-3000-500-100-1-true-2",
+                "part4-microbench-streamsluice-streamsluice-systemsensitivity-sine-1split2join1-2460-1500-3500-90-90-1-0-1-20-1-15000-14-1050-1-15000-10-600-1-15000-1-10-15000-0.05-true-0.8-3000-500-100-1-true-3",
+                "part4-microbench-streamsluice-streamsluice-systemsensitivity-sine-1split2join1-2460-1500-3500-90-90-1-0-1-20-1-15000-14-1050-1-15000-10-600-1-15000-1-10-15000-0.05-true-0.8-3000-500-100-1-true-4",
+                "part4-microbench-streamsluice-streamsluice-systemsensitivity-sine-1split2join1-2460-1500-3500-90-90-1-0-1-20-1-15000-14-1050-1-15000-10-600-1-15000-1-10-15000-0.05-true-0.8-3000-500-100-1-true-5",
             ],
         }
     }
-
     def getStartTimeAndExpLength(exp_name):
         if exp_name.startswith("part4-lr"):
             latency_bar = int(exp_name.split('-')[-9])
@@ -831,7 +833,7 @@ def main():
         elif exp_name.startswith("part4-micro"):
             latency_bar = int(exp_name.split('-')[-6])
             start_time = 60 #60
-            exp_length = 1440 #900  # 1800
+            exp_length = 2400 #1440 #900  # 1800
         else:
             latency_bar = int(exp_name.split('-')[-6])
             start_time = 60

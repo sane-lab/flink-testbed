@@ -1,6 +1,6 @@
 #!/bin/bash
 
-source config-systemsensitivity.sh
+source config-systemsensitivity-local.sh
 
 # dump data
 function analyze() {
@@ -14,15 +14,10 @@ function analyze() {
     mv ${FLINK_DIR}/log/* ${EXP_DIR}/streamsluice/
     mv ${EXP_DIR}/streamsluice/ ${EXP_DIR}/raw/${EXP_NAME}
     mkdir ${EXP_DIR}/streamsluice/
-
-    for host in "dragon" "eagle"; do
-      scp ${host}:${FLINK_DIR}/log/* ${EXP_DIR}/raw/${EXP_NAME}/
-      ssh ${host} "rm ${FLINK_DIR}/log/*"
-    done
 }
 
 run_one_exp() {
-  EXP_NAME=part6-${setting}-${whether_type}-${how_type}-${SOURCE_TYPE}-${CURVE_TYPE}-${GRAPH}-${runtime}-${rate_low}-${rate_high}-${rate_period}-${rate_pattern}-${amplitude_low}-${amplitude_high}-${amplitude_period}-${amplitude_pattern}-${period_low}-${period_high}-${period_period}-${period_pattern}-${P1}-${ZIPF_SKEW}-${P2}-${DELAY2}-${IO2}-${STATE_SIZE2}-${P3}-${DELAY3}-${IO3}-${STATE_SIZE3}-${P4}-${DELAY4}-${IO4}-${STATE_SIZE4}-${P5}-${DELAY5}-${STATE_SIZE5}--${noise}-${autotuner_increase_bar_alpha}-${L}-${migration_interval}-${epoch}-${decision_interval}-${is_treat}-${repeat}
+  EXP_NAME=part6and7-${setting}-${whether_type}-${how_type}-${SOURCE_TYPE}-${CURVE_TYPE}-${GRAPH}-${runtime}-${rate_low}-${rate_high}-${rate_period}-${rate_pattern}-${amplitude_low}-${amplitude_high}-${amplitude_period}-${amplitude_pattern}-${period_low}-${period_high}-${period_period}-${period_pattern}-${P1}-${ZIPF_SKEW}-${P2}-${DELAY2}-${IO2}-${STATE_SIZE2}-${P3}-${DELAY3}-${IO3}-${STATE_SIZE3}-${P4}-${DELAY4}-${IO4}-${STATE_SIZE4}-${P5}-${DELAY5}-${STATE_SIZE5}--${noise}-${autotuner_increase_bar_alpha}-${L}-${migration_interval}-${epoch}-${decision_interval}-${is_treat}-${repeat}
   echo "INFO: run exp ${EXP_NAME}"
   configFlink
   runFlink
@@ -42,7 +37,6 @@ run_one_exp() {
 
 # initialization of the parameters
 init() {
-  # exp scenario
   controller_type=StreamSluice
   whether_type="streamsluice"
   how_type="streamsluice"
@@ -91,6 +85,7 @@ init() {
   is_treat=true
   repeat=1
   warmup=10000
+  ZIPF_SKEW=0
 }
 
 # run applications
@@ -153,7 +148,7 @@ run_scale_test(){
     spike_slope=0.7
     autotuner_increase_bar_option=7 # 3 5
     autotuner_increase_bar_alpha=0.1 #0.25
-    echo "Run micro bench system sensitivity..."
+    echo "Run micro bench whether"
     init
 
     # Different cases
@@ -187,22 +182,22 @@ run_scale_test(){
     TIME2=30
     RATE_I=4000
     TIME_I=30
-    printf "" > part6_result.txt
+    printf "" > part5_result.txt
 
-    runtime=690
+    runtime=570
 
     # Period Amplitude Change
-    printf "MicroBench\n" >> part6_result.txt
+    printf "MicroBench\n" >> part5_result.txt
     setting="microbench"
-    SOURCE_TYPE="part6"
+    SOURCE_TYPE="part5"
     DELAY2=20
     DELAY3=50 #250 #333
     DELAY4=20
     DELAY5=800 #800
-    STATE_SIZE2=5000 # 1000 keys, per key (n * 2000 + 36) bytes, n=5000 -> 100 MB
-    STATE_SIZE3=5000
-    STATE_SIZE4=5000
-    STATE_SIZE5=5000 #10000
+    STATE_SIZE2=5000 #5000 # 1000 keys, per key (n * 2000 + 36) bytes, n=5000 -> 100 MB
+    STATE_SIZE3=5000 #5000
+    STATE_SIZE4=5000 #5000
+    STATE_SIZE5=5000 #5000
     LP2=1
     LP3=6 #9
     LP4=1
@@ -215,37 +210,37 @@ run_scale_test(){
     GRAPH="1split2join1"
     autotuner_bar_lowerbound=350
     autotuner_latency_window=100
-    autotuner_increase_bar_alpha=0.2 #0.1
+    autotuner_increase_bar_alpha=0.1
     epoch=100
     CURVE_TYPE="mixed" #"linear"
     warmupRate=5000
     warmupTime=60
-    rate_low=4000
-    rate_high=6000
-    rate_period=300
+    rate_low=5000
+    rate_high=5000
+    rate_period=960
     rate_pattern="linear"
-    amplitude_low=500
-    amplitude_high=2000
-    amplitude_period=450
-    amplitude_pattern="linear"
+    amplitude_low=2000
+    amplitude_high=1
+    amplitude_period=1440
+    amplitude_pattern="stair_3"
     period_low=120
-    period_high=60
-    period_period=240
-    period_pattern="linear"
+    period_high=1
+    period_period=1440
+    period_pattern="stair_3"
     noise=0.05
 
     is_treat=false
     autotune=false
     how_type="ds2"
     run_one_exp
-    printf "${EXP_NAME}\n" >> part6_result.txt
-    for L in 1000 2000 3000; do # 1000 3000
-      for autotuner_increase_bar_alpha in 0.1; do
+    printf "${EXP_NAME}\n" >> part5_result.txt
+    how_type="streamsluice"
+    for L in 2000; do # 1000 2000 3000
+      for repeat in 1; do
         is_treat=true
         autotune=false
-        how_type="streamsluice"
         run_one_exp
-        printf "${EXP_NAME}\n" >> part6_result.txt
+        printf "${EXP_NAME}\n" >> part5_result.txt
       done
     done
 }
