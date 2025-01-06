@@ -740,8 +740,9 @@ def main():
         #"stock-streamsluice-streamsluice-1-750-90-1000-20-1-200-11-2500-1-200-2-500-1-15-3333-1000-100-0.1-true-true-1",
         #"lr-ds2-ds2-1-1980-150-1300-10-1-50-2-1000-1-50-12-2500-2000-0.4-100-1-0-0.0-false-2500-0.8-2",
         #"lr-streamsluice-streamsluice-1-1980-150-1300-10-1-50-3-1000-1-50-27-2500-2000-0.1-100-1-0-0.0-true-500-0.8-2",
-        "part5-microbench-streamsluice-ds2-part5-mixed-1split2join1-570-5000-5000-960-linear-2000-1-1440-stair_3-120-1-1440-stair_3-1-0-1-20-1-5000-2-50-1-5000-1-20-1-5000-17-800-5000--0.05-0.1-1000-3000-100-1-false-1",
+        #"part5-microbench-streamsluice-ds2-part5-mixed-1split2join1-570-5000-5000-960-linear-2000-1-1440-stair_3-120-1-1440-stair_3-1-0-1-20-1-5000-2-50-1-5000-1-20-1-5000-17-800-5000--0.05-0.1-1000-3000-100-1-false-1",
         "part5-microbench-streamsluice-streamsluice-part5-mixed-1split2join1-570-5000-5000-960-linear-2000-1-1440-stair_3-120-1-1440-stair_3-1-0-1-20-1-5000-2-50-1-5000-1-20-1-5000-17-800-5000--0.05-0.1-2000-3000-100-1-true-1",
+        "part5-microbench-streamsluice-ds2-part5-mixed-1split2join1-570-5000-5000-960-linear-2000-1-1440-stair_3-120-1-1440-stair_3-1-0-1-20-1-5000-1-50-1-5000-1-20-1-5000-10-800-5000--0.05-0.1-1000-3000-100-1-false-1",
     ]
     for exp_name in exps:
         if exp_name.startswith("lr"):
@@ -761,8 +762,8 @@ def main():
             exp_length = 120 #300
         else:
             latency_bar = int(exp_name.split('-')[-6])
-            start_time = 60
-            exp_length = 600
+            start_time = 50
+            exp_length = 480
         success_rate, avg_ground_truth_latency, first_converge_time, converged_bar = draw_latency_curves(raw_dir, output_dir + exp_name + '/', exp_name,
                                                                       window_size,
                                                                       start_time, exp_length, latency_bar, draw_lem_latency_flag)

@@ -254,10 +254,10 @@ run_scale_test(){
     DELAY3=2050 #1050
     DELAY4=20 #600
     DELAY5=10
-    STATE_SIZE2=5000 #15000 #20000 # 1000 keys, per key (n * 2000 + 36) bytes, n=5000 -> 100 MB
-    STATE_SIZE3=5000 #15000 #20000
-    STATE_SIZE4=5000 #15000 #20000
-    STATE_SIZE5=5000 #15000 #20000
+    STATE_SIZE2=10000 #15000 #20000 # 1000 keys, per key (n * 2000 + 36) bytes, n=5000 -> 100 MB
+    STATE_SIZE3=10000 #15000 #20000
+    STATE_SIZE4=10000 #15000 #20000
+    STATE_SIZE5=10000 #15000 #20000
     LP2=1
     LP3=30 #19 #19
     LP4=1 #12 #15 #18
@@ -280,10 +280,10 @@ run_scale_test(){
     TIME_I=0
     STAIRS=3
     STAIR_REPEATS=1
-    amplitude_low=1000 #500
+    amplitude_low=2000 #500
     amplitude_high=5000 #3000
     period_low=90
-    period_high=60
+    period_high=45
     is_treat=false
     autotune=false
     how_type="ds2"
