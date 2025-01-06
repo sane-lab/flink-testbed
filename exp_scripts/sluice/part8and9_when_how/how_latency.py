@@ -436,9 +436,9 @@ def draw(rawDir, outputDir, exps, windowSize):
     #axes.set_yticks(np.arange(0, 6000, 1000))
     # axes.set_ylim(0, 5000)
     # axes.set_yticks(np.arange(0, 6250, 1250))
-    if max(lem_latencies[i][1] + [0]) > 2000 or max(sampledLatency[2]) > 2000:
-        axes.set_ylim(0, 5000) #3000)
-        #axes.set_yticks(np.arange(0, 3500, 500))
+    if True or max(lem_latencies[i][1] + [0]) > 2000 or max(sampledLatency[2]) > 2000:
+        axes.set_ylim(0, 5000)
+        axes.set_yticks(np.arange(0, 5500, 500))
     elif max(lem_latencies[i][1] + [0]) > 500 or max(sampledLatency[2]) > 500:
         axes.set_ylim(0, 2000)
         axes.set_yticks(np.arange(0, 2200, 200))
@@ -518,9 +518,9 @@ def draw(rawDir, outputDir, exps, windowSize):
     # axes.set_yticks(np.arange(0, 6000, 1000))
     # axes.set_ylim(0, 5000)
     # axes.set_yticks(np.arange(0, 6250, 1250))
-    if max(lem_latencies[i][1] + [0]) > 2000 or max(sampledLatency[2]) > 2000:
-        axes.set_ylim(0, 5000)  # 3000)
-        # axes.set_yticks(np.arange(0, 3500, 500))
+    if True or max(lem_latencies[i][1] + [0]) > 2000 or max(sampledLatency[2]) > 2000:
+        axes.set_ylim(0, 5000)
+        axes.set_yticks(np.arange(0, 5500, 500))
     elif max(lem_latencies[i][1] + [0]) > 500 or max(sampledLatency[2]) > 500:
         axes.set_ylim(0, 2000)
         axes.set_yticks(np.arange(0, 2200, 200))
@@ -592,7 +592,7 @@ exps = [
      "part6and7-microbench-streamsluice-ds2-part7-mixed-1split2join1-570-5000-5000-960-linear-2000-1-1440-stair_3-120-1-1440-stair_3-1-0-1-20-1-1-2-50-1-1-1-20-1-1-17-800-1--0.05-0.1-1000-3000-100-1-true-1",
      "purple", "o"],
     ["DRS",
-     "part6and7-microbench-streamsluice-drs-part7-mixed-1split2join1-570-5000-5000-960-linear-2000-1-1440-stair_3-120-1-1440-stair_3-1-0-1-20-1-1-2-50-1-1-1-20-1-1-17-800-1--0.05-0.1-1000-3000-100-1-true-1",
+     "part6and7-microbench-streamsluice-drs-part7-mixed-1split2join1-570-5000-5000-960-linear-2000-1-1440-stair_3-120-1-1440-stair_3-1-0-1-20-1-1-2-50-1-1-1-20-1-1-17-800-1--0.05-0.1-1000-3000-100-1-true-2",
      "green", "o"],
     ["StreamSwitch",
      "part6and7-microbench-streamsluice-streamswitch-part7-mixed-1split2join1-570-5000-5000-960-linear-2000-1-1440-stair_3-120-1-1440-stair_3-1-0-1-20-1-1-2-50-1-1-1-20-1-1-17-800-1--0.05-0.1-1000-3000-100-1-true-1",

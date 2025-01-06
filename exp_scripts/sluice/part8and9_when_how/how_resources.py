@@ -320,6 +320,7 @@ def draw(rawDir, outputDir, exps):
 
     legend = []
     scalingPoints = [[], []]
+    scale_out_points = {}
     for expindex in range(0, len(exps)):
         if(exps[expindex][0] == "Static"):
             continue
@@ -329,6 +330,7 @@ def draw(rawDir, outputDir, exps):
         # print(job + " " + str(expindex) + " " + str(Parallelism))
         legend += [exps[expindex][0]]
         line = [[], []]
+        scale_out_points[expindex] = [[], []]
         for i in range(0, len(Parallelism[0])):
             x0 = Parallelism[0][i]
             y0 = Parallelism[1][i]
@@ -354,12 +356,19 @@ def draw(rawDir, outputDir, exps):
             line[0].append(x1)
             line[1].append(y0)
             line[1].append(y1)
+            if y1 >= y0:
+                scale_out_points[expindex][0].append(x1)
+                scale_out_points[expindex][1].append(y0)
         if exps[expindex][0] == 'Sluice':
             linewidth = LINEWIDTH
         else:
             linewidth = LINEWIDTH / 2.0
-        ax1.plot(line[0], line[1], color=exps[expindex][2], linewidth=linewidth)
+        ax1.plot(line[0], line[1], '-', color=exps[expindex][2], linewidth=linewidth)
         print("Average parallelism " + exps[expindex][0] + " : " + str(totalParallelism / (exp_length * 1000)))
+    for expindex in range(0, len(exps)):
+        if (exps[expindex][0] == "Static"):
+            continue
+        ax1.plot(scale_out_points[expindex][0], scale_out_points[expindex][1], 'd', color=exps[expindex][2])
     #ax1.plot(scalingPoints[0], scalingPoints[1], 'o', color="orange", mfc='none', markersize=MARKERSIZE * 2, label="Scaling")
     ax1.legend(legend, loc='upper left', bbox_to_anchor=(-0.1, 1.3), ncol=3, markerscale=4.)
     # ax1.set_ylabel('OP_'+str(jobIndex+1)+' Parallelism')
@@ -416,7 +425,7 @@ exps = [
      "part6and7-microbench-streamsluice-ds2-part7-mixed-1split2join1-570-5000-5000-960-linear-2000-1-1440-stair_3-120-1-1440-stair_3-1-0-1-20-1-1-2-50-1-1-1-20-1-1-17-800-1--0.05-0.1-1000-3000-100-1-true-1",
      "purple", "o"],
     ["DRS",
-     "part6and7-microbench-streamsluice-drs-part7-mixed-1split2join1-570-5000-5000-960-linear-2000-1-1440-stair_3-120-1-1440-stair_3-1-0-1-20-1-1-2-50-1-1-1-20-1-1-17-800-1--0.05-0.1-1000-3000-100-1-true-1",
+     "part6and7-microbench-streamsluice-drs-part7-mixed-1split2join1-570-5000-5000-960-linear-2000-1-1440-stair_3-120-1-1440-stair_3-1-0-1-20-1-1-2-50-1-1-1-20-1-1-17-800-1--0.05-0.1-1000-3000-100-1-true-2",
      "green", "o"],
     ["StreamSwitch",
      "part6and7-microbench-streamsluice-streamswitch-part7-mixed-1split2join1-570-5000-5000-960-linear-2000-1-1440-stair_3-120-1-1440-stair_3-1-0-1-20-1-1-2-50-1-1-1-20-1-1-17-800-1--0.05-0.1-1000-3000-100-1-true-1",
