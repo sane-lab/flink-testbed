@@ -206,7 +206,7 @@ run_scale_test(){
     P2=1
     P3=2 #3
     P4=1
-    P5=17
+    P5=16
     GRAPH="1split2join1"
     autotuner_bar_lowerbound=350
     autotuner_latency_window=100
@@ -232,15 +232,27 @@ run_scale_test(){
     is_treat=false
     autotune=false
     how_type="ds2"
+    P2=1
+    P3=1 #3
+    P4=1
+    P5=10
+
     run_one_exp
     printf "${EXP_NAME}\n" >> part5_result.txt
+
+
+    P2=1
+    P3=2 #3
+    P4=1
+    P5=17
+
     how_type="streamsluice"
     for L in 2000; do # 1000 2000 3000
       for repeat in 1; do
         is_treat=true
         autotune=false
-        run_one_exp
-        printf "${EXP_NAME}\n" >> part5_result.txt
+#        run_one_exp
+#        printf "${EXP_NAME}\n" >> part5_result.txt
       done
     done
 }
