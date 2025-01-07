@@ -314,7 +314,8 @@ def draw(rawDir, outputDir, exps):
     # ax2.set_xticks(np.arange(startTime * 1000, (startTime + exp_length) * 1000 + 300000, 300000))
     # ax2.set_xticklabels([int((x - startTime * 1000) / 60000) for x in
     #                      np.arange(startTime * 1000, (startTime + 3600) * 1000 + 300000, 300000)])
-    ax2.legend(legend, loc='upper right', bbox_to_anchor=(1.1, 1.3), ncol=1)
+
+    #ax2.legend(legend, loc='upper right', bbox_to_anchor=(1.1, 1.3), ncol=1)
 
 
 
@@ -363,17 +364,27 @@ def draw(rawDir, outputDir, exps):
             linewidth = LINEWIDTH
         else:
             linewidth = LINEWIDTH / 2.0
-        ax1.plot(line[0], line[1], '-', color=exps[expindex][2], linewidth=linewidth)
+        ax1.plot(line[0], line[1], '-', color=exps[expindex][2], linewidth=linewidth, label=exps[expindex][0])
         print("Average parallelism " + exps[expindex][0] + " : " + str(totalParallelism / (exp_length * 1000)))
     for expindex in range(0, len(exps)):
         if (exps[expindex][0] == "Static"):
             continue
         ax1.plot(scale_out_points[expindex][0], scale_out_points[expindex][1], 'd', color=exps[expindex][2])
     #ax1.plot(scalingPoints[0], scalingPoints[1], 'o', color="orange", mfc='none', markersize=MARKERSIZE * 2, label="Scaling")
-    ax1.legend(legend, loc='upper left', bbox_to_anchor=(-0.1, 1.3), ncol=3, markerscale=4.)
-    # ax1.set_ylabel('OP_'+str(jobIndex+1)+' Parallelism')
-    # ax1.set_ylim(4, 17)
-    # ax1.set_yticks(np.arange(4, 18, 1))
+
+    #ax1.legend(legend, loc='upper left', bbox_to_anchor=(-0.1, 1.3), ncol=3, markerscale=4.)
+
+    # Collect legend handles and labels from both axes
+    handles_ax1, labels_ax1 = ax1.get_legend_handles_labels()
+    handles_ax2, labels_ax2 = ax2.get_legend_handles_labels()
+    # Combine both legends
+    handles = handles_ax1 + handles_ax2
+    labels = labels_ax1 + labels_ax2
+    # Create a unified legend
+
+    plt.legend(handles, labels, loc='upper left', bbox_to_anchor=(-0.1, 1.3), ncol=3, markerscale=4.0)
+
+
     ax1.set_ylim(5, 45)
     ax1.set_yticks(np.arange(5, 45, 5))
 

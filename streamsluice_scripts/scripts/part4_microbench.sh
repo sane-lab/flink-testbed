@@ -22,7 +22,7 @@ function analyze() {
 }
 
 run_one_exp() {
-  EXP_NAME=part4-${setting}-${autotuner_initial_value_option}-${autotuner_initial_value_alpha}-${SOURCE_TYPE}-${CURVE_TYPE}-${GRAPH}-${runtime}-${amplitude_low}-${amplitude_high}-${period_low}-${period_high}-${P1}-${ZIPF_SKEW}-${P2}-${DELAY2}-${IO2}-${STATE_SIZE2}-${P3}-${DELAY3}-${IO3}-${STATE_SIZE3}-${P4}-${DELAY4}-${IO4}-${STATE_SIZE4}-${P5}-${DELAY5}-${STATE_SIZE5}-${noise}-${autotune}-${autotuner_increase_bar_alpha}-${L}-${migration_interval}-${epoch}-${decision_interval}-${is_treat}-${repeat}
+  EXP_NAME=part4-${setting}-${autotuner_initial_value_option}-${autotuner_initial_value_alpha}-${autotuner_adjustment_option}-${SOURCE_TYPE}-${CURVE_TYPE}-${GRAPH}-${runtime}-${amplitude_low}-${amplitude_high}-${period_low}-${period_high}-${P1}-${ZIPF_SKEW}-${P2}-${DELAY2}-${IO2}-${STATE_SIZE2}-${P3}-${DELAY3}-${IO3}-${STATE_SIZE3}-${P4}-${DELAY4}-${IO4}-${STATE_SIZE4}-${P5}-${DELAY5}-${STATE_SIZE5}-${noise}-${autotune}-${autotuner_increase_bar_alpha}-${L}-${migration_interval}-${epoch}-${decision_interval}-${is_treat}-${repeat}
   echo "INFO: run exp ${EXP_NAME}"
   configFlink
   runFlink
@@ -254,10 +254,10 @@ run_scale_test(){
     DELAY3=2050 #1050
     DELAY4=20 #600
     DELAY5=10
-    STATE_SIZE2=10000 #15000 #20000 # 1000 keys, per key (n * 2000 + 36) bytes, n=5000 -> 100 MB
-    STATE_SIZE3=10000 #15000 #20000
-    STATE_SIZE4=10000 #15000 #20000
-    STATE_SIZE5=10000 #15000 #20000
+    STATE_SIZE2=20000 #15000 #20000 # 1000 keys, per key (n * 2000 + 36) bytes, n=5000 -> 100 MB
+    STATE_SIZE3=20000 #15000 #20000
+    STATE_SIZE4=20000 #15000 #20000
+    STATE_SIZE5=20000 #15000 #20000
     LP2=1
     LP3=30 #19 #19
     LP4=1 #12 #15 #18
@@ -291,16 +291,20 @@ run_scale_test(){
 #    run_one_exp
 #    printf "${EXP_NAME}\n" >> part4_result.txt
     autotuner_initial_value_option=3
+    autotuner_adjustment_option=10 # no adjustment
+    autotuner_initial_value_option=1
     for autotuner_initial_value_alpha in 500 1000 1500 2000; do
       is_treat=true
-      autotune=false
+      autotune=true
       how_type="streamsluice"
       run_one_exp
       printf "${EXP_NAME}\n" >> part4_result.txt
     done
 
     autotuner_initial_value_option=5
+    autotuner_increase_bar_option=8
     autotuner_initial_value_alpha=1.2
+    autotuner_adjustment_option=1
     for repeat in  1 2 3 4 5; do #  4 5
       L=3000
       is_treat=true
