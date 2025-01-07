@@ -60,7 +60,7 @@ function configFlink() {
     sed 's/^\(\s*controller.how.more_optimizaiton\s*:\s*\).*/\1'"$how_more_optimization_flag"'/' tmp23 > tmp24
     sed 's/^\(\s*controller.how.optimizaiton\s*:\s*\).*/\1'"$how_optimization_flag"'/' tmp24 > tmp25
     sed 's/^\(\s*controller.how.conservative\s*:\s*\).*/\1'"$how_conservative_flag"'/' tmp25 > tmp26
-    sed 's/^\(\s*controller.steady_limit\s*:\s*\).*/\1'"$how_intrinsic_bound_flag"'/' tmp26 > tmp27
+    sed 's/^\(\s*controller.intrinsic_bound\s*:\s*\).*/\1'"$how_intrinsic_bound_flag"'/' tmp26 > tmp27
     sed 's/^\(\s*model.coordination_latency_flag\s*:\s*\).*/\1'"$coordination_latency_flag"'/' tmp27 > tmp28
     sed 's/^\(\s*model.conservative_service_rate_flag\s*:\s*\).*/\1'"$conservative_service_rate_flag"'/' tmp28 > tmp29
     sed 's/^\(\s*streamsluice.system.backlog_smooth\s*:\s*\).*/\1'"$smooth_backlog_flag"'/' tmp29 > tmp30
@@ -74,48 +74,41 @@ function configFlink() {
     sed 's/^\(\s*streamsluice.system.autotune.initial_value_alpha\s*:\s*\).*/\1'"$autotuner_initial_value_alpha"'/' tmp37 > tmp38
     sed 's/^\(\s*streamsluice.system.autotune.adjustment_beta\s*:\s*\).*/\1'"$autotuner_adjustment_beta"'/' tmp38 > tmp39
     sed 's/^\(\s*streamsluice.system.autotune.increase_bar_alpha\s*:\s*\).*/\1'"$autotuner_increase_bar_alpha"'/' tmp39 > tmp40
-    sed 's/^\(\s*controller.scale_in.type\s*:\s*\).*/\1'"$scalein_type"'/' tmp40 > ${FLINK_CONF_DIR}/flink-conf.yaml
+    sed 's/^\(\s*controller.whether.option\s*:\s*\).*/\1'"$scaling_decision_option"'/' tmp40 > tmp41
+    sed 's/^\(\s*controller.scale_in.type\s*:\s*\).*/\1'"$scalein_type"'/' tmp41 > ${FLINK_CONF_DIR}/flink-conf.yaml
 
     rm tmp*
     echo ${FLINK_CONF_DIR}/flink-conf.yaml
     cp ${FLINK_CONF_DIR}/* ${FLINK_DIR}/conf
-#    for host in "dragon" "eagle"; do #
-#      scp ${FLINK_CONF_DIR}/* ${host}:${FLINK_DIR}/conf
-#      scp ${FLINK_CONF_DIR}/flink-conf-slave.yaml ${host}:${FLINK_DIR}/conf/flink-conf.yaml
-#    done
 }
 
 # clean kafka related data
 function cleanEnv() {
     KAFKA_PATH="${HELLOSAMZA_DIR}/deploy/kafka/bin";
-    for host in "camel"; do
-      script="
-        rm -rf /tmp/flink*;
-        rm ${FLINK_DIR}/log/*;
-        export JAVA_HOME=/home/samza/kit/jdk;
-        ${HELLOSAMZA_DIR}/bin/grid stop kafka;
-        ${HELLOSAMZA_DIR}/bin/grid stop zookeeper;
-        kill -9 $(jps |grep Kafka|awk '{print $1}');
-        rm -rf /data/kafka/kafka-logs/;
-        rm -r /tmp/kafka-logs/;
-        rm -r /tmp/zookeeper/;
 
-        python -c 'import time; time.sleep(2)';
+    rm -rf /tmp/flink*;
+    rm ${FLINK_DIR}/log/*;
+    export JAVA_HOME=/home/samza/kit/jdk;
+    ${HELLOSAMZA_DIR}/bin/grid stop kafka;
+    ${HELLOSAMZA_DIR}/bin/grid stop zookeeper;
+    kill -9 $(jps |grep Kafka|awk '{print $1}');
+    rm -rf /data/kafka/kafka-logs/;
+    rm -r /tmp/kafka-logs/;
+    rm -r /tmp/zookeeper/;
 
-        ${HELLOSAMZA_DIR}/bin/grid start zookeeper;
-        ${HELLOSAMZA_DIR}/bin/grid start kafka;
+    python -c 'import time; time.sleep(2)';
 
+    ${HELLOSAMZA_DIR}/bin/grid start zookeeper;
+    ${HELLOSAMZA_DIR}/bin/grid start kafka;
 
 
-        ${KAFKA_PATH}/kafka-topics.sh --delete --zookeeper localhost:2181 --topic flink_metrics;
-        ${KAFKA_PATH}/kafka-topics.sh --delete --zookeeper localhost:2181 --topic flink_keygroups_status;
-        ${KAFKA_PATH}/kafka-topics.sh --create --zookeeper localhost:2181 --topic flink_metrics --partitions 1 --replication-factor 1;
-        ${KAFKA_PATH}/kafka-topics.sh --create --zookeeper localhost:2181 --topic flink_keygroups_status --partitions 1 --replication-factor 1;
 
-        python -c 'import time; time.sleep(1)'
-      "
-      ssh ${host} "${script}"
-    done
+    ${KAFKA_PATH}/kafka-topics.sh --delete --zookeeper localhost:2181 --topic flink_metrics;
+    ${KAFKA_PATH}/kafka-topics.sh --delete --zookeeper localhost:2181 --topic flink_keygroups_status;
+    ${KAFKA_PATH}/kafka-topics.sh --create --zookeeper localhost:2181 --topic flink_metrics --partitions 1 --replication-factor 1;
+    ${KAFKA_PATH}/kafka-topics.sh --create --zookeeper localhost:2181 --topic flink_keygroups_status --partitions 1 --replication-factor 1;
+
+    python -c 'import time; time.sleep(1)'
 }
 
 
