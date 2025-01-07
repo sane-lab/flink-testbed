@@ -183,7 +183,7 @@ function runApp() {
 run_stock_test(){
     echo "Run overall test..."
     init
-    printf "Part_1\n" > stock_result.txt
+    printf "Part_8\n" > part8_result.txt
 
     how_more_optimization_flag=false
     how_optimization_flag=false
@@ -213,24 +213,28 @@ run_stock_test(){
     autotuner_initial_value_option=5
     autotuner_increase_bar_option=8
     autotuner_increase_bar_alpha=0.1 #0.25
-    autotune=false
-    is_treat=false
-#    run_one_exp
-#    printf "${EXP_NAME}\n" >> stock_result.txt
 
     is_treat=true
     autotune=true
     repeat=1
     scaling_decision_option=1
     autotuner_increase_bar_alpha=0.1
-    for controller_type in "StreamSluice" "WithoutControl"; do
-       for L in 3000; do # 1500 2000 3000
-          whether_type="streamsluice"
-          how_type="streamsluice"
-          scalein_type="streamsluice"
-          run_one_exp
-          printf "${EXP_NAME}\n" >> stock_result.txt
-      done
-    done
+    L=3000
+    controller_type="StreamSluice"
+    whether_type="streamsluice"
+    how_type="streamsluice"
+    scalein_type="streamsluice"
+    run_one_exp
+    printf "${EXP_NAME}\n" >> part8_result.txt
+    
+    is_treat=false
+    autotune=false
+    L=3000
+    controller_type="NoControll"
+    whether_type="streamsluice"
+    how_type="streamsluice"
+    scalein_type="streamsluice"
+    run_one_exp
+    printf "${EXP_NAME}\n" >> part8_result.txt
 }
 run_stock_test
