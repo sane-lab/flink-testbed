@@ -22,7 +22,7 @@ function analyze() {
 }
 
 run_one_exp() {
-  EXP_NAME=part4-${setting}-${autotuner_initial_value_option}-${autotuner_initial_value_alpha}-${autotuner_adjustment_option}-${SOURCE_TYPE}-${CURVE_TYPE}-${GRAPH}-${runtime}-${amplitude_low}-${amplitude_high}-${period_low}-${period_high}-${P1}-${ZIPF_SKEW}-${P2}-${DELAY2}-${IO2}-${STATE_SIZE2}-${P3}-${DELAY3}-${IO3}-${STATE_SIZE3}-${P4}-${DELAY4}-${IO4}-${STATE_SIZE4}-${P5}-${DELAY5}-${STATE_SIZE5}-${noise}-${autotune}-${autotuner_increase_bar_alpha}-${L}-${migration_interval}-${epoch}-${decision_interval}-${is_treat}-${repeat}
+  EXP_NAME=part4-${setting}-${autotuner_initial_value_option}-${autotuner_initial_value_alpha}-${autotuner_adjustment_option}-${autotuner_increase_bar_option}-${SOURCE_TYPE}-${CURVE_TYPE}-${GRAPH}-${runtime}-${amplitude_low}-${amplitude_high}-${period_low}-${period_high}-${P1}-${ZIPF_SKEW}-${P2}-${DELAY2}-${IO2}-${STATE_SIZE2}-${P3}-${DELAY3}-${IO3}-${STATE_SIZE3}-${P4}-${DELAY4}-${IO4}-${STATE_SIZE4}-${P5}-${DELAY5}-${STATE_SIZE5}-${noise}-${autotune}-${autotuner_increase_bar_alpha}-${L}-${migration_interval}-${epoch}-${decision_interval}-${is_treat}-${repeat}
   echo "INFO: run exp ${EXP_NAME}"
   configFlink
   runFlink
@@ -247,7 +247,7 @@ run_scale_test(){
     printf "MicroBench Intrinsic Bound Tuning Verification\n" >> part4_result.txt
     autotuner_initial_value_alpha=1.2
 
-    runtime=690 #960 #2460 #960
+    runtime=1260 #2460 #960
     setting="microbench"
     SOURCE_TYPE="systemsensitivity"
     DELAY2=20
@@ -305,13 +305,15 @@ run_scale_test(){
     autotuner_increase_bar_option=8
     autotuner_initial_value_alpha=1.2
     autotuner_adjustment_option=1
-    for repeat in  1 2 3 4 5; do #  4 5
-      L=3000
-      is_treat=true
-      autotune=true
-      how_type="streamsluice"
-      run_one_exp
-      printf "${EXP_NAME}\n" >> part4_result.txt
+    for autotuner_increase_bar_alpha in 0.0 0.5 0.75; do
+      for repeat in  1 2 3 4 5; do #  4 5
+        L=3000
+        is_treat=true
+        autotune=true
+        how_type="streamsluice"
+        run_one_exp
+        printf "${EXP_NAME}\n" >> part4_result.txt
+      done
     done
 }
 
