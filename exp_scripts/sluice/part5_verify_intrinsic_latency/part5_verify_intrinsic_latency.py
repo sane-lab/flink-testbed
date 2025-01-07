@@ -270,9 +270,9 @@ def draw_latency_curves(raw_dir, output_dir, exp_name, window_size, start_time, 
                  label="Ground Truth P99")
         if (draw_lem_latency_flag):
             plt.plot(lem_latencies[i][0], lem_latencies[i][1], '-', color="green", markersize=2, linewidth=2,
-                     label='LEM Estimated Intrinsic Latency')
+                     label='Estimated Intrinsic')
             plt.plot(lem_latencies[i][0], lem_latencies[i][2], '-', color="orange", markersize=2, linewidth=1,
-                     label='LEM Estimated Intrinsic Latency without T')
+                     label='Estimated Intrinsic (without T)')
             #add_latency_bar_curve(plt, latency_bar[i], initial_times[i])
 
 
@@ -285,7 +285,7 @@ def draw_latency_curves(raw_dir, output_dir, exp_name, window_size, start_time, 
         if label not in new_labels:
             new_labels.append(label)
             new_handles.append(handle)
-    plt.legend(new_handles, new_labels, bbox_to_anchor=(0.45, 1.4), loc='upper center', ncol=1, markerscale=4.)
+    plt.legend(new_handles, new_labels, bbox_to_anchor=(0.45, 1.4), loc='upper center', ncol=2, markerscale=4.)
     plt.ylabel('Latency (ms)')
     axes = plt.gca()
     axes.set_xlim((start_time) * 1000, (start_time + exp_length) * 1000)
@@ -298,9 +298,12 @@ def draw_latency_curves(raw_dir, output_dir, exp_name, window_size, start_time, 
     if max(sampled_latency[1]) <= 2000:
         axes.set_ylim(0, 2000)
         axes.set_yticks(np.arange(0, 2200, 200))
-    else:
+    elif max(sampled_latency[1]) <= 5000:
         axes.set_ylim(0, 5000)
         axes.set_yticks(np.arange(0, 5500, 500))
+    else:
+        axes.set_ylim(0, 10000)
+        axes.set_yticks(np.arange(0, 11000, 1000))
     plt.grid(True)
     if not os.path.exists(output_dir):
         os.makedirs(output_dir)
@@ -643,8 +646,8 @@ def draw_parallelism_curve(rawDir, outputDir, exp_name, windowSize, startTime, e
     # ax2.set_ylim(0, 30000)
     # ax2.set_yticks(np.arange(0, 35000, 5000))
     #if max(ay) <= 8000:
-    ax2.set_ylim(2000, 9000)
-    ax2.set_yticks(np.arange(2000, 11000, 1000))
+    ax2.set_ylim(1000, 9000)
+    ax2.set_yticks(np.arange(1000, 10000, 1000))
     # else:
     #     ax2.set_ylim(0, 20000)
     #     ax2.set_yticks(np.arange(1000, 4500, 500))
@@ -704,8 +707,8 @@ def draw_parallelism_curve(rawDir, outputDir, exp_name, windowSize, startTime, e
                  label="Scaling")
         ax1.legend(legend, loc='upper left', bbox_to_anchor=(-0.1, 1.3), ncol=3, markerscale=4.)
         # ax1.set_ylabel('OP_'+str(jobIndex+1)+' Parallelism')
-        ax1.set_ylim(10, 60)
-        ax1.set_yticks(np.arange(10, 65, 5))  # (4, 34, 2)) #18, 1))
+        ax1.set_ylim(5, 45)
+        ax1.set_yticks(np.arange(5, 50, 5))  # (4, 34, 2)) #18, 1))
 
         ax1.set_xlim(startTime * 1000, (startTime + exp_length) * 1000)
         ax1.set_xticks(np.arange(startTime * 1000, (startTime + exp_length) * 1000 + (exp_length / 10) * 1000,
