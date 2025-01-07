@@ -795,24 +795,28 @@ def main():
     draw_lem_latency_flag = True
 
     exps_per_label_per_setting = {
-        "Microbench": {
+        "Stock": {
             "Without_Sluice": "part8-stock-NoControll-5-8-60-1350-90-1000-20-1-200-11-3333-1-200-2-500-1-15-5000-3000-100-0.1-false-false-1",
             "With_Sluice": "part8-stock-StreamSluice-5-8-60-1350-90-1000-20-1-200-11-3333-1-200-2-500-1-15-5000-3000-100-0.1-false-true-1",
+        },
+        "Twitter": {
+            "Without_Sluice": "part8-tweet-NoControll-5-60-1350-90-1700-1-19-3333-9-500-1-50-1-50-1250-2000-100-false-0.1-1",
+            "With_Sluice": "part8-tweet-StreamSluice-5-60-1350-90-1700-1-19-3333-9-500-1-50-1-50-1250-2000-100-false-0.1-1",
         }
     }
     def getStartTimeAndExpLength(exp_name):
         if exp_name.startswith("part8-lr"):
             latency_bar = int(exp_name.split('-')[-9])
             start_time = 180
-            exp_length = 1800
+            exp_length = 1200
         elif exp_name.startswith("part8-tweet"):
             latency_bar = int(exp_name.split('-')[-5])
             start_time = 150
-            exp_length = 1800  # 600
+            exp_length = 1200  # 600
         elif exp_name.startswith("part8-stock"):
             latency_bar = int(exp_name.split('-')[-6])
             start_time = 150
-            exp_length = 1800
+            exp_length = 1200
         elif exp_name.startswith("part8-micro"):
             latency_bar = int(exp_name.split('-')[-6])
             start_time = 60 #60
@@ -859,7 +863,7 @@ def main():
         print(success_rate_per_label)
         print(avg_ground_truth_latency_per_label)
         print(avg_parallelism_per_label)
-        calculate_overhead(dir_without_sluice, dir_with_sluice, overall_output_dir)
+        calculate_overhead(dir_without_sluice, dir_with_sluice, overall_output_dir + workload_name + "/")
 
 
 import pandas as pd
@@ -908,6 +912,11 @@ def calculate_metrics(df):
     })
     return metrics
 
+def calculate_overall_metrics(metrics):
+    """Calculate overall metrics by summing or averaging across all processes."""
+    overall = metrics.sum().rename("Overall")
+    overall["Avg CPU%"] = metrics["Avg CPU%"].mean()  # Use average for CPU%
+    return overall
 
 def compare_metrics(metrics1, metrics2):
     """
@@ -964,23 +973,27 @@ def calculate_overhead(dir_without_sluice, dir_with_sluice, outputDir):
     metrics1 = calculate_metrics(df1)
     metrics2 = calculate_metrics(df2)
 
+    # Calculate overall metrics
+    overall_metrics1 = calculate_overall_metrics(metrics1)
+    overall_metrics2 = calculate_overall_metrics(metrics2)
+
     # Compare metrics
     overhead = compare_metrics(metrics1, metrics2)
+    # Calculate overall overhead
+    overall_overhead = overall_metrics2 - overall_metrics1
+    overall_overhead["CPU Overhead%"] = (overall_metrics2["Avg CPU%"] / overall_metrics1["Avg CPU%"] - 1.0) * 100
+    overall_overhead["RSS Overhead%"] = (overall_metrics2["Avg RSS (KB)"] / overall_metrics1["Avg RSS (KB)"] - 1.0) * 100
+    overall_overhead["GC Time Overhead%"] = (overall_metrics2["Total GC Time (ms)"] / overall_metrics1[
+        "Total GC Time (ms)"] - 1.0) * 100
+    overall_overhead["CPU Time Overhead%"] = (overall_metrics2["Total CPU Time (s)"] / overall_metrics1[
+        "Total CPU Time (s)"] - 1.0) * 100
 
     # Display results
     print("Overhead Analysis (Sluice vs Baseline):")
     print(overhead)
 
-    def save_to_csv(metrics1, metrics2, overhead, output_file):
-        """
-        Save metrics1, metrics2, and overhead to a single CSV file with sections.
-
-        Args:
-            metrics1 (pd.DataFrame): Baseline metrics.
-            metrics2 (pd.DataFrame): Sluice metrics.
-            overhead (pd.DataFrame): Overhead comparison.
-            output_file (str): Path to the output CSV file.
-        """
+    def save_to_csv(metrics1, metrics2, overhead, overall_metrics1, overall_metrics2, overall_overhead, output_file):
+        """Save metrics1, metrics2, overhead, and overall metrics to a single CSV file."""
         with open(output_file, 'w') as f:
             f.write("Baseline Metrics (Without Sluice)\n")
             metrics1.to_csv(f)
@@ -988,12 +1001,18 @@ def calculate_overhead(dir_without_sluice, dir_with_sluice, outputDir):
             metrics2.to_csv(f)
             f.write("\nOverhead Analysis (Sluice vs Baseline)\n")
             overhead.to_csv(f)
+            f.write("\nOverall Metrics (Baseline)\n")
+            overall_metrics1.to_frame().T.to_csv(f, index=False)
+            f.write("\nOverall Metrics (Sluice)\n")
+            overall_metrics2.to_frame().T.to_csv(f, index=False)
+            f.write("\nOverall Overhead Analysis\n")
+            overall_overhead.to_frame().T.to_csv(f, index=False)
         print(f"Results saved to {output_file}")
 
     if not os.path.exists(outputDir):
         os.makedirs(outputDir)
-
-    save_to_csv(metrics1, metrics2, overhead, outputDir + "overhead_analysis.csv")
+    # Save all results to a single CSV
+    save_to_csv(metrics1, metrics2, overhead, overall_metrics1, overall_metrics2, overall_overhead, outputDir + "overhead_analysis.csv")
 
 if __name__ == "__main__":
     main()
