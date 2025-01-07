@@ -23,25 +23,37 @@ get_flink_pids() {
 start_monitoring() {
     echo "INFO: Starting monitoring..."
     {
-        echo "Timestamp, PID, Process Name, CPU%, MEM%, Heap Used, GC Time"
+        # Start monitoring
+        echo "Timestamp, PID, Process Name, CPU%, %MEM, RSS (KB), VSZ (KB), Heap Used (MB), GC Time (ms)"
         while true; do
             TIMESTAMP=$(date '+%Y-%m-%d %H:%M:%S')
             PIDS=$(get_flink_pids)
 
             for PID in $PIDS; do
-                PROCESS_NAME=$(ps -p $PID -o comm=)
-                CPU_MEM=$(pidstat -u -p $PID 1 1 | awk '/^[0-9]/ {print $7, $8}' | tail -1)
+                # Get CPU usage using pidstat
+                CPU_USAGE=$(pidstat -u -p $PID 1 1 | awk '/^[0-9]/ {print $7}' | tail -1)
 
+                # Get memory usage using ps
+                MEM_STATS=$(ps -p $PID -o %mem,rss,vsz --no-headers)
+                MEM_PERCENT=$(echo $MEM_STATS | awk '{print $1}')
+                RSS=$(echo $MEM_STATS | awk '{print $2}')
+                VSZ=$(echo $MEM_STATS | awk '{print $3}')
+
+                # Get JVM memory usage using jstat
                 if command -v jstat &> /dev/null; then
-                    JVM_STATS=$(jstat -gc $PID 1 1 | tail -1 | awk '{print $3+$4, $9+$10}')
-                    HEAP_USED=$(echo $JVM_STATS | awk '{print $1}')
-                    GC_TIME=$(echo $JVM_STATS | awk '{print $2}')
+                    JVM_STATS=$(jstat -gc $PID 1 1 | tail -1 | awk '{print ($3+$4)/1024, $9+$10}')
+                    HEAP_USED=$(echo $JVM_STATS | awk '{print $1}') # Heap Used in MB
+                    GC_TIME=$(echo $JVM_STATS | awk '{print $2}')   # GC Time in ms
                 else
                     HEAP_USED="N/A"
                     GC_TIME="N/A"
                 fi
 
-                echo "$TIMESTAMP, $PID, $PROCESS_NAME, $CPU_MEM, $HEAP_USED, $GC_TIME"
+                # Get process name
+                PROCESS_NAME=$(ps -p $PID -o comm=)
+
+                # Log the data
+                echo "$TIMESTAMP, $PID, $PROCESS_NAME, $CPU_USAGE, $MEM_PERCENT, $RSS, $VSZ, $HEAP_USED, $GC_TIME"
             done
             sleep 5  # Adjust monitoring frequency as needed
         done
