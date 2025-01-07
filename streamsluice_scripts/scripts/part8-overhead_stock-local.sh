@@ -228,7 +228,7 @@ run_stock_test(){
     autotuner_increase_bar_option=8
     autotuner_increase_bar_alpha=0.1 #0.25
 
-    is_treat=true
+    is_treat=false
     autotune=true
     repeat=1
     scaling_decision_option=1
