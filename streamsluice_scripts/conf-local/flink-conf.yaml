@@ -30,7 +30,7 @@
 # automatically configure the host name based on the hostname of the node where the
 # JobManager runs.
 
-jobmanager.rpc.address: localhost
+jobmanager.rpc.address: localhost #camel
 
 # The RPC port where the JobManager is reachable.
 
@@ -44,12 +44,15 @@ jobmanager.heap.size: 10240m
 
 # The heap size for the TaskManager JVM
 
-taskmanager.heap.size: 10240m
+taskmanager.heap.size: 20240m
 
 
 # The number of task slots that each TaskManager offers. Each slot runs one parallel pipeline.
 
-taskmanager.numberOfTaskSlots: 60
+#taskmanager.hostname: camel
+taskmanager.numberOfTaskSlots: 60 # 63
+#taskmanager.rpc.port: 33033
+#taskmanager.data.port: 33034
 
 # The parallelism used for programs that did not specify and other parallelism.
 
@@ -259,7 +262,7 @@ parallelism.default: 1
 policy.windowSize: 100000000
 
 # kafka broker list
-policy.metrics.servers: localhost:9092
+policy.metrics.servers: localhost:9092 #camel:9092
 
 # kafka topic
 policy.metrics.topic: flink_metrics
@@ -325,7 +328,7 @@ controller.how.optimizaiton: false
 
 controller.how.conservative: false
 
-controller.steady_limit: false
+controller.intrinsic_bound: false
 
 controller.scale_in.type: streamsluice
 
@@ -338,6 +341,7 @@ streamsluice.model.decision_interval: 1
 streamsluice.system.autotune: false
 
 streamsluice.system.autotune.interval: 30
+controller.whether.option: 0
 
 streamsluice.system.autotuner: RemoteTuner
 streamsluice.system.autotune.latency_window: 100
@@ -347,6 +351,7 @@ streamsluice.system.autotune.adjustment_option: 1
 streamsluice.system.autotune.increase_bar_option: 2
 streamsluice.system.autotune.initial_value_alpha: 0.5
 streamsluice.system.autotune.adjustment_beta: 2.0
+streamsluice.system.conservative: 0.8
 streamsluice.system.autotune.increase_bar_alpha: 0.25
 streamsluice.system.autotune.groundtruthfile: /home/samza/workspace/flink-related/flink-extended-ete/build-target/log/flink-samza-taskexecutor-0-camel-sane.out
 
