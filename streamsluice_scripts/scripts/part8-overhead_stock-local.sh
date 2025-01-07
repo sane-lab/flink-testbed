@@ -31,7 +31,7 @@ start_monitoring() {
 
             for PID in $PIDS; do
                 # Get CPU usage using pidstat
-                CPU_USAGE=$(pidstat -u -p $PID 1 1 | awk '/^[0-9]/ && $3 == "'$PID'" {print $7}' | head -1)
+                CPU_USAGECPU_USAGE=$(pidstat -u -p $PID 2 1 | awk 'NR==4 {print $8}')
 
                 # Get memory usage using ps
                 MEM_STATS=$(ps -p $PID -o %mem,rss,vsz --no-headers)
@@ -41,8 +41,8 @@ start_monitoring() {
 
                 # Get JVM memory usage using jstat
                 if command -v jstat &> /dev/null; then
-                    JVM_STATS=$(jstat -gc $PID 1 1 | tail -1 | awk '{print ($3+$4)/1024, $9+$10}')
-                    HEAP_USED=$(echo $JVM_STATS | awk '{print $1}') # Heap Used in MB
+                    JVM_STATS=$(jstat -gc $PID 1 1 | tail -1 | awk '{print ($3+$4), $9+$10}')
+                    HEAP_USED=$(echo $JVM_STATS | awk '{print $1}') # Heap Used in KB
                     GC_TIME=$(echo $JVM_STATS | awk '{print $2}')   # GC Time in ms
                 else
                     HEAP_USED="N/A"
