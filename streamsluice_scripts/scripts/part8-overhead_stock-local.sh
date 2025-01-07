@@ -4,7 +4,7 @@ source config-server-local.sh
 
 # Define the process names to monitor
 PROCESS_NAMES=("StandaloneSessionClusterEntrypoint" "TaskManagerRunner")
-MONITOR_LOG_DIR="${EXP_DIR}/raw/${EXP_NAME}"
+MONITOR_LOG_DIR="${FLINK_DIR}/log/"
 MONITOR_LOG_FILE="${MONITOR_LOG_DIR}/monitor_$(date +%Y%m%d_%H%M%S).out"
 
 # Create monitor log directory
@@ -226,7 +226,7 @@ run_stock_test(){
     scalein_type="streamsluice"
     run_one_exp
     printf "${EXP_NAME}\n" >> part8_result.txt
-    
+
     is_treat=false
     autotune=false
     L=3000
