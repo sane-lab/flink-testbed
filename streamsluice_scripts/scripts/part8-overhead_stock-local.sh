@@ -4,17 +4,17 @@ source config-server-local.sh
 
 # Define the process names to monitor
 PROCESS_NAMES=("StandaloneSessionClusterEntrypoint" "TaskManagerRunner")
-MONITOR_LOG_DIR="${FLINK_DIR}/log/"
+MONITOR_LOG_DIR="${FLINK_DIR}/log"
 MONITOR_LOG_FILE="${MONITOR_LOG_DIR}/monitor_$(date +%Y%m%d_%H%M%S).out"
 
 # Create monitor log directory
 mkdir -p $MONITOR_LOG_DIR
 
-# Function to get PIDs of Flink processes
+# Function to get PIDs of Flink processes using jps
 get_flink_pids() {
     local pids=()
     for process_name in "${PROCESS_NAMES[@]}"; do
-        pids+=($(pgrep -f "$process_name"))
+        pids+=($(jps | grep "$process_name" | awk '{print $1}'))
     done
     echo "${pids[@]}"
 }
@@ -31,7 +31,7 @@ start_monitoring() {
 
             for PID in $PIDS; do
                 # Get CPU usage using pidstat
-                CPU_USAGE=$(pidstat -u -p $PID 1 1 | awk '/^[0-9]/ {print $7}' | tail -1)
+                CPU_USAGE=$(pidstat -u -p $PID 1 1 | awk '/^[0-9]/ && $3 == "'$PID'" {print $7}' | head -1)
 
                 # Get memory usage using ps
                 MEM_STATS=$(ps -p $PID -o %mem,rss,vsz --no-headers)
@@ -50,7 +50,7 @@ start_monitoring() {
                 fi
 
                 # Get process name
-                PROCESS_NAME=$(ps -p $PID -o comm=)
+                PROCESS_NAME=$(jps | grep "$PID" | awk '{print $2}')
 
                 # Log the data
                 echo "$TIMESTAMP, $PID, $PROCESS_NAME, $CPU_USAGE, $MEM_PERCENT, $RSS, $VSZ, $HEAP_USED, $GC_TIME"
