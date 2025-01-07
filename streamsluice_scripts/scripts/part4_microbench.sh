@@ -292,6 +292,7 @@ run_scale_test(){
 #    printf "${EXP_NAME}\n" >> part4_result.txt
     autotuner_initial_value_option=3
     autotuner_adjustment_option=10 # no adjustment
+    autotuner_increase_bar_option=8
     for autotuner_initial_value_alpha in 500 1000 1500 2000; do
       is_treat=true
       autotune=true

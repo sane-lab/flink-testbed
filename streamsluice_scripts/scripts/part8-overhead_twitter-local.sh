@@ -95,11 +95,15 @@ run_one_exp() {
 
   python -c 'import time; time.sleep(5)'
 
+  # Start application and monitoring
   runApp
+  start_monitoring
 
-  SCRIPTS_RUNTIME=`expr ${runtime} + 10`
+  SCRIPTS_RUNTIME=$((runtime + 10))
   python -c 'import time; time.sleep('"${SCRIPTS_RUNTIME}"')'
 
+  # Stop monitoring and analyze logs
+  stop_monitoring
   analyze
   stopFlink
 
