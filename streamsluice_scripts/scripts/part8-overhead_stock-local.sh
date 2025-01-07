@@ -31,7 +31,9 @@ start_monitoring() {
 
             for PID in $PIDS; do
                 # Get CPU usage using pidstat
-                CPU_USAGECPU_USAGE=$(pidstat -u -p $PID 2 1 | awk 'NR==4 {print $8}')
+                TOP_OUTPUT=$(top -b -n 1 -p $PID | tail -1)
+                CPU_USAGE=$(echo $TOP_OUTPUT | awk '{print $9}')
+                TOTAL_CPU_TIME=$(echo $TOP_OUTPUT | awk '{print $11}')
 
                 # Get memory usage using ps
                 MEM_STATS=$(ps -p $PID -o %mem,rss,vsz --no-headers)
@@ -53,7 +55,7 @@ start_monitoring() {
                 PROCESS_NAME=$(jps | grep "$PID" | awk '{print $2}')
 
                 # Log the data
-                echo "$TIMESTAMP, $PID, $PROCESS_NAME, $CPU_USAGE, $MEM_PERCENT, $RSS, $VSZ, $HEAP_USED, $GC_TIME"
+                echo "$TIMESTAMP, $PID, $PROCESS_NAME, $CPU_USAGE, $TOTAL_CPU_TIME, $MEM_PERCENT, $RSS, $VSZ, $HEAP_USED, $GC_TIME"
             done
             sleep 5  # Adjust monitoring frequency as needed
         done
