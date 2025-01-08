@@ -11,17 +11,14 @@ def format_to_script(input_string):
 
 # Example usage
 input_string = """
-part4-microbench-streamsluice-ds2-systemsensitivity-sine-1split2join1-960-1000-3000-50-50-1-0-1-20-1-15000-12-1000-1-15000-12-666-1-15000-1-67-15000--0.05-false-0.5-3000-1000-100-1-false-1
-part4-microbench-streamsluice-streamsluice-systemsensitivity-sine-1split2join1-960-1000-3000-50-50-1-0-1-20-1-15000-12-1000-1-15000-12-666-1-15000-1-67-15000--0.05-true-0.5-3000-1000-100-1-true-1
-part4-microbench-streamsluice-streamsluice-systemsensitivity-sine-1split2join1-960-1000-3000-50-50-1-0-1-20-1-15000-12-1000-1-15000-12-666-1-15000-1-67-15000--0.05-true-0.5-3000-1000-100-1-true-2
-part4-microbench-streamsluice-streamsluice-systemsensitivity-sine-1split2join1-960-1000-3000-50-50-1-0-1-20-1-15000-12-1000-1-15000-12-666-1-15000-1-67-15000--0.05-true-0.5-3000-1000-100-1-true-3
-part4-microbench-streamsluice-streamsluice-systemsensitivity-sine-1split2join1-960-1000-3000-50-50-1-0-1-20-1-15000-12-1000-1-15000-12-666-1-15000-1-67-15000--0.05-true-0.5-3000-1000-100-1-true-4
-part4-microbench-streamsluice-streamsluice-systemsensitivity-sine-1split2join1-960-1000-3000-50-50-1-0-1-20-1-15000-12-1000-1-15000-12-666-1-15000-1-67-15000--0.05-true-0.5-3000-1000-100-1-true-5
-part4-microbench-streamsluice-streamsluice-systemsensitivity-sine-1split2join1-960-1000-3000-50-50-1-0-1-20-1-15000-12-1000-1-15000-12-666-1-15000-1-67-15000--0.05-false-0.5-1000-1000-100-1-true-1
-part4-microbench-streamsluice-streamsluice-systemsensitivity-sine-1split2join1-960-1000-3000-50-50-1-0-1-20-1-15000-12-1000-1-15000-12-666-1-15000-1-67-15000--0.05-false-0.5-1000-1000-100-1-true-2
-part4-microbench-streamsluice-streamsluice-systemsensitivity-sine-1split2join1-960-1000-3000-50-50-1-0-1-20-1-15000-12-1000-1-15000-12-666-1-15000-1-67-15000--0.05-false-0.5-1000-1000-100-1-true-3
-part4-microbench-streamsluice-streamsluice-systemsensitivity-sine-1split2join1-960-1000-3000-50-50-1-0-1-20-1-15000-12-1000-1-15000-12-666-1-15000-1-67-15000--0.05-false-0.5-1000-1000-100-1-true-4
-part4-microbench-streamsluice-streamsluice-systemsensitivity-sine-1split2join1-960-1000-3000-50-50-1-0-1-20-1-15000-12-1000-1-15000-12-666-1-15000-1-67-15000--0.05-false-0.5-1000-1000-100-1-true-5
+part4-microbench-5-1.2-1-8-systemsensitivity-sine-1split2join1-1260-2500-7500-60-30-1-0-1-20-1-10000-14-2050-1-10000-1-20-1-10000-1-10-10000-0.05-true-0.5-3000-500-100-1-true-3
+part4-microbench-5-1.2-1-8-systemsensitivity-sine-1split2join1-1260-2500-7500-60-30-1-0-1-20-1-10000-14-2050-1-10000-1-20-1-10000-1-10-10000-0.05-true-0.5-3000-500-100-1-true-4
+part4-microbench-5-1.2-1-8-systemsensitivity-sine-1split2join1-1260-2500-7500-60-30-1-0-1-20-1-10000-14-2050-1-10000-1-20-1-10000-1-10-10000-0.05-true-0.5-3000-500-100-1-true-5
+part4-microbench-5-1.2-1-8-systemsensitivity-sine-1split2join1-1260-2500-7500-60-30-1-0-1-20-1-10000-14-2050-1-10000-1-20-1-10000-1-10-10000-0.05-true-0.75-3000-500-100-1-true-1
+part4-microbench-5-1.2-1-8-systemsensitivity-sine-1split2join1-1260-2500-7500-60-30-1-0-1-20-1-10000-14-2050-1-10000-1-20-1-10000-1-10-10000-0.05-true-0.75-3000-500-100-1-true-2
+part4-microbench-5-1.2-1-8-systemsensitivity-sine-1split2join1-1260-2500-7500-60-30-1-0-1-20-1-10000-14-2050-1-10000-1-20-1-10000-1-10-10000-0.05-true-0.75-3000-500-100-1-true-3
+part4-microbench-5-1.2-1-8-systemsensitivity-sine-1split2join1-1260-2500-7500-60-30-1-0-1-20-1-10000-14-2050-1-10000-1-20-1-10000-1-10-10000-0.05-true-0.75-3000-500-100-1-true-4
+part4-microbench-5-1.2-1-8-systemsensitivity-sine-1split2join1-1260-2500-7500-60-30-1-0-1-20-1-10000-14-2050-1-10000-1-20-1-10000-1-10-10000-0.05-true-0.75-3000-500-100-1-true-5
 """
 
 
