@@ -795,18 +795,22 @@ def main():
     draw_lem_latency_flag = True
 
     exps_per_label_per_setting = {
-        # "Stock": {
-        #     "Without_Sluice": "part8-stock-NoControll-5-8-60-1350-90-1000-20-1-200-11-3333-1-200-2-500-1-15-5000-3000-100-0.1-false-false-1",
-        #     "With_Sluice": "part8-stock-StreamSluice-5-8-60-1350-90-1000-20-1-200-11-3333-1-200-2-500-1-15-5000-3000-100-0.1-false-true-1",
-        # },
+        "Stock": {
+            "Without_Sluice": "part8-stock-NoControll-5-8-60-1350-90-1000-20-1-200-11-3333-1-200-2-500-1-15-5000-3000-100-0.1-false-false-1",
+            "With_Sluice": "part8-stock-StreamSluice-5-8-60-1350-90-1000-20-1-200-11-3333-1-200-2-500-1-15-5000-3000-100-0.1-false-true-1",
+        },
         "Twitter": {
             "Without_Sluice": "part8-tweet-NoControll-5-60-1350-90-1700-1-19-3333-9-500-1-50-1-50-1250-2000-100-false-0.1-1",
             "With_Sluice": "part8-tweet-StreamSluice-5-60-1350-90-1700-1-19-3333-9-500-1-50-1-50-1250-2000-100-false-0.1-1",
+        },
+        "Linear-road": {
+            "Without_Sluice": "part8-lr-NoControll-5-8-60-1380-150-1300-10-1-50-3-1000-1-50-27-3333-3000-0.1-100-1-25-0.0-false-1000-0.8-2",
+            "With_Sluice": "part8-lr-StreamSluice-5-8-60-1380-150-1300-10-1-50-3-1000-1-50-27-3333-3000-0.1-100-1-25-0.0-false-1000-0.8-2",
         }
     }
     def getStartTimeAndExpLength(exp_name):
         if exp_name.startswith("part8-lr"):
-            latency_bar = int(exp_name.split('-')[-9])
+            latency_bar = int(exp_name.split('-')[-10])
             start_time = 180
             exp_length = 1200
         elif exp_name.startswith("part8-tweet"):
@@ -903,7 +907,7 @@ def calculate_metrics(df):
         "CPU%": "mean",
         "TOTAL_CPU_TIME (s)": "max",  # Use the maximum accumulated value
         "RSS (KB)": "mean",
-        "GC Time (ms)": "sum"  # Sum GC time since it's a cumulative metric
+        "GC Time (ms)": "max"  # Sum GC time since it's a cumulative metric
     }).rename(columns={
         "CPU%": "Avg CPU%",
         "RSS (KB)": "Avg RSS (KB)",
