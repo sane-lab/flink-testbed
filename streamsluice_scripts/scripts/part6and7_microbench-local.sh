@@ -167,10 +167,6 @@ run_scale_test(){
     STATE_SIZE5=5000
     runtime=520 #520 #400
     DELTA_I=270
-    LP2=1
-    LP3=1
-    LP4=1
-    LP5=28 #16
 
     RATE1=6000
     TIME1=30
@@ -186,10 +182,10 @@ run_scale_test(){
     printf "MicroBench\n" >> part6and7_result.txt
     setting="microbench"
     SOURCE_TYPE="part6"
-    DELAY2=600 #20
-    DELAY3=600 # 50
-    DELAY4=600 #20
-    DELAY5=1020 # 800
+    DELAY2=300 #20
+    DELAY3=300 # 50
+    DELAY4=300 #20
+    DELAY5=510 # 800
     STATE_SIZE2=1 #5000 # 1000 keys, per key (n * 2000 + 36) bytes, n=5000 -> 100 MB
     STATE_SIZE3=1 #5000
     STATE_SIZE4=1 #5000
@@ -211,11 +207,11 @@ run_scale_test(){
     CURVE_TYPE="mixed" #"linear"
     warmupRate=2000 #5000
     warmupTime=60
-    rate_low=2000 # 5000
-    rate_high=2000 # 5000
+    rate_low=4000 # 5000
+    rate_high=4000 # 5000
     rate_period=960
     rate_pattern="linear"
-    amplitude_low=1000
+    amplitude_low=2000
     amplitude_high=1
     amplitude_period=1440
     amplitude_pattern="stair_3"
@@ -228,14 +224,14 @@ run_scale_test(){
     L=1000
     runtime=120
     for CURVE_TYPE in "linear"; do # "linear" "sine" "gradient"
-      for amplitude_low in 1000; do # 2000 1000
+      for amplitude_low in 2000; do # 2000 1000
         is_treat=false
         autotune=false
         how_type="ds2"
-        run_one_exp
-        printf "${EXP_NAME}\n" >> part6and7_result.txt
+#        run_one_exp
+#        printf "${EXP_NAME}\n" >> part6and7_result.txt
         how_type="streamsluice"
-        for whether_type in "streamsluice" "streamsluice_earlier" "streamsluice_later" "ds2" "dhalion" "streamswitch"; do #
+        for whether_type in "streamsluice" "streamsluice_earlier" "streamsluice_later"; do #  "ds2" "dhalion" "streamswitch"
           for repeat in 1; do # 2 3
             is_treat=true
             autotune=false
