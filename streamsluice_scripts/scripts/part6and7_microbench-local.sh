@@ -190,33 +190,33 @@ run_scale_test(){
     printf "MicroBench\n" >> part6and7_result.txt
     setting="microbench"
     SOURCE_TYPE="part6"
-    DELAY2=20
-    DELAY3=50 #250 #333
-    DELAY4=20
-    DELAY5=800 #800
+    DELAY2=300 #20
+    DELAY3=510 # 50
+    DELAY4=300 #20
+    DELAY5=300 # 800
     STATE_SIZE2=1 #5000 # 1000 keys, per key (n * 2000 + 36) bytes, n=5000 -> 100 MB
     STATE_SIZE3=1 #5000
     STATE_SIZE4=1 #5000
     STATE_SIZE5=1 #5000
     LP2=1
-    LP3=6 #9
+    LP3=#6 #9
     LP4=1
-    LP5=31 #28
+    LP5=1 #31 #28
 
     P2=1
-    P3=2 #3
+    P3=5 #2 #3
     P4=1
-    P5=17
+    P5=1 #17
     GRAPH="1split2join1"
     autotuner_bar_lowerbound=350
     autotuner_latency_window=100
     autotuner_increase_bar_alpha=0.1
     epoch=100
     CURVE_TYPE="mixed" #"linear"
-    warmupRate=5000
+    warmupRate=4000 #5000
     warmupTime=60
-    rate_low=5000
-    rate_high=5000
+    rate_low=4000 # 5000
+    rate_high=4000 # 5000
     rate_period=960
     rate_pattern="linear"
     amplitude_low=2000
@@ -231,8 +231,8 @@ run_scale_test(){
 
     L=1000
     runtime=150
-    for CURVE_TYPE in "linear" "sine" "gradient"; do
-      for amplitude_low in 2000 1000; do
+    for CURVE_TYPE in "linear"; do # "linear" "sine" "gradient"
+      for amplitude_low in 2000; do # 2000 1000
         is_treat=false
         autotune=false
         how_type="ds2"
@@ -243,8 +243,8 @@ run_scale_test(){
           for repeat in 1 2 3; do
             is_treat=true
             autotune=false
-#            run_one_exp
-#            printf "${EXP_NAME}\n" >> part6and7_result.txt
+            run_one_exp
+            printf "${EXP_NAME}\n" >> part6and7_result.txt
           done
         done
       done
@@ -259,8 +259,8 @@ run_scale_test(){
         is_treat=false
         autotune=false
         how_type="ds2"
-        run_one_exp
-        printf "${EXP_NAME}\n" >> part6and7_result.txt
+#        run_one_exp
+#        printf "${EXP_NAME}\n" >> part6and7_result.txt
         for how_type in "ds2" "drs" "streamswitch"; do #
           for repeat in 1 2 3; do
             is_treat=true
