@@ -738,17 +738,18 @@ def draw_parallelism_curve(rawDir, outputDir, exp_name, windowSize, startTime, e
     import os
     if not os.path.exists(outputDir):
         os.makedirs(outputDir)
-
-    # plt.savefig(outputDir + figName + ".png", bbox_inches='tight')
-    plt.savefig(outputDir + figName + ".png", bbox_inches='tight')
+    if output_pdf_flag:
+        plt.savefig(outputDir + figName + ".pdf", bbox_inches='tight')
+    else:
+        plt.savefig(outputDir + figName + ".png", bbox_inches='tight')
     plt.close(fig)
     return average_parallelism, arrival_curves
 
 def plot_latency_cdf(latency_per_label, latency_bar_this_workload, output_dir, workload_name: str):
     labels = list(latency_per_label.keys())
 
-    fig = plt.figure(figsize=(12, 5))
-    bax = brokenaxes(ylims=((0, 0.1), (0.6, 1.0)), hspace=.05)
+    fig = plt.figure(figsize=(12, 4)) #plt.figure(figsize=(12, 5))
+    bax = brokenaxes(ylims=((0, 0.1), (0.6, 1.0)), hspace=.2)
 
     for label, data in latency_per_label.items():
         line_width = 1
@@ -775,14 +776,18 @@ def plot_latency_cdf(latency_per_label, latency_bar_this_workload, output_dir, w
     # Save the plot
     if not os.path.exists(output_dir):
         os.makedirs(output_dir)
-    plt.savefig(os.path.join(output_dir, 'cdf_' + str(workload_name) + '.png'), bbox_inches='tight')
+
+    if output_pdf_flag:
+        plt.savefig(os.path.join(output_dir, 'cdf_' + str(workload_name) + '.pdf'), bbox_inches='tight')
+    else:
+        plt.savefig(os.path.join(output_dir, 'cdf_' + str(workload_name) + '.png'), bbox_inches='tight')
     plt.close(fig)
 
 
 def plot_avg_parallelism_bar(avg_parallelism_per_label, output_dir, workload_name: str):
     x = list(avg_parallelism_per_label.keys())
     y = list(avg_parallelism_per_label.values())
-    fig, ax = plt.subplots(figsize=(12, 5))
+    fig, ax = plt.subplots(figsize=(12, 4)) #plt.subplots(figsize=(12, 5))
 
     # Set width of bars and positions
     bar_width = 0.5
@@ -795,13 +800,17 @@ def plot_avg_parallelism_bar(avg_parallelism_per_label, output_dir, workload_nam
 
     if not os.path.exists(output_dir):
         os.makedirs(output_dir)
-    plt.savefig(output_dir + 'avg_parallelism_curve_' + str(workload_name) + '.png', bbox_inches='tight')
+
+    if output_pdf_flag:
+        plt.savefig(output_dir + 'avg_parallelism_curve_' + str(workload_name) + '.pdf', bbox_inches='tight')
+    else:
+        plt.savefig(output_dir + 'avg_parallelism_curve_' + str(workload_name) + '.png', bbox_inches='tight')
     plt.close(fig)
 
 def plot_success_rate_bar(success_rate_per_label, output_dir, workload_name: str):
     x = list(success_rate_per_label.keys())
     y = list(success_rate_per_label.values())
-    fig, ax = plt.subplots(figsize=(12, 5))
+    fig, ax = plt.subplots(figsize=(12, 5)) #plt.subplots(figsize=(12, 5))
 
     # Set width of bars and positions
     bar_width = 0.5
@@ -809,7 +818,7 @@ def plot_success_rate_bar(success_rate_per_label, output_dir, workload_name: str
     plt.xlabel('Controller')
     ax.set_ylabel('Success Rate')
     ax.set_ylim(0.0, 1.001)
-    ax.set_yticks(np.arange(0.0, 1.1, 0.1))
+    ax.set_yticks(np.arange(0.0, 1.2, 0.2))
     ax.set_title('Success Rates by Controllers in ' + workload_name)
     ax.axhline(y=0.99, color='red', linestyle='--', linewidth=2, label='99%')
     ax.legend()
@@ -818,9 +827,15 @@ def plot_success_rate_bar(success_rate_per_label, output_dir, workload_name: str
     # Save the plot
     if not os.path.exists(output_dir):
         os.makedirs(output_dir)
-    plt.savefig(os.path.join(output_dir, 'success_rate_bar_' + str(workload_name) + '.png'), bbox_inches='tight')
+
+    if output_pdf_flag:
+        plt.savefig(os.path.join(output_dir, 'success_rate_bar_' + str(workload_name) + '.pdf'), bbox_inches='tight')
+    else:
+        plt.savefig(os.path.join(output_dir, 'success_rate_bar_' + str(workload_name) + '.png'), bbox_inches='tight')
     plt.close(fig)
 
+
+output_pdf_flag=True
 
 def main():
     raw_dir = "/Users/swrrt/Workplace/BacklogDelayPaper/experiments/raw/"

@@ -186,10 +186,10 @@ run_scale_test(){
     DELAY3=300 # 50
     DELAY4=300 #20
     DELAY5=510 # 800
-    STATE_SIZE2=1 #5000 # 1000 keys, per key (n * 2000 + 36) bytes, n=5000 -> 100 MB
-    STATE_SIZE3=1 #5000
-    STATE_SIZE4=1 #5000
-    STATE_SIZE5=1 #5000
+    STATE_SIZE2=5000 #5000 # 1000 keys, per key (n * 2000 + 36) bytes, n=5000 -> 100 MB
+    STATE_SIZE3=5000 #5000
+    STATE_SIZE4=5000 #5000
+    STATE_SIZE5=5000 #5000
     LP2=2
     LP3=2 #6 #9
     LP4=2
@@ -221,9 +221,16 @@ run_scale_test(){
     period_pattern="stair_3"
     noise=0.00
 
-    L=1000
+    L=2000
+    autotune=true
+
+    autotuner_initial_value_option=3
+    autotuner_adjustment_option=10
+    autotuner_increase_bar_option=10
+    autotuner_initial_value_alpha=600
+
     runtime=120
-    for CURVE_TYPE in "linear" "sine" "gradient"; do # "linear"
+    for CURVE_TYPE in "linear"; do # "sine" "gradient"
       for amplitude_low in 2000; do # 2000 1000
         is_treat=false
         autotune=false
@@ -231,10 +238,10 @@ run_scale_test(){
         run_one_exp
         printf "${EXP_NAME}\n" >> part6and7_result.txt
         how_type="streamsluice"
-        for whether_type in "streamsluice" "streamsluice_earlier" "streamsluice_later"; do #  "ds2" "dhalion" "streamswitch"
+        for whether_type in "streamsluice" "ds2" "dhalion" "streamswitch"; do #
           for repeat in 1; do # 2 3
             is_treat=true
-            autotune=false
+            autotune=true
             run_one_exp
             printf "${EXP_NAME}\n" >> part6and7_result.txt
           done
@@ -247,7 +254,7 @@ run_scale_test(){
     SOURCE_TYPE="part7"
     whether_type="streamsluice"
     for CURVE_TYPE in "linear" "sine" "gradient"; do
-      for amplitude_low in 2000 1000; do
+      for amplitude_low in 2000; do
         is_treat=false
         autotune=false
         how_type="ds2"

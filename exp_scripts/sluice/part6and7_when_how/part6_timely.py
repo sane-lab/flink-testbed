@@ -958,14 +958,14 @@ outputDir = "/Users/swrrt/Workplace/BacklogDelayPaper/experiments/figures/part6/
 
 exps_per_setting = {
     "linear_1": [
-        # ["Static",
-        #  "part6and7-microbench-streamsluice-ds2-part6-linear-1split2join1-120-2000-2000-960-linear-1000-1-1440-stair_3-120-1-1440-stair_3-1-0-2-600-1-1-2-600-1-1-2-600-1-1-6-1020-1--0.00-0.1-1000-3000-100-1-false-1",
-        #  "black", "o"],
+        ["Static",
+         "part6and7-microbench-streamsluice-ds2-part6-linear-1split2join1-120-4000-4000-960-linear-2000-1-1440-stair_3-120-1-1440-stair_3-1-0-2-300-1-1-2-300-1-1-2-300-1-1-6-510-1-0.00-0.1-1000-3000-100-1-false-1",
+         "black", "o"],
         ["Earlier",
-         "part6and7-microbench-streamsluice_earlier-streamsluice-part6-linear-1split2join1-120-4000-4000-960-linear-2000-1-1440-stair_3-120-1-1440-stair_3-1-0-2-300-1-1-2-300-1-1-2-300-1-1-6-510-1--0.00-0.1-1000-3000-100-1-true-1",
+         "part6and7-microbench-streamsluice_earlier-streamsluice-part6-linear-1split2join1-120-4000-4000-960-linear-2000-1-1440-stair_3-120-1-1440-stair_3-1-0-2-300-1-1-2-300-1-1-2-300-1-1-6-510-1-0.00-0.1-1000-3000-100-1-true-1",
          "purple", "o"],
         ["Later",
-         "part6and7-microbench-streamsluice_later-streamsluice-part6-linear-1split2join1-120-4000-4000-960-linear-2000-1-1440-stair_3-120-1-1440-stair_3-1-0-2-300-1-1-2-300-1-1-2-300-1-1-6-510-1--0.00-0.1-1000-3000-100-1-true-1",
+         "part6and7-microbench-streamsluice_later-streamsluice-part6-linear-1split2join1-120-4000-4000-960-linear-2000-1-1440-stair_3-120-1-1440-stair_3-1-0-2-300-1-1-2-300-1-1-2-300-1-1-6-510-1-0.00-0.1-1000-3000-100-1-true-1",
          "purple", "o"],
         # ["DS2",
         #  "part6and7-microbench-ds2-streamsluice-part6-linear-1split2join1-120-2000-2000-960-linear-1000-1-1440-stair_3-120-1-1440-stair_3-1-0-2-600-1-1-2-600-1-1-2-600-1-1-6-1020-1--0.00-0.1-1000-3000-100-1-true-1",
@@ -977,7 +977,7 @@ exps_per_setting = {
         #  "part6and7-microbench-streamswitch-streamsluice-part6-linear-1split2join1-120-2000-2000-960-linear-1000-1-1440-stair_3-120-1-1440-stair_3-1-0-2-600-1-1-2-600-1-1-2-600-1-1-6-1020-1--0.00-0.1-1000-3000-100-1-true-1",
         #  "orange", "o"],
         ["Sluice",
-         "part6and7-microbench-streamsluice-streamsluice-part6-linear-1split2join1-120-4000-4000-960-linear-2000-1-1440-stair_3-120-1-1440-stair_3-1-0-2-300-1-1-2-300-1-1-2-300-1-1-6-510-1--0.00-0.1-1000-3000-100-1-true-1",
+         "part6and7-microbench-streamsluice-streamsluice-part6-linear-1split2join1-120-4000-4000-960-linear-2000-1-1440-stair_3-120-1-1440-stair_3-1-0-2-300-1-1-2-300-1-1-2-300-1-1-6-510-1-0.00-0.1-1000-3000-100-1-true-1",
          "blue", "o"],
     ],
     # "linear_1": [
@@ -1110,7 +1110,7 @@ arrivalrate_ylim_app = {
 isSingleOperator = False #True
 overall_latency = {}
 
-windowSize = 100 #500 #500
+windowSize = 500 #500 #500
 latencyLimit = 0
 spike = 2500 #1500
 #latencyLimit = 2500 #1000
