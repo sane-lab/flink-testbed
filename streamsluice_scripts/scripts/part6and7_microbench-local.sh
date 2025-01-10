@@ -17,7 +17,7 @@ function analyze() {
 }
 
 run_one_exp() {
-  EXP_NAME=part6and7-${setting}-${whether_type}-${how_type}-${SOURCE_TYPE}-${CURVE_TYPE}-${GRAPH}-${runtime}-${rate_low}-${rate_high}-${rate_period}-${rate_pattern}-${amplitude_low}-${amplitude_high}-${amplitude_period}-${amplitude_pattern}-${period_low}-${period_high}-${period_period}-${period_pattern}-${P1}-${ZIPF_SKEW}-${P2}-${DELAY2}-${IO2}-${STATE_SIZE2}-${P3}-${DELAY3}-${IO3}-${STATE_SIZE3}-${P4}-${DELAY4}-${IO4}-${STATE_SIZE4}-${P5}-${DELAY5}-${STATE_SIZE5}--${noise}-${autotuner_increase_bar_alpha}-${L}-${migration_interval}-${epoch}-${decision_interval}-${is_treat}-${repeat}
+  EXP_NAME=part6and7-${setting}-${whether_type}-${how_type}-${SOURCE_TYPE}-${CURVE_TYPE}-${GRAPH}-${runtime}-${rate_low}-${rate_high}-${rate_period}-${rate_pattern}-${amplitude_low}-${amplitude_high}-${amplitude_period}-${amplitude_pattern}-${period_low}-${period_high}-${period_period}-${period_pattern}-${P1}-${ZIPF_SKEW}-${P2}-${DELAY2}-${IO2}-${STATE_SIZE2}-${P3}-${DELAY3}-${IO3}-${STATE_SIZE3}-${P4}-${DELAY4}-${IO4}-${STATE_SIZE4}-${P5}-${DELAY5}-${STATE_SIZE5}-${noise}-${autotuner_increase_bar_alpha}-${L}-${migration_interval}-${epoch}-${decision_interval}-${is_treat}-${repeat}
   echo "INFO: run exp ${EXP_NAME}"
   configFlink
   runFlink
@@ -205,7 +205,7 @@ run_scale_test(){
     autotuner_increase_bar_alpha=0.1
     epoch=100
     CURVE_TYPE="mixed" #"linear"
-    warmupRate=2000 #5000
+    warmupRate=4000 #5000
     warmupTime=60
     rate_low=4000 # 5000
     rate_high=4000 # 5000
@@ -223,13 +223,13 @@ run_scale_test(){
 
     L=1000
     runtime=120
-    for CURVE_TYPE in "linear"; do # "linear" "sine" "gradient"
+    for CURVE_TYPE in "linear" "sine" "gradient"; do # "linear"
       for amplitude_low in 2000; do # 2000 1000
         is_treat=false
         autotune=false
         how_type="ds2"
-#        run_one_exp
-#        printf "${EXP_NAME}\n" >> part6and7_result.txt
+        run_one_exp
+        printf "${EXP_NAME}\n" >> part6and7_result.txt
         how_type="streamsluice"
         for whether_type in "streamsluice" "streamsluice_earlier" "streamsluice_later"; do #  "ds2" "dhalion" "streamswitch"
           for repeat in 1; do # 2 3
