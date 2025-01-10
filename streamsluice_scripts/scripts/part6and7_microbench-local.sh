@@ -154,8 +154,8 @@ run_scale_test(){
     vertex_id="a84740bacf923e828852cc4966f2247c,eabd4c11f6c6fbdf011f0f1fc42097b1,d01047f852abd5702a0dabeedac99ff5,d2336f79a0d60b5a4b16c8769ec82e47"
     autotune=false
     epoch=200
-    decision_interval=10
-    snapshot_size=20
+    decision_interval=1
+    snapshot_size=40 #20
 
 
     L=1000 #2000 #2500
@@ -235,7 +235,7 @@ run_scale_test(){
         run_one_exp
         printf "${EXP_NAME}\n" >> part6and7_result.txt
         how_type="streamsluice"
-        for whether_type in "streamsluice" "ds2" "dhalion" "streamswitch"; do #
+        for whether_type in "streamsluice" "streamsluice_earlier" "streamsluice_later" "ds2" "dhalion" "streamswitch"; do #
           for repeat in 1; do # 2 3
             is_treat=true
             autotune=false
