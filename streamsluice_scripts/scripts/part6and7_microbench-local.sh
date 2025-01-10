@@ -229,22 +229,22 @@ run_scale_test(){
     period_pattern="stair_3"
     noise=0.05
 
-    is_treat=false
-    autotune=false
-    how_type="ds2"
-#    run_one_exp
-#    printf "${EXP_NAME}\n" >> part6and7_result.txt
-    how_type="streamsluice"
     L=1000
     runtime=150
     for CURVE_TYPE in "linear" "sine" "gradient"; do
       for amplitude_low in 2000 1000; do
+        is_treat=false
+        autotune=false
+        how_type="ds2"
+        run_one_exp
+        printf "${EXP_NAME}\n" >> part6and7_result.txt
+        how_type="streamsluice"
         for whether_type in "streamsluice" "ds2" "dhalion" "streamswitch"; do #
           for repeat in 1 2 3; do
             is_treat=true
             autotune=false
-            run_one_exp
-            printf "${EXP_NAME}\n" >> part6and7_result.txt
+#            run_one_exp
+#            printf "${EXP_NAME}\n" >> part6and7_result.txt
           done
         done
       done
@@ -256,12 +256,17 @@ run_scale_test(){
     whether_type="streamsluice"
     for CURVE_TYPE in "linear" "sine" "gradient"; do
       for amplitude_low in 2000 1000; do
+        is_treat=false
+        autotune=false
+        how_type="ds2"
+        run_one_exp
+        printf "${EXP_NAME}\n" >> part6and7_result.txt
         for how_type in "ds2" "drs" "streamswitch"; do #
           for repeat in 1 2 3; do
             is_treat=true
             autotune=false
-            run_one_exp
-            printf "${EXP_NAME}\n" >> part6and7_result.txt
+#            run_one_exp
+#            printf "${EXP_NAME}\n" >> part6and7_result.txt
           done
         done
       done
