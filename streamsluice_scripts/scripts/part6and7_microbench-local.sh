@@ -140,11 +140,6 @@ run_scale_test(){
     autotuner_initial_value_alpha=1.2
     autotuner_adjustment_beta=2.0
 
-    epoch=100
-    decision_interval=1 #10
-    snapshot_size=20
-    L=1000 #2000 #2500
-    migration_interval=1000 #500
     spike_slope=0.7
     autotuner_increase_bar_option=7 # 3 5
     autotuner_increase_bar_alpha=0.1 #0.25
@@ -157,8 +152,8 @@ run_scale_test(){
     CURVE_TYPE="mixed"
     vertex_id="a84740bacf923e828852cc4966f2247c,eabd4c11f6c6fbdf011f0f1fc42097b1,d01047f852abd5702a0dabeedac99ff5,d2336f79a0d60b5a4b16c8769ec82e47"
     autotune=false
-    epoch=100
-    decision_interval=1 #10
+    epoch=200
+    decision_interval=10
     snapshot_size=20
 
 
@@ -191,22 +186,22 @@ run_scale_test(){
     setting="microbench"
     SOURCE_TYPE="part6"
     DELAY2=300 #20
-    DELAY3=510 # 50
+    DELAY3=300 # 50
     DELAY4=300 #20
-    DELAY5=300 # 800
+    DELAY5=510 # 800
     STATE_SIZE2=1 #5000 # 1000 keys, per key (n * 2000 + 36) bytes, n=5000 -> 100 MB
     STATE_SIZE3=1 #5000
     STATE_SIZE4=1 #5000
     STATE_SIZE5=1 #5000
-    LP2=1
-    LP3=#6 #9
-    LP4=1
-    LP5=1 #31 #28
+    LP2=2
+    LP3=2 #6 #9
+    LP4=2
+    LP5=13 #31 #28
 
-    P2=1
-    P3=5 #2 #3
-    P4=1
-    P5=1 #17
+    P2=2
+    P3=2 #2 #3
+    P4=2
+    P5=6 #17
     GRAPH="1split2join1"
     autotuner_bar_lowerbound=350
     autotuner_latency_window=100
@@ -240,7 +235,7 @@ run_scale_test(){
         printf "${EXP_NAME}\n" >> part6and7_result.txt
         how_type="streamsluice"
         for whether_type in "streamsluice" "ds2" "dhalion" "streamswitch"; do #
-          for repeat in 1 2 3; do
+          for repeat in 1; do # 2 3
             is_treat=true
             autotune=false
             run_one_exp
