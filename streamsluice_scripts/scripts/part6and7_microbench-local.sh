@@ -221,16 +221,16 @@ run_scale_test(){
     period_pattern="stair_3"
     noise=0.00
 
-    L=2000
+    L=1000
     autotune=true
 
     autotuner_initial_value_option=3
     autotuner_adjustment_option=10
     autotuner_increase_bar_option=10
-    autotuner_initial_value_alpha=600
+    autotuner_initial_value_alpha=500
 
     runtime=120
-    for CURVE_TYPE in "linear"; do # "sine" "gradient"
+    for CURVE_TYPE in "linear" "sine" "gradient"; do #
       for amplitude_low in 2000; do # 2000 1000
         is_treat=false
         autotune=false
