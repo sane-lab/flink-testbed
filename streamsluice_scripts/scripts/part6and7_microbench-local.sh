@@ -128,6 +128,7 @@ run_scale_test(){
     conservative_service_rate_flag=true # false
     smooth_backlog_flag=false
     new_metrics_retriever_flag=true
+    scaling_decision_option=1
 
     autotune=true
     autotune_interval=60
@@ -185,10 +186,10 @@ run_scale_test(){
     printf "MicroBench\n" >> part6and7_result.txt
     setting="microbench"
     SOURCE_TYPE="part6"
-    DELAY2=300 #20
-    DELAY3=300 # 50
-    DELAY4=300 #20
-    DELAY5=510 # 800
+    DELAY2=600 #20
+    DELAY3=600 # 50
+    DELAY4=600 #20
+    DELAY5=1020 # 800
     STATE_SIZE2=1 #5000 # 1000 keys, per key (n * 2000 + 36) bytes, n=5000 -> 100 MB
     STATE_SIZE3=1 #5000
     STATE_SIZE4=1 #5000
@@ -208,13 +209,13 @@ run_scale_test(){
     autotuner_increase_bar_alpha=0.1
     epoch=100
     CURVE_TYPE="mixed" #"linear"
-    warmupRate=4000 #5000
+    warmupRate=2000 #5000
     warmupTime=60
-    rate_low=4000 # 5000
-    rate_high=4000 # 5000
+    rate_low=2000 # 5000
+    rate_high=2000 # 5000
     rate_period=960
     rate_pattern="linear"
-    amplitude_low=2000
+    amplitude_low=1000
     amplitude_high=1
     amplitude_period=1440
     amplitude_pattern="stair_3"
@@ -222,12 +223,12 @@ run_scale_test(){
     period_high=1
     period_period=1440
     period_pattern="stair_3"
-    noise=0.05
+    noise=0.00
 
     L=1000
-    runtime=150
+    runtime=120
     for CURVE_TYPE in "linear"; do # "linear" "sine" "gradient"
-      for amplitude_low in 2000; do # 2000 1000
+      for amplitude_low in 1000; do # 2000 1000
         is_treat=false
         autotune=false
         how_type="ds2"
