@@ -190,14 +190,14 @@ run_scale_test(){
     STATE_SIZE3=10000 #5000
     STATE_SIZE4=10000 #5000
     STATE_SIZE5=10000 #5000
-    LP2=2
-    LP3=2 #6 #9
-    LP4=2
+    LP2=3
+    LP3=3 #6 #9
+    LP4=3
     LP5=13 #31 #28
 
-    P2=2
-    P3=2 #2 #3
-    P4=2
+    P2=3
+    P3=3 #2 #3
+    P4=3
     P5=5 #17
     GRAPH="1split2join1"
     autotuner_bar_lowerbound=350
