@@ -219,22 +219,22 @@ run_scale_test(){
     amplitude_high=1
     amplitude_period=1440
     amplitude_pattern="stair_3"
-    period_low=120
+    period_low=240 #120
     period_high=1
     period_period=1440
     period_pattern="stair_3"
     noise=0.00
 
-    L=1000
+    L=2000
     autotune=true
 
     autotuner_initial_value_option=3
     autotuner_adjustment_option=10
     autotuner_increase_bar_option=10
-    autotuner_initial_value_alpha=800
+    autotuner_initial_value_alpha=1200
 
-    runtime=120
-    for CURVE_TYPE in "linear" "sine" "gradient"; do #
+    runtime=150 # 120
+    for CURVE_TYPE in "linear"; do # "sine" "gradient"
       for amplitude_low in 2000; do # 2000 1000
         is_treat=false
         autotune=false
@@ -243,7 +243,7 @@ run_scale_test(){
         printf "${EXP_NAME}\n" >> part6and7_result.txt
         how_type="streamsluice"
         for whether_type in "streamsluice" "streamsluice_earlier" "streamsluice_later"; do #"ds2" "dhalion" "streamswitch";
-          for repeat in 1; do # 2 3
+          for repeat in 1 2 3; do #
             is_treat=true
             autotune=true
             run_one_exp
