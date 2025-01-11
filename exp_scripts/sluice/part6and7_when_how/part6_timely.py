@@ -959,13 +959,17 @@ outputDir = "/Users/swrrt/Workplace/BacklogDelayPaper/experiments/figures/part6/
 exps_per_setting = {
     "linear_1": [
         ["Static",
-         "part6and7-microbench-streamsluice-ds2-part6-linear-1split2join1-120-4000-4000-960-linear-2000-1-1440-stair_3-120-1-1440-stair_3-1-0-2-300-1-5000-2-300-1-5000-2-300-1-5000-6-510-5000-0.00-0.1-1000-3000-100-10-false-1",
+         "part6and7-microbench-streamsluice-ds2-part6-linear-1split2join1-150-4000-4000-960-linear-2000-1-1440-stair_3-240-1-1440-stair_3-1-0-2-300-1-5000-2-300-1-5000-2-300-1-5000-6-510-5000-0.00-0.1-2000-3000-100-10-false-1",
          "black", "o"],
         ["Earlier",
-         "part6and7-microbench-streamsluice_earlier-streamsluice-part6-linear-1split2join1-120-4000-4000-960-linear-2000-1-1440-stair_3-120-1-1440-stair_3-1-0-2-300-1-5000-2-300-1-5000-2-300-1-5000-6-510-5000-0.00-0.1-1000-3000-100-10-true-1",
+         #"part6and7-microbench-streamsluice_earlier-streamsluice-part6-linear-1split2join1-150-4000-4000-960-linear-2000-1-1440-stair_3-240-1-1440-stair_3-1-0-2-300-1-5000-2-300-1-5000-2-300-1-5000-6-510-5000-0.00-0.1-2000-3000-100-10-true-1",
+         #"part6and7-microbench-streamsluice_earlier-streamsluice-part6-linear-1split2join1-150-4000-4000-960-linear-2000-1-1440-stair_3-240-1-1440-stair_3-1-0-2-300-1-5000-2-300-1-5000-2-300-1-5000-6-510-5000-0.00-0.1-2000-3000-100-10-true-2",
+         "part6and7-microbench-streamsluice_earlier-streamsluice-part6-linear-1split2join1-150-4000-4000-960-linear-2000-1-1440-stair_3-240-1-1440-stair_3-1-0-2-300-1-5000-2-300-1-5000-2-300-1-5000-6-510-5000-0.00-0.1-2000-3000-100-10-true-3",
          "green", "o"],
         ["Later",
-         "part6and7-microbench-streamsluice_later-streamsluice-part6-linear-1split2join1-120-4000-4000-960-linear-2000-1-1440-stair_3-120-1-1440-stair_3-1-0-2-300-1-5000-2-300-1-5000-2-300-1-5000-6-510-5000-0.00-0.1-1000-3000-100-10-true-1",
+         "part6and7-microbench-streamsluice_later-streamsluice-part6-linear-1split2join1-150-4000-4000-960-linear-2000-1-1440-stair_3-240-1-1440-stair_3-1-0-2-300-1-5000-2-300-1-5000-2-300-1-5000-6-510-5000-0.00-0.1-2000-3000-100-10-true-1",
+         #"part6and7-microbench-streamsluice_later-streamsluice-part6-linear-1split2join1-150-4000-4000-960-linear-2000-1-1440-stair_3-240-1-1440-stair_3-1-0-2-300-1-5000-2-300-1-5000-2-300-1-5000-6-510-5000-0.00-0.1-2000-3000-100-10-true-2",
+         #"part6and7-microbench-streamsluice_later-streamsluice-part6-linear-1split2join1-150-4000-4000-960-linear-2000-1-1440-stair_3-240-1-1440-stair_3-1-0-2-300-1-5000-2-300-1-5000-2-300-1-5000-6-510-5000-0.00-0.1-2000-3000-100-10-true-3",
          "orange", "o"],
         # ["DS2",
         #  "part6and7-microbench-ds2-streamsluice-part6-linear-1split2join1-120-4000-4000-960-linear-2000-1-1440-stair_3-120-1-1440-stair_3-1-0-2-300-1-5000-2-300-1-5000-2-300-1-5000-6-510-5000-0.00-0.1-2000-3000-100-1-true-1",
@@ -977,7 +981,9 @@ exps_per_setting = {
         #  "part6and7-microbench-streamswitch-streamsluice-part6-linear-1split2join1-120-4000-4000-960-linear-2000-1-1440-stair_3-120-1-1440-stair_3-1-0-2-300-1-5000-2-300-1-5000-2-300-1-5000-6-510-5000-0.00-0.1-2000-3000-100-1-true-1",
         #  "orange", "o"],
         ["Sluice",
-         "part6and7-microbench-streamsluice-streamsluice-part6-linear-1split2join1-120-4000-4000-960-linear-2000-1-1440-stair_3-120-1-1440-stair_3-1-0-2-300-1-5000-2-300-1-5000-2-300-1-5000-6-510-5000-0.00-0.1-1000-3000-100-10-true-1",
+         #"part6and7-microbench-streamsluice-streamsluice-part6-linear-1split2join1-150-4000-4000-960-linear-2000-1-1440-stair_3-240-1-1440-stair_3-1-0-2-300-1-5000-2-300-1-5000-2-300-1-5000-6-510-5000-0.00-0.1-2000-3000-100-10-true-1",
+         #"part6and7-microbench-streamsluice-streamsluice-part6-linear-1split2join1-150-4000-4000-960-linear-2000-1-1440-stair_3-240-1-1440-stair_3-1-0-2-300-1-5000-2-300-1-5000-2-300-1-5000-6-510-5000-0.00-0.1-2000-3000-100-10-true-2",
+         "part6and7-microbench-streamsluice-streamsluice-part6-linear-1split2join1-150-4000-4000-960-linear-2000-1-1440-stair_3-240-1-1440-stair_3-1-0-2-300-1-5000-2-300-1-5000-2-300-1-5000-6-510-5000-0.00-0.1-2000-3000-100-10-true-3",
          "blue", "o"],
     ],
     # "linear_1": [
@@ -1115,7 +1121,7 @@ latencyLimit = 0
 spike = 2500 #1500
 #latencyLimit = 2500 #1000
 startTime = 60 #+300 #30
-expLength = 30 #480
+expLength = 60 #480
 exp_length = expLength
 show_avg_flag = False
 ground_truth_component_flag = False

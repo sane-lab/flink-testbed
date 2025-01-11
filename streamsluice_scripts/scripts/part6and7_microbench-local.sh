@@ -182,14 +182,14 @@ run_scale_test(){
     printf "MicroBench\n" >> part6and7_result.txt
     setting="microbench"
     SOURCE_TYPE="part6"
-    DELAY2=300 #20
-    DELAY3=300 # 50
-    DELAY4=300 #20
-    DELAY5=510 # 800
-    STATE_SIZE2=5000 #5000 # 1000 keys, per key (n * 2000 + 36) bytes, n=5000 -> 100 MB
-    STATE_SIZE3=5000 #5000
-    STATE_SIZE4=5000 #5000
-    STATE_SIZE5=5000 #5000
+    DELAY2=444 #20
+    DELAY3=444 # 50
+    DELAY4=444 #20
+    DELAY5=500 # 800
+    STATE_SIZE2=10000 #5000 # 1000 keys, per key (n * 2000 + 36) bytes, n=5000 -> 100 MB
+    STATE_SIZE3=10000 #5000
+    STATE_SIZE4=10000 #5000
+    STATE_SIZE5=10000 #5000
     LP2=2
     LP3=2 #6 #9
     LP4=2
@@ -198,7 +198,7 @@ run_scale_test(){
     P2=2
     P3=2 #2 #3
     P4=2
-    P5=6 #17
+    P5=5 #17
     GRAPH="1split2join1"
     autotuner_bar_lowerbound=350
     autotuner_latency_window=100
@@ -219,7 +219,7 @@ run_scale_test(){
     amplitude_high=1
     amplitude_period=1440
     amplitude_pattern="stair_3"
-    period_low=240 #120
+    period_low=80 #120
     period_high=1
     period_period=1440
     period_pattern="stair_3"
@@ -231,9 +231,9 @@ run_scale_test(){
     autotuner_initial_value_option=3
     autotuner_adjustment_option=10
     autotuner_increase_bar_option=10
-    autotuner_initial_value_alpha=1200
+    autotuner_initial_value_alpha=1000 #1200
 
-    runtime=150 # 120
+    runtime=120 # 120
     for CURVE_TYPE in "linear"; do # "sine" "gradient"
       for amplitude_low in 2000; do # 2000 1000
         is_treat=false
@@ -243,7 +243,7 @@ run_scale_test(){
         printf "${EXP_NAME}\n" >> part6and7_result.txt
         how_type="streamsluice"
         for whether_type in "streamsluice" "streamsluice_earlier" "streamsluice_later"; do #"ds2" "dhalion" "streamswitch";
-          for repeat in 1 2 3; do #
+          for repeat in 1; do #
             is_treat=true
             autotune=true
             run_one_exp
