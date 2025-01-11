@@ -784,6 +784,40 @@ def plot_latency_cdf(latency_per_label, latency_bar_this_workload, output_dir, w
     plt.close(fig)
 
 
+def plot_average_latency(latency_per_label, output_dir, workload_name: str):
+    # Extract labels and compute average latency for each
+    labels = list(latency_per_label.keys())
+    avg_latencies = [np.mean(latency_per_label[label]) for label in labels]
+
+    # Plot the bar chart
+    fig, ax = plt.subplots(figsize=(8, 5))
+    bars = ax.bar(labels, avg_latencies, color=[CONTROLLER_COLOR[label] for label in labels])
+
+    # Add numerical labels on top of the bars
+    for bar, avg_latency in zip(bars, avg_latencies):
+        height = bar.get_height()
+        ax.text(bar.get_x() + bar.get_width() / 2.0, height, f'{avg_latency:.2f}', ha='center', va='bottom')
+
+    # Customize the chart
+    ax.set_xlabel('Controllers')
+    ax.set_ylabel('Average Latency (ms)')
+    ax.set_title(f'Average Latency per Controller ({workload_name})')
+    ax.grid(axis='y', linestyle='--', alpha=0.7)
+
+    # Save the plot
+    if not os.path.exists(output_dir):
+        os.makedirs(output_dir)
+
+    if output_pdf_flag:
+        plot_filename = os.path.join(output_dir, f'avg_latency_{workload_name}.pdf')
+        plt.savefig(plot_filename, bbox_inches='tight')
+    else:
+        plot_filename = os.path.join(output_dir, f'avg_latency_{workload_name}.png')
+        plt.savefig(plot_filename, bbox_inches='tight')
+    plt.close(fig)
+    print(f"Bar chart saved to {plot_filename}")
+
+
 def plot_avg_parallelism_bar(avg_parallelism_per_label, output_dir, workload_name: str):
     x = list(avg_parallelism_per_label.keys())
     y = list(avg_parallelism_per_label.values())
@@ -856,20 +890,20 @@ def main():
             "Streamswitch": "tweet-streamswitch-streamswitch-5-60-1350-90-1700-1-19-3333-9-500-1-50-1-50-1250-2000-100-true-0.1-1",
             "Sluice": "tweet-streamsluice-streamsluice-5-60-1350-90-3400-1-19-3333-9-500-1-50-1-50-1250-2000-100-true-0.1-1",
         },
-        # "Stock-Analysis_30min":{
-        #     "Static": "stock-ds2-ds2-5-8-60-1350-90-1000-20-1-200-4-3333-1-200-1-500-1-7-5000-3000-100-0.1-false-false-1",
-        #     "Static-Adequate": "stock-ds2-ds2-5-8-60-1350-90-1000-20-1-200-11-3333-1-200-2-500-1-15-5000-3000-100-0.1-false-false-1",
-        #     "DS2": "stock-ds2-ds2-5-8-60-1350-90-1000-20-1-200-11-3333-1-200-2-500-1-15-5000-3000-100-0.1-true-false-1",
-        #     "Streamswitch": "stock-streamswitch-streamswitch-5-8-60-1350-90-1000-20-1-200-11-3333-1-200-2-500-1-15-5000-3000-100-0.1-true-false-1",
-        #     "Sluice": "stock-streamsluice-streamsluice-5-8-60-1350-90-1000-20-1-200-11-3333-1-200-2-500-1-15-5000-3000-100-0.1-true-true-1",
-        # },
-        # "Linear-Road_30min": {
-        #     "Static":          "lr-ds2-ds2-5-8-60-1380-150-1300-10-1-50-3-1000-1-50-14-3333-2000-0.1-100-1-25-0.0-false-2500-0.8-2",
-        #     "Static-Adequate": "lr-ds2-ds2-5-8-60-1380-150-1300-10-1-50-4-1000-1-50-20-3333-2000-0.1-100-1-25-0.0-false-2500-0.8-2",
-        #     "DS2": "lr-ds2-ds2-5-8-60-1380-150-1300-10-1-50-3-1000-1-50-27-3333-2000-0.1-100-1-25-0.0-true-2500-0.8-2",
-        #     "Streamswitch": "lr-streamswitch-streamswitch-5-8-60-1380-150-1300-10-1-50-3-1000-1-50-27-3333-2000-0.1-100-1-25-0.0-true-2500-0.8-2",
-        #     "Sluice": "lr-streamsluice-streamsluice-5-8-60-1380-150-1300-10-1-50-3-1000-1-50-27-3333-2000-0.1-100-1-25-0.0-true-1000-0.8-2",
-        # },
+        "Stock-Analysis_30min":{
+            "Static": "stock-ds2-ds2-5-8-60-1350-90-1000-20-1-200-4-3333-1-200-1-500-1-7-5000-3000-100-0.1-false-false-1",
+            "Static-Adequate": "stock-ds2-ds2-5-8-60-1350-90-1000-20-1-200-11-3333-1-200-2-500-1-15-5000-3000-100-0.1-false-false-1",
+            "DS2": "stock-ds2-ds2-5-8-60-1350-90-1000-20-1-200-11-3333-1-200-2-500-1-15-5000-3000-100-0.1-true-false-1",
+            "Streamswitch": "stock-streamswitch-streamswitch-5-8-60-1350-90-1000-20-1-200-11-3333-1-200-2-500-1-15-5000-3000-100-0.1-true-false-1",
+            "Sluice": "stock-streamsluice-streamsluice-5-8-60-1350-90-1000-20-1-200-11-3333-1-200-2-500-1-15-5000-3000-100-0.1-true-true-1",
+        },
+        "Linear-Road_30min": {
+            "Static":          "lr-ds2-ds2-5-8-60-1380-150-1300-10-1-50-3-1000-1-50-14-3333-2000-0.1-100-1-25-0.0-false-2500-0.8-2",
+            "Static-Adequate": "lr-ds2-ds2-5-8-60-1380-150-1300-10-1-50-4-1000-1-50-20-3333-2000-0.1-100-1-25-0.0-false-2500-0.8-2",
+            "DS2": "lr-ds2-ds2-5-8-60-1380-150-1300-10-1-50-3-1000-1-50-27-3333-2000-0.1-100-1-25-0.0-true-2500-0.8-2",
+            "Streamswitch": "lr-streamswitch-streamswitch-5-8-60-1380-150-1300-10-1-50-3-1000-1-50-27-3333-2000-0.1-100-1-25-0.0-true-2500-0.8-2",
+            "Sluice": "lr-streamsluice-streamsluice-5-8-60-1380-150-1300-10-1-50-3-1000-1-50-27-3333-2000-0.1-100-1-25-0.0-true-1000-0.8-2",
+        },
     }
     for workload_name, exps_per_label in exps_per_label_per_setting.items():
         latency_bar_this_workload = 0
@@ -911,6 +945,7 @@ def main():
             avg_parallelism_per_label[label] = avg_parallelism
         print(avg_parallelism_per_label)
         plot_latency_cdf(latency_per_label, latency_bar_this_workload, overall_output_dir, workload_name)
+        plot_average_latency(latency_per_label, overall_output_dir, workload_name)
         plot_success_rate_bar(success_rate_per_label, overall_output_dir, workload_name)
         plot_avg_parallelism_bar(avg_parallelism_per_label, overall_output_dir, workload_name)
 

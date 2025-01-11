@@ -203,7 +203,11 @@ run_scale_test(){
     autotuner_bar_lowerbound=350
     autotuner_latency_window=100
     autotuner_increase_bar_alpha=0.1
+
     epoch=100
+    decision_interval=10
+    snapshot_size=40 #20
+
     CURVE_TYPE="mixed" #"linear"
     warmupRate=4000 #5000
     warmupTime=60
@@ -227,7 +231,7 @@ run_scale_test(){
     autotuner_initial_value_option=3
     autotuner_adjustment_option=10
     autotuner_increase_bar_option=10
-    autotuner_initial_value_alpha=500
+    autotuner_initial_value_alpha=800
 
     runtime=120
     for CURVE_TYPE in "linear" "sine" "gradient"; do #
@@ -238,7 +242,7 @@ run_scale_test(){
         run_one_exp
         printf "${EXP_NAME}\n" >> part6and7_result.txt
         how_type="streamsluice"
-        for whether_type in "streamsluice" "ds2" "dhalion" "streamswitch"; do #
+        for whether_type in "streamsluice" "streamsluice_earlier" "streamsluice_later"; do #"ds2" "dhalion" "streamswitch";
           for repeat in 1; do # 2 3
             is_treat=true
             autotune=true
