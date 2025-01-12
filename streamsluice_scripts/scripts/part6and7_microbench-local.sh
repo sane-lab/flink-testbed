@@ -186,10 +186,10 @@ run_scale_test(){
     DELAY3=444 # 50
     DELAY4=444 #20
     DELAY5=500 # 800
-    STATE_SIZE2=7500 #5000 # 1000 keys, per key (n * 2000 + 36) bytes, n=5000 -> 100 MB
-    STATE_SIZE3=7500 #5000
-    STATE_SIZE4=7500 #5000
-    STATE_SIZE5=7500 #5000
+    STATE_SIZE2=1000 #5000 # 1000 keys, per key (n * 2000 + 36) bytes, n=5000 -> 100 MB
+    STATE_SIZE3=1000 #5000
+    STATE_SIZE4=1000 #5000
+    STATE_SIZE5=1000 #5000
     LP2=3
     LP3=3 #6 #9
     LP4=3
@@ -242,8 +242,8 @@ run_scale_test(){
         run_one_exp
         printf "${EXP_NAME}\n" >> part6and7_result.txt
         how_type="streamsluice"
-        for whether_type in "streamsluice" "streamsluice_earlier" "streamsluice_later"; do #"ds2" "dhalion" "streamswitch";
-          for repeat in 1; do #
+        for whether_type in "streamsluice"; do # "streamsluice_earlier" "streamsluice_later" "ds2" "dhalion" "streamswitch";
+          for repeat in 1 2 3; do #
             is_treat=true
             autotune=true
             run_one_exp
