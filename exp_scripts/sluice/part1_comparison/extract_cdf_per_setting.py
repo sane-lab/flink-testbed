@@ -27,6 +27,7 @@ CONTROLLER_COLOR={
     "Static-Adequate": "grey",
     "DS2": "orange",
     "Streamswitch": "green",
+    "StreamSwitch": "green",
     "Sluice": "blue",
 }
 
@@ -180,13 +181,13 @@ def draw_latency_curves(raw_dir, output_dir, exp_name, window_size, start_time, 
     exps = [
         ["GroundTruth", exp_name, "blue", "o"]
     ]
-
     average_ground_truth_latencies = []
     lem_latencies = []
     latency_bar = []
     p99_bar = []
     initial_times = []
     scalings = []
+    latency_curve = []
     for i in range(len(exps)):
         result = read_ground_truth_latency(raw_dir, exps[i][1], window_size)
         average_ground_truth_latencies += [result[0]]
@@ -279,9 +280,9 @@ def draw_latency_curves(raw_dir, output_dir, exp_name, window_size, start_time, 
         sampled_latency[2] = [max([average_ground_truth_latency[2][y] for y in
                                    range(x, min(x + sample_factor, len(average_ground_truth_latency[2])))]) for x in
                               range(0, len(average_ground_truth_latency[0]), sample_factor)]
-
         plt.plot(sampled_latency[0], sampled_latency[1], '-', color="blue", markersize=4, linewidth=3,
                  label="Ground Truth P99")
+        latency_curve = [sampled_latency[0], sampled_latency[1]]
         if (draw_lem_latency_flag):
             plt.plot(lem_latencies[i][0], lem_latencies[i][1], '-', color="green", markersize=2, linewidth=2,
                      label='Estimated Latency')
@@ -419,7 +420,7 @@ def draw_latency_curves(raw_dir, output_dir, exp_name, window_size, start_time, 
     plt.savefig(output_dir + 'latency_bar.png', bbox_inches='tight')
     plt.close(fig)
 
-    return groundtruth_p99_latency_in_range, success_rate
+    return groundtruth_p99_latency_in_range, success_rate, latency_curve
 
 def parseMapping(split):
     mapping = {}
@@ -603,6 +604,7 @@ def draw_parallelism_curve(rawDir, outputDir, exp_name, windowSize, startTime, e
     parallelismsPerJob = {}
     totalArrivalRatesPerJob = {}
     totalParallelismPerExps = {}
+    parallelism_curve = []
     for expindex in range(0, len(exps)):
         expFile = exps[expindex][1]
         result = readParallelism(rawDir, expFile, windowSize)
@@ -725,6 +727,7 @@ def draw_parallelism_curve(rawDir, outputDir, exp_name, windowSize, startTime, e
             else:
                 linewidth = LINEWIDTH / 2.0
             ax1.plot(line[0], line[1], color=exps[expindex][2], linewidth=linewidth, label='# of Slots')
+            parallelism_curve.append(line)
             average_parallelism = totalParallelism / (exp_length * 1000)
             print("Average parallelism " + exps[expindex][0] + " : " + str(totalParallelism / (exp_length * 1000)))
         ax1.plot(scalingPoints[0], scalingPoints[1], 'o', color="orange", mfc='none', markersize=MARKERSIZE * 2, label="Scaling")
@@ -749,7 +752,7 @@ def draw_parallelism_curve(rawDir, outputDir, exp_name, windowSize, startTime, e
     else:
         plt.savefig(outputDir + figName + ".png", bbox_inches='tight')
     plt.close(fig)
-    return average_parallelism, maxParallelism, minParallelism, arrival_curves
+    return average_parallelism, maxParallelism, minParallelism, arrival_curves, parallelism_curve
 
 def plot_latency_cdf(latency_per_label, latency_bar_this_workload, output_dir, workload_name: str):
     labels = list(latency_per_label.keys())
@@ -892,8 +895,94 @@ def plot_success_rate_bar(success_rate_per_label, output_dir, workload_name: str
         plt.savefig(os.path.join(output_dir, 'success_rate_bar_' + str(workload_name) + '.png'), bbox_inches='tight')
     plt.close(fig)
 
+def plot_latency_curves(latency_curves, latency_limit, output_dir, start_time, exp_length, workload_name: str):
+    fig, ax = plt.subplots(figsize=(12, 5))
+    for label, latency_curve in latency_curves.items():
+        if label == "Sluice":
+            linewidth = 2.0
+        else:
+            linewidth = 1.0
+        ax.plot(latency_curve[0], latency_curve[1], color=COLOR_MAP[label], label=label, linewidth=linewidth)
+    ax.plot([0, 10000000], [latency_limit, latency_limit], color='red', linestyle='--')
+    ax.set_ylim(0, 5000)
+    ax.set_yticks(np.arange(0, 6000, 1000))
+    ax.set_xlim((start_time) * 1000, (start_time + exp_length) * 1000)
+    ax.set_xticks(np.arange((start_time) * 1000, (start_time + exp_length) * 1000 + (exp_length / 5) * 1000,
+                              (exp_length / 5) * 1000))
+    ax.set_xticklabels([int((x - start_time * 1000) / 60000) for x in
+                          np.arange((start_time) * 1000, (start_time + exp_length) * 1000 + (exp_length / 5) * 1000,
+                                    (exp_length / 5) * 1000)])
+    ax.set_ylabel('Latency (ms)')
+    ax.set_xlabel('Time (minute)')
+    ax.legend(loc='upper center', bbox_to_anchor=(0.5, 1.25), ncol=4)
+    ax.grid(True)
+
+    # Save the plot
+    if not os.path.exists(output_dir):
+        os.makedirs(output_dir)
+
+    if output_pdf_flag:
+        plt.savefig(os.path.join(output_dir, 'latency_curves_' + str(workload_name) + '.pdf'), bbox_inches='tight')
+    else:
+        plt.savefig(os.path.join(output_dir, 'latency_curves_' + str(workload_name) + '.png'), bbox_inches='tight')
+    plt.close(fig)
+
+def plot_parallelism_curves(parallelism_curve, arrival_curve, output_dir, start_time, exp_length, workload_name: str):
+    fig, axs = plt.subplots(1, 1, figsize=(12, 5), layout='constrained')
+    # fig.tight_layout(rect=[0.02, 0, 0.953, 1])
+    ax1 = axs
+    ax2 = ax1.twinx()
+    ax2.plot(arrival_curve[0], arrival_curve[1], color='red', linestyle='-', label="Arrival Rate")
+    for label, p_curve in parallelism_curve.items():
+        if label == "Sluice":
+            linewidth = 2.0
+        else:
+            linewidth = 1.0
+        for xs, ys in p_curve:
+            ax1.plot(xs, ys, color=COLOR_MAP[label], label=label, linewidth=linewidth)
+
+    ax1.set_ylim(0, 40)
+    ax1.set_yticks(np.arange(0, 45, 10))
+    if workload_name.startswith("Twitter"):
+        ax2.set_ylim(0, 16000)
+        ax2.set_yticks(np.arange(0, 20000, 4000))
+    else:
+        ax2.set_ylim(0, 8000)
+        ax2.set_yticks(np.arange(0, 10000, 2000))
+    ax1.set_ylabel('# of Slots')
+    ax2.set_ylabel('Arrival Rate (tps)')
+    axs.set_xlabel('Time (minute)')
+    axs.set_xlim((start_time) * 1000, (start_time + exp_length) * 1000)
+    axs.set_xticks(np.arange((start_time) * 1000, (start_time + exp_length) * 1000 + (exp_length / 5) * 1000,
+                              (exp_length / 5) * 1000))
+    axs.set_xticklabels([int((x - start_time * 1000) / 60000) for x in
+                          np.arange((start_time) * 1000, (start_time + exp_length) * 1000 + (exp_length / 5) * 1000,
+                                    (exp_length / 5) * 1000)])
+    lines1, labels1 = ax1.get_legend_handles_labels()
+    lines2, labels2 = ax2.get_legend_handles_labels()
+    axs.legend(lines1 + lines2, labels1 + labels2, loc='upper center', bbox_to_anchor=(0.5, 1.4), ncol=3)
+    #axs.legend(loc='upper center', bbox_to_anchor=(0.5, 1.25), ncol=4)
+
+    axs.grid(True)
+
+    # Save the plot
+    if not os.path.exists(output_dir):
+        os.makedirs(output_dir)
+
+    if output_pdf_flag:
+        plt.savefig(os.path.join(output_dir, 'parallelism_curves_' + str(workload_name) + '.pdf'), bbox_inches='tight')
+    else:
+        plt.savefig(os.path.join(output_dir, 'parallelism_curves_' + str(workload_name) + '.png'), bbox_inches='tight')
+    plt.close(fig)
+
 
 output_pdf_flag=True
+COLOR_MAP = {
+    "Static": "grey",
+    "DS2": "purple",
+    "StreamSwitch": "green",
+    "Sluice": "blue",
+}
 
 def main():
     raw_dir = "/Users/swrrt/Workplace/BacklogDelayPaper/experiments/raw/"
@@ -902,30 +991,30 @@ def main():
     window_size = 100
     draw_lem_latency_flag = True
     exps_per_label_per_setting = {
-        "Twitter_30min": {
-            # "Static": "tweet-streamsluice-streamsluice-5-60-1950-90-1500-1-14-6666-5-1000-1-50-1-50-2500-100-false-0.1-1",
-            # "Static-Adequate": "tweet-streamsluice-streamsluice-5-60-1950-90-1500-1-19-6666-9-1000-1-50-1-50-2500-100-false-0.1-1",
-            # "DS2": "tweet-ds2-ds2-5-60-1950-90-1500-1-19-6666-9-1000-1-50-1-50-2500-100-true-0.1-1",
-            # "Streamswitch": "tweet-streamswitch-streamswitch-5-60-1950-90-1500-1-19-6666-9-1000-1-50-1-50-2500-100-true-0.1-1",
-            #"Sluice": "tweet-streamsluice-streamsluice-5-8-1950-90-1500-1-19-6666-9-1000-1-50-1-50-2500-100-true-0.1-2",
-            "Static": "tweet-streamsluice-streamsluice-5-60-1350-90-1700-1-14-3333-5-500-1-50-1-50-1250-2000-100-false-0.1-1",
-            "Static-Adequate": "tweet-streamsluice-streamsluice-5-60-1350-90-1700-1-19-3333-9-500-1-50-1-50-1250-2000-100-false-0.1-1",
-            "DS2": "tweet-ds2-ds2-5-60-1350-90-1700-1-19-3333-9-500-1-50-1-50-1250-2000-100-true-0.1-1",
-            "Streamswitch": "tweet-streamswitch-streamswitch-5-60-1350-90-1700-1-19-3333-9-500-1-50-1-50-1250-2000-100-true-0.1-1",
-            "Sluice": "tweet-streamsluice-streamsluice-5-60-1350-90-3400-1-19-3333-9-500-1-50-1-50-1250-2000-100-true-0.1-1",
-        },
-        # "Stock-Analysis_30min":{
-        #     "Static": "stock-ds2-ds2-5-8-60-1350-90-1000-20-1-200-4-3333-1-200-1-500-1-7-5000-3000-100-0.1-false-false-1",
-        #     "Static-Adequate": "stock-ds2-ds2-5-8-60-1350-90-1000-20-1-200-11-3333-1-200-2-500-1-15-5000-3000-100-0.1-false-false-1",
-        #     "DS2": "stock-ds2-ds2-5-8-60-1350-90-1000-20-1-200-11-3333-1-200-2-500-1-15-5000-3000-100-0.1-true-false-1",
-        #     "Streamswitch": "stock-streamswitch-streamswitch-5-8-60-1350-90-1000-20-1-200-11-3333-1-200-2-500-1-15-5000-3000-100-0.1-true-false-1",
-        #     "Sluice": "stock-streamsluice-streamsluice-5-8-60-1350-90-1000-20-1-200-11-3333-1-200-2-500-1-15-5000-3000-100-0.1-true-true-1",
+        # "Twitter_30min": {
+        #     # "Static": "tweet-streamsluice-streamsluice-5-60-1950-90-1500-1-14-6666-5-1000-1-50-1-50-2500-100-false-0.1-1",
+        #     # "Static-Adequate": "tweet-streamsluice-streamsluice-5-60-1950-90-1500-1-19-6666-9-1000-1-50-1-50-2500-100-false-0.1-1",
+        #     # "DS2": "tweet-ds2-ds2-5-60-1950-90-1500-1-19-6666-9-1000-1-50-1-50-2500-100-true-0.1-1",
+        #     # "Streamswitch": "tweet-streamswitch-streamswitch-5-60-1950-90-1500-1-19-6666-9-1000-1-50-1-50-2500-100-true-0.1-1",
+        #     #"Sluice": "tweet-streamsluice-streamsluice-5-8-1950-90-1500-1-19-6666-9-1000-1-50-1-50-2500-100-true-0.1-2",
+        #     "Static": "tweet-streamsluice-streamsluice-5-60-1350-90-1700-1-14-3333-5-500-1-50-1-50-1250-2000-100-false-0.1-1",
+        #     #"Static-Adequate": "tweet-streamsluice-streamsluice-5-60-1350-90-1700-1-19-3333-9-500-1-50-1-50-1250-2000-100-false-0.1-1",
+        #     "DS2": "tweet-ds2-ds2-5-60-1350-90-1700-1-19-3333-9-500-1-50-1-50-1250-2000-100-true-0.1-1",
+        #     "StreamSwitch": "tweet-streamswitch-streamswitch-5-60-1350-90-1700-1-19-3333-9-500-1-50-1-50-1250-2000-100-true-0.1-1",
+        #     "Sluice": "tweet-streamsluice-streamsluice-5-60-1350-90-3400-1-19-3333-9-500-1-50-1-50-1250-2000-100-true-0.1-1",
         # },
+        "Stock-Analysis_30min":{
+            "Static": "stock-ds2-ds2-5-8-60-1350-90-1000-20-1-200-4-3333-1-200-1-500-1-7-5000-3000-100-0.1-false-false-1",
+            "Static-Adequate": "stock-ds2-ds2-5-8-60-1350-90-1000-20-1-200-11-3333-1-200-2-500-1-15-5000-3000-100-0.1-false-false-1",
+            "DS2": "stock-ds2-ds2-5-8-60-1350-90-1000-20-1-200-11-3333-1-200-2-500-1-15-5000-3000-100-0.1-true-false-1",
+            "StreamSwitch": "stock-streamswitch-streamswitch-5-8-60-1350-90-1000-20-1-200-11-3333-1-200-2-500-1-15-5000-3000-100-0.1-true-false-1",
+            "Sluice": "stock-streamsluice-streamsluice-5-8-60-1350-90-1000-20-1-200-11-3333-1-200-2-500-1-15-5000-3000-100-0.1-true-true-1",
+        },
         # "Linear-Road_30min": {
         #     "Static":          "lr-ds2-ds2-5-8-60-1380-150-1300-10-1-50-3-1000-1-50-14-3333-2000-0.1-100-1-25-0.0-false-2500-0.8-2",
-        #     "Static-Adequate": "lr-ds2-ds2-5-8-60-1380-150-1300-10-1-50-4-1000-1-50-20-3333-2000-0.1-100-1-25-0.0-false-2500-0.8-2",
+        #     #"Static-Adequate": "lr-ds2-ds2-5-8-60-1380-150-1300-10-1-50-4-1000-1-50-20-3333-2000-0.1-100-1-25-0.0-false-2500-0.8-2",
         #     "DS2": "lr-ds2-ds2-5-8-60-1380-150-1300-10-1-50-3-1000-1-50-27-3333-2000-0.1-100-1-25-0.0-true-2500-0.8-2",
-        #     "Streamswitch": "lr-streamswitch-streamswitch-5-8-60-1380-150-1300-10-1-50-3-1000-1-50-27-3333-2000-0.1-100-1-25-0.0-true-2500-0.8-2",
+        #     "StreamSwitch": "lr-streamswitch-streamswitch-5-8-60-1380-150-1300-10-1-50-3-1000-1-50-27-3333-2000-0.1-100-1-25-0.0-true-2500-0.8-2",
         #     "Sluice": "lr-streamsluice-streamsluice-5-8-60-1380-150-1300-10-1-50-3-1000-1-50-27-3333-2000-0.1-100-1-25-0.0-true-1000-0.8-2",
         # },
     }
@@ -936,7 +1025,9 @@ def main():
         max_parallelism_per_label = {}
         min_parallelism_per_label = {}
         success_rate_per_label = {}
-        arrival_curves = []
+        arrival_curve = []
+        latency_curves = {}
+        parallelism_curves = {}
         for label, exps in exps_per_label.items():
             avg_parallelism_per_label[label] = []
             exp_name = exps
@@ -946,8 +1037,8 @@ def main():
                 exp_length = 1200
             elif exp_name.startswith("tweet"):
                 latency_bar = int(exp_name.split('-')[-5])
-                start_time = 30 #0 #150
-                exp_length = 900
+                start_time = 60 #30 #0 #150
+                exp_length = 1200
             elif exp_name.startswith("stock"):
                 latency_bar = int(exp_name.split('-')[-6])
                 start_time = 120 #150
@@ -956,17 +1047,19 @@ def main():
                 latency_bar = int(exp_name.split('-')[-6])
                 start_time = 120
                 exp_length = 600
-            all_latency, success_rate = draw_latency_curves(raw_dir, output_dir + exp_name + '/', exp_name,
+            all_latency, success_rate, latency_curve = draw_latency_curves(raw_dir, output_dir + exp_name + '/', exp_name,
                                                                           window_size,
                                                                           start_time, exp_length, latency_bar, draw_lem_latency_flag)
             if label.startswith("Static"):
-                avg_parallelism, max_parallelism, min_parallelism, arrival_curves = draw_parallelism_curve(raw_dir, output_dir + exp_name + '/', exp_name, window_size,
+                avg_parallelism, max_parallelism, min_parallelism, arrival_curve, parallelism_curve = draw_parallelism_curve(raw_dir, output_dir + exp_name + '/', exp_name, window_size,
                                                             start_time, exp_length, True, [])
             else:
-                avg_parallelism, max_parallelism, min_parallelism, trash = draw_parallelism_curve(raw_dir, output_dir + exp_name + '/', exp_name, window_size,
-                                                            start_time, exp_length, True, arrival_curves)
+                avg_parallelism, max_parallelism, min_parallelism, trash, parallelism_curve = draw_parallelism_curve(raw_dir, output_dir + exp_name + '/', exp_name, window_size,
+                                                            start_time, exp_length, True, arrival_curve)
             latency_bar_this_workload = latency_bar
             latency_per_label[label] = all_latency
+            latency_curves[label] = latency_curve
+            parallelism_curves[label] = parallelism_curve
             success_rate_per_label[label] = success_rate
             avg_parallelism_per_label[label] = avg_parallelism
             max_parallelism_per_label[label] = max_parallelism
@@ -975,6 +1068,10 @@ def main():
         plot_average_latency(latency_per_label, overall_output_dir, workload_name)
         plot_success_rate_bar(success_rate_per_label, overall_output_dir, workload_name)
         plot_avg_parallelism_bar(avg_parallelism_per_label, overall_output_dir, workload_name)
+        #plot_latency_curves(latency_curves, latency_bar_this_workload, overall_output_dir, start_time, exp_length, workload_name)
+        #plot_parallelism_curves(parallelism_curves, arrival_curve, overall_output_dir, start_time, exp_length,
+        #                    workload_name)
+        #plot_parallism_curves(parallelism_curves, arrival_curve, overall_output_dir, workload_name)
         print("success rate: " + str(success_rate_per_label))
         print("mean parallelism:" + str(avg_parallelism_per_label))
         print("min parallelism:" + str(min_parallelism_per_label))

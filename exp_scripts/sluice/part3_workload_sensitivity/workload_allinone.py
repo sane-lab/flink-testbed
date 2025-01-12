@@ -26,7 +26,7 @@ def plot_success_rate_bar(xs_per_label, success_rate_per_label, output_dir, work
     labels = list(success_rate_per_label.keys())
     xs = xs_per_label[labels[0]]  # Assuming all labels have the same user limits for simplicity
 
-    fig, ax = plt.subplots(figsize=(12, 5))
+    fig, ax = plt.subplots(figsize=(12, 4))
 
     # Set width of bars and positions
     bar_width = 0.3 #0.15
@@ -42,31 +42,41 @@ def plot_success_rate_bar(xs_per_label, success_rate_per_label, output_dir, work
 
     # Add labels, title, and custom x-axis tick labels
     ax.set_xlabel(dimension)
-    ax.set_ylabel('Success Rate')
+    ax.set_ylabel('Success Rate(%)')
+    ax.yaxis.set_label_coords(-0.075, 0.4)
     min_rate = min([min(rates) for rates in success_rate_per_label.values()])
+
     if min_rate >= 0.9:
         ax.set_ylim(0.9, 1.0)
-        ax.set_yticks(np.arange(0.9, 1.00, 0.01))
+        ax.set_yticks(np.arange(0.9, 1.00, 0.02))
+        ax.set_yticklabels([math.ceil(x * 100) for x in np.arange(0.9, 1.00, 0.02)])
     elif min_rate >= 0.85:
         ax.set_ylim(0.85, 1.0)
         ax.set_yticks(np.arange(0.85, 1.00, 0.03))
+        ax.set_yticklabels([math.ceil(x * 100) for x in np.arange(0.85, 1.00, 0.03)])
     elif min_rate >= 0.8:
         ax.set_ylim(0.8, 1.0)
         ax.set_yticks(np.arange(0.80, 1.00, 0.04))
+        ax.set_yticklabels([math.ceil(x * 100) for x in np.arange(0.80, 1.00, 0.04)])
     else:
         ax.set_ylim(0.0, 1.0)
-        ax.set_yticks(np.arange(0.0, 1.0, 0.1))
+        ax.set_yticks(np.arange(0.0, 1.0, 0.2))
+        ax.set_yticklabels([math.ceil(x * 100) for x in np.arange(0.0, 1.0, 0.2)])
 
     ax.set_xticks(x + bar_width * (len(labels) - 1) / 2)
     ax.set_xticklabels(xs)
-    ax.set_title('Success Rates by ' + dimension)
     #ax.legend()
     ax.grid(True, axis='y')
 
     # Save the plot
     if not os.path.exists(output_dir):
         os.makedirs(output_dir)
-    plt.savefig(os.path.join(output_dir, 'success_rate_bar_' + str(workload_name) + '.png'), bbox_inches='tight')
+
+    if output_pdf_flag:
+        plt.savefig(os.path.join(output_dir, 'success_rate_bar_' + str(workload_name) + '.pdf'), bbox_inches='tight')
+    else:
+        ax.set_title('Success Rates by ' + dimension)
+        plt.savefig(os.path.join(output_dir, 'success_rate_bar_' + str(workload_name) + '.png'), bbox_inches='tight')
     plt.close(fig)
 
 
@@ -74,7 +84,7 @@ def plot_avg_latency(x_per_label, avg_latency_per_label, output_dir, workload_na
     labels = list(avg_latency_per_label.keys())
     user_limits = x_per_label[labels[0]]  # Assuming all labels have the same user limits for simplicity
 
-    fig, ax = plt.subplots(figsize=(12, 5))
+    fig, ax = plt.subplots(figsize=(12, 4))
 
     # Set width of bars and positions
     bar_width = 0.3 #0.15
@@ -87,17 +97,20 @@ def plot_avg_latency(x_per_label, avg_latency_per_label, output_dir, workload_na
 
     # Add labels, title, and custom x-axis tick labels
     ax.set_xlabel(dimension)
-    ax.set_ylabel('Average GT Latency')
-
+    ax.set_ylabel('Avg Latency (ms)')
+    ax.yaxis.set_label_coords(-0.1, 0.4)
     ax.set_xticks(x + bar_width * (len(labels) - 1) / 2)
     ax.set_xticklabels(user_limits)
-    ax.set_title('Average Ground Truth Latency by ' + dimension)
     #ax.legend()
     ax.grid(True, axis='y')
 
     if not os.path.exists(output_dir):
         os.makedirs(output_dir)
-    plt.savefig(output_dir + 'avg_latency_' + str(workload_name) + '.png', bbox_inches='tight')
+    if output_pdf_flag:
+        plt.savefig(output_dir + 'avg_latency_' + str(workload_name) + '.pdf', bbox_inches='tight')
+    else:
+        ax.set_title('Average Ground Truth Latency by ' + dimension)
+        plt.savefig(output_dir + 'avg_latency_' + str(workload_name) + '.png', bbox_inches='tight')
     plt.close(fig)
 
 
@@ -105,7 +118,7 @@ def plot_avg_parallelism_bar(x_per_label, avg_parallelism_per_label, output_dir,
     labels = list(avg_parallelism_per_label.keys())
     xs = x_per_label[labels[0]]  # Assuming all labels have the same user limits for simplicity
 
-    fig, ax = plt.subplots(figsize=(12, 5))
+    fig, ax = plt.subplots(figsize=(12, 4))
 
     # Set width of bars and positions
     bar_width = 0.3 #0.15
@@ -120,15 +133,21 @@ def plot_avg_parallelism_bar(x_per_label, avg_parallelism_per_label, output_dir,
     ax.set_xticks(x + bar_width * (len(labels) - 1) / 2)
     ax.set_xticklabels(xs)
     plt.xlabel(dimension)
-    plt.ylabel('Avg Parallelism')
-    plt.title('Avg Parallelism by ' + dimension)
+    plt.ylabel('Avg # of Slots')
+    ax.yaxis.set_label_coords(-0.075, 0.4)
     #ax.legend()
     ax.grid(True, axis='y')
 
     if not os.path.exists(output_dir):
         os.makedirs(output_dir)
-    plt.savefig(output_dir + 'avg_parallelism_curve_' + str(workload_name) + '.png', bbox_inches='tight')
+    if output_pdf_flag:
+        plt.savefig(output_dir + 'avg_parallelism_curve_' + str(workload_name) + '.pdf', bbox_inches='tight')
+    else:
+        plt.title('Avg Parallelism by ' + dimension)
+        plt.savefig(output_dir + 'avg_parallelism_curve_' + str(workload_name) + '.png', bbox_inches='tight')
     plt.close(fig)
+
+output_pdf_flag=True
 
 def main():
     overall_output_dir = "/Users/swrrt/Workplace/BacklogDelayPaper/experiments/figures/part3/"
