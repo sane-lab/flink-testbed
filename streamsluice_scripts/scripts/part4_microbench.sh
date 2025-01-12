@@ -272,7 +272,7 @@ run_scale_test(){
     autotuner_latency_window=100
     autotuner_increase_bar_alpha=0.8
     epoch=100
-    L=2000 #3000
+    L=3000 #3000
     CURVE_TYPE="sine" #"linear"
     warmupRate=5000
     warmupTime=60
@@ -293,8 +293,11 @@ run_scale_test(){
     autotuner_initial_value_option=3
     autotuner_adjustment_option=10 # no adjustment
     autotuner_increase_bar_option=10
-    L=3000
-    for autotuner_initial_value_alpha in 500 1000 1500 2000 2500 3000; do
+
+    run_one_exp
+    printf "${EXP_NAME}\n" >> part4_result.txt
+
+    for autotuner_initial_value_alpha in 125 250; do # 500 1000 1500 2000 2500 3000
       is_treat=true
       autotune=true
       how_type="streamsluice"
