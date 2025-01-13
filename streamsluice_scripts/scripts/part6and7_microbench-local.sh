@@ -235,24 +235,24 @@ run_scale_test(){
 
     runtime=120 # 120
     for CURVE_TYPE in "sine" "gradient"; do # "linear" "sine" "gradient"
-      for autotuner_initial_value_alpha in 600 700 800 900; do
+      # for autotuner_initial_value_alpha in 600 700 800 900; do
         for amplitude_low in 2000; do # 2000 1000
           is_treat=false
           autotune=false
           how_type="ds2"
-  #        run_one_exp
-  #        printf "${EXP_NAME}\n" >> part6and7_result.txt
+          run_one_exp
+          printf "${EXP_NAME}\n" >> part6and7_result.txt
           how_type="streamsluice"
           for whether_type in "streamsluice" "streamsluice_earlier" "streamsluice_later"; do #  "ds2" "dhalion" "streamswitch";
             for repeat in 1 2 3; do #
               is_treat=true
               autotune=true
-              run_one_exp
-              printf "${EXP_NAME}\n" >> part6and7_result.txt
+#              run_one_exp
+#              printf "${EXP_NAME}\n" >> part6and7_result.txt
             done
           done
         done
-      done
+      # done
     done
 
 

@@ -203,7 +203,12 @@ def draw_latency_curves(raw_dir, output_dir, exp_name, window_size, start_time, 
                                             average_ground_truth_latencies[i][0][x] <= (start_time + exp_length) * 1000]
         success_rate = len([x for x in groundtruth_p99_latency_in_range if x <= latency_limit]) / len(
             groundtruth_p99_latency_in_range)
-        avg_ground_truth_latency_in_range = sum(groundtruth_p99_latency_in_range)/len(groundtruth_p99_latency_in_range)
+        groundtruth_q1_in_range = np.percentile(groundtruth_p99_latency_in_range, 25)
+        groundtruth_q3_in_range = np.percentile(groundtruth_p99_latency_in_range, 75)
+        groundtruth_max_in_range = max(groundtruth_p99_latency_in_range)
+        groundtruth_min_in_range = min(groundtruth_p99_latency_in_range)
+        groundtruth_median_in_range = np.median(groundtruth_p99_latency_in_range)
+        avg_ground_truth_latency_in_range = np.mean(groundtruth_p99_latency_in_range) #sum(groundtruth_p99_latency_in_range)/len(groundtruth_p99_latency_in_range)
 
         def compute_weighted_success_rate(average_ground_truth_latencies, start_time, exp_length, latency_limit,
                                           window_size=30):
@@ -392,7 +397,7 @@ def draw_latency_curves(raw_dir, output_dir, exp_name, window_size, start_time, 
     plt.savefig(output_dir + 'latency_bar.png', bbox_inches='tight')
     plt.close(fig)
 
-    return success_rate, avg_ground_truth_latency_in_range, first_converge_time, converged_bar
+    return success_rate, avg_ground_truth_latency_in_range, groundtruth_min_in_range, groundtruth_q1_in_range, groundtruth_median_in_range, groundtruth_q3_in_range, groundtruth_max_in_range
 
 
 def parseMapping(split):
@@ -574,7 +579,7 @@ def readParallelism(rawDir, expName, windowSize):
     return [ParallelismPerJob, totalArrivalRatePerJob, initialTime, scalings]
 
 
-def draw_parallelism_curve(rawDir, outputDir, exp_name, windowSize, startTime, exp_length, draw_parallelism_flag, arrival_curves) -> [float, [list[int], list[float]]]:
+def draw_parallelism_curve(rawDir, outputDir, exp_name, windowSize, startTime, exp_length, draw_parallelism_flag, arrival_curves) -> [float, [list[int], list[float]], int, int, int, int]:
     exps = [
         ["Sluice", exp_name, "blue", "o"]
     ]
@@ -663,6 +668,7 @@ def draw_parallelism_curve(rawDir, outputDir, exp_name, windowSize, startTime, e
                 continue
             print("Draw exps " + exps[expindex][0] + " curve...")
             totalParallelism = 0
+            parallelism_in_time = []
             Parallelism = totalParallelismPerExps[expindex]
             # print(job + " " + str(expindex) + " " + str(Parallelism))
             legend += ["# of Slots"]
@@ -680,6 +686,8 @@ def draw_parallelism_curve(rawDir, outputDir, exp_name, windowSize, startTime, e
                 r = min(x1, (startTime + exp_length) * 1000)
                 if(exps[expindex][0] == 'Sluice' and l < r):
                     totalParallelism += (r - l) * y0
+                    if r > l:
+                        parallelism_in_time += [y0] * (r - l)
                     for scalingTime in scalings:
                         if scalingTime >= l and scalingTime <= r:
                             scalingPoints[0] += [scalingTime]
@@ -698,6 +706,11 @@ def draw_parallelism_curve(rawDir, outputDir, exp_name, windowSize, startTime, e
                 linewidth = LINEWIDTH / 2.0
             ax1.plot(line[0], line[1], color=exps[expindex][2], linewidth=linewidth, label='# of Slots')
             average_parallelism = totalParallelism / (exp_length * 1000)
+            parallelism_q1 = np.percentile(parallelism_in_time, 25)
+            parallelism_med = np.median(parallelism_in_time)
+            parallelism_q3 = np.percentile(parallelism_in_time, 75)
+            parallelism_min = min(parallelism_in_time)
+            parallelism_max = max(parallelism_in_time)
             print("Average parallelism " + exps[expindex][0] + " : " + str(totalParallelism / (exp_length * 1000)))
         ax1.plot(scalingPoints[0], scalingPoints[1], 'o', color="orange", mfc='none', markersize=MARKERSIZE * 2, label="Scaling")
         ax1.legend(legend, loc='upper left', bbox_to_anchor=(-0.1, 1.3), ncol=3, markerscale=4.)
@@ -720,7 +733,7 @@ def draw_parallelism_curve(rawDir, outputDir, exp_name, windowSize, startTime, e
     # plt.savefig(outputDir + figName + ".png", bbox_inches='tight')
     plt.savefig(outputDir + figName + ".png", bbox_inches='tight')
     plt.close(fig)
-    return average_parallelism, arrival_curves
+    return average_parallelism, arrival_curves, parallelism_min, parallelism_q1, parallelism_med, parallelism_q3, parallelism_max
 
 
 def main():
@@ -1026,82 +1039,82 @@ def main():
     #         ],
     #     },
     # }
-    exps_per_label_per_setting_lr = {
-        "static": "lr-ds2-ds2-5-8-60-1380-150-1300-10-1-50-4-1000-1-50-20-3333-2000-0.1-100-1-25-0.0-false-2500-0.8-2",
-        # Linear-road
-        "setting_1": {
-            "Dimension": "User Limit (ms)",
-            "1000": [
-                "lr-streamsluice-streamsluice-5-8-1980-150-1300-10-1-50-3-1000-1-50-27-2500-1000-0.1-100-1-0-0.0-true-1000-0.8-2",
-            ],
-            "1500": [
-                "lr-streamsluice-streamsluice-5-8-1980-150-1300-10-1-50-3-1000-1-50-27-2500-1500-0.1-100-1-0-0.0-true-1000-0.8-2",
-            ],
-            # "2000": [
-            #     "lr-streamsluice-streamsluice-5-8-1980-150-1300-10-1-50-3-1000-1-50-27-2500-2000-0.1-100-1-0-0.0-true-1000-0.8-2",
-            # ],
-            "2500": [
-                "lr-streamsluice-streamsluice-5-8-1980-150-1300-10-1-50-3-1000-1-50-27-2500-2500-0.1-100-1-0-0.0-true-1000-0.8-2",
-            ],
-            "3000": [
-                "lr-streamsluice-streamsluice-5-8-1980-150-1300-10-1-50-3-1000-1-50-27-2500-3000-0.1-100-1-0-0.0-true-1000-0.8-2",
-            ],
-        },
-        "setting_2": {
-            "Dimension": "Epoch Length (ms)",
-            "25": [
-                "lr-streamsluice-streamsluice-5-8-1980-150-1300-10-1-50-3-1000-1-50-27-2500-2000-0.1-25-1-0-0.0-true-1000-0.8-2",
-            ],
-            "50": [
-                "lr-streamsluice-streamsluice-5-8-1980-150-1300-10-1-50-3-1000-1-50-27-2500-2000-0.1-50-1-0-0.0-true-1000-0.8-2",
-            ],
-            "200": [
-                "lr-streamsluice-streamsluice-5-8-1980-150-1300-10-1-50-3-1000-1-50-27-2500-2000-0.1-200-1-0-0.0-true-1000-0.8-2",
-            ],
-            "500": [
-                "lr-streamsluice-streamsluice-5-8-1980-150-1300-10-1-50-3-1000-1-50-27-2500-2000-0.1-500-1-0-0.0-true-1000-0.8-2",
-            ],
-            # "1000": [
-            #     "lr-streamsluice-streamsluice-5-8-60-1380-150-1300-10-1-50-3-1000-1-50-27-3333-2000-0.1-1000-1-25-0.0-true-1000-0.8-2",
-            # ],
-            # "2000": [
-            #     "lr-streamsluice-streamsluice-5-8-60-1380-150-1300-10-1-50-3-1000-1-50-27-3333-2000-0.1-2000-1-25-0.0-true-1000-0.8-2",
-            # ],
-        },
-        "setting_3": {
-            "Dimension": "Resource Sensitivity (Alpha)",
-            "0.2": [
-                "lr-streamsluice-streamsluice-5-8-1080-150-1300-10-1-50-3-1000-1-50-27-2500-2000-0.2-100-1-0-0.0-true-1000-0.8-2",
-            ],
-            "0.4": [
-                "lr-streamsluice-streamsluice-5-8-1080-150-1300-10-1-50-3-1000-1-50-27-2500-2000-0.4-100-1-0-0.0-true-1000-0.8-2",
-            ],
-            # "0.6": [
-            #     "lr-streamsluice-streamsluice-5-8-60-1380-150-1300-10-1-50-3-1000-1-50-27-3333-2000-0.8-100-1-25-0.0-true-1000-0.8-2",
-            # ],
-            # "1.0": [
-            #     "lr-streamsluice-streamsluice-5-8-60-1380-150-1300-10-1-50-3-1000-1-50-27-3333-2000-1.0-100-1-25-0.0-true-1000-0.8-2",
-            # ],
-        },
-        "setting_4": {
-            "Dimension": "Tuning Frequency (s)",
-            "15": [
-                "lr-streamsluice-streamsluice-5-8-15-1980-150-1300-10-1-50-3-1000-1-50-27-2500-2000-0.1-100-1-0-0.0-true-1000-0.8-2",
-            ],
-            "30": [
-                "lr-streamsluice-streamsluice-5-8-30-1980-150-1300-10-1-50-3-1000-1-50-27-2500-2000-0.1-100-1-0-0.0-true-1000-0.8-2",
-            ],
-            "90": [
-                "lr-streamsluice-streamsluice-5-8-90-1980-150-1300-10-1-50-3-1000-1-50-27-2500-2000-0.1-100-1-0-0.0-true-1000-0.8-2",
-            ],
-            "120": [
-                "lr-streamsluice-streamsluice-5-8-120-1980-150-1300-10-1-50-3-1000-1-50-27-2500-2000-0.1-100-1-0-0.0-true-1000-0.8-2",
-            ],
-        },
-    }
+    # exps_per_label_per_setting_lr = {
+    #     "static": "lr-ds2-ds2-5-8-60-1380-150-1300-10-1-50-4-1000-1-50-20-3333-2000-0.1-100-1-25-0.0-false-2500-0.8-2",
+    #     # Linear-road
+    #     "setting_1": {
+    #         "Dimension": "User Limit (ms)",
+    #         "1000": [
+    #             "lr-streamsluice-streamsluice-5-8-1980-150-1300-10-1-50-3-1000-1-50-27-2500-1000-0.1-100-1-0-0.0-true-1000-0.8-2",
+    #         ],
+    #         "1500": [
+    #             "lr-streamsluice-streamsluice-5-8-1980-150-1300-10-1-50-3-1000-1-50-27-2500-1500-0.1-100-1-0-0.0-true-1000-0.8-2",
+    #         ],
+    #         # "2000": [
+    #         #     "lr-streamsluice-streamsluice-5-8-1980-150-1300-10-1-50-3-1000-1-50-27-2500-2000-0.1-100-1-0-0.0-true-1000-0.8-2",
+    #         # ],
+    #         "2500": [
+    #             "lr-streamsluice-streamsluice-5-8-1980-150-1300-10-1-50-3-1000-1-50-27-2500-2500-0.1-100-1-0-0.0-true-1000-0.8-2",
+    #         ],
+    #         "3000": [
+    #             "lr-streamsluice-streamsluice-5-8-1980-150-1300-10-1-50-3-1000-1-50-27-2500-3000-0.1-100-1-0-0.0-true-1000-0.8-2",
+    #         ],
+    #     },
+    #     "setting_2": {
+    #         "Dimension": "Epoch Length (ms)",
+    #         "25": [
+    #             "lr-streamsluice-streamsluice-5-8-1980-150-1300-10-1-50-3-1000-1-50-27-2500-2000-0.1-25-1-0-0.0-true-1000-0.8-2",
+    #         ],
+    #         "50": [
+    #             "lr-streamsluice-streamsluice-5-8-1980-150-1300-10-1-50-3-1000-1-50-27-2500-2000-0.1-50-1-0-0.0-true-1000-0.8-2",
+    #         ],
+    #         "200": [
+    #             "lr-streamsluice-streamsluice-5-8-1980-150-1300-10-1-50-3-1000-1-50-27-2500-2000-0.1-200-1-0-0.0-true-1000-0.8-2",
+    #         ],
+    #         "500": [
+    #             "lr-streamsluice-streamsluice-5-8-1980-150-1300-10-1-50-3-1000-1-50-27-2500-2000-0.1-500-1-0-0.0-true-1000-0.8-2",
+    #         ],
+    #         # "1000": [
+    #         #     "lr-streamsluice-streamsluice-5-8-60-1380-150-1300-10-1-50-3-1000-1-50-27-3333-2000-0.1-1000-1-25-0.0-true-1000-0.8-2",
+    #         # ],
+    #         # "2000": [
+    #         #     "lr-streamsluice-streamsluice-5-8-60-1380-150-1300-10-1-50-3-1000-1-50-27-3333-2000-0.1-2000-1-25-0.0-true-1000-0.8-2",
+    #         # ],
+    #     },
+    #     "setting_3": {
+    #         "Dimension": "Resource Sensitivity (Alpha)",
+    #         "0.2": [
+    #             "lr-streamsluice-streamsluice-5-8-1080-150-1300-10-1-50-3-1000-1-50-27-2500-2000-0.2-100-1-0-0.0-true-1000-0.8-2",
+    #         ],
+    #         "0.4": [
+    #             "lr-streamsluice-streamsluice-5-8-1080-150-1300-10-1-50-3-1000-1-50-27-2500-2000-0.4-100-1-0-0.0-true-1000-0.8-2",
+    #         ],
+    #         # "0.6": [
+    #         #     "lr-streamsluice-streamsluice-5-8-60-1380-150-1300-10-1-50-3-1000-1-50-27-3333-2000-0.8-100-1-25-0.0-true-1000-0.8-2",
+    #         # ],
+    #         # "1.0": [
+    #         #     "lr-streamsluice-streamsluice-5-8-60-1380-150-1300-10-1-50-3-1000-1-50-27-3333-2000-1.0-100-1-25-0.0-true-1000-0.8-2",
+    #         # ],
+    #     },
+    #     "setting_4": {
+    #         "Dimension": "Tuning Frequency (s)",
+    #         "15": [
+    #             "lr-streamsluice-streamsluice-5-8-15-1980-150-1300-10-1-50-3-1000-1-50-27-2500-2000-0.1-100-1-0-0.0-true-1000-0.8-2",
+    #         ],
+    #         "30": [
+    #             "lr-streamsluice-streamsluice-5-8-30-1980-150-1300-10-1-50-3-1000-1-50-27-2500-2000-0.1-100-1-0-0.0-true-1000-0.8-2",
+    #         ],
+    #         "90": [
+    #             "lr-streamsluice-streamsluice-5-8-90-1980-150-1300-10-1-50-3-1000-1-50-27-2500-2000-0.1-100-1-0-0.0-true-1000-0.8-2",
+    #         ],
+    #         "120": [
+    #             "lr-streamsluice-streamsluice-5-8-120-1980-150-1300-10-1-50-3-1000-1-50-27-2500-2000-0.1-100-1-0-0.0-true-1000-0.8-2",
+    #         ],
+    #     },
+    # }
 
     exps_per_label_per_setting_microbench = {
-        "static": "system_d1--streamsluice-streamsluice-false-true-false-systemsensitivity-sine-1split2join1-900-6000-30-3000-5000-0-1-0-1-20-1-20000-3-500-1-20000-1-20-1-20000-17-1000-20000-3000-500-100-60-0.5-1-true-1",
+        # "static": "system_d1--streamsluice-streamsluice-false-true-false-systemsensitivity-sine-1split2join1-900-6000-30-3000-5000-0-1-0-1-20-1-20000-3-500-1-20000-1-20-1-20000-17-1000-20000-3000-500-100-60-0.5-1-true-1",
         # "setting_1": {
         #     "Dimension": "User Limit (ms)",
         #     "500":[
@@ -1125,111 +1138,111 @@ def main():
         # },
         # "setting_2": {
         #     "Dimension": "Epoch Length (ms)",
-        #     # "25": [
-        #     #     "system_d2--streamsluice-streamsluice-false-true-false-systemsensitivity-sine-1split2join1-900-6000-30-3000-5000-0-1-0-1-20-1-20000-3-500-1-20000-1-20-1-20000-17-1000-20000-2000-500-25-60-0.5-1-true-1",
-        #     # ],
+        #     "25": [
+        #         "system_d2--streamsluice-streamsluice-false-true-false-systemsensitivity-sine-1split2join1-900-6000-30-3000-5000-0-1-0-1-20-1-20000-3-500-1-20000-1-20-1-20000-17-1000-20000-2000-500-25-60-0.5-1-true-1",
+        #     ],
         #     "50": [
-        #         "system_d2--streamsluice-streamsluice-false-true-false-systemsensitivity-sine-1split2join1-900-6000-30-3000-5000-0-1-0-1-20-1-20000-3-500-1-20000-1-20-1-20000-17-1000-20000-2000-500-50-60-0.5-1-true-1",
-        #         "system_d2--streamsluice-streamsluice-false-true-false-systemsensitivity-sine-1split2join1-900-6000-30-3000-5000-0-1-0-1-20-1-20000-3-500-1-20000-1-20-1-20000-17-1000-20000-2000-500-50-60-0.5-1-true-2",
-        #         "system_d2--streamsluice-streamsluice-false-true-false-systemsensitivity-sine-1split2join1-900-6000-30-3000-5000-0-1-0-1-20-1-20000-3-500-1-20000-1-20-1-20000-17-1000-20000-2000-500-50-60-0.5-1-true-3",
-        #         "system_d2--streamsluice-streamsluice-false-true-false-systemsensitivity-sine-1split2join1-900-6000-30-3000-5000-0-1-0-1-20-1-20000-3-500-1-20000-1-20-1-20000-17-1000-20000-2000-500-50-60-0.5-1-true-4",
+        #         # "system_d2--streamsluice-streamsluice-false-true-false-systemsensitivity-sine-1split2join1-900-6000-30-3000-5000-0-1-0-1-20-1-20000-3-500-1-20000-1-20-1-20000-17-1000-20000-2000-500-50-60-0.5-1-true-1",
+        #         # "system_d2--streamsluice-streamsluice-false-true-false-systemsensitivity-sine-1split2join1-900-6000-30-3000-5000-0-1-0-1-20-1-20000-3-500-1-20000-1-20-1-20000-17-1000-20000-2000-500-50-60-0.5-1-true-2",
+        #         # "system_d2--streamsluice-streamsluice-false-true-false-systemsensitivity-sine-1split2join1-900-6000-30-3000-5000-0-1-0-1-20-1-20000-3-500-1-20000-1-20-1-20000-17-1000-20000-2000-500-50-60-0.5-1-true-3",
+        #         # "system_d2--streamsluice-streamsluice-false-true-false-systemsensitivity-sine-1split2join1-900-6000-30-3000-5000-0-1-0-1-20-1-20000-3-500-1-20000-1-20-1-20000-17-1000-20000-2000-500-50-60-0.5-1-true-4",
         #         "system_d2--streamsluice-streamsluice-false-true-false-systemsensitivity-sine-1split2join1-900-6000-30-3000-5000-0-1-0-1-20-1-20000-3-500-1-20000-1-20-1-20000-17-1000-20000-2000-500-50-60-0.5-1-true-5",
         #     ],
         #     "100": [
-        #         "system_d2--streamsluice-streamsluice-false-true-false-systemsensitivity-sine-1split2join1-900-6000-30-3000-5000-0-1-0-1-20-1-20000-3-500-1-20000-1-20-1-20000-17-1000-20000-2000-500-100-60-0.5-1-true-1",
+        #         # "system_d2--streamsluice-streamsluice-false-true-false-systemsensitivity-sine-1split2join1-900-6000-30-3000-5000-0-1-0-1-20-1-20000-3-500-1-20000-1-20-1-20000-17-1000-20000-2000-500-100-60-0.5-1-true-1",
         #         "system_d2--streamsluice-streamsluice-false-true-false-systemsensitivity-sine-1split2join1-900-6000-30-3000-5000-0-1-0-1-20-1-20000-3-500-1-20000-1-20-1-20000-17-1000-20000-2000-500-100-60-0.5-1-true-2",
-        #         "system_d2--streamsluice-streamsluice-false-true-false-systemsensitivity-sine-1split2join1-900-6000-30-3000-5000-0-1-0-1-20-1-20000-3-500-1-20000-1-20-1-20000-17-1000-20000-2000-500-100-60-0.5-1-true-3",
-        #         "system_d2--streamsluice-streamsluice-false-true-false-systemsensitivity-sine-1split2join1-900-6000-30-3000-5000-0-1-0-1-20-1-20000-3-500-1-20000-1-20-1-20000-17-1000-20000-2000-500-100-60-0.5-1-true-4",
-        #         "system_d2--streamsluice-streamsluice-false-true-false-systemsensitivity-sine-1split2join1-900-6000-30-3000-5000-0-1-0-1-20-1-20000-3-500-1-20000-1-20-1-20000-17-1000-20000-2000-500-100-60-0.5-1-true-5",
+        #         # "system_d2--streamsluice-streamsluice-false-true-false-systemsensitivity-sine-1split2join1-900-6000-30-3000-5000-0-1-0-1-20-1-20000-3-500-1-20000-1-20-1-20000-17-1000-20000-2000-500-100-60-0.5-1-true-3",
+        #         # "system_d2--streamsluice-streamsluice-false-true-false-systemsensitivity-sine-1split2join1-900-6000-30-3000-5000-0-1-0-1-20-1-20000-3-500-1-20000-1-20-1-20000-17-1000-20000-2000-500-100-60-0.5-1-true-4",
+        #         # "system_d2--streamsluice-streamsluice-false-true-false-systemsensitivity-sine-1split2join1-900-6000-30-3000-5000-0-1-0-1-20-1-20000-3-500-1-20000-1-20-1-20000-17-1000-20000-2000-500-100-60-0.5-1-true-5",
         #     ],
         #     "200": [
         #         "system_d2--streamsluice-streamsluice-false-true-false-systemsensitivity-sine-1split2join1-900-6000-30-3000-5000-0-1-0-1-20-1-20000-3-500-1-20000-1-20-1-20000-17-1000-20000-2000-500-200-60-0.5-1-true-1",
-        #         "system_d2--streamsluice-streamsluice-false-true-false-systemsensitivity-sine-1split2join1-900-6000-30-3000-5000-0-1-0-1-20-1-20000-3-500-1-20000-1-20-1-20000-17-1000-20000-2000-500-200-60-0.5-1-true-2",
-        #         "system_d2--streamsluice-streamsluice-false-true-false-systemsensitivity-sine-1split2join1-900-6000-30-3000-5000-0-1-0-1-20-1-20000-3-500-1-20000-1-20-1-20000-17-1000-20000-2000-500-200-60-0.5-1-true-3",
-        #         "system_d2--streamsluice-streamsluice-false-true-false-systemsensitivity-sine-1split2join1-900-6000-30-3000-5000-0-1-0-1-20-1-20000-3-500-1-20000-1-20-1-20000-17-1000-20000-2000-500-200-60-0.5-1-true-4",
-        #         "system_d2--streamsluice-streamsluice-false-true-false-systemsensitivity-sine-1split2join1-900-6000-30-3000-5000-0-1-0-1-20-1-20000-3-500-1-20000-1-20-1-20000-17-1000-20000-2000-500-200-60-0.5-1-true-5",
+        #         # "system_d2--streamsluice-streamsluice-false-true-false-systemsensitivity-sine-1split2join1-900-6000-30-3000-5000-0-1-0-1-20-1-20000-3-500-1-20000-1-20-1-20000-17-1000-20000-2000-500-200-60-0.5-1-true-2",
+        #         # "system_d2--streamsluice-streamsluice-false-true-false-systemsensitivity-sine-1split2join1-900-6000-30-3000-5000-0-1-0-1-20-1-20000-3-500-1-20000-1-20-1-20000-17-1000-20000-2000-500-200-60-0.5-1-true-3",
+        #         # "system_d2--streamsluice-streamsluice-false-true-false-systemsensitivity-sine-1split2join1-900-6000-30-3000-5000-0-1-0-1-20-1-20000-3-500-1-20000-1-20-1-20000-17-1000-20000-2000-500-200-60-0.5-1-true-4",
+        #         # "system_d2--streamsluice-streamsluice-false-true-false-systemsensitivity-sine-1split2join1-900-6000-30-3000-5000-0-1-0-1-20-1-20000-3-500-1-20000-1-20-1-20000-17-1000-20000-2000-500-200-60-0.5-1-true-5",
         #     ],
-        #     # "500": [
-        #     #     "system_d2--streamsluice-streamsluice-false-true-false-systemsensitivity-sine-1split2join1-900-6000-30-3000-5000-0-1-0-1-20-1-20000-3-500-1-20000-1-20-1-20000-17-1000-20000-2000-500-500-60-0.5-1-true-1",
-        #     # ],
+        #     "500": [
+        #         "system_d2--streamsluice-streamsluice-false-true-false-systemsensitivity-sine-1split2join1-900-6000-30-3000-5000-0-1-0-1-20-1-20000-3-500-1-20000-1-20-1-20000-17-1000-20000-2000-500-500-60-0.5-1-true-1",
+        #     ],
         #     "1000": [
-        #         "system_d2--streamsluice-streamsluice-false-true-false-systemsensitivity-sine-1split2join1-900-6000-30-3000-5000-0-1-0-1-20-1-20000-3-500-1-20000-1-20-1-20000-17-1000-20000-2000-500-1000-60-0.5-1-true-1",
+        #         # "system_d2--streamsluice-streamsluice-false-true-false-systemsensitivity-sine-1split2join1-900-6000-30-3000-5000-0-1-0-1-20-1-20000-3-500-1-20000-1-20-1-20000-17-1000-20000-2000-500-1000-60-0.5-1-true-1",
         #         "system_d2--streamsluice-streamsluice-false-true-false-systemsensitivity-sine-1split2join1-900-6000-30-3000-5000-0-1-0-1-20-1-20000-3-500-1-20000-1-20-1-20000-17-1000-20000-2000-500-1000-60-0.5-1-true-2",
-        #         "system_d2--streamsluice-streamsluice-false-true-false-systemsensitivity-sine-1split2join1-900-6000-30-3000-5000-0-1-0-1-20-1-20000-3-500-1-20000-1-20-1-20000-17-1000-20000-2000-500-1000-60-0.5-1-true-3",
-        #         "system_d2--streamsluice-streamsluice-false-true-false-systemsensitivity-sine-1split2join1-900-6000-30-3000-5000-0-1-0-1-20-1-20000-3-500-1-20000-1-20-1-20000-17-1000-20000-2000-500-1000-60-0.5-1-true-4",
-        #         "system_d2--streamsluice-streamsluice-false-true-false-systemsensitivity-sine-1split2join1-900-6000-30-3000-5000-0-1-0-1-20-1-20000-3-500-1-20000-1-20-1-20000-17-1000-20000-2000-500-1000-60-0.5-1-true-5",
+        #         # "system_d2--streamsluice-streamsluice-false-true-false-systemsensitivity-sine-1split2join1-900-6000-30-3000-5000-0-1-0-1-20-1-20000-3-500-1-20000-1-20-1-20000-17-1000-20000-2000-500-1000-60-0.5-1-true-3",
+        #         # "system_d2--streamsluice-streamsluice-false-true-false-systemsensitivity-sine-1split2join1-900-6000-30-3000-5000-0-1-0-1-20-1-20000-3-500-1-20000-1-20-1-20000-17-1000-20000-2000-500-1000-60-0.5-1-true-4",
+        #         # "system_d2--streamsluice-streamsluice-false-true-false-systemsensitivity-sine-1split2join1-900-6000-30-3000-5000-0-1-0-1-20-1-20000-3-500-1-20000-1-20-1-20000-17-1000-20000-2000-500-1000-60-0.5-1-true-5",
         #     ]
         # },
 
-        # "static": "system_d3--streamsluice-streamsluice-false-true-false-systemsensitivity-sine-1split2join1-900-6000-30-3000-5000-0-1-0-1-20-1-20000-12-1000-1-20000-12-666-1-20000-1-20-20000-3000-500-100-60-0.0-1-true-3",
-        # "setting_3": {
-        #     "Dimension": "Resource Sensitivity (Alpha)",
-        #     "0.0": [
-        #         "system_d3--streamsluice-streamsluice-false-true-false-systemsensitivity-sine-1split2join1-900-6000-30-3000-5000-0-1-0-1-20-1-20000-12-1000-1-20000-12-666-1-20000-1-20-20000-3000-500-100-60-0.0-1-true-1",
-        #         "system_d3--streamsluice-streamsluice-false-true-false-systemsensitivity-sine-1split2join1-900-6000-30-3000-5000-0-1-0-1-20-1-20000-12-1000-1-20000-12-666-1-20000-1-20-20000-3000-500-100-60-0.0-1-true-2",
-        #         "system_d3--streamsluice-streamsluice-false-true-false-systemsensitivity-sine-1split2join1-900-6000-30-3000-5000-0-1-0-1-20-1-20000-12-1000-1-20000-12-666-1-20000-1-20-20000-3000-500-100-60-0.0-1-true-3",
-        #         "system_d3--streamsluice-streamsluice-false-true-false-systemsensitivity-sine-1split2join1-900-6000-30-3000-5000-0-1-0-1-20-1-20000-12-1000-1-20000-12-666-1-20000-1-20-20000-3000-500-100-60-0.0-1-true-4",
-        #         "system_d3--streamsluice-streamsluice-false-true-false-systemsensitivity-sine-1split2join1-900-6000-30-3000-5000-0-1-0-1-20-1-20000-12-1000-1-20000-12-666-1-20000-1-20-20000-3000-500-100-60-0.0-1-true-5",
-        #     ],
-        #     "0.25": [
-        #         "system_d3--streamsluice-streamsluice-false-true-false-systemsensitivity-sine-1split2join1-900-6000-30-3000-5000-0-1-0-1-20-1-20000-12-1000-1-20000-12-666-1-20000-1-20-20000-3000-500-100-60-0.25-1-true-1",
-        #         "system_d3--streamsluice-streamsluice-false-true-false-systemsensitivity-sine-1split2join1-900-6000-30-3000-5000-0-1-0-1-20-1-20000-12-1000-1-20000-12-666-1-20000-1-20-20000-3000-500-100-60-0.25-1-true-2",
-        #         "system_d3--streamsluice-streamsluice-false-true-false-systemsensitivity-sine-1split2join1-900-6000-30-3000-5000-0-1-0-1-20-1-20000-12-1000-1-20000-12-666-1-20000-1-20-20000-3000-500-100-60-0.25-1-true-3",
-        #         "system_d3--streamsluice-streamsluice-false-true-false-systemsensitivity-sine-1split2join1-900-6000-30-3000-5000-0-1-0-1-20-1-20000-12-1000-1-20000-12-666-1-20000-1-20-20000-3000-500-100-60-0.25-1-true-4",
-        #         "system_d3--streamsluice-streamsluice-false-true-false-systemsensitivity-sine-1split2join1-900-6000-30-3000-5000-0-1-0-1-20-1-20000-12-1000-1-20000-12-666-1-20000-1-20-20000-3000-500-100-60-0.25-1-true-5",
-        #     ],
-        #     "0.5": [
-        #         "system_d3--streamsluice-streamsluice-false-true-false-systemsensitivity-sine-1split2join1-900-6000-30-3000-5000-0-1-0-1-20-1-20000-12-1000-1-20000-12-666-1-20000-1-20-20000-3000-500-100-60-0.5-1-true-1",
-        #         "system_d3--streamsluice-streamsluice-false-true-false-systemsensitivity-sine-1split2join1-900-6000-30-3000-5000-0-1-0-1-20-1-20000-12-1000-1-20000-12-666-1-20000-1-20-20000-3000-500-100-60-0.5-1-true-2",
-        #         "system_d3--streamsluice-streamsluice-false-true-false-systemsensitivity-sine-1split2join1-900-6000-30-3000-5000-0-1-0-1-20-1-20000-12-1000-1-20000-12-666-1-20000-1-20-20000-3000-500-100-60-0.5-1-true-3",
-        #         "system_d3--streamsluice-streamsluice-false-true-false-systemsensitivity-sine-1split2join1-900-6000-30-3000-5000-0-1-0-1-20-1-20000-12-1000-1-20000-12-666-1-20000-1-20-20000-3000-500-100-60-0.5-1-true-4",
-        #         "system_d3--streamsluice-streamsluice-false-true-false-systemsensitivity-sine-1split2join1-900-6000-30-3000-5000-0-1-0-1-20-1-20000-12-1000-1-20000-12-666-1-20000-1-20-20000-3000-500-100-60-0.5-1-true-5",
-        #     ],
-        #     "0.75": [
-        #         "system_d3--streamsluice-streamsluice-false-true-false-systemsensitivity-sine-1split2join1-900-6000-30-3000-5000-0-1-0-1-20-1-20000-12-1000-1-20000-12-666-1-20000-1-20-20000-3000-500-100-60-0.75-1-true-1",
-        #         "system_d3--streamsluice-streamsluice-false-true-false-systemsensitivity-sine-1split2join1-900-6000-30-3000-5000-0-1-0-1-20-1-20000-12-1000-1-20000-12-666-1-20000-1-20-20000-3000-500-100-60-0.75-1-true-2",
-        #         "system_d3--streamsluice-streamsluice-false-true-false-systemsensitivity-sine-1split2join1-900-6000-30-3000-5000-0-1-0-1-20-1-20000-12-1000-1-20000-12-666-1-20000-1-20-20000-3000-500-100-60-0.75-1-true-3",
-        #         "system_d3--streamsluice-streamsluice-false-true-false-systemsensitivity-sine-1split2join1-900-6000-30-3000-5000-0-1-0-1-20-1-20000-12-1000-1-20000-12-666-1-20000-1-20-20000-3000-500-100-60-0.75-1-true-4",
-        #         "system_d3--streamsluice-streamsluice-false-true-false-systemsensitivity-sine-1split2join1-900-6000-30-3000-5000-0-1-0-1-20-1-20000-12-1000-1-20000-12-666-1-20000-1-20-20000-3000-500-100-60-0.75-1-true-5",
-        #     ],
-        #     "1.0": [
-        #         "system_d3--streamsluice-streamsluice-false-true-false-systemsensitivity-sine-1split2join1-900-6000-30-3000-5000-0-1-0-1-20-1-20000-12-1000-1-20000-12-666-1-20000-1-20-20000-3000-500-100-60-1.0-1-true-1",
-        #         "system_d3--streamsluice-streamsluice-false-true-false-systemsensitivity-sine-1split2join1-900-6000-30-3000-5000-0-1-0-1-20-1-20000-12-1000-1-20000-12-666-1-20000-1-20-20000-3000-500-100-60-1.0-1-true-2",
-        #         "system_d3--streamsluice-streamsluice-false-true-false-systemsensitivity-sine-1split2join1-900-6000-30-3000-5000-0-1-0-1-20-1-20000-12-1000-1-20000-12-666-1-20000-1-20-20000-3000-500-100-60-1.0-1-true-3",
-        #         "system_d3--streamsluice-streamsluice-false-true-false-systemsensitivity-sine-1split2join1-900-6000-30-3000-5000-0-1-0-1-20-1-20000-12-1000-1-20000-12-666-1-20000-1-20-20000-3000-500-100-60-1.0-1-true-4",
-        #         "system_d3--streamsluice-streamsluice-false-true-false-systemsensitivity-sine-1split2join1-900-6000-30-3000-5000-0-1-0-1-20-1-20000-12-1000-1-20000-12-666-1-20000-1-20-20000-3000-500-100-60-1.0-1-true-5",
-        #     ],
-        # },
-        #"static": "system_d4--streamsluice-streamsluice-false-true-false-systemsensitivity-sine-1split2join1-900-6000-30-3000-5000-0-1-0-1-20-1-20000-12-1000-1-20000-12-666-1-20000-1-20-20000-3000-500-100-30-0.5-1-true-1",
-
-        "setting_4": {
-            "Dimension": "Tuning Frequency (s)",
-            # "15": [
-            #     #"system_d4--streamsluice-streamsluice-false-true-false-systemsensitivity-sine-1split2join1-900-6000-30-3000-5000-0-1-0-1-20-1-20000-12-1000-1-20000-12-666-1-20000-1-20-20000-3000-500-100-15-0.5-1-true-1",
-            #     "system_d4--streamsluice-streamsluice-false-true-false-systemsensitivity-sine-1split2join1-900-6000-30-3000-5000-0-1-0-1-20-1-20000-12-1000-1-20000-12-666-1-20000-1-20-20000-3000-500-100-15-0.5-1-true-4",
-            #     "system_d4--streamsluice-streamsluice-false-true-false-systemsensitivity-sine-1split2join1-900-6000-30-3000-5000-0-1-0-1-20-1-20000-12-1000-1-20000-12-666-1-20000-1-20-20000-3000-500-100-15-0.5-1-true-5",
-            # ],
-            # "30": [
-            #     #"system_d4--streamsluice-streamsluice-false-true-false-systemsensitivity-sine-1split2join1-900-6000-30-3000-5000-0-1-0-1-20-1-20000-12-1000-1-20000-12-666-1-20000-1-20-20000-3000-500-100-30-0.5-1-true-1",
-            #     #"system_d4--streamsluice-streamsluice-false-true-false-systemsensitivity-sine-1split2join1-900-6000-30-3000-5000-0-1-0-1-20-1-20000-12-1000-1-20000-12-666-1-20000-1-20-20000-3000-500-100-30-0.5-1-true-2",
-            #     #"system_d4--streamsluice-streamsluice-false-true-false-systemsensitivity-sine-1split2join1-900-6000-30-3000-5000-0-1-0-1-20-1-20000-12-1000-1-20000-12-666-1-20000-1-20-20000-3000-500-100-30-0.5-1-true-3",
-            #     "system_d4--streamsluice-streamsluice-false-true-false-systemsensitivity-sine-1split2join1-900-6000-30-3000-5000-0-1-0-1-20-1-20000-12-1000-1-20000-12-666-1-20000-1-20-20000-3000-500-100-30-0.5-1-true-4",
-            #     "system_d4--streamsluice-streamsluice-false-true-false-systemsensitivity-sine-1split2join1-900-6000-30-3000-5000-0-1-0-1-20-1-20000-12-1000-1-20000-12-666-1-20000-1-20-20000-3000-500-100-30-0.5-1-true-5",
-            # ],
-            # "60": [
-            #     #"system_d4--streamsluice-streamsluice-false-true-false-systemsensitivity-sine-1split2join1-900-6000-30-3000-5000-0-1-0-1-20-1-20000-12-1000-1-20000-12-666-1-20000-1-20-20000-3000-500-100-60-0.5-1-true-1",
-            #     #"system_d4--streamsluice-streamsluice-false-true-false-systemsensitivity-sine-1split2join1-900-6000-30-3000-5000-0-1-0-1-20-1-20000-12-1000-1-20000-12-666-1-20000-1-20-20000-3000-500-100-60-0.5-1-true-2",
-            #     #"system_d4--streamsluice-streamsluice-false-true-false-systemsensitivity-sine-1split2join1-900-6000-30-3000-5000-0-1-0-1-20-1-20000-12-1000-1-20000-12-666-1-20000-1-20-20000-3000-500-100-60-0.5-1-true-3",
-            #     "system_d4--streamsluice-streamsluice-false-true-false-systemsensitivity-sine-1split2join1-900-6000-30-3000-5000-0-1-0-1-20-1-20000-12-1000-1-20000-12-666-1-20000-1-20-20000-3000-500-100-60-0.5-1-true-4",
-            #     "system_d4--streamsluice-streamsluice-false-true-false-systemsensitivity-sine-1split2join1-900-6000-30-3000-5000-0-1-0-1-20-1-20000-12-1000-1-20000-12-666-1-20000-1-20-20000-3000-500-100-60-0.5-1-true-5",
-            # ],
-            "180": [
-                "system_d4--streamsluice-streamsluice-false-true-false-systemsensitivity-sine-1split2join1-900-6000-30-3000-5000-0-1-0-1-20-1-20000-12-1000-1-20000-12-666-1-20000-1-20-20000-3000-500-100-180-0.5-1-true-1",
+        "static": "system_d3--streamsluice-streamsluice-false-true-false-systemsensitivity-sine-1split2join1-900-6000-30-3000-5000-0-1-0-1-20-1-20000-12-1000-1-20000-12-666-1-20000-1-20-20000-3000-500-100-60-0.0-1-true-3",
+        "setting_3": {
+            "Dimension": "Resource Sensitivity (Alpha)",
+            "0.0": [
+                # "system_d3--streamsluice-streamsluice-false-true-false-systemsensitivity-sine-1split2join1-900-6000-30-3000-5000-0-1-0-1-20-1-20000-12-1000-1-20000-12-666-1-20000-1-20-20000-3000-500-100-60-0.0-1-true-1",
+                # "system_d3--streamsluice-streamsluice-false-true-false-systemsensitivity-sine-1split2join1-900-6000-30-3000-5000-0-1-0-1-20-1-20000-12-1000-1-20000-12-666-1-20000-1-20-20000-3000-500-100-60-0.0-1-true-2",
+                # "system_d3--streamsluice-streamsluice-false-true-false-systemsensitivity-sine-1split2join1-900-6000-30-3000-5000-0-1-0-1-20-1-20000-12-1000-1-20000-12-666-1-20000-1-20-20000-3000-500-100-60-0.0-1-true-3",
+                # "system_d3--streamsluice-streamsluice-false-true-false-systemsensitivity-sine-1split2join1-900-6000-30-3000-5000-0-1-0-1-20-1-20000-12-1000-1-20000-12-666-1-20000-1-20-20000-3000-500-100-60-0.0-1-true-4",
+                "system_d3--streamsluice-streamsluice-false-true-false-systemsensitivity-sine-1split2join1-900-6000-30-3000-5000-0-1-0-1-20-1-20000-12-1000-1-20000-12-666-1-20000-1-20-20000-3000-500-100-60-0.0-1-true-5",
             ],
-            "360": [
-                "system_d4--streamsluice-streamsluice-false-true-false-systemsensitivity-sine-1split2join1-900-6000-30-3000-5000-0-1-0-1-20-1-20000-12-1000-1-20000-12-666-1-20000-1-20-20000-3000-500-100-360-0.5-1-true-1",
+            "0.25": [
+                # "system_d3--streamsluice-streamsluice-false-true-false-systemsensitivity-sine-1split2join1-900-6000-30-3000-5000-0-1-0-1-20-1-20000-12-1000-1-20000-12-666-1-20000-1-20-20000-3000-500-100-60-0.25-1-true-1",
+                "system_d3--streamsluice-streamsluice-false-true-false-systemsensitivity-sine-1split2join1-900-6000-30-3000-5000-0-1-0-1-20-1-20000-12-1000-1-20000-12-666-1-20000-1-20-20000-3000-500-100-60-0.25-1-true-2",
+                # "system_d3--streamsluice-streamsluice-false-true-false-systemsensitivity-sine-1split2join1-900-6000-30-3000-5000-0-1-0-1-20-1-20000-12-1000-1-20000-12-666-1-20000-1-20-20000-3000-500-100-60-0.25-1-true-3",
+                # "system_d3--streamsluice-streamsluice-false-true-false-systemsensitivity-sine-1split2join1-900-6000-30-3000-5000-0-1-0-1-20-1-20000-12-1000-1-20000-12-666-1-20000-1-20-20000-3000-500-100-60-0.25-1-true-4",
+                # "system_d3--streamsluice-streamsluice-false-true-false-systemsensitivity-sine-1split2join1-900-6000-30-3000-5000-0-1-0-1-20-1-20000-12-1000-1-20000-12-666-1-20000-1-20-20000-3000-500-100-60-0.25-1-true-5",
+            ],
+            "0.5": [
+                # "system_d3--streamsluice-streamsluice-false-true-false-systemsensitivity-sine-1split2join1-900-6000-30-3000-5000-0-1-0-1-20-1-20000-12-1000-1-20000-12-666-1-20000-1-20-20000-3000-500-100-60-0.5-1-true-1",
+                "system_d3--streamsluice-streamsluice-false-true-false-systemsensitivity-sine-1split2join1-900-6000-30-3000-5000-0-1-0-1-20-1-20000-12-1000-1-20000-12-666-1-20000-1-20-20000-3000-500-100-60-0.5-1-true-2",
+                # "system_d3--streamsluice-streamsluice-false-true-false-systemsensitivity-sine-1split2join1-900-6000-30-3000-5000-0-1-0-1-20-1-20000-12-1000-1-20000-12-666-1-20000-1-20-20000-3000-500-100-60-0.5-1-true-3",
+                # "system_d3--streamsluice-streamsluice-false-true-false-systemsensitivity-sine-1split2join1-900-6000-30-3000-5000-0-1-0-1-20-1-20000-12-1000-1-20000-12-666-1-20000-1-20-20000-3000-500-100-60-0.5-1-true-4",
+                # "system_d3--streamsluice-streamsluice-false-true-false-systemsensitivity-sine-1split2join1-900-6000-30-3000-5000-0-1-0-1-20-1-20000-12-1000-1-20000-12-666-1-20000-1-20-20000-3000-500-100-60-0.5-1-true-5",
+            ],
+            "0.75": [
+                "system_d3--streamsluice-streamsluice-false-true-false-systemsensitivity-sine-1split2join1-900-6000-30-3000-5000-0-1-0-1-20-1-20000-12-1000-1-20000-12-666-1-20000-1-20-20000-3000-500-100-60-0.75-1-true-1",
+                # "system_d3--streamsluice-streamsluice-false-true-false-systemsensitivity-sine-1split2join1-900-6000-30-3000-5000-0-1-0-1-20-1-20000-12-1000-1-20000-12-666-1-20000-1-20-20000-3000-500-100-60-0.75-1-true-2",
+                # "system_d3--streamsluice-streamsluice-false-true-false-systemsensitivity-sine-1split2join1-900-6000-30-3000-5000-0-1-0-1-20-1-20000-12-1000-1-20000-12-666-1-20000-1-20-20000-3000-500-100-60-0.75-1-true-3",
+                # "system_d3--streamsluice-streamsluice-false-true-false-systemsensitivity-sine-1split2join1-900-6000-30-3000-5000-0-1-0-1-20-1-20000-12-1000-1-20000-12-666-1-20000-1-20-20000-3000-500-100-60-0.75-1-true-4",
+                # "system_d3--streamsluice-streamsluice-false-true-false-systemsensitivity-sine-1split2join1-900-6000-30-3000-5000-0-1-0-1-20-1-20000-12-1000-1-20000-12-666-1-20000-1-20-20000-3000-500-100-60-0.75-1-true-5",
+            ],
+            "1.0": [
+                "system_d3--streamsluice-streamsluice-false-true-false-systemsensitivity-sine-1split2join1-900-6000-30-3000-5000-0-1-0-1-20-1-20000-12-1000-1-20000-12-666-1-20000-1-20-20000-3000-500-100-60-1.0-1-true-1",
+                # "system_d3--streamsluice-streamsluice-false-true-false-systemsensitivity-sine-1split2join1-900-6000-30-3000-5000-0-1-0-1-20-1-20000-12-1000-1-20000-12-666-1-20000-1-20-20000-3000-500-100-60-1.0-1-true-2",
+                # "system_d3--streamsluice-streamsluice-false-true-false-systemsensitivity-sine-1split2join1-900-6000-30-3000-5000-0-1-0-1-20-1-20000-12-1000-1-20000-12-666-1-20000-1-20-20000-3000-500-100-60-1.0-1-true-3",
+                # "system_d3--streamsluice-streamsluice-false-true-false-systemsensitivity-sine-1split2join1-900-6000-30-3000-5000-0-1-0-1-20-1-20000-12-1000-1-20000-12-666-1-20000-1-20-20000-3000-500-100-60-1.0-1-true-4",
+                # "system_d3--streamsluice-streamsluice-false-true-false-systemsensitivity-sine-1split2join1-900-6000-30-3000-5000-0-1-0-1-20-1-20000-12-1000-1-20000-12-666-1-20000-1-20-20000-3000-500-100-60-1.0-1-true-5",
             ],
         },
+
+        # "static": "system_d4--streamsluice-streamsluice-false-true-false-systemsensitivity-sine-1split2join1-900-6000-30-3000-5000-0-1-0-1-20-1-20000-12-1000-1-20000-12-666-1-20000-1-20-20000-3000-500-100-30-0.5-1-true-1",
+        # "setting_4": {
+        #     "Dimension": "Tuning Frequency (s)",
+        #     # "15": [
+        #     #     #"system_d4--streamsluice-streamsluice-false-true-false-systemsensitivity-sine-1split2join1-900-6000-30-3000-5000-0-1-0-1-20-1-20000-12-1000-1-20000-12-666-1-20000-1-20-20000-3000-500-100-15-0.5-1-true-1",
+        #     #     "system_d4--streamsluice-streamsluice-false-true-false-systemsensitivity-sine-1split2join1-900-6000-30-3000-5000-0-1-0-1-20-1-20000-12-1000-1-20000-12-666-1-20000-1-20-20000-3000-500-100-15-0.5-1-true-4",
+        #     #     "system_d4--streamsluice-streamsluice-false-true-false-systemsensitivity-sine-1split2join1-900-6000-30-3000-5000-0-1-0-1-20-1-20000-12-1000-1-20000-12-666-1-20000-1-20-20000-3000-500-100-15-0.5-1-true-5",
+        #     # ],
+        #     # "30": [
+        #     #     #"system_d4--streamsluice-streamsluice-false-true-false-systemsensitivity-sine-1split2join1-900-6000-30-3000-5000-0-1-0-1-20-1-20000-12-1000-1-20000-12-666-1-20000-1-20-20000-3000-500-100-30-0.5-1-true-1",
+        #     #     #"system_d4--streamsluice-streamsluice-false-true-false-systemsensitivity-sine-1split2join1-900-6000-30-3000-5000-0-1-0-1-20-1-20000-12-1000-1-20000-12-666-1-20000-1-20-20000-3000-500-100-30-0.5-1-true-2",
+        #     #     #"system_d4--streamsluice-streamsluice-false-true-false-systemsensitivity-sine-1split2join1-900-6000-30-3000-5000-0-1-0-1-20-1-20000-12-1000-1-20000-12-666-1-20000-1-20-20000-3000-500-100-30-0.5-1-true-3",
+        #     #     "system_d4--streamsluice-streamsluice-false-true-false-systemsensitivity-sine-1split2join1-900-6000-30-3000-5000-0-1-0-1-20-1-20000-12-1000-1-20000-12-666-1-20000-1-20-20000-3000-500-100-30-0.5-1-true-4",
+        #     #     "system_d4--streamsluice-streamsluice-false-true-false-systemsensitivity-sine-1split2join1-900-6000-30-3000-5000-0-1-0-1-20-1-20000-12-1000-1-20000-12-666-1-20000-1-20-20000-3000-500-100-30-0.5-1-true-5",
+        #     # ],
+        #     # "60": [
+        #     #     #"system_d4--streamsluice-streamsluice-false-true-false-systemsensitivity-sine-1split2join1-900-6000-30-3000-5000-0-1-0-1-20-1-20000-12-1000-1-20000-12-666-1-20000-1-20-20000-3000-500-100-60-0.5-1-true-1",
+        #     #     #"system_d4--streamsluice-streamsluice-false-true-false-systemsensitivity-sine-1split2join1-900-6000-30-3000-5000-0-1-0-1-20-1-20000-12-1000-1-20000-12-666-1-20000-1-20-20000-3000-500-100-60-0.5-1-true-2",
+        #     #     #"system_d4--streamsluice-streamsluice-false-true-false-systemsensitivity-sine-1split2join1-900-6000-30-3000-5000-0-1-0-1-20-1-20000-12-1000-1-20000-12-666-1-20000-1-20-20000-3000-500-100-60-0.5-1-true-3",
+        #     #     "system_d4--streamsluice-streamsluice-false-true-false-systemsensitivity-sine-1split2join1-900-6000-30-3000-5000-0-1-0-1-20-1-20000-12-1000-1-20000-12-666-1-20000-1-20-20000-3000-500-100-60-0.5-1-true-4",
+        #     #     "system_d4--streamsluice-streamsluice-false-true-false-systemsensitivity-sine-1split2join1-900-6000-30-3000-5000-0-1-0-1-20-1-20000-12-1000-1-20000-12-666-1-20000-1-20-20000-3000-500-100-60-0.5-1-true-5",
+        #     # ],
+        #     # "180": [
+        #     #     "system_d4--streamsluice-streamsluice-false-true-false-systemsensitivity-sine-1split2join1-900-6000-30-3000-5000-0-1-0-1-20-1-20000-12-1000-1-20000-12-666-1-20000-1-20-20000-3000-500-100-180-0.5-1-true-1",
+        #     # ],
+        #     # "360": [
+        #     #     "system_d4--streamsluice-streamsluice-false-true-false-systemsensitivity-sine-1split2join1-900-6000-30-3000-5000-0-1-0-1-20-1-20000-12-1000-1-20000-12-666-1-20000-1-20-20000-3000-500-100-360-0.5-1-true-1",
+        #     # ],
+        # },
     }
     def getStartTimeAndExpLength(exp_name):
         if exp_name.startswith("lr"):
@@ -1250,7 +1263,7 @@ def main():
         elif exp_name.startswith("system_"):
             latency_bar = int(exp_name.split('-')[-8])
             start_time = 60 #120
-            exp_length = 660 #900
+            exp_length = 900 # 660
         else:
             latency_bar = int(exp_name.split('-')[-6])
             start_time = 60
@@ -1262,7 +1275,7 @@ def main():
         if workload_name == "static":
             exp_name = exps_per_label
             start_time, exp_length, latency_bar = getStartTimeAndExpLength(exp_name)
-            avg_parallelism, arrival_curves = draw_parallelism_curve(raw_dir, output_dir + exp_name + '/', exp_name, window_size,
+            avg_parallelism, arrival_curves, trash, trash, trash, trash, trash = draw_parallelism_curve(raw_dir, output_dir + exp_name + '/', exp_name, window_size,
                                                             start_time, exp_length, True, [])
             continue
         success_rate_per_label = {}
@@ -1280,7 +1293,7 @@ def main():
             weighted_success_rate_per_label[label] = []
             for exp_name in exps:
                 start_time, exp_length, latency_bar = getStartTimeAndExpLength(exp_name)
-                success_rate, avg_ground_truth_latency, first_converge_time, converged_bar = draw_latency_curves(raw_dir,
+                success_rate, avg_ground_truth_latency, latency_min, latency_q1, latency_median, latency_q3, latency_max = draw_latency_curves(raw_dir,
                                                                                                               output_dir + exp_name + '/',
                                                                                                               exp_name,
                                                                                                               window_size,
@@ -1288,7 +1301,7 @@ def main():
                                                                                                               exp_length,
                                                                                                               latency_bar,
                                                                                                               draw_lem_latency_flag)
-                avg_parallelism, trash = draw_parallelism_curve(raw_dir, output_dir + exp_name + '/', exp_name,
+                avg_parallelism, trash, parallelism_min, parallelism_q1, parallelism_median, parallelism_q3, parallelism_max = draw_parallelism_curve(raw_dir, output_dir + exp_name + '/', exp_name,
                                                                 window_size,
                                                                 start_time, exp_length, True, arrival_curves)
                 user_limit_per_label[label] += [latency_bar]
@@ -1296,8 +1309,9 @@ def main():
                 avg_ground_truth_latency_per_label[label] += [avg_ground_truth_latency]
                 avg_parallelism_per_label[label] += [avg_parallelism]
                 f = open("system_results.txt", "a")
-                f.write(exp_name + " " + str(0) + " " + str(label) + " " + str(latency_bar) + " " + str(
-                    success_rate) + " " + str(avg_ground_truth_latency) + " " + str(avg_parallelism) + "\n")
+                f.write(exp_name + " " + str(0) + " " + str(label) + " " + str(latency_bar) + " " + str(success_rate)
+                        + " " + str(avg_ground_truth_latency) + " " + str(latency_min) + " " + str(latency_q1) + " " + str(latency_median) + " " + str(latency_q3) + " " + str(latency_max)
+                        + " " + str(avg_parallelism) + " " + str(parallelism_min) + " " + str(parallelism_q1) + " " + str(parallelism_median) + " " + str(parallelism_q3) + " " + str(parallelism_max) + "\n")
                 f.close()
         print(success_rate_per_label)
         print(avg_ground_truth_latency_per_label)

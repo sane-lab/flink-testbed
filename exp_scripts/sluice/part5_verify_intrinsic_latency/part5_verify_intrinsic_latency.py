@@ -294,6 +294,11 @@ def draw_latency_curves(raw_dir, output_dir, exp_name, window_size, start_time, 
     axes.set_xticklabels([int((x - start_time * 1000) / 1000) for x in
                           np.arange((start_time) * 1000, (start_time + exp_length) * 1000 + (exp_length / 10) * 1000,
                                     (exp_length / 10) * 1000)])
+    groundtruth_latencies_in_range = [[sampled_latency[0][i], sampled_latency[1][i]] for i in range(0, len(sampled_latency[0])) if sampled_latency[0][i] >= (start_time) * 1000 and sampled_latency[0][i] <= (start_time + exp_length) * 1000]
+    lem_latencies_in_range = [[lem_latencies[0][0][i], lem_latencies[0][1][i]] for i in range(0, len(lem_latencies[0][0])) if lem_latencies[0][0][i] >= (start_time) * 1000 and lem_latencies[0][0][i] <= (start_time + exp_length) * 1000]
+    lem_latencies_without_propagation_in_range = [[lem_latencies[0][0][i], lem_latencies[0][2][i]] for i in range(0, len(lem_latencies[0][0])) if lem_latencies[0][0][i] >= (start_time) * 1000 and lem_latencies[0][0][i] <= (start_time + exp_length) * 1000]
+
+
 
     if max(sampled_latency[1]) <= 2000:
         axes.set_ylim(0, 2000)
@@ -307,7 +312,10 @@ def draw_latency_curves(raw_dir, output_dir, exp_name, window_size, start_time, 
     plt.grid(True)
     if not os.path.exists(output_dir):
         os.makedirs(output_dir)
-    plt.savefig(output_dir + 'ground_truth_latency_curves.png', bbox_inches='tight')
+    if output_pdf_flag:
+        plt.savefig(output_dir + 'ground_truth_latency_curves.pdf', bbox_inches='tight')
+    else:
+        plt.savefig(output_dir + 'ground_truth_latency_curves.png', bbox_inches='tight')
     plt.close(fig)
 
     # Calculate the bar converge time
@@ -396,7 +404,47 @@ def draw_latency_curves(raw_dir, output_dir, exp_name, window_size, start_time, 
     plt.savefig(output_dir + 'latency_bar.png', bbox_inches='tight')
     plt.close(fig)
 
-    return success_rate, avg_ground_truth_latency_in_range, first_converge_time, converged_bar
+    return success_rate, avg_ground_truth_latency_in_range, evaluate_latency(groundtruth_latencies_in_range, lem_latencies_in_range), evaluate_latency(groundtruth_latencies_in_range, lem_latencies_without_propagation_in_range)
+
+import numpy as np
+from scipy.interpolate import interp1d
+from sklearn.metrics import mean_absolute_error, mean_squared_error
+
+def evaluate_latency(ground_truth, estimated):
+    """
+    Align ground truth and estimated latency data, and calculate MAE, MAPE, and RMSE.
+
+    Parameters:
+    - ground_truth: List of [time, latency] pairs for ground truth data.
+    - estimated: List of [time, latency] pairs for estimated data.
+
+    Returns:
+    - A dictionary with MAE, MAPE, and RMSE.
+    """
+    # Convert input lists to numpy arrays for easier manipulation
+    ground_truth = np.array(ground_truth)
+    estimated = np.array(estimated)
+
+    # Separate time and latency
+    gt_time, gt_latency = ground_truth[:, 0], ground_truth[:, 1]
+    est_time, est_latency = estimated[:, 0], estimated[:, 1]
+
+    # Interpolate ground truth and estimated latencies to align times
+    common_time = np.union1d(gt_time, est_time)  # Combine unique time stamps
+    gt_interp = interp1d(gt_time, gt_latency, kind='linear', fill_value='extrapolate')
+    est_interp = interp1d(est_time, est_latency, kind='linear', fill_value='extrapolate')
+
+    # Evaluate aligned latencies
+    gt_aligned = gt_interp(common_time)
+    est_aligned = est_interp(common_time)
+
+    # Calculate MAE, MAPE, and RMSE
+    mae = mean_absolute_error(gt_aligned, est_aligned)
+    mape = np.mean(np.abs((gt_aligned - est_aligned) / gt_aligned)) * 100  # Percentage
+    rmse = np.sqrt(mean_squared_error(gt_aligned, est_aligned))
+
+    # Return the results
+    return {"MAE": mae, "MAPE": mape, "RMSE": rmse}
 
 def parseMapping(split):
     mapping = {}
@@ -722,13 +770,15 @@ def draw_parallelism_curve(rawDir, outputDir, exp_name, windowSize, startTime, e
     if not os.path.exists(outputDir):
         os.makedirs(outputDir)
 
-    # plt.savefig(outputDir + figName + ".png", bbox_inches='tight')
-    plt.savefig(outputDir + figName + ".png", bbox_inches='tight')
+    if output_pdf_flag:
+        plt.savefig(outputDir + figName + ".pdf", bbox_inches='tight')
+    else:
+        plt.savefig(outputDir + figName + ".png", bbox_inches='tight')
     plt.close(fig)
     return average_parallelism, arrival_curves
 
 
-
+output_pdf_flag=True
 
 def main():
     raw_dir = "/Users/swrrt/Workplace/BacklogDelayPaper/experiments/raw/"
@@ -767,12 +817,24 @@ def main():
             latency_bar = int(exp_name.split('-')[-6])
             start_time = 50
             exp_length = 480
-        success_rate, avg_ground_truth_latency, first_converge_time, converged_bar = draw_latency_curves(raw_dir, output_dir + exp_name + '/', exp_name,
+        success_rate, avg_ground_truth_latency, estimation_result, estimation_result_without_propagation = draw_latency_curves(raw_dir, os.path.join(output_dir, exp_name + '/'), exp_name,
                                                                       window_size,
                                                                       start_time, exp_length, latency_bar, draw_lem_latency_flag)
-        avg_parallelism, trash = draw_parallelism_curve(raw_dir, output_dir + exp_name + '/', exp_name, window_size,
+        avg_parallelism, trash = draw_parallelism_curve(raw_dir, os.path.join(output_dir, exp_name + '/'), exp_name, window_size,
                                                         start_time, exp_length, True, [])
 
+        # Ensure the output directory exists
+        os.makedirs(overall_output_dir, exist_ok=True)
+        # Define the output file path
+        output_file = os.path.join(overall_output_dir, exp_name + '/' + "_evaluation_results.txt")
+        # Write the results to the file
+        with open(output_file, "w") as file:
+            file.write("With Propagation\n")
+            for key, value in estimation_result.items():
+                file.write(f"{key}: {value:.4f}\n")
+            file.write("Without Propagation\n")
+            for key, value in estimation_result_without_propagation.items():
+                file.write(f"{key}: {value:.4f}\n")
 
 
 if __name__ == "__main__":
