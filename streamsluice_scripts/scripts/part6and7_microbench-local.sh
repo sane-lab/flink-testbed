@@ -231,11 +231,32 @@ run_scale_test(){
     autotuner_initial_value_option=3
     autotuner_adjustment_option=10
     autotuner_increase_bar_option=10
-    autotuner_initial_value_alpha=700 #1000 #1200
+    autotuner_initial_value_alpha=800 #1000 #1200
 
     runtime=120 # 120
     for CURVE_TYPE in "linear"; do # "linear" "sine" "gradient"
-      for amplitude_low in 1000 1250 1500; do # 2000 1000
+      for amplitude_low in 2000; do #
+        is_treat=false
+        autotune=false
+        how_type="ds2"
+        run_one_exp
+        printf "${EXP_NAME}\n" >> part6and7_result.txt
+        how_type="streamsluice"
+        for whether_type in "streamsluice" "streamsluice_earlier" "streamsluice_later"; do #  "ds2" "dhalion" "streamswitch";
+          for repeat in 1 2 3; do #
+            is_treat=true
+            autotune=true
+#            run_one_exp
+#            printf "${EXP_NAME}\n" >> part6and7_result.txt
+          done
+        done
+      done
+    done
+
+    period_low=40
+    runtime=100 # 120
+    for CURVE_TYPE in "linear"; do # "linear" "sine" "gradient"
+      for amplitude_low in 1000 1250 1500; do #
         is_treat=false
         autotune=false
         how_type="ds2"
@@ -243,7 +264,7 @@ run_scale_test(){
         printf "${EXP_NAME}\n" >> part6and7_result.txt
         how_type="streamsluice"
         for autotuner_initial_value_alpha in 800; do
-          for whether_type in "streamsluice" "streamsluice_earlier" "streamsluice_later"; do #  "ds2" "dhalion" "streamswitch";
+          for whether_type in "streamsluice" "streamsluice_earlier"; do #  "streamsluice_later" "ds2" "dhalion" "streamswitch";
             for repeat in 1 2 3; do #
               is_treat=true
               autotune=true
@@ -255,8 +276,11 @@ run_scale_test(){
       done
     done
 
-
-
+    period_low=80
+    LP2=5
+    LP3=5
+    LP4=5
+    LP5=13
     SOURCE_TYPE="part7"
     whether_type="streamsluice"
     for CURVE_TYPE in "linear" "sine" "gradient"; do
@@ -266,12 +290,12 @@ run_scale_test(){
         how_type="ds2"
 #        run_one_exp
 #        printf "${EXP_NAME}\n" >> part6and7_result.txt
-        for how_type in "ds2" "drs" "streamswitch"; do #
+        for how_type in "streamsluice_more" "streamsluice_less" "streamsluice_minus_one" "streamsluice_no_balance" "streamsluice_not_bottleneck"; do # "ds2" "drs" "streamswitch"
           for repeat in 1 2 3; do
             is_treat=true
             autotune=false
-#            run_one_exp
-#            printf "${EXP_NAME}\n" >> part6and7_result.txt
+            run_one_exp
+            printf "${EXP_NAME}\n" >> part6and7_result.txt
           done
         done
       done

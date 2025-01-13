@@ -2,8 +2,6 @@ import math
 import sys
 import numpy as np
 import matplotlib
-from matplotlib import cm
-
 matplotlib.use('Agg')
 import matplotlib.pyplot as plt
 import os
@@ -136,6 +134,8 @@ def plot_avg_latency(x_per_label, avg_latency_per_label, output_dir, workload_na
         plt.savefig(output_dir + 'avg_latency_' + str(workload_name) + '.png', bbox_inches='tight')
     plt.close(fig)
 
+
+
 def plot_avg_parallelism_bar(x_per_label, avg_parallelism_per_label, output_dir, workload_name: str, dimension:str):
     labels = list(avg_parallelism_per_label.keys())
     xs = x_per_label[labels[0]]  # Assuming all labels have the same user limits for simplicity
@@ -180,98 +180,6 @@ def plot_avg_parallelism_bar(x_per_label, avg_parallelism_per_label, output_dir,
         plt.savefig(output_dir + 'avg_parallelism_curve_' + str(workload_name) + '.png', bbox_inches='tight')
     plt.close(fig)
 
-def plot_all_in_one(success_rates:dict[str:object], latency:dict[str:list[object]], parallelism:dict[str:list[object]], output_dir:str, workload_name:str, dimension:str):
-    # Extract labels
-    labels = list(success_rates.keys())
-
-    # Prepare data for boxplots
-    latency_stats = [
-        {
-            "q1": v[2], "q3": v[4], "whislo": max(v[2] - 1.5 * (v[4] - v[2]), v[1]), "whishi": min(v[4] + 1.5 * (v[4] - v[2]), v[5]),
-            "med": v[3], "mean": v[0], "label": k, "fliers": []  # Add fliers key
-        }
-        for k, v in latency.items()
-    ]
-
-    parallelism_stats = [
-        {
-            "q1": v[2], "q3": v[4], "whislo": max(v[2] - 1.5 * (v[4] - v[2]), v[1]), "whishi": min(v[4] + 1.5 * (v[4] - v[2]), v[5]),
-            "med": v[3], "mean": v[0], "label": k, "fliers": []  # Add fliers key
-        }
-        for k, v in parallelism.items()
-    ]
-
-    # Use Pastel1 colormap
-    cmap = matplotlib.colormaps["Paired"] # cm.get_cmap('Paired', len(labels) * 2)
-    colors = [cmap(i) for i in range(len(labels) * 2)]
-
-    # Create the figure and subplots
-    fig, (ax1, ax2) = plt.subplots(2, 1, figsize=(12, 7), gridspec_kw={'height_ratios': [1, 2]})
-
-    # 1. Top subplot: Success rate curve
-    ax1.plot(labels, list(success_rates.values()), marker='o', color='blue', label='Success Rate (%)')
-    ax1.set_ylabel("Success Rate (%)", fontsize=18)
-    ax1.tick_params(axis='y')
-
-    if workload_name == "Dimension1":
-        ax1.set_ylim(0.9, 1.0)
-        ax1.set_yticks(np.arange(0.9, 1.0001, 0.05))
-        ax1.set_yticklabels([math.ceil(x * 100) for x in np.arange(0.9, 1.0001, 0.05)])
-    elif workload_name == "Dimension2":
-        ax1.set_ylim(0.80, 1.0)
-        ax1.set_yticks(np.arange(0.80, 1.0001, 0.1))
-        ax1.set_yticklabels([math.ceil(x * 100) for x in np.arange(0.80, 1.0001, 0.1)])
-    elif workload_name == "Dimension3":
-        ax1.set_ylim(0.975, 0.995)
-        ax1.set_yticks(np.arange(0.98, 0.99, 0.01))
-        ax1.set_yticklabels([math.ceil(x * 100) for x in np.arange(0.98, 0.99, 0.01)])
-    elif workload_name == "Dimension4":
-        ax1.set_ylim(0.982, 0.992)
-        ax1.set_yticks(np.arange(0.98, 0.99, 0.005))
-        ax1.set_yticklabels([math.ceil(x * 100) for x in np.arange(0.98, 0.99, 0.005)])
-    else:
-        ax1.set_ylim(0.80, 1.0)
-        ax1.set_yticks(np.arange(0.80, 1.0001, 0.1))
-        ax1.set_yticklabels([math.ceil(x * 100) for x in np.arange(0.80, 1.0001, 0.1)])
-
-    # ax1.set_title("Success Rate Curve", fontsize=14)
-    # ax1.legend(loc="upper right")
-
-    # 2. Bottom subplot: Latency and parallelism boxplots
-    box_positions = range(len(labels))  # Positions for boxplots
-
-    # Plot latency boxplots with colormap
-    for i, pos in enumerate(box_positions):
-        ax2.bxp([latency_stats[i]], positions=[pos - 0.2], widths=0.3,
-                showmeans=True, meanline=True, patch_artist=True,
-                boxprops=dict(facecolor=colors[i * 2], alpha=0.5), meanprops=dict(color='red'))
-        #ax2.text(pos - 0.2, latency_stats[i]['whishi'] + 10, 'Latency', ha='center', fontsize=10, color="black")
-
-    # Second y-axis for parallelism
-    ax3 = ax2.twinx()
-
-    # Plot parallelism boxplots with colormap
-    for i, pos in enumerate(box_positions):
-        ax3.bxp([parallelism_stats[i]], positions=[pos + 0.2], widths=0.3,
-                showmeans=True, meanline=True, patch_artist=True,
-                boxprops=dict(facecolor=colors[i * 2 + 1], alpha=0.5), meanprops=dict(color='purple'))
-        # ax3.text(pos + 0.2, parallelism_stats[i]['whishi'] + 1, 'Parallelism', ha='center', fontsize=10,
-        #         color="black")
-
-    # Set labels and legends
-    ax2.set_ylabel("Latency (ms)", fontsize=18)
-    ax3.set_ylabel("# of Slots", fontsize=18)
-    ax2.set_xticks(box_positions)
-    ax2.set_xticklabels(labels)
-
-    if not os.path.exists(output_dir):
-        os.makedirs(output_dir)
-    if output_pdf_flag:
-        plt.savefig(output_dir + 'successrate_latency_parallelism_' + str(workload_name) + '.pdf', bbox_inches='tight')
-    else:
-        plt.title('Avg Resources by ' + clean_string(dimension))
-        plt.savefig(output_dir + 'successrate_latency_parallelism_' + str(workload_name) + '.png', bbox_inches='tight')
-    plt.close(fig)
 
 output_pdf_flag=True
 def main():
@@ -300,9 +208,6 @@ def main():
                 avg_parallelism_per_label = {}
                 avg_latency_per_label = {}
                 x_per_label = {}
-                success_rate_per_x = {}
-                latency_per_x = {}
-                parallelism_per_x = {}
             elif len(splits) == 1 and splits[0] == "end":
                 print(success_rate_per_label)
                 print(avg_latency_per_label)
@@ -310,28 +215,15 @@ def main():
                 plot_success_rate_bar(x_per_label, success_rate_per_label, overall_output_dir, workload_name, dimension)
                 plot_avg_latency(x_per_label, avg_latency_per_label, overall_output_dir, workload_name, dimension)
                 plot_avg_parallelism_bar(x_per_label, avg_parallelism_per_label, overall_output_dir, workload_name, dimension)
-                plot_all_in_one(success_rate_per_x, latency_per_x, parallelism_per_x, overall_output_dir, workload_name, dimension)
             elif len(splits) > 1:
                 label = splits[3]
                 x = splits[2]
-
                 if (dimension == "User Limit(ms)"):
                     label = ""
 
                 success_rate = float(splits[4])
                 avg_latency = float(splits[5])
-                min_latency = float(splits[6])
-                q1_latency = float(splits[7])
-                med_latency = float(splits[8])
-                q3_latency = float(splits[9])
-                max_latency = float(splits[10])
-                avg_parallelism = float(splits[11])
-                min_parallelism = float(splits[12])
-                q1_parallelism = float(splits[13])
-                med_parallelism = float(splits[14])
-                q3_parallelism = float(splits[15])
-                max_parallelism = float(splits[16])
-
+                avg_parallelism = float(splits[6])
                 if(label not in success_rate_per_label):
                     success_rate_per_label[label] = []
                     avg_parallelism_per_label[label] = []
@@ -341,9 +233,6 @@ def main():
                 success_rate_per_label[label].append(success_rate)
                 avg_latency_per_label[label].append(avg_latency)
                 avg_parallelism_per_label[label].append(avg_parallelism)
-                success_rate_per_x[x] = success_rate
-                latency_per_x[x] = [avg_latency, min_latency, q1_latency, med_latency, q3_latency, max_latency]
-                parallelism_per_x[x] = [avg_parallelism, min_parallelism, q1_parallelism, med_parallelism, q3_parallelism, max_parallelism]
                 print(label)
 
 
