@@ -661,15 +661,20 @@ def draw(rawDir, outputDir, exps, windowSize):
     #axes.set_yticks(np.arange(0, 6000, 1000))
     # axes.set_ylim(0, 5000)
     # axes.set_yticks(np.arange(0, 6250, 1250))
-    if max(lem_latencies[i][1] + [0]) > 2000 or max(sampledLatency[1]) > 2000:
-        axes.set_ylim(0, 5000)
-        axes.set_yticks(np.arange(0, 5500, 500))
-    elif max(lem_latencies[i][1] + [0]) > 500 or max(sampledLatency[1]) > 500:
-        axes.set_ylim(0, 2000)
-        axes.set_yticks(np.arange(0, 2200, 200))
-    else:
-        axes.set_ylim(-1, 500)
-        axes.set_yticks(np.arange(0, 550, 50))
+
+    axes.set_ylim(0, 5000)
+    axes.set_yticks(np.arange(0, 5500, 500))
+
+    # if max(lem_latencies[i][1] + [0]) > 2000 or max(sampledLatency[1]) > 2000:
+    #     axes.set_ylim(0, 5000)
+    #     axes.set_yticks(np.arange(0, 5500, 500))
+    # elif max(lem_latencies[i][1] + [0]) > 500 or max(sampledLatency[1]) > 500:
+    #     axes.set_ylim(0, 2000)
+    #     axes.set_yticks(np.arange(0, 2200, 200))
+    # else:
+    #     axes.set_ylim(-1, 500)
+    #     axes.set_yticks(np.arange(0, 550, 50))
+
     if trickFlag:
         axes.set_yticklabels([int(x / 1250 * 1000) for x in np.arange(0, 6250, 1250)])
     # axes.set_yscale('log')
@@ -962,13 +967,13 @@ exps_per_setting = {
          "part6and7-microbench-streamsluice-ds2-part6-linear-1split2join1-120-4000-4000-960-linear-2000-1-1440-stair_3-80-1-1440-stair_3-1-0-3-444-1-1000-3-444-1-1000-3-444-1-1000-5-500-1000-0.00-0.1-2000-3000-100-10-false-1",
          "black", "o"],
         ["Earlier",
-         "part6and7-microbench-streamsluice_earlier-streamsluice-part6-linear-1split2join1-120-4000-4000-960-linear-2000-1-1440-stair_3-80-1-1440-stair_3-1-0-3-444-1-5000-3-444-1-5000-3-444-1-5000-5-500-5000-0.00-0.1-2000-3000-100-10-true-3",
+         "part6and7-microbench-streamsluice_earlier-streamsluice-800-part6-linear-1split2join1-120-4000-4000-960-linear-2000-1-1440-stair_3-80-1-1440-stair_3-1-0-3-444-1-5000-3-444-1-5000-3-444-1-5000-5-500-5000-0.00-0.1-2000-3000-100-10-true-1",
          "green", "o"],
         ["Later",
-         "part6and7-microbench-streamsluice_later-streamsluice-part6-linear-1split2join1-120-4000-4000-960-linear-2000-1-1440-stair_3-80-1-1440-stair_3-1-0-3-444-1-5000-3-444-1-5000-3-444-1-5000-5-500-5000-0.00-0.1-2000-3000-100-10-true-1",
+         "part6and7-microbench-streamsluice_later-streamsluice-800-part6-linear-1split2join1-120-4000-4000-960-linear-2000-1-1440-stair_3-80-1-1440-stair_3-1-0-3-444-1-5000-3-444-1-5000-3-444-1-5000-5-500-5000-0.00-0.1-2000-3000-100-10-true-1",
          "orange", "o"],
         ["Sluice",
-         "part6and7-microbench-streamsluice-streamsluice-part6-linear-1split2join1-120-4000-4000-960-linear-2000-1-1440-stair_3-80-1-1440-stair_3-1-0-3-444-1-50    00-3-444-1-5000-3-444-1-5000-5-500-5000-0.00-0.1-2000-3000-100-10-true-3",
+         "part6and7-microbench-streamsluice-streamsluice-800-part6-linear-1split2join1-120-4000-4000-960-linear-2000-1-1440-stair_3-80-1-1440-stair_3-1-0-3-444-1-5000-3-444-1-5000-3-444-1-5000-5-500-5000-0.00-0.1-2000-3000-100-10-true-2",
          "blue", "o"],
     ],
     # "linear_1": [

@@ -234,8 +234,8 @@ run_scale_test(){
     autotuner_initial_value_alpha=700 #1000 #1200
 
     runtime=120 # 120
-    for CURVE_TYPE in "linear"; do # "sine" "gradient"
-      for autotuner_initial_value_alpha in 600 700 800; do
+    for CURVE_TYPE in "sine" "gradient"; do # "linear" "sine" "gradient"
+      for autotuner_initial_value_alpha in 600 700 800 900; do
         for amplitude_low in 2000; do # 2000 1000
           is_treat=false
           autotune=false
