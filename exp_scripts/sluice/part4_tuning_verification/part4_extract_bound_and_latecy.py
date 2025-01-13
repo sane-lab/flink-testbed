@@ -155,12 +155,12 @@ def add_latency_bar_curve(plt, latency_bar: dict[int, int], initial_time):
     for time in latency_bar.keys():
         x = [last_time, time - initial_time]
         y = [last_y, last_y]
-        plt.plot(x, y, 'o--', label="Latency Bound", color='orange', linewidth=1.5)
+        plt.plot(x, y, 'o--', label="Latency Bound", color='orange', linewidth=3)
         last_y = latency_bar[time]
         last_time = time - initial_time
     x = [last_time, 10000000]
     y = [last_y, last_y]
-    plt.plot(x, y, 'o--', label="Latency Bound", color='orange', linewidth=1.5)
+    plt.plot(x, y, 'o--', label="Latency Bound", color='orange', linewidth=3)
 
 
 def readLEMLatencyAndSpikeAndBarAndScalingMarker(rawDir, expName) -> [[list[int], list[float], list[float]], dict[int, int]]:
@@ -227,6 +227,17 @@ def readLEMLatencyAndSpikeAndBarAndScalingMarker(rawDir, expName) -> [[list[int]
                 p99_bar[time] = int(split[11].rstrip(','))
 
     return [lem_latency, latency_bar, p99_bar, scalings]
+
+def add_phase_marker(ax, end_time):
+    start_time = phase_start * 1000
+    i = 0
+    while start_time <= end_time:
+        xs = [start_time, start_time]
+        ys = [0, 10000000]
+        ax.plot(xs, ys, '--', color='grey')
+        start_time += phase_length[i] * 1000
+        i = (i + 1) % len(phase_length)
+
 
 def draw_latency_curves(raw_dir, output_dir, exp_name, window_size, start_time, exp_length, latency_limit,
                         draw_lem_latency_flag):
@@ -329,11 +340,11 @@ def draw_latency_curves(raw_dir, output_dir, exp_name, window_size, start_time, 
                  label="Ground Truth P99")
         if (draw_lem_latency_flag):
             plt.plot(lem_latencies[i][0], lem_latencies[i][1], '-', color="green", markersize=2, linewidth=2,
-                     label='Estimated Latency')
+                     label='Intrinsic Latency')
             add_latency_bar_curve(plt, latency_bar[i], initial_times[i])
         add_latency_limit_marker(plt, latency_limit)
         # add_scaling_marker(plt, scalings[i])
-
+        add_phase_marker(ax, (start_time + exp_length) * 1000)
     handles, labels = plt.gca().get_legend_handles_labels()
     new_labels, new_handles = [], []
     for handle, label in zip(handles, labels):
@@ -356,10 +367,14 @@ def draw_latency_curves(raw_dir, output_dir, exp_name, window_size, start_time, 
     else:
         axes.set_ylim(0, 5000)
         axes.set_yticks(np.arange(0, 5500, 500))
-    plt.grid(True)
+    #plt.grid(True)
     if not os.path.exists(output_dir):
         os.makedirs(output_dir)
-    plt.savefig(output_dir + 'ground_truth_latency_curves.png', bbox_inches='tight')
+
+    if output_pdf_flag:
+        plt.savefig(overall_output_dir + 'ground_truth_latency_curves.pdf', bbox_inches='tight')
+    else:
+        plt.savefig(output_dir + 'ground_truth_latency_curves.png', bbox_inches='tight')
     plt.close(fig)
 
     # Calculate the bar converge time
@@ -635,7 +650,7 @@ def readParallelism(rawDir, expName, windowSize):
 def draw_parallelism_curve(rawDir, outputDir, exp_name, windowSize, startTime, exp_length, draw_parallelism_flag, static_arrival_curve) -> [
     float, [list[int], list[float]]]:
     exps = [
-        ["Sluice", exp_name, "blue", "o"]
+        ["# of Slots", exp_name, "blue", "o"]
     ]
     parallelismsPerJob = {}
     totalArrivalRatesPerJob = {}
@@ -675,7 +690,7 @@ def draw_parallelism_curve(rawDir, outputDir, exp_name, windowSize, startTime, e
     # fig.supylabel('# of Slots')
     # supylabel2(fig, "Arrival Rate (tps)")
     fig.tight_layout(rect=[0.02, 0, 0.953, 1])
-    axs.grid(True)
+    #axs.grid(True)
     if (draw_parallelism_flag):
         ax1 = axs
         ax2 = ax1.twinx()
@@ -755,15 +770,12 @@ def draw_parallelism_curve(rawDir, outputDir, exp_name, windowSize, startTime, e
                 line[0].append(x1)
                 line[1].append(y0)
                 line[1].append(y1)
-            if exps[expindex][0] == 'Sluice':
-                linewidth = LINEWIDTH
-            else:
-                linewidth = LINEWIDTH / 2.0
-            ax1.plot(line[0], line[1], color=exps[expindex][2], linewidth=linewidth, label='# of Slots')
+            ax1.plot(line[0], line[1], color=exps[expindex][2], linewidth=3, label='# of Slots')
             average_parallelism = totalParallelism / (exp_length * 1000)
             print("Average parallelism " + exps[expindex][0] + " : " + str(totalParallelism / (exp_length * 1000)))
-        ax1.plot(scalingPoints[0], scalingPoints[1], 'o', color="orange", mfc='none', markersize=MARKERSIZE * 2,
-                 label="Scaling")
+        add_phase_marker(ax1, (startTime + exp_length) * 1000)
+        # ax1.plot(scalingPoints[0], scalingPoints[1], 'o', color="orange", mfc='none', markersize=MARKERSIZE * 2,
+        #          label="Scaling")
         ax1.legend(legend, loc='upper left', bbox_to_anchor=(-0.1, 1.3), ncol=3, markerscale=4.)
         # ax1.set_ylabel('OP_'+str(jobIndex+1)+' Parallelism')
         ax1.set_ylim(10, 60)
@@ -781,10 +793,17 @@ def draw_parallelism_curve(rawDir, outputDir, exp_name, windowSize, startTime, e
     if not os.path.exists(outputDir):
         os.makedirs(outputDir)
 
-    # plt.savefig(outputDir + figName + ".png", bbox_inches='tight')
-    plt.savefig(outputDir + figName + ".png", bbox_inches='tight')
+    if output_pdf_flag:
+        plt.savefig(overall_output_dir + figName + ".pdf", bbox_inches='tight')
+    else:
+        plt.savefig(outputDir + figName + ".png", bbox_inches='tight')
     plt.close(fig)
     return average_parallelism, arrival_curves
+
+output_pdf_flag=False
+overall_output_dir = "/Users/swrrt/Workplace/BacklogDelayPaper/experiments/figures/part4/"
+phase_start = 75
+phase_length = [90, 80, 70, 60, 70, 80]
 
 
 def main():
@@ -800,9 +819,9 @@ def main():
             #    "part4-microbench-streamsluice-streamsluice-systemsensitivity-sine-1split2join1-1500-1000-4000-90-45-1-0-1-20-1-10000-17-2000-1-10000-1-20-1-10000-1-10-10000-0.05-false-0.5-1000-500-100-1-true-1",
             # ],
             "scale": [
-                "part4-microbench-3-1.2-10-10-systemsensitivity-sine-1split2join1-1260-2500-7500-60-30-1-0-1-20-1-10000-14-2050-1-10000-1-20-1-10000-1-10-10000-0.05-false-0.8-3000-500-100-1-false-1",
-                "part4-microbench-3-125-10-10-systemsensitivity-sine-1split2join1-1260-2500-7500-60-30-1-0-1-20-1-10000-14-2050-1-10000-1-20-1-10000-1-10-10000-0.05-true-0.8-3000-500-100-1-true-1",
-                "part4-microbench-3-250-10-10-systemsensitivity-sine-1split2join1-1260-2500-7500-60-30-1-0-1-20-1-10000-14-2050-1-10000-1-20-1-10000-1-10-10000-0.05-true-0.8-3000-500-100-1-true-1",
+                "part4-microbench-3-1.2-10-10-systemsensitivity-sine-1split2join1-1260-2500-7500-60-30-1-0-1-20-1-10000-20-2050-1-10000-1-20-1-10000-1-10-10000-0.05-false-0.8-3000-500-100-1-false-1",
+                # "part4-microbench-3-125-10-10-systemsensitivity-sine-1split2join1-1260-2500-7500-60-30-1-0-1-20-1-10000-14-2050-1-10000-1-20-1-10000-1-10-10000-0.05-true-0.8-3000-500-100-1-true-1",
+                # "part4-microbench-3-250-10-10-systemsensitivity-sine-1split2join1-1260-2500-7500-60-30-1-0-1-20-1-10000-14-2050-1-10000-1-20-1-10000-1-10-10000-0.05-true-0.8-3000-500-100-1-true-1",
                 #  "part4-microbench-3-500-10-10-systemsensitivity-sine-1split2join1-1260-2500-7500-60-30-1-0-1-20-1-10000-14-2050-1-10000-1-20-1-10000-1-10-10000-0.05-true-0.8-3000-500-100-1-true-1",
                 #  "part4-microbench-3-1000-10-10-systemsensitivity-sine-1split2join1-1260-2500-7500-60-30-1-0-1-20-1-10000-14-2050-1-10000-1-20-1-10000-1-10-10000-0.05-true-0.8-3000-500-100-1-true-1",
                 #  "part4-microbench-3-1500-10-10-systemsensitivity-sine-1split2join1-1260-2500-7500-60-30-1-0-1-20-1-10000-14-2050-1-10000-1-20-1-10000-1-10-10000-0.05-true-0.8-3000-500-100-1-true-1",
@@ -812,7 +831,7 @@ def main():
                 # "part4-microbench-3-2500-10-10-systemsensitivity-sine-1split2join1-1260-2500-7500-60-30-1-0-1-20-1-10000-14-2050-1-10000-1-20-1-10000-1-10-10000-0.05-true-0.8-3000-500-100-1-true-3",
                 # "part4-microbench-3-3000-10-10-systemsensitivity-sine-1split2join1-1260-2500-7500-60-30-1-0-1-20-1-10000-14-2050-1-10000-1-20-1-10000-1-10-10000-0.05-true-0.8-3000-500-100-1-true-1",
 
-                # "part4-microbench-5-1.2-1-8-systemsensitivity-sine-1split2join1-1260-2500-7500-60-30-1-0-1-20-1-10000-14-2050-1-10000-1-20-1-10000-1-10-10000-0.05-true-0.0-3000-500-100-1-true-1",
+                #"part4-microbench-5-1.2-1-8-systemsensitivity-sine-1split2join1-1260-2500-7500-60-30-1-0-1-20-1-10000-14-2050-1-10000-1-20-1-10000-1-10-10000-0.05-true-0.0-3000-500-100-1-true-1",
                 # # "part4-microbench-5-1.2-1-8-systemsensitivity-sine-1split2join1-1260-2500-7500-60-30-1-0-1-20-1-10000-14-2050-1-10000-1-20-1-10000-1-10-10000-0.05-true-0.0-3000-500-100-1-true-2",
                 # # "part4-microbench-5-1.2-1-8-systemsensitivity-sine-1split2join1-1260-2500-7500-60-30-1-0-1-20-1-10000-14-2050-1-10000-1-20-1-10000-1-10-10000-0.05-true-0.0-3000-500-100-1-true-3",
                 # # "part4-microbench-5-1.2-1-8-systemsensitivity-sine-1split2join1-1260-2500-7500-60-30-1-0-1-20-1-10000-14-2050-1-10000-1-20-1-10000-1-10-10000-0.05-true-0.0-3000-500-100-1-true-4",
@@ -821,7 +840,7 @@ def main():
                 # # "part4-microbench-5-1.2-1-8-systemsensitivity-sine-1split2join1-1260-2500-7500-60-30-1-0-1-20-1-10000-14-2050-1-10000-1-20-1-10000-1-10-10000-0.05-true-0.5-3000-500-100-1-true-2",
                 # # "part4-microbench-5-1.2-1-8-systemsensitivity-sine-1split2join1-1260-2500-7500-60-30-1-0-1-20-1-10000-14-2050-1-10000-1-20-1-10000-1-10-10000-0.05-true-0.5-3000-500-100-1-true-3",
                 # # "part4-microbench-5-1.2-1-8-systemsensitivity-sine-1split2join1-1260-2500-7500-60-30-1-0-1-20-1-10000-14-2050-1-10000-1-20-1-10000-1-10-10000-0.05-true-0.5-3000-500-100-1-true-4",
-                # "part4-microbench-5-1.2-1-8-systemsensitivity-sine-1split2join1-1260-2500-7500-60-30-1-0-1-20-1-10000-14-2050-1-10000-1-20-1-10000-1-10-10000-0.05-true-0.5-3000-500-100-1-true-5",
+                #"part4-microbench-5-1.2-1-8-systemsensitivity-sine-1split2join1-1260-2500-7500-60-30-1-0-1-20-1-10000-14-2050-1-10000-1-20-1-10000-1-10-10000-0.05-true-0.5-3000-500-100-1-true-5",
                 # # "part4-microbench-5-1.2-1-8-systemsensitivity-sine-1split2join1-1260-2500-7500-60-30-1-0-1-20-1-10000-14-2050-1-10000-1-20-1-10000-1-10-10000-0.05-true-0.75-3000-500-100-1-true-1",
                 # # "part4-microbench-5-1.2-1-8-systemsensitivity-sine-1split2join1-1260-2500-7500-60-30-1-0-1-20-1-10000-14-2050-1-10000-1-20-1-10000-1-10-10000-0.05-true-0.75-3000-500-100-1-true-2",
                 # # "part4-microbench-5-1.2-1-8-systemsensitivity-sine-1split2join1-1260-2500-7500-60-30-1-0-1-20-1-10000-14-2050-1-10000-1-20-1-10000-1-10-10000-0.05-true-0.75-3000-500-100-1-true-3",

@@ -959,16 +959,16 @@ outputDir = "/Users/swrrt/Workplace/BacklogDelayPaper/experiments/figures/part6/
 exps_per_setting = {
     "linear_1": [
         ["Static",
-         "part6and7-microbench-streamsluice-ds2-part6-linear-1split2join1-120-4000-4000-960-linear-2000-1-1440-stair_3-80-1-1440-stair_3-1-0-3-444-1-7500-3-444-1-7500-3-444-1-7500-5-500-7500-0.00-0.1-2000-3000-100-10-false-1",
+         "part6and7-microbench-streamsluice-ds2-part6-linear-1split2join1-120-4000-4000-960-linear-2000-1-1440-stair_3-80-1-1440-stair_3-1-0-3-444-1-1000-3-444-1-1000-3-444-1-1000-5-500-1000-0.00-0.1-2000-3000-100-10-false-1",
          "black", "o"],
         ["Earlier",
-         "part6and7-microbench-streamsluice_earlier-streamsluice-part6-linear-1split2join1-120-4000-4000-960-linear-2000-1-1440-stair_3-80-1-1440-stair_3-1-0-3-444-1-7500-3-444-1-7500-3-444-1-7500-5-500-7500-0.00-0.1-2000-3000-100-10-true-1",
+         "part6and7-microbench-streamsluice-streamsluice-part6-linear-1split2join1-120-4000-4000-960-linear-2000-1-1440-stair_3-80-1-1440-stair_3-1-0-3-444-1-1000-3-444-1-1000-3-444-1-1000-5-500-1000-0.00-0.1-2000-3000-100-10-true-2",
          "green", "o"],
         ["Later",
-         "part6and7-microbench-streamsluice_later-streamsluice-part6-linear-1split2join1-120-4000-4000-960-linear-2000-1-1440-stair_3-80-1-1440-stair_3-1-0-3-444-1-7500-3-444-1-7500-3-444-1-7500-5-500-7500-0.00-0.1-2000-3000-100-10-true-1",
+         "part6and7-microbench-streamsluice-streamsluice-part6-linear-1split2join1-120-4000-4000-960-linear-2000-1-1440-stair_3-80-1-1440-stair_3-1-0-3-444-1-1000-3-444-1-1000-3-444-1-1000-5-500-1000-0.00-0.1-2000-3000-100-10-true-3",
          "orange", "o"],
         ["Sluice",
-         "part6and7-microbench-streamsluice-streamsluice-part6-linear-1split2join1-120-4000-4000-960-linear-2000-1-1440-stair_3-80-1-1440-stair_3-1-0-3-444-1-7500-3-444-1-7500-3-444-1-7500-5-500-7500-0.00-0.1-2000-3000-100-10-true-1",
+         "part6and7-microbench-streamsluice-streamsluice-part6-linear-1split2join1-120-4000-4000-960-linear-2000-1-1440-stair_3-80-1-1440-stair_3-1-0-3-444-1-1000-3-444-1-1000-3-444-1-1000-5-500-1000-0.00-0.1-2000-3000-100-10-true-1",
          "blue", "o"],
     ],
     # "linear_1": [
