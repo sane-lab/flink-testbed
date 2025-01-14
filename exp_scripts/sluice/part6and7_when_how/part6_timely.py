@@ -940,7 +940,8 @@ exps_per_setting = {
          "part6and7-microbench-streamsluice_later-streamsluice-800-part6-quarter-sine-1split2join1-120-4000-4000-960-linear-2500-1-1440-stair_3-96-1-1440-stair_3-1-0-3-444-1-5000-3-444-1-5000-3-444-1-5000-5-500-5000-0.00-0.1-2000-3000-100-10-true-1",
          "orange", "s-"],
         ["Sluice",
-         "part6and7-microbench-streamsluice-streamsluice-800-part6-quarter-sine-1split2join1-120-4000-4000-960-linear-2500-1-1440-stair_3-96-1-1440-stair_3-1-0-3-444-1-5000-3-444-1-5000-3-444-1-5000-5-500-5000-0.00-0.1-2000-3000-100-10-true-5",
+         #"part6and7-microbench-streamsluice-streamsluice-800-part6-quarter-sine-1split2join1-120-4000-4000-960-linear-2500-1-1440-stair_3-96-1-1440-stair_3-1-0-3-444-1-5000-3-444-1-5000-3-444-1-5000-5-500-5000-0.00-0.1-2000-3000-100-10-true-1",
+         "part6and7-microbench-streamsluice-streamsluice-800-part6-quarter-sine-1split2join1-120-4000-4000-960-linear-2500-1-1440-stair_3-96-1-1440-stair_3-1-0-3-444-1-2500-3-444-1-2500-3-444-1-2500-5-500-2500-0.00-0.1-2000-3000-100-10-true-3",
          "blue", "o-"],
     ],
     # # "part6_linear_1": [
