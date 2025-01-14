@@ -234,20 +234,20 @@ run_scale_test(){
     autotuner_initial_value_alpha=800 #1000 #1200
 
     runtime=120 # 120
-    for CURVE_TYPE in "linear"; do # "linear" "sine" "gradient"
+    for CURVE_TYPE in "quarter-sine"; do # "linear" "quarter-sine" "gradient"
       for amplitude_low in 2000; do #
         is_treat=false
         autotune=false
         how_type="ds2"
-#        run_one_exp
-#        printf "${EXP_NAME}\n" >> part6and7_result.txt
+        run_one_exp
+        printf "${EXP_NAME}\n" >> part6and7_result.txt
         how_type="streamsluice"
         for whether_type in "streamsluice" "streamsluice_earlier" "streamsluice_later"; do #  "ds2" "dhalion" "streamswitch";
           for repeat in 1 2 3; do #
             is_treat=true
             autotune=true
-#            run_one_exp
-#            printf "${EXP_NAME}\n" >> part6and7_result.txt
+            run_one_exp
+            printf "${EXP_NAME}\n" >> part6and7_result.txt
           done
         done
       done
@@ -263,7 +263,7 @@ run_scale_test(){
 #        run_one_exp
 #        printf "${EXP_NAME}\n" >> part6and7_result.txt
         how_type="streamsluice"
-        for whether_type in "streamsluice_later"; do # "streamsluice" "streamsluice_earlier" "streamsluice_later" "ds2" "dhalion" "streamswitch";
+        for whether_type in "streamsluice" "streamsluice_earlier" "streamsluice_later"; do # "streamsluice" "streamsluice_earlier" "streamsluice_later" "ds2" "dhalion" "streamswitch";
           for repeat in 1 2 3; do #
             is_treat=true
             autotune=true
@@ -299,8 +299,8 @@ run_scale_test(){
           for repeat in 1 2 3 4 5; do
             is_treat=true
             autotune=true
-            run_one_exp
-            printf "${EXP_NAME}\n" >> part6and7_result.txt
+#            run_one_exp
+#            printf "${EXP_NAME}\n" >> part6and7_result.txt
           done
         done
       done

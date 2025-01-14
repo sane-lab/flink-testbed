@@ -2255,8 +2255,11 @@ public class MicroBench {
                 case "sine":
                     this.PATTERN = 2;
                     break;
-                case "mixed":
+                case "quarter-sine":
                     this.PATTERN = 3;
+                    break;
+                case "mixed":
+                    this.PATTERN = 4;
                     break;
                 default:
                     this.PATTERN = 2;
@@ -2448,6 +2451,41 @@ public class MicroBench {
             }
         }
 
+        void startQuarterSinePhase(SourceContext<Tuple3<String, Long, Long>> ctx, long rate1, long rate2, long time, long phaseStartTime) throws Exception {
+            long currentTime;
+            long elapsedTime;
+            long rate;
+
+            while (isRunning && (currentTime = System.currentTimeMillis()) - phaseStartTime < time) {
+                long emitStartTime = System.currentTimeMillis();
+                elapsedTime = currentTime - phaseStartTime;
+
+                // Calculate the current rate using a quarter sine interpolation between rate1 and rate2
+                double normalizedTime = (double) elapsedTime / time; // Normalize elapsed time to [0, 1]
+                rate = (long) (rate1 + (rate2 - rate1) * Math.sin((Math.PI / 2) * normalizedTime)); // Quarter sine curve
+
+                // Add Gaussian noise to the rate, scaled by noise level
+                double noise = random.nextGaussian() * NOISE_LEVEL;
+                rate = (long) (rate * (1 + noise));  // Apply the noise
+
+                // Ensure that the rate is not negative after applying noise
+                if (rate < 0) {
+                    rate = 0;
+                }
+
+                for (int i = 0; i < rate / 20; i++) {
+                    int selectedKeygroup = fastZipfGenerator.next();
+                    List<String> subKeySet = keyGroupMapping.get(selectedKeygroup);
+                    totalOutputNumbers.put(selectedKeygroup, totalOutputNumbers.getOrDefault(selectedKeygroup, 0L) + 1);
+                    String key = getSubKeySetChar(count, subKeySet);
+                    ctx.collect(Tuple3.of(key, System.currentTimeMillis(), (long) count));
+                    count++;
+                }
+
+                Util.pause(emitStartTime);
+            }
+        }
+
         private long calculateValueAtCurrentTime(long time, long low, long high, long period, long pattern){
             long value = 0;
             time = time % period;
@@ -2510,7 +2548,7 @@ public class MicroBench {
                 long now_amplitude = calculateValueAtCurrentTime(roundStartTime - startTime, AMPLITUDE_LOW, AMPLITUDE_HIGH, AMPLITUDE_PERIOD, AMPLITUDE_PATTERN);
                 long now_period = calculateValueAtCurrentTime(roundStartTime - startTime, PERIOD_LOW, PERIOD_HIGH, PERIOD_PERIOD, PERIOD_PATTERN);
                 long pattern_this_round;
-                if (this.PATTERN != 3){
+                if (this.PATTERN != 4){
                     pattern_this_round = this.PATTERN;
                 }else{
                     pattern_this_round = round % 3;
@@ -2551,6 +2589,26 @@ public class MicroBench {
                     System.out.println("Round " + round + " sine phase start at: " + roundStartTime);
                     System.out.println("phase paras: " + now_average_rate + ", " + now_amplitude + ", " + now_period);
                     startSinePhase(ctx, now_amplitude, now_average_rate, now_period, roundStartTime);
+                }else if (pattern_this_round == 3){
+                    System.out.println("Round " + round + " quarter sine phase start at: " + roundStartTime);
+                    System.out.println("phase paras: " + now_average_rate + ", " + now_amplitude + ", " + now_period);
+                    startSteadyPhase(ctx, now_average_rate, now_period / 16, roundStartTime);
+                    roundStartTime = System.currentTimeMillis();
+                    startQuarterSinePhase(ctx, now_average_rate, now_average_rate + now_amplitude, now_period / 8, roundStartTime);
+                    roundStartTime = System.currentTimeMillis();
+                    startSteadyPhase(ctx, now_average_rate + now_amplitude, now_period / 8, roundStartTime);
+                    roundStartTime = System.currentTimeMillis();
+                    startQuarterSinePhase(ctx, now_average_rate + now_amplitude, now_average_rate, now_period / 8, roundStartTime);
+                    roundStartTime = System.currentTimeMillis();
+                    startSteadyPhase(ctx, now_average_rate, now_period / 8, roundStartTime);
+                    roundStartTime = System.currentTimeMillis();
+                    startQuarterSinePhase(ctx, now_average_rate, now_average_rate - now_amplitude, now_period / 8, roundStartTime);
+                    roundStartTime = System.currentTimeMillis();
+                    startSteadyPhase(ctx, now_average_rate - now_amplitude, now_period / 8, roundStartTime);
+                    roundStartTime = System.currentTimeMillis();
+                    startQuarterSinePhase(ctx, now_average_rate - now_amplitude, now_average_rate, now_period / 8, roundStartTime);
+                    roundStartTime = System.currentTimeMillis();
+                    startSteadyPhase(ctx, now_average_rate, now_period / 16, roundStartTime);
                 }
                 if (!isRunning) {
                     return;
