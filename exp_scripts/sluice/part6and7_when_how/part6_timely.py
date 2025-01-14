@@ -825,8 +825,8 @@ def draw_resource(rawDir, outputDir, exps, ax1, ax2, xlabel_flag, ylabel_flag):
     ay = [totalArrivalRatesPerJob[job][0][x] / (windowSize / 100) for x in ax]
     ax2.plot(ax, ay, '-', color='red', markersize=MARKERSIZE / 2, label="Arrival Rate")
     #ax2.set_ylabel('Rate (tps)')
-    ax2.set_ylim(3500, 6500)
-    ax2.set_yticks(np.arange(3500, 7500, 1000))
+    ax2.set_ylim(3500, 7500)
+    ax2.set_yticks(np.arange(3500, 8500, 1000))
     ax2.set_xlim(startTime * 1000, (startTime + exp_length) * 1000)
     ax2.set_xticks(np.arange(startTime * 1000, (startTime + exp_length) * 1000 + 5000, 5000))
     ax2.set_xticklabels([int((x - startTime * 1000) / 1000) for x in
@@ -931,32 +931,46 @@ outputDir = "/Users/swrrt/Workplace/BacklogDelayPaper/experiments/figures/part6/
 exps_per_setting = {
     "part6_linear_1": [
         ["Static",
-         "part6and7-microbench-streamsluice-ds2-part6-linear-1split2join1-120-4000-4000-960-linear-2000-1-1440-stair_3-80-1-1440-stair_3-1-0-3-444-1-1000-3-444-1-1000-3-444-1-1000-5-500-1000-0.00-0.1-2000-3000-100-10-false-1",
+         "part6and7-microbench-streamsluice-ds2-800-part6-quarter-sine-1split2join1-120-4000-4000-960-linear-2500-1-1440-stair_3-96-1-1440-stair_3-1-0-3-444-1-5000-3-444-1-5000-3-444-1-5000-5-500-5000-0.00-0.1-2000-3000-100-10-false-1",
          "black", "x--"],
         ["Earlier",
-         "part6and7-microbench-streamsluice_earlier-streamsluice-800-part6-linear-1split2join1-120-4000-4000-960-linear-2000-1-1440-stair_3-80-1-1440-stair_3-1-0-3-444-1-5000-3-444-1-5000-3-444-1-5000-5-500-5000-0.00-0.1-2000-3000-100-10-true-1",
+         "part6and7-microbench-streamsluice_earlier-streamsluice-800-part6-quarter-sine-1split2join1-120-4000-4000-960-linear-2500-1-1440-stair_3-96-1-1440-stair_3-1-0-3-444-1-5000-3-444-1-5000-3-444-1-5000-5-500-5000-0.00-0.1-2000-3000-100-10-true-1",
          "green", "^-"],
         ["Later",
-         "part6and7-microbench-streamsluice_later-streamsluice-800-part6-linear-1split2join1-120-4000-4000-960-linear-2000-1-1440-stair_3-80-1-1440-stair_3-1-0-3-444-1-5000-3-444-1-5000-3-444-1-5000-5-500-5000-0.00-0.1-2000-3000-100-10-true-1",
+         "part6and7-microbench-streamsluice_later-streamsluice-800-part6-quarter-sine-1split2join1-120-4000-4000-960-linear-2500-1-1440-stair_3-96-1-1440-stair_3-1-0-3-444-1-5000-3-444-1-5000-3-444-1-5000-5-500-5000-0.00-0.1-2000-3000-100-10-true-1",
          "orange", "s-"],
         ["Sluice",
-         "part6and7-microbench-streamsluice-streamsluice-800-part6-linear-1split2join1-120-4000-4000-960-linear-2000-1-1440-stair_3-80-1-1440-stair_3-1-0-3-444-1-5000-3-444-1-5000-3-444-1-5000-5-500-5000-0.00-0.1-2000-3000-100-10-true-2",
+         "part6and7-microbench-streamsluice-streamsluice-800-part6-quarter-sine-1split2join1-120-4000-4000-960-linear-2500-1-1440-stair_3-96-1-1440-stair_3-1-0-3-444-1-5000-3-444-1-5000-3-444-1-5000-5-500-5000-0.00-0.1-2000-3000-100-10-true-5",
          "blue", "o-"],
     ],
-    "part6_quarter-sine_1": [
-        ["Static",
-         "part6and7-microbench-streamsluice-ds2-800-part6-quarter-sine-1split2join1-120-4000-4000-960-linear-2000-1-1440-stair_3-80-1-1440-stair_3-1-0-3-444-1-5000-3-444-1-5000-3-444-1-5000-5-500-5000-0.00-0.1-2000-3000-100-10-false-1",
-         "black", "x--"],
-        ["Earlier",
-         "part6and7-microbench-streamsluice_earlier-streamsluice-800-part6-quarter-sine-1split2join1-120-4000-4000-960-linear-2000-1-1440-stair_3-80-1-1440-stair_3-1-0-3-444-1-5000-3-444-1-5000-3-444-1-5000-5-500-5000-0.00-0.1-2000-3000-100-10-true-1",
-         "green", "^-"],
-        ["Later",
-         "part6and7-microbench-streamsluice_later-streamsluice-800-part6-quarter-sine-1split2join1-120-4000-4000-960-linear-2000-1-1440-stair_3-80-1-1440-stair_3-1-0-3-444-1-5000-3-444-1-5000-3-444-1-5000-5-500-5000-0.00-0.1-2000-3000-100-10-true-1",
-         "orange", "s-"],
-        ["Sluice",
-         "part6and7-microbench-streamsluice-streamsluice-800-part6-quarter-sine-1split2join1-120-4000-4000-960-linear-2000-1-1440-stair_3-80-1-1440-stair_3-1-0-3-444-1-5000-3-444-1-5000-3-444-1-5000-5-500-5000-0.00-0.1-2000-3000-100-10-true-1",
-         "blue", "o-"],
-    ],
+    # # "part6_linear_1": [
+    # #     ["Static",
+    # #      "part6and7-microbench-streamsluice-ds2-part6-linear-1split2join1-120-4000-4000-960-linear-2000-1-1440-stair_3-80-1-1440-stair_3-1-0-3-444-1-1000-3-444-1-1000-3-444-1-1000-5-500-1000-0.00-0.1-2000-3000-100-10-false-1",
+    # #      "black", "x--"],
+    # #     ["Earlier",
+    # #      "part6and7-microbench-streamsluice_earlier-streamsluice-800-part6-linear-1split2join1-120-4000-4000-960-linear-2000-1-1440-stair_3-80-1-1440-stair_3-1-0-3-444-1-5000-3-444-1-5000-3-444-1-5000-5-500-5000-0.00-0.1-2000-3000-100-10-true-1",
+    # #      "green", "^-"],
+    # #     ["Later",
+    # #      "part6and7-microbench-streamsluice_later-streamsluice-800-part6-linear-1split2join1-120-4000-4000-960-linear-2000-1-1440-stair_3-80-1-1440-stair_3-1-0-3-444-1-5000-3-444-1-5000-3-444-1-5000-5-500-5000-0.00-0.1-2000-3000-100-10-true-1",
+    # #      "orange", "s-"],
+    # #     ["Sluice",
+    # #      "part6and7-microbench-streamsluice-streamsluice-800-part6-linear-1split2join1-120-4000-4000-960-linear-2000-1-1440-stair_3-80-1-1440-stair_3-1-0-3-444-1-5000-3-444-1-5000-3-444-1-5000-5-500-5000-0.00-0.1-2000-3000-100-10-true-2",
+    # #      "blue", "o-"],
+    # # ],
+    # # "part6_quarter-sine_1": [
+    # #     ["Static",
+    # #      "part6and7-microbench-streamsluice-ds2-800-part6-quarter-sine-1split2join1-120-4000-4000-960-linear-2000-1-1440-stair_3-80-1-1440-stair_3-1-0-3-444-1-5000-3-444-1-5000-3-444-1-5000-5-500-5000-0.00-0.1-2000-3000-100-10-false-1",
+    # #      "black", "x--"],
+    # #     ["Earlier",
+    # #      "part6and7-microbench-streamsluice_earlier-streamsluice-800-part6-quarter-sine-1split2join1-120-4000-4000-960-linear-2000-1-1440-stair_3-80-1-1440-stair_3-1-0-3-444-1-5000-3-444-1-5000-3-444-1-5000-5-500-5000-0.00-0.1-2000-3000-100-10-true-1",
+    # #      "green", "^-"],
+    # #     ["Later",
+    # #      "part6and7-microbench-streamsluice_later-streamsluice-800-part6-quarter-sine-1split2join1-120-4000-4000-960-linear-2000-1-1440-stair_3-80-1-1440-stair_3-1-0-3-444-1-5000-3-444-1-5000-3-444-1-5000-5-500-5000-0.00-0.1-2000-3000-100-10-true-1",
+    # #      "orange", "s-"],
+    # #     ["Sluice",
+    # #      "part6and7-microbench-streamsluice-streamsluice-800-part6-quarter-sine-1split2join1-120-4000-4000-960-linear-2000-1-1440-stair_3-80-1-1440-stair_3-1-0-3-444-1-5000-3-444-1-5000-3-444-1-5000-5-500-5000-0.00-0.1-2000-3000-100-10-true-1",
+    # #      "blue", "o-"],
+    # # ],
     # # "part6_sine_1": [
     # #     ["Static",
     # #      "part6and7-microbench-streamsluice-ds2-700-part6-sine-1split2join1-120-4000-4000-960-linear-2000-1-1440-stair_3-80-1-1440-stair_3-1-0-3-444-1-5000-3-444-1-5000-3-444-1-5000-5-500-5000-0.00-0.1-2000-3000-100-10-false-1",
@@ -1053,13 +1067,13 @@ for workload, exps in exps_per_setting.items():
     trickFlag = False #True
     if workload == "part6_linear_1":
         startTime = 55
-        expLength = 40
+        expLength = 30
     elif workload == "part6_quarter-sine_1":
         startTime = 55
-        expLength = 40
+        expLength = 30
     elif workload == "part6_sine_1":
         startTime = 50
-        expLength = 40
+        expLength = 30
     elif workload == "part6_gradient_1":
         startTime = 52
         expLength = 30

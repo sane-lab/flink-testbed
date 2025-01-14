@@ -233,10 +233,6 @@ run_scale_test(){
     autotuner_increase_bar_option=10
     autotuner_initial_value_alpha=800 #1000 #1200
 
-    STATE_SIZE2=2500
-    STATE_SIZE3=2500
-    STATE_SIZE4=2500
-    STATE_SIZE5=2500
     period_low=96 # 80
     runtime=120 # 120
     for CURVE_TYPE in "quarter-sine"; do # "linear" "quarter-sine" "gradient"
@@ -244,11 +240,11 @@ run_scale_test(){
         is_treat=false
         autotune=false
         how_type="ds2"
-#        run_one_exp
-#        printf "${EXP_NAME}\n" >> part6and7_result.txt
+        run_one_exp
+        printf "${EXP_NAME}\n" >> part6and7_result.txt
         how_type="streamsluice"
-        for whether_type in "streamsluice"; do #  "streamsluice_earlier" "streamsluice_later" "ds2" "dhalion" "streamswitch";
-          for repeat in 1 2 3; do #
+        for whether_type in "streamsluice" "streamsluice_earlier" "streamsluice_later"; do #  "ds2" "dhalion" "streamswitch";
+          for repeat in 1 2 3 4 5; do #
             is_treat=true
             autotune=true
             run_one_exp
@@ -258,10 +254,6 @@ run_scale_test(){
       done
     done
 
-    STATE_SIZE2=5000
-    STATE_SIZE3=5000
-    STATE_SIZE4=5000
-    STATE_SIZE5=5000
     period_low=40
     runtime=120 # 120
     for CURVE_TYPE in "linear"; do # "linear" "quarter-sine" "gradient"
@@ -296,10 +288,6 @@ run_scale_test(){
     autotuner_increase_bar_option=10
     autotuner_initial_value_alpha=800 #1000 #1200
 
-    STATE_SIZE2=5000
-    STATE_SIZE3=5000
-    STATE_SIZE4=5000
-    STATE_SIZE5=5000
     for CURVE_TYPE in "linear" "quarter-sine" "gradient"; do # "linear" "quarter-sine" "gradient"
       for amplitude_low in 2000; do
         is_treat=false
