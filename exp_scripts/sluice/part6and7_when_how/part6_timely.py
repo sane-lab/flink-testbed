@@ -1003,20 +1003,20 @@ exps_per_setting = {
     #      "part6and7-microbench-streamsluice-streamsluice-800-part6-gradient-1split2join1-120-4000-4000-960-linear-2000-1-1440-stair_3-80-1-1440-stair_3-1-0-3-444-1-5000-3-444-1-5000-3-444-1-5000-5-500-5000-0.00-0.1-2000-3000-100-10-true-1",
     #      "blue", "o-"],
     # ],
-    # "part6_linear_2": [
-    #     ["Static",
-    #      "part6and7-microbench-streamsluice_later-ds2-800-part6-linear-1split2join1-100-4000-4000-960-linear-1000-1-1440-stair_3-40-1-1440-stair_3-1-0-3-444-1-5000-3-444-1-5000-3-444-1-5000-5-500-5000-0.00-0.1-2000-3000-100-10-false-3",
-    #      "black", "x--"],
-    #     ["Earlier",
-    #      "part6and7-microbench-streamsluice_earlier-streamsluice-800-part6-linear-1split2join1-100-4000-4000-960-linear-1000-1-1440-stair_3-40-1-1440-stair_3-1-0-3-444-1-5000-3-444-1-5000-3-444-1-5000-5-500-5000-0.00-0.1-2000-3000-100-10-true-1",
-    #      "green", "^-"],
-    #     ["Later",
-    #      "part6and7-microbench-streamsluice_later-streamsluice-800-part6-linear-1split2join1-120-4000-4000-960-linear-1000-1-1440-stair_3-40-1-1440-stair_3-1-0-3-444-1-5000-3-444-1-5000-3-444-1-5000-5-500-5000-0.00-0.1-2000-3000-100-10-true-2",
-    #      "orange", "s-"],
-    #     ["Sluice",
-    #      "part6and7-microbench-streamsluice-streamsluice-800-part6-linear-1split2join1-100-4000-4000-960-linear-1000-1-1440-stair_3-40-1-1440-stair_3-1-0-3-444-1-5000-3-444-1-5000-3-444-1-5000-5-500-5000-0.00-0.1-2000-3000-100-10-true-1",
-    #      "blue", "o-"],
-    # ],
+    "part6_linear_2": [
+        ["Static",
+         "part6and7-microbench-streamsluice_later-ds2-800-part6-linear-1split2join1-100-4000-4000-960-linear-1000-1-1440-stair_3-40-1-1440-stair_3-1-0-3-444-1-5000-3-444-1-5000-3-444-1-5000-5-500-5000-0.00-0.1-2000-3000-100-10-false-3",
+         "black", "x--"],
+        ["Earlier",
+         "part6and7-microbench-streamsluice_earlier-streamsluice-800-part6-linear-1split2join1-100-4000-4000-960-linear-1000-1-1440-stair_3-40-1-1440-stair_3-1-0-3-444-1-5000-3-444-1-5000-3-444-1-5000-5-500-5000-0.00-0.1-2000-3000-100-10-true-1",
+         "green", "^-"],
+        ["Later",
+         "part6and7-microbench-streamsluice_later-streamsluice-800-part6-linear-1split2join1-120-4000-4000-960-linear-1000-1-1440-stair_3-40-1-1440-stair_3-1-0-3-444-1-5000-3-444-1-5000-3-444-1-5000-5-500-5000-0.00-0.1-2000-3000-100-10-true-2",
+         "orange", "s-"],
+        ["Sluice",
+         "part6and7-microbench-streamsluice-streamsluice-800-part6-linear-1split2join1-100-4000-4000-960-linear-1000-1-1440-stair_3-40-1-1440-stair_3-1-0-3-444-1-5000-3-444-1-5000-3-444-1-5000-5-500-5000-0.00-0.1-2000-3000-100-10-true-1",
+         "blue", "o-"],
+    ],
 }
 
 startTime=60 #30+300 #30
@@ -1061,7 +1061,7 @@ avg_latency_calculateTime = expLength # 30
 
 output_pdf_flag = True
 
-fig, axs = plt.subplots(3, 4, figsize=(20, 8), layout='constrained')
+fig, axs = plt.subplots(3, 2, figsize=(20, 8), layout='constrained')
 
 index = 0
 for workload, exps in exps_per_setting.items():

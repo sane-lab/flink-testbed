@@ -896,21 +896,21 @@ def plot_success_rate_bar(success_rate_per_label, output_dir, workload_name: str
     plt.close(fig)
 
 def plot_latency_curves(latency_curves, latency_limit, output_dir, start_time, exp_length, workload_name: str):
-    fig, ax = plt.subplots(figsize=(10, 4))
+    fig, ax = plt.subplots(figsize=(12, 6))
     legend_elements = []
     from matplotlib.lines import Line2D
     for label, latency_curve in latency_curves.items():
         if label == "Sluice":
-            linewidth = 3
+            linewidth = 2.5
         else:
             linewidth = 1.5
         ax.plot(latency_curve[0], latency_curve[1], MARKER_MAP[label][1:], color=COLOR_MAP[label], label=label, linewidth=linewidth)
 
-        marker_indices = np.arange(0, len(latency_curve[0]), 100)  # Every 100 points = 10 seconds
+        marker_indices = np.arange(0, len(latency_curve[0]), 50)  # Every 100 points = 10 seconds
         marker_x = [latency_curve[0][index] for index in marker_indices]
         marker_y = [latency_curve[1][index] for index in marker_indices]
-        plt.scatter(marker_x, marker_y, color=COLOR_MAP[label], label=label, zorder=5)
-        legend_elements.append(Line2D([0], [0], linestyle=MARKER_MAP[label][1:], marker=MARKER_MAP[label][0], color=COLOR_MAP[label], label=label)) #, markersize=8))
+        plt.scatter(marker_x, marker_y, s=64, color=COLOR_MAP[label], marker=MARKER_MAP[label][0], label=label, zorder=10)
+        legend_elements.append(Line2D([0], [0], linestyle=MARKER_MAP[label][1:], markersize=6, marker=MARKER_MAP[label][0], color=COLOR_MAP[label], label=label)) #, markersize=8))
 
     ax.plot([0, 10000000], [latency_limit, latency_limit], color='red', linestyle='--')
     ax.set_ylim(0, 5000)
@@ -921,9 +921,11 @@ def plot_latency_curves(latency_curves, latency_limit, output_dir, start_time, e
     ax.set_xticklabels([int((x - start_time * 1000) / 60000) for x in
                           np.arange((start_time) * 1000, (start_time + exp_length) * 1000 + (exp_length / 5) * 1000,
                                     (exp_length / 5) * 1000)])
-    ax.set_ylabel('Latency (ms)')
-    ax.set_xlabel('Time (minute)')
-    ax.legend(handles=legend_elements, loc='upper center', bbox_to_anchor=(0.5, 1.25), ncol=4)
+    ax.tick_params(axis='x', labelsize=FONT_SIZE)
+    ax.tick_params(axis='y', labelsize=FONT_SIZE)
+    ax.set_ylabel('Latency (ms)', fontsize=FONT_SIZE)
+    ax.set_xlabel('Time (minute)', fontsize=FONT_SIZE)
+    ax.legend(handles=legend_elements, loc='upper center', bbox_to_anchor=(0.5, 1.25), ncol=2, fontsize=FONT_SIZE)
     #ax.legend(loc='upper center', bbox_to_anchor=(0.5, 1.25), ncol=4)
     ax.grid(True)
 
@@ -938,7 +940,7 @@ def plot_latency_curves(latency_curves, latency_limit, output_dir, start_time, e
     plt.close(fig)
 
 def plot_parallelism_curves(parallelism_curve, arrival_curve, output_dir, start_time, exp_length, workload_name: str):
-    fig, axs = plt.subplots(1, 1, figsize=(10, 4), layout='constrained')
+    fig, axs = plt.subplots(1, 1, figsize=(12, 6), layout='constrained')
     # fig.tight_layout(rect=[0.02, 0, 0.953, 1])
     ax1 = axs
     ax2 = ax1.twinx()
@@ -948,8 +950,23 @@ def plot_parallelism_curves(parallelism_curve, arrival_curve, output_dir, start_
             linewidth = 2.0
         else:
             linewidth = 1.0
-        for xs, ys in p_curve:
-            ax1.plot(xs, ys, color=COLOR_MAP[label], label=label, linewidth=linewidth)
+        if label != "Static":
+            # Interval for markers in milliseconds (20 seconds = 20000 ms)
+            marker_interval = 60000
+            next_marker_time = start_time * 1000 + marker_interval
+
+            for xs, ys in p_curve:
+                ax1.plot(xs, ys, MARKER_MAP[label][1:], color=COLOR_MAP[label], label=label, linewidth=linewidth)
+
+                for i in range(0, len(xs) - 1):
+                    x0 = xs[i]
+                    x1 = xs[i+1]
+                    y0 = ys[i]
+                    # Add marker points every 2 seconds
+                    while next_marker_time >= x0 and next_marker_time <= x1 and next_marker_time <= (start_time + exp_length) * 1000:
+                        ax1.scatter(next_marker_time, y0, color=COLOR_MAP[label], marker=MARKER_MAP[label][0], s=64, zorder=10)
+                        next_marker_time += marker_interval
+
 
     ax1.set_ylim(0, 40)
     ax1.set_yticks(np.arange(0, 45, 10))
@@ -959,9 +976,12 @@ def plot_parallelism_curves(parallelism_curve, arrival_curve, output_dir, start_
     else:
         ax2.set_ylim(0, 8000)
         ax2.set_yticks(np.arange(0, 10000, 2000))
-    ax1.set_ylabel('# of Slots')
-    ax2.set_ylabel('Arrival Rate (tps)')
-    axs.set_xlabel('Time (minute)')
+    ax1.tick_params(axis='x', labelsize=FONT_SIZE)
+    ax1.tick_params(axis='y', labelsize=FONT_SIZE)
+    ax2.tick_params(axis='y', labelsize=FONT_SIZE)
+    ax1.set_ylabel('# of Slots', fontsize=FONT_SIZE)
+    ax2.set_ylabel('Arrival Rate (tps)', fontsize=FONT_SIZE)
+    axs.set_xlabel('Time (minute)', fontsize=FONT_SIZE)
     axs.set_xlim((start_time) * 1000, (start_time + exp_length) * 1000)
     axs.set_xticks(np.arange((start_time) * 1000, (start_time + exp_length) * 1000 + (exp_length / 5) * 1000,
                               (exp_length / 5) * 1000))
@@ -970,7 +990,7 @@ def plot_parallelism_curves(parallelism_curve, arrival_curve, output_dir, start_
                                     (exp_length / 5) * 1000)])
     lines1, labels1 = ax1.get_legend_handles_labels()
     lines2, labels2 = ax2.get_legend_handles_labels()
-    axs.legend(lines1 + lines2, labels1 + labels2, loc='upper center', bbox_to_anchor=(0.5, 1.4), ncol=3)
+    axs.legend(lines1 + lines2, labels1 + labels2, loc='upper center', bbox_to_anchor=(0.5, 1.4), ncol=2, fontsize=FONT_SIZE)
     #axs.legend(loc='upper center', bbox_to_anchor=(0.5, 1.25), ncol=4)
 
     axs.grid(True)
@@ -986,7 +1006,7 @@ def plot_parallelism_curves(parallelism_curve, arrival_curve, output_dir, start_
     plt.close(fig)
 
 
-output_pdf_flag=True
+output_pdf_flag = True
 COLOR_MAP = {
     "Static": "grey",
     "DS2": "purple",
@@ -999,6 +1019,7 @@ MARKER_MAP = {
     "StreamSwitch": "s-",
     "Sluice": "o-",
 }
+FONT_SIZE = 30
 
 def main():
     raw_dir = "/Users/swrrt/Workplace/BacklogDelayPaper/experiments/raw/"
@@ -1009,13 +1030,13 @@ def main():
     draw_lem_latency_flag = True
     exps_per_label_per_setting = {
         "Twitter_30min": {
-            # "Static": "tweet-streamsluice-streamsluice-5-60-1950-90-1500-1-14-6666-5-1000-1-50-1-50-2500-100-false-0.1-1",
-            # "Static-Adequate": "tweet-streamsluice-streamsluice-5-60-1950-90-1500-1-19-6666-9-1000-1-50-1-50-2500-100-false-0.1-1",
-            # "DS2": "tweet-ds2-ds2-5-60-1950-90-1500-1-19-6666-9-1000-1-50-1-50-2500-100-true-0.1-1",
-            # "Streamswitch": "tweet-streamswitch-streamswitch-5-60-1950-90-1500-1-19-6666-9-1000-1-50-1-50-2500-100-true-0.1-1",
-            #"Sluice": "tweet-streamsluice-streamsluice-5-8-1950-90-1500-1-19-6666-9-1000-1-50-1-50-2500-100-true-0.1-2",
+            # # "Static": "tweet-streamsluice-streamsluice-5-60-1950-90-1500-1-14-6666-5-1000-1-50-1-50-2500-100-false-0.1-1",
+            # # "Static-Adequate": "tweet-streamsluice-streamsluice-5-60-1950-90-1500-1-19-6666-9-1000-1-50-1-50-2500-100-false-0.1-1",
+            # # "DS2": "tweet-ds2-ds2-5-60-1950-90-1500-1-19-6666-9-1000-1-50-1-50-2500-100-true-0.1-1",
+            # # "Streamswitch": "tweet-streamswitch-streamswitch-5-60-1950-90-1500-1-19-6666-9-1000-1-50-1-50-2500-100-true-0.1-1",
+            # #"Sluice": "tweet-streamsluice-streamsluice-5-8-1950-90-1500-1-19-6666-9-1000-1-50-1-50-2500-100-true-0.1-2",
             "Static": "tweet-streamsluice-streamsluice-5-60-1350-90-1700-1-14-3333-5-500-1-50-1-50-1250-2000-100-false-0.1-1",
-            #"Static-Adequate": "tweet-streamsluice-streamsluice-5-60-1350-90-1700-1-19-3333-9-500-1-50-1-50-1250-2000-100-false-0.1-1",
+            # #"Static-Adequate": "tweet-streamsluice-streamsluice-5-60-1350-90-1700-1-19-3333-9-500-1-50-1-50-1250-2000-100-false-0.1-1",
             "DS2": "tweet-ds2-ds2-5-60-1350-90-1700-1-19-3333-9-500-1-50-1-50-1250-2000-100-true-0.1-1",
             "StreamSwitch": "tweet-streamswitch-streamswitch-5-60-1350-90-1700-1-19-3333-9-500-1-50-1-50-1250-2000-100-true-0.1-1",
             "Sluice": "tweet-streamsluice-streamsluice-5-60-1350-90-3400-1-19-3333-9-500-1-50-1-50-1250-2000-100-true-0.1-1",
