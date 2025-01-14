@@ -1,7 +1,8 @@
 import math
-import sys
-import numpy as np
+
 import matplotlib
+import numpy as np
+
 matplotlib.use('Agg')
 import matplotlib.pyplot as plt
 def supylabel2(fig, s, **kwargs):
@@ -962,7 +963,7 @@ rawDir = "/Users/swrrt/Workplace/BacklogDelayPaper/experiments/raw/"
 outputDir = "/Users/swrrt/Workplace/BacklogDelayPaper/experiments/figures/part6/"
 
 exps_per_setting = {
-    # "linear_1": [
+    # "part6_linear_1": [
     #     ["Static",
     #      "part6and7-microbench-streamsluice-ds2-part6-linear-1split2join1-120-4000-4000-960-linear-2000-1-1440-stair_3-80-1-1440-stair_3-1-0-3-444-1-1000-3-444-1-1000-3-444-1-1000-5-500-1000-0.00-0.1-2000-3000-100-10-false-1",
     #      "black", "o"],
@@ -976,7 +977,7 @@ exps_per_setting = {
     #      "part6and7-microbench-streamsluice-streamsluice-800-part6-linear-1split2join1-120-4000-4000-960-linear-2000-1-1440-stair_3-80-1-1440-stair_3-1-0-3-444-1-5000-3-444-1-5000-3-444-1-5000-5-500-5000-0.00-0.1-2000-3000-100-10-true-2",
     #      "blue", "o"],
     # ],
-    # "sine_1": [
+    # "part6_sine_1": [
     #     ["Static",
     #      "part6and7-microbench-streamsluice-ds2-700-part6-sine-1split2join1-120-4000-4000-960-linear-2000-1-1440-stair_3-80-1-1440-stair_3-1-0-3-444-1-5000-3-444-1-5000-3-444-1-5000-5-500-5000-0.00-0.1-2000-3000-100-10-false-1",
     #      "black", "o"],
@@ -990,7 +991,7 @@ exps_per_setting = {
     #      "part6and7-microbench-streamsluice-streamsluice-800-part6-sine-1split2join1-120-4000-4000-960-linear-2000-1-1440-stair_3-80-1-1440-stair_3-1-0-3-444-1-5000-3-444-1-5000-3-444-1-5000-5-500-5000-0.00-0.1-2000-3000-100-10-true-1",
     #      "blue", "o"],
     # ],
-    # "stair_1": [
+    # "part6_stair_1": [
     #     ["Static",
     #      "part6and7-microbench-streamsluice_later-ds2-700-part6-gradient-1split2join1-120-4000-4000-960-linear-2000-1-1440-stair_3-80-1-1440-stair_3-1-0-3-444-1-5000-3-444-1-5000-3-444-1-5000-5-500-5000-0.00-0.1-2000-3000-100-10-false-3",
     #      "black", "o"],
@@ -1004,38 +1005,93 @@ exps_per_setting = {
     #      "part6and7-microbench-streamsluice-streamsluice-800-part6-gradient-1split2join1-120-4000-4000-960-linear-2000-1-1440-stair_3-80-1-1440-stair_3-1-0-3-444-1-5000-3-444-1-5000-3-444-1-5000-5-500-5000-0.00-0.1-2000-3000-100-10-true-1",
     #      "blue", "o"],
     # ],
-
-    # "linear_2": [
+    # "part6_linear_2": [
     #     ["Static",
     #      "part6and7-microbench-streamsluice_later-ds2-800-part6-linear-1split2join1-100-4000-4000-960-linear-1000-1-1440-stair_3-40-1-1440-stair_3-1-0-3-444-1-5000-3-444-1-5000-3-444-1-5000-5-500-5000-0.00-0.1-2000-3000-100-10-false-3",
     #      "black", "o"],
     #     ["Earlier",
     #      "part6and7-microbench-streamsluice_earlier-streamsluice-800-part6-linear-1split2join1-100-4000-4000-960-linear-1000-1-1440-stair_3-40-1-1440-stair_3-1-0-3-444-1-5000-3-444-1-5000-3-444-1-5000-5-500-5000-0.00-0.1-2000-3000-100-10-true-1",
     #      "green", "o"],
-    #     # ["Later",
-    #     #  "part6and7-microbench-streamsluice_later-streamsluice-800-part6-linear-1split2join1-120-4000-4000-960-linear-1000-1-1440-stair_3-80-1-1440-stair_3-1-0-3-444-1-5000-3-444-1-5000-3-444-1-5000-5-500-5000-0.00-0.1-2000-3000-100-10-true-1",
-    #     #  "orange", "o"],
+    #     ["Later",
+    #      "part6and7-microbench-streamsluice_later-streamsluice-800-part6-linear-1split2join1-120-4000-4000-960-linear-1000-1-1440-stair_3-40-1-1440-stair_3-1-0-3-444-1-5000-3-444-1-5000-3-444-1-5000-5-500-5000-0.00-0.1-2000-3000-100-10-true-2",
+    #      "orange", "o"],
     #     ["Sluice",
     #      "part6and7-microbench-streamsluice-streamsluice-800-part6-linear-1split2join1-100-4000-4000-960-linear-1000-1-1440-stair_3-40-1-1440-stair_3-1-0-3-444-1-5000-3-444-1-5000-3-444-1-5000-5-500-5000-0.00-0.1-2000-3000-100-10-true-1",
     #      "blue", "o"],
     # ],
 
 
-    "linear_1_part7": [
+    # "part7_linear_1": [
+    #     ["Static",
+    #      "part6and7-microbench-streamsluice-streamsluice_less-800-part7-linear-1split2join1-100-4000-4000-960-linear-2000-1-1440-stair_3-80-1-1440-stair_3-1-0-3-444-1-5000-3-444-1-5000-3-444-1-5000-5-500-5000-0.00-0.1-2000-3000-100-10-true-2",
+    #      "black", "o"],
+    #     ["More",
+    #      "part6and7-microbench-streamsluice-streamsluice_more-800-part7-linear-1split2join1-120-4000-4000-960-linear-2000-1-1440-stair_3-80-1-1440-stair_3-1-0-3-444-1-5000-3-444-1-5000-3-444-1-5000-5-500-5000-0.00-0.1-2000-3000-100-10-true-1",
+    #      "green", "o"],
+    #     ["Less",
+    #      "part6and7-microbench-streamsluice-streamsluice_less-800-part7-linear-1split2join1-120-4000-4000-960-linear-2000-1-1440-stair_3-80-1-1440-stair_3-1-0-3-444-1-5000-3-444-1-5000-3-444-1-5000-5-500-5000-0.00-0.1-2000-3000-100-10-true-1",
+    #      "orange", "o"],
+    #     ["Minus_one",
+    #      "part6and7-microbench-streamsluice-streamsluice_minus_one-800-part7-linear-1split2join1-120-4000-4000-960-linear-2000-1-1440-stair_3-80-1-1440-stair_3-1-0-3-444-1-5000-3-444-1-5000-3-444-1-5000-5-500-5000-0.00-0.1-2000-3000-100-10-true-3",
+    #      "purple", "o"],
+    ##     ["No_Balance",
+    ##      "part6and7-microbench-streamsluice-streamsluice_no_balance-800-part7-linear-1split2join1-120-4000-4000-960-linear-2000-1-1440-stair_3-80-1-1440-stair_3-1-0-3-444-1-5000-3-444-1-5000-3-444-1-5000-5-500-5000-0.00-0.1-2000-3000-100-10-true-1",
+    ##      "olive", "o"],
+    #     ["Sluice",
+    #      "part6and7-microbench-streamsluice-streamsluice-800-part6-linear-1split2join1-120-4000-4000-960-linear-2000-1-1440-stair_3-80-1-1440-stair_3-1-0-3-444-1-5000-3-444-1-5000-3-444-1-5000-5-500-5000-0.00-0.1-2000-3000-100-10-true-2",
+    #      "blue", "o"],
+    # ],
+    # "part7_linear_2": [
+    #     ["Static",
+    #      "part6and7-microbench-streamsluice-streamsluice_less-800-part7-linear-1split2join1-100-4000-4000-960-linear-2000-1-1440-stair_3-80-1-1440-stair_3-1-0-3-444-1-5000-3-444-1-5000-3-444-1-5000-5-500-5000-0.00-0.1-2000-3000-100-10-true-2",
+    #      "black", "o"],
+    #     ["Not_Bottleneck",
+    #      "part6and7-microbench-streamsluice-streamsluice_not_bottleneck-800-part7-linear-1split2join1-120-4000-4000-960-linear-2000-1-1440-stair_3-80-1-1440-stair_3-1-0-3-444-1-5000-3-444-1-5000-3-444-1-5000-5-500-5000-0.00-0.1-2000-3000-100-10-true-3",
+    #      "orange", "o"],
+    #     ["Sluice",
+    #      "part6and7-microbench-streamsluice-streamsluice-800-part6-linear-1split2join1-120-4000-4000-960-linear-2000-1-1440-stair_3-80-1-1440-stair_3-1-0-3-444-1-5000-3-444-1-5000-3-444-1-5000-5-500-5000-0.00-0.1-2000-3000-100-10-true-2",
+    #      "blue", "o"],
+    # ],
+    # "part7_sine_1": [
+    #     ["Static",
+    #      "part6and7-microbench-streamsluice-ds2-700-part6-sine-1split2join1-120-4000-4000-960-linear-2000-1-1440-stair_3-80-1-1440-stair_3-1-0-3-444-1-5000-3-444-1-5000-3-444-1-5000-5-500-5000-0.00-0.1-2000-3000-100-10-false-1",
+    #      "black", "o"],
+    #     ["More",
+    #      "part6and7-microbench-streamsluice-streamsluice_more-800-part7-sine-1split2join1-120-4000-4000-960-linear-2000-1-1440-stair_3-80-1-1440-stair_3-1-0-3-444-1-5000-3-444-1-5000-3-444-1-5000-5-500-5000-0.00-0.1-2000-3000-100-10-true-1",
+    #      "green", "o"],
+    #     ["Less",
+    #      "part6and7-microbench-streamsluice-streamsluice_less-800-part7-sine-1split2join1-120-4000-4000-960-linear-2000-1-1440-stair_3-80-1-1440-stair_3-1-0-3-444-1-5000-3-444-1-5000-3-444-1-5000-5-500-5000-0.00-0.1-2000-3000-100-10-true-1",
+    #      "orange", "o"],
+    ##     ["Minus_one",
+    ##      "part6and7-microbench-streamsluice-streamsluice_minus_one-800-part7-sine-1split2join1-120-4000-4000-960-linear-2000-1-1440-stair_3-80-1-1440-stair_3-1-0-3-444-1-5000-3-444-1-5000-3-444-1-5000-5-500-5000-0.00-0.1-2000-3000-100-10-true-2",
+    ##      "purple", "o"],
+    #     ["No_Balance",
+    #      "part6and7-microbench-streamsluice-streamsluice_no_balance-800-part7-sine-1split2join1-120-4000-4000-960-linear-2000-1-1440-stair_3-80-1-1440-stair_3-1-0-3-444-1-5000-3-444-1-5000-3-444-1-5000-5-500-5000-0.00-0.1-2000-3000-100-10-true-1",
+    #      "olive", "o"],
+    #     ["Sluice",
+    #      "part6and7-microbench-streamsluice-streamsluice-800-part6-sine-1split2join1-120-4000-4000-960-linear-2000-1-1440-stair_3-80-1-1440-stair_3-1-0-3-444-1-5000-3-444-1-5000-3-444-1-5000-5-500-5000-0.00-0.1-2000-3000-100-10-true-1",
+    #      "blue", "o"],
+    # ],
+    "part7_gradient_1": [
         ["Static",
-         "part6and7-microbench-streamsluice-streamsluice_less-800-part7-linear-1split2join1-100-4000-4000-960-linear-2000-1-1440-stair_3-80-1-1440-stair_3-1-0-3-444-1-5000-3-444-1-5000-3-444-1-5000-5-500-5000-0.00-0.1-2000-3000-100-10-true-2",
+         "part6and7-microbench-streamsluice_later-ds2-700-part6-gradient-1split2join1-120-4000-4000-960-linear-2000-1-1440-stair_3-80-1-1440-stair_3-1-0-3-444-1-5000-3-444-1-5000-3-444-1-5000-5-500-5000-0.00-0.1-2000-3000-100-10-false-3",
          "black", "o"],
         ["More",
-         "part6and7-microbench-streamsluice-streamsluice_more-800-part7-linear-1split2join1-100-4000-4000-960-linear-2000-1-1440-stair_3-80-1-1440-stair_3-1-0-3-444-1-5000-3-444-1-5000-3-444-1-5000-5-500-5000-0.00-0.1-2000-3000-100-10-true-3",
+         "part6and7-microbench-streamsluice-streamsluice_more-800-part7-gradient-1split2join1-120-4000-4000-960-linear-2000-1-1440-stair_3-80-1-1440-stair_3-1-0-3-444-1-5000-3-444-1-5000-3-444-1-5000-5-500-5000-0.00-0.1-2000-3000-100-10-true-1",
          "green", "o"],
         ["Less",
-         "part6and7-microbench-streamsluice-streamsluice_less-800-part7-linear-1split2join1-100-4000-4000-960-linear-2000-1-1440-stair_3-80-1-1440-stair_3-1-0-3-444-1-5000-3-444-1-5000-3-444-1-5000-5-500-5000-0.00-0.1-2000-3000-100-10-true-2",
+         "part6and7-microbench-streamsluice-streamsluice_less-800-part7-gradient-1split2join1-120-4000-4000-960-linear-2000-1-1440-stair_3-80-1-1440-stair_3-1-0-3-444-1-5000-3-444-1-5000-3-444-1-5000-5-500-5000-0.00-0.1-2000-3000-100-10-true-2",
          "orange", "o"],
+        ["Minus_one",
+         "part6and7-microbench-streamsluice-streamsluice_minus_one-800-part7-gradient-1split2join1-120-4000-4000-960-linear-2000-1-1440-stair_3-80-1-1440-stair_3-1-0-3-444-1-5000-3-444-1-5000-3-444-1-5000-5-500-5000-0.00-0.1-2000-3000-100-10-true-3",
+         "purple", "o"],
+        ["No_Balance",
+         "part6and7-microbench-streamsluice-streamsluice_no_balance-800-part7-gradient-1split2join1-120-4000-4000-960-linear-2000-1-1440-stair_3-80-1-1440-stair_3-1-0-3-444-1-5000-3-444-1-5000-3-444-1-5000-5-500-5000-0.00-0.1-2000-3000-100-10-true-1",
+         "olive", "o"],
         ["Sluice",
-         "part6and7-microbench-streamsluice-streamsluice-800-part6-linear-1split2join1-120-4000-4000-960-linear-2000-1-1440-stair_3-80-1-1440-stair_3-1-0-3-444-1-5000-3-444-1-5000-3-444-1-5000-5-500-5000-0.00-0.1-2000-3000-100-10-true-2",
+         "part6and7-microbench-streamsluice-streamsluice-800-part6-gradient-1split2join1-120-4000-4000-960-linear-2000-1-1440-stair_3-80-1-1440-stair_3-1-0-3-444-1-5000-3-444-1-5000-3-444-1-5000-5-500-5000-0.00-0.1-2000-3000-100-10-true-1",
          "blue", "o"],
-    ]
-
+    ],
 }
 
 startTime=60 #30+300 #30

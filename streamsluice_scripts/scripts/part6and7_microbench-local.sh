@@ -267,17 +267,17 @@ run_scale_test(){
           for repeat in 1 2 3; do #
             is_treat=true
             autotune=true
-            run_one_exp
-            printf "${EXP_NAME}\n" >> part6and7_result.txt
+#            run_one_exp
+#            printf "${EXP_NAME}\n" >> part6and7_result.txt
           done
         done
       done
     done
 
     period_low=80
-    LP2=5
-    LP3=5
-    LP4=5
+    LP2=6
+    LP3=6
+    LP4=6
     LP5=13
     SOURCE_TYPE="part7"
     whether_type="streamsluice"
@@ -287,7 +287,7 @@ run_scale_test(){
     autotuner_increase_bar_option=10
     autotuner_initial_value_alpha=800 #1000 #1200
 
-    for CURVE_TYPE in "linear" "sine" "gradient"; do
+    for CURVE_TYPE in "linear" "sine"; do # "linear" "gradient"
       for amplitude_low in 2000; do
         is_treat=false
         autotune=false
@@ -295,7 +295,7 @@ run_scale_test(){
 #        run_one_exp
 #        printf "${EXP_NAME}\n" >> part6and7_result.txt
         whether_type="streamsluice"
-        for how_type in "streamsluice_more" "streamsluice_less" "streamsluice_minus_one" "streamsluice_no_balance" "streamsluice_not_bottleneck"; do # "ds2" "drs" "streamswitch"
+        for how_type in "streamsluice_not_bottleneck"; do # "streamsluice_more" "streamsluice_less" "streamsluice_minus_one" "streamsluice_no_balance"
           for repeat in 1 2 3; do
             is_treat=true
             autotune=true
