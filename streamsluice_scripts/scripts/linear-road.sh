@@ -172,7 +172,7 @@ run_stock_test(){
     spike_slope=0.7
     autotuner_initial_value_option=5
     autotuner_increase_bar_option=8 # 3 5
-    autotuner_increase_bar_alpha=0.1 #0.25
+    autotuner_increase_bar_alpha=0.1 #0.1
     repeat=1
     autotune=false
     is_treat=false
@@ -183,7 +183,7 @@ run_stock_test(){
     autotune=true
     repeat=2
     for scaling_decision_option in 1; do # 2 0
-      for autotuner_increase_bar_alpha in 0.1; do # 0.1 0.2 0.4
+      for autotuner_increase_bar_alpha in 0.2; do # 0.1 0.2 0.4
         for L in 3000; do # 1000 1500 2000 2500 3000
             whether_type="streamsluice"
             how_type="streamsluice"
