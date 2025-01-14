@@ -164,7 +164,7 @@ run_stock_test(){
     is_treat=true
     autotune=true
     for repeat in 2; do #1
-      for autotuner_increase_bar_alpha in 0.1; do # 0.1 0.2 0.4
+      for autotuner_increase_bar_alpha in 0.2; do # 0.1 0.2 0.4
         for L in 2000; do # 500 1000 1500 2000 2500 3000 3500
             whether_type="streamsluice"
             how_type="streamsluice"
