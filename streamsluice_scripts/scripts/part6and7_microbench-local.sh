@@ -287,7 +287,7 @@ run_scale_test(){
     autotuner_increase_bar_option=10
     autotuner_initial_value_alpha=800 #1000 #1200
 
-    for CURVE_TYPE in "linear"; do # "linear" "sine" "gradient"
+    for CURVE_TYPE in "sine"; do # "linear" "sine" "gradient"
       for amplitude_low in 2000; do
         is_treat=false
         autotune=false
@@ -295,7 +295,7 @@ run_scale_test(){
 #        run_one_exp
 #        printf "${EXP_NAME}\n" >> part6and7_result.txt
         whether_type="streamsluice"
-        for how_type in "streamsluice_no_balance"; do # "streamsluice_more" "streamsluice_less" "streamsluice_minus_one" "streamsluice_no_balance" "streamsluice_not_bottleneck"
+        for how_type in "streamsluice_minus_one"; do # "streamsluice_more" "streamsluice_less" "streamsluice_minus_one" "streamsluice_no_balance" "streamsluice_not_bottleneck"
           for repeat in 1 2 3 4 5; do
             is_treat=true
             autotune=true
