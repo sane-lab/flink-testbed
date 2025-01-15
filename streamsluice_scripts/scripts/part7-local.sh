@@ -254,6 +254,36 @@ run_scale_test(){
         is_treat=false
         autotune=false
         how_type="ds2"
+#        run_one_exp
+#        printf "${EXP_NAME}\n" >> part7_result.txt
+        whether_type="streamsluice"
+        for how_type in "streamsluice" "ds2_new"; do # "streamsluice_more" "streamsluice_less" "streamsluice_minus_one" "streamsluice_no_balance" "streamsluice_not_bottleneck"
+          for repeat in 1 2 3; do
+            is_treat=true
+            autotune=true
+#            run_one_exp
+#            printf "${EXP_NAME}\n" >> part7_result.txt
+          done
+        done
+      done
+    done
+
+
+    # Skewed case
+    ZIPF_SKEW=0.1
+    P2=1
+    P3=1
+    P4=1
+    P5=10
+    DELAY2=20 #20
+    DELAY3=20 # 50
+    DELAY4=20 #20
+    DELAY5=500 # 800
+    for CURVE_TYPE in "linear"; do # "linear" "quarter-sine" "gradient"
+      for amplitude_low in 2000; do
+        is_treat=false
+        autotune=false
+        how_type="ds2"
         run_one_exp
         printf "${EXP_NAME}\n" >> part7_result.txt
         whether_type="streamsluice"
