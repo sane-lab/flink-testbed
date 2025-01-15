@@ -244,6 +244,44 @@ run_scale_test(){
         is_treat=false
         autotune=false
         how_type="ds2"
+#        run_one_exp
+#        printf "${EXP_NAME}\n" >> part6and7_result.txt
+        how_type="streamsluice"
+        for whether_type in "streamsluice_earlier" "streamsluice_later"; do #  "streamsluice" "streamsluice_earlier" "streamsluice_later" "ds2" "dhalion" "streamswitch";
+          for repeat in 1 2 3; do #
+            is_treat=true
+            autotune=true
+#            run_one_exp
+#            printf "${EXP_NAME}\n" >> part6and7_result.txt
+          done
+        done
+      done
+    done
+
+
+    # Skewed case
+
+    ZIPF_SKEW=0.1
+    DELAY2=20
+    DELAY3=20
+    DELAY4=20
+    DELAY5=500 # 800
+    P2=1
+    P3=1
+    P4=1
+    P5=8
+
+    STATE_SIZE2=2500 # 5000
+    STATE_SIZE3=2500 # 5000
+    STATE_SIZE4=2500 # 5000
+    STATE_SIZE5=2500 # 5000
+    period_low=96 # 80
+    runtime=120 # 120
+    for CURVE_TYPE in "quarter-sine"; do # "linear" "quarter-sine" "gradient"
+      for amplitude_low in 2500; do # 2000
+        is_treat=false
+        autotune=false
+        how_type="ds2"
         run_one_exp
         printf "${EXP_NAME}\n" >> part6and7_result.txt
         how_type="streamsluice"
@@ -258,66 +296,6 @@ run_scale_test(){
       done
     done
 
-    STATE_SIZE2=5000
-    STATE_SIZE3=5000
-    STATE_SIZE4=5000
-    STATE_SIZE5=5000
-    period_low=40
-    runtime=120 # 120
-    for CURVE_TYPE in "linear"; do # "linear" "quarter-sine" "gradient"
-      for amplitude_low in 1000; do #
-        is_treat=false
-        autotune=false
-        how_type="ds2"
-#        run_one_exp
-#        printf "${EXP_NAME}\n" >> part6and7_result.txt
-        how_type="streamsluice"
-        for whether_type in "streamsluice" "streamsluice_earlier" "streamsluice_later"; do # "streamsluice" "streamsluice_earlier" "streamsluice_later" "ds2" "dhalion" "streamswitch";
-          for repeat in 1 2 3; do #
-            is_treat=true
-            autotune=true
-#            run_one_exp
-#            printf "${EXP_NAME}\n" >> part6and7_result.txt
-          done
-        done
-      done
-    done
-
-    period_low=80
-    LP2=6
-    LP3=6
-    LP4=6
-    LP5=13
-    SOURCE_TYPE="part7"
-    whether_type="streamsluice"
-
-    autotuner_initial_value_option=3
-    autotuner_adjustment_option=10
-    autotuner_increase_bar_option=10
-    autotuner_initial_value_alpha=800 #1000 #1200
-
-    STATE_SIZE2=5000
-    STATE_SIZE3=5000
-    STATE_SIZE4=5000
-    STATE_SIZE5=5000
-    for CURVE_TYPE in "linear" "quarter-sine" "gradient"; do # "linear" "quarter-sine" "gradient"
-      for amplitude_low in 2000; do
-        is_treat=false
-        autotune=false
-        how_type="ds2"
-#        run_one_exp
-#        printf "${EXP_NAME}\n" >> part6and7_result.txt
-        whether_type="streamsluice"
-        for how_type in "streamsluice_not_bottleneck"; do # "streamsluice_more" "streamsluice_less" "streamsluice_minus_one" "streamsluice_no_balance" "streamsluice_not_bottleneck"
-          for repeat in 1 2 3; do
-            is_treat=true
-            autotune=true
-#            run_one_exp
-#            printf "${EXP_NAME}\n" >> part6and7_result.txt
-          done
-        done
-      done
-    done
 }
 
 run_scale_test
