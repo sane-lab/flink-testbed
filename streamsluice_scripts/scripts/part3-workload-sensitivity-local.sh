@@ -117,6 +117,7 @@ function runApp() {
 }
 
 run_scale_test(){
+    is_scalein=true
     how_more_optimization_flag=false
     how_optimization_flag=false
     how_intrinsic_bound_flag=true

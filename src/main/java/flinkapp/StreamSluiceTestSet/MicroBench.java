@@ -101,7 +101,7 @@ public class MicroBench {
                     average_rate_low, average_rate_high, average_rate_period, average_rate_pattern,
                     amplitude_low, amplitude_high, amplitude_period, amplitude_pattern,
                     period_low, period_high, period_period, period_pattern,
-                    params.getDouble("noise", 0.05)
+                    params.getDouble("noise", 0.05), params.getDouble("zipf_skew", 0.0)
             )).setParallelism(params.getInt("p1", 1));
         }else if(SOURCE_TYPE.equals("systemsensitivity")) {
             long stair = params.getLong("stairs", 3);
@@ -2241,7 +2241,7 @@ public class MicroBench {
         public AverageRateChangeAmplitudeChangeWithNoiseSource(long WARMUP_TIME, long WARMUP_RATE, long TOTAL_TIME, String PATTERN,
                                                                long AVERAGE_RATE_LOW, long AVERAGE_RATE_HIGH, long AVERAGE_RATE_PERIOD, String AVERAGE_RATE_PATTERN,
                                                                long AMPLITUDE_LOW, long AMPLITUDE_HIGH, long AMPLITUDE_PERIOD, String AMPLITUDE_PATTERN,
-                                                               long PERIOD_LOW, long PERIOD_HIGH, long PERIOD_PERIOD, String PERIOD_PATTERN, double NOISE_LEVEL){
+                                                               long PERIOD_LOW, long PERIOD_HIGH, long PERIOD_PERIOD, String PERIOD_PATTERN, double NOISE_LEVEL, double zipf_skew){
             this.WARMP_TIME = WARMUP_TIME;
             this.WARMP_RATE = WARMUP_RATE;
             this.TOTAL_TIME = TOTAL_TIME;
@@ -2332,7 +2332,7 @@ public class MicroBench {
             this.NOISE_LEVEL = NOISE_LEVEL;
             this.nKeys = 1000;
             this.maxParallelism = 128;
-            this.fastZipfGenerator = new FastZipfGenerator(maxParallelism, 0.0, 0, 114514);
+            this.fastZipfGenerator = new FastZipfGenerator(maxParallelism, zipf_skew, 0, 114514);
             for (int i = 0; i < this.nKeys; i++) {
                 String key = "A" + i;
                 int keygroup = MathUtils.murmurHash(key.hashCode()) % maxParallelism;

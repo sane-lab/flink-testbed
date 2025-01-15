@@ -908,10 +908,59 @@ def plot_latency_curves(latency_curves, latency_limit, output_dir, start_time, e
             linewidth = 1.5
         ax.plot(latency_curve[0], latency_curve[1], MARKER_MAP[label][1:], color=COLOR_MAP[label], label=label, linewidth=linewidth)
 
-        marker_indices = np.arange(0, len(latency_curve[0]), 50)  # Every 100 points = 10 seconds
-        marker_x = [latency_curve[0][index] for index in marker_indices]
-        marker_y = [latency_curve[1][index] for index in marker_indices]
-        ax.scatter(marker_x, marker_y, s=64, color=COLOR_MAP[label], marker=MARKER_MAP[label][0], label=label, zorder=10)
+        def add_marker_by_length(x, y, ax):
+            y_norm = (y - np.min(y)) / (np.max(y) - np.min(y))
+            dx = np.diff(x)
+            dy_norm = np.diff(y_norm)
+            arc_lengths = np.sqrt(dx ** 2 + dy_norm ** 2)
+            cumulative_length = np.cumsum(np.insert(arc_lengths, 0, 0))
+
+            marker_interval = 10000
+            marker_positions = np.arange(0, cumulative_length[-1], marker_interval)
+            marker_indices = [np.searchsorted(cumulative_length, pos) for pos in marker_positions]
+
+            marker_x = [x[i] for i in marker_indices if y[i] > 600]
+            marker_y = [y[i] for i in marker_indices if y[i] > 600]
+
+            # Add markers at equal curve lengths
+            ax.scatter(marker_x, marker_y, s=64, color=COLOR_MAP[label], marker=MARKER_MAP[label][0], label=label, zorder=10)
+
+        def add_marker_by_time_and_spike(x, y, ax):
+            # Fixed interval markers (e.g., every 10 seconds)
+            fixed_interval = 30  # seconds
+            fixed_indices = np.arange(0, len(x), int(fixed_interval * 10))  # 10 points per second
+
+            # Additional markers for y > 1000, ensuring 5s gap
+            threshold = 1000
+            time_gap = 30000
+            last_marker_time = -np.inf
+            last_y = -np.inf
+            additional_indices = []
+
+            for i in range(len(y)):
+                if y[i] > threshold:
+                    current_time = x[i]
+                    if current_time - last_marker_time >= time_gap or abs(y[i] - last_y) > 2000:
+                        additional_indices.append(i)
+                        last_marker_time = current_time
+                        last_y = y[i]
+
+            # Combine and sort unique indices
+            all_indices = additional_indices #sorted(set(fixed_indices).union(additional_indices))
+
+            # Extract marker positions
+            marker_x = [x[i] for i in all_indices]
+            marker_y = [y[i] for i in all_indices]
+
+            ax.scatter(marker_x, marker_y, s=64, color=COLOR_MAP[label], marker=MARKER_MAP[label][0], label=label,
+                       zorder=10)
+
+        # marker_indices = np.arange(0, len(latency_curve[0]), 50)  # Every 100 points = 10 seconds
+        # marker_x = [latency_curve[0][index] for index in marker_indices]
+        # marker_y = [latency_curve[1][index] for index in marker_indices]
+        # ax.scatter(marker_x, marker_y, s=64, color=COLOR_MAP[label], marker=MARKER_MAP[label][0], label=label, zorder=10)
+        #add_marker_by_length(latency_curve[0], latency_curve[1], ax)
+        add_marker_by_time_and_spike(latency_curve[0], latency_curve[1], ax)
 
     ax.plot([0, 10000000], [latency_limit, latency_limit], color='red', linestyle='--')
     ax.set_ylim(0, 5000)
@@ -927,7 +976,8 @@ def plot_latency_curves(latency_curves, latency_limit, output_dir, start_time, e
     if ylabel_flag:
         ax.set_ylabel('Latency (ms)', fontsize=FONT_SIZE)
     ax.set_xlabel('Time (minute)', fontsize=FONT_SIZE)
-    ax.set_title("ETE Latency for " + workload_name, fontsize=FONT_SIZE)
+    #ax.set_title("ETE Latency for " + workload_name, fontsize=FONT_SIZE)
+    ax.set_title(workload_name, y=-0.45, fontsize=FONT_SIZE + 10)
     #ax.legend(handles=legend_elements, loc='upper center', bbox_to_anchor=(0.5, 1.25), ncol=2, fontsize=FONT_SIZE)
     #ax.legend(loc='upper center', bbox_to_anchor=(0.5, 1.25), ncol=4)
     ax.grid(True)
@@ -942,11 +992,11 @@ def plot_latency_curves(latency_curves, latency_limit, output_dir, start_time, e
     #     plt.savefig(os.path.join(output_dir, 'latency_curves_' + str(workload_name) + '.png'), bbox_inches='tight')
     # plt.close(fig)
 
-def plot_parallelism_curves(parallelism_curve, arrival_curve, output_dir, start_time, exp_length, workload_name: str, axs, y1label_flag, y2label_flag):
+def plot_parallelism_curves(parallelism_curve, arrival_curve, output_dir, start_time, exp_length, workload_name: str, ax1, ax2, y1label_flag, y2label_flag):
     #fig, axs = plt.subplots(1, 1, figsize=(12, 6), layout='constrained')
 
-    ax1 = axs
-    ax2 = ax1.twinx()
+    # ax1 = axs
+    # ax2 = ax1.twinx()
     ax2.plot(arrival_curve[0], arrival_curve[1], color='red', linestyle='-', label="Arrival Rate")
     for label, p_curve in parallelism_curve.items():
         if label == "Sluice":
@@ -971,14 +1021,17 @@ def plot_parallelism_curves(parallelism_curve, arrival_curve, output_dir, start_
                         next_marker_time += marker_interval
 
 
-    ax1.set_ylim(0, 40)
-    ax1.set_yticks(np.arange(0, 45, 10))
-    if workload_name.startswith("Twitter"):
-        ax2.set_ylim(0, 16000)
-        ax2.set_yticks(np.arange(0, 20000, 4000))
+    ax1.set_ylim(8, 38)
+    ax1.set_yticks(np.arange(10, 40, 10))
+    if workload_name.count("Twitter"):
+        ax2.set_ylim(1500, 6000)
+        ax2.set_yticks(np.arange(1000, 7000, 1500))
+    elif workload_name.count("Linear-Road"):
+        ax2.set_ylim(750, 2000)
+        ax2.set_yticks(np.arange(1000, 2500, 500))
     else:
-        ax2.set_ylim(0, 8000)
-        ax2.set_yticks(np.arange(0, 10000, 2000))
+        ax2.set_ylim(1000, 2000)
+        ax2.set_yticks(np.arange(1000, 2500, 500))
     ax1.tick_params(axis='x', labelsize=FONT_SIZE)
     ax1.tick_params(axis='y', labelsize=FONT_SIZE)
     ax2.tick_params(axis='y', labelsize=FONT_SIZE)
@@ -986,19 +1039,27 @@ def plot_parallelism_curves(parallelism_curve, arrival_curve, output_dir, start_
         ax1.set_ylabel('# of Slots', fontsize=FONT_SIZE)
     if y2label_flag:
         ax2.set_ylabel('Arrival Rate (tps)', fontsize=FONT_SIZE)
-    axs.set_xlabel('Time (minute)', fontsize=FONT_SIZE)
-    axs.set_xlim((start_time) * 1000, (start_time + exp_length) * 1000)
-    axs.set_xticks(np.arange((start_time) * 1000, (start_time + exp_length) * 1000 + (exp_length / 5) * 1000,
+    #ax1.set_xlabel('Time (minute)', fontsize=FONT_SIZE)
+    ax1.set_xlim((start_time) * 1000, (start_time + exp_length) * 1000)
+    ax1.set_xticks(np.arange((start_time) * 1000, (start_time + exp_length) * 1000 + (exp_length / 5) * 1000,
                               (exp_length / 5) * 1000))
-    axs.set_xticklabels([int((x - start_time * 1000) / 60000) for x in
+    ax1.set_xticklabels([int((x - start_time * 1000) / 60000) for x in
                           np.arange((start_time) * 1000, (start_time + exp_length) * 1000 + (exp_length / 5) * 1000,
                                     (exp_length / 5) * 1000)])
+    ax2.set_xlim((start_time) * 1000, (start_time + exp_length) * 1000)
+    ax2.set_xticks(np.arange((start_time) * 1000, (start_time + exp_length) * 1000 + (exp_length / 5) * 1000,
+                             (exp_length / 5) * 1000))
+    ax2.set_xticklabels([int((x - start_time * 1000) / 60000) for x in
+                         np.arange((start_time) * 1000, (start_time + exp_length) * 1000 + (exp_length / 5) * 1000,
+                                   (exp_length / 5) * 1000)])
     lines1, labels1 = ax1.get_legend_handles_labels()
     lines2, labels2 = ax2.get_legend_handles_labels()
     #axs.legend(lines1 + lines2, labels1 + labels2, loc='upper center', bbox_to_anchor=(0.5, 1.4), ncol=2, fontsize=FONT_SIZE)
     #axs.legend(loc='upper center', bbox_to_anchor=(0.5, 1.25), ncol=4)
-    axs.set_title("Slots Used for " + workload_name, fontsize=FONT_SIZE)
-    axs.grid(True)
+    #ax1.set_title("Slots Used for " + workload_name, fontsize=FONT_SIZE)
+    #ax2.set_title("Arrival Rate for " + workload_name, fontsize=FONT_SIZE)
+    ax1.grid(True)
+    ax2.grid(True)
 
     # # Save the plot
     # if not os.path.exists(output_dir):
@@ -1035,7 +1096,7 @@ def main():
     window_size = 500 # for draw success rate curve
     draw_lem_latency_flag = True
     exps_per_label_per_setting = {
-        "Linear-Road": {
+        "(a) Linear-Road": {
             "Static": "lr-ds2-ds2-5-8-60-1380-150-1300-10-1-50-3-1000-1-50-14-3333-2000-0.1-100-1-25-0.0-false-2500-0.8-2",
             # "Static-Adequate": "lr-ds2-ds2-5-8-60-1380-150-1300-10-1-50-4-1000-1-50-20-3333-2000-0.1-100-1-25-0.0-false-2500-0.8-2",
             "DS2": "lr-ds2-ds2-5-8-60-1380-150-1300-10-1-50-3-1000-1-50-27-3333-2000-0.1-100-1-25-0.0-true-2500-0.8-2",
@@ -1043,7 +1104,7 @@ def main():
             #"Sluice": "lr-streamsluice-streamsluice-5-8-60-1380-150-1300-10-1-50-3-1000-1-50-27-3333-2000-0.1-100-1-25-0.0-true-1000-0.8-2",
             "Sluice": "lr-streamsluice-streamsluice-5-8-60-1380-150-1300-10-1-50-3-1000-1-50-27-3333-2000-0.2-100-1-25-0.0-true-1000-0.8-3",
         },
-        "Stock Analysis": {
+        "(b) Stock Analysis": {
             "Static": "stock-ds2-ds2-5-8-60-1350-90-1000-20-1-200-4-3333-1-200-1-500-1-7-5000-3000-100-0.1-false-false-1",
             # "Static-Adequate": "stock-ds2-ds2-5-8-60-1350-90-1000-20-1-200-11-3333-1-200-2-500-1-15-5000-3000-100-0.1-false-false-1",
             "DS2": "stock-ds2-ds2-5-8-60-1350-90-1000-20-1-200-11-3333-1-200-2-500-1-15-5000-3000-100-0.1-true-false-1",
@@ -1051,7 +1112,7 @@ def main():
             "Sluice": "stock-streamsluice-streamsluice-5-8-60-1350-90-1000-20-1-200-11-3333-1-200-2-500-1-15-5000-3000-100-0.1-true-true-1",
             #"Sluice": "stock-streamsluice-streamsluice-5-8-60-1350-90-1000-20-1-200-11-3333-1-200-2-500-1-15-5000-3000-100-0.2-true-true-2",
         },
-        "Twitter Alert": {
+        "(c) Twitter Alert": {
             # # "Static": "tweet-streamsluice-streamsluice-5-60-1950-90-1500-1-14-6666-5-1000-1-50-1-50-2500-100-false-0.1-1",
             # # "Static-Adequate": "tweet-streamsluice-streamsluice-5-60-1950-90-1500-1-19-6666-9-1000-1-50-1-50-2500-100-false-0.1-1",
             # # "DS2": "tweet-ds2-ds2-5-60-1950-90-1500-1-19-6666-9-1000-1-50-1-50-2500-100-true-0.1-1",
@@ -1066,7 +1127,7 @@ def main():
         },
     }
 
-    fig, axs = plt.subplots(3, 3, figsize=(24, 15), layout='constrained')
+    fig, axs = plt.subplots(3, 3, figsize=(21, 10), layout='constrained', gridspec_kw={'height_ratios': [1, 2, 3]})
     index = 0
     legend_elements = []
 
@@ -1124,9 +1185,9 @@ def main():
         # plot_average_latency(latency_per_label, overall_output_dir, workload_name)
         # plot_success_rate_bar(success_rate_per_label, overall_output_dir, workload_name)
         # plot_avg_parallelism_bar(avg_parallelism_per_label, overall_output_dir, workload_name)
-        plot_latency_curves(latency_curves, latency_bar_this_workload, overall_output_dir, start_time, exp_length, workload_name, axs[0][index], index == 0)
+        plot_latency_curves(latency_curves, latency_bar_this_workload, overall_output_dir, start_time, exp_length, workload_name, axs[2][index], index == 0)
         plot_parallelism_curves(parallelism_curves, arrival_curve, overall_output_dir, start_time, exp_length,
-                           workload_name, axs[1][index], index == 0, index == 2)
+                           workload_name, axs[1][index], axs[0][index], index == 0, index == 0)
         #plot_parallism_curves(parallelism_curves, arrival_curve, overall_output_dir, workload_name)
         print("success rate: " + str(success_rate_per_label))
         print("mean parallelism:" + str(avg_parallelism_per_label))

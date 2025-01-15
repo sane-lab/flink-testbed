@@ -116,6 +116,7 @@ init() {
   whether_type="streamsluice"
   how_type="streamsluice"
   scalein_type="streamsuice"
+  is_scalein=true
   L=2000
   runtime=1350 #1950 #750 #2190 #3990 #
   skip_interval=20 # skip seconds

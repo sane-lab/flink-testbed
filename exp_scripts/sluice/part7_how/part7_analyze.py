@@ -81,21 +81,43 @@ def parsePerTaskValue(splits):
         taskValues[taskName] = value
     return taskValues
 
+def parse_key_metrics(s):
+    # Remove outer curly braces and split into individual dictionaries
+    outer_dict = {}
+    s = s.strip('{}')
+    pairs = s.split('},')
+    for pair in pairs:
+        key, inner_str = pair.split('={', 1)
+        inner_str = inner_str.rstrip('}')
+
+        # Split the inner string into key-value pairs
+        inner_pairs = inner_str.split(',')
+        inner_dict = {int(k): float(v) for k, v in (item.split('=') for item in inner_pairs)}
+
+        outer_dict[key] = inner_dict
+    return outer_dict
+
 
 def parseMapping(split):
     mapping = {}
     for word in split:
         word = word.lstrip("{").rstrip("}")
         if "=" in word:
-            x = word.split("=")
-            job = x[0].split("_")[0]
-            task = x[0]
-            key = x[1].lstrip("[").rstrip(",").rstrip("]")
+            if word.count("=") == 1:
+                x = word.split("=")
+                job = x[0].split("_")[0]
+                task = x[0]
+                key = x[1].lstrip("[").rstrip(",").rstrip("}").rstrip("]")
+            else:
+                x = word.split("=")
+                job = x[0].lstrip("{")
+                task = x[1].lstrip("{")
+                key = x[2].lstrip("[").rstrip(",").rstrip("}").rstrip("]")
             if job not in mapping:
                 mapping[job] = {}
             mapping[job][task] = [key]
         else:
-            key = word.rstrip(",").rstrip("]")
+            key = word.rstrip(",").rstrip("}").rstrip("]")
             mapping[job][task] += [key]
     return mapping
 
@@ -150,6 +172,12 @@ def readParallelism(rawDir, expName):
     print("Reading streamsluice output:" + streamSluiceOutputPath)
     counter = 0
 
+    scalings_change_info = []
+    key_arrival_per_operator = {}
+    key_backlog_per_operator = {}
+    current_scaling_info = []
+
+
     with open(streamSluiceOutputPath) as f:
         lines = f.readlines()
         for i in range(0, len(lines)):
@@ -158,6 +186,12 @@ def readParallelism(rawDir, expName):
             counter += 1
             if (counter % 5000 == 0):
                 print("Processed to line:" + str(counter))
+
+            if (len(split) >= 10 and split[0] == "+++" and split[1] == "[CONTROL]" and split[6] == "decides" and split[8] == "scale" and split[9] == "out."):
+                time = int(split[3]) - initialTime
+                if time >= startTime * 1000 and time <= (startTime + expLength) * 1000:
+                    current_scaling_info = [time]
+
             if (len(split) >= 10 and split[0] == "+++" and split[1] == "[CONTROL]" and split[6] == "scale" and split[
                 8] == "operator:"):
                 time = int(split[3])
@@ -173,6 +207,23 @@ def readParallelism(rawDir, expName):
                     scalingMarkerByOperator[operator] += [[time - initialTime, type]]
                 mapping = parseMapping(split[12:])
                 scalings.append(time - initialTime)
+
+                if len(current_scaling_info) == 1:
+                    after_scale_mapping = mapping[lastScalingOperators[0]]
+                    current_scaling_info.append(lastScalingOperators[0])
+                    def convert_map(input_dict:dict[str, list[str]]):
+                        output_dict = {key: list(map(int, value)) for key, value in input_dict.items()}
+                        return output_dict
+                    current_scaling_info.append(convert_map(before_scale_config[lastScalingOperators[0]]))
+                    current_scaling_info.append(convert_map(after_scale_mapping))
+                    current_scaling_info.append(key_arrival_per_operator[lastScalingOperators[0]])
+                    current_scaling_info.append(key_backlog_per_operator[lastScalingOperators[0]])
+
+                    scalings_change_info.append(current_scaling_info)
+                    current_scaling_info = []
+
+            if (len(split) >= 8 and split[0] == "+++" and split[1] == "[CONTROL]" and split[6] == "current" and split[7] == "config:"):
+                before_scale_config = parseMapping(split[8:])
 
             if (len(split) >= 8 and split[0] == "+++" and split[1] == "[CONTROL]" and split[4] == "all" and split[
                 5] == "scaling" and split[6] == "plan" and split[7] == "deployed."):
@@ -216,6 +267,21 @@ def readParallelism(rawDir, expName):
                         arrivalRatePerTask[task][0] += [time - initialTime]
                         arrivalRatePerTask[task][1] += [int(arrivalRates[task] * 1000)]
 
+            if (len(split) >= 6 and split[0] == "+++" and split[1] == "[METRICS]" and split[4] == "key" and split[5] == "arrivalRate:"):
+                time = int(split[3])
+                key_arrival_per_operator = parse_key_metrics(''.join(split[6:]).strip())
+
+            if (len(split) >= 6 and split[0] == "+++" and split[1] == "[METRICS]" and split[4] == "key" and split[
+                5] == "backlog:"):
+                time = int(split[3])
+                key_backlog_per_operator = parse_key_metrics(''.join(split[6:]).strip())
+
+
+
+
+
+
+
     ParallelismPerJob["TOTAL"] = [[], []]
     for job in ParallelismPerJob:
         if job != "TOTAL":
@@ -252,7 +318,7 @@ def readParallelism(rawDir, expName):
             else:
                 totalArrivalRatePerJob[job][index] += ay
     print(expName, ParallelismPerJob.keys())
-    return [ParallelismPerJob, totalArrivalRatePerJob, initialTime, scalings]
+    return [ParallelismPerJob, totalArrivalRatePerJob, initialTime, scalings, scalings_change_info]
 
 def calculate_latency_limits(p99_latencies) -> [int, int]:
     # Filter the P99 latencies to only include those within the given time range
@@ -539,7 +605,7 @@ def retrieve_scaling_info(rawDir, expName):
 
     return scaling_info
 
-def draw(rawDir, outputDir, exps, windowSize, ax, xlabel_flag, ylabel_flag):
+def draw(rawDir, outputDir, exps, windowSize, ax, workload_name, xlabel_flag, ylabel_flag):
     averageGroundTruthLatencies = []
     averageGroundTruthLatencies_FromMetricsManager_PerOperator = []
     scaling_infos = []
@@ -649,6 +715,7 @@ def draw(rawDir, outputDir, exps, windowSize, ax, xlabel_flag, ylabel_flag):
     if trickFlag:
         ax.set_yticklabels([int(x / 1250 * 1000) for x in np.arange(0, 6250, 1250)])
     ax.grid(True)
+    ax.set_title(workload_name, y=-0.85, fontsize=35)
     # fig, ax = plt.subplots(figsize=(5, 5))
     # print("Draw intrinsic curve...")
     # for i in range(0, len(exps)):
@@ -775,10 +842,62 @@ def draw(rawDir, outputDir, exps, windowSize, ax, xlabel_flag, ylabel_flag):
     #         plt.savefig(outputDir + 'operator_latency_component.png', bbox_inches='tight')
     #         plt.close(fig)
 
+def draw_scaling_info(scaling_change_info, outputDir, label):
+    bottleneck_operator = scaling_change_info[1]
+    print("Scale out at time " + str(scaling_change_info[0]) + " Bottleneck: " + bottleneck_operator)
+    mapping_before_scale = scaling_change_info[2]
+    mapping_after_scale = scaling_change_info[3]
+    key_arrival_rate = scaling_change_info[4]
+    key_backlog = scaling_change_info[5]
+
+    def aggregate_key_level(key_metrics, mapping:dict[str:list[int]]):
+        task_metrics = {}
+        for task, keys in mapping.items():
+            task_metrics[task] = sum([key_metrics[key] for key in keys])
+        return task_metrics
+    task_arrival_before_scale = aggregate_key_level(key_arrival_rate, mapping_before_scale)
+    task_backlog_before_scale = aggregate_key_level(key_backlog, mapping_before_scale)
+    task_arrival_after_scale = aggregate_key_level(key_arrival_rate, mapping_after_scale)
+    task_backlog_after_scale = aggregate_key_level(key_backlog, mapping_after_scale)
+    def draw_task_metrics_barchart(task_data:dict[str:float], label, metrics_name, set_name):
+        # Create the figure and two bar charts
+        fig, ax1 = plt.subplots(1, 1, figsize=(14, 6))
+
+        # Sort tasks by arrival rate (optional for ranking)
+        sorted_tasks = sorted(task_data.items(), key=lambda x: x[1], reverse=True)
+
+        # Extract indices and values
+        task_names = [task[0] for task in sorted_tasks]
+        arrival_rates = [task[1] for task in sorted_tasks]
+        indices = np.arange(len(task_names))
+
+
+
+        # First bar chart
+        ax1.bar(indices, arrival_rates, color='skyblue', alpha=0.7)
+        ax1.set_title(metrics_name + " under " + label, fontsize=14)
+        ax1.set_xlabel("Task Index", fontsize=12)
+        ax1.set_ylabel(metrics_name, fontsize=12)
+        ax1.set_xticks(indices)
+        #ax1.set_xticklabels([f"Rank {i + 1}" for i in indices], rotation=45)
+
+        # Adjust layout and show plot
+        if output_pdf_flag:
+            plt.savefig(outputDir + label + "_" + metrics_name + "_" + set_name + ".pdf", bbox_inches='tight')
+        else:
+            plt.savefig(outputDir + label + "_" + metrics_name + "_" + set_name + ".png", bbox_inches='tight')
+
+    draw_task_metrics_barchart(task_arrival_before_scale, label, "Arrival Rate", "Before Scale")
+    draw_task_metrics_barchart(task_backlog_before_scale, label, "Backlog", "Before Scale")
+    draw_task_metrics_barchart(task_arrival_after_scale, label, "Arrival Rate", "After Scale")
+    draw_task_metrics_barchart(task_backlog_after_scale, label, "Backlog Rate", "After Scale")
+
+
 def draw_resource(rawDir, outputDir, exps, ax1, ax2, xlabel_flag, ylabel_flag):
     parallelismsPerJob = {}
     totalArrivalRatesPerJob = {}
     totalParallelismPerExps = {}
+    scaling_change_infos = []
     for expindex in range(0, len(exps)):
         expFile = exps[expindex][1]
         result = readParallelism(rawDir, expFile)
@@ -801,6 +920,9 @@ def draw_resource(rawDir, outputDir, exps, ax1, ax2, xlabel_flag, ylabel_flag):
                 totalArrivalRatesPerJob[job] = []
             parallelismsPerJob[job] += [parallelisms[job]]
             totalArrivalRatesPerJob[job] += [totalArrivalRates[job]]
+
+        scaling_change_infos.append(result[4])
+
     print("Draw total figure...")
     print("TOTAL parallelism: " + str(totalParallelismPerExps))
 
@@ -912,6 +1034,11 @@ def draw_resource(rawDir, outputDir, exps, ax1, ax2, xlabel_flag, ylabel_flag):
     ax1.grid(True)
     ax2.grid(True)
 
+    for expindex in range(0, len(exps)):
+        if (exps[expindex][0] == "Static"):
+            continue
+        draw_scaling_info(scaling_change_infos[expindex][0], outputDir, exps[expindex][0])
+
 
 
     # import os
@@ -927,25 +1054,25 @@ def draw_resource(rawDir, outputDir, exps, ax1, ax2, xlabel_flag, ylabel_flag):
 
 rawDir = "/Users/swrrt/Workplace/BacklogDelayPaper/experiments/raw/"
 outputDir = "/Users/swrrt/Workplace/BacklogDelayPaper/experiments/figures/part7/"
-exps_per_setting_bottleneck = {
-    # "No Skew": [
+exps_per_setting = {
+    # "(a) No Skew": [
     #     ["Static",
     #      "part6and7-microbench-streamsluice-ds2-800-part7-linear-1split2join1-120-4000-4000-960-linear-2000-1-1440-stair_3-80-1-1440-stair_3-1-0-3-444-1-5000-3-444-1-5000-3-444-1-5000-5-500-5000-0.00-0.1-2000-3000-100-10-false-1",
     #      "black", "x--"],
     #     ["DS2",
     #      "part6and7-microbench-streamsluice-ds2_new-800-part7-linear-1split2join1-120-4000-4000-960-linear-2000-1-1440-stair_3-80-1-1440-stair_3-1-0-3-444-1-5000-3-444-1-5000-3-444-1-5000-5-500-5000-0.00-0.1-2000-3000-100-10-true-2",
-    #      "olive", "p-"],
+    #      "purple", "^-"],
     #     ["Sluice",
     #      "part6and7-microbench-streamsluice-streamsluice-800-part7-linear-1split2join1-120-4000-4000-960-linear-2000-1-1440-stair_3-80-1-1440-stair_3-1-0-3-444-1-5000-3-444-1-5000-3-444-1-5000-5-500-5000-0.00-0.1-2000-3000-100-10-true-1",
     #      "blue", "o-"],
     # ],
-    "Skew": [
+    "(b) Skewed": [
         ["Static",
          "part7-microbench-streamsluice-ds2-800-part7-linear-1split2join1-120-4000-4000-960-linear-2000-1-1440-stair_3-80-1-1440-stair_3-1-0.1-1-20-1-5000-1-20-1-5000-1-20-1-5000-10-500-5000-0.00-0.1-2000-3000-100-10-false-3",
          "black", "x--"],
         ["DS2",
          "part7-microbench-streamsluice-ds2_new-800-part7-linear-1split2join1-120-4000-4000-960-linear-2000-1-1440-stair_3-80-1-1440-stair_3-1-0.1-1-20-1-5000-1-20-1-5000-1-20-1-5000-10-500-5000-0.00-0.1-2000-3000-100-10-true-3",
-         "olive", "p-"],
+         "purple", "^-"],
         ["Sluice",
          "part7-microbench-streamsluice-streamsluice-800-part7-linear-1split2join1-120-4000-4000-960-linear-2000-1-1440-stair_3-80-1-1440-stair_3-1-0.1-1-20-1-5000-1-20-1-5000-1-20-1-5000-10-500-5000-0.00-0.1-2000-3000-100-10-true-1",
          "blue", "o-"],
@@ -955,7 +1082,7 @@ exps_per_setting_bottleneck = {
 
 
 exps_per_settings = {
-    "bottleneck": exps_per_setting_bottleneck,
+    "all": exps_per_setting,
 }
 
 startTime=60 #30+300 #30
@@ -989,8 +1116,8 @@ windowSize = 1000 #500 #500
 latencyLimit = 0
 spike = 2500 #1500
 #latencyLimit = 2500 #1000
-startTime = 60 #+300 #30
-expLength = 60 #480
+startTime = 55 #+300 #30
+expLength = 30 #480
 exp_length = expLength
 show_avg_flag = False
 ground_truth_component_flag = False
@@ -1002,7 +1129,7 @@ output_pdf_flag = True
 
 
 for name, exps_per_setting in exps_per_settings.items():
-    fig, axs = plt.subplots(3, 2, figsize=(20, 7), layout='constrained')
+    fig, axs = plt.subplots(3, 2, figsize=(20, 9), layout='constrained')
 
     index = 0
     for workload, exps in exps_per_setting.items():
@@ -1015,8 +1142,8 @@ for name, exps_per_setting in exps_per_settings.items():
         ylabel_flag = False
         if index == 0:
             ylabel_flag = True
-        draw(rawDir, outputDir + workload + "/", exps, windowSize, axs[2][index], True, ylabel_flag)
-        draw_resource(rawDir, outputDir + workload + "/", exps, axs[1][index], axs[0][index], False, ylabel_flag)
+        draw(rawDir, outputDir, exps, windowSize, axs[2][index], workload, True, ylabel_flag)
+        draw_resource(rawDir, outputDir, exps, axs[1][index], axs[0][index], False, ylabel_flag)
         index += 1
 
     handles, labels = axs[2, 0].get_legend_handles_labels()
