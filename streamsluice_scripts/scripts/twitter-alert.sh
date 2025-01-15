@@ -53,7 +53,7 @@ init() {
   skip_interval=1 # skip seconds
   warmup=10000
   warmup_time=90
-  warmup_rate=1700 #3400 #1500
+  warmup_rate=3400 #1700 #3400 #1500
   repeat=1
   spike_estimation="linear_regression"
   spike_slope=0.75
@@ -163,7 +163,7 @@ run_stock_test(){
 
     is_treat=true
     autotune=true
-    for repeat in 2; do #1
+    for repeat in 1 2 3; do #1
       for autotuner_increase_bar_alpha in 0.2; do # 0.1 0.2 0.4
         for L in 2000; do # 500 1000 1500 2000 2500 3000 3500
             whether_type="streamsluice"
