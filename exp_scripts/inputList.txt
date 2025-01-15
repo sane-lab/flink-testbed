@@ -1,3 +1,4 @@
-lr-streamsluice-streamsluice-5-8-60-1380-150-1300-10-1-50-3-1000-1-50-27-3333-2000-0.2-100-1-25-0.0-true-1000-0.8-1
-lr-streamsluice-streamsluice-5-8-60-1380-150-1300-10-1-50-3-1000-1-50-27-3333-2000-0.2-100-1-25-0.0-true-1000-0.8-2
-lr-streamsluice-streamsluice-5-8-60-1380-150-1300-10-1-50-3-1000-1-50-27-3333-2000-0.2-100-1-25-0.0-true-1000-0.8-3
+part7-microbench-streamsluice-ds2-800-part7-linear-1split2join1-120-4000-4000-960-linear-2000-1-1440-stair_3-80-1-1440-stair_3-1-0.1-1-20-1-5000-1-20-1-5000-1-20-1-5000-6-500-5000-0.00-0.1-2000-3000-100-10-false-3
+part7-microbench-streamsluice-streamsluice-800-part7-linear-1split2join1-120-4000-4000-960-linear-2000-1-1440-stair_3-80-1-1440-stair_3-1-0.1-1-20-1-5000-1-20-1-5000-1-20-1-5000-6-500-5000-0.00-0.1-2000-3000-100-10-true-1
+part7-microbench-streamsluice-ds2-800-part7-linear-1split2join1-120-4000-4000-960-linear-2000-1-1440-stair_3-80-1-1440-stair_3-1-0.2-1-20-1-5000-1-20-1-5000-1-20-1-5000-6-500-5000-0.00-0.1-2000-3000-100-10-false-1
+part7-microbench-streamsluice-streamsluice-800-part7-linear-1split2join1-120-4000-4000-960-linear-2000-1-1440-stair_3-80-1-1440-stair_3-1-0.2-1-20-1-5000-1-20-1-5000-1-20-1-5000-6-500-5000-0.00-0.1-2000-3000-100-10-true-1

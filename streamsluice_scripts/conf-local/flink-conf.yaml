@@ -331,6 +331,7 @@ controller.how.conservative: false
 controller.intrinsic_bound: false
 
 controller.scale_in.type: streamsluice
+controller.scale_in.flag: true
 
 streamsluice.system.errorcase_number: 5
 

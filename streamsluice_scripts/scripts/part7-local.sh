@@ -276,30 +276,34 @@ run_scale_test(){
     P2=1
     P3=1
     P4=1
-    P5=6 #5
-    warmupRate=4000 #5000
+    P5=20 #5
+    LP5=50 #13
+    warmupRate=1000 #5000
     warmupTime=60
     rate_low=4000 # 5000
     rate_high=4000 # 5000
     DELAY2=20 #20
     DELAY3=20 # 50
     DELAY4=20 #20
-    DELAY5=500 # 800
-    for CURVE_TYPE in "linear"; do # "linear" "quarter-sine" "gradient"
-      for ZIPF_SKEW in 0.1 0.2; do #
-        for amplitude_low in 2000; do
-          is_treat=false
-          autotune=false
-          how_type="ds2"
-          run_one_exp
-          printf "${EXP_NAME}\n" >> part7_result.txt
-          whether_type="streamsluice"
-          for how_type in "streamsluice"; do # "ds2_new" "streamsluice_more" "streamsluice_less" "streamsluice_minus_one" "streamsluice_no_balance" "streamsluice_not_bottleneck"
-            for repeat in 1; do
-              is_treat=true
-              autotune=true
-              run_one_exp
-              printf "${EXP_NAME}\n" >> part7_result.txt
+    DELAY5=1000 #500 # 800
+    period_low=80
+    for CURVE_TYPE in "linear" "gradient"; do # "linear" "quarter-sine" "gradient"
+      for period_low in 80 120; do
+        for ZIPF_SKEW in 0.1 0.2 0.3; do #
+          for amplitude_low in 4000; do # 2000
+            is_treat=false
+            autotune=false
+            how_type="ds2"
+            run_one_exp
+            printf "${EXP_NAME}\n" >> part7_result.txt
+            whether_type="streamsluice"
+            for how_type in "streamsluice" "ds2_new"; do #"streamsluice_more" "streamsluice_less" "streamsluice_minus_one" "streamsluice_no_balance" "streamsluice_not_bottleneck"
+              for repeat in 1 2 3; do
+                is_treat=true
+                autotune=true
+                run_one_exp
+                printf "${EXP_NAME}\n" >> part7_result.txt
+              done
             done
           done
         done
