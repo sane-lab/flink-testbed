@@ -539,7 +539,7 @@ def retrieve_scaling_info(rawDir, expName):
 
     return scaling_info
 
-def draw(rawDir, outputDir, exps, windowSize, ax, xlabel_flag, ylabel_flag):
+def draw(rawDir, outputDir, exps, windowSize, ax, workload_name, xlabel_flag, ylabel_flag):
     averageGroundTruthLatencies = []
     averageGroundTruthLatencies_FromMetricsManager_PerOperator = []
     scaling_infos = []
@@ -649,6 +649,7 @@ def draw(rawDir, outputDir, exps, windowSize, ax, xlabel_flag, ylabel_flag):
     if trickFlag:
         ax.set_yticklabels([int(x / 1250 * 1000) for x in np.arange(0, 6250, 1250)])
     ax.grid(True)
+    ax.set_title(workload_name, y=-0.85, fontsize=35)
     # fig, ax = plt.subplots(figsize=(5, 5))
     # print("Draw intrinsic curve...")
     # for i in range(0, len(exps)):
@@ -929,7 +930,7 @@ rawDir = "/Users/swrrt/Workplace/BacklogDelayPaper/experiments/raw/"
 outputDir = "/Users/swrrt/Workplace/BacklogDelayPaper/experiments/figures/part6/"
 
 exps_per_setting = {
-    "part6_linear_1": [
+    "(a) Increasing": [
         ["Static",
          #"part6and7-microbench-streamsluice-ds2-800-part6-quarter-sine-1split2join1-120-4000-4000-960-linear-2500-1-1440-stair_3-96-1-1440-stair_3-1-0-3-444-1-5000-3-444-1-5000-3-444-1-5000-5-500-5000-0.00-0.1-2000-3000-100-10-false-1",
          "part6and7-microbench-streamsluice-ds2-800-part6-quarter-sine-1split2join1-120-4000-4000-960-linear-2500-1-1440-stair_3-96-1-1440-stair_3-1-0-3-444-1-2500-3-444-1-2500-3-444-1-2500-5-500-2500-0.00-0.1-2000-3000-100-10-false-1",
@@ -1003,7 +1004,7 @@ exps_per_setting = {
     #      "part6and7-microbench-streamsluice-streamsluice-800-part6-gradient-1split2join1-120-4000-4000-960-linear-2000-1-1440-stair_3-80-1-1440-stair_3-1-0-3-444-1-5000-3-444-1-5000-3-444-1-5000-5-500-5000-0.00-0.1-2000-3000-100-10-true-1",
     #      "blue", "o-"],
     # ],
-    "part6_linear_2": [
+    "(b) Fluctuation": [
         ["Static",
          "part6and7-microbench-streamsluice_later-ds2-800-part6-linear-1split2join1-100-4000-4000-960-linear-1000-1-1440-stair_3-40-1-1440-stair_3-1-0-3-444-1-5000-3-444-1-5000-3-444-1-5000-5-500-5000-0.00-0.1-2000-3000-100-10-false-3",
          "black", "x--"],
@@ -1061,7 +1062,7 @@ avg_latency_calculateTime = expLength # 30
 
 output_pdf_flag = True
 
-fig, axs = plt.subplots(3, 2, figsize=(20, 8), layout='constrained')
+fig, axs = plt.subplots(3, 2, figsize=(20, 9), layout='constrained')
 
 index = 0
 for workload, exps in exps_per_setting.items():
@@ -1069,7 +1070,7 @@ for workload, exps in exps_per_setting.items():
     expName = exps[0][1]
     print(expName)
     trickFlag = False #True
-    if workload == "part6_linear_1":
+    if workload == "Pattern 1":
         startTime = 55
         expLength = 30
     elif workload == "part6_quarter-sine_1":
@@ -1088,7 +1089,7 @@ for workload, exps in exps_per_setting.items():
     ylabel_flag = False
     if index == 0:
         ylabel_flag = True
-    draw(rawDir, outputDir + workload + "/", exps, windowSize, axs[2][index], True, ylabel_flag)
+    draw(rawDir, outputDir + workload + "/", exps, windowSize, axs[2][index], workload, True, ylabel_flag)
     draw_resource(rawDir, outputDir + workload + "/", exps, axs[1][index], axs[0][index], False, ylabel_flag)
     index += 1
 
