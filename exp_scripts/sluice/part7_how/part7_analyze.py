@@ -889,10 +889,10 @@ def draw_scaling_info(scaling_change_info, outputDir, label):
         else:
             plt.savefig(outputDir + label + "_" + metrics_name + "_" + set_name + ".png", bbox_inches='tight')
 
-    draw_task_metrics_barchart(task_arrival_before_scale, label, "Arrival Rate", "Before Scale")
-    draw_task_metrics_barchart(task_backlog_before_scale, label, "Backlog", "Before Scale")
-    draw_task_metrics_barchart(task_arrival_after_scale, label, "Arrival Rate", "After Scale")
-    draw_task_metrics_barchart(task_backlog_after_scale, label, "Backlog Rate", "After Scale")
+    # draw_task_metrics_barchart(task_arrival_before_scale, label, "Arrival Rate", "Before Scale")
+    # draw_task_metrics_barchart(task_backlog_before_scale, label, "Backlog", "Before Scale")
+    # draw_task_metrics_barchart(task_arrival_after_scale, label, "Arrival Rate", "After Scale")
+    # draw_task_metrics_barchart(task_backlog_after_scale, label, "Backlog Rate", "After Scale")
 
 
 def draw_resource(rawDir, outputDir, exps, ax1, ax2, xlabel_flag, ylabel_flag):
@@ -1071,16 +1071,15 @@ exps_per_setting = {
     "(b) Skewed": [
         ["Static",
          #"part7-microbench-streamsluice-ds2-800-part7-linear-1split2join1-120-4000-4000-960-linear-2000-1-1440-stair_3-80-1-1440-stair_3-1-0.1-1-20-1-5000-1-20-1-5000-1-20-1-5000-10-500-5000-0.00-0.1-2000-3000-100-10-false-3",
-         "part7-microbench-streamsluice-ds2-800-part7-linear-1split2join1-120-4000-4000-960-linear-2000-1-1440-stair_3-80-1-1440-stair_3-1-0.1-1-20-1-5000-1-20-1-5000-1-20-1-5000-6-500-5000-0.00-0.1-2000-3000-100-10-false-3",
-         #"part7-microbench-streamsluice-ds2-800-part7-linear-1split2join1-120-4000-4000-960-linear-2000-1-1440-stair_3-80-1-1440-stair_3-1-0.2-1-20-1-5000-1-20-1-5000-1-20-1-5000-6-500-5000-0.00-0.1-2000-3000-100-10-false-1",
+         "part7-microbench-streamsluice-ds2-800-part7-linear-1split2join1-120-4000-4000-960-linear-4000-1-1440-stair_3-80-1-1440-stair_3-1-0.1-1-20-1-5000-1-20-1-5000-1-20-1-5000-20-1000-5000-0.00-0.1-2000-3000-100-10-false-3",
          "black", "x--"],
-        # ["DS2",
-        #  "part7-microbench-streamsluice-ds2_new-800-part7-linear-1split2join1-120-4000-4000-960-linear-2000-1-1440-stair_3-80-1-1440-stair_3-1-0.1-1-20-1-5000-1-20-1-5000-1-20-1-5000-10-500-5000-0.00-0.1-2000-3000-100-10-true-3",
-        #  "purple", "^-"],
+        ["DS2",
+         #"part7-microbench-streamsluice-ds2_new-800-part7-linear-1split2join1-120-4000-4000-960-linear-2000-1-1440-stair_3-80-1-1440-stair_3-1-0.1-1-20-1-5000-1-20-1-5000-1-20-1-5000-10-500-5000-0.00-0.1-2000-3000-100-10-true-3",
+         "part7-microbench-streamsluice-ds2_new-800-part7-linear-1split2join1-120-4000-4000-960-linear-4000-1-1440-stair_3-80-1-1440-stair_3-1-0.1-1-20-1-5000-1-20-1-5000-1-20-1-5000-20-1000-5000-0.00-0.1-2000-3000-100-10-true-1",
+         "purple", "^-"],
         ["Sluice",
          #"part7-microbench-streamsluice-streamsluice-800-part7-linear-1split2join1-120-4000-4000-960-linear-2000-1-1440-stair_3-80-1-1440-stair_3-1-0.1-1-20-1-5000-1-20-1-5000-1-20-1-5000-10-500-5000-0.00-0.1-2000-3000-100-10-true-1",
-         "part7-microbench-streamsluice-streamsluice-800-part7-linear-1split2join1-120-4000-4000-960-linear-2000-1-1440-stair_3-80-1-1440-stair_3-1-0.1-1-20-1-5000-1-20-1-5000-1-20-1-5000-6-500-5000-0.00-0.1-2000-3000-100-10-true-1",
-         #"part7-microbench-streamsluice-streamsluice-800-part7-linear-1split2join1-120-4000-4000-960-linear-2000-1-1440-stair_3-80-1-1440-stair_3-1-0.2-1-20-1-5000-1-20-1-5000-1-20-1-5000-6-500-5000-0.00-0.1-2000-3000-100-10-true-1",
+         "part7-microbench-streamsluice-streamsluice-800-part7-linear-1split2join1-120-4000-4000-960-linear-4000-1-1440-stair_3-80-1-1440-stair_3-1-0.1-1-20-1-5000-1-20-1-5000-1-20-1-5000-20-1000-5000-0.00-0.1-2000-3000-100-10-true-1",
          "blue", "o-"],
     ],
 }
