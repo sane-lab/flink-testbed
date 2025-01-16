@@ -723,7 +723,7 @@ def draw_scaling_info(scaling_change_info, outputDir, label):
     print("key_arrival_rate: " + str(scaling_change_info[4]))
     mapping_before_scale = scaling_change_info[2]
     mapping_after_scale = scaling_change_info[3]
-    key_arrival_rate = scaling_change_info[4]
+    key_arrival_rate = {x: y * 1000 for x, y in scaling_change_info[4].items()}
     key_backlog = scaling_change_info[5]
 
     def aggregate_key_level(key_metrics, mapping:dict[str:list[int]]):
@@ -735,10 +735,10 @@ def draw_scaling_info(scaling_change_info, outputDir, label):
     task_backlog_before_scale = aggregate_key_level(key_backlog, mapping_before_scale)
     task_arrival_after_scale = aggregate_key_level(key_arrival_rate, mapping_after_scale)
     task_backlog_after_scale = aggregate_key_level(key_backlog, mapping_after_scale)
-    def draw_task_metrics_barchart(task_data:dict[str:float], label, metrics_name, set_name):
+    def draw_task_metrics_barchart(task_data:dict[str:float], label, metrics_name, file_name):
         import matplotlib.pyplot as plt
         # Create the figure and two bar charts
-        fig, ax1 = plt.subplots(1, 1, figsize=(14, 6))
+        fig_task, ax_task = plt.subplots(1, 1, figsize=(14, 6))
 
         # Sort tasks by arrival rate (optional for ranking)
         sorted_tasks = sorted(task_data.items(), key=lambda x: x[1], reverse=True)
@@ -748,26 +748,25 @@ def draw_scaling_info(scaling_change_info, outputDir, label):
         arrival_rates = [task[1] for task in sorted_tasks]
         indices = np.arange(len(task_names))
 
-
-
         # First bar chart
-        ax1.bar(indices, arrival_rates, color='skyblue', alpha=0.7)
-        ax1.set_title(metrics_name + " under " + label, fontsize=14)
-        ax1.set_xlabel("Task Index", fontsize=12)
-        ax1.set_ylabel(metrics_name, fontsize=12)
-        ax1.set_xticks(indices)
+        ax_task.bar(indices, arrival_rates, color='skyblue', alpha=0.7)
+        #ax_task.set_title(metrics_name + " under " + label, fontsize=14)
+        ax_task.set_xlabel("Task Index", fontsize=12)
+        ax_task.set_ylabel(metrics_name, fontsize=12)
+        ax_task.set_xticks(indices)
+        ax_task.set_ylim(0, 1000)
         #ax1.set_xticklabels([f"Rank {i + 1}" for i in indices], rotation=45)
 
         # Adjust layout and show plot
         if output_pdf_flag:
-            plt.savefig(outputDir + label + "_" + metrics_name + "_" + set_name + ".pdf", bbox_inches='tight')
+            fig_task.savefig(outputDir + label + "_" + file_name + ".pdf", bbox_inches='tight')
         else:
-            plt.savefig(outputDir + label + "_" + metrics_name + "_" + set_name + ".png", bbox_inches='tight')
+            fig_task.savefig(outputDir + label + "_" + file_name + ".png", bbox_inches='tight')
 
-    # draw_task_metrics_barchart(task_arrival_before_scale, label, "Arrival Rate", "Before Scale")
-    # draw_task_metrics_barchart(task_backlog_before_scale, label, "Backlog", "Before Scale")
-    # draw_task_metrics_barchart(task_arrival_after_scale, label, "Arrival Rate", "After Scale")
-    # draw_task_metrics_barchart(task_backlog_after_scale, label, "Backlog Rate", "After Scale")
+    draw_task_metrics_barchart(task_arrival_before_scale, label, "Arrival Rate (tps)", "Arrival_Rate_Before")
+    draw_task_metrics_barchart(task_backlog_before_scale, label, "Backlog", "Backlog_Before")
+    draw_task_metrics_barchart(task_arrival_after_scale, label, "Arrival Rate (tps)", "Arrival_Rate_After")
+    draw_task_metrics_barchart(task_backlog_after_scale, label, "Backlog", "Backlog_After")
 
 
 def draw_resource(rawDir, outputDir, exps, ax1, ax2, xlabel_flag, ylabel_flag):
@@ -901,8 +900,8 @@ def draw_resource(rawDir, outputDir, exps, ax1, ax2, xlabel_flag, ylabel_flag):
         ax1.plot(scale_out_points[expindex][0], scale_out_points[expindex][1], exps[expindex][3][0], color=exps[expindex][2])
 
 
-    ax1.set_ylim(5, 25)
-    ax1.set_yticks(np.arange(5, 25, 5))
+    ax1.set_ylim(15, 35)
+    ax1.set_yticks(np.arange(15, 35, 5))
 
     ax1.set_xlim(startTime * 1000, (startTime + exp_length) * 1000)
     ax1.set_xticks(np.arange(startTime * 1000, (startTime + exp_length) * 1000 + 5000, 5000))
@@ -934,32 +933,39 @@ def draw_resource(rawDir, outputDir, exps, ax1, ax2, xlabel_flag, ylabel_flag):
 rawDir = "/Users/swrrt/Workplace/BacklogDelayPaper/experiments/raw/"
 outputDir = "/Users/swrrt/Workplace/BacklogDelayPaper/experiments/figures/part7/"
 exps_per_setting = {
-    # "(a) No Skew": [
-    #     ["Static",
-    #      "part6and7-microbench-streamsluice-ds2-800-part7-linear-1split2join1-120-4000-4000-960-linear-2000-1-1440-stair_3-80-1-1440-stair_3-1-0-3-444-1-5000-3-444-1-5000-3-444-1-5000-5-500-5000-0.00-0.1-2000-3000-100-10-false-1",
-    #      "black", "x--"],
-    #     ["DS2",
-    #      "part6and7-microbench-streamsluice-ds2_new-800-part7-linear-1split2join1-120-4000-4000-960-linear-2000-1-1440-stair_3-80-1-1440-stair_3-1-0-3-444-1-5000-3-444-1-5000-3-444-1-5000-5-500-5000-0.00-0.1-2000-3000-100-10-true-2",
-    #      "purple", "^-"],
-    #     ["Sluice",
-    #      "part6and7-microbench-streamsluice-streamsluice-800-part7-linear-1split2join1-120-4000-4000-960-linear-2000-1-1440-stair_3-80-1-1440-stair_3-1-0-3-444-1-5000-3-444-1-5000-3-444-1-5000-5-500-5000-0.00-0.1-2000-3000-100-10-true-1",
-    #      "blue", "o-"],
-    # ],
-    "(b) Skewed": [
+    "(a) No Skew": [
         ["Static",
-         #"part7-microbench-streamsluice-ds2-800-part7-linear-1split2join1-120-4000-4000-960-linear-2000-1-1440-stair_3-80-1-1440-stair_3-1-0.1-1-20-1-5000-1-20-1-5000-1-20-1-5000-10-500-5000-0.00-0.1-2000-3000-100-10-false-3",
-         #"part7-microbench-streamsluice-ds2-800-part7-linear-1split2join1-120-4000-4000-960-linear-4000-1-1440-stair_3-80-1-1440-stair_3-1-0.1-1-20-1-5000-1-20-1-5000-1-20-1-5000-20-1000-5000-0.00-0.1-2000-3000-100-10-false-3",
-         "part7-microbench-streamsluice-ds2-800-part7-linear-1split2join1-120-4000-4000-960-linear-4000-1-1440-stair_3-120-1-1440-stair_3-1-0.1-1-20-1-5000-1-20-1-5000-1-20-1-5000-20-1000-5000-0.00-0.1-2000-3000-100-10-false-3",
+         "part6and7-microbench-streamsluice-ds2-800-part7-linear-1split2join1-120-4000-4000-960-linear-2000-1-1440-stair_3-80-1-1440-stair_3-1-0-3-444-1-5000-3-444-1-5000-3-444-1-5000-5-500-5000-0.00-0.1-2000-3000-100-10-false-1",
          "black", "x--"],
         ["DS2",
-         #"part7-microbench-streamsluice-ds2_new-800-part7-linear-1split2join1-120-4000-4000-960-linear-2000-1-1440-stair_3-80-1-1440-stair_3-1-0.1-1-20-1-5000-1-20-1-5000-1-20-1-5000-10-500-5000-0.00-0.1-2000-3000-100-10-true-3",
+         "part6and7-microbench-streamsluice-ds2_new-800-part7-linear-1split2join1-120-4000-4000-960-linear-2000-1-1440-stair_3-80-1-1440-stair_3-1-0-3-444-1-5000-3-444-1-5000-3-444-1-5000-5-500-5000-0.00-0.1-2000-3000-100-10-true-2",
+         "purple", "^-"],
+        ["Sluice",
+         "part6and7-microbench-streamsluice-streamsluice-800-part7-linear-1split2join1-120-4000-4000-960-linear-2000-1-1440-stair_3-80-1-1440-stair_3-1-0-3-444-1-5000-3-444-1-5000-3-444-1-5000-5-500-5000-0.00-0.1-2000-3000-100-10-true-1",
+         "blue", "o-"],
+    ],
+    "(b) Skewed (0.1)": [
+        ["Static",
+         "part7-microbench-streamsluice-ds2-800-part7-linear-1split2join1-120-4000-4000-960-linear-4000-1-1440-stair_3-80-1-1440-stair_3-1-0.1-1-20-1-5000-1-20-1-5000-1-20-1-5000-20-1000-5000-0.00-0.1-2000-3000-100-10-false-3",
+         "black", "x--"],
+        ["DS2",
          "part7-microbench-streamsluice-ds2_new-800-part7-linear-1split2join1-120-4000-4000-960-linear-4000-1-1440-stair_3-80-1-1440-stair_3-1-0.1-1-20-1-5000-1-20-1-5000-1-20-1-5000-20-1000-5000-0.00-0.1-2000-3000-100-10-true-1",
          "purple", "^-"],
         ["Sluice",
-         #"part7-microbench-streamsluice-streamsluice-800-part7-linear-1split2join1-120-4000-4000-960-linear-2000-1-1440-stair_3-80-1-1440-stair_3-1-0.1-1-20-1-5000-1-20-1-5000-1-20-1-5000-10-500-5000-0.00-0.1-2000-3000-100-10-true-1",
          "part7-microbench-streamsluice-streamsluice-800-part7-linear-1split2join1-120-4000-4000-960-linear-4000-1-1440-stair_3-80-1-1440-stair_3-1-0.1-1-20-1-5000-1-20-1-5000-1-20-1-5000-20-1000-5000-0.00-0.1-2000-3000-100-10-true-1",
          "blue", "o-"],
     ],
+    # "(b) Skewed (0.2)": [
+    #     ["Static",
+    #      "part7-microbench-streamsluice-ds2-800-part7-linear-1split2join1-120-4000-4000-960-linear-4000-1-1440-stair_3-80-1-1440-stair_3-1-0.2-1-20-1-5000-1-20-1-5000-1-20-1-5000-20-1000-5000-0.00-0.1-2000-3000-100-10-false-3",
+    #      "black", "x--"],
+    #     ["DS2",
+    #      "part7-microbench-streamsluice-ds2_new-800-part7-linear-1split2join1-120-4000-4000-960-linear-4000-1-1440-stair_3-80-1-1440-stair_3-1-0.2-1-20-1-5000-1-20-1-5000-1-20-1-5000-20-1000-5000-0.00-0.1-2000-3000-100-10-true-1",
+    #      "purple", "^-"],
+    #     ["Sluice",
+    #      "part7-microbench-streamsluice-streamsluice-800-part7-linear-1split2join1-120-4000-4000-960-linear-4000-1-1440-stair_3-80-1-1440-stair_3-1-0.2-1-20-1-5000-1-20-1-5000-1-20-1-5000-20-1000-5000-0.00-0.1-2000-3000-100-10-true-1",
+    #      "blue", "o-"],
+    # ],
 }
 
 
@@ -999,17 +1005,17 @@ windowSize = 1000 #500 #500
 latencyLimit = 0
 spike = 2500 #1500
 #latencyLimit = 2500 #1000
-startTime = 30 #55
-expLength = 60 #30
+startTime = 55 #55
+expLength = 30 #30
 exp_length = expLength
 show_avg_flag = False
 ground_truth_component_flag = False
 show_scaling_flag = False #True
 
 avg_latency_calculateTime = expLength # 30
+trickFlag = False #True
 
 output_pdf_flag = True
-
 
 for name, exps_per_setting in exps_per_settings.items():
     fig, axs = plt.subplots(3, 2, figsize=(20, 9), layout='constrained')
@@ -1019,7 +1025,7 @@ for name, exps_per_setting in exps_per_settings.items():
         latencyLimit = int(exps[0][1].split('-')[-6])
         expName = exps[0][1]
         print(expName)
-        trickFlag = False #True
+
 
         exp_length = expLength
         ylabel_flag = False
@@ -1033,7 +1039,7 @@ for name, exps_per_setting in exps_per_settings.items():
     fig.legend(handles, labels, loc='upper center', bbox_to_anchor=(0.51, 1.12), ncol=7, markerscale=5)
 
     if output_pdf_flag:
-        plt.savefig(outputDir + "one_in_all_part7_" + name + ".pdf", bbox_inches='tight')
+        fig.savefig(outputDir + "one_in_all_part7_" + name + ".pdf", bbox_inches='tight')
     else:
-        plt.savefig(outputDir + "one_in_all_part7_" + name + ".png", bbox_inches='tight')
+        fig.savefig(outputDir + "one_in_all_part7_" + name + ".png", bbox_inches='tight')
 

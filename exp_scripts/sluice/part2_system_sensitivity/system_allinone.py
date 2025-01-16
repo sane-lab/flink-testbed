@@ -184,23 +184,6 @@ def plot_all_in_one(success_rates:dict[str:object], latency:dict[str:list[object
     # Extract labels
     labels = list(success_rates.keys())
 
-    # Prepare data for boxplots
-    latency_stats = [
-        {
-            "q1": v[2], "q3": v[4], "whislo": max(v[2] - 1.5 * (v[4] - v[2]), v[1]), "whishi": min(v[4] + 1.5 * (v[4] - v[2]), v[5]),
-            "med": v[3], "mean": v[0], "label": k, "fliers": []  # Add fliers key
-        }
-        for k, v in latency.items()
-    ]
-
-    parallelism_stats = [
-        {
-            "q1": v[2], "q3": v[4], "whislo": max(v[2] - 1.5 * (v[4] - v[2]), v[1]), "whishi": min(v[4] + 1.5 * (v[4] - v[2]), v[5]),
-            "med": v[3], "mean": v[0], "label": k, "fliers": []  # Add fliers key
-        }
-        for k, v in parallelism.items()
-    ]
-
     # Use Pastel1 colormap
     cmap = matplotlib.colormaps["Paired"] # cm.get_cmap('Paired', len(labels) * 2)
     colors = [cmap(i) for i in range(len(labels) * 2)]
@@ -237,32 +220,84 @@ def plot_all_in_one(success_rates:dict[str:object], latency:dict[str:list[object
     # ax1.set_title("Success Rate Curve", fontsize=14)
     # ax1.legend(loc="upper right")
 
-    # 2. Bottom subplot: Latency and parallelism boxplots
-    box_positions = range(len(labels))  # Positions for boxplots
 
-    # Plot latency boxplots with colormap
-    for i, pos in enumerate(box_positions):
-        ax2.bxp([latency_stats[i]], positions=[pos - 0.2], widths=0.3,
-                showmeans=True, meanline=True, patch_artist=True,
-                boxprops=dict(facecolor=colors[i * 2], alpha=0.5), meanprops=dict(color='red'))
-        #ax2.text(pos - 0.2, latency_stats[i]['whishi'] + 10, 'Latency', ha='center', fontsize=10, color="black")
+    if boxplot_flag:
+        # Prepare data for boxplots
+        latency_stats = [
+            {
+                "q1": v[2], "q3": v[4], "whislo": max(v[2] - 1.5 * (v[4] - v[2]), v[1]),
+                "whishi": min(v[4] + 1.5 * (v[4] - v[2]), v[5]),
+                "med": v[3], "mean": v[0], "label": k, "fliers": []  # Add fliers key
+            }
+            for k, v in latency.items()
+        ]
 
-    # Second y-axis for parallelism
-    ax3 = ax2.twinx()
+        parallelism_stats = [
+            {
+                "q1": v[2], "q3": v[4], "whislo": max(v[2] - 1.5 * (v[4] - v[2]), v[1]),
+                "whishi": min(v[4] + 1.5 * (v[4] - v[2]), v[5]),
+                "med": v[3], "mean": v[0], "label": k, "fliers": []  # Add fliers key
+            }
+            for k, v in parallelism.items()
+        ]
 
-    # Plot parallelism boxplots with colormap
-    for i, pos in enumerate(box_positions):
-        ax3.bxp([parallelism_stats[i]], positions=[pos + 0.2], widths=0.3,
-                showmeans=True, meanline=True, patch_artist=True,
-                boxprops=dict(facecolor=colors[i * 2 + 1], alpha=0.5), meanprops=dict(color='purple'))
-        # ax3.text(pos + 0.2, parallelism_stats[i]['whishi'] + 1, 'Parallelism', ha='center', fontsize=10,
-        #         color="black")
+        # 2. Bottom subplot: Latency and parallelism boxplots
+        box_positions = range(len(labels))  # Positions for boxplots
 
-    # Set labels and legends
-    ax2.set_ylabel("Latency (ms)", fontsize=18)
-    ax3.set_ylabel("# of Slots", fontsize=18)
-    ax2.set_xticks(box_positions)
-    ax2.set_xticklabels(labels)
+        # Plot latency boxplots with colormap
+        for i, pos in enumerate(box_positions):
+            ax2.bxp([latency_stats[i]], positions=[pos - 0.2], widths=0.3,
+                    showmeans=True, meanline=True, patch_artist=True,
+                    boxprops=dict(facecolor=colors[i * 2], alpha=0.5), meanprops=dict(color='red'))
+            #ax2.text(pos - 0.2, latency_stats[i]['whishi'] + 10, 'Latency', ha='center', fontsize=10, color="black")
+
+        # Second y-axis for parallelism
+        ax3 = ax2.twinx()
+
+        # Plot parallelism boxplots with colormap
+        for i, pos in enumerate(box_positions):
+            ax3.bxp([parallelism_stats[i]], positions=[pos + 0.2], widths=0.3,
+                    showmeans=True, meanline=True, patch_artist=True,
+                    boxprops=dict(facecolor=colors[i * 2 + 1], alpha=0.5), meanprops=dict(color='purple'))
+            # ax3.text(pos + 0.2, parallelism_stats[i]['whishi'] + 1, 'Parallelism', ha='center', fontsize=10,
+            #         color="black")
+
+        ax2.set_xticks(box_positions)
+        ax2.set_xticklabels(labels)
+        # Set labels and legends
+        ax2.set_ylabel("Latency (ms)", fontsize=18)
+        ax3.set_ylabel("# of Slots", fontsize=18)
+    else:
+        latency_mean = [v[0] for k, v in latency.items()]
+        parallelism_mean = [v[0] for k, v in parallelism.items()]
+        keys = [k for k, v in parallelism.items()]
+        x = np.arange(len(keys))
+        # Plot the first bar chart (MAE) on the primary y-axis
+        width = 0.4
+
+        bar1 = ax2.bar(x - width / 2, latency_mean, width, label='Average Latency', color='blue', edgecolor='black')
+
+        # Create the secondary y-axis
+        ax3 = ax2.twinx()
+
+        # Plot the second bar chart (RMSE) on the secondary y-axis
+        bar2 = ax3.bar(x + width / 2, parallelism_mean, width, label='Average Resources', color='green', edgecolor='black')
+
+        # Optional: Add value labels above each bar
+        for bars, ax in zip([bar1, bar2], [ax1, ax2]):
+            for bar in bars:
+                height = bar.get_height()
+                ax.text(bar.get_x() + bar.get_width() / 2, height, f'{height:.2f}', ha='center', va='bottom',
+                        fontsize=10)
+
+        ax2.set_ylabel("Latency (ms)", fontsize=18)
+        ax3.set_ylabel("# of Slots", fontsize=18)
+        ax2.set_xticks(x)
+        ax2.set_xticklabels(keys)
+
+
+
+
 
     if not os.path.exists(output_dir):
         os.makedirs(output_dir)
@@ -274,6 +309,7 @@ def plot_all_in_one(success_rates:dict[str:object], latency:dict[str:list[object
     plt.close(fig)
 
 output_pdf_flag=True
+boxplot_flag=False # False for barchart of mean
 def main():
     overall_output_dir = "/Users/swrrt/Workplace/BacklogDelayPaper/experiments/figures/part4/"
     success_rate_per_label = {}
