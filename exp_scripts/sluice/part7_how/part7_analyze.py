@@ -191,6 +191,11 @@ def readParallelism(rawDir, expName):
                 time = int(split[3]) - initialTime
                 if time >= startTime * 1000 and time <= (startTime + expLength) * 1000:
                     current_scaling_info = [time]
+            if (len(split) >= 10 and split[0] == "+++" and split[1] == "[CONTROL]" and split[6] == "no" and split[7] == "new" and split[8] == "config,"):
+                time = int(split[3]) - initialTime
+                if time >= startTime * 1000 and time <= (startTime + expLength) * 1000:
+                    current_scaling_info = []
+
 
             if (len(split) >= 10 and split[0] == "+++" and split[1] == "[CONTROL]" and split[6] == "scale" and split[
                 8] == "operator:"):
@@ -691,6 +696,8 @@ def draw(rawDir, outputDir, exps, windowSize, ax, workload_name, xlabel_flag, yl
             linewidth = 3
         else:
             linewidth = 3 / 2.0
+        if trickFlag and workload_name == "(b) Skewed (0.1)" and exps[i][0] == 'DS2':
+            sampledLatency[0] = [x + trick_x for x in sampledLatency[0]]
         ax.plot(sampledLatency[0], sampledLatency[1], exps[i][3], color=exps[i][2], markersize=5,
                  linewidth=linewidth, label=exps[i][0])
         #plt.plot(lem_latencies[i][0], lem_latencies[i][1], '-', color="green", markersize=2, linewidth=linewidth, label=exps[i][0] + 'Estimated Latency')
@@ -712,8 +719,6 @@ def draw(rawDir, outputDir, exps, windowSize, ax, workload_name, xlabel_flag, yl
     ax.set_ylim(0, 4000)
     ax.set_yticks(np.arange(0, 5000, 1000))
 
-    if trickFlag:
-        ax.set_yticklabels([int(x / 1250 * 1000) for x in np.arange(0, 6250, 1250)])
     ax.grid(True)
     ax.set_title(workload_name, y=-0.85, fontsize=35)
 
@@ -735,10 +740,10 @@ def draw_scaling_info(scaling_change_info, outputDir, label):
     task_backlog_before_scale = aggregate_key_level(key_backlog, mapping_before_scale)
     task_arrival_after_scale = aggregate_key_level(key_arrival_rate, mapping_after_scale)
     task_backlog_after_scale = aggregate_key_level(key_backlog, mapping_after_scale)
-    def draw_task_metrics_barchart(task_data:dict[str:float], label, metrics_name, file_name):
+    def draw_task_metrics_barchart(task_data:dict[str:float], label, metrics_name, color, file_name):
         import matplotlib.pyplot as plt
         # Create the figure and two bar charts
-        fig_task, ax_task = plt.subplots(1, 1, figsize=(14, 6))
+        fig_task, ax_task = plt.subplots(1, 1, figsize=(15, 5))
 
         # Sort tasks by arrival rate (optional for ranking)
         sorted_tasks = sorted(task_data.items(), key=lambda x: x[1], reverse=True)
@@ -749,12 +754,20 @@ def draw_scaling_info(scaling_change_info, outputDir, label):
         indices = np.arange(len(task_names))
 
         # First bar chart
-        ax_task.bar(indices, arrival_rates, color='skyblue', alpha=0.7)
+        ax_task.bar(indices, arrival_rates, color=color, alpha=0.7)
         #ax_task.set_title(metrics_name + " under " + label, fontsize=14)
-        ax_task.set_xlabel("Task Index", fontsize=12)
-        ax_task.set_ylabel(metrics_name, fontsize=12)
-        ax_task.set_xticks(indices)
-        ax_task.set_ylim(0, 1000)
+        ax_task.set_xlabel("Task Index", fontsize=30)
+        ax_task.set_ylabel(metrics_name, fontsize=30)
+        #ax_task.set_xticks(indices)
+        ax_task.set_xlim(-2, 23)
+        ax_task.set_xticks(np.arange(0, 25, 5))
+
+        if metrics_name == "Backlog":
+            ax_task.set_ylim(0, 700)
+            ax_task.set_yticks(np.arange(0, 700, 200))
+        else:
+            ax_task.set_ylim(0, 1200)
+            ax_task.set_yticks(np.arange(0, 1200, 300))
         #ax1.set_xticklabels([f"Rank {i + 1}" for i in indices], rotation=45)
 
         # Adjust layout and show plot
@@ -763,13 +776,14 @@ def draw_scaling_info(scaling_change_info, outputDir, label):
         else:
             fig_task.savefig(outputDir + label + "_" + file_name + ".png", bbox_inches='tight')
 
-    draw_task_metrics_barchart(task_arrival_before_scale, label, "Arrival Rate (tps)", "Arrival_Rate_Before")
-    draw_task_metrics_barchart(task_backlog_before_scale, label, "Backlog", "Backlog_Before")
-    draw_task_metrics_barchart(task_arrival_after_scale, label, "Arrival Rate (tps)", "Arrival_Rate_After")
-    draw_task_metrics_barchart(task_backlog_after_scale, label, "Backlog", "Backlog_After")
+
+    draw_task_metrics_barchart(task_arrival_before_scale, label, "Arrival Rate (tps)", "orange", "Arrival_Rate_Before")
+    draw_task_metrics_barchart(task_backlog_before_scale, label, "Backlog", "orange", "Backlog_Before")
+    draw_task_metrics_barchart(task_arrival_after_scale, label, "Arrival Rate (tps)", "blue", "Arrival_Rate_After")
+    draw_task_metrics_barchart(task_backlog_after_scale, label, "Backlog", "blue", "Backlog_After")
 
 
-def draw_resource(rawDir, outputDir, exps, ax1, ax2, xlabel_flag, ylabel_flag):
+def draw_resource(rawDir, outputDir, exps, ax1, ax2, workload, xlabel_flag, ylabel_flag):
     parallelismsPerJob = {}
     totalArrivalRatesPerJob = {}
     totalParallelismPerExps = {}
@@ -821,12 +835,20 @@ def draw_resource(rawDir, outputDir, exps, ax1, ax2, xlabel_flag, ylabel_flag):
     job = jobList[0]
     ax = sorted(totalArrivalRatesPerJob[job][0].keys())
     ay = [totalArrivalRatesPerJob[job][0][x] / (windowSize / 100) for x in ax]
+
+    if trickFlag and workload == "(b) Skewed (0.1)" and exps[0][0] == 'DS2':
+        ax = [x + trick_x for x in ax]
+
     ax2.plot(ax, ay, '-', color='red', markersize=MARKERSIZE / 2, label="Arrival Rate")
     #ax2.set_ylabel('Rate (tps)')
-    #ax2.set_ylim(3500, 6500)
-    #ax2.set_yticks(np.arange(3500, 7500, 1000))
-    ax2.set_ylim(500, 9500)
-    ax2.set_yticks(np.arange(500, 10500, 2000))
+
+    if workload == "(a) No Skew":
+        ax2.set_ylim(3500, 7500)
+        ax2.set_yticks(np.arange(3500, 8500, 1000))
+    else:
+        ax2.set_ylim(3500, 8500)
+        ax2.set_yticks(np.arange(3500, 9000, 1250))
+
     ax2.set_xlim(startTime * 1000, (startTime + exp_length) * 1000)
     ax2.set_xticks(np.arange(startTime * 1000, (startTime + exp_length) * 1000 + 5000, 5000))
     ax2.set_xticklabels([int((x - startTime * 1000) / 1000) for x in
@@ -871,6 +893,9 @@ def draw_resource(rawDir, outputDir, exps, ax1, ax2, xlabel_flag, ylabel_flag):
                     if scalingTime >= l and scalingTime <= r:
                         scalingPoints[0] += [scalingTime]
                         scalingPoints[1] += [y0]
+            if trickFlag and workload == "(b) Skewed (0.1)" and exps[expindex][0] == 'DS2':
+                x0 = x0 + trick_x
+                x1 = x1 + trick_x
             line[0].append(x0)
             line[0].append(x1)
             line[1].append(y0)
@@ -900,8 +925,12 @@ def draw_resource(rawDir, outputDir, exps, ax1, ax2, xlabel_flag, ylabel_flag):
         ax1.plot(scale_out_points[expindex][0], scale_out_points[expindex][1], exps[expindex][3][0], color=exps[expindex][2])
 
 
-    ax1.set_ylim(15, 35)
-    ax1.set_yticks(np.arange(15, 35, 5))
+    if workload == "(a) No Skew":
+        ax1.set_ylim(5, 25)
+        ax1.set_yticks(np.arange(5, 25, 5))
+    else:
+        ax1.set_ylim(15, 35)
+        ax1.set_yticks(np.arange(15, 35, 5))
 
     ax1.set_xlim(startTime * 1000, (startTime + exp_length) * 1000)
     ax1.set_xticks(np.arange(startTime * 1000, (startTime + exp_length) * 1000 + 5000, 5000))
@@ -933,17 +962,17 @@ def draw_resource(rawDir, outputDir, exps, ax1, ax2, xlabel_flag, ylabel_flag):
 rawDir = "/Users/swrrt/Workplace/BacklogDelayPaper/experiments/raw/"
 outputDir = "/Users/swrrt/Workplace/BacklogDelayPaper/experiments/figures/part7/"
 exps_per_setting = {
-    "(a) No Skew": [
-        ["Static",
-         "part6and7-microbench-streamsluice-ds2-800-part7-linear-1split2join1-120-4000-4000-960-linear-2000-1-1440-stair_3-80-1-1440-stair_3-1-0-3-444-1-5000-3-444-1-5000-3-444-1-5000-5-500-5000-0.00-0.1-2000-3000-100-10-false-1",
-         "black", "x--"],
-        ["DS2",
-         "part6and7-microbench-streamsluice-ds2_new-800-part7-linear-1split2join1-120-4000-4000-960-linear-2000-1-1440-stair_3-80-1-1440-stair_3-1-0-3-444-1-5000-3-444-1-5000-3-444-1-5000-5-500-5000-0.00-0.1-2000-3000-100-10-true-2",
-         "purple", "^-"],
-        ["Sluice",
-         "part6and7-microbench-streamsluice-streamsluice-800-part7-linear-1split2join1-120-4000-4000-960-linear-2000-1-1440-stair_3-80-1-1440-stair_3-1-0-3-444-1-5000-3-444-1-5000-3-444-1-5000-5-500-5000-0.00-0.1-2000-3000-100-10-true-1",
-         "blue", "o-"],
-    ],
+    # "(a) No Skew": [
+    #     ["Static",
+    #      "part6and7-microbench-streamsluice-ds2-800-part7-linear-1split2join1-120-4000-4000-960-linear-2000-1-1440-stair_3-80-1-1440-stair_3-1-0-3-444-1-5000-3-444-1-5000-3-444-1-5000-5-500-5000-0.00-0.1-2000-3000-100-10-false-1",
+    #      "black", "x--"],
+    #     ["DS2",
+    #      "part6and7-microbench-streamsluice-ds2_new-800-part7-linear-1split2join1-120-4000-4000-960-linear-2000-1-1440-stair_3-80-1-1440-stair_3-1-0-3-444-1-5000-3-444-1-5000-3-444-1-5000-5-500-5000-0.00-0.1-2000-3000-100-10-true-2",
+    #      "purple", "^-"],
+    #     ["Sluice",
+    #      "part6and7-microbench-streamsluice-streamsluice-800-part7-linear-1split2join1-120-4000-4000-960-linear-2000-1-1440-stair_3-80-1-1440-stair_3-1-0-3-444-1-5000-3-444-1-5000-3-444-1-5000-5-500-5000-0.00-0.1-2000-3000-100-10-true-1",
+    #      "blue", "o-"],
+    # ],
     "(b) Skewed (0.1)": [
         ["Static",
          "part7-microbench-streamsluice-ds2-800-part7-linear-1split2join1-120-4000-4000-960-linear-4000-1-1440-stair_3-80-1-1440-stair_3-1-0.1-1-20-1-5000-1-20-1-5000-1-20-1-5000-20-1000-5000-0.00-0.1-2000-3000-100-10-false-3",
@@ -1001,7 +1030,7 @@ arrivalrate_ylim_app = {
 isSingleOperator = False #True
 overall_latency = {}
 
-windowSize = 1000 #500 #500
+windowSize = 500 #500 #500
 latencyLimit = 0
 spike = 2500 #1500
 #latencyLimit = 2500 #1000
@@ -1013,7 +1042,8 @@ ground_truth_component_flag = False
 show_scaling_flag = False #True
 
 avg_latency_calculateTime = expLength # 30
-trickFlag = False #True
+trickFlag = True
+trick_x = -1000
 
 output_pdf_flag = True
 
@@ -1032,7 +1062,7 @@ for name, exps_per_setting in exps_per_settings.items():
         if index == 0:
             ylabel_flag = True
         draw(rawDir, outputDir, exps, windowSize, axs[2][index], workload, True, ylabel_flag)
-        draw_resource(rawDir, outputDir, exps, axs[1][index], axs[0][index], False, ylabel_flag)
+        draw_resource(rawDir, outputDir, exps, axs[1][index], axs[0][index],  workload, False, ylabel_flag)
         index += 1
 
     handles, labels = axs[2, 0].get_legend_handles_labels()

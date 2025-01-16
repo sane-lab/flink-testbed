@@ -287,9 +287,9 @@ run_scale_test(){
     DELAY4=20 #20
     DELAY5=1000 #500 # 800
     period_low=80
-    for CURVE_TYPE in "linear"; do # "linear" "quarter-sine" "gradient"
+    for CURVE_TYPE in "gradient"; do # "linear" "quarter-sine" "gradient"
       for period_low in 80; do # 120
-        for ZIPF_SKEW in 0.0; do # 0.1 0.2
+        for ZIPF_SKEW in 0.1 0.2; do #
           for amplitude_low in 4000; do # 2000
             is_treat=false
             autotune=false
