@@ -278,7 +278,7 @@ run_scale_test(){
     P4=1
     P5=20 #5
     LP5=50 #13
-    warmupRate=1000 #5000
+    warmupRate=4000 #5000
     warmupTime=60
     rate_low=4000 # 5000
     rate_high=4000 # 5000
@@ -287,9 +287,9 @@ run_scale_test(){
     DELAY4=20 #20
     DELAY5=1000 #500 # 800
     period_low=80
-    for CURVE_TYPE in "linear" "gradient"; do # "linear" "quarter-sine" "gradient"
-      for period_low in 80 120; do
-        for ZIPF_SKEW in 0.1 0.2 0.3; do #
+    for CURVE_TYPE in "linear"; do # "linear" "quarter-sine" "gradient"
+      for period_low in 80; do # 120
+        for ZIPF_SKEW in 0.1 0.2; do # 0.3
           for amplitude_low in 4000; do # 2000
             is_treat=false
             autotune=false
