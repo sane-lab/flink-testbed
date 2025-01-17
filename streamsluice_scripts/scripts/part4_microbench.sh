@@ -106,7 +106,7 @@ function runApp() {
     -nkeys ${NKEYS} -phase1Time ${TIME1} -phase1Rate ${RATE1} -phase2Time ${TIME2} \
     -phase2Rate ${RATE2} -interTime ${TIME_I} -interRate ${RATE_I} -warmupTime ${warmupTime} -warmupRate ${warmupRate} \
     -source ${SOURCE_TYPE} -run_time ${runtime} \
-    -phaseTimes ${PHASE_TIMES} -phaseRates ${Phase_Rates} -phaseAmplitudes ${Phase_Amplitudes} -phasePeriods ${Phase_Periods} -phaseTypes ${Phase_Types} \
+    -phaseTimes ${PHASE_TIMES} -phaseRates ${PHASE_RATES} -phaseAmplitudes ${PHASE_AMPLITUDES} -phasePeriods ${PHASE_PERIODS} -phaseTypes ${PHASE_TYPES} \
     -noise ${noise} -zipf_skew ${ZIPF_SKEW} &"
     ${FLINK_DIR}/bin/flink run -c ${job} ${JAR} \
     -graph ${GRAPH} \
@@ -117,7 +117,7 @@ function runApp() {
     -nkeys ${NKEYS} -phase1Time ${TIME1} -phase1Rate ${RATE1} -phase2Time ${TIME2} \
     -phase2Rate ${RATE2} -interTime ${TIME_I} -interRate ${RATE_I} -warmupTime ${warmupTime} -warmupRate ${warmupRate} \
     -source ${SOURCE_TYPE} -run_time ${runtime} \
-    -phaseTimes ${PHASE_TIMES} -phaseRates ${Phase_Rates} -phaseAmplitudes ${Phase_Amplitudes} -phasePeriods ${Phase_Periods} -phaseTypes ${Phase_Types} \
+    -phaseTimes ${PHASE_TIMES} -phaseRates ${PHASE_RATES} -phaseAmplitudes ${PHASE_AMPLITUDES} -phasePeriods ${PHASE_PERIODS} -phaseTypes ${PHASE_TYPES} \
     -noise ${noise} -zipf_skew ${ZIPF_SKEW} &
 }
 
