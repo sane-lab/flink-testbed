@@ -200,19 +200,24 @@ def plot_all_in_one(axs, legend_info, title, success_rates:dict[str:object], lat
     # ax1.set_xticklabels(x_labels)
 
     min_rate = min(success_rates.values())
-    if min_rate >= 0.9:
+    if min_rate >= 0.95:
+        ax1.set_ylim(0.95, 1.0)
+        ax1.set_yticks(np.arange(0.96, 1.01, 0.02))
+        ax1.set_yticklabels([math.ceil(x * 100) for x in np.arange(0.96, 1.01, 0.02)])
+    elif min_rate >= 0.9:
         ax1.set_ylim(0.9, 1.005)
         ax1.set_yticks(np.arange(0.9, 1.01, 0.05))
         ax1.set_yticklabels([math.ceil(x * 100) for x in np.arange(0.9, 1.01, 0.05)])
     elif min_rate >= 0.8:
-        ax1.set_ylim(0.8, 1.01)
-        ax1.set_yticks(np.arange(0.80, 1.00, 0.1))
-        ax1.set_yticklabels([math.ceil(x * 100) for x in np.arange(0.80, 1.00, 0.1)])
+        ax1.set_ylim(0.8, 1.0)
+        ax1.set_yticks(np.arange(0.80, 1.01, 0.1))
+        ax1.set_yticklabels([math.ceil(x * 100) for x in np.arange(0.80, 1.01, 0.1)])
     else:
-        ax1.set_ylim(0.0, 1.05)
+        ax1.set_ylim(0.0, 1.0)
         ax1.set_yticks(np.arange(0.0, 1.001, 0.5))
         ax1.set_yticklabels([math.ceil(x * 100) for x in np.arange(0.0, 1.001, 0.5)])
-
+    ax1.grid(True)
+    ax1.set_xticks(np.arange(0, len(x_labels)))
     ax1.tick_params(axis='x', bottom=False)
     ax1.set_xticklabels([])
     if y1label_flag:
@@ -291,11 +296,11 @@ def plot_all_in_one(axs, legend_info, title, success_rates:dict[str:object], lat
         bar2 = ax3.bar(x + width / 2, parallelism_mean, width, label='Average Resources', color='lightgreen', edgecolor='black', hatch='\\')
 
         # Adjust the y-axis limits for ax2 (Primary y-axis for latency)
-        ylim_upper_ax2 = max(latency_mean) * 1.2  # Increase the upper limit by 20% for better spacing
+        ylim_upper_ax2 = max(latency_mean) * 1.3  # Increase the upper limit by 20% for better spacing
         ax2.set_ylim(0, ylim_upper_ax2)
 
         # Adjust the y-axis limits for ax3 (Secondary y-axis for parallelism)
-        ylim_upper_ax3 = max(parallelism_mean) * 1.2  # Increase the upper limit by 20%
+        ylim_upper_ax3 = max(parallelism_mean) * 1.3  # Increase the upper limit by 20%
 
         for bar in bar1:
             height = bar.get_height()
@@ -312,7 +317,7 @@ def plot_all_in_one(axs, legend_info, title, success_rates:dict[str:object], lat
         #    ax2.set_yticklabels([])
 
         #ax2.set_yticklabels(ax2.get_yticks(), rotation=90)
-        ax3.set_ylim(0, 60)
+        ax3.set_ylim(0, 65)
         if y2label_flag:
             ax3.set_ylabel("# of Slots", fontsize=30)
         else:
@@ -367,7 +372,9 @@ def main():
     for name in name_list:
         overall_output_dir = "/Users/swrrt/Workplace/BacklogDelayPaper/experiments/figures/part3/" + name + "/"
 
-        fig_all, axs_all = plt.subplots(2, 4, figsize=(28, 10), layout='constrained', gridspec_kw={'height_ratios': [1, 2], 'width_ratios': [1, 1, 1, 1]})
+        #fig_all, axs_all = plt.subplots(2, 4, figsize=(28, 10), layout='constrained', gridspec_kw={'height_ratios': [1, 2], 'width_ratios': [1, 1, 1, 1]})
+        fig_all, axs_all = plt.subplots(2, 4, figsize=(28, 7.5), layout='constrained',
+                                        gridspec_kw={'height_ratios': [3, 5], 'width_ratios': [1, 1, 1, 1]})
         legend_info = [[], []]
         index = 0
 
@@ -408,7 +415,7 @@ def main():
                 index += 1
                 if index == 4:
                     fig_all.legend(legend_info[0], legend_info[1], fontsize=30, loc='upper center',
-                                   bbox_to_anchor=(0.51, 1.1), ncol=7, markerscale=1)
+                                   bbox_to_anchor=(0.51, 1.13), ncol=7, markerscale=1)
 
                     if not os.path.exists(overall_output_dir):
                         os.makedirs(overall_output_dir)
@@ -420,8 +427,10 @@ def main():
                         fig_all.savefig(overall_output_dir + 'part3_all_in_one_' + str(name) + '_1.png',
                                         bbox_inches='tight')
                     plt.close(fig_all)
-                    fig_all, axs_all = plt.subplots(2, 3, figsize=(21, 10), layout='constrained',
-                                                    gridspec_kw={'height_ratios': [1, 2], 'width_ratios': [1, 1, 1]})
+                    #fig_all, axs_all = plt.subplots(2, 3, figsize=(21, 10), layout='constrained',
+                    #                                gridspec_kw={'height_ratios': [1, 2], 'width_ratios': [1, 1, 1]})
+                    fig_all, axs_all = plt.subplots(2, 3, figsize=(21, 7.5), layout='constrained',
+                                                    gridspec_kw={'height_ratios': [3, 5], 'width_ratios': [1, 1, 1]})
 
             elif len(splits) > 1:
                 label = splits[3]

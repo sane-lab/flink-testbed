@@ -226,7 +226,7 @@ run_scale_test(){
     PHASE_RATES="5000-5000-5000"
     PHASE_AMPLITUDES="2500-2000-1500"
     PHASE_PERIODS="120-150-180"
-    PHASE_TYPES="qsine-qsine-qsine"
+    PHASE_TYPES="sine-qsine-qsine"
     is_treat=false
     autotune=false
     how_type="ds2"
@@ -250,8 +250,8 @@ run_scale_test(){
     autotuner_increase_bar_option=8
     autotuner_initial_value_alpha=1.2
     autotuner_adjustment_option=1
-    for autotuner_increase_bar_alpha in 0.0 0.5; do # 0.75
-      for repeat in  1; do #  1 2 3 4 5
+    for autotuner_increase_bar_alpha in 0.5; do # 0.75
+      for repeat in 1; do #  1 2 3 4 5
         L=3000
         is_treat=true
         autotune=true

@@ -219,9 +219,10 @@ def plot_all_in_one(axs, legend_info, title, success_rates:dict[str:object], lat
         ax1.set_ylim(0.80, 1.0)
         ax1.set_yticks(np.arange(0.80, 1.0001, 0.1))
         ax1.set_yticklabels([math.ceil(x * 100) for x in np.arange(0.80, 1.0001, 0.1)])
-
+    ax1.set_xticks(np.arange(0, len(x_labels)))
     ax1.tick_params(axis='x', bottom=False)
     ax1.set_xticklabels([])
+    ax1.grid(True)
     if y1label_flag:
         ax1.set_ylabel("Success Rate (%)", fontsize=30)
         ax1.tick_params(axis='y')
@@ -298,11 +299,12 @@ def plot_all_in_one(axs, legend_info, title, success_rates:dict[str:object], lat
         bar2 = ax3.bar(x + width / 2, parallelism_mean, width, label='Average Resources', color='lightgreen', edgecolor='black', hatch='\\')
 
         # Adjust the y-axis limits for ax2 (Primary y-axis for latency)
-        ylim_upper_ax2 = max(latency_mean) * 1.2  # Increase the upper limit by 20% for better spacing
-        ax2.set_ylim(0, ylim_upper_ax2)
+        ylim_upper_ax2 = max(latency_mean) * 1.3  # Increase the upper limit by 20% for better spacing
+        ylim_lower_ax2 = min(latency_mean) - 100
+        ax2.set_ylim(ylim_lower_ax2, ylim_upper_ax2)
 
         # Adjust the y-axis limits for ax3 (Secondary y-axis for parallelism)
-        ylim_upper_ax3 = max(parallelism_mean) * 1.2  # Increase the upper limit by 20%
+        ylim_upper_ax3 = max(parallelism_mean) * 1.2 # Increase the upper limit by 20%
         ax3.set_ylim(0, ylim_upper_ax3)
 
         for bar in bar1:
@@ -316,11 +318,8 @@ def plot_all_in_one(axs, legend_info, title, success_rates:dict[str:object], lat
 
         if y1label_flag:
             ax2.set_ylabel("Latency (ms)", fontsize=30)
-        #else:
-        #    ax2.set_yticklabels([])
 
-        #ax2.set_yticklabels(ax2.get_yticks(), rotation=90)
-        ax3.set_ylim(0, 45)
+        ax3.set_ylim(10, 45)
         if y2label_flag:
             ax3.set_ylabel("# of Slots", fontsize=30)
         else:
@@ -372,7 +371,9 @@ def main():
     for name in name_list:
         overall_output_dir = "/Users/swrrt/Workplace/BacklogDelayPaper/experiments/figures/part2/" + name + "/"
 
-        fig_all, axs_all = plt.subplots(2, 4, figsize=(28, 10), layout='constrained', gridspec_kw={'height_ratios': [1, 2], 'width_ratios': [1, 1, 1, 1]})
+        #fig_all, axs_all = plt.subplots(2, 4, figsize=(28, 10), layout='constrained', gridspec_kw={'height_ratios': [1, 2], 'width_ratios': [1, 1, 1, 1]})
+        fig_all, axs_all = plt.subplots(2, 4, figsize=(28, 7), layout='constrained',
+                                        gridspec_kw={'height_ratios': [3, 5], 'width_ratios': [1, 1, 1, 1]})
         legend_info = [[], []]
         index = 0
 
@@ -438,15 +439,15 @@ def main():
                 parallelism_per_x[x] = [avg_parallelism, min_parallelism, q1_parallelism, med_parallelism, q3_parallelism, max_parallelism]
                 print(label)
 
-        fig_all.legend(legend_info[0], legend_info[1], fontsize=30, loc='upper center', bbox_to_anchor=(0.51, 1.1), ncol=7, markerscale=1)
+        fig_all.legend(legend_info[0], legend_info[1], fontsize=30, loc='upper center', bbox_to_anchor=(0.51, 1.14), ncol=7, markerscale=1)
 
         if not os.path.exists(overall_output_dir):
             os.makedirs(overall_output_dir)
         if output_pdf_flag:
-            fig_all.savefig(overall_output_dir + 'successrate_latency_parallelism_' + str(name) + '.pdf', bbox_inches='tight')
+            fig_all.savefig(overall_output_dir + 'part2_all_in_one_' + str(name) + '.pdf', bbox_inches='tight')
         else:
             fig_all.title('Avg Resources by ' + clean_string(dimension))
-            fig_all.savefig(overall_output_dir + 'successrate_latency_parallelism_' + str(name) + '.png', bbox_inches='tight')
+            fig_all.savefig(overall_output_dir + 'part2_all_in_one_' + str(name) + '.png', bbox_inches='tight')
         plt.close(fig_all)
 
 
