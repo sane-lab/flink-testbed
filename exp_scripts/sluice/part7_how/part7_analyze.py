@@ -720,7 +720,7 @@ def draw(rawDir, outputDir, exps, windowSize, ax, workload_name, xlabel_flag, yl
     ax.set_yticks(np.arange(0, 5000, 1000))
 
     ax.grid(True)
-    ax.set_title(workload_name, y=-0.85, fontsize=35)
+    # ax.set_title(workload_name, y=-0.85, fontsize=35)
 
 def draw_scaling_info(scaling_change_info, outputDir, label):
     bottleneck_operator = scaling_change_info[1]
@@ -743,7 +743,7 @@ def draw_scaling_info(scaling_change_info, outputDir, label):
     def draw_task_metrics_barchart(task_data:dict[str:float], label, metrics_name, color, file_name):
         import matplotlib.pyplot as plt
         # Create the figure and two bar charts
-        fig_task, ax_task = plt.subplots(1, 1, figsize=(15, 5))
+        fig_task, ax_task = plt.subplots(1, 1, figsize=(11, 4.5))
 
         # Sort tasks by arrival rate (optional for ranking)
         sorted_tasks = sorted(task_data.items(), key=lambda x: x[1], reverse=True)
@@ -766,9 +766,13 @@ def draw_scaling_info(scaling_change_info, outputDir, label):
             ax_task.set_ylim(0, 700)
             ax_task.set_yticks(np.arange(0, 700, 200))
         else:
+            ax_task.plot([-100, 100], [task_arrival_capacity, task_arrival_capacity], '--', color="red", label="Capacity")
             ax_task.set_ylim(0, 1200)
             ax_task.set_yticks(np.arange(0, 1200, 300))
         #ax1.set_xticklabels([f"Rank {i + 1}" for i in indices], rotation=45)
+        if metrics_name == "Arrival Rate (tps)" and color == "orange":
+            handles, labels = ax_task.get_legend_handles_labels()
+            fig_task.legend(handles, labels, loc='upper right', bbox_to_anchor=(0.9, 0.75), ncol=1, markerscale=5)
 
         # Adjust layout and show plot
         if output_pdf_flag:
@@ -1045,10 +1049,12 @@ avg_latency_calculateTime = expLength # 30
 trickFlag = True
 trick_x = -1000
 
+task_arrival_capacity = 1000
+
 output_pdf_flag = True
 
 for name, exps_per_setting in exps_per_settings.items():
-    fig, axs = plt.subplots(3, 2, figsize=(20, 9), layout='constrained')
+    fig, axs = plt.subplots(3, 1, figsize=(10, 10), layout='constrained')
 
     index = 0
     for workload, exps in exps_per_setting.items():
@@ -1061,11 +1067,11 @@ for name, exps_per_setting in exps_per_settings.items():
         ylabel_flag = False
         if index == 0:
             ylabel_flag = True
-        draw(rawDir, outputDir, exps, windowSize, axs[2][index], workload, True, ylabel_flag)
-        draw_resource(rawDir, outputDir, exps, axs[1][index], axs[0][index],  workload, False, ylabel_flag)
+        draw(rawDir, outputDir, exps, windowSize, axs[2], workload, True, ylabel_flag)
+        draw_resource(rawDir, outputDir, exps, axs[1], axs[0],  workload, False, ylabel_flag)
         index += 1
 
-    handles, labels = axs[2, 0].get_legend_handles_labels()
+    handles, labels = axs[2].get_legend_handles_labels()
     fig.legend(handles, labels, loc='upper center', bbox_to_anchor=(0.51, 1.12), ncol=7, markerscale=5)
 
     if output_pdf_flag:

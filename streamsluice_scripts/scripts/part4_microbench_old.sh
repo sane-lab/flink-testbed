@@ -105,8 +105,9 @@ function runApp() {
     -p5 ${P5} -mp5 ${MP5} -op5Delay ${DELAY5} -op5KeyStateSize ${STATE_SIZE5} \
     -nkeys ${NKEYS} -phase1Time ${TIME1} -phase1Rate ${RATE1} -phase2Time ${TIME2} \
     -phase2Rate ${RATE2} -interTime ${TIME_I} -interRate ${RATE_I} -warmupTime ${warmupTime} -warmupRate ${warmupRate} \
-    -source ${SOURCE_TYPE} -run_time ${runtime} \
-      -phaseTimes ${PHASE_TIMES} -phaseRates ${Phase_Rates} -phaseAmplitudes ${Phase_Amplitudes} -phasePeriods ${Phase_Periods} -phaseTypes ${Phase_Types}
+    -source ${SOURCE_TYPE} -curve_type ${CURVE_TYPE} -run_time ${runtime} \
+    -amplitudeLow ${amplitude_low} -amplitudeHigh ${amplitude_high} \
+    -periodLow ${period_low} -periodHigh ${period_high} -stairs ${STAIRS} -stair_repeats ${STAIR_REPEATS} \
     -noise ${noise} -zipf_skew ${ZIPF_SKEW} &"
     ${FLINK_DIR}/bin/flink run -c ${job} ${JAR} \
     -graph ${GRAPH} \
@@ -116,8 +117,9 @@ function runApp() {
     -p5 ${P5} -mp5 ${MP5} -op5Delay ${DELAY5} -op5KeyStateSize ${STATE_SIZE5} \
     -nkeys ${NKEYS} -phase1Time ${TIME1} -phase1Rate ${RATE1} -phase2Time ${TIME2} \
     -phase2Rate ${RATE2} -interTime ${TIME_I} -interRate ${RATE_I} -warmupTime ${warmupTime} -warmupRate ${warmupRate} \
-    -source ${SOURCE_TYPE} -run_time ${runtime} \
-    -phaseTimes ${PHASE_TIMES} -phaseRates ${Phase_Rates} -phaseAmplitudes ${Phase_Amplitudes} -phasePeriods ${Phase_Periods} -phaseTypes ${Phase_Types}
+    -source ${SOURCE_TYPE} -curve_type ${CURVE_TYPE} -run_time ${runtime} \
+    -amplitudeLow ${amplitude_low} -amplitudeHigh ${amplitude_high} \
+    -periodLow ${period_low} -periodHigh ${period_high} -stairs ${STAIRS} -stair_repeats ${STAIR_REPEATS} \
     -noise ${noise} -zipf_skew ${ZIPF_SKEW} &
 }
 
@@ -170,6 +172,7 @@ run_scale_test(){
     # Different cases
     GRAPH="1split2join1"
     SOURCE_TYPE="when"
+    CURVE_TYPE="mixed"
     vertex_id="a84740bacf923e828852cc4966f2247c,eabd4c11f6c6fbdf011f0f1fc42097b1,d01047f852abd5702a0dabeedac99ff5,d2336f79a0d60b5a4b16c8769ec82e47"
     autotune=false
     epoch=100
@@ -189,55 +192,114 @@ run_scale_test(){
     RATE_I=4000
     TIME_I=30
     printf "" > part4_result.txt
-    printf "MicroBench Intrinsic Bound Tuning Verification\n" >> part4_result.txt
-    autotuner_initial_value_alpha=1.2
-
-    runtime=1880 #1260 #960
+    printf "MicroBench Fluctuation vs Extrinsic Latency\n" >> part4_result.txt
+    runtime=1500 #1500 #960
     setting="microbench"
-    SOURCE_TYPE="part4"
+    SOURCE_TYPE="systemsensitivity"
     DELAY2=20
-    DELAY3=2050
-    DELAY4=20 #20
-    DELAY5=10 # 800
-    STATE_SIZE2=10000 #5000 # 1000 keys, per key (n * 2000 + 36) bytes, n=5000 -> 100 MB
-    STATE_SIZE3=10000 #5000
-    STATE_SIZE4=10000 #5000
-    STATE_SIZE5=10000 #5000
+    DELAY3=2000 #1050 #1000
+    DELAY4=20 #600 #666
+    DELAY5=10 #67 #20
+    STATE_SIZE2=10000 #7500 #20000 # 1000 keys, per key (n * 2000 + 36) bytes, n=5000 -> 100 MB
+    STATE_SIZE3=10000 #7500 #20000
+    STATE_SIZE4=10000 #7500 #20000
+    STATE_SIZE5=10000 #7500 #20000
     LP2=1
-    LP3=35 #6 #9
-    LP4=1
-    LP5=1 #31 #28
+    LP3=35 #20 #19
+    LP4=1 #14 #15 #18
+    LP5=1 #4 #1
 
     P2=1
-    P3=20 #2 #3
-    P4=1
-    P5=1 #17
+    P3=17 #12
+    P4=1 #10 #12
+    P5=1
     GRAPH="1split2join1"
-    autotuner_bar_lowerbound=450
+    autotuner_bar_lowerbound=450 #350
     autotuner_latency_window=100
-     autotuner_increase_bar_alpha=0.8
-
-    CURVE_TYPE="mixed" #"linear"
+    autotuner_increase_bar_alpha=0.5
+    epoch=100
+    L=1000 #1500
+    CURVE_TYPE="sine" #"linear"
     warmupRate=5000
     warmupTime=60
     RATE_I=5000
     TIME_I=0
-    PHASE_TIMES="600-600-600"
-    PHASE_RATES="5000-5000-5000"
-    PHASE_AMPLITUDES="1500-2500-1000"
-    PHASE_PERIODS="200-120-300"
-    PHASE_TYPES="qsine-qsine-qsine"
+    STAIRS=2
+    STAIR_REPEATS=2
+    amplitude_low=1000
+    amplitude_high=4000
+    period_high=45
+    period_low=90
+    is_treat=false
+    autotune=false
+    how_type="ds2"
+#    run_one_exp
+#    printf "${EXP_NAME}\n" >> part4_result.txt
+    autotune_interval=120
+    for repeat in 1; do # 1 2 3 4 5
+      is_treat=true
+      autotune=false
+      how_type="streamsluice"
+#      run_one_exp
+#      printf "${EXP_NAME}\n" >> part4_result.txt
+    done
+
+    printf "MicroBench Intrinsic Bound Tuning Verification\n" >> part4_result.txt
+    autotuner_initial_value_alpha=1.2
+
+    runtime=3660 #1260 #960
+    setting="microbench"
+    SOURCE_TYPE="systemsensitivity"
+    DELAY2=20
+    DELAY3=2050 #1050
+    DELAY4=20 #600
+    DELAY5=10
+    STATE_SIZE2=10000 #15000 #20000 # 1000 keys, per key (n * 2000 + 36) bytes, n=5000 -> 100 MB
+    STATE_SIZE3=10000 #15000 #20000
+    STATE_SIZE4=10000 #15000 #20000
+    STATE_SIZE5=10000 #15000 #20000
+    LP2=1
+    LP3=30 #19 #19
+    LP4=1 #12 #15 #18
+    LP5=1 #4 #1
+
+    P2=1
+    P3=14 #12
+    P4=1 #10 #12
+    P5=1
+    GRAPH="1split2join1"
+    autotuner_bar_lowerbound=450 #350
+    autotuner_latency_window=100
+    autotuner_increase_bar_alpha=0.8
+    epoch=100
+    L=3000 #3000
+    CURVE_TYPE="sine" #"linear"
+    warmupRate=5000
+    warmupTime=60
+    RATE_I=5000
+    TIME_I=0
+    STAIRS=3
+    STAIR_REPEATS=1
+    amplitude_low=2500 #500
+    amplitude_high=7500 #5000 #3000
+    period_low=60
+    period_high=30
     is_treat=false
     autotune=false
     how_type="ds2"
     autotune_interval=120
-    run_one_exp
-    printf "${EXP_NAME}\n" >> part4_result.txt
+#    run_one_exp
+#    printf "${EXP_NAME}\n" >> part4_result.txt
     autotuner_initial_value_option=3
     autotuner_adjustment_option=10 # no adjustment
     autotuner_increase_bar_option=10
 
-    for autotuner_initial_value_alpha in 1000; do #250 500 1000 1500 2000 2500 3000
+
+    P3=20
+    run_one_exp
+    printf "${EXP_NAME}\n" >> part4_result.txt
+
+    for autotuner_initial_value_alpha in 250 500 1000 1500 2000 2500 3000; do #
       is_treat=true
       autotune=true
       how_type="streamsluice"
@@ -249,14 +311,14 @@ run_scale_test(){
     autotuner_increase_bar_option=8
     autotuner_initial_value_alpha=1.2
     autotuner_adjustment_option=1
-    for autotuner_increase_bar_alpha in 0.0 0.5; do # 0.75
-      for repeat in  1; do #  1 2 3 4 5
+    for autotuner_increase_bar_alpha in 0.0 0.5 0.75; do
+      for repeat in  1 2 3 4 5; do #  4 5
         L=3000
         is_treat=true
         autotune=true
         how_type="streamsluice"
-#        run_one_exp
-#        printf "${EXP_NAME}\n" >> part4_result.txt
+        run_one_exp
+        printf "${EXP_NAME}\n" >> part4_result.txt
       done
     done
 }

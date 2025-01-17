@@ -2,6 +2,7 @@ import math
 import sys
 import numpy as np
 import matplotlib
+from matplotlib.lines import Line2D
 
 matplotlib.use('Agg')
 import matplotlib.pyplot as plt
@@ -155,12 +156,12 @@ def add_latency_bar_curve(plt, latency_bar: dict[int, int], initial_time):
     for time in latency_bar.keys():
         x = [last_time, time - initial_time]
         y = [last_y, last_y]
-        plt.plot(x, y, 'o--', label="Latency Bound", color='orange', linewidth=3)
+        plt.plot(x, y, 's--', label="Latency Bound", color='orange', linewidth=3, markersize=7)
         last_y = latency_bar[time]
         last_time = time - initial_time
     x = [last_time, 10000000]
     y = [last_y, last_y]
-    plt.plot(x, y, 'o--', label="Latency Bound", color='orange', linewidth=3)
+    plt.plot(x, y, 's--', label="Latency Bound", color='orange', linewidth=3, markersize=7)
 
 
 def readLEMLatencyAndSpikeAndBarAndScalingMarker(rawDir, expName) -> [[list[int], list[float], list[float]], dict[int, int]]:
@@ -239,8 +240,8 @@ def add_phase_marker(ax, end_time):
         i = (i + 1) % len(phase_length)
 
 
-def draw_latency_curves(raw_dir, output_dir, exp_name, window_size, start_time, exp_length, latency_limit,
-                        draw_lem_latency_flag):
+def draw_latency_curves(ax1, setting_name, raw_dir, output_dir, exp_name, window_size, start_time, exp_length, latency_limit,
+                        draw_lem_latency_flag, y1label_flag):
     exps = [
         ["GroundTruth", exp_name, "blue", "o"]
     ]
@@ -338,11 +339,21 @@ def draw_latency_curves(raw_dir, output_dir, exp_name, window_size, start_time, 
 
         plt.plot(sampled_latency[0], sampled_latency[1], '-', color="blue", markersize=4, linewidth=3,
                  label="Ground Truth P99")
+
+        ax1.plot(sampled_latency[0], sampled_latency[1], '-', color="blue", linewidth=3,
+                 label="Ground Truth")
+
         if (draw_lem_latency_flag):
             plt.plot(lem_latencies[i][0], lem_latencies[i][1], '-', color="green", markersize=2, linewidth=2,
                      label='Intrinsic Latency')
+
+            ax1.plot(lem_latencies[i][0], lem_latencies[i][1], '-.', color="green", markersize=2, linewidth=2,
+                     label='Intrinsic Latency')
+
             add_latency_bar_curve(plt, latency_bar[i], initial_times[i])
+            add_latency_bar_curve(ax1, latency_bar[i], initial_times[i])
         add_latency_limit_marker(plt, latency_limit)
+        add_latency_limit_marker(ax1, latency_limit)
         # add_scaling_marker(plt, scalings[i])
         add_phase_marker(ax, (start_time + exp_length) * 1000)
     handles, labels = plt.gca().get_legend_handles_labels()
@@ -367,14 +378,28 @@ def draw_latency_curves(raw_dir, output_dir, exp_name, window_size, start_time, 
     else:
         axes.set_ylim(0, 5000)
         axes.set_yticks(np.arange(0, 5500, 500))
+
+    ax1.set_xlim((start_time) * 1000, (start_time + exp_length) * 1000)
+    ax1.set_xticks(np.arange((start_time) * 1000, (start_time + exp_length) * 1000 + (exp_length / 10) * 1000,
+                             (exp_length / 10) * 1000))
+    ax1.set_xticklabels([int((x - start_time * 1000) / 1000) for x in
+                         np.arange((start_time) * 1000, (start_time + exp_length) * 1000 + (exp_length / 10) * 1000,
+                                   (exp_length / 10) * 1000)])
+    ax1.set_ylim(0, 1000)
+    ax1.set_yticks(np.arange(0, 5500, 1000))
+
+    ax1.grid(True)
+    ax1.set_title(setting_name, y=-0.25, fontsize=30)
     #plt.grid(True)
     if not os.path.exists(output_dir):
         os.makedirs(output_dir)
 
     if output_pdf_flag:
-        plt.savefig(overall_output_dir + 'ground_truth_latency_curves.pdf', bbox_inches='tight')
+        if not os.path.exists(overall_output_dir):
+            os.makedirs(overall_output_dir)
+        fig.savefig(overall_output_dir + 'ground_truth_latency_curves.pdf', bbox_inches='tight')
     else:
-        plt.savefig(output_dir + 'ground_truth_latency_curves.png', bbox_inches='tight')
+        fig.savefig(output_dir + 'ground_truth_latency_curves.png', bbox_inches='tight')
     plt.close(fig)
 
     # Calculate the bar converge time
@@ -433,15 +458,18 @@ def draw_latency_curves(raw_dir, output_dir, exp_name, window_size, start_time, 
         add_p99_bar_curve(plt, p99_bar[i], initial_times[i])
         add_latency_bar_curve(plt, latency_bar[i], initial_times[i])
     add_latency_limit_marker(plt, latency_limit)
-    handles, labels = plt.gca().get_legend_handles_labels()
+    handles, labels = fig.gca().get_legend_handles_labels()
     new_labels, new_handles = [], []
     for handle, label in zip(handles, labels):
         if label not in new_labels:
             new_labels.append(label)
             new_handles.append(handle)
-    plt.legend(new_handles, new_labels, bbox_to_anchor=(0.45, 1.4), loc='upper center', ncol=3, markerscale=4.)
-    plt.ylabel('Latency (ms)')
-    axes = plt.gca()
+    fig.legend(new_handles, new_labels, bbox_to_anchor=(0.45, 1.4), loc='upper center', ncol=3, markerscale=4.)
+    ax.set_ylabel('Latency (ms)')
+    if y1label_flag:
+        ax1.set_ylabel('Latency (ms)')
+
+    axes = fig.gca()
     axes.set_xlim((start_time) * 1000, (start_time + exp_length) * 1000)
     axes.set_xticks(np.arange((start_time) * 1000, (start_time + exp_length) * 1000 + (exp_length / 10) * 1000,
                               (exp_length / 10) * 1000))
@@ -457,10 +485,10 @@ def draw_latency_curves(raw_dir, output_dir, exp_name, window_size, start_time, 
     else:
         axes.set_ylim(0, 25000)
         axes.set_yticks(np.arange(0, 27500, 2500))
-    plt.grid(True)
+
     if not os.path.exists(output_dir):
         os.makedirs(output_dir)
-    plt.savefig(output_dir + 'latency_bar.png', bbox_inches='tight')
+    fig.savefig(output_dir + 'latency_bar.png', bbox_inches='tight')
     plt.close(fig)
 
     return success_rate, avg_ground_truth_latency_in_range, first_converge_time, converged_bar
@@ -647,7 +675,7 @@ def readParallelism(rawDir, expName, windowSize):
     return [ParallelismPerJob, totalArrivalRatePerJob, initialTime, scalings]
 
 
-def draw_parallelism_curve(rawDir, outputDir, exp_name, windowSize, startTime, exp_length, draw_parallelism_flag, static_arrival_curve) -> [
+def draw_parallelism_curve(axes_all, rawDir, outputDir, exp_name, windowSize, startTime, exp_length, draw_parallelism_flag, static_arrival_curve, y1label_flag) -> [
     float, [list[int], list[float]]]:
     exps = [
         ["# of Slots", exp_name, "blue", "o"]
@@ -716,6 +744,14 @@ def draw_parallelism_curve(rawDir, outputDir, exp_name, windowSize, startTime, e
         arrival_curves = static_arrival_curve
         ax, ay = static_arrival_curve
     ax2.plot(ax, ay, '-', color='red', markersize=MARKERSIZE / 2, label="Arrival Rate")
+    if len(axes_all) > 0:
+        axes_all[0].plot(ax, ay, '-', color='red', markersize=MARKERSIZE / 2, label="Arrival Rate")
+        axes_all[0].set_xlim(4000, 14000)
+        axes_all[0].set_ylim(4000, 14000)
+        axes_all[0].set_yticks(np.arange(5000, 15000, 2500))
+        if y1label_flag:
+            axes_all[0].set_ylabel("Arrival Rate (tps)")
+
     # ax2.set_ylabel('Rate (tps)')
     # ax2.set_ylim(0, 30000)
     # ax2.set_yticks(np.arange(0, 35000, 5000))
@@ -771,6 +807,8 @@ def draw_parallelism_curve(rawDir, outputDir, exp_name, windowSize, startTime, e
                 line[1].append(y0)
                 line[1].append(y1)
             ax1.plot(line[0], line[1], color=exps[expindex][2], linewidth=3, label='# of Slots')
+            if len(axes_all) > 0:
+                axes_all[1].plot(line[0], line[1], color="blue", linewidth=3, label='# of Slots')
             average_parallelism = totalParallelism / (exp_length * 1000)
             print("Average parallelism " + exps[expindex][0] + " : " + str(totalParallelism / (exp_length * 1000)))
         add_phase_marker(ax1, (startTime + exp_length) * 1000)
@@ -789,23 +827,46 @@ def draw_parallelism_curve(rawDir, outputDir, exp_name, windowSize, startTime, e
                                        (exp_length / 10) * 1000)])
         ax1.set_xlabel("Time (s)")
 
+        if len(axes_all) > 0:
+            axes_all[1].set_xlim(startTime * 1000, (startTime + exp_length) * 1000)
+            axes_all[1].set_xticks(np.arange(startTime * 1000, (startTime + exp_length) * 1000 + (exp_length / 10) * 1000,
+                                     (exp_length / 10) * 1000))
+            axes_all[1].set_xticklabels([int((x - startTime * 1000) / 1000) for x in
+                                 np.arange(startTime * 1000, (startTime + exp_length) * 1000 + (exp_length / 10) * 1000,
+                                           (exp_length / 10) * 1000)])
+            axes_all[0].set_xlim(startTime * 1000, (startTime + exp_length) * 1000)
+            axes_all[0].set_xticks(
+                np.arange(startTime * 1000, (startTime + exp_length) * 1000 + (exp_length / 10) * 1000,
+                          (exp_length / 10) * 1000))
+            axes_all[0].set_xticklabels([int((x - startTime * 1000) / 1000) for x in
+                                         np.arange(startTime * 1000,
+                                                   (startTime + exp_length) * 1000 + (exp_length / 10) * 1000,
+                                                   (exp_length / 10) * 1000)])
+            add_phase_marker(axes_all[1], (startTime + exp_length) * 1000)
+            axes_all[1].set_ylim(12, 34)
+            axes_all[1].set_yticks(np.arange(15, 35, 5))
+            axes_all[1].set_ylabel("# of Slots")
+
     import os
     if not os.path.exists(outputDir):
         os.makedirs(outputDir)
 
     if output_pdf_flag:
-        plt.savefig(overall_output_dir + figName + ".pdf", bbox_inches='tight')
+        fig.savefig(overall_output_dir + figName + ".pdf", bbox_inches='tight')
     else:
-        plt.savefig(outputDir + figName + ".png", bbox_inches='tight')
+        fig.savefig(outputDir + figName + ".png", bbox_inches='tight')
     plt.close(fig)
     return average_parallelism, arrival_curves
 
-output_pdf_flag=False
+output_pdf_flag=True
 overall_output_dir = "/Users/swrrt/Workplace/BacklogDelayPaper/experiments/figures/part4/"
 phase_start = 75
 phase_length = [90, 80, 70, 60, 70, 80]
 
-
+setting_name = [
+    "(a) Resource Sensitivity 0.0",
+    "(b) Resource Sensitivity 0.5",
+]
 def main():
     raw_dir = "/Users/swrrt/Workplace/BacklogDelayPaper/experiments/raw/"
     output_dir = "/Users/swrrt/Workplace/BacklogDelayPaper/experiments/results/"
@@ -819,7 +880,7 @@ def main():
             #    "part4-microbench-streamsluice-streamsluice-systemsensitivity-sine-1split2join1-1500-1000-4000-90-45-1-0-1-20-1-10000-17-2000-1-10000-1-20-1-10000-1-10-10000-0.05-false-0.5-1000-500-100-1-true-1",
             # ],
             "scale": [
-                "part4-microbench-3-1.2-10-10-systemsensitivity-sine-1split2join1-1260-2500-7500-60-30-1-0-1-20-1-10000-20-2050-1-10000-1-20-1-10000-1-10-10000-0.05-false-0.8-3000-500-100-1-false-1",
+                #"part4-microbench-3-1.2-10-10-systemsensitivity-sine-1split2join1-1260-2500-7500-60-30-1-0-1-20-1-10000-20-2050-1-10000-1-20-1-10000-1-10-10000-0.05-false-0.8-3000-500-100-1-false-1",
                 # "part4-microbench-3-125-10-10-systemsensitivity-sine-1split2join1-1260-2500-7500-60-30-1-0-1-20-1-10000-14-2050-1-10000-1-20-1-10000-1-10-10000-0.05-true-0.8-3000-500-100-1-true-1",
                 # "part4-microbench-3-250-10-10-systemsensitivity-sine-1split2join1-1260-2500-7500-60-30-1-0-1-20-1-10000-14-2050-1-10000-1-20-1-10000-1-10-10000-0.05-true-0.8-3000-500-100-1-true-1",
                 #  "part4-microbench-3-500-10-10-systemsensitivity-sine-1split2join1-1260-2500-7500-60-30-1-0-1-20-1-10000-14-2050-1-10000-1-20-1-10000-1-10-10000-0.05-true-0.8-3000-500-100-1-true-1",
@@ -831,21 +892,21 @@ def main():
                 # "part4-microbench-3-2500-10-10-systemsensitivity-sine-1split2join1-1260-2500-7500-60-30-1-0-1-20-1-10000-14-2050-1-10000-1-20-1-10000-1-10-10000-0.05-true-0.8-3000-500-100-1-true-3",
                 # "part4-microbench-3-3000-10-10-systemsensitivity-sine-1split2join1-1260-2500-7500-60-30-1-0-1-20-1-10000-14-2050-1-10000-1-20-1-10000-1-10-10000-0.05-true-0.8-3000-500-100-1-true-1",
 
-                #"part4-microbench-5-1.2-1-8-systemsensitivity-sine-1split2join1-1260-2500-7500-60-30-1-0-1-20-1-10000-14-2050-1-10000-1-20-1-10000-1-10-10000-0.05-true-0.0-3000-500-100-1-true-1",
-                # # "part4-microbench-5-1.2-1-8-systemsensitivity-sine-1split2join1-1260-2500-7500-60-30-1-0-1-20-1-10000-14-2050-1-10000-1-20-1-10000-1-10-10000-0.05-true-0.0-3000-500-100-1-true-2",
-                # # "part4-microbench-5-1.2-1-8-systemsensitivity-sine-1split2join1-1260-2500-7500-60-30-1-0-1-20-1-10000-14-2050-1-10000-1-20-1-10000-1-10-10000-0.05-true-0.0-3000-500-100-1-true-3",
-                # # "part4-microbench-5-1.2-1-8-systemsensitivity-sine-1split2join1-1260-2500-7500-60-30-1-0-1-20-1-10000-14-2050-1-10000-1-20-1-10000-1-10-10000-0.05-true-0.0-3000-500-100-1-true-4",
-                # # "part4-microbench-5-1.2-1-8-systemsensitivity-sine-1split2join1-1260-2500-7500-60-30-1-0-1-20-1-10000-14-2050-1-10000-1-20-1-10000-1-10-10000-0.05-true-0.0-3000-500-100-1-true-5",
-                # # "part4-microbench-5-1.2-1-8-systemsensitivity-sine-1split2join1-1260-2500-7500-60-30-1-0-1-20-1-10000-14-2050-1-10000-1-20-1-10000-1-10-10000-0.05-true-0.5-3000-500-100-1-true-1",
-                # # "part4-microbench-5-1.2-1-8-systemsensitivity-sine-1split2join1-1260-2500-7500-60-30-1-0-1-20-1-10000-14-2050-1-10000-1-20-1-10000-1-10-10000-0.05-true-0.5-3000-500-100-1-true-2",
-                # # "part4-microbench-5-1.2-1-8-systemsensitivity-sine-1split2join1-1260-2500-7500-60-30-1-0-1-20-1-10000-14-2050-1-10000-1-20-1-10000-1-10-10000-0.05-true-0.5-3000-500-100-1-true-3",
-                # # "part4-microbench-5-1.2-1-8-systemsensitivity-sine-1split2join1-1260-2500-7500-60-30-1-0-1-20-1-10000-14-2050-1-10000-1-20-1-10000-1-10-10000-0.05-true-0.5-3000-500-100-1-true-4",
-                #"part4-microbench-5-1.2-1-8-systemsensitivity-sine-1split2join1-1260-2500-7500-60-30-1-0-1-20-1-10000-14-2050-1-10000-1-20-1-10000-1-10-10000-0.05-true-0.5-3000-500-100-1-true-5",
-                # # "part4-microbench-5-1.2-1-8-systemsensitivity-sine-1split2join1-1260-2500-7500-60-30-1-0-1-20-1-10000-14-2050-1-10000-1-20-1-10000-1-10-10000-0.05-true-0.75-3000-500-100-1-true-1",
-                # # "part4-microbench-5-1.2-1-8-systemsensitivity-sine-1split2join1-1260-2500-7500-60-30-1-0-1-20-1-10000-14-2050-1-10000-1-20-1-10000-1-10-10000-0.05-true-0.75-3000-500-100-1-true-2",
-                # # "part4-microbench-5-1.2-1-8-systemsensitivity-sine-1split2join1-1260-2500-7500-60-30-1-0-1-20-1-10000-14-2050-1-10000-1-20-1-10000-1-10-10000-0.05-true-0.75-3000-500-100-1-true-3",
-                # # "part4-microbench-5-1.2-1-8-systemsensitivity-sine-1split2join1-1260-2500-7500-60-30-1-0-1-20-1-10000-14-2050-1-10000-1-20-1-10000-1-10-10000-0.05-true-0.75-3000-500-100-1-true-4",
-                # # "part4-microbench-5-1.2-1-8-systemsensitivity-sine-1split2join1-1260-2500-7500-60-30-1-0-1-20-1-10000-14-2050-1-10000-1-20-1-10000-1-10-10000-0.05-true-0.75-3000-500-100-1-true-5"
+                "part4-microbench-5-1.2-1-8-systemsensitivity-sine-1split2join1-1260-2500-7500-60-30-1-0-1-20-1-10000-14-2050-1-10000-1-20-1-10000-1-10-10000-0.05-true-0.0-3000-500-100-1-true-1",
+                # "part4-microbench-5-1.2-1-8-systemsensitivity-sine-1split2join1-1260-2500-7500-60-30-1-0-1-20-1-10000-14-2050-1-10000-1-20-1-10000-1-10-10000-0.05-true-0.0-3000-500-100-1-true-2",
+                # "part4-microbench-5-1.2-1-8-systemsensitivity-sine-1split2join1-1260-2500-7500-60-30-1-0-1-20-1-10000-14-2050-1-10000-1-20-1-10000-1-10-10000-0.05-true-0.0-3000-500-100-1-true-3",
+                # "part4-microbench-5-1.2-1-8-systemsensitivity-sine-1split2join1-1260-2500-7500-60-30-1-0-1-20-1-10000-14-2050-1-10000-1-20-1-10000-1-10-10000-0.05-true-0.0-3000-500-100-1-true-4",
+                # "part4-microbench-5-1.2-1-8-systemsensitivity-sine-1split2join1-1260-2500-7500-60-30-1-0-1-20-1-10000-14-2050-1-10000-1-20-1-10000-1-10-10000-0.05-true-0.0-3000-500-100-1-true-5",
+                # "part4-microbench-5-1.2-1-8-systemsensitivity-sine-1split2join1-1260-2500-7500-60-30-1-0-1-20-1-10000-14-2050-1-10000-1-20-1-10000-1-10-10000-0.05-true-0.5-3000-500-100-1-true-1",
+                # "part4-microbench-5-1.2-1-8-systemsensitivity-sine-1split2join1-1260-2500-7500-60-30-1-0-1-20-1-10000-14-2050-1-10000-1-20-1-10000-1-10-10000-0.05-true-0.5-3000-500-100-1-true-2",
+                # "part4-microbench-5-1.2-1-8-systemsensitivity-sine-1split2join1-1260-2500-7500-60-30-1-0-1-20-1-10000-14-2050-1-10000-1-20-1-10000-1-10-10000-0.05-true-0.5-3000-500-100-1-true-3",
+                # "part4-microbench-5-1.2-1-8-systemsensitivity-sine-1split2join1-1260-2500-7500-60-30-1-0-1-20-1-10000-14-2050-1-10000-1-20-1-10000-1-10-10000-0.05-true-0.5-3000-500-100-1-true-4",
+                "part4-microbench-5-1.2-1-8-systemsensitivity-sine-1split2join1-1260-2500-7500-60-30-1-0-1-20-1-10000-14-2050-1-10000-1-20-1-10000-1-10-10000-0.05-true-0.5-3000-500-100-1-true-5",
+                # "part4-microbench-5-1.2-1-8-systemsensitivity-sine-1split2join1-1260-2500-7500-60-30-1-0-1-20-1-10000-14-2050-1-10000-1-20-1-10000-1-10-10000-0.05-true-0.75-3000-500-100-1-true-1",
+                # "part4-microbench-5-1.2-1-8-systemsensitivity-sine-1split2join1-1260-2500-7500-60-30-1-0-1-20-1-10000-14-2050-1-10000-1-20-1-10000-1-10-10000-0.05-true-0.75-3000-500-100-1-true-2",
+                # "part4-microbench-5-1.2-1-8-systemsensitivity-sine-1split2join1-1260-2500-7500-60-30-1-0-1-20-1-10000-14-2050-1-10000-1-20-1-10000-1-10-10000-0.05-true-0.75-3000-500-100-1-true-3",
+                # "part4-microbench-5-1.2-1-8-systemsensitivity-sine-1split2join1-1260-2500-7500-60-30-1-0-1-20-1-10000-14-2050-1-10000-1-20-1-10000-1-10-10000-0.05-true-0.75-3000-500-100-1-true-4",
+                # "part4-microbench-5-1.2-1-8-systemsensitivity-sine-1split2join1-1260-2500-7500-60-30-1-0-1-20-1-10000-14-2050-1-10000-1-20-1-10000-1-10-10000-0.05-true-0.75-3000-500-100-1-true-5"
             ],
         }
     }
@@ -886,29 +947,64 @@ def main():
             if label == "static":
                 exp_name = exps
                 start_time, exp_length, latency_bar = getStartTimeAndExpLength(exp_name)
-                avg_parallelism, static_arrival_curve = draw_parallelism_curve(raw_dir, output_dir + exp_name + '/',
+                avg_parallelism, static_arrival_curve = draw_parallelism_curve([], raw_dir, output_dir + exp_name + '/',
                                                                                exp_name,
                                                                                window_size,
                                                                                start_time, exp_length, True,
-                                                                               static_arrival_curve)
+                                                                               static_arrival_curve, False)
                 continue
+
+            fig_all, axs_all = plt.subplots(3, 2, figsize=(21, 10), layout='constrained', gridspec_kw={'height_ratios': [1, 2, 3]})
+            index = 0
+            legend_elements = []
+
             for exp_name in exps:
                 start_time, exp_length, latency_bar = getStartTimeAndExpLength(exp_name)
-                success_rate, avg_ground_truth_latency, first_converge_time, converged_bar = draw_latency_curves(raw_dir,
+                success_rate, avg_ground_truth_latency, first_converge_time, converged_bar = draw_latency_curves(axs_all[2][index], setting_name[index], raw_dir,
                                                                                                              output_dir + exp_name + '/',
                                                                                                              exp_name,
                                                                                                              window_size,
                                                                                                              start_time,
                                                                                                              exp_length,
                                                                                                              latency_bar,
-                                                                                                             draw_lem_latency_flag)
-                avg_parallelism, trash = draw_parallelism_curve(raw_dir, output_dir + exp_name + '/', exp_name,
+                                                                                                             draw_lem_latency_flag, index == 0)
+                avg_parallelism, trash = draw_parallelism_curve([axs_all[0][index], axs_all[1][index]], raw_dir, output_dir + exp_name + '/', exp_name,
                                                                 window_size,
-                                                                start_time, exp_length, True, static_arrival_curve)
+                                                                start_time, exp_length, True, static_arrival_curve, index == 0)
                 user_limit_per_label[label] += [latency_bar]
                 success_rate_per_label[label] += [success_rate]
                 avg_ground_truth_latency_per_label[label] += [avg_ground_truth_latency]
                 avg_parallelism_per_label[label] += [avg_parallelism]
+                index += 1
+
+            legend_elements.append(
+                Line2D([0], [0], linestyle="-",
+                       color="r", label="Arrival Rate"))
+            legend_elements.append(
+                Line2D([0], [0], linestyle="--",
+                       color="grey", label="Phase Boundary"))
+            legend_elements.append(
+                Line2D([0], [0], linestyle="-",
+                       color="blue", label="# of Slots"))
+            legend_elements.append(
+                Line2D([0], [0], linestyle="-",
+                       color="blue", label="Ground Truth Latency"))
+            legend_elements.append(
+                Line2D([0], [0], linestyle="-.",
+                       color="green", label="Intrinsic Latency"))
+            legend_elements.append(
+                Line2D([0], [0], linestyle="--", marker='s',
+                       color="orange", label="Intrinsic Latency Bound"))
+            legend_elements.append(
+                Line2D([0], [0], linestyle="--",
+                       color="r", label="Latency Limit"))
+            fig_all.legend(handles=legend_elements, loc='upper center', bbox_to_anchor=(0.5, 1.13), ncol=4, markerscale=3)
+
+            if output_pdf_flag:
+                fig_all.savefig(overall_output_dir + "all_in_one.pdf", bbox_inches='tight')
+            else:
+                fig_all.savefig(overall_output_dir + "all_in_one.png", bbox_inches='tight')
+            plt.close(fig_all)
         print(success_rate_per_label)
         print(avg_ground_truth_latency_per_label)
         print(avg_parallelism_per_label)

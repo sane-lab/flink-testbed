@@ -1207,6 +1207,7 @@ def main():
         plt.savefig(overall_output_dir + "all_in_one.pdf", bbox_inches='tight')
     else:
         plt.savefig(overall_output_dir + "all_in_one.png", bbox_inches='tight')
+    plt.close(fig)
 
 
 if __name__ == "__main__":
