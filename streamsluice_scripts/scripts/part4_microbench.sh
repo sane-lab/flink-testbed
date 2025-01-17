@@ -192,7 +192,7 @@ run_scale_test(){
     printf "MicroBench Intrinsic Bound Tuning Verification\n" >> part4_result.txt
     autotuner_initial_value_alpha=1.2
 
-    runtime=1880 #1260 #960
+    runtime=920 #1880
     setting="microbench"
     SOURCE_TYPE="part4"
     DELAY2=20
@@ -222,7 +222,7 @@ run_scale_test(){
     warmupTime=60
     RATE_I=5000
     TIME_I=0
-    PHASE_TIMES="600-600-600"
+    PHASE_TIMES="200-240-300" #"600-600-600"
     PHASE_RATES="5000-5000-5000"
     PHASE_AMPLITUDES="1500-2500-1000"
     PHASE_PERIODS="200-120-300"
@@ -230,7 +230,7 @@ run_scale_test(){
     is_treat=false
     autotune=false
     how_type="ds2"
-    autotune_interval=120
+    autotune_interval=200 #120
 #    run_one_exp
 #    printf "${EXP_NAME}\n" >> part4_result.txt
     autotuner_initial_value_option=3
