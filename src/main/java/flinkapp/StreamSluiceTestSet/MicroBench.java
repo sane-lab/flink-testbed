@@ -2260,11 +2260,11 @@ public class MicroBench {
             }
         }
 
-        private static ArrayList<Long> parsePhaseString(String phase_string){
+        private static ArrayList<Long> parsePhaseString(String phase_string, long mutiply_factor){
             String[] parts = phase_string.split("-");
             ArrayList<Long> phase_values = new ArrayList<>();
             for (String part : parts) {
-                phase_values.add(Long.parseLong(part));
+                phase_values.add(Long.parseLong(part) * mutiply_factor);
             }
             return phase_values;
         }
@@ -2286,10 +2286,10 @@ public class MicroBench {
             this.WARMP_RATE = WARMUP_RATE;
             this.TOTAL_TIME = TOTAL_TIME;
 
-            this.PHASE_TIMES = parsePhaseString(phase_times_str);
-            this.PHASE_RATES = parsePhaseString(phase_rates_str);
-            this.PHASE_AMPLITUDES = parsePhaseString(phase_amplitudes_str);
-            this.PHASE_PERIODS = parsePhaseString(phase_periods_str);
+            this.PHASE_TIMES = parsePhaseString(phase_times_str, 1000);
+            this.PHASE_RATES = parsePhaseString(phase_rates_str, 1);
+            this.PHASE_AMPLITUDES = parsePhaseString(phase_amplitudes_str, 1);
+            this.PHASE_PERIODS = parsePhaseString(phase_periods_str, 1000);
             this.PHASE_TYPES = parsePhaseTypesString(phase_types_str);
 
             this.NOISE_LEVEL = NOISE_LEVEL;

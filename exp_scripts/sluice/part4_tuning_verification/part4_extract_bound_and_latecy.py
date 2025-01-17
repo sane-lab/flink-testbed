@@ -395,9 +395,7 @@ def draw_latency_curves(ax1, setting_name, raw_dir, output_dir, exp_name, window
         os.makedirs(output_dir)
 
     if output_pdf_flag:
-        if not os.path.exists(overall_output_dir):
-            os.makedirs(overall_output_dir)
-        fig.savefig(overall_output_dir + 'ground_truth_latency_curves.pdf', bbox_inches='tight')
+        fig.savefig(output_dir + 'ground_truth_latency_curves.pdf', bbox_inches='tight')
     else:
         fig.savefig(output_dir + 'ground_truth_latency_curves.png', bbox_inches='tight')
     plt.close(fig)
@@ -852,7 +850,7 @@ def draw_parallelism_curve(axes_all, rawDir, outputDir, exp_name, windowSize, st
         os.makedirs(outputDir)
 
     if output_pdf_flag:
-        fig.savefig(overall_output_dir + figName + ".pdf", bbox_inches='tight')
+        fig.savefig(outputDir + figName + ".pdf", bbox_inches='tight')
     else:
         fig.savefig(outputDir + figName + ".png", bbox_inches='tight')
     plt.close(fig)
@@ -875,38 +873,43 @@ def main():
 
     exps_per_label_per_setting = {
         "Microbench_1": {
-            "static":   "part4-microbench-3-1.2-10-10-systemsensitivity-sine-1split2join1-1260-2500-7500-60-30-1-0-1-20-1-10000-14-2050-1-10000-1-20-1-10000-1-10-10000-0.05-false-0.8-3000-500-100-1-false-1",
+            #"static":   "part4-microbench-3-1.2-10-10-systemsensitivity-sine-1split2join1-1260-2500-7500-60-30-1-0-1-20-1-10000-14-2050-1-10000-1-20-1-10000-1-10-10000-0.05-false-0.8-3000-500-100-1-false-1",
             # "no-tune": [
             #    "part4-microbench-streamsluice-streamsluice-systemsensitivity-sine-1split2join1-1500-1000-4000-90-45-1-0-1-20-1-10000-17-2000-1-10000-1-20-1-10000-1-10-10000-0.05-false-0.5-1000-500-100-1-true-1",
             # ],
-            "scale": [
-                #"part4-microbench-3-1.2-10-10-systemsensitivity-sine-1split2join1-1260-2500-7500-60-30-1-0-1-20-1-10000-20-2050-1-10000-1-20-1-10000-1-10-10000-0.05-false-0.8-3000-500-100-1-false-1",
-                # "part4-microbench-3-125-10-10-systemsensitivity-sine-1split2join1-1260-2500-7500-60-30-1-0-1-20-1-10000-14-2050-1-10000-1-20-1-10000-1-10-10000-0.05-true-0.8-3000-500-100-1-true-1",
-                # "part4-microbench-3-250-10-10-systemsensitivity-sine-1split2join1-1260-2500-7500-60-30-1-0-1-20-1-10000-14-2050-1-10000-1-20-1-10000-1-10-10000-0.05-true-0.8-3000-500-100-1-true-1",
-                #  "part4-microbench-3-500-10-10-systemsensitivity-sine-1split2join1-1260-2500-7500-60-30-1-0-1-20-1-10000-14-2050-1-10000-1-20-1-10000-1-10-10000-0.05-true-0.8-3000-500-100-1-true-1",
-                #  "part4-microbench-3-1000-10-10-systemsensitivity-sine-1split2join1-1260-2500-7500-60-30-1-0-1-20-1-10000-14-2050-1-10000-1-20-1-10000-1-10-10000-0.05-true-0.8-3000-500-100-1-true-1",
-                #  "part4-microbench-3-1500-10-10-systemsensitivity-sine-1split2join1-1260-2500-7500-60-30-1-0-1-20-1-10000-14-2050-1-10000-1-20-1-10000-1-10-10000-0.05-true-0.8-3000-500-100-1-true-1",
-                #  "part4-microbench-3-2000-10-10-systemsensitivity-sine-1split2join1-1260-2500-7500-60-30-1-0-1-20-1-10000-14-2050-1-10000-1-20-1-10000-1-10-10000-0.05-true-0.8-3000-500-100-1-true-1",
-                # # "part4-microbench-3-2500-10-10-systemsensitivity-sine-1split2join1-1260-2500-7500-60-30-1-0-1-20-1-10000-14-2050-1-10000-1-20-1-10000-1-10-10000-0.05-true-0.8-3000-500-100-1-true-1",
-                # #"part4-microbench-3-2500-10-10-systemsensitivity-sine-1split2join1-1260-2500-7500-60-30-1-0-1-20-1-10000-14-2050-1-10000-1-20-1-10000-1-10-10000-0.05-true-0.8-3000-500-100-1-true-2",
-                # "part4-microbench-3-2500-10-10-systemsensitivity-sine-1split2join1-1260-2500-7500-60-30-1-0-1-20-1-10000-14-2050-1-10000-1-20-1-10000-1-10-10000-0.05-true-0.8-3000-500-100-1-true-3",
-                # "part4-microbench-3-3000-10-10-systemsensitivity-sine-1split2join1-1260-2500-7500-60-30-1-0-1-20-1-10000-14-2050-1-10000-1-20-1-10000-1-10-10000-0.05-true-0.8-3000-500-100-1-true-1",
+            # "scale": [
+            #     #"part4-microbench-3-1.2-10-10-systemsensitivity-sine-1split2join1-1260-2500-7500-60-30-1-0-1-20-1-10000-20-2050-1-10000-1-20-1-10000-1-10-10000-0.05-false-0.8-3000-500-100-1-false-1",
+            #     # "part4-microbench-3-125-10-10-systemsensitivity-sine-1split2join1-1260-2500-7500-60-30-1-0-1-20-1-10000-14-2050-1-10000-1-20-1-10000-1-10-10000-0.05-true-0.8-3000-500-100-1-true-1",
+            #     # "part4-microbench-3-250-10-10-systemsensitivity-sine-1split2join1-1260-2500-7500-60-30-1-0-1-20-1-10000-14-2050-1-10000-1-20-1-10000-1-10-10000-0.05-true-0.8-3000-500-100-1-true-1",
+            #     #  "part4-microbench-3-500-10-10-systemsensitivity-sine-1split2join1-1260-2500-7500-60-30-1-0-1-20-1-10000-14-2050-1-10000-1-20-1-10000-1-10-10000-0.05-true-0.8-3000-500-100-1-true-1",
+            #     #  "part4-microbench-3-1000-10-10-systemsensitivity-sine-1split2join1-1260-2500-7500-60-30-1-0-1-20-1-10000-14-2050-1-10000-1-20-1-10000-1-10-10000-0.05-true-0.8-3000-500-100-1-true-1",
+            #     #  "part4-microbench-3-1500-10-10-systemsensitivity-sine-1split2join1-1260-2500-7500-60-30-1-0-1-20-1-10000-14-2050-1-10000-1-20-1-10000-1-10-10000-0.05-true-0.8-3000-500-100-1-true-1",
+            #     #  "part4-microbench-3-2000-10-10-systemsensitivity-sine-1split2join1-1260-2500-7500-60-30-1-0-1-20-1-10000-14-2050-1-10000-1-20-1-10000-1-10-10000-0.05-true-0.8-3000-500-100-1-true-1",
+            #     # # "part4-microbench-3-2500-10-10-systemsensitivity-sine-1split2join1-1260-2500-7500-60-30-1-0-1-20-1-10000-14-2050-1-10000-1-20-1-10000-1-10-10000-0.05-true-0.8-3000-500-100-1-true-1",
+            #     # #"part4-microbench-3-2500-10-10-systemsensitivity-sine-1split2join1-1260-2500-7500-60-30-1-0-1-20-1-10000-14-2050-1-10000-1-20-1-10000-1-10-10000-0.05-true-0.8-3000-500-100-1-true-2",
+            #     # "part4-microbench-3-2500-10-10-systemsensitivity-sine-1split2join1-1260-2500-7500-60-30-1-0-1-20-1-10000-14-2050-1-10000-1-20-1-10000-1-10-10000-0.05-true-0.8-3000-500-100-1-true-3",
+            #     # "part4-microbench-3-3000-10-10-systemsensitivity-sine-1split2join1-1260-2500-7500-60-30-1-0-1-20-1-10000-14-2050-1-10000-1-20-1-10000-1-10-10000-0.05-true-0.8-3000-500-100-1-true-1",
+            #
+            #     "part4-microbench-5-1.2-1-8-systemsensitivity-sine-1split2join1-1260-2500-7500-60-30-1-0-1-20-1-10000-14-2050-1-10000-1-20-1-10000-1-10-10000-0.05-true-0.0-3000-500-100-1-true-1",
+            #     # "part4-microbench-5-1.2-1-8-systemsensitivity-sine-1split2join1-1260-2500-7500-60-30-1-0-1-20-1-10000-14-2050-1-10000-1-20-1-10000-1-10-10000-0.05-true-0.0-3000-500-100-1-true-2",
+            #     # "part4-microbench-5-1.2-1-8-systemsensitivity-sine-1split2join1-1260-2500-7500-60-30-1-0-1-20-1-10000-14-2050-1-10000-1-20-1-10000-1-10-10000-0.05-true-0.0-3000-500-100-1-true-3",
+            #     # "part4-microbench-5-1.2-1-8-systemsensitivity-sine-1split2join1-1260-2500-7500-60-30-1-0-1-20-1-10000-14-2050-1-10000-1-20-1-10000-1-10-10000-0.05-true-0.0-3000-500-100-1-true-4",
+            #     # "part4-microbench-5-1.2-1-8-systemsensitivity-sine-1split2join1-1260-2500-7500-60-30-1-0-1-20-1-10000-14-2050-1-10000-1-20-1-10000-1-10-10000-0.05-true-0.0-3000-500-100-1-true-5",
+            #     # "part4-microbench-5-1.2-1-8-systemsensitivity-sine-1split2join1-1260-2500-7500-60-30-1-0-1-20-1-10000-14-2050-1-10000-1-20-1-10000-1-10-10000-0.05-true-0.5-3000-500-100-1-true-1",
+            #     # "part4-microbench-5-1.2-1-8-systemsensitivity-sine-1split2join1-1260-2500-7500-60-30-1-0-1-20-1-10000-14-2050-1-10000-1-20-1-10000-1-10-10000-0.05-true-0.5-3000-500-100-1-true-2",
+            #     # "part4-microbench-5-1.2-1-8-systemsensitivity-sine-1split2join1-1260-2500-7500-60-30-1-0-1-20-1-10000-14-2050-1-10000-1-20-1-10000-1-10-10000-0.05-true-0.5-3000-500-100-1-true-3",
+            #     # "part4-microbench-5-1.2-1-8-systemsensitivity-sine-1split2join1-1260-2500-7500-60-30-1-0-1-20-1-10000-14-2050-1-10000-1-20-1-10000-1-10-10000-0.05-true-0.5-3000-500-100-1-true-4",
+            #     "part4-microbench-5-1.2-1-8-systemsensitivity-sine-1split2join1-1260-2500-7500-60-30-1-0-1-20-1-10000-14-2050-1-10000-1-20-1-10000-1-10-10000-0.05-true-0.5-3000-500-100-1-true-5",
+            #     # "part4-microbench-5-1.2-1-8-systemsensitivity-sine-1split2join1-1260-2500-7500-60-30-1-0-1-20-1-10000-14-2050-1-10000-1-20-1-10000-1-10-10000-0.05-true-0.75-3000-500-100-1-true-1",
+            #     # "part4-microbench-5-1.2-1-8-systemsensitivity-sine-1split2join1-1260-2500-7500-60-30-1-0-1-20-1-10000-14-2050-1-10000-1-20-1-10000-1-10-10000-0.05-true-0.75-3000-500-100-1-true-2",
+            #     # "part4-microbench-5-1.2-1-8-systemsensitivity-sine-1split2join1-1260-2500-7500-60-30-1-0-1-20-1-10000-14-2050-1-10000-1-20-1-10000-1-10-10000-0.05-true-0.75-3000-500-100-1-true-3",
+            #     # "part4-microbench-5-1.2-1-8-systemsensitivity-sine-1split2join1-1260-2500-7500-60-30-1-0-1-20-1-10000-14-2050-1-10000-1-20-1-10000-1-10-10000-0.05-true-0.75-3000-500-100-1-true-4",
+            #     # "part4-microbench-5-1.2-1-8-systemsensitivity-sine-1split2join1-1260-2500-7500-60-30-1-0-1-20-1-10000-14-2050-1-10000-1-20-1-10000-1-10-10000-0.05-true-0.75-3000-500-100-1-true-5"
+            # ],
 
-                "part4-microbench-5-1.2-1-8-systemsensitivity-sine-1split2join1-1260-2500-7500-60-30-1-0-1-20-1-10000-14-2050-1-10000-1-20-1-10000-1-10-10000-0.05-true-0.0-3000-500-100-1-true-1",
-                # "part4-microbench-5-1.2-1-8-systemsensitivity-sine-1split2join1-1260-2500-7500-60-30-1-0-1-20-1-10000-14-2050-1-10000-1-20-1-10000-1-10-10000-0.05-true-0.0-3000-500-100-1-true-2",
-                # "part4-microbench-5-1.2-1-8-systemsensitivity-sine-1split2join1-1260-2500-7500-60-30-1-0-1-20-1-10000-14-2050-1-10000-1-20-1-10000-1-10-10000-0.05-true-0.0-3000-500-100-1-true-3",
-                # "part4-microbench-5-1.2-1-8-systemsensitivity-sine-1split2join1-1260-2500-7500-60-30-1-0-1-20-1-10000-14-2050-1-10000-1-20-1-10000-1-10-10000-0.05-true-0.0-3000-500-100-1-true-4",
-                # "part4-microbench-5-1.2-1-8-systemsensitivity-sine-1split2join1-1260-2500-7500-60-30-1-0-1-20-1-10000-14-2050-1-10000-1-20-1-10000-1-10-10000-0.05-true-0.0-3000-500-100-1-true-5",
-                # "part4-microbench-5-1.2-1-8-systemsensitivity-sine-1split2join1-1260-2500-7500-60-30-1-0-1-20-1-10000-14-2050-1-10000-1-20-1-10000-1-10-10000-0.05-true-0.5-3000-500-100-1-true-1",
-                # "part4-microbench-5-1.2-1-8-systemsensitivity-sine-1split2join1-1260-2500-7500-60-30-1-0-1-20-1-10000-14-2050-1-10000-1-20-1-10000-1-10-10000-0.05-true-0.5-3000-500-100-1-true-2",
-                # "part4-microbench-5-1.2-1-8-systemsensitivity-sine-1split2join1-1260-2500-7500-60-30-1-0-1-20-1-10000-14-2050-1-10000-1-20-1-10000-1-10-10000-0.05-true-0.5-3000-500-100-1-true-3",
-                # "part4-microbench-5-1.2-1-8-systemsensitivity-sine-1split2join1-1260-2500-7500-60-30-1-0-1-20-1-10000-14-2050-1-10000-1-20-1-10000-1-10-10000-0.05-true-0.5-3000-500-100-1-true-4",
-                "part4-microbench-5-1.2-1-8-systemsensitivity-sine-1split2join1-1260-2500-7500-60-30-1-0-1-20-1-10000-14-2050-1-10000-1-20-1-10000-1-10-10000-0.05-true-0.5-3000-500-100-1-true-5",
-                # "part4-microbench-5-1.2-1-8-systemsensitivity-sine-1split2join1-1260-2500-7500-60-30-1-0-1-20-1-10000-14-2050-1-10000-1-20-1-10000-1-10-10000-0.05-true-0.75-3000-500-100-1-true-1",
-                # "part4-microbench-5-1.2-1-8-systemsensitivity-sine-1split2join1-1260-2500-7500-60-30-1-0-1-20-1-10000-14-2050-1-10000-1-20-1-10000-1-10-10000-0.05-true-0.75-3000-500-100-1-true-2",
-                # "part4-microbench-5-1.2-1-8-systemsensitivity-sine-1split2join1-1260-2500-7500-60-30-1-0-1-20-1-10000-14-2050-1-10000-1-20-1-10000-1-10-10000-0.05-true-0.75-3000-500-100-1-true-3",
-                # "part4-microbench-5-1.2-1-8-systemsensitivity-sine-1split2join1-1260-2500-7500-60-30-1-0-1-20-1-10000-14-2050-1-10000-1-20-1-10000-1-10-10000-0.05-true-0.75-3000-500-100-1-true-4",
-                # "part4-microbench-5-1.2-1-8-systemsensitivity-sine-1split2join1-1260-2500-7500-60-30-1-0-1-20-1-10000-14-2050-1-10000-1-20-1-10000-1-10-10000-0.05-true-0.75-3000-500-100-1-true-5"
+            #"static":
+            "scale": [
+                "part4-microbench-3-1000-10-10-part4-mixed-1split2join1-1880-600-600-600-5000-5000-5000-1500-2500-1000-200-120-300-qsine-qsine-qsine-1-0-1-20-1-10000-20-2050-1-10000-1-20-1-10000-1-10-10000-0.05-true-0.8-1000-500-100-1-true-1",
             ],
         }
     }
@@ -926,7 +929,7 @@ def main():
         elif exp_name.startswith("part4-micro"):
             latency_bar = int(exp_name.split('-')[-6])
             start_time = 60 #60
-            exp_length = 1200 #2400 #1440 #900  # 1800
+            exp_length = 1800 #1200 #2400 #1440 #900  # 1800
         else:
             latency_bar = int(exp_name.split('-')[-6])
             start_time = 60
