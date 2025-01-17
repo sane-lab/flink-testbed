@@ -653,7 +653,7 @@ def draw_parallelism_curve(rawDir, outputDir, exp_name, windowSize, startTime, e
         ax2.set_xlabel("Time (s)")
 
 
-    ax2.set_ylabel("Arrival Rate (tps)")
+    ax2.set_ylabel("Arrival Rate(tps)")
 
     job = jobList[0]
     ax = sorted(totalArrivalRatesPerJob[job][0].keys())
@@ -977,7 +977,7 @@ def plot_latency_curves(latency_curves, latency_limit, output_dir, start_time, e
         ax.set_ylabel('Latency (ms)', fontsize=FONT_SIZE)
     ax.set_xlabel('Time (minute)', fontsize=FONT_SIZE)
     #ax.set_title("ETE Latency for " + workload_name, fontsize=FONT_SIZE)
-    ax.set_title(workload_name, y=-0.45, fontsize=FONT_SIZE + 10)
+    ax.set_title(workload_name, y=-0.6, fontsize=FONT_SIZE + 8)
     #ax.legend(handles=legend_elements, loc='upper center', bbox_to_anchor=(0.5, 1.25), ncol=2, fontsize=FONT_SIZE)
     #ax.legend(loc='upper center', bbox_to_anchor=(0.5, 1.25), ncol=4)
     ax.grid(True)
@@ -1025,7 +1025,7 @@ def plot_parallelism_curves(parallelism_curve, arrival_curve, output_dir, start_
     ax1.set_yticks(np.arange(10, 40, 10))
     if workload_name.count("Twitter"):
         ax2.set_ylim(1500, 6000)
-        ax2.set_yticks(np.arange(1000, 7000, 1500))
+        ax2.set_yticks(np.arange(1000, 7000, 2000))
     elif workload_name.count("Linear-Road"):
         ax2.set_ylim(750, 2000)
         ax2.set_yticks(np.arange(1000, 2500, 500))
@@ -1038,7 +1038,7 @@ def plot_parallelism_curves(parallelism_curve, arrival_curve, output_dir, start_
     if y1label_flag:
         ax1.set_ylabel('# of Slots', fontsize=FONT_SIZE)
     if y2label_flag:
-        ax2.set_ylabel('Arrival Rate (tps)', fontsize=FONT_SIZE)
+        ax2.set_ylabel('Arrival Rate', fontsize=FONT_SIZE, labelpad=3)
     #ax1.set_xlabel('Time (minute)', fontsize=FONT_SIZE)
     ax1.set_xlim((start_time) * 1000, (start_time + exp_length) * 1000)
     ax1.set_xticks(np.arange((start_time) * 1000, (start_time + exp_length) * 1000 + (exp_length / 5) * 1000,
@@ -1104,30 +1104,30 @@ def main():
             #"Sluice": "lr-streamsluice-streamsluice-5-8-60-1380-150-1300-10-1-50-3-1000-1-50-27-3333-2000-0.1-100-1-25-0.0-true-1000-0.8-2",
             "Sluice": "lr-streamsluice-streamsluice-5-8-60-1380-150-1300-10-1-50-3-1000-1-50-27-3333-2000-0.2-100-1-25-0.0-true-1000-0.8-3",
         },
-        "(b) Stock Analysis": {
-            "Static": "stock-ds2-ds2-5-8-60-1350-90-1000-20-1-200-4-3333-1-200-1-500-1-7-5000-3000-100-0.1-false-false-1",
-            # "Static-Adequate": "stock-ds2-ds2-5-8-60-1350-90-1000-20-1-200-11-3333-1-200-2-500-1-15-5000-3000-100-0.1-false-false-1",
-            "DS2": "stock-ds2-ds2-5-8-60-1350-90-1000-20-1-200-11-3333-1-200-2-500-1-15-5000-3000-100-0.1-true-false-1",
-            "StreamSwitch": "stock-streamswitch-streamswitch-5-8-60-1350-90-1000-20-1-200-11-3333-1-200-2-500-1-15-5000-3000-100-0.1-true-false-1",
-            "Sluice": "stock-streamsluice-streamsluice-5-8-60-1350-90-1000-20-1-200-11-3333-1-200-2-500-1-15-5000-3000-100-0.1-true-true-1",
-            #"Sluice": "stock-streamsluice-streamsluice-5-8-60-1350-90-1000-20-1-200-11-3333-1-200-2-500-1-15-5000-3000-100-0.2-true-true-2",
-        },
-        "(c) Twitter Alert": {
-            # # "Static": "tweet-streamsluice-streamsluice-5-60-1950-90-1500-1-14-6666-5-1000-1-50-1-50-2500-100-false-0.1-1",
-            # # "Static-Adequate": "tweet-streamsluice-streamsluice-5-60-1950-90-1500-1-19-6666-9-1000-1-50-1-50-2500-100-false-0.1-1",
-            # # "DS2": "tweet-ds2-ds2-5-60-1950-90-1500-1-19-6666-9-1000-1-50-1-50-2500-100-true-0.1-1",
-            # # "Streamswitch": "tweet-streamswitch-streamswitch-5-60-1950-90-1500-1-19-6666-9-1000-1-50-1-50-2500-100-true-0.1-1",
-            # #"Sluice": "tweet-streamsluice-streamsluice-5-8-1950-90-1500-1-19-6666-9-1000-1-50-1-50-2500-100-true-0.1-2",
-            "Static": "tweet-streamsluice-streamsluice-5-60-1350-90-1700-1-14-3333-5-500-1-50-1-50-1250-2000-100-false-0.1-1",
-            # #"Static-Adequate": "tweet-streamsluice-streamsluice-5-60-1350-90-1700-1-19-3333-9-500-1-50-1-50-1250-2000-100-false-0.1-1",
-            "DS2": "tweet-ds2-ds2-5-60-1350-90-1700-1-19-3333-9-500-1-50-1-50-1250-2000-100-true-0.1-1",
-            "StreamSwitch": "tweet-streamswitch-streamswitch-5-60-1350-90-1700-1-19-3333-9-500-1-50-1-50-1250-2000-100-true-0.1-1",
-            #"Sluice": "tweet-streamsluice-streamsluice-5-60-1350-90-3400-1-19-3333-9-500-1-50-1-50-1250-2000-100-true-0.1-1",
-            "Sluice": "tweet-streamsluice-streamsluice-5-60-1350-90-3400-1-19-3333-9-500-1-50-1-50-1250-2000-100-true-0.2-1",
-        },
+        # "(b) Stock Analysis": {
+        #     "Static": "stock-ds2-ds2-5-8-60-1350-90-1000-20-1-200-4-3333-1-200-1-500-1-7-5000-3000-100-0.1-false-false-1",
+        #     # "Static-Adequate": "stock-ds2-ds2-5-8-60-1350-90-1000-20-1-200-11-3333-1-200-2-500-1-15-5000-3000-100-0.1-false-false-1",
+        #     "DS2": "stock-ds2-ds2-5-8-60-1350-90-1000-20-1-200-11-3333-1-200-2-500-1-15-5000-3000-100-0.1-true-false-1",
+        #     "StreamSwitch": "stock-streamswitch-streamswitch-5-8-60-1350-90-1000-20-1-200-11-3333-1-200-2-500-1-15-5000-3000-100-0.1-true-false-1",
+        #     "Sluice": "stock-streamsluice-streamsluice-5-8-60-1350-90-1000-20-1-200-11-3333-1-200-2-500-1-15-5000-3000-100-0.1-true-true-1",
+        #     #"Sluice": "stock-streamsluice-streamsluice-5-8-60-1350-90-1000-20-1-200-11-3333-1-200-2-500-1-15-5000-3000-100-0.2-true-true-2",
+        # },
+        # "(c) Twitter Alert": {
+        #     # # "Static": "tweet-streamsluice-streamsluice-5-60-1950-90-1500-1-14-6666-5-1000-1-50-1-50-2500-100-false-0.1-1",
+        #     # # "Static-Adequate": "tweet-streamsluice-streamsluice-5-60-1950-90-1500-1-19-6666-9-1000-1-50-1-50-2500-100-false-0.1-1",
+        #     # # "DS2": "tweet-ds2-ds2-5-60-1950-90-1500-1-19-6666-9-1000-1-50-1-50-2500-100-true-0.1-1",
+        #     # # "Streamswitch": "tweet-streamswitch-streamswitch-5-60-1950-90-1500-1-19-6666-9-1000-1-50-1-50-2500-100-true-0.1-1",
+        #     # #"Sluice": "tweet-streamsluice-streamsluice-5-8-1950-90-1500-1-19-6666-9-1000-1-50-1-50-2500-100-true-0.1-2",
+        #     "Static": "tweet-streamsluice-streamsluice-5-60-1350-90-1700-1-14-3333-5-500-1-50-1-50-1250-2000-100-false-0.1-1",
+        #     # #"Static-Adequate": "tweet-streamsluice-streamsluice-5-60-1350-90-1700-1-19-3333-9-500-1-50-1-50-1250-2000-100-false-0.1-1",
+        #     "DS2": "tweet-ds2-ds2-5-60-1350-90-1700-1-19-3333-9-500-1-50-1-50-1250-2000-100-true-0.1-1",
+        #     "StreamSwitch": "tweet-streamswitch-streamswitch-5-60-1350-90-1700-1-19-3333-9-500-1-50-1-50-1250-2000-100-true-0.1-1",
+        #     #"Sluice": "tweet-streamsluice-streamsluice-5-60-1350-90-3400-1-19-3333-9-500-1-50-1-50-1250-2000-100-true-0.1-1",
+        #     "Sluice": "tweet-streamsluice-streamsluice-5-60-1350-90-3400-1-19-3333-9-500-1-50-1-50-1250-2000-100-true-0.2-1",
+        # },
     }
 
-    fig, axs = plt.subplots(3, 3, figsize=(21, 10), layout='constrained', gridspec_kw={'height_ratios': [1, 2, 3]})
+    fig, axs = plt.subplots(3, 3, figsize=(21, 7), layout='constrained', gridspec_kw={'height_ratios': [1, 2, 3]}) #[1, 2, 2]})
     index = 0
     legend_elements = []
 
@@ -1201,7 +1201,7 @@ def main():
     legend_elements.append(
         Line2D([0], [0], linestyle="--",
                color="r", label="Latency Limit"))
-    fig.legend(handles=legend_elements, loc='upper center', bbox_to_anchor=(0.5, 1.1), ncol=6, markerscale=5)
+    fig.legend(handles=legend_elements, loc='upper center', bbox_to_anchor=(0.53, 1.11), ncol=6, markerscale=5)
 
     if output_pdf_flag:
         plt.savefig(overall_output_dir + "all_in_one.pdf", bbox_inches='tight')
