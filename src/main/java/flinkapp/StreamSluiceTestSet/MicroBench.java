@@ -2540,7 +2540,9 @@ public class MicroBench {
                     if (!isRunning) {
                         return;
                     }
+                    round += 1;
                 }
+                phase_index += 1;
             }
         }
         public void run(SourceContext<Tuple3<String, Long, Long>> ctx) throws Exception {
