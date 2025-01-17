@@ -106,7 +106,7 @@ function runApp() {
     -nkeys ${NKEYS} -phase1Time ${TIME1} -phase1Rate ${RATE1} -phase2Time ${TIME2} \
     -phase2Rate ${RATE2} -interTime ${TIME_I} -interRate ${RATE_I} -warmupTime ${warmupTime} -warmupRate ${warmupRate} \
     -source ${SOURCE_TYPE} -run_time ${runtime} \
-      -phaseTimes ${PHASE_TIMES} -phaseRates ${Phase_Rates} -phaseAmplitudes ${Phase_Amplitudes} -phasePeriods ${Phase_Periods} -phaseTypes ${Phase_Types}
+    -phaseTimes ${PHASE_TIMES} -phaseRates ${Phase_Rates} -phaseAmplitudes ${Phase_Amplitudes} -phasePeriods ${Phase_Periods} -phaseTypes ${Phase_Types} \
     -noise ${noise} -zipf_skew ${ZIPF_SKEW} &"
     ${FLINK_DIR}/bin/flink run -c ${job} ${JAR} \
     -graph ${GRAPH} \
@@ -117,7 +117,7 @@ function runApp() {
     -nkeys ${NKEYS} -phase1Time ${TIME1} -phase1Rate ${RATE1} -phase2Time ${TIME2} \
     -phase2Rate ${RATE2} -interTime ${TIME_I} -interRate ${RATE_I} -warmupTime ${warmupTime} -warmupRate ${warmupRate} \
     -source ${SOURCE_TYPE} -run_time ${runtime} \
-    -phaseTimes ${PHASE_TIMES} -phaseRates ${Phase_Rates} -phaseAmplitudes ${Phase_Amplitudes} -phasePeriods ${Phase_Periods} -phaseTypes ${Phase_Types}
+    -phaseTimes ${PHASE_TIMES} -phaseRates ${Phase_Rates} -phaseAmplitudes ${Phase_Amplitudes} -phasePeriods ${Phase_Periods} -phaseTypes ${Phase_Types} \
     -noise ${noise} -zipf_skew ${ZIPF_SKEW} &
 }
 
@@ -215,7 +215,7 @@ run_scale_test(){
     GRAPH="1split2join1"
     autotuner_bar_lowerbound=450
     autotuner_latency_window=100
-     autotuner_increase_bar_alpha=0.8
+    autotuner_increase_bar_alpha=0.8
 
     CURVE_TYPE="mixed" #"linear"
     warmupRate=5000
