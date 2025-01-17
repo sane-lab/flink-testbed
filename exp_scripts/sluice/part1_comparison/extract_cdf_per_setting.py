@@ -1038,7 +1038,7 @@ def plot_parallelism_curves(parallelism_curve, arrival_curve, output_dir, start_
     if y1label_flag:
         ax1.set_ylabel('# of Slots', fontsize=FONT_SIZE)
     if y2label_flag:
-            ax2.set_ylabel('Arrival Rate(tps)', fontsize=FONT_SIZE)
+        ax2.set_ylabel('Arrival Rate(tps)', fontsize=FONT_SIZE)
     #ax1.set_xlabel('Time (minute)', fontsize=FONT_SIZE)
     ax1.set_xlim((start_time) * 1000, (start_time + exp_length) * 1000)
     ax1.set_xticks(np.arange((start_time) * 1000, (start_time + exp_length) * 1000 + (exp_length / 5) * 1000,

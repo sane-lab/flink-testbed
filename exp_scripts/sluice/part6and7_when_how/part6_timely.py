@@ -637,7 +637,11 @@ def draw(rawDir, outputDir, exps, windowSize, ax, workload_name, xlabel_flag, yl
 
     #plt.xlabel('Time (min)')
     if ylabel_flag:
-        ax.set_ylabel('Latency (ms)')
+        ax.set_ylabel('Latency\n(ms)')
+    else:
+        ax.tick_params(axis='y', left=False)
+        ax.set_yticklabels([])
+
     if xlabel_flag:
         ax.set_xlabel('Time (s)')
     ax.set_xlim((startTime) * 1000, (startTime + expLength) * 1000)
@@ -649,7 +653,7 @@ def draw(rawDir, outputDir, exps, windowSize, ax, workload_name, xlabel_flag, yl
     if trickFlag:
         ax.set_yticklabels([int(x / 1250 * 1000) for x in np.arange(0, 6250, 1250)])
     ax.grid(True)
-    ax.set_title(workload_name, y=-0.85, fontsize=35)
+    ax.set_title(workload_name, y=-0.7, fontsize=35)
     # fig, ax = plt.subplots(figsize=(5, 5))
     # print("Draw intrinsic curve...")
     # for i in range(0, len(exps)):
@@ -817,17 +821,15 @@ def draw_resource(rawDir, outputDir, exps, ax1, ax2, xlabel_flag, ylabel_flag):
     #axs.grid(True)
     #ax1 = axs
     #ax2 = ax1.twinx()
-    if ylabel_flag:
-        ax1.set_ylabel("# of Slots")
-        ax2.set_ylabel("Arrival Rate (tps)")
+
 
     job = jobList[0]
     ax = sorted(totalArrivalRatesPerJob[job][0].keys())
     ay = [totalArrivalRatesPerJob[job][0][x] / (windowSize / 100) for x in ax]
     ax2.plot(ax, ay, '-', color='red', markersize=MARKERSIZE / 2, label="Arrival Rate")
     #ax2.set_ylabel('Rate (tps)')
-    ax2.set_ylim(3500, 7500)
-    ax2.set_yticks(np.arange(3500, 8500, 1000))
+    ax2.set_ylim(3500, 7000)
+    ax2.set_yticks(np.arange(4000, 7000, 2000))
     ax2.set_xlim(startTime * 1000, (startTime + exp_length) * 1000)
     ax2.set_xticks(np.arange(startTime * 1000, (startTime + exp_length) * 1000 + 5000, 5000))
     ax2.set_xticklabels([int((x - startTime * 1000) / 1000) for x in
@@ -901,8 +903,8 @@ def draw_resource(rawDir, outputDir, exps, ax1, ax2, xlabel_flag, ylabel_flag):
         ax1.plot(scale_out_points[expindex][0], scale_out_points[expindex][1], exps[expindex][3][0], color=exps[expindex][2])
 
 
-    ax1.set_ylim(5, 25)
-    ax1.set_yticks(np.arange(5, 25, 5))
+    ax1.set_ylim(13, 23)
+    ax1.set_yticks(np.arange(15, 25, 5))
 
     ax1.set_xlim(startTime * 1000, (startTime + exp_length) * 1000)
     ax1.set_xticks(np.arange(startTime * 1000, (startTime + exp_length) * 1000 + 5000, 5000))
@@ -910,6 +912,16 @@ def draw_resource(rawDir, outputDir, exps, ax1, ax2, xlabel_flag, ylabel_flag):
                          np.arange(startTime * 1000, (startTime + exp_length) * 1000 + 5000, 5000)])
     if xlabel_flag:
         ax1.set_xlabel("Time (s)")
+
+    if ylabel_flag:
+        ax1.set_ylabel("# of Slots")
+        ax2.set_ylabel("Arrival Rate\n(tps)")
+    else:
+        ax1.tick_params(axis='y', left=False)
+        ax1.set_yticklabels([])
+        ax2.tick_params(axis='y', left=False)
+        ax2.set_yticklabels([])
+
     ax1.grid(True)
     ax2.grid(True)
 
@@ -1062,7 +1074,7 @@ avg_latency_calculateTime = expLength # 30
 
 output_pdf_flag = True
 
-fig, axs = plt.subplots(3, 2, figsize=(20, 9), layout='constrained')
+fig, axs = plt.subplots(3, 2, figsize=(24, 7), layout='constrained', gridspec_kw={'height_ratios': [1, 1, 1.5], 'width_ratios': [1, 1]})
 
 index = 0
 for workload, exps in exps_per_setting.items():

@@ -743,7 +743,7 @@ def draw_scaling_info(scaling_change_info, outputDir, label):
     def draw_task_metrics_barchart(task_data:dict[str:float], label, metrics_name, color, file_name):
         import matplotlib.pyplot as plt
         # Create the figure and two bar charts
-        fig_task, ax_task = plt.subplots(1, 1, figsize=(11, 4.5))
+        fig_task, ax_task = plt.subplots(1, 1, figsize=(10, 4))
 
         # Sort tasks by arrival rate (optional for ranking)
         sorted_tasks = sorted(task_data.items(), key=lambda x: x[1], reverse=True)
@@ -1054,7 +1054,7 @@ task_arrival_capacity = 1000
 output_pdf_flag = True
 
 for name, exps_per_setting in exps_per_settings.items():
-    fig, axs = plt.subplots(3, 1, figsize=(10, 10), layout='constrained')
+    fig, axs = plt.subplots(3, 1, figsize=(8, 7), layout='constrained', gridspec_kw={'height_ratios': [1, 1, 1.5], 'width_ratios': [1]})
 
     index = 0
     for workload, exps in exps_per_setting.items():
