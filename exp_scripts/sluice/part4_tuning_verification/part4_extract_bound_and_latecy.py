@@ -278,6 +278,25 @@ def draw_latency_curves(ax1, setting_name, raw_dir, output_dir, exp_name, window
             groundtruth_p99_latency_in_range)
         avg_ground_truth_latency_in_range = sum(groundtruth_p99_latency_in_range)/len(groundtruth_p99_latency_in_range)
 
+        def calculate_success_rate_in_intervals(intervals, groundtruth_latency, latency_limit):
+            success_rates = []
+            for start_time, end_time in intervals:
+                latency_in_range = [groundtruth_latency[1][x] for x in
+                                                    range(len(groundtruth_latency[0])) if
+                                                    groundtruth_latency[0][x] >= start_time * 1000 and
+                                                    groundtruth_latency[0][x] <= end_time * 1000]
+                if len(latency_in_range) > 0:
+                    success_rate = len([x for x in latency_in_range if x <= latency_limit]) / len(
+                        latency_in_range)
+                else:
+                    success_rate = 0.0
+                success_rates.append(success_rate)
+            return success_rates
+
+        phase_success_rates = calculate_success_rate_in_intervals(phase_intervals, average_ground_truth_latencies[i], latency_limit)
+        converged_success_rates = calculate_success_rate_in_intervals(converged_intervals, average_ground_truth_latencies[i],
+                                                                 latency_limit)
+
         def compute_weighted_success_rate(average_ground_truth_latencies, start_time, exp_length, latency_limit,
                                           window_size=30):
             total_windows = int(
@@ -496,7 +515,7 @@ def draw_latency_curves(ax1, setting_name, raw_dir, output_dir, exp_name, window
     fig.savefig(output_dir + 'latency_bar.png', bbox_inches='tight')
     plt.close(fig)
 
-    return success_rate, avg_ground_truth_latency_in_range, first_converge_time, converged_bar
+    return success_rate, phase_success_rates, converged_success_rates, avg_ground_truth_latency_in_range, first_converge_time, converged_bar
 
 
 
@@ -782,6 +801,8 @@ def draw_parallelism_curve(axes_all, rawDir, outputDir, exp_name, windowSize, st
                 continue
             print("Draw exps " + exps[expindex][0] + " curve...")
             totalParallelism = 0
+            totalParallelism_phases = [0 for x in phase_intervals]
+            totalParallelism_converged = [0 for x in converged_intervals]
             Parallelism = totalParallelismPerExps[expindex]
             # print(job + " " + str(expindex) + " " + str(Parallelism))
             legend += [exps[expindex][0]]
@@ -797,8 +818,16 @@ def draw_parallelism_curve(axes_all, rawDir, outputDir, exp_name, windowSize, st
                     y1 = Parallelism[1][i + 1]
                 l = max(x0, startTime * 1000)
                 r = min(x1, (startTime + exp_length) * 1000)
-                if (exps[expindex][0] == 'Sluice' and l < r):
+                if (l < r):
                     totalParallelism += (r - l) * y0
+                    for interval_index in range(0, len(phase_intervals)):
+                        interval_l = max(x0, phase_intervals[interval_index][0] * 1000)
+                        interval_r = min(x1, phase_intervals[interval_index][1] * 1000)
+                        totalParallelism_phases[interval_index] += max(interval_r - interval_l, 0) * y0
+                    for interval_index in range(0, len(converged_intervals)):
+                        interval_l = max(x0, converged_intervals[interval_index][0] * 1000)
+                        interval_r = min(x1, converged_intervals[interval_index][1] * 1000)
+                        totalParallelism_converged[interval_index] += max(interval_r - interval_l, 0) * y0
                     for scalingTime in scalings:
                         if scalingTime >= l and scalingTime <= r:
                             scalingPoints[0] += [scalingTime]
@@ -815,6 +844,14 @@ def draw_parallelism_curve(axes_all, rawDir, outputDir, exp_name, windowSize, st
             if len(axes_all) > 0:
                 axes_all[1].plot(line[0], line[1], color="blue", linewidth=3, label='# of Slots')
             average_parallelism = totalParallelism / (exp_length * 1000)
+            average_parallelism_phases = []
+            for interval_index in range(0, len(phase_intervals)):
+                average_parallelism_phases.append(totalParallelism_phases[interval_index] / ((phase_intervals[interval_index][1] - phase_intervals[interval_index][0]) * 1000))
+            average_parallelism_converged = []
+            for interval_index in range(0, len(converged_intervals)):
+                average_parallelism_converged.append(totalParallelism_converged[interval_index] / ((
+                            converged_intervals[interval_index][1] - converged_intervals[interval_index][0]) * 1000))
+
             print("Average parallelism " + exps[expindex][0] + " : " + str(totalParallelism / (exp_length * 1000)))
         add_phase_marker(ax1, (startTime + exp_length) * 1000)
         # ax1.plot(scalingPoints[0], scalingPoints[1], 'o', color="orange", mfc='none', markersize=MARKERSIZE * 2,
@@ -861,7 +898,7 @@ def draw_parallelism_curve(axes_all, rawDir, outputDir, exp_name, windowSize, st
     else:
         fig.savefig(outputDir + figName + ".png", bbox_inches='tight')
     plt.close(fig)
-    return average_parallelism, arrival_curves
+    return average_parallelism, average_parallelism_phases, average_parallelism_converged, arrival_curves
 
 output_pdf_flag=True
 overall_output_dir = "/Users/swrrt/Workplace/BacklogDelayPaper/experiments/figures/part4/"
@@ -925,8 +962,7 @@ def main():
 
             #"static":
             "scale": [
-                #"part4-microbench-5-1.2-1-8-part4-mixed-1split2join1-1880-600-600-600-5000-5000-5000-8000-2500-7000-30-60-30-sine-sine-sine-1-0-1-20-1-10000-20-2050-1-10000-1-20-1-10000-1-10-10000-0.05-true-0.5-3000-500-100-1-true-1",
-                "part4-microbench-5-1.2-1-8-part4-mixed-1split2join1-680-600-600-600-5000-5000-5000-7500-8000-4000-30-25-60-sine-sine-sine-1-0-1-20-1-10000-20-2050-1-10000-1-20-1-10000-1-10-10000-0.05-true-0.5-3000-500-100-1-true-1",
+                "part4-microbench-5-1.2-1-8-part4-mixed-1split2join1-1880-600-600-600-5000-5000-5000-8000-2500-7000-30-60-30-sine-sine-sine-1-0-1-20-1-10000-20-2050-1-10000-1-20-1-10000-1-10-10000-0.05-true-0.5-3000-500-100-1-true-1",
             ],
         }
     }
@@ -959,12 +995,20 @@ def main():
         avg_parallelism_per_label = {}
         user_limit_per_label = {}
         avg_ground_truth_latency_per_label = {}
+        phase_success_rate_per_label = {}
+        phase_parallelism_per_label = {}
+        converged_success_rate_per_label = {}
+        converged_parallelism_per_label = {}
         static_arrival_curve = []
         for label, exps in exps_per_label.items():
             success_rate_per_label[label] = []
             avg_parallelism_per_label[label] = []
             user_limit_per_label[label] = []
             avg_ground_truth_latency_per_label[label] = []
+            phase_success_rate_per_label[label] = []
+            phase_parallelism_per_label[label] = []
+            converged_success_rate_per_label[label] = []
+            converged_parallelism_per_label[label] = []
             if label == "static":
                 exp_name = exps
                 start_time, exp_length, latency_bar = getStartTimeAndExpLength(exp_name)
@@ -981,7 +1025,7 @@ def main():
 
             for exp_name in exps:
                 start_time, exp_length, latency_bar = getStartTimeAndExpLength(exp_name)
-                success_rate, avg_ground_truth_latency, first_converge_time, converged_bar = draw_latency_curves(axs_all[2][index], setting_name[index], raw_dir,
+                success_rate, phase_success_rate, converged_success_rate, avg_ground_truth_latency, first_converge_time, converged_bar = draw_latency_curves(axs_all[2][index], setting_name[index], raw_dir,
                                                                                                              output_dir + exp_name + '/',
                                                                                                              exp_name,
                                                                                                              window_size,
@@ -989,13 +1033,17 @@ def main():
                                                                                                              exp_length,
                                                                                                              latency_bar,
                                                                                                              draw_lem_latency_flag, index == 0)
-                avg_parallelism, trash = draw_parallelism_curve([axs_all[0][index], axs_all[1][index]], raw_dir, output_dir + exp_name + '/', exp_name,
+                avg_parallelism, phase_parallelism, converged_parallelism, trash = draw_parallelism_curve([axs_all[0][index], axs_all[1][index]], raw_dir, output_dir + exp_name + '/', exp_name,
                                                                 window_size,
                                                                 start_time, exp_length, True, static_arrival_curve, index == 0)
                 user_limit_per_label[label] += [latency_bar]
                 success_rate_per_label[label] += [success_rate]
                 avg_ground_truth_latency_per_label[label] += [avg_ground_truth_latency]
                 avg_parallelism_per_label[label] += [avg_parallelism]
+                phase_success_rate_per_label[label].append(phase_success_rate)
+                phase_parallelism_per_label[label].append(phase_parallelism)
+                converged_success_rate_per_label[label].append(converged_success_rate)
+                converged_parallelism_per_label[label].append(converged_parallelism)
                 index += 1
 
             legend_elements.append(
@@ -1026,9 +1074,20 @@ def main():
             else:
                 fig_all.savefig(overall_output_dir + "all_in_one.png", bbox_inches='tight')
             plt.close(fig_all)
+        print("Success rate:")
         print(success_rate_per_label)
+        print("Phase Success rate:")
+        print(phase_success_rate_per_label)
+        print("Converged Success rate:")
+        print(converged_success_rate)
+        print("Average Latency:")
         print(avg_ground_truth_latency_per_label)
+        print("Parallelism:")
         print(avg_parallelism_per_label)
+        print("Phase Parallelism:")
+        print(phase_parallelism_per_label)
+        print("Converged Parallelism:")
+        print(converged_parallelism_per_label)
 
 if __name__ == "__main__":
     main()
