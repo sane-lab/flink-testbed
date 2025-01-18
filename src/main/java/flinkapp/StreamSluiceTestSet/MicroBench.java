@@ -2414,6 +2414,40 @@ public class MicroBench {
             }
         }
 
+        void startSemiSinePhase(SourceContext<Tuple3<String, Long, Long>> ctx, long amplitude, long baseRate, long time, long phaseStartTime) throws Exception {
+            long currentTime;
+            long elapsedTime;
+            long rate;
+
+            while (isRunning && (currentTime = System.currentTimeMillis()) - phaseStartTime < time) {
+                long emitStartTime = System.currentTimeMillis();
+                elapsedTime = currentTime - phaseStartTime;
+
+                // Calculate the semi-sine wave rate
+                rate = (long) (baseRate + amplitude * Math.sin(Math.PI * elapsedTime / time));
+
+                // Add Gaussian noise to the rate, scaled by noise level
+                double noise = random.nextGaussian() * NOISE_LEVEL;
+                rate = (long) (rate * (1 + noise));  // Apply the noise
+
+                // Ensure that the rate is not negative after applying noise
+                if (rate < 0) {
+                    rate = 0;
+                }
+
+                for (int i = 0; i < rate / 20; i++) {
+                    int selectedKeygroup = fastZipfGenerator.next();
+                    List<String> subKeySet = keyGroupMapping.get(selectedKeygroup);
+                    totalOutputNumbers.put(selectedKeygroup, totalOutputNumbers.getOrDefault(selectedKeygroup, 0L) + 1);
+                    String key = getSubKeySetChar(count, subKeySet);
+                    ctx.collect(Tuple3.of(key, System.currentTimeMillis(), (long) count));
+                    count++;
+                }
+
+                Util.pause(emitStartTime);
+            }
+        }
+
         void startQuarterSinePhase(SourceContext<Tuple3<String, Long, Long>> ctx, long rate1, long rate2, long time, long phaseStartTime) throws Exception {
             long currentTime;
             long elapsedTime;
@@ -2483,59 +2517,35 @@ public class MicroBench {
                     if (pattern_this_round == 0) {
                         System.out.println("Round " + round + " stair phase start at: " + roundStartTime);
                         System.out.println("phase paras: " + now_average_rate + ", " + now_amplitude + ", " + now_period);
-                        startSteadyPhase(ctx, now_average_rate, now_period / 8, roundStartTime);
+                        startSteadyPhase(ctx, now_average_rate + now_amplitude, now_period, roundStartTime);
                         roundStartTime = System.currentTimeMillis();
-                        startSteadyPhase(ctx, now_average_rate + now_amplitude, now_period / 4, roundStartTime);
-                        roundStartTime = System.currentTimeMillis();
-                        startSteadyPhase(ctx, now_average_rate, now_period / 4, roundStartTime);
-                        roundStartTime = System.currentTimeMillis();
-                        startSteadyPhase(ctx, now_average_rate - now_amplitude, now_period / 4, roundStartTime);
-                        roundStartTime = System.currentTimeMillis();
-                        startSteadyPhase(ctx, now_average_rate, now_period / 8, roundStartTime);
+                        startSteadyPhase(ctx, now_average_rate, 30000, roundStartTime);
                     } else if (pattern_this_round == 1) {
                         System.out.println("Round " + round + " linear phase start at: " + roundStartTime);
                         System.out.println("phase paras: " + now_average_rate + ", " + now_amplitude + ", " + now_period);
-                        startSteadyPhase(ctx, now_average_rate, now_period / 16, roundStartTime);
+                        startLinearPhase(ctx, now_average_rate, now_average_rate + now_amplitude, now_period / 3, roundStartTime);
                         roundStartTime = System.currentTimeMillis();
-                        startLinearPhase(ctx, now_average_rate, now_average_rate + now_amplitude, now_period / 8, roundStartTime);
+                        startSteadyPhase(ctx, now_average_rate + now_amplitude, now_period / 3, roundStartTime);
                         roundStartTime = System.currentTimeMillis();
-                        startSteadyPhase(ctx, now_average_rate + now_amplitude, now_period / 8, roundStartTime);
+                        startLinearPhase(ctx, now_average_rate + now_amplitude, now_average_rate, now_period / 3, roundStartTime);
                         roundStartTime = System.currentTimeMillis();
-                        startLinearPhase(ctx, now_average_rate + now_amplitude, now_average_rate, now_period / 8, roundStartTime);
-                        roundStartTime = System.currentTimeMillis();
-                        startSteadyPhase(ctx, now_average_rate, now_period / 8, roundStartTime);
-                        roundStartTime = System.currentTimeMillis();
-                        startLinearPhase(ctx, now_average_rate, now_average_rate - now_amplitude, now_period / 8, roundStartTime);
-                        roundStartTime = System.currentTimeMillis();
-                        startSteadyPhase(ctx, now_average_rate - now_amplitude, now_period / 8, roundStartTime);
-                        roundStartTime = System.currentTimeMillis();
-                        startLinearPhase(ctx, now_average_rate - now_amplitude, now_average_rate, now_period / 8, roundStartTime);
-                        roundStartTime = System.currentTimeMillis();
-                        startSteadyPhase(ctx, now_average_rate, now_period / 16, roundStartTime);
+                        startSteadyPhase(ctx, now_average_rate, 30000, roundStartTime);
                     } else if (pattern_this_round == 2) {
                         System.out.println("Round " + round + " sine phase start at: " + roundStartTime);
                         System.out.println("phase paras: " + now_average_rate + ", " + now_amplitude + ", " + now_period);
-                        startSinePhase(ctx, now_amplitude, now_average_rate, now_period, roundStartTime);
+                        startSemiSinePhase(ctx, now_amplitude, now_average_rate, now_period, roundStartTime);
+                        roundStartTime = System.currentTimeMillis();
+                        startSteadyPhase(ctx, now_average_rate, 30000, roundStartTime);
                     } else if (pattern_this_round == 3) {
                         System.out.println("Round " + round + " quarter sine phase start at: " + roundStartTime);
                         System.out.println("phase paras: " + now_average_rate + ", " + now_amplitude + ", " + now_period);
-                        startSteadyPhase(ctx, now_average_rate, now_period / 16, roundStartTime);
+                        startQuarterSinePhase(ctx, now_average_rate, now_average_rate + now_amplitude, now_period / 3, roundStartTime);
                         roundStartTime = System.currentTimeMillis();
-                        startQuarterSinePhase(ctx, now_average_rate, now_average_rate + now_amplitude, now_period / 8, roundStartTime);
+                        startSteadyPhase(ctx, now_average_rate + now_amplitude, now_period / 3, roundStartTime);
                         roundStartTime = System.currentTimeMillis();
-                        startSteadyPhase(ctx, now_average_rate + now_amplitude, now_period / 8, roundStartTime);
+                        startQuarterSinePhase(ctx, now_average_rate + now_amplitude, now_average_rate, now_period / 3, roundStartTime);
                         roundStartTime = System.currentTimeMillis();
-                        startQuarterSinePhase(ctx, now_average_rate + now_amplitude, now_average_rate, now_period / 8, roundStartTime);
-                        roundStartTime = System.currentTimeMillis();
-                        startSteadyPhase(ctx, now_average_rate, now_period / 8, roundStartTime);
-                        roundStartTime = System.currentTimeMillis();
-                        startQuarterSinePhase(ctx, now_average_rate, now_average_rate - now_amplitude, now_period / 8, roundStartTime);
-                        roundStartTime = System.currentTimeMillis();
-                        startSteadyPhase(ctx, now_average_rate - now_amplitude, now_period / 8, roundStartTime);
-                        roundStartTime = System.currentTimeMillis();
-                        startQuarterSinePhase(ctx, now_average_rate - now_amplitude, now_average_rate, now_period / 8, roundStartTime);
-                        roundStartTime = System.currentTimeMillis();
-                        startSteadyPhase(ctx, now_average_rate, now_period / 16, roundStartTime);
+                        startSteadyPhase(ctx, now_average_rate, 30000, roundStartTime);
                     }
                     if (!isRunning) {
                         return;

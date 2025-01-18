@@ -222,47 +222,42 @@ run_scale_test(){
     warmupTime=60
     RATE_I=5000
     TIME_I=0
-    PHASE_TIMES="600-600-600" #"200-240-300"
+    PHASE_TIMES="200-200-200"
     PHASE_RATES="5000-5000-5000"
-    PHASE_AMPLITUDES="2500-2000-1500"
-    PHASE_PERIODS="120-150-200"
-    PHASE_TYPES="sine-sine-qsine"
+    PHASE_AMPLITUDES="7500-6000-4000"
+    PHASE_PERIODS="30-45-60" # Total period for each (30 + x)
+    PHASE_TYPES="sine-sine-sine"
     is_treat=false
     autotune=false
     how_type="ds2"
     autotune_interval=300 #120
 
-    for PHASE_AMPLITUDES in "2500-2000-1500" "3000-2500-1500" "3500-2500-1500"; do
-      for PHASE_PERIODS in "60-100-150" "75-120-150" "100-150-200"; do
-
   #    run_one_exp
   #    printf "${EXP_NAME}\n" >> part4_result.txt
-      autotuner_initial_value_option=3
-      autotuner_adjustment_option=10 # no adjustment
-      autotuner_increase_bar_option=10
+    autotuner_initial_value_option=3
+    autotuner_adjustment_option=10 # no adjustment
+    autotuner_increase_bar_option=10
 
-        for autotuner_initial_value_alpha in 1000; do #250 500 1000 1500 2000 2500 3000
-          is_treat=true
-          autotune=true
-          how_type="streamsluice"
-          run_one_exp
-          printf "${EXP_NAME}\n" >> part4_result.txt
-        done
+    for autotuner_initial_value_alpha in 1000; do #250 500 1000 1500 2000 2500 3000
+      is_treat=true
+      autotune=true
+      how_type="streamsluice"
+      # run_one_exp
+      # printf "${EXP_NAME}\n" >> part4_result.txt
+    done
 
-        autotuner_initial_value_option=5
-        autotuner_increase_bar_option=8
-        autotuner_initial_value_alpha=1.2
-        autotuner_adjustment_option=1
-        for autotuner_increase_bar_alpha in 0.5; do # 0.75
-          for repeat in 1; do #  1 2 3 4 5
-            L=3000
-            is_treat=true
-            autotune=true
-            how_type="streamsluice"
-            run_one_exp
-            printf "${EXP_NAME}\n" >> part4_result.txt
-          done
-        done
+    autotuner_initial_value_option=5
+    autotuner_increase_bar_option=8
+    autotuner_initial_value_alpha=1.2
+    autotuner_adjustment_option=1
+    for autotuner_increase_bar_alpha in 0.5; do # 0.75
+      for repeat in 1; do #  1 2 3 4 5
+        L=3000
+        is_treat=true
+        autotune=true
+        how_type="streamsluice"
+        run_one_exp
+        printf "${EXP_NAME}\n" >> part4_result.txt
       done
     done
 }
