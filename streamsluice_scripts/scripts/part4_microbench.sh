@@ -224,14 +224,14 @@ run_scale_test(){
     TIME_I=0
     PHASE_TIMES="600-600-600"
     PHASE_RATES="5000-5000-5000"
-    PHASE_AMPLITUDES="3000-8000-3000"#"7250-8000-3000" #"8000-2500-7000"
+    PHASE_AMPLITUDES="3000-8000-3000" # "7250-8000-3000" #"8000-2500-7000"
     PHASE_PERIODS="30-30-60" # Total period for each (60 + x)
     PHASE_TYPES="sine-sine-sine"
 
     is_treat=false
     autotune=false
     how_type="ds2"
-    autotune_interval=90 #120
+    autotune_interval=120 #120
 
   #    run_one_exp
   #    printf "${EXP_NAME}\n" >> part4_result.txt
