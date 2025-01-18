@@ -192,7 +192,7 @@ run_scale_test(){
     printf "MicroBench Intrinsic Bound Tuning Verification\n" >> part4_result.txt
     autotuner_initial_value_alpha=1.2
     L=2000
-    runtime=1880 #1880
+    runtime=380 #1880
     setting="microbench"
     SOURCE_TYPE="part4"
     DELAY2=20
@@ -227,6 +227,13 @@ run_scale_test(){
     PHASE_AMPLITUDES="7500-6000-4000"
     PHASE_PERIODS="30-45-60" # Total period for each (30 + x)
     PHASE_TYPES="sine-sine-sine"
+
+    PHASE_TIMES="300"
+    PHASE_RATES="5000"
+    PHASE_AMPLITUDES="8000"
+    PHASE_PERIODS="30"
+    PHASE_TYPES="sine"
+
     is_treat=false
     autotune=false
     how_type="ds2"
@@ -250,14 +257,16 @@ run_scale_test(){
     autotuner_increase_bar_option=8
     autotuner_initial_value_alpha=1.2
     autotuner_adjustment_option=1
-    for autotuner_increase_bar_alpha in 0.5; do # 0.75
-      for repeat in 1; do #  1 2 3 4 5
-        L=3000
-        is_treat=true
-        autotune=true
-        how_type="streamsluice"
-        run_one_exp
-        printf "${EXP_NAME}\n" >> part4_result.txt
+    for PHASE_AMPLITUDES in "8000" "7000" "6000"; do
+      for autotuner_increase_bar_alpha in 0.5; do # 0.75
+        for repeat in 1; do #  1 2 3 4 5
+          L=3000
+          is_treat=true
+          autotune=true
+          how_type="streamsluice"
+          run_one_exp
+          printf "${EXP_NAME}\n" >> part4_result.txt
+        done
       done
     done
 }

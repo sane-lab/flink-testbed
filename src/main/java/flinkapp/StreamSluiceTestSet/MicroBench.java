@@ -2519,7 +2519,7 @@ public class MicroBench {
                         System.out.println("phase paras: " + now_average_rate + ", " + now_amplitude + ", " + now_period);
                         startSteadyPhase(ctx, now_average_rate + now_amplitude, now_period, roundStartTime);
                         roundStartTime = System.currentTimeMillis();
-                        startSteadyPhase(ctx, now_average_rate, 30000, roundStartTime);
+                        startSteadyPhase(ctx, now_average_rate, 60000, roundStartTime);
                     } else if (pattern_this_round == 1) {
                         System.out.println("Round " + round + " linear phase start at: " + roundStartTime);
                         System.out.println("phase paras: " + now_average_rate + ", " + now_amplitude + ", " + now_period);
@@ -2529,13 +2529,13 @@ public class MicroBench {
                         roundStartTime = System.currentTimeMillis();
                         startLinearPhase(ctx, now_average_rate + now_amplitude, now_average_rate, now_period / 3, roundStartTime);
                         roundStartTime = System.currentTimeMillis();
-                        startSteadyPhase(ctx, now_average_rate, 30000, roundStartTime);
+                        startSteadyPhase(ctx, now_average_rate, 60000, roundStartTime);
                     } else if (pattern_this_round == 2) {
                         System.out.println("Round " + round + " sine phase start at: " + roundStartTime);
                         System.out.println("phase paras: " + now_average_rate + ", " + now_amplitude + ", " + now_period);
                         startSemiSinePhase(ctx, now_amplitude, now_average_rate, now_period, roundStartTime);
                         roundStartTime = System.currentTimeMillis();
-                        startSteadyPhase(ctx, now_average_rate, 30000, roundStartTime);
+                        startSteadyPhase(ctx, now_average_rate, 60000, roundStartTime);
                     } else if (pattern_this_round == 3) {
                         System.out.println("Round " + round + " quarter sine phase start at: " + roundStartTime);
                         System.out.println("phase paras: " + now_average_rate + ", " + now_amplitude + ", " + now_period);
@@ -2545,7 +2545,7 @@ public class MicroBench {
                         roundStartTime = System.currentTimeMillis();
                         startQuarterSinePhase(ctx, now_average_rate + now_amplitude, now_average_rate, now_period / 3, roundStartTime);
                         roundStartTime = System.currentTimeMillis();
-                        startSteadyPhase(ctx, now_average_rate, 30000, roundStartTime);
+                        startSteadyPhase(ctx, now_average_rate, 60000, roundStartTime);
                     }
                     if (!isRunning) {
                         return;
