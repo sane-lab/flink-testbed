@@ -192,7 +192,7 @@ run_scale_test(){
     printf "MicroBench Intrinsic Bound Tuning Verification\n" >> part4_result.txt
     autotuner_initial_value_alpha=1.2
     L=2000
-    runtime=1880 #1880
+    runtime=1890 #1880
     setting="microbench"
     SOURCE_TYPE="part4"
     DELAY2=20
@@ -231,17 +231,17 @@ run_scale_test(){
     is_treat=false
     autotune=false
     how_type="ds2"
-    autotune_interval=120 #120
+    autotune_interval=90 #120
 
-  #    run_one_exp
-  #    printf "${EXP_NAME}\n" >> part4_result.txt
+    run_one_exp
+    printf "${EXP_NAME}\n" >> part4_result.txt
 
     autotuner_initial_value_option=5
     autotuner_increase_bar_option=8
     autotuner_initial_value_alpha=1.2
     autotuner_adjustment_option=1
-    for autotuner_increase_bar_alpha in 0.5; do # 0.75
-      for repeat in 1; do #  1 2 3 4 5
+    for autotuner_increase_bar_alpha in 0.0 0.5; do # 0.75
+      for repeat in 2; do #  1 2 3 4 5
         L=3000
         is_treat=true
         autotune=true
@@ -255,12 +255,12 @@ run_scale_test(){
     autotuner_adjustment_option=10 # no adjustment
     autotuner_increase_bar_option=10
 
-    for autotuner_initial_value_alpha in 1000 1500; do #250 500 1000 1500 2000 2500 3000
+    for autotuner_initial_value_alpha in 500 1000 1500 2000 2500 3000; do #250 500 1000 1500 2000 2500 3000
       is_treat=true
       autotune=true
       how_type="streamsluice"
-      # run_one_exp
-      # printf "${EXP_NAME}\n" >> part4_result.txt
+      run_one_exp
+      printf "${EXP_NAME}\n" >> part4_result.txt
     done
 }
 
