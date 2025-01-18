@@ -909,7 +909,8 @@ def main():
 
             #"static":
             "scale": [
-                "part4-microbench-5-1.2-1-8-part4-mixed-1split2join1-1880-600-600-600-5000-5000-5000-8000-2500-7000-30-60-30-sine-sine-sine-1-0-1-20-1-10000-20-2050-1-10000-1-20-1-10000-1-10-10000-0.05-true-0.5-3000-500-100-1-true-1",
+                #"part4-microbench-5-1.2-1-8-part4-mixed-1split2join1-1880-600-600-600-5000-5000-5000-8000-2500-7000-30-60-30-sine-sine-sine-1-0-1-20-1-10000-20-2050-1-10000-1-20-1-10000-1-10-10000-0.05-true-0.5-3000-500-100-1-true-1",
+                "part4-microbench-5-1.2-1-8-part4-mixed-1split2join1-380-600-600-600-5000-5000-5000-7000-8000-2500-30-30-60-sine-sine-sine-1-0-1-20-1-10000-20-2050-1-10000-1-20-1-10000-1-10-10000-0.05-true-0.5-3000-500-100-1-true-1",
             ],
         }
     }
@@ -929,7 +930,7 @@ def main():
         elif exp_name.startswith("part4-micro"):
             latency_bar = int(exp_name.split('-')[-6])
             start_time = 60 #60
-            exp_length = 1800 #1800 #1200 #2400 #1440 #900  # 1800
+            exp_length = 300 #1800
         else:
             latency_bar = int(exp_name.split('-')[-6])
             start_time = 60

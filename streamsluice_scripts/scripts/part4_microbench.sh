@@ -224,8 +224,8 @@ run_scale_test(){
     TIME_I=0
     PHASE_TIMES="600-600-600"
     PHASE_RATES="5000-5000-5000"
-    PHASE_AMPLITUDES="7000-8000-2500" #"8000-2500-7000"
-    PHASE_PERIODS="30-30-60" # Total period for each (30 + x)
+    PHASE_AMPLITUDES="7000-8000-4000" #"8000-2500-7000"
+    PHASE_PERIODS="30-30-60" # Total period for each (60 + x)
     PHASE_TYPES="sine-sine-sine"
 
     is_treat=false
