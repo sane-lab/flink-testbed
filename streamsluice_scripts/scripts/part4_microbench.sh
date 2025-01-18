@@ -192,7 +192,7 @@ run_scale_test(){
     printf "MicroBench Intrinsic Bound Tuning Verification\n" >> part4_result.txt
     autotuner_initial_value_alpha=1.2
     L=2000
-    runtime=380 #1880
+    runtime=1880 #380 #1880
     setting="microbench"
     SOURCE_TYPE="part4"
     DELAY2=20
