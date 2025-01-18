@@ -241,7 +241,7 @@ run_scale_test(){
     autotuner_initial_value_alpha=1.2
     autotuner_adjustment_option=1
     for autotuner_increase_bar_alpha in 0.0 0.5; do # 0.75
-      for repeat in 2; do #  1 2 3 4 5
+      for repeat in 1 2 3; do #  1 2 3 4 5
         L=3000
         is_treat=true
         autotune=true
@@ -256,11 +256,13 @@ run_scale_test(){
     autotuner_increase_bar_option=10
 
     for autotuner_initial_value_alpha in 500 1000 1500 2000 2500 3000; do #250 500 1000 1500 2000 2500 3000
-      is_treat=true
-      autotune=true
-      how_type="streamsluice"
-      run_one_exp
-      printf "${EXP_NAME}\n" >> part4_result.txt
+      for repeat in 1 2 3;
+        is_treat=true
+        autotune=true
+        how_type="streamsluice"
+        run_one_exp
+        printf "${EXP_NAME}\n" >> part4_result.txt
+      done
     done
 }
 
