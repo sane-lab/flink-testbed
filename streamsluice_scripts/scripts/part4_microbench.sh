@@ -230,7 +230,7 @@ run_scale_test(){
     is_treat=false
     autotune=false
     how_type="ds2"
-    autotune_interval=300 #120
+    autotune_interval=120 #120
 
   #    run_one_exp
   #    printf "${EXP_NAME}\n" >> part4_result.txt
