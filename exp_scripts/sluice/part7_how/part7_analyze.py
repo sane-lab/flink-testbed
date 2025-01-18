@@ -710,7 +710,7 @@ def draw(rawDir, outputDir, exps, windowSize, ax, workload_name, xlabel_flag, yl
 
     #plt.xlabel('Time (min)')
     if ylabel_flag:
-        ax.set_ylabel('Latency (ms)')
+        ax.set_ylabel('Latency\n(ms)')
     if xlabel_flag:
         ax.set_xlabel('Time (s)')
     ax.set_xlim((startTime) * 1000, (startTime + expLength) * 1000)
@@ -743,7 +743,7 @@ def draw_scaling_info(scaling_change_info, outputDir, label):
     def draw_task_metrics_barchart(task_data:dict[str:float], label, metrics_name, color, file_name):
         import matplotlib.pyplot as plt
         # Create the figure and two bar charts
-        fig_task, ax_task = plt.subplots(1, 1, figsize=(10, 4))
+        fig_task, ax_task = plt.subplots(1, 1, figsize=(8, 3))
 
         # Sort tasks by arrival rate (optional for ranking)
         sorted_tasks = sorted(task_data.items(), key=lambda x: x[1], reverse=True)
@@ -757,22 +757,24 @@ def draw_scaling_info(scaling_change_info, outputDir, label):
         ax_task.bar(indices, arrival_rates, color=color, alpha=0.7)
         #ax_task.set_title(metrics_name + " under " + label, fontsize=14)
         ax_task.set_xlabel("Task Index", fontsize=30)
-        ax_task.set_ylabel(metrics_name, fontsize=30)
+
         #ax_task.set_xticks(indices)
         ax_task.set_xlim(-2, 23)
         ax_task.set_xticks(np.arange(0, 25, 5))
 
         if metrics_name == "Backlog":
+            ax_task.set_ylabel(metrics_name, fontsize=30)
             ax_task.set_ylim(0, 700)
             ax_task.set_yticks(np.arange(0, 700, 200))
         else:
+            ax_task.set_ylabel("Arrival Rate\n(tps)", fontsize=30)
             ax_task.plot([-100, 100], [task_arrival_capacity, task_arrival_capacity], '--', color="red", label="Capacity")
-            ax_task.set_ylim(0, 1200)
-            ax_task.set_yticks(np.arange(0, 1200, 300))
+            ax_task.set_ylim(0, 1500)
+            ax_task.set_yticks(np.arange(0, 2000, 500))
         #ax1.set_xticklabels([f"Rank {i + 1}" for i in indices], rotation=45)
         if metrics_name == "Arrival Rate (tps)" and color == "orange":
             handles, labels = ax_task.get_legend_handles_labels()
-            fig_task.legend(handles, labels, loc='upper right', bbox_to_anchor=(0.9, 0.75), ncol=1, markerscale=5)
+            fig_task.legend(handles, labels, loc='upper right', bbox_to_anchor=(0.9, 0.94), ncol=1, markerscale=5)
 
         # Adjust layout and show plot
         if output_pdf_flag:
@@ -834,7 +836,7 @@ def draw_resource(rawDir, outputDir, exps, ax1, ax2, workload, xlabel_flag, ylab
     #ax2 = ax1.twinx()
     if ylabel_flag:
         ax1.set_ylabel("# of Slots")
-        ax2.set_ylabel("Arrival Rate (tps)")
+        ax2.set_ylabel("Arrival Rate\n(tps)")
 
     job = jobList[0]
     ax = sorted(totalArrivalRatesPerJob[job][0].keys())
@@ -850,8 +852,8 @@ def draw_resource(rawDir, outputDir, exps, ax1, ax2, workload, xlabel_flag, ylab
         ax2.set_ylim(3500, 7500)
         ax2.set_yticks(np.arange(3500, 8500, 1000))
     else:
-        ax2.set_ylim(3500, 8500)
-        ax2.set_yticks(np.arange(3500, 9000, 1250))
+        ax2.set_ylim(3500, 10500)
+        ax2.set_yticks(np.arange(4000, 12000, 2000))
 
     ax2.set_xlim(startTime * 1000, (startTime + exp_length) * 1000)
     ax2.set_xticks(np.arange(startTime * 1000, (startTime + exp_length) * 1000 + 5000, 5000))
@@ -933,8 +935,8 @@ def draw_resource(rawDir, outputDir, exps, ax1, ax2, workload, xlabel_flag, ylab
         ax1.set_ylim(5, 25)
         ax1.set_yticks(np.arange(5, 25, 5))
     else:
-        ax1.set_ylim(15, 35)
-        ax1.set_yticks(np.arange(15, 35, 5))
+        ax1.set_ylim(20, 30)
+        ax1.set_yticks(np.arange(20, 35, 5))
 
     ax1.set_xlim(startTime * 1000, (startTime + exp_length) * 1000)
     ax1.set_xticks(np.arange(startTime * 1000, (startTime + exp_length) * 1000 + 5000, 5000))
@@ -1054,7 +1056,7 @@ task_arrival_capacity = 1000
 output_pdf_flag = True
 
 for name, exps_per_setting in exps_per_settings.items():
-    fig, axs = plt.subplots(3, 1, figsize=(8, 7), layout='constrained', gridspec_kw={'height_ratios': [1, 1, 1.5], 'width_ratios': [1]})
+    fig, axs = plt.subplots(3, 1, figsize=(8, 6), layout='constrained', gridspec_kw={'height_ratios': [1, 1, 1], 'width_ratios': [1]})
 
     index = 0
     for workload, exps in exps_per_setting.items():
@@ -1072,7 +1074,7 @@ for name, exps_per_setting in exps_per_settings.items():
         index += 1
 
     handles, labels = axs[2].get_legend_handles_labels()
-    fig.legend(handles, labels, loc='upper center', bbox_to_anchor=(0.51, 1.12), ncol=7, markerscale=5)
+    fig.legend(handles, labels, loc='upper center', bbox_to_anchor=(0.6, 1.14), ncol=2, markerscale=5)
 
     if output_pdf_flag:
         fig.savefig(outputDir + "one_in_all_part7_" + name + ".pdf", bbox_inches='tight')
