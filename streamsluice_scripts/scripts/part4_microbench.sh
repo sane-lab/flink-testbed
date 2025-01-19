@@ -241,7 +241,7 @@ run_scale_test(){
     autotuner_initial_value_alpha=1.2
     autotuner_adjustment_option=1
     for autotuner_increase_bar_alpha in 0.0; do # 0.5
-      for repeat in 1; do #  1 2 3 4 5
+      for repeat in 2 3; do #  1 2 3 4 5
         L=3000
         is_treat=true
         autotune=true
