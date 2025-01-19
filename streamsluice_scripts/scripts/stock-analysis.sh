@@ -101,7 +101,7 @@ init() {
   DELAY5=500
   DELAY7=5000 #3333
 
-  PAYLOAD=5000
+  PAYLOAD=2500 #5000
 }
 
 # run applications
