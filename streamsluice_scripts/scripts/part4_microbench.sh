@@ -192,7 +192,7 @@ run_scale_test(){
     printf "MicroBench Intrinsic Bound Tuning Verification\n" >> part4_result.txt
     autotuner_initial_value_alpha=1.2
     L=2000
-    runtime=1890 #1880
+    runtime=720 #1890 #1880
     setting="microbench"
     SOURCE_TYPE="part4"
     DELAY2=20
@@ -258,8 +258,8 @@ run_scale_test(){
     autotuner_adjustment_option=10 # no adjustment
     autotuner_increase_bar_option=10
 
-    for autotuner_initial_value_alpha in 3000; do #250 500 1000 1500 2000 2500 3000
-      for repeat in 1 2 3; do
+    for autotuner_initial_value_alpha in 2500 3000; do #250 500 1000 1500 2000 2500 3000
+      for repeat in 4 5 6; do # 1 2 3
         is_treat=true
         autotune=true
         how_type="streamsluice"
