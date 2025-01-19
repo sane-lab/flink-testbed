@@ -233,21 +233,24 @@ run_scale_test(){
     how_type="ds2"
     autotune_interval=120 #90
 
-#    run_one_exp
-#    printf "${EXP_NAME}\n" >> part4_result.txt
+    P3=22
+    run_one_exp
+    printf "${EXP_NAME}\n" >> part4_result.txt
+
+    P3=20
 
     autotuner_initial_value_option=5
     autotuner_increase_bar_option=8
     autotuner_initial_value_alpha=1.2
     autotuner_adjustment_option=1
     for autotuner_increase_bar_alpha in 0.0; do # 0.5
-      for repeat in 2 3; do #  1 2 3 4 5
+      for repeat in 1; do #  1 2 3 4 5
         L=3000
         is_treat=true
         autotune=true
         how_type="streamsluice"
-        run_one_exp
-        printf "${EXP_NAME}\n" >> part4_result.txt
+#        run_one_exp
+#        printf "${EXP_NAME}\n" >> part4_result.txt
       done
     done
 
