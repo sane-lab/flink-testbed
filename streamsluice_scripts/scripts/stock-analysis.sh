@@ -101,7 +101,7 @@ init() {
   DELAY5=500
   DELAY7=5000 #3333
 
-  PAYLOAD=2500 #5000
+  PAYLOAD=1250 #2500 #5000
 }
 
 # run applications
@@ -144,7 +144,7 @@ run_stock_test(){
     autotune_interval=60
     autotuner="UserLimitTuner"
     autotuner_latency_window=100
-    autotuner_bar_lowerbound=550 #300
+    autotuner_bar_lowerbound=700 #550 #300
     autotuner_initial_value_option=4 # 1
     autotuner_adjustment_option=1
     autotuner_increase_bar_option=1 # 2
@@ -187,11 +187,11 @@ run_stock_test(){
 
     P1=1
     P2=1
-    P3=4
+    P3=6
     P4=1
     P5=1
     P6=1
-    P7=7
+    P7=10
     is_treat=false
     whether_type="ds2"
     how_type="ds2"
@@ -212,8 +212,8 @@ run_stock_test(){
     how_type="ds2"
     scalein_type="ds2"
     migration_interval=2500
-    run_one_exp
-    printf "${EXP_NAME}\n" >> stock_result.txt
+#    run_one_exp
+#    printf "${EXP_NAME}\n" >> stock_result.txt
 
     is_treat=true
     whether_type="ds2"
@@ -227,8 +227,10 @@ run_stock_test(){
     how_type="streamswitch"
     scalein_type="streamswitch"
     migration_interval=1000
-    run_one_exp
-    printf "${EXP_NAME}\n" >> stock_result.txt
+    for repeat in 1 2 3; do
+      run_one_exp
+      printf "${EXP_NAME}\n" >> stock_result.txt
+    done
 
 #    # Part 3 System sensitivity
 #    autotune=true

@@ -100,6 +100,24 @@ Phase Parallelism:
 Converged Parallelism:
 {'scale': [[28.0110875, 27.809379166666666, 19.780790625]]}
 
+!Before!
+Average parallelism # of Slots : 25.460168333333332
+Success rate:
+{'scale': [0.9836291573324143]}
+Phase Success rate:
+{'scale': [[0.9949731903485255, 0.957135653050933, 1.0]]}
+Converged Success rate:
+[0.9884884884884885, 0.9343434343434344, 1.0]
+Average Latency:
+{'scale': [549.9029237750589]}
+Parallelism:
+{'scale': [25.460168333333332]}
+Phase Parallelism:
+{'scale': [[27.992213333333332, 27.934796666666667, 20.453495]]}
+Converged Parallelism:
+{'scale': [[27.954465, 28.018408333333333, 21.2223]]}
+
+
 
 "part4-microbench-5-1.2-1-8-part4-mixed-1split2join1-1890-600-600-600-5000-5000-5000-7250-8000-3000-30-30-60-sine-sine-sine-1-0-1-20-1-10000-20-2050-1-10000-1-20-1-10000-1-10-10000-0.05-true-0.0-3000-500-100-1-true-2"
 Success rate:
