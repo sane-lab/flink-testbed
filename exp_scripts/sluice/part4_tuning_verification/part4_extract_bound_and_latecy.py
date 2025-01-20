@@ -903,11 +903,17 @@ def draw_parallelism_curve(axes_all, rawDir, outputDir, exp_name, windowSize, st
 output_pdf_flag=True
 overall_output_dir = "/Users/swrrt/Workplace/BacklogDelayPaper/experiments/figures/part4/"
 
+# phase_intervals = [
+#     [60, 660],
+#     [660, 1260],
+#     [1260, 1860],
+# ]
 phase_intervals = [
-    [60, 660],
-    [660, 1260],
-    [1260, 1860],
+    [60, 1260],
+    [1260, 2460],
+    [2460, 3660],
 ]
+
 #0.5
 converged_intervals = [
     [260, 660],
@@ -960,6 +966,7 @@ def main():
                 # # "part4-microbench-3-2000-10-10-part4-mixed-1split2join1-1890-600-600-600-5000-5000-5000-7250-8000-3000-30-30-60-sine-sine-sine-1-0-1-20-1-10000-20-2050-1-10000-1-20-1-10000-1-10-10000-0.05-true-0.5-3000-500-100-1-true-3",
                 # "part4-microbench-3-2500-10-10-part4-mixed-1split2join1-1890-600-600-600-5000-5000-5000-7250-8000-3000-30-30-60-sine-sine-sine-1-0-1-20-1-10000-20-2050-1-10000-1-20-1-10000-1-10-10000-0.05-true-0.5-3000-500-100-1-true-1",
                 # "part4-microbench-3-3000-10-10-part4-mixed-1split2join1-1890-600-600-600-5000-5000-5000-7250-8000-3000-30-30-60-sine-sine-sine-1-0-1-20-1-10000-20-2050-1-10000-1-20-1-10000-1-10-10000-0.05-true-0.0-3000-500-100-1-true-3",
+                "part4-microbench-5-1.2-1-8-part4-mixed-1split2join1-3690-1200-1200-1200-2500-2500-2500-5000-5000-3000-40-30-60-sine-sine-sine-1-0-1-20-1-10000-20-2050-1-10000-1-20-1-10000-1-10-10000-0.05-true-0.5-3000-500-100-1-true-1",
             ],
         }
     }
@@ -980,7 +987,7 @@ def main():
         elif exp_name.startswith("part4-micro"):
             latency_bar = int(exp_name.split('-')[-6])
             start_time = 60 #60
-            exp_length = 1800 #1800
+            exp_length = 3600 #1800 #1800
         else:
             latency_bar = int(exp_name.split('-')[-6])
             start_time = 60

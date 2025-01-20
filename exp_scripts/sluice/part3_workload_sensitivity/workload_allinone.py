@@ -221,7 +221,7 @@ def plot_all_in_one(axs, legend_info, title, success_rates:dict[str:object], lat
     ax1.tick_params(axis='x', bottom=False)
     ax1.set_xticklabels([])
     if y1label_flag:
-        ax1.set_ylabel("Success Rate (%)", fontsize=30)
+        ax1.set_ylabel("Success\nRate (%)", fontsize=30)
         ax1.tick_params(axis='y')
     # else:
     #     ax1.tick_params(axis='y', left=False)
@@ -278,7 +278,7 @@ def plot_all_in_one(axs, legend_info, title, success_rates:dict[str:object], lat
         ax2.set_xticks(box_positions)
         ax2.set_xticklabels(x_labels)
         # Set labels and legends
-        ax2.set_ylabel("Latency (ms)", fontsize=18)
+        ax2.set_ylabel("Latency\n(ms)", fontsize=18)
         ax3.set_ylabel("# of Slots", fontsize=18)
     else:
         latency_mean = [v[0] for k, v in latency.items()]
@@ -312,7 +312,7 @@ def plot_all_in_one(axs, legend_info, title, success_rates:dict[str:object], lat
                      fontsize=25, rotation=90)
 
         if y1label_flag:
-            ax2.set_ylabel("Latency (ms)", fontsize=30)
+            ax2.set_ylabel("Latency\n(ms)", fontsize=30)
         #else:
         #    ax2.set_yticklabels([])
 
@@ -373,8 +373,10 @@ def main():
         overall_output_dir = "/Users/swrrt/Workplace/BacklogDelayPaper/experiments/figures/part3/" + name + "/"
 
         #fig_all, axs_all = plt.subplots(2, 4, figsize=(28, 10), layout='constrained', gridspec_kw={'height_ratios': [1, 2], 'width_ratios': [1, 1, 1, 1]})
-        fig_all, axs_all = plt.subplots(2, 4, figsize=(28, 7.5), layout='constrained',
-                                        gridspec_kw={'height_ratios': [3, 5], 'width_ratios': [1, 1, 1, 1]})
+        # fig_all, axs_all = plt.subplots(2, 4, figsize=(28, 7.5), layout='constrained',
+        #                                 gridspec_kw={'height_ratios': [3, 5], 'width_ratios': [1, 1, 1, 1]})
+        fig_all, axs_all = plt.subplots(2, 4, figsize=(28, 6.5), layout='constrained',
+                                        gridspec_kw={'height_ratios': [1.5, 4.5], 'width_ratios': [1, 1, 1, 1]})
         legend_info = [[], []]
         index = 0
 
@@ -415,7 +417,7 @@ def main():
                 index += 1
                 if index == 4:
                     fig_all.legend(legend_info[0], legend_info[1], fontsize=30, loc='upper center',
-                                   bbox_to_anchor=(0.51, 1.13), ncol=7, markerscale=1)
+                                   bbox_to_anchor=(0.51, 1.15), ncol=7, markerscale=1)
 
                     if not os.path.exists(overall_output_dir):
                         os.makedirs(overall_output_dir)
@@ -429,8 +431,11 @@ def main():
                     plt.close(fig_all)
                     #fig_all, axs_all = plt.subplots(2, 3, figsize=(21, 10), layout='constrained',
                     #                                gridspec_kw={'height_ratios': [1, 2], 'width_ratios': [1, 1, 1]})
-                    fig_all, axs_all = plt.subplots(2, 3, figsize=(21, 7.5), layout='constrained',
-                                                    gridspec_kw={'height_ratios': [3, 5], 'width_ratios': [1, 1, 1]})
+                    # fig_all, axs_all = plt.subplots(2, 3, figsize=(21, 7.5), layout='constrained',
+                    #                                 gridspec_kw={'height_ratios': [3, 5], 'width_ratios': [1, 1, 1]})
+                    fig_all, axs_all = plt.subplots(2, 3, figsize=(21, 6.5), layout='constrained',
+                                                    gridspec_kw={'height_ratios': [1.5, 4.5],
+                                                                 'width_ratios': [1, 1, 1]})
 
             elif len(splits) > 1:
                 label = splits[3]

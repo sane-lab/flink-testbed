@@ -658,7 +658,8 @@ def draw(rawDir, outputDir, exps, windowSize, ax, workload_name, xlabel_flag, yl
     ax.grid(True)
 
     if not shrink_flag:
-        ax.set_title(workload_name, y=-0.7, fontsize=35)
+        #ax.set_title(workload_name, y=-0.7, fontsize=35)
+        ax.set_title(workload_name, y=-0.85, fontsize=35)
 
 
     # fig, ax = plt.subplots(figsize=(5, 5))
@@ -1029,20 +1030,20 @@ exps_per_setting = {
     # #      "part6and7-microbench-streamsluice-streamsluice-800-part6-gradient-1split2join1-120-4000-4000-960-linear-2000-1-1440-stair_3-80-1-1440-stair_3-1-0-3-444-1-5000-3-444-1-5000-3-444-1-5000-5-500-5000-0.00-0.1-2000-3000-100-10-true-1",
     # #      "blue", "o-"],
     # # ],
-    # "(b) Fluctuation": [
-    #     ["Static",
-    #      "part6and7-microbench-streamsluice_later-ds2-800-part6-linear-1split2join1-100-4000-4000-960-linear-1000-1-1440-stair_3-40-1-1440-stair_3-1-0-3-444-1-5000-3-444-1-5000-3-444-1-5000-5-500-5000-0.00-0.1-2000-3000-100-10-false-3",
-    #      "black", "x--"],
-    #     ["Earlier",
-    #      "part6and7-microbench-streamsluice_earlier-streamsluice-800-part6-linear-1split2join1-100-4000-4000-960-linear-1000-1-1440-stair_3-40-1-1440-stair_3-1-0-3-444-1-5000-3-444-1-5000-3-444-1-5000-5-500-5000-0.00-0.1-2000-3000-100-10-true-1",
-    #      "green", "^-"],
-    #     ["Later",
-    #      "part6and7-microbench-streamsluice_later-streamsluice-800-part6-linear-1split2join1-120-4000-4000-960-linear-1000-1-1440-stair_3-40-1-1440-stair_3-1-0-3-444-1-5000-3-444-1-5000-3-444-1-5000-5-500-5000-0.00-0.1-2000-3000-100-10-true-2",
-    #      "orange", "s-"],
-    #     ["Sluice",
-    #      "part6and7-microbench-streamsluice-streamsluice-800-part6-linear-1split2join1-100-4000-4000-960-linear-1000-1-1440-stair_3-40-1-1440-stair_3-1-0-3-444-1-5000-3-444-1-5000-3-444-1-5000-5-500-5000-0.00-0.1-2000-3000-100-10-true-1",
-    #      "blue", "o-"],
-    # ],
+    "(b) Fluctuation": [
+        ["Static",
+         "part6and7-microbench-streamsluice_later-ds2-800-part6-linear-1split2join1-100-4000-4000-960-linear-1000-1-1440-stair_3-40-1-1440-stair_3-1-0-3-444-1-5000-3-444-1-5000-3-444-1-5000-5-500-5000-0.00-0.1-2000-3000-100-10-false-3",
+         "black", "x--"],
+        ["Earlier",
+         "part6and7-microbench-streamsluice_earlier-streamsluice-800-part6-linear-1split2join1-100-4000-4000-960-linear-1000-1-1440-stair_3-40-1-1440-stair_3-1-0-3-444-1-5000-3-444-1-5000-3-444-1-5000-5-500-5000-0.00-0.1-2000-3000-100-10-true-1",
+         "green", "^-"],
+        ["Later",
+         "part6and7-microbench-streamsluice_later-streamsluice-800-part6-linear-1split2join1-120-4000-4000-960-linear-1000-1-1440-stair_3-40-1-1440-stair_3-1-0-3-444-1-5000-3-444-1-5000-3-444-1-5000-5-500-5000-0.00-0.1-2000-3000-100-10-true-2",
+         "orange", "s-"],
+        ["Sluice",
+         "part6and7-microbench-streamsluice-streamsluice-800-part6-linear-1split2join1-100-4000-4000-960-linear-1000-1-1440-stair_3-40-1-1440-stair_3-1-0-3-444-1-5000-3-444-1-5000-3-444-1-5000-5-500-5000-0.00-0.1-2000-3000-100-10-true-1",
+         "blue", "o-"],
+    ],
 }
 
 startTime=60 #30+300 #30
@@ -1087,10 +1088,12 @@ avg_latency_calculateTime = expLength # 30
 
 output_pdf_flag = True
 
-shrink_flag = True
+shrink_flag = False #True
 
 if not shrink_flag:
-    fig, axs = plt.subplots(3, 2, figsize=(24, 7), layout='constrained', gridspec_kw={'height_ratios': [1, 1, 1.5], 'width_ratios': [1, 1]})
+    #fig, axs = plt.subplots(3, 2, figsize=(24, 7), layout='constrained', gridspec_kw={'height_ratios': [1, 1, 1.5], 'width_ratios': [1, 1]})
+    fig, axs = plt.subplots(3, 2, figsize=(16, 7), layout='constrained',
+                            gridspec_kw={'height_ratios': [1, 1, 1], 'width_ratios': [1, 1]})
 else:
     fig, axs = plt.subplots(3, 1, figsize=(7, 8), layout='constrained', gridspec_kw={'height_ratios': [1, 1, 1], 'width_ratios': [1]})
 
@@ -1114,8 +1117,10 @@ for workload, exps in exps_per_setting.items():
         expLength = 30
     else:
         if not shrink_flag:
-            startTime = 52
-            expLength = 30
+            # startTime = 52
+            # expLength = 30
+            startTime = 67
+            expLength = 15
         else:
             startTime = 67
             expLength = 15

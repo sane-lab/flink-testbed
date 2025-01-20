@@ -750,7 +750,8 @@ def draw_scaling_info(scaling_change_info, outputDir, label):
 
         if not shrink_flag:
             # Create the figure and two bar charts
-            fig_task, ax_task = plt.subplots(1, 1, figsize=(8, 3))
+            #fig_task, ax_task = plt.subplots(1, 1, figsize=(8, 3))
+            fig_task, ax_task = plt.subplots(1, 1, figsize=(6, 3))
 
 
         # Sort tasks by arrival rate (optional for ranking)
@@ -1084,10 +1085,12 @@ windowSize = 500 #500 #500
 latencyLimit = 0
 spike = 2500 #1500
 #latencyLimit = 2500 #1000
-shrink_flag = True
+shrink_flag = False
 if not shrink_flag:
-    startTime = 55 #55
-    expLength = 30 #30
+    # startTime = 55
+    # expLength = 30
+    startTime = 67
+    expLength = 15
 else:
     startTime = 67  # 55
     expLength = 15  # 30
@@ -1128,7 +1131,7 @@ for name, exps_per_setting in exps_per_settings.items():
         index += 1
 
     handles, labels = axs[2].get_legend_handles_labels()
-    fig.legend(handles, labels, loc='upper center', bbox_to_anchor=(0.6, 1.1), ncol=2, markerscale=5)
+    fig.legend(handles, labels, loc='upper center', bbox_to_anchor=(0.55, 1.1), ncol=2, markerscale=5, fontsize=20)
     if output_pdf_flag:
         fig.savefig(outputDir + "one_in_all_part7_" + name + ".pdf", bbox_inches='tight')
     else:

@@ -224,7 +224,7 @@ def plot_all_in_one(axs, legend_info, title, success_rates:dict[str:object], lat
     ax1.set_xticklabels([])
     ax1.grid(True)
     if y1label_flag:
-        ax1.set_ylabel("Success Rate (%)", fontsize=30)
+        ax1.set_ylabel("Success\nRate (%)", fontsize=30)
         ax1.tick_params(axis='y')
     # else:
     #     ax1.tick_params(axis='y', left=False)
@@ -317,7 +317,7 @@ def plot_all_in_one(axs, legend_info, title, success_rates:dict[str:object], lat
                      fontsize=25, rotation=90)
 
         if y1label_flag:
-            ax2.set_ylabel("Latency (ms)", fontsize=30)
+            ax2.set_ylabel("Latency\n(ms)", fontsize=30)
 
         ax3.set_ylim(10, 45)
         if y2label_flag:
@@ -334,7 +334,7 @@ def plot_all_in_one(axs, legend_info, title, success_rates:dict[str:object], lat
         labels.append('Average Latency')
         handles.append(bar2)
         labels.append('Average Resources')
-        ax2.set_title(title, y=-0.26, fontsize=35)
+        ax2.set_title(title, y=-0.3, fontsize=35)
 
     # fig.legend(handles=handles, labels=labels, bbox_to_anchor=(0.5, 1.08), loc='upper center', ncol=2)
 
@@ -372,8 +372,10 @@ def main():
         overall_output_dir = "/Users/swrrt/Workplace/BacklogDelayPaper/experiments/figures/part2/" + name + "/"
 
         #fig_all, axs_all = plt.subplots(2, 4, figsize=(28, 10), layout='constrained', gridspec_kw={'height_ratios': [1, 2], 'width_ratios': [1, 1, 1, 1]})
-        fig_all, axs_all = plt.subplots(2, 4, figsize=(28, 7), layout='constrained',
-                                        gridspec_kw={'height_ratios': [3, 5], 'width_ratios': [1, 1, 1, 1]})
+        #fig_all, axs_all = plt.subplots(2, 4, figsize=(28, 7), layout='constrained',
+#                                        gridspec_kw={'height_ratios': [3, 5], 'width_ratios': [1, 1, 1, 1]})
+        fig_all, axs_all = plt.subplots(2, 4, figsize=(28, 6), layout='constrained',
+                                        gridspec_kw={'height_ratios': [1.5, 4.5], 'width_ratios': [1, 1, 1, 1]})
         legend_info = [[], []]
         index = 0
 
@@ -439,7 +441,7 @@ def main():
                 parallelism_per_x[x] = [avg_parallelism, min_parallelism, q1_parallelism, med_parallelism, q3_parallelism, max_parallelism]
                 print(label)
 
-        fig_all.legend(legend_info[0], legend_info[1], fontsize=30, loc='upper center', bbox_to_anchor=(0.51, 1.14), ncol=7, markerscale=1)
+        fig_all.legend(legend_info[0], legend_info[1], fontsize=30, loc='upper center', bbox_to_anchor=(0.51, 1.16), ncol=7, markerscale=1)
 
         if not os.path.exists(overall_output_dir):
             os.makedirs(overall_output_dir)
