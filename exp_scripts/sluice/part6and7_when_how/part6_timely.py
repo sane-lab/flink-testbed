@@ -637,7 +637,10 @@ def draw(rawDir, outputDir, exps, windowSize, ax, workload_name, xlabel_flag, yl
 
     #plt.xlabel('Time (min)')
     if ylabel_flag:
-        ax.set_ylabel('Latency\n(ms)')
+        if not shrink_flag:
+            ax.set_ylabel('Latency\n(ms)')
+        else:
+            ax.set_ylabel('Latency (ms)')
     else:
         ax.tick_params(axis='y', left=False)
         ax.set_yticklabels([])
@@ -653,7 +656,11 @@ def draw(rawDir, outputDir, exps, windowSize, ax, workload_name, xlabel_flag, yl
     if trickFlag:
         ax.set_yticklabels([int(x / 1250 * 1000) for x in np.arange(0, 6250, 1250)])
     ax.grid(True)
-    ax.set_title(workload_name, y=-0.7, fontsize=35)
+
+    if not shrink_flag:
+        ax.set_title(workload_name, y=-0.7, fontsize=35)
+
+
     # fig, ax = plt.subplots(figsize=(5, 5))
     # print("Draw intrinsic curve...")
     # for i in range(0, len(exps)):
@@ -827,9 +834,12 @@ def draw_resource(rawDir, outputDir, exps, ax1, ax2, xlabel_flag, ylabel_flag):
     ax = sorted(totalArrivalRatesPerJob[job][0].keys())
     ay = [totalArrivalRatesPerJob[job][0][x] / (windowSize / 100) for x in ax]
     ax2.plot(ax, ay, '-', color='red', markersize=MARKERSIZE / 2, label="Arrival Rate")
-    #ax2.set_ylabel('Rate (tps)')
-    ax2.set_ylim(3500, 7000)
-    ax2.set_yticks(np.arange(4000, 7000, 2000))
+    if not shrink_flag:
+        ax2.set_ylim(3500, 7000)
+        ax2.set_yticks(np.arange(4000, 7000, 2000))
+    else:
+        ax2.set_ylim(3500, 10500)
+        ax2.set_yticks(np.arange(4000, 10000, 2000))
     ax2.set_xlim(startTime * 1000, (startTime + exp_length) * 1000)
     ax2.set_xticks(np.arange(startTime * 1000, (startTime + exp_length) * 1000 + 5000, 5000))
     ax2.set_xticklabels([int((x - startTime * 1000) / 1000) for x in
@@ -915,7 +925,10 @@ def draw_resource(rawDir, outputDir, exps, ax1, ax2, xlabel_flag, ylabel_flag):
 
     if ylabel_flag:
         ax1.set_ylabel("# of Slots")
-        ax2.set_ylabel("Arrival Rate\n(tps)")
+        if not shrink_flag:
+            ax2.set_ylabel("Arrival Rate\n(tps)")
+        else:
+            ax2.set_ylabel("Arrival Rate (tps)")
     else:
         ax1.tick_params(axis='y', left=False)
         ax1.set_yticklabels([])
@@ -1002,34 +1015,34 @@ exps_per_setting = {
     # #      "part6and7-microbench-streamsluice-streamsluice-800-part6-sine-1split2join1-120-4000-4000-960-linear-2000-1-1440-stair_3-80-1-1440-stair_3-1-0-3-444-1-5000-3-444-1-5000-3-444-1-5000-5-500-5000-0.00-0.1-2000-3000-100-10-true-1",
     # #      "blue", "o-"],
     # # ],
-    # "part6_stair_1": [
+    # # "part6_stair_1": [
+    # #     ["Static",
+    # #      "part6and7-microbench-streamsluice_later-ds2-700-part6-gradient-1split2join1-120-4000-4000-960-linear-2000-1-1440-stair_3-80-1-1440-stair_3-1-0-3-444-1-5000-3-444-1-5000-3-444-1-5000-5-500-5000-0.00-0.1-2000-3000-100-10-false-3",
+    # #      "black", "x--"],
+    # #     ["Earlier",
+    # #      "part6and7-microbench-streamsluice_earlier-streamsluice-800-part6-gradient-1split2join1-120-4000-4000-960-linear-2000-1-1440-stair_3-80-1-1440-stair_3-1-0-3-444-1-5000-3-444-1-5000-3-444-1-5000-5-500-5000-0.00-0.1-2000-3000-100-10-true-1",
+    # #      "green", "^-"],
+    # #     ["Later",
+    # #      "part6and7-microbench-streamsluice_later-streamsluice-800-part6-gradient-1split2join1-120-4000-4000-960-linear-2000-1-1440-stair_3-80-1-1440-stair_3-1-0-3-444-1-5000-3-444-1-5000-3-444-1-5000-5-500-5000-0.00-0.1-2000-3000-100-10-true-1",
+    # #      "orange", "s-"],
+    # #     ["Sluice",
+    # #      "part6and7-microbench-streamsluice-streamsluice-800-part6-gradient-1split2join1-120-4000-4000-960-linear-2000-1-1440-stair_3-80-1-1440-stair_3-1-0-3-444-1-5000-3-444-1-5000-3-444-1-5000-5-500-5000-0.00-0.1-2000-3000-100-10-true-1",
+    # #      "blue", "o-"],
+    # # ],
+    # "(b) Fluctuation": [
     #     ["Static",
-    #      "part6and7-microbench-streamsluice_later-ds2-700-part6-gradient-1split2join1-120-4000-4000-960-linear-2000-1-1440-stair_3-80-1-1440-stair_3-1-0-3-444-1-5000-3-444-1-5000-3-444-1-5000-5-500-5000-0.00-0.1-2000-3000-100-10-false-3",
+    #      "part6and7-microbench-streamsluice_later-ds2-800-part6-linear-1split2join1-100-4000-4000-960-linear-1000-1-1440-stair_3-40-1-1440-stair_3-1-0-3-444-1-5000-3-444-1-5000-3-444-1-5000-5-500-5000-0.00-0.1-2000-3000-100-10-false-3",
     #      "black", "x--"],
     #     ["Earlier",
-    #      "part6and7-microbench-streamsluice_earlier-streamsluice-800-part6-gradient-1split2join1-120-4000-4000-960-linear-2000-1-1440-stair_3-80-1-1440-stair_3-1-0-3-444-1-5000-3-444-1-5000-3-444-1-5000-5-500-5000-0.00-0.1-2000-3000-100-10-true-1",
+    #      "part6and7-microbench-streamsluice_earlier-streamsluice-800-part6-linear-1split2join1-100-4000-4000-960-linear-1000-1-1440-stair_3-40-1-1440-stair_3-1-0-3-444-1-5000-3-444-1-5000-3-444-1-5000-5-500-5000-0.00-0.1-2000-3000-100-10-true-1",
     #      "green", "^-"],
     #     ["Later",
-    #      "part6and7-microbench-streamsluice_later-streamsluice-800-part6-gradient-1split2join1-120-4000-4000-960-linear-2000-1-1440-stair_3-80-1-1440-stair_3-1-0-3-444-1-5000-3-444-1-5000-3-444-1-5000-5-500-5000-0.00-0.1-2000-3000-100-10-true-1",
+    #      "part6and7-microbench-streamsluice_later-streamsluice-800-part6-linear-1split2join1-120-4000-4000-960-linear-1000-1-1440-stair_3-40-1-1440-stair_3-1-0-3-444-1-5000-3-444-1-5000-3-444-1-5000-5-500-5000-0.00-0.1-2000-3000-100-10-true-2",
     #      "orange", "s-"],
     #     ["Sluice",
-    #      "part6and7-microbench-streamsluice-streamsluice-800-part6-gradient-1split2join1-120-4000-4000-960-linear-2000-1-1440-stair_3-80-1-1440-stair_3-1-0-3-444-1-5000-3-444-1-5000-3-444-1-5000-5-500-5000-0.00-0.1-2000-3000-100-10-true-1",
+    #      "part6and7-microbench-streamsluice-streamsluice-800-part6-linear-1split2join1-100-4000-4000-960-linear-1000-1-1440-stair_3-40-1-1440-stair_3-1-0-3-444-1-5000-3-444-1-5000-3-444-1-5000-5-500-5000-0.00-0.1-2000-3000-100-10-true-1",
     #      "blue", "o-"],
     # ],
-    "(b) Fluctuation": [
-        ["Static",
-         "part6and7-microbench-streamsluice_later-ds2-800-part6-linear-1split2join1-100-4000-4000-960-linear-1000-1-1440-stair_3-40-1-1440-stair_3-1-0-3-444-1-5000-3-444-1-5000-3-444-1-5000-5-500-5000-0.00-0.1-2000-3000-100-10-false-3",
-         "black", "x--"],
-        ["Earlier",
-         "part6and7-microbench-streamsluice_earlier-streamsluice-800-part6-linear-1split2join1-100-4000-4000-960-linear-1000-1-1440-stair_3-40-1-1440-stair_3-1-0-3-444-1-5000-3-444-1-5000-3-444-1-5000-5-500-5000-0.00-0.1-2000-3000-100-10-true-1",
-         "green", "^-"],
-        ["Later",
-         "part6and7-microbench-streamsluice_later-streamsluice-800-part6-linear-1split2join1-120-4000-4000-960-linear-1000-1-1440-stair_3-40-1-1440-stair_3-1-0-3-444-1-5000-3-444-1-5000-3-444-1-5000-5-500-5000-0.00-0.1-2000-3000-100-10-true-2",
-         "orange", "s-"],
-        ["Sluice",
-         "part6and7-microbench-streamsluice-streamsluice-800-part6-linear-1split2join1-100-4000-4000-960-linear-1000-1-1440-stair_3-40-1-1440-stair_3-1-0-3-444-1-5000-3-444-1-5000-3-444-1-5000-5-500-5000-0.00-0.1-2000-3000-100-10-true-1",
-         "blue", "o-"],
-    ],
 }
 
 startTime=60 #30+300 #30
@@ -1074,7 +1087,12 @@ avg_latency_calculateTime = expLength # 30
 
 output_pdf_flag = True
 
-fig, axs = plt.subplots(3, 2, figsize=(24, 7), layout='constrained', gridspec_kw={'height_ratios': [1, 1, 1.5], 'width_ratios': [1, 1]})
+shrink_flag = True
+
+if not shrink_flag:
+    fig, axs = plt.subplots(3, 2, figsize=(24, 7), layout='constrained', gridspec_kw={'height_ratios': [1, 1, 1.5], 'width_ratios': [1, 1]})
+else:
+    fig, axs = plt.subplots(3, 1, figsize=(7, 8), layout='constrained', gridspec_kw={'height_ratios': [1, 1, 1], 'width_ratios': [1]})
 
 index = 0
 for workload, exps in exps_per_setting.items():
@@ -1095,18 +1113,30 @@ for workload, exps in exps_per_setting.items():
         startTime = 52
         expLength = 30
     else:
-        startTime = 52
-        expLength = 30
+        if not shrink_flag:
+            startTime = 52
+            expLength = 30
+        else:
+            startTime = 67
+            expLength = 15
     exp_length = expLength
     ylabel_flag = False
     if index == 0:
         ylabel_flag = True
-    draw(rawDir, outputDir + workload + "/", exps, windowSize, axs[2][index], workload, True, ylabel_flag)
-    draw_resource(rawDir, outputDir + workload + "/", exps, axs[1][index], axs[0][index], False, ylabel_flag)
+    if not shrink_flag:
+        draw(rawDir, outputDir + workload + "/", exps, windowSize, axs[2][index], workload, True, ylabel_flag)
+        draw_resource(rawDir, outputDir + workload + "/", exps, axs[1][index], axs[0][index], False, ylabel_flag)
+    else:
+        draw(rawDir, outputDir + workload + "/", exps, windowSize, axs[2], workload, True, ylabel_flag)
+        draw_resource(rawDir, outputDir + workload + "/", exps, axs[1], axs[0], False, ylabel_flag)
     index += 1
 
-handles, labels = axs[2, 0].get_legend_handles_labels()
-fig.legend(handles, labels, loc='upper center', bbox_to_anchor=(0.5, 1.1), ncol=5, markerscale=5)
+if not shrink_flag:
+    handles, labels = axs[2, 0].get_legend_handles_labels()
+    fig.legend(handles, labels, loc='upper center', bbox_to_anchor=(0.5, 1.1), ncol=5, markerscale=5)
+else:
+    handles, labels = axs[2].get_legend_handles_labels()
+    fig.legend(handles, labels, loc='upper center', bbox_to_anchor=(0.6, 1.1), ncol=2, markerscale=5)
 
 if output_pdf_flag:
     plt.savefig(outputDir + "one_in_all_part6.pdf", bbox_inches='tight')

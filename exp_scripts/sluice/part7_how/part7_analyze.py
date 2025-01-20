@@ -710,7 +710,10 @@ def draw(rawDir, outputDir, exps, windowSize, ax, workload_name, xlabel_flag, yl
 
     #plt.xlabel('Time (min)')
     if ylabel_flag:
-        ax.set_ylabel('Latency\n(ms)')
+        if not shrink_flag:
+            ax.set_ylabel('Latency\n(ms)')
+        else:
+            ax.set_ylabel('Latency (ms)')
     if xlabel_flag:
         ax.set_xlabel('Time (s)')
     ax.set_xlim((startTime) * 1000, (startTime + expLength) * 1000)
@@ -731,6 +734,8 @@ def draw_scaling_info(scaling_change_info, outputDir, label):
     key_arrival_rate = {x: y * 1000 for x, y in scaling_change_info[4].items()}
     key_backlog = scaling_change_info[5]
 
+    if shrink_flag:
+        fig_tasks, ax_tasks = plt.subplots(2, 1, figsize=(4.7, 8))
     def aggregate_key_level(key_metrics, mapping:dict[str:list[int]]):
         task_metrics = {}
         for task, keys in mapping.items():
@@ -740,10 +745,13 @@ def draw_scaling_info(scaling_change_info, outputDir, label):
     task_backlog_before_scale = aggregate_key_level(key_backlog, mapping_before_scale)
     task_arrival_after_scale = aggregate_key_level(key_arrival_rate, mapping_after_scale)
     task_backlog_after_scale = aggregate_key_level(key_backlog, mapping_after_scale)
-    def draw_task_metrics_barchart(task_data:dict[str:float], label, metrics_name, color, file_name):
+    def draw_task_metrics_barchart(fig_task, ax_task, task_data:dict[str:float], label, metrics_name, color, file_name):
         import matplotlib.pyplot as plt
-        # Create the figure and two bar charts
-        fig_task, ax_task = plt.subplots(1, 1, figsize=(8, 3))
+
+        if not shrink_flag:
+            # Create the figure and two bar charts
+            fig_task, ax_task = plt.subplots(1, 1, figsize=(8, 3))
+
 
         # Sort tasks by arrival rate (optional for ranking)
         sorted_tasks = sorted(task_data.items(), key=lambda x: x[1], reverse=True)
@@ -756,7 +764,7 @@ def draw_scaling_info(scaling_change_info, outputDir, label):
         # First bar chart
         ax_task.bar(indices, arrival_rates, color=color, alpha=0.7)
         #ax_task.set_title(metrics_name + " under " + label, fontsize=14)
-        ax_task.set_xlabel("Task Index", fontsize=30)
+
 
         #ax_task.set_xticks(indices)
         ax_task.set_xlim(-2, 23)
@@ -767,27 +775,61 @@ def draw_scaling_info(scaling_change_info, outputDir, label):
             ax_task.set_ylim(0, 700)
             ax_task.set_yticks(np.arange(0, 700, 200))
         else:
-            ax_task.set_ylabel("Arrival Rate\n(tps)", fontsize=30)
-            ax_task.plot([-100, 100], [task_arrival_capacity, task_arrival_capacity], '--', color="red", label="Capacity")
-            ax_task.set_ylim(0, 1500)
-            ax_task.set_yticks(np.arange(0, 2000, 500))
-        #ax1.set_xticklabels([f"Rank {i + 1}" for i in indices], rotation=45)
+            if not shrink_flag:
+                ax_task.set_xlabel("Task Index", fontsize=30)
+                ax_task.set_ylabel("Arrival Rate\n(tps)", fontsize=30)
+                ax_task.plot([-100, 100], [task_arrival_capacity, task_arrival_capacity], '--', color="red",
+                             label="Capacity")
+                ax_task.set_ylim(0, 1500)
+                ax_task.set_yticks(np.arange(0, 2000, 500))
+            else:
+                ax_task.set_ylabel("Arrival Rate(tps)", fontsize=30)
+                ax_task.plot([-100, 100], [task_arrival_capacity, task_arrival_capacity], '--', color="red",
+                             label="Capacity")
+                ax_task.set_ylim(0, 1300)
+                ax_task.set_yticks(np.arange(0, 1500, 500))
+                ax_task.tick_params(axis='y', labelrotation=90)
+                if file_name.count("Before"):
+                    ax_task.set_xticklabels([])
+                    ax_task.set_title(file_name, loc='center', y=-0.18, fontsize=30)
+                else:
+                    ax_task.set_xlabel("Task Index", fontsize=30)
+                    ax_task.set_title(file_name, loc='center', y=-0.48, fontsize=30)
+
+
         if metrics_name == "Arrival Rate (tps)" and color == "orange":
             handles, labels = ax_task.get_legend_handles_labels()
             fig_task.legend(handles, labels, loc='upper right', bbox_to_anchor=(0.9, 0.94), ncol=1, markerscale=5)
 
-        # Adjust layout and show plot
-        if output_pdf_flag:
-            fig_task.savefig(outputDir + label + "_" + file_name + ".pdf", bbox_inches='tight')
+        if not shrink_flag:
+            # Adjust layout and show plot
+            if output_pdf_flag:
+                fig_task.savefig(outputDir + label + "_" + file_name + ".pdf", bbox_inches='tight')
+            else:
+                fig_task.savefig(outputDir + label + "_" + file_name + ".png", bbox_inches='tight')
+
+
+    if not shrink_flag:
+        draw_task_metrics_barchart(None, None, task_arrival_before_scale, label, "Arrival Rate (tps)", "orange",
+                                   "Arrival_Rate_Before")
+        draw_task_metrics_barchart(None, None, task_backlog_before_scale, label, "Backlog", "orange", "Backlog_Before")
+        draw_task_metrics_barchart(None, None, task_arrival_after_scale, label, "Arrival Rate (tps)", "blue", "Arrival_Rate_After")
+        draw_task_metrics_barchart(None, None, task_backlog_after_scale, label, "Backlog", "blue", "Backlog_After")
+    else:
+        if label == "Sluice":
+            base_index = 1
         else:
-            fig_task.savefig(outputDir + label + "_" + file_name + ".png", bbox_inches='tight')
-
-
-    draw_task_metrics_barchart(task_arrival_before_scale, label, "Arrival Rate (tps)", "orange", "Arrival_Rate_Before")
-    draw_task_metrics_barchart(task_backlog_before_scale, label, "Backlog", "orange", "Backlog_Before")
-    draw_task_metrics_barchart(task_arrival_after_scale, label, "Arrival Rate (tps)", "blue", "Arrival_Rate_After")
-    draw_task_metrics_barchart(task_backlog_after_scale, label, "Backlog", "blue", "Backlog_After")
-
+            base_index = 3
+        draw_task_metrics_barchart(fig_tasks, ax_tasks[0], task_arrival_before_scale, label, "Arrival Rate (tps)", "orange",
+                                   "(" + chr(base_index + ord('a')) + ")" + label + " Before Scaling")
+        #draw_task_metrics_barchart(ax_tasks[0][0], task_backlog_before_scale, label, "Backlog", "orange", "Backlog_Before")
+        draw_task_metrics_barchart(fig_tasks, ax_tasks[1], task_arrival_after_scale, label, "Arrival Rate (tps)", "blue", "(" + chr(base_index + 1 + ord('a')) + ")" + label + " After Scaling")
+        #draw_task_metrics_barchart(ax_tasks[0][0], task_backlog_after_scale, label, "Backlog", "blue", "Backlog_After")
+        if output_pdf_flag:
+            fig_tasks.savefig(outputDir + label + ".pdf", bbox_inches='tight')
+        else:
+            fig_tasks.savefig(outputDir + label + ".png", bbox_inches='tight')
+        plt.close(fig_tasks)
 
 def draw_resource(rawDir, outputDir, exps, ax1, ax2, workload, xlabel_flag, ylabel_flag):
     parallelismsPerJob = {}
@@ -836,8 +878,10 @@ def draw_resource(rawDir, outputDir, exps, ax1, ax2, workload, xlabel_flag, ylab
     #ax2 = ax1.twinx()
     if ylabel_flag:
         ax1.set_ylabel("# of Slots")
-        ax2.set_ylabel("Arrival Rate\n(tps)")
-
+        if not shrink_flag:
+            ax2.set_ylabel("Arrival Rate\n(tps)")
+        else:
+            ax2.set_ylabel("Arrival Rate (tps)")
     job = jobList[0]
     ax = sorted(totalArrivalRatesPerJob[job][0].keys())
     ay = [totalArrivalRatesPerJob[job][0][x] / (windowSize / 100) for x in ax]
@@ -1040,8 +1084,13 @@ windowSize = 500 #500 #500
 latencyLimit = 0
 spike = 2500 #1500
 #latencyLimit = 2500 #1000
-startTime = 55 #55
-expLength = 30 #30
+shrink_flag = True
+if not shrink_flag:
+    startTime = 55 #55
+    expLength = 30 #30
+else:
+    startTime = 67  # 55
+    expLength = 15  # 30
 exp_length = expLength
 show_avg_flag = False
 ground_truth_component_flag = False
@@ -1055,9 +1104,14 @@ task_arrival_capacity = 1000
 
 output_pdf_flag = True
 
-for name, exps_per_setting in exps_per_settings.items():
-    fig, axs = plt.subplots(3, 1, figsize=(8, 6), layout='constrained', gridspec_kw={'height_ratios': [1, 1, 1], 'width_ratios': [1]})
 
+
+for name, exps_per_setting in exps_per_settings.items():
+    if not shrink_flag:
+        fig, axs = plt.subplots(3, 1, figsize=(8, 6), layout='constrained', gridspec_kw={'height_ratios': [1, 1, 1], 'width_ratios': [1]})
+    else:
+        fig, axs = plt.subplots(3, 1, figsize=(7, 8), layout='constrained',
+                                gridspec_kw={'height_ratios': [1, 1, 1], 'width_ratios': [1]})
     index = 0
     for workload, exps in exps_per_setting.items():
         latencyLimit = int(exps[0][1].split('-')[-6])
@@ -1074,8 +1128,7 @@ for name, exps_per_setting in exps_per_settings.items():
         index += 1
 
     handles, labels = axs[2].get_legend_handles_labels()
-    fig.legend(handles, labels, loc='upper center', bbox_to_anchor=(0.6, 1.14), ncol=2, markerscale=5)
-
+    fig.legend(handles, labels, loc='upper center', bbox_to_anchor=(0.6, 1.1), ncol=2, markerscale=5)
     if output_pdf_flag:
         fig.savefig(outputDir + "one_in_all_part7_" + name + ".pdf", bbox_inches='tight')
     else:
