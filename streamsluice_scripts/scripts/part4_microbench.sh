@@ -233,7 +233,7 @@ run_scale_test(){
     how_type="ds2"
     autotune_interval=120 #90
 
-    P3=21
+    P3=17 #21
     run_one_exp
     printf "${EXP_NAME}\n" >> part4_result.txt
 
@@ -263,8 +263,8 @@ run_scale_test(){
         is_treat=true
         autotune=true
         how_type="streamsluice"
-        run_one_exp
-        printf "${EXP_NAME}\n" >> part4_result.txt
+#        run_one_exp
+#        printf "${EXP_NAME}\n" >> part4_result.txt
       done
     done
 }
