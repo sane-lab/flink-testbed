@@ -68,6 +68,11 @@ init() {
   parse_delay=1
   feature_delay=1
   
+  # Feature-based scorer configuration parameters
+  scorer_base_delay=2         # Base processing delay in ms
+  scorer_complexity_factor=1.0 # Complexity multiplier for feature-based processing
+  latency_output_file="/tmp/ml_scoring_latency.log"
+  
   # parallelism settings
   P1=1
   MP1=1
@@ -140,6 +145,9 @@ function runApp() {
     -fluctuation.std ${fluctuation_std} \
     -parse.delay ${parse_delay} \
     -feature.delay ${feature_delay} \
+    -scorer.base.delay ${scorer_base_delay} \
+    -scorer.complexity.factor ${scorer_complexity_factor} \
+    -latency.output.file ${latency_output_file} \
     -p1 ${P1} -mp1 ${MP1} \
     -p2 ${P2} -mp2 ${MP2} \
     -p3 ${P3} -mp3 ${MP3} \
@@ -155,6 +163,9 @@ function runApp() {
     -fluctuation.std ${fluctuation_std} \
     -parse.delay ${parse_delay} \
     -feature.delay ${feature_delay} \
+    -scorer.base.delay ${scorer_base_delay} \
+    -scorer.complexity.factor ${scorer_complexity_factor} \
+    -latency.output.file ${latency_output_file} \
     -p1 ${P1} -mp1 ${MP1} \
     -p2 ${P2} -mp2 ${MP2} \
     -p3 ${P3} -mp3 ${MP3} \
@@ -162,10 +173,10 @@ function runApp() {
 }
 
 function setting1(){
-  # Setting 1: Baseline performance test
-  printf "ML Scoring Setting 1 - Baseline\n" >> ml_scoring_result.txt
+  # Setting 1: Light processing baseline
+  printf "ML Scoring Setting 1 - Light Processing\n" >> ml_scoring_result.txt
   runtime=300
-  setting="baseline"
+  setting="light"
   base_rate=500
   sine_amplitude=0.2
   sine_period=60.0
@@ -174,6 +185,12 @@ function setting1(){
   fluctuation_std=0.05
   parse_delay=1
   feature_delay=1
+  
+  # Light processing settings
+  scorer_base_delay=1
+  scorer_complexity_factor=0.5  # Reduced complexity
+  latency_output_file="/tmp/ml_scoring_light_latency.log"
+  
   P2=1
   P3=1
   P4=1
@@ -198,10 +215,10 @@ function setting1(){
 }
 
 function setting2(){
-  # Setting 2: High load with variable patterns
-  printf "ML Scoring Setting 2 - High Load\n" >> ml_scoring_result.txt
+  # Setting 2: Medium processing with realistic complexity
+  printf "ML Scoring Setting 2 - Medium Processing\n" >> ml_scoring_result.txt
   runtime=600
-  setting="highload"
+  setting="medium"
   base_rate=1000
   sine_amplitude=0.4
   sine_period=120.0
@@ -210,6 +227,12 @@ function setting2(){
   fluctuation_std=0.15
   parse_delay=2
   feature_delay=3
+  
+  # Medium processing settings - realistic GBDT complexity
+  scorer_base_delay=3
+  scorer_complexity_factor=1.5  # Moderate complexity
+  latency_output_file="/tmp/ml_scoring_medium_latency.log"
+  
   P2=2
   P3=2
   P4=2
@@ -234,10 +257,10 @@ function setting2(){
 }
 
 function setting3(){
-  # Setting 3: Stress test with scaling
-  printf "ML Scoring Setting 3 - Stress Test\n" >> ml_scoring_result.txt
+  # Setting 3: Heavy processing - complex fraud detection
+  printf "ML Scoring Setting 3 - Heavy Processing\n" >> ml_scoring_result.txt
   runtime=900
-  setting="stress"
+  setting="heavy"
   base_rate=1500
   sine_amplitude=0.6
   sine_period=180.0
@@ -246,6 +269,12 @@ function setting3(){
   fluctuation_std=0.2
   parse_delay=5
   feature_delay=8
+  
+  # Heavy processing settings - complex fraud analysis
+  scorer_base_delay=5
+  scorer_complexity_factor=3.0  # High complexity for detailed analysis
+  latency_output_file="/tmp/ml_scoring_heavy_latency.log"
+  
   P2=4
   P3=4
   P4=4
@@ -273,10 +302,10 @@ function setting3(){
 }
 
 function setting4(){
-  # Setting 4: Different parallelism configurations
-  printf "ML Scoring Setting 4 - Parallelism Test\n" >> ml_scoring_result.txt
+  # Setting 4: Variable complexity testing
+  printf "ML Scoring Setting 4 - Variable Complexity\n" >> ml_scoring_result.txt
   runtime=450
-  setting="parallelism"
+  setting="variable"
   base_rate=800
   sine_amplitude=0.3
   sine_period=90.0
@@ -286,28 +315,31 @@ function setting4(){
   parse_delay=3
   feature_delay=4
   
-  # Update ML config parameters
-  ml_base_rate=${base_rate}
-  ml_sine_amplitude=${sine_amplitude}
-  ml_sine_period=${sine_period}
-  ml_spike_probability=${spike_probability}
-  ml_spike_multiplier=${spike_multiplier}
-  ml_fluctuation_std=${fluctuation_std}
-  ml_parse_delay=${parse_delay}
-  ml_feature_delay=${feature_delay}
-  
-  for P2 in 1 2 4; do
-    for P3 in 1 2 4; do
-      for P4 in 1 2 4; do
-        if [ $((P2 + P3 + P4)) -le 8 ]; then  # Resource constraint
-          LP_PARSE=$((P2 * 2))
-          LP_FEATURE=$((P3 * 2))
-          LP_SCORER=$((P4 * 2))
-          run_one_exp
-          printf "${EXP_NAME}\n" >> ml_scoring_result.txt
-        fi
-      done
-    done
+  # Test different complexity factors
+  for complexity in 0.5 1.0 2.0 4.0; do
+    scorer_base_delay=2
+    scorer_complexity_factor=${complexity}
+    latency_output_file="/tmp/ml_scoring_complexity_${complexity}_latency.log"
+    
+    # Update ML config parameters
+    ml_base_rate=${base_rate}
+    ml_sine_amplitude=${sine_amplitude}
+    ml_sine_period=${sine_period}
+    ml_spike_probability=${spike_probability}
+    ml_spike_multiplier=${spike_multiplier}
+    ml_fluctuation_std=${fluctuation_std}
+    ml_parse_delay=${parse_delay}
+    ml_feature_delay=${feature_delay}
+    
+    P2=2
+    P3=2
+    P4=2
+    LP_PARSE=8
+    LP_FEATURE=8
+    LP_SCORER=8
+    
+    run_one_exp
+    printf "${EXP_NAME}\n" >> ml_scoring_result.txt
   done
 }
 

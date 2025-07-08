@@ -1,37 +1,33 @@
 package flinkapp.MLmodelscoring;
 
 import org.apache.commons.math3.random.RandomDataGenerator;
-import org.apache.flink.api.common.functions.FlatMapFunction;
 import org.apache.flink.api.common.functions.MapFunction;
 import org.apache.flink.api.common.functions.RichFlatMapFunction;
 import org.apache.flink.api.common.functions.RichMapFunction;
-import org.apache.flink.api.common.state.ListState;
-import org.apache.flink.api.common.state.ListStateDescriptor;
-import org.apache.flink.api.common.state.MapState;
-import org.apache.flink.api.common.state.MapStateDescriptor;
 import org.apache.flink.api.java.tuple.Tuple2;
-import org.apache.flink.api.java.tuple.Tuple3;
 import org.apache.flink.api.java.utils.ParameterTool;
 import org.apache.flink.configuration.Configuration;
-import org.apache.flink.runtime.state.FunctionInitializationContext;
-import org.apache.flink.runtime.state.FunctionSnapshotContext;
 import org.apache.flink.runtime.state.memory.MemoryStateBackend;
 import org.apache.flink.streaming.api.TimeCharacteristic;
-import org.apache.flink.streaming.api.checkpoint.CheckpointedFunction;
 import org.apache.flink.streaming.api.datastream.DataStream;
 import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
+import org.apache.flink.streaming.api.functions.sink.RichSinkFunction;
 import org.apache.flink.streaming.api.functions.source.SourceFunction;
 import org.apache.flink.util.Collector;
 
+import java.io.FileWriter;
+import java.io.IOException;
+import java.io.PrintWriter;
 import java.util.Random;
 
 /**
  * Fraud-style ML scoring pipeline (mock).
  *
- *  src ─► Parse ▶ FeatureBuild ▶ ScoreGBDT ▶ AlertJoin ─► sink
+ *  src ─► Parse ▶ FeatureBuild ▶ RealisticGBDTScorer ▶ LatencyTrackingSink ─► file
  *
  *  ▪ Key = userId (String)                              ▪ State backend = RocksDB
- *  ▪ Metric latency recorded inside ScoreGBDT           ▪ All parameters overridable via –Dflags
+ *  ▪ Feature-based processing time simulation           ▪ All parameters overridable via –Dflags
+ *  ▪ Ground truth latency tracked and written to file  ▪ Similar to LinearRoad pattern
  */
 public final class MLScoringJob {
 
@@ -49,7 +45,8 @@ public final class MLScoringJob {
         // parameters - now tunable via command line
         long runSeconds = p.getLong("run.seconds", 300);       // 5 min demo
         int  baseRate   = p.getInt("base.rate", 500);          // 500 txn/s base rate
-        env
+        
+        DataStream<String> results = env
                 .addSource(new TxnSource(
                     runSeconds * 1_000L, 
                     baseRate,
@@ -61,14 +58,13 @@ public final class MLScoringJob {
                 ))
                 .name("Mock-Txn-Source")
                 .setParallelism(p.getInt("p1", 1))
-                .keyBy(0)
-                // → POJO
+                // → POJO (remove the problematic keyBy(0))
                 .map(new ParseTxn(p.getLong("parse.delay", 1))).name("ParseTxn").uid("parse_txn")
                 .disableChaining()
                 .setParallelism(p.getInt("p2", 1))
                 .setMaxParallelism(p.getInt("mp2", 8))
                 .slotSharingGroup("g2")
-                // simple keyBy(accountId) just to show partitioning
+                // simple keyBy(accountId) for partitioning
                 .keyBy(t -> t.accountId)
                 // build features
                 .map(new FeatureBuilder(p.getLong("feature.delay", 1))).name("FeatureBuilder")
@@ -77,15 +73,26 @@ public final class MLScoringJob {
                 .setParallelism(p.getInt("p3", 1))
                 .setMaxParallelism(p.getInt("mp3", 8))
                 .slotSharingGroup("g3")
-                // ↓ here you could call your GBDT model scorer
-                .flatMap(new DummyScorer())   // placeholder
+                // ↓ Feature-based realistic GBDT scorer
+                .flatMap(new RealisticGBDTScorer(
+                    p.getLong("scorer.base.delay", 2),           // Base processing time (ms)
+                    p.getDouble("scorer.complexity.factor", 1.0) // Complexity multiplier
+                ))
                 .uid("scorer")
                 .setParallelism(p.getInt("p4", 1))
                 .setMaxParallelism(p.getInt("mp4", 8))
                 .slotSharingGroup("g4")
                 .disableChaining();
+                
+        // Add ground truth latency tracking sink similar to LinearRoad
+        results.addSink(new LatencyTrackingSink(p.getString("latency.output.file", "/tmp/ml_scoring_latency.log")))
+                .name("Latency Tracking Sink")
+                .uid("latency_sink")
+                .setParallelism(1); // Single parallelism to avoid file conflicts
+                
         env.execute("Real-Time ML Scoring (Mock)");
     }
+    
     /* ===========================================================
      *  1 | Synthetic source producing CSV strings with dynamic rate
      * ===========================================================
@@ -129,13 +136,16 @@ public final class MLScoringJob {
                 int recordsToEmit = Math.max(1, (int) Math.round(currentRate));
                 
                 for (int i = 0; i < recordsToEmit; i++) {
+                    // Include arrival timestamp and tuple number in the CSV for tracking
+                    long arrivalTime = System.currentTimeMillis();
                     String record = String.format(
-                            "%d,%d,%.2f,M%d,%d",
+                            "%d,%d,%.2f,M%d,%d,%d",
                             id++,
                             rnd.nextInt(10_000),          // accountId
                             1 + rnd.nextDouble() * 499,    // amount
                             rnd.nextInt(2_000),            // merchant
-                            System.currentTimeMillis());   // event-time
+                            arrivalTime,                   // arrival time for latency tracking
+                            id);                          // tuple number
                     ctx.collect(record);
                 }
                 
@@ -170,7 +180,7 @@ public final class MLScoringJob {
     }
 
     /* ===========================================================
-     *  2 | Txn POJO
+     *  2 | Txn POJO with latency tracking fields
      * ===========================================================
      */
     public static class Txn {
@@ -178,17 +188,24 @@ public final class MLScoringJob {
         public int    accountId;
         public double amount;
         public int    merchant;
-        public long   ts;   // event-time ms
+        public long   arrivalTime;   // arrival timestamp for latency tracking
+        public long   tupleNumber;   // tuple sequence number
 
         // Flink requires a no-arg constructor
         public Txn() {}
-        public Txn(long id,int acc,double amt,int mer,long ts){
-            this.id=id;this.accountId=acc;this.amount=amt;this.merchant=mer;this.ts=ts;
+        public Txn(long id, int acc, double amt, int mer, long arrivalTime, long tupleNumber){
+            this.id = id;
+            this.accountId = acc;
+            this.amount = amt;
+            this.merchant = mer;
+            this.arrivalTime = arrivalTime;
+            this.tupleNumber = tupleNumber;
         }
         @Override public String toString(){
-            return String.format("Txn(%d,%d,%.2f,%d,%d)",id,accountId,amount,merchant,ts);
+            return String.format("Txn(%d,%d,%.2f,%d,%d,%d)", id, accountId, amount, merchant, arrivalTime, tupleNumber);
         }
     }
+    
     private static void delay(long time) {
         try {
             // Add Gaussian fluctuation: mean=0, std=time*0.1 (10% of target time)
@@ -200,8 +217,9 @@ public final class MLScoringJob {
             Thread.currentThread().interrupt();
         }
     }
+    
     /* ===========================================================
-     *  3 | CSV → Txn
+     *  3 | CSV → Txn with latency tracking
      * ===========================================================
      */
     public static class ParseTxn implements MapFunction<String, Txn> {
@@ -216,17 +234,17 @@ public final class MLScoringJob {
             String[] f = v.split(",");
             delay(delayMs);
             return new Txn(
-                    Long.parseLong(f[0]),
-                    Integer.parseInt(f[1]),
-                    Double.parseDouble(f[2]),
-                    Integer.parseInt(f[3]),
-                    Long.parseLong(f[4]));
+                    Long.parseLong(f[0]),      // id
+                    Integer.parseInt(f[1]),    // accountId
+                    Double.parseDouble(f[2]),  // amount
+                    Integer.parseInt(f[3]),    // merchant
+                    Long.parseLong(f[4]),      // arrivalTime
+                    Long.parseLong(f[5]));     // tupleNumber
         }
     }
 
     /* ===========================================================
-     *  4 | FeatureBuilder  (Txn → Tuple2<accountId, rawFeatureStr>)
-     *     Very simple: "<amount>|<merchant>"
+     *  4 | FeatureBuilder with latency tracking
      * ===========================================================
      */
     public static class FeatureBuilder implements
@@ -236,42 +254,165 @@ public final class MLScoringJob {
         public FeatureBuilder(long delayMs) {
             this.delayMs = delayMs;
         }
-
+        
         @Override
         public Tuple2<Integer,String> map(Txn txn) {
-            String features = txn.amount + "|" + txn.merchant;
+            String features = txn.amount + "|" + txn.merchant + "|" + txn.arrivalTime + "|" + txn.tupleNumber;
             delay(delayMs);
             return Tuple2.of(txn.accountId, features);
         }
     }
 
     /* ===========================================================
-     *  5a | DummyScorer – injects key-dependent compute cost
-     *      Heavy key: accountId % 10 == 0  → 5 ms busy loop
-     *      Light key: others               → 0.5 ms busy loop
+     *  5 | Feature-Based Realistic GBDT Scorer
      * ===========================================================
      */
-    public static class DummyScorer extends RichFlatMapFunction<
+    public static class RealisticGBDTScorer extends RichFlatMapFunction<
                 Tuple2<Integer,String>, String> {
+
+        private final long baseDelayMs;
+        private final double complexityFactor;
+        private final Random random;
+
+        public RealisticGBDTScorer(long baseDelayMs, double complexityFactor) {
+            this.baseDelayMs = baseDelayMs;
+            this.complexityFactor = complexityFactor;
+            this.random = new Random(42); // Deterministic for reproducibility
+        }
 
         @Override
         public void flatMap(Tuple2<Integer,String> in, Collector<String> out)
                 throws Exception {
 
-            int key = in.f0;
-            // heavy keys every 10th account
-            long busyNanos = (key % 10 == 0) ? 5_000_000L : 500_000L;
+            int accountId = in.f0;
+            String[] features = in.f1.split("\\|");
+            double amount = Double.parseDouble(features[0]);
+            int merchant = Integer.parseInt(features[1].substring(1)); // Remove 'M' prefix
+            long arrivalTime = Long.parseLong(features[2]);
+            long tupleNumber = Long.parseLong(features[3]);
+            
+            // Simulate feature-based complexity
+            long processingTime = calculateProcessingTime(accountId, amount, merchant);
+            
+            // Busy wait to simulate processing
             long start = System.nanoTime();
-            while (System.nanoTime() - start < busyNanos) { /* spin */ }
+            while (System.nanoTime() - start < processingTime * 1_000_000L) { /* spin */ }
 
-            // fake score ∈ [0,1)
-            double score = (key * 0.6180339887) % 1.0;
-            out.collect(key + "," + score);
+            // Generate score based on features (more realistic)
+            double score = calculateScore(accountId, amount, merchant);
+            
+            String result = accountId + "," + score + "," + arrivalTime + "," + tupleNumber;
+            out.collect(result);
+        }
+
+        private long calculateProcessingTime(int accountId, double amount, int merchant) {
+            // Base processing time
+            long processingTime = baseDelayMs;
+            
+            // 1. Amount-based complexity (larger amounts need more analysis)
+            if (amount > 1000) processingTime += (long)(complexityFactor * 3);
+            else if (amount > 500) processingTime += (long)(complexityFactor * 2);
+            else if (amount > 100) processingTime += (long)(complexityFactor * 1);
+            
+            // 2. Account history complexity (simulate account risk profiling)
+            int accountComplexity = Math.abs(accountId) % 100;
+            if (accountComplexity > 90) processingTime += (long)(complexityFactor * 5); // VIP accounts
+            else if (accountComplexity > 70) processingTime += (long)(complexityFactor * 3); // High-risk accounts
+            else if (accountComplexity < 10) processingTime += (long)(complexityFactor * 2); // New accounts
+            
+            // 3. Merchant category complexity
+            int merchantCategory = merchant % 20;
+            if (merchantCategory < 2) processingTime += (long)(complexityFactor * 4); // High-risk merchants (gambling, crypto)
+            else if (merchantCategory < 5) processingTime += (long)(complexityFactor * 2); // Financial services
+            
+            // 4. Add some randomness for model tree traversal variations
+            double randomFactor = 0.8 + random.nextGaussian() * 0.2; // 80-120% variation
+            processingTime = (long)(processingTime * Math.max(0.1, randomFactor));
+            
+            return Math.max(1, processingTime);
+        }
+        
+        private double calculateScore(int accountId, double amount, int merchant) {
+            // Simulate a fraud detection score [0,1]
+            double score = 0.1; // Base score
+            
+            // Amount-based risk
+            if (amount > 1000) score += 0.3;
+            if (amount > 5000) score += 0.2;
+            
+            // Account-based risk
+            int accountRisk = Math.abs(accountId) % 100;
+            score += accountRisk / 1000.0;
+            
+            // Merchant-based risk
+            int merchantRisk = merchant % 20;
+            if (merchantRisk < 2) score += 0.4; // High-risk merchants
+            
+            // Add some noise
+            score += random.nextGaussian() * 0.05;
+            
+            return Math.max(0.0, Math.min(1.0, score));
         }
     }
+    
     /* ===========================================================
-     *  5b | GBDTScorer – real model load (needs SomeGbdtModel)
-     *      Replace DummyScorer with this in the pipeline
+     *  6 | Latency Tracking Sink - Similar to LinearRoad GT pattern
+     * ===========================================================
+     */
+    public static class LatencyTrackingSink extends RichSinkFunction<String> {
+        
+        private final String outputFilePath;
+        private transient PrintWriter writer;
+        
+        public LatencyTrackingSink(String outputFilePath) {
+            this.outputFilePath = outputFilePath;
+        }
+        
+        @Override
+        public void open(Configuration parameters) throws Exception {
+            super.open(parameters);
+            try {
+                FileWriter fileWriter = new FileWriter(outputFilePath, true); // append mode
+                writer = new PrintWriter(fileWriter);
+            } catch (IOException e) {
+                throw new RuntimeException("Failed to open latency output file: " + outputFilePath, e);
+            }
+        }
+        
+        @Override
+        public void invoke(String result, Context context) throws Exception {
+            String[] parts = result.split(",");
+            if (parts.length >= 4) {
+                int accountId = Integer.parseInt(parts[0]);
+                double score = Double.parseDouble(parts[1]);
+                long arrivalTime = Long.parseLong(parts[2]);
+                long tupleNumber = Long.parseLong(parts[3]);
+                
+                long currentTime = System.currentTimeMillis();
+                long latency = currentTime - arrivalTime;
+                
+                // Print to console in LinearRoad GT format
+                System.out.println("GT: ACC" + accountId + ", " + currentTime + ", " + latency + ", " + tupleNumber);
+                
+                // Also write to file for offline analysis
+                String logEntry = String.format("GT: ACC%d, %d, %d, %d, %.4f%n", 
+                    accountId, currentTime, latency, tupleNumber, score);
+                writer.print(logEntry);
+                writer.flush(); // Ensure immediate write
+            }
+        }
+        
+        @Override
+        public void close() throws Exception {
+            if (writer != null) {
+                writer.close();
+            }
+            super.close();
+        }
+    }
+    
+    /* ===========================================================
+     *  7 | Alternative: GBDTScorer for real model usage
      * ===========================================================
      */
     public static class GBDTScorer extends RichMapFunction<
@@ -287,13 +428,18 @@ public final class MLScoringJob {
 
         @Override
         public String map(Tuple2<Integer,String> in) {
-            double score = model.predict(in.f1); // model parses feature string
-            return in.f0 + "," + score;
+            String[] features = in.f1.split("\\|");
+            String featureStr = features[0] + "|" + features[1]; // amount|merchant
+            long arrivalTime = Long.parseLong(features[2]);
+            long tupleNumber = Long.parseLong(features[3]);
+            
+            double score = model.predict(featureStr); // model parses feature string
+            return in.f0 + "," + score + "," + arrivalTime + "," + tupleNumber;
         }
     }
 
     /* ===========================================================
-     *  6 | Placeholder model API – adapt to your library
+     *  8 | Placeholder model API
      * ===========================================================
      */
     public static class SomeGbdtModel {
