@@ -354,10 +354,10 @@ output_pdf_flag=True
 boxplot_flag=False # False for barchart of mean
 
 title_list = [
-    "(a) User Latency Limit (ms)",
-    "(b) Epoch Length (ms)",
-    "(c) Resource sensitivity",
-    "(d) Tuning Frequency (s)",
+    "(a)User Latency Limit (ms)",
+    "(b)Epoch Length (ms)",
+    "(c)Bound Increase Sensitivity",
+    "(d)Tuning Frequency (s)",
 ]
 
 def main():
