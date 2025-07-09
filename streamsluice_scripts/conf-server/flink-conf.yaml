@@ -291,6 +291,11 @@ model.max_parallelism.c395b989724fa728d0a2640c6ccdb8a1: 21
 model.max_parallelism.8e0d1d377d577c52511ad507bf0ce330: 21
 model.max_parallelism.2019e6125f7b4867f5fd448be51e3519: 21
 
+model.max_parallelism.96c3e564515d47f15214bd3914f0bc21: 21
+model.max_parallelism.525b5b4e21984311846b8b6b3ed6ab3b: 21
+model.max_parallelism.e8ff335113bda425b8ce61ff16356d9e: 21
+model.max_parallelism.087142f152e8e46b2c50143fc0ac72b6: 1
+
 streamsluice.system.metrics_interval: 100
 
 streamsluice.system.true_arrival_calibrated: false
@@ -334,7 +339,7 @@ controller.scale_in.type: streamsluice
 
 streamsluice.system.errorcase_number: 5
 
-streamsluice.metrics.is_output:
+streamsluice.metrics.is_output: false
 
 streamsluice.model.decision_interval: 1
 

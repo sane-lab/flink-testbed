@@ -55,11 +55,11 @@ function configFlink() {
     
     # ML Scoring Job specific vertex IDs for max parallelism
     # parse_txn vertex
-    sed 's/^\(\s*model.max_parallelism.parse_txn\s*:\s*\).*/\1'"$LP_PARSE"'/' tmp17 > tmp18
+    sed 's/^\(\s*model.max_parallelism.96c3e564515d47f15214bd3914f0bc21\s*:\s*\).*/\1'"$LP_PARSE"'/' tmp17 > tmp18
     # feature_builder vertex
-    sed 's/^\(\s*model.max_parallelism.feature_builder\s*:\s*\).*/\1'"$LP_FEATURE"'/' tmp18 > tmp19
+    sed 's/^\(\s*model.max_parallelism.525b5b4e21984311846b8b6b3ed6ab3b\s*:\s*\).*/\1'"$LP_FEATURE"'/' tmp18 > tmp19
     # scorer vertex
-    sed 's/^\(\s*model.max_parallelism.scorer\s*:\s*\).*/\1'"$LP_SCORER"'/' tmp19 > tmp20
+    sed 's/^\(\s*model.max_parallelism.e8ff335113bda425b8ce61ff16356d9e\s*:\s*\).*/\1'"$LP_SCORER"'/' tmp19 > tmp20
     
     sed 's/^\(\s*streamsluice.model.decision_interval\s*:\s*\).*/\1'"$decision_interval"'/' tmp20 > tmp21
     sed 's/^\(\s*streamsluice.metrics.snapshot_size\s*:\s*\).*/\1'"$snapshot_size"'/' tmp21 > tmp22

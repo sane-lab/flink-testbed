@@ -11,25 +11,28 @@ import org.apache.flink.runtime.state.memory.MemoryStateBackend;
 import org.apache.flink.streaming.api.TimeCharacteristic;
 import org.apache.flink.streaming.api.datastream.DataStream;
 import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
-import org.apache.flink.streaming.api.functions.sink.RichSinkFunction;
 import org.apache.flink.streaming.api.functions.source.SourceFunction;
 import org.apache.flink.util.Collector;
 
-import java.io.FileWriter;
-import java.io.IOException;
-import java.io.PrintWriter;
 import java.util.Random;
 
 /**
  * Fraud-style ML scoring pipeline (mock).
  *
- *  src ─► Parse ▶ FeatureBuild ▶ RealisticGBDTScorer ▶ LatencyTrackingSink ─► file
+ *  src ─► Parse ▶ FeatureBuild ▶ RealisticGBDTScorer ▶ LatencyTrackingFlatMap ─► output
  *
  *  ▪ Key = userId (String)                              ▪ State backend = RocksDB
  *  ▪ Feature-based processing time simulation           ▪ All parameters overridable via –Dflags
- *  ▪ Ground truth latency tracked and written to file  ▪ Similar to LinearRoad pattern
+ *  ▪ Ground truth latency tracked and written to console ▪ Similar to LinearRoad pattern
  */
 public final class MLScoringJob {
+
+    // Output operator constants following LinearRoad pattern
+    private static final int Source_Output = 0;
+    private static final int ParseTxn_Output = 1;
+    private static final int FeatureBuilder_Output = 2;
+    private static final int RealisticGBDTScorer_Output = 3;
+    private static final int LatencyTracking_Output = 4;
 
     public static void main(String[] args) throws Exception {
 
@@ -46,7 +49,12 @@ public final class MLScoringJob {
         long runSeconds = p.getLong("run.seconds", 300);       // 5 min demo
         int  baseRate   = p.getInt("base.rate", 500);          // 500 txn/s base rate
         
-        DataStream<String> results = env
+        // Warmup parameters similar to LinearRoad
+        long warmupTime = p.getLong("warmup_time", 30L) * 1000; // warmup duration in ms
+        long warmupRate = p.getLong("warmup_rate", 1000L);       // warmup rate txn/s
+        double inputRateFactor = p.getDouble("input_rate_factor", 1.0); // rate multiplier
+        
+        DataStream<Tuple2<String, MLScoringRecord>> source = env
                 .addSource(new TxnSource(
                     runSeconds * 1_000L, 
                     baseRate,
@@ -54,50 +62,123 @@ public final class MLScoringJob {
                     p.getDouble("sine.period", 60.0),        // sine wave period in seconds
                     p.getDouble("spike.probability", 0.05),  // probability of spike per second
                     p.getDouble("spike.multiplier", 3.0),    // spike multiplier (3x normal rate)
-                    p.getDouble("fluctuation.std", 0.1)      // short-term fluctuation std dev (10%)
+                    p.getDouble("fluctuation.std", 0.1),     // short-term fluctuation std dev (10%)
+                    warmupTime,                              // warmup duration
+                    warmupRate,                              // warmup rate
+                    inputRateFactor                          // input rate factor
                 ))
                 .name("Mock-Txn-Source")
-                .setParallelism(p.getInt("p1", 1))
-                // → POJO (remove the problematic keyBy(0))
-                .map(new ParseTxn(p.getLong("parse.delay", 1))).name("ParseTxn").uid("parse_txn")
+                .setParallelism(p.getInt("p1", 1));
+
+        // Parse operator following LinearRoad pattern
+        DataStream<Tuple2<String, MLScoringRecord>> afterParse = source
+                .keyBy(0)
+                .flatMap(new ParseTxn(p.getLong("parse.delay", 1)))
                 .disableChaining()
+                .name("ParseTxn")
+                .uid("op2")
                 .setParallelism(p.getInt("p2", 1))
                 .setMaxParallelism(p.getInt("mp2", 8))
-                .slotSharingGroup("g2")
-                // simple keyBy(accountId) for partitioning
-                .keyBy(t -> t.accountId)
-                // build features
-                .map(new FeatureBuilder(p.getLong("feature.delay", 1))).name("FeatureBuilder")
-                .uid("feature_builder")
+                .slotSharingGroup("g2");
+
+        // Feature builder operator
+        DataStream<Tuple2<String, MLScoringRecord>> afterFeatureBuilder = afterParse
+                .keyBy(0)
+                .flatMap(new FeatureBuilder(p.getLong("feature.delay", 1)))
                 .disableChaining()
+                .name("FeatureBuilder")
+                .uid("op3")
                 .setParallelism(p.getInt("p3", 1))
                 .setMaxParallelism(p.getInt("mp3", 8))
-                .slotSharingGroup("g3")
-                // ↓ Feature-based realistic GBDT scorer
+                .slotSharingGroup("g3");
+
+        // GBDT Scorer operator
+        DataStream<Tuple2<String, MLScoringRecord>> afterScorer = afterFeatureBuilder
+                .keyBy(0)
                 .flatMap(new RealisticGBDTScorer(
                     p.getLong("scorer.base.delay", 2),           // Base processing time (ms)
                     p.getDouble("scorer.complexity.factor", 1.0) // Complexity multiplier
                 ))
-                .uid("scorer")
+                .disableChaining()
+                .name("RealisticGBDTScorer")
+                .uid("op4")
                 .setParallelism(p.getInt("p4", 1))
                 .setMaxParallelism(p.getInt("mp4", 8))
-                .slotSharingGroup("g4")
-                .disableChaining();
+                .slotSharingGroup("g4");
                 
-        // Add ground truth latency tracking sink similar to LinearRoad
-        results.addSink(new LatencyTrackingSink(p.getString("latency.output.file", "/tmp/ml_scoring_latency.log")))
-                .name("Latency Tracking Sink")
-                .uid("latency_sink")
-                .setParallelism(1); // Single parallelism to avoid file conflicts
+        // Latency tracking flatMap operator (replaces sink)
+        DataStream<Tuple2<String, MLScoringRecord>> finalOutput = afterScorer
+                .keyBy(0)
+                .flatMap(new LatencyTrackingFlatMap())
+                .disableChaining()
+                .name("LatencyTracking")
+                .uid("op5")
+                .setParallelism(p.getInt("p5", 1))
+                .setMaxParallelism(p.getInt("mp5", 8))
+                .slotSharingGroup("g5");
                 
         env.execute("Real-Time ML Scoring (Mock)");
     }
-    
+
     /* ===========================================================
-     *  1 | Synthetic source producing CSV strings with dynamic rate
+     *  MLScoringRecord - Similar to LinearRoadRecord
      * ===========================================================
      */
-    public static class TxnSource implements SourceFunction<String> {
+    public static class MLScoringRecord {
+        private String accountId;
+        private Long id;
+        private Double amount;
+        private Integer merchant;
+        private String features;
+        private Double score;
+        private Integer outputOperator;
+        private Long arrivalTime;
+        private Long tupleNumber;
+
+        public MLScoringRecord() {}
+
+        public MLScoringRecord(String accountId, Long id, Double amount, Integer merchant, 
+                              String features, Double score, Integer outputOperator,
+                              Long arrivalTime, Long tupleNumber) {
+            this.accountId = accountId;
+            this.id = id;
+            this.amount = amount;
+            this.merchant = merchant;
+            this.features = features;
+            this.score = score;
+            this.outputOperator = outputOperator;
+            this.arrivalTime = arrivalTime;
+            this.tupleNumber = tupleNumber;
+        }
+
+        // Getters
+        public String getAccountId() { return accountId; }
+        public Long getId() { return id; }
+        public Double getAmount() { return amount; }
+        public Integer getMerchant() { return merchant; }
+        public String getFeatures() { return features; }
+        public Double getScore() { return score; }
+        public Integer getOutputOperator() { return outputOperator; }
+        public Long getArrivalTime() { return arrivalTime; }
+        public Long getTupleNumber() { return tupleNumber; }
+
+        // Setters
+        public void setAccountId(String accountId) { this.accountId = accountId; }
+        public void setId(Long id) { this.id = id; }
+        public void setAmount(Double amount) { this.amount = amount; }
+        public void setMerchant(Integer merchant) { this.merchant = merchant; }
+        public void setFeatures(String features) { this.features = features; }
+        public void setScore(Double score) { this.score = score; }
+        public void setOutputOperator(Integer outputOperator) { this.outputOperator = outputOperator; }
+        public void setArrivalTime(Long arrivalTime) { this.arrivalTime = arrivalTime; }
+        public void setTupleNumber(Long tupleNumber) { this.tupleNumber = tupleNumber; }
+    }
+    
+    /* ===========================================================
+     *  1 | Synthetic source producing Tuple2<String, MLScoringRecord>
+     * ===========================================================
+     */
+    public static class TxnSource implements SourceFunction<Tuple2<String, MLScoringRecord>> {
 
         private final long runMillis;
         private final int baseRate;
@@ -106,10 +187,14 @@ public final class MLScoringJob {
         private final double spikeProbability;
         private final double spikeMultiplier;
         private final double fluctuationStd;
+        private final long warmupTime;
+        private final long warmupRate;
+        private final double inputRateFactor;
         private volatile boolean running = true;
 
         public TxnSource(long runMillis, int baseRate, double sineAmplitude, double sinePeriod, 
-                        double spikeProbability, double spikeMultiplier, double fluctuationStd) {
+                        double spikeProbability, double spikeMultiplier, double fluctuationStd,
+                        long warmupTime, long warmupRate, double inputRateFactor) {
             this.runMillis = runMillis;
             this.baseRate = baseRate;
             this.sineAmplitude = sineAmplitude;
@@ -117,16 +202,57 @@ public final class MLScoringJob {
             this.spikeProbability = spikeProbability;
             this.spikeMultiplier = spikeMultiplier;
             this.fluctuationStd = fluctuationStd;
+            this.warmupTime = warmupTime;
+            this.warmupRate = warmupRate;
+            this.inputRateFactor = inputRateFactor;
         }
 
         @Override
-        public void run(SourceContext<String> ctx) throws Exception {
+        public void run(SourceContext<Tuple2<String, MLScoringRecord>> ctx) throws Exception {
             Random rnd = new Random(114514);
             long start = System.currentTimeMillis();
             long id = 0L;
 
-            while (running && System.currentTimeMillis() - start < runMillis) {
-                long currentTime = System.currentTimeMillis() - start;
+            // Warmup phase
+            if (warmupTime > 0) {
+                System.out.println("Warmup phase for " + warmupTime + "ms at rate " + warmupRate + " txn/s");
+                long warmupStart = System.currentTimeMillis();
+                while (System.currentTimeMillis() - warmupStart < warmupTime) {
+                    double currentRate = warmupRate;
+                    if (warmupRate < baseRate) { // Gradually increase rate
+                        currentRate = warmupRate + (baseRate - warmupRate) * (System.currentTimeMillis() - warmupStart) / warmupTime;
+                    }
+                    long emitStart = System.currentTimeMillis();
+                    int recordsToEmit = Math.max(1, (int) Math.round(currentRate));
+                    for (int i = 0; i < recordsToEmit; i++) {
+                        long arrivalTime = System.currentTimeMillis();
+                        int accountId = i % 10_000;
+                        String accountKey = "ACC" + accountId;
+                        
+                        MLScoringRecord record = new MLScoringRecord(
+                                accountKey,
+                                id++,
+                                1 + rnd.nextDouble() * 499,    // amount
+                                rnd.nextInt(2_000),            // merchant
+                                null,                          // features (to be filled later)
+                                0.0,                          // score (to be calculated)
+                                Source_Output,                 // output operator
+                                arrivalTime,                   // arrival time for latency tracking
+                                id);                          // tuple number
+                        
+                        ctx.collect(new Tuple2<>(accountKey, record));
+                    }
+                    long elapsed = System.currentTimeMillis() - emitStart;
+                    if (elapsed < 1_000) Thread.sleep(1_000 - elapsed);
+                }
+                System.out.println("Warmup phase complete.");
+            }
+
+            // Main run phase
+            System.out.println("Main run phase for " + runMillis + "ms at rate " + (baseRate * inputRateFactor) + " txn/s");
+            long mainRunStart = System.currentTimeMillis();
+            while (running && System.currentTimeMillis() - mainRunStart < runMillis) {
+                long currentTime = System.currentTimeMillis() - mainRunStart;
                 double secondsElapsed = currentTime / 1000.0;
                 
                 // Calculate dynamic rate with multiple components
@@ -136,17 +262,23 @@ public final class MLScoringJob {
                 int recordsToEmit = Math.max(1, (int) Math.round(currentRate));
                 
                 for (int i = 0; i < recordsToEmit; i++) {
-                    // Include arrival timestamp and tuple number in the CSV for tracking
+                    // Include arrival timestamp and tuple number for tracking
                     long arrivalTime = System.currentTimeMillis();
-                    String record = String.format(
-                            "%d,%d,%.2f,M%d,%d,%d",
+                    int accountId = rnd.nextInt(10_000);
+                    String accountKey = "ACC" + accountId;
+                    
+                    MLScoringRecord record = new MLScoringRecord(
+                            accountKey,
                             id++,
-                            rnd.nextInt(10_000),          // accountId
                             1 + rnd.nextDouble() * 499,    // amount
                             rnd.nextInt(2_000),            // merchant
+                            null,                          // features (to be filled later)
+                            0.0,                          // score (to be calculated)
+                            Source_Output,                 // output operator
                             arrivalTime,                   // arrival time for latency tracking
                             id);                          // tuple number
-                    ctx.collect(record);
+                    
+                    ctx.collect(new Tuple2<>(accountKey, record));
                 }
                 
                 long elapsed = System.currentTimeMillis() - emitStart;
@@ -169,60 +301,39 @@ public final class MLScoringJob {
             double fluctuationComponent = 1.0 + rnd.nextGaussian() * fluctuationStd;
             
             // Combine all components
-            double combinedRate = baseRate * sineVariation * spikeComponent * fluctuationComponent;
+            double combinedRate = baseRate * inputRateFactor * sineVariation * spikeComponent * fluctuationComponent;
             
             // Ensure rate stays positive and reasonable
-            return Math.max(1.0, Math.min(combinedRate, baseRate * 10.0));
+            return Math.max(1.0, Math.min(combinedRate, baseRate * inputRateFactor * 10.0));
         }
 
         @Override
         public void cancel() { running = false; }
     }
-
+    
     /* ===========================================================
-     *  2 | Txn POJO with latency tracking fields
+     *  DelayUtil - Same as LinearRoad
      * ===========================================================
      */
-    public static class Txn {
-        public long   id;
-        public int    accountId;
-        public double amount;
-        public int    merchant;
-        public long   arrivalTime;   // arrival timestamp for latency tracking
-        public long   tupleNumber;   // tuple sequence number
+    public static class DelayUtil {
+        private static final RandomDataGenerator randomGen = new RandomDataGenerator();
 
-        // Flink requires a no-arg constructor
-        public Txn() {}
-        public Txn(long id, int acc, double amt, int mer, long arrivalTime, long tupleNumber){
-            this.id = id;
-            this.accountId = acc;
-            this.amount = amt;
-            this.merchant = mer;
-            this.arrivalTime = arrivalTime;
-            this.tupleNumber = tupleNumber;
-        }
-        @Override public String toString(){
-            return String.format("Txn(%d,%d,%.2f,%d,%d,%d)", id, accountId, amount, merchant, arrivalTime, tupleNumber);
-        }
-    }
-    
-    private static void delay(long time) {
-        try {
-            // Add Gaussian fluctuation: mean=0, std=time*0.1 (10% of target time)
-            // This ensures the average delay is around the target time
-            double gaussianNoise = new Random().nextGaussian() * time * 0.1;
-            long actualDelay = Math.max(1, (long) (time + gaussianNoise)); // Ensure minimum 1ms
-            Thread.sleep(actualDelay);
-        } catch (InterruptedException e) {
-            Thread.currentThread().interrupt();
+        public static void delay(long intervalMicroseconds) {
+            Double ranN = randomGen.nextGaussian(intervalMicroseconds, 1) * 1000;
+            long delayNanos = ranN.intValue();
+            if (delayNanos < 0) delayNanos = intervalMicroseconds * 1000;
+            long start = System.nanoTime();
+            while (System.nanoTime() - start < delayNanos) {
+                // Busy waiting
+            }
         }
     }
     
     /* ===========================================================
-     *  3 | CSV → Txn with latency tracking
+     *  2 | ParseTxn FlatMap - Following LinearRoad pattern
      * ===========================================================
      */
-    public static class ParseTxn implements MapFunction<String, Txn> {
+    public static class ParseTxn extends RichFlatMapFunction<Tuple2<String, MLScoringRecord>, Tuple2<String, MLScoringRecord>> {
         private final long delayMs;
         
         public ParseTxn(long delayMs) {
@@ -230,25 +341,39 @@ public final class MLScoringJob {
         }
         
         @Override
-        public Txn map(String v) {
-            String[] f = v.split(",");
-            delay(delayMs);
-            return new Txn(
-                    Long.parseLong(f[0]),      // id
-                    Integer.parseInt(f[1]),    // accountId
-                    Double.parseDouble(f[2]),  // amount
-                    Integer.parseInt(f[3]),    // merchant
-                    Long.parseLong(f[4]),      // arrivalTime
-                    Long.parseLong(f[5]));     // tupleNumber
+        public void flatMap(Tuple2<String, MLScoringRecord> input, Collector<Tuple2<String, MLScoringRecord>> out) {
+            MLScoringRecord inputRecord = input.f1;
+            String accountKey = input.f0;
+            
+            DelayUtil.delay(delayMs);
+            
+            long currentTime = System.currentTimeMillis();
+            long latency = currentTime - inputRecord.getArrivalTime();
+            
+            // Print ground truth latency following LinearRoad pattern
+            System.out.println("GT: " + inputRecord.getAccountId() + ", " + currentTime + ", " + latency + ", " + inputRecord.getTupleNumber());
+            
+            // Create updated record
+            MLScoringRecord outputRecord = new MLScoringRecord(
+                    inputRecord.getAccountId(),
+                    inputRecord.getId(),
+                    inputRecord.getAmount(),
+                    inputRecord.getMerchant(),
+                    inputRecord.getFeatures(),
+                    inputRecord.getScore(),
+                    ParseTxn_Output,
+                    inputRecord.getArrivalTime(),
+                    inputRecord.getTupleNumber());
+            
+            out.collect(new Tuple2<>(accountKey, outputRecord));
         }
     }
 
     /* ===========================================================
-     *  4 | FeatureBuilder with latency tracking
+     *  3 | FeatureBuilder FlatMap
      * ===========================================================
      */
-    public static class FeatureBuilder implements
-            MapFunction<Txn, Tuple2<Integer,String>> {
+    public static class FeatureBuilder extends RichFlatMapFunction<Tuple2<String, MLScoringRecord>, Tuple2<String, MLScoringRecord>> {
         private final long delayMs;
         
         public FeatureBuilder(long delayMs) {
@@ -256,19 +381,40 @@ public final class MLScoringJob {
         }
         
         @Override
-        public Tuple2<Integer,String> map(Txn txn) {
-            String features = txn.amount + "|" + txn.merchant + "|" + txn.arrivalTime + "|" + txn.tupleNumber;
-            delay(delayMs);
-            return Tuple2.of(txn.accountId, features);
+        public void flatMap(Tuple2<String, MLScoringRecord> input, Collector<Tuple2<String, MLScoringRecord>> out) {
+            MLScoringRecord inputRecord = input.f1;
+            String accountKey = input.f0;
+            
+            String features = inputRecord.getAmount() + "|" + inputRecord.getMerchant();
+            DelayUtil.delay(delayMs);
+            
+            long currentTime = System.currentTimeMillis();
+            long latency = currentTime - inputRecord.getArrivalTime();
+            
+            // Print ground truth latency
+            System.out.println("GT: " + inputRecord.getAccountId() + ", " + currentTime + ", " + latency + ", " + inputRecord.getTupleNumber());
+            
+            // Create updated record with features
+            MLScoringRecord outputRecord = new MLScoringRecord(
+                    inputRecord.getAccountId(),
+                    inputRecord.getId(),
+                    inputRecord.getAmount(),
+                    inputRecord.getMerchant(),
+                    features,
+                    inputRecord.getScore(),
+                    FeatureBuilder_Output,
+                    inputRecord.getArrivalTime(),
+                    inputRecord.getTupleNumber());
+            
+            out.collect(new Tuple2<>(accountKey, outputRecord));
         }
     }
 
     /* ===========================================================
-     *  5 | Feature-Based Realistic GBDT Scorer
+     *  4 | Feature-Based Realistic GBDT Scorer FlatMap
      * ===========================================================
      */
-    public static class RealisticGBDTScorer extends RichFlatMapFunction<
-                Tuple2<Integer,String>, String> {
+    public static class RealisticGBDTScorer extends RichFlatMapFunction<Tuple2<String, MLScoringRecord>, Tuple2<String, MLScoringRecord>> {
 
         private final long baseDelayMs;
         private final double complexityFactor;
@@ -281,15 +427,13 @@ public final class MLScoringJob {
         }
 
         @Override
-        public void flatMap(Tuple2<Integer,String> in, Collector<String> out)
-                throws Exception {
-
-            int accountId = in.f0;
-            String[] features = in.f1.split("\\|");
-            double amount = Double.parseDouble(features[0]);
-            int merchant = Integer.parseInt(features[1].substring(1)); // Remove 'M' prefix
-            long arrivalTime = Long.parseLong(features[2]);
-            long tupleNumber = Long.parseLong(features[3]);
+        public void flatMap(Tuple2<String, MLScoringRecord> input, Collector<Tuple2<String, MLScoringRecord>> out) throws Exception {
+            MLScoringRecord inputRecord = input.f1;
+            String accountKey = input.f0;
+            
+            int accountId = Integer.parseInt(inputRecord.getAccountId().substring(3)); // Remove "ACC" prefix
+            double amount = inputRecord.getAmount();
+            int merchant = inputRecord.getMerchant();
             
             // Simulate feature-based complexity
             long processingTime = calculateProcessingTime(accountId, amount, merchant);
@@ -301,8 +445,25 @@ public final class MLScoringJob {
             // Generate score based on features (more realistic)
             double score = calculateScore(accountId, amount, merchant);
             
-            String result = accountId + "," + score + "," + arrivalTime + "," + tupleNumber;
-            out.collect(result);
+            long currentTime = System.currentTimeMillis();
+            long latency = currentTime - inputRecord.getArrivalTime();
+            
+            // Print ground truth latency
+            System.out.println("GT: " + inputRecord.getAccountId() + ", " + currentTime + ", " + latency + ", " + inputRecord.getTupleNumber());
+            
+            // Create updated record with score
+            MLScoringRecord outputRecord = new MLScoringRecord(
+                    inputRecord.getAccountId(),
+                    inputRecord.getId(),
+                    inputRecord.getAmount(),
+                    inputRecord.getMerchant(),
+                    inputRecord.getFeatures(),
+                    score,
+                    RealisticGBDTScorer_Output,
+                    inputRecord.getArrivalTime(),
+                    inputRecord.getTupleNumber());
+            
+            out.collect(new Tuple2<>(accountKey, outputRecord));
         }
 
         private long calculateProcessingTime(int accountId, double amount, int merchant) {
@@ -356,67 +517,44 @@ public final class MLScoringJob {
     }
     
     /* ===========================================================
-     *  6 | Latency Tracking Sink - Similar to LinearRoad GT pattern
+     *  5 | Latency Tracking FlatMap - Replaces sink, following LinearRoad pattern
      * ===========================================================
      */
-    public static class LatencyTrackingSink extends RichSinkFunction<String> {
-        
-        private final String outputFilePath;
-        private transient PrintWriter writer;
-        
-        public LatencyTrackingSink(String outputFilePath) {
-            this.outputFilePath = outputFilePath;
-        }
+    public static class LatencyTrackingFlatMap extends RichFlatMapFunction<Tuple2<String, MLScoringRecord>, Tuple2<String, MLScoringRecord>> {
         
         @Override
-        public void open(Configuration parameters) throws Exception {
-            super.open(parameters);
-            try {
-                FileWriter fileWriter = new FileWriter(outputFilePath, true); // append mode
-                writer = new PrintWriter(fileWriter);
-            } catch (IOException e) {
-                throw new RuntimeException("Failed to open latency output file: " + outputFilePath, e);
-            }
-        }
-        
-        @Override
-        public void invoke(String result, Context context) throws Exception {
-            String[] parts = result.split(",");
-            if (parts.length >= 4) {
-                int accountId = Integer.parseInt(parts[0]);
-                double score = Double.parseDouble(parts[1]);
-                long arrivalTime = Long.parseLong(parts[2]);
-                long tupleNumber = Long.parseLong(parts[3]);
-                
-                long currentTime = System.currentTimeMillis();
-                long latency = currentTime - arrivalTime;
-                
-                // Print to console in LinearRoad GT format
-                System.out.println("GT: ACC" + accountId + ", " + currentTime + ", " + latency + ", " + tupleNumber);
-                
-                // Also write to file for offline analysis
-                String logEntry = String.format("GT: ACC%d, %d, %d, %d, %.4f%n", 
-                    accountId, currentTime, latency, tupleNumber, score);
-                writer.print(logEntry);
-                writer.flush(); // Ensure immediate write
-            }
-        }
-        
-        @Override
-        public void close() throws Exception {
-            if (writer != null) {
-                writer.close();
-            }
-            super.close();
+        public void flatMap(Tuple2<String, MLScoringRecord> input, Collector<Tuple2<String, MLScoringRecord>> out) throws Exception {
+            MLScoringRecord inputRecord = input.f1;
+            String accountKey = input.f0;
+            
+            long currentTime = System.currentTimeMillis();
+            long latency = currentTime - inputRecord.getArrivalTime();
+            
+            // Print ground truth latency in LinearRoad format
+            System.out.println("GT: " + inputRecord.getAccountId() + ", " + currentTime + ", " + latency + ", " + inputRecord.getTupleNumber());
+            
+            // Create final output record
+            MLScoringRecord outputRecord = new MLScoringRecord(
+                    inputRecord.getAccountId(),
+                    inputRecord.getId(),
+                    inputRecord.getAmount(),
+                    inputRecord.getMerchant(),
+                    inputRecord.getFeatures(),
+                    inputRecord.getScore(),
+                    LatencyTracking_Output,
+                    inputRecord.getArrivalTime(),
+                    inputRecord.getTupleNumber());
+            
+            out.collect(new Tuple2<>(accountKey, outputRecord));
         }
     }
     
     /* ===========================================================
-     *  7 | Alternative: GBDTScorer for real model usage
+     *  6 | Alternative: GBDTScorer for real model usage
      * ===========================================================
      */
     public static class GBDTScorer extends RichMapFunction<
-            Tuple2<Integer,String>, String> {
+            Tuple2<String, MLScoringRecord>, Tuple2<String, MLScoringRecord>> {
 
         private transient SomeGbdtModel model;
 
@@ -427,19 +565,29 @@ public final class MLScoringJob {
         }
 
         @Override
-        public String map(Tuple2<Integer,String> in) {
-            String[] features = in.f1.split("\\|");
-            String featureStr = features[0] + "|" + features[1]; // amount|merchant
-            long arrivalTime = Long.parseLong(features[2]);
-            long tupleNumber = Long.parseLong(features[3]);
+        public Tuple2<String, MLScoringRecord> map(Tuple2<String, MLScoringRecord> input) {
+            MLScoringRecord inputRecord = input.f1;
+            String accountKey = input.f0;
             
-            double score = model.predict(featureStr); // model parses feature string
-            return in.f0 + "," + score + "," + arrivalTime + "," + tupleNumber;
+            double score = model.predict(inputRecord.getFeatures());
+            
+            MLScoringRecord outputRecord = new MLScoringRecord(
+                    inputRecord.getAccountId(),
+                    inputRecord.getId(),
+                    inputRecord.getAmount(),
+                    inputRecord.getMerchant(),
+                    inputRecord.getFeatures(),
+                    score,
+                    inputRecord.getOutputOperator(),
+                    inputRecord.getArrivalTime(),
+                    inputRecord.getTupleNumber());
+            
+            return new Tuple2<>(accountKey, outputRecord);
         }
     }
 
     /* ===========================================================
-     *  8 | Placeholder model API
+     *  7 | Placeholder model API
      * ===========================================================
      */
     public static class SomeGbdtModel {

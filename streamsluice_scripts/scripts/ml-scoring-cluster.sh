@@ -47,7 +47,8 @@ init() {
   controller_type="StreamSluice"
   whether_type="streamsluice"
   how_type="streamsluice"
-  vertex_id="parse_txn,feature_builder,scorer"
+  # FIXED: Include all 4 operators - parse, feature, scorer, sink
+  vertex_id="96c3e564515d47f15214bd3914f0bc21,525b5b4e21984311846b8b6b3ed6ab3b,e8ff335113bda425b8ce61ff16356d9e" #,087142f152e8e46b2c50143fc0ac72b6"
   L=1000
   migration_interval=500
   epoch=100
@@ -102,17 +103,18 @@ init() {
   is_treat=true
   repeat=1
   warmup=10000
+  warmup_time=150 #300
+  warmup_rate=1000
   metrics_output=true
-  autotune=true
-  autotune_interval=1000
-  autotuner_latency_window=5000
-  autotuner_bar_lowerbound=300
-  autotuner_initial_value_option=2
-  autotuner_initial_value_alpha=0.2
+  autotune=false
+  autotune_interval=60
+  autotuner="UserLimitTuner"
+  autotuner_latency_window=100
+  autotuner_bar_lowerbound=350
   autotuner_adjustment_option=1
+  autotuner_increase_bar_option=1 # 2
+  autotuner_initial_value_alpha=1.2
   autotuner_adjustment_beta=2.0
-  autotuner_increase_bar_option=1
-  autotuner_increase_bar_alpha=0.1
   
   # flags
   coordination_latency_flag=true
@@ -148,7 +150,10 @@ function runApp() {
     -scorer.base.delay ${scorer_base_delay} \
     -scorer.complexity.factor ${scorer_complexity_factor} \
     -latency.output.file ${latency_output_file} \
-    -p1 ${P1} -mp1 ${MP1} \
+    -warmup_time ${warmup_time} \
+    -warmup_rate ${warmup_rate} \
+    -input_rate_factor ${input_rate_factor} \
+    -p1 ${P1} \
     -p2 ${P2} -mp2 ${MP2} \
     -p3 ${P3} -mp3 ${MP3} \
     -p4 ${P4} -mp4 ${MP4} &"
@@ -166,7 +171,10 @@ function runApp() {
     -scorer.base.delay ${scorer_base_delay} \
     -scorer.complexity.factor ${scorer_complexity_factor} \
     -latency.output.file ${latency_output_file} \
-    -p1 ${P1} -mp1 ${MP1} \
+    -warmup_time ${warmup_time} \
+    -warmup_rate ${warmup_rate} \
+    -input_rate_factor ${input_rate_factor} \
+    -p1 ${P1} \
     -p2 ${P2} -mp2 ${MP2} \
     -p3 ${P3} -mp3 ${MP3} \
     -p4 ${P4} -mp4 ${MP4} &
@@ -208,7 +216,7 @@ function setting1(){
   ml_parse_delay=${parse_delay}
   ml_feature_delay=${feature_delay}
   
-  for repeat in 1 2 3; do
+  for repeat in 1; do # 2 3
     run_one_exp
     printf "${EXP_NAME}\n" >> ml_scoring_result.txt
   done
@@ -351,9 +359,9 @@ echo "Results will be stored in: ${EXP_DIR}"
 
 # Run all settings
 setting1
-setting2
-setting3
-setting4
+#setting2
+#setting3
+#setting4
 
 echo "All experiments completed. Results summary:"
 cat ml_scoring_result.txt 
