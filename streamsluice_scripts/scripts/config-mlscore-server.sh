@@ -55,11 +55,11 @@ function configFlink() {
     
     # ML Scoring Job specific vertex IDs for max parallelism
     # parse_txn vertex
-    sed 's/^\(\s*model.max_parallelism.96c3e564515d47f15214bd3914f0bc21\s*:\s*\).*/\1'"$LP_PARSE"'/' tmp17 > tmp18
+    sed 's/^\(\s*model.max_parallelism.a84740bacf923e828852cc4966f2247c\s*:\s*\).*/\1'"$LP_PARSE"'/' tmp17 > tmp18
     # feature_builder vertex
-    sed 's/^\(\s*model.max_parallelism.525b5b4e21984311846b8b6b3ed6ab3b\s*:\s*\).*/\1'"$LP_FEATURE"'/' tmp18 > tmp19
+    sed 's/^\(\s*model.max_parallelism.eabd4c11f6c6fbdf011f0f1fc42097b1\s*:\s*\).*/\1'"$LP_FEATURE"'/' tmp18 > tmp19
     # scorer vertex
-    sed 's/^\(\s*model.max_parallelism.e8ff335113bda425b8ce61ff16356d9e\s*:\s*\).*/\1'"$LP_SCORER"'/' tmp19 > tmp20
+    sed 's/^\(\s*model.max_parallelism.d01047f852abd5702a0dabeedac99ff5\s*:\s*\).*/\1'"$LP_SCORER"'/' tmp19 > tmp20
     
     sed 's/^\(\s*streamsluice.model.decision_interval\s*:\s*\).*/\1'"$decision_interval"'/' tmp20 > tmp21
     sed 's/^\(\s*streamsluice.metrics.snapshot_size\s*:\s*\).*/\1'"$snapshot_size"'/' tmp21 > tmp22
@@ -80,19 +80,20 @@ function configFlink() {
     sed 's/^\(\s*streamsluice.system.autotune.initial_value_alpha\s*:\s*\).*/\1'"$autotuner_initial_value_alpha"'/' tmp36 > tmp37
     sed 's/^\(\s*streamsluice.system.autotune.adjustment_beta\s*:\s*\).*/\1'"$autotuner_adjustment_beta"'/' tmp37 > tmp38
     sed 's/^\(\s*streamsluice.system.autotune.increase_bar_alpha\s*:\s*\).*/\1'"$autotuner_increase_bar_alpha"'/' tmp38 > tmp39
-    sed 's/^\(\s*controller.whether.option\s*:\s*\).*/\1'"$scaling_decision_option"'/' tmp39 > tmp40
-    sed 's/^\(\s*model.use_DP_algorithm_flag\s*:\s*\).*/\1'"$lem_dp_algorithm_flag"'/' tmp40 > tmp41
-    sed 's/^\(\s*controller.scale_in.type\s*:\s*\).*/\1'"$scalein_type"'/' tmp41 > tmp42
+    sed 's/^\(\s*streamsluice.system.conservative\s*:\s*\).*/\1'"$conservative_factor"'/' tmp39 > tmp40
+    sed 's/^\(\s*controller.whether.option\s*:\s*\).*/\1'"$scaling_decision_option"'/' tmp40 > tmp41
+    sed 's/^\(\s*model.use_DP_algorithm_flag\s*:\s*\).*/\1'"$lem_dp_algorithm_flag"'/' tmp41 > tmp42
+    sed 's/^\(\s*controller.scale_in.type\s*:\s*\).*/\1'"$scalein_type"'/' tmp42 > tmp43
     
     # ML Scoring Job specific configurations
-    sed 's/^\(\s*mlscore.transaction.rate.base\s*:\s*\).*/\1'"$ml_base_rate"'/' tmp42 > tmp43
-    sed 's/^\(\s*mlscore.transaction.rate.sine_amplitude\s*:\s*\).*/\1'"$ml_sine_amplitude"'/' tmp43 > tmp44
-    sed 's/^\(\s*mlscore.transaction.rate.sine_period\s*:\s*\).*/\1'"$ml_sine_period"'/' tmp44 > tmp45
-    sed 's/^\(\s*mlscore.transaction.spike.probability\s*:\s*\).*/\1'"$ml_spike_probability"'/' tmp45 > tmp46
-    sed 's/^\(\s*mlscore.transaction.spike.multiplier\s*:\s*\).*/\1'"$ml_spike_multiplier"'/' tmp46 > tmp47
-    sed 's/^\(\s*mlscore.transaction.fluctuation.std\s*:\s*\).*/\1'"$ml_fluctuation_std"'/' tmp47 > tmp48
-    sed 's/^\(\s*mlscore.processing.parse_delay\s*:\s*\).*/\1'"$ml_parse_delay"'/' tmp48 > tmp49
-    sed 's/^\(\s*mlscore.processing.feature_delay\s*:\s*\).*/\1'"$ml_feature_delay"'/' tmp49 > ${FLINK_CONF_DIR}/flink-conf-mlscore.yaml
+    sed 's/^\(\s*mlscore.transaction.rate.base\s*:\s*\).*/\1'"$ml_base_rate"'/' tmp43 > tmp44
+    sed 's/^\(\s*mlscore.transaction.rate.sine_amplitude\s*:\s*\).*/\1'"$ml_sine_amplitude"'/' tmp44 > tmp45
+    sed 's/^\(\s*mlscore.transaction.rate.sine_period\s*:\s*\).*/\1'"$ml_sine_period"'/' tmp45 > tmp46
+    sed 's/^\(\s*mlscore.transaction.spike.probability\s*:\s*\).*/\1'"$ml_spike_probability"'/' tmp46 > tmp47
+    sed 's/^\(\s*mlscore.transaction.spike.multiplier\s*:\s*\).*/\1'"$ml_spike_multiplier"'/' tmp47 > tmp48
+    sed 's/^\(\s*mlscore.transaction.fluctuation.std\s*:\s*\).*/\1'"$ml_fluctuation_std"'/' tmp48 > tmp49
+    sed 's/^\(\s*mlscore.processing.parse_delay\s*:\s*\).*/\1'"$ml_parse_delay"'/' tmp49 > tmp50
+    sed 's/^\(\s*mlscore.processing.feature_delay\s*:\s*\).*/\1'"$ml_feature_delay"'/' tmp50 > ${FLINK_CONF_DIR}/flink-conf-mlscore.yaml
 
     rm tmp*
     echo ${FLINK_CONF_DIR}/flink-conf-mlscore.yaml

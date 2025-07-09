@@ -45,65 +45,65 @@ public final class MLScoringJob {
 
         // env.enableCheckpointing(p.getLong("ckpt", 10_000));
 
-        // parameters - now tunable via command line
-        long runSeconds = p.getLong("run.seconds", 300);       // 5 min demo
-        int  baseRate   = p.getInt("base.rate", 500);          // 500 txn/s base rate
+        // parameters - now tunable via command line with robust error handling
+        long runSeconds = getLongParameter(p, "run.seconds", 300L);
+        int baseRate = getIntParameter(p, "base.rate", 500);
         
         // Warmup parameters similar to LinearRoad
-        long warmupTime = p.getLong("warmup_time", 30L) * 1000; // warmup duration in ms
-        long warmupRate = p.getLong("warmup_rate", 1000L);       // warmup rate txn/s
-        double inputRateFactor = p.getDouble("input_rate_factor", 1.0); // rate multiplier
+        long warmupTime = getLongParameter(p, "warmup_time", 30L) * 1000; // warmup duration in ms
+        long warmupRate = getLongParameter(p, "warmup_rate", 1000L);       // warmup rate txn/s
+        double inputRateFactor = getDoubleParameter(p, "input_rate_factor", 1.0); // rate multiplier
         
         DataStream<Tuple2<String, MLScoringRecord>> source = env
                 .addSource(new TxnSource(
                     runSeconds * 1_000L, 
                     baseRate,
-                    p.getDouble("sine.amplitude", 0.3),      // sine wave amplitude (0.3 = ±30% variation)
-                    p.getDouble("sine.period", 60.0),        // sine wave period in seconds
-                    p.getDouble("spike.probability", 0.05),  // probability of spike per second
-                    p.getDouble("spike.multiplier", 3.0),    // spike multiplier (3x normal rate)
-                    p.getDouble("fluctuation.std", 0.1),     // short-term fluctuation std dev (10%)
+                    getDoubleParameter(p, "sine.amplitude", 0.3),      // sine wave amplitude (0.3 = ±30% variation)
+                    getDoubleParameter(p, "sine.period", 60.0),        // sine wave period in seconds
+                    getDoubleParameter(p, "spike.probability", 0.05),  // probability of spike per second
+                    getDoubleParameter(p, "spike.multiplier", 3.0),    // spike multiplier (3x normal rate)
+                    getDoubleParameter(p, "fluctuation.std", 0.1),     // short-term fluctuation std dev (10%)
                     warmupTime,                              // warmup duration
                     warmupRate,                              // warmup rate
                     inputRateFactor                          // input rate factor
                 ))
                 .name("Mock-Txn-Source")
-                .setParallelism(p.getInt("p1", 1));
+                .setParallelism(getIntParameter(p, "p1", 1));
 
         // Parse operator following LinearRoad pattern
         DataStream<Tuple2<String, MLScoringRecord>> afterParse = source
                 .keyBy(0)
-                .flatMap(new ParseTxn(p.getLong("parse.delay", 1)))
+                .flatMap(new ParseTxn(getLongParameter(p, "parse.delay", 1L)))
                 .disableChaining()
                 .name("ParseTxn")
                 .uid("op2")
-                .setParallelism(p.getInt("p2", 1))
-                .setMaxParallelism(p.getInt("mp2", 8))
+                .setParallelism(getIntParameter(p, "p2", 1))
+                .setMaxParallelism(getIntParameter(p, "mp2", 8))
                 .slotSharingGroup("g2");
 
         // Feature builder operator
         DataStream<Tuple2<String, MLScoringRecord>> afterFeatureBuilder = afterParse
                 .keyBy(0)
-                .flatMap(new FeatureBuilder(p.getLong("feature.delay", 1)))
+                .flatMap(new FeatureBuilder(getLongParameter(p, "feature.delay", 1L)))
                 .disableChaining()
                 .name("FeatureBuilder")
                 .uid("op3")
-                .setParallelism(p.getInt("p3", 1))
-                .setMaxParallelism(p.getInt("mp3", 8))
+                .setParallelism(getIntParameter(p, "p3", 1))
+                .setMaxParallelism(getIntParameter(p, "mp3", 8))
                 .slotSharingGroup("g3");
 
         // GBDT Scorer operator
         DataStream<Tuple2<String, MLScoringRecord>> afterScorer = afterFeatureBuilder
                 .keyBy(0)
                 .flatMap(new RealisticGBDTScorer(
-                    p.getLong("scorer.base.delay", 2),           // Base processing time (ms)
-                    p.getDouble("scorer.complexity.factor", 1.0) // Complexity multiplier
+                    getLongParameter(p, "scorer.base.delay", 2000L),        // Base processing time (microseconds)
+                    getDoubleParameter(p, "scorer.complexity.factor", 1.0) // Complexity multiplier
                 ))
                 .disableChaining()
                 .name("RealisticGBDTScorer")
                 .uid("op4")
-                .setParallelism(p.getInt("p4", 1))
-                .setMaxParallelism(p.getInt("mp4", 8))
+                .setParallelism(getIntParameter(p, "p4", 1))
+                .setMaxParallelism(getIntParameter(p, "mp4", 8))
                 .slotSharingGroup("g4");
                 
         // Latency tracking flatMap operator (replaces sink)
@@ -113,11 +113,39 @@ public final class MLScoringJob {
                 .disableChaining()
                 .name("LatencyTracking")
                 .uid("op5")
-                .setParallelism(p.getInt("p5", 1))
-                .setMaxParallelism(p.getInt("mp5", 8))
+                .setParallelism(getIntParameter(p, "p5", 1))
+                .setMaxParallelism(getIntParameter(p, "mp5", 8))
                 .slotSharingGroup("g5");
                 
         env.execute("Real-Time ML Scoring (Mock)");
+    }
+    
+    // Helper methods for robust parameter handling
+    private static long getLongParameter(ParameterTool p, String key, long defaultValue) {
+        try {
+            return p.getLong(key, defaultValue);
+        } catch (Exception e) {
+            System.out.println("Warning: Could not parse parameter " + key + ", using default: " + defaultValue);
+            return defaultValue;
+        }
+    }
+    
+    private static int getIntParameter(ParameterTool p, String key, int defaultValue) {
+        try {
+            return p.getInt(key, defaultValue);
+        } catch (Exception e) {
+            System.out.println("Warning: Could not parse parameter " + key + ", using default: " + defaultValue);
+            return defaultValue;
+        }
+    }
+    
+    private static double getDoubleParameter(ParameterTool p, String key, double defaultValue) {
+        try {
+            return p.getDouble(key, defaultValue);
+        } catch (Exception e) {
+            System.out.println("Warning: Could not parse parameter " + key + ", using default: " + defaultValue);
+            return defaultValue;
+        }
     }
 
     /* ===========================================================
@@ -226,7 +254,7 @@ public final class MLScoringJob {
                     int recordsToEmit = Math.max(1, (int) Math.round(currentRate));
                     for (int i = 0; i < recordsToEmit; i++) {
                         long arrivalTime = System.currentTimeMillis();
-                        int accountId = i % 10_000;
+                        int accountId = rnd.nextInt(10_000);
                         String accountKey = "ACC" + accountId;
                         
                         MLScoringRecord record = new MLScoringRecord(
@@ -438,9 +466,9 @@ public final class MLScoringJob {
             // Simulate feature-based complexity
             long processingTime = calculateProcessingTime(accountId, amount, merchant);
             
-            // Busy wait to simulate processing
+            // Busy wait to simulate processing (processingTime is in microseconds)
             long start = System.nanoTime();
-            while (System.nanoTime() - start < processingTime * 1_000_000L) { /* spin */ }
+            while (System.nanoTime() - start < processingTime * 1_000L) { /* spin */ }
 
             // Generate score based on features (more realistic)
             double score = calculateScore(accountId, amount, merchant);
@@ -467,24 +495,24 @@ public final class MLScoringJob {
         }
 
         private long calculateProcessingTime(int accountId, double amount, int merchant) {
-            // Base processing time
+            // Base processing time (in microseconds)
             long processingTime = baseDelayMs;
             
             // 1. Amount-based complexity (larger amounts need more analysis)
-            if (amount > 1000) processingTime += (long)(complexityFactor * 3);
-            else if (amount > 500) processingTime += (long)(complexityFactor * 2);
-            else if (amount > 100) processingTime += (long)(complexityFactor * 1);
+            if (amount > 1000) processingTime += (long)(complexityFactor * 3000); // 3ms in microseconds
+            else if (amount > 500) processingTime += (long)(complexityFactor * 2000); // 2ms in microseconds
+            else if (amount > 100) processingTime += (long)(complexityFactor * 1000); // 1ms in microseconds
             
             // 2. Account history complexity (simulate account risk profiling)
             int accountComplexity = Math.abs(accountId) % 100;
-            if (accountComplexity > 90) processingTime += (long)(complexityFactor * 5); // VIP accounts
-            else if (accountComplexity > 70) processingTime += (long)(complexityFactor * 3); // High-risk accounts
-            else if (accountComplexity < 10) processingTime += (long)(complexityFactor * 2); // New accounts
+            if (accountComplexity > 90) processingTime += (long)(complexityFactor * 5000); // 5ms in microseconds
+            else if (accountComplexity > 70) processingTime += (long)(complexityFactor * 3000); // 3ms in microseconds
+            else if (accountComplexity < 10) processingTime += (long)(complexityFactor * 2000); // 2ms in microseconds
             
             // 3. Merchant category complexity
             int merchantCategory = merchant % 20;
-            if (merchantCategory < 2) processingTime += (long)(complexityFactor * 4); // High-risk merchants (gambling, crypto)
-            else if (merchantCategory < 5) processingTime += (long)(complexityFactor * 2); // Financial services
+            if (merchantCategory < 2) processingTime += (long)(complexityFactor * 4000); // 4ms in microseconds
+            else if (merchantCategory < 5) processingTime += (long)(complexityFactor * 2000); // 2ms in microseconds
             
             // 4. Add some randomness for model tree traversal variations
             double randomFactor = 0.8 + random.nextGaussian() * 0.2; // 80-120% variation
