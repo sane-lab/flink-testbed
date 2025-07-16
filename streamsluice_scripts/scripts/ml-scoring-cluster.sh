@@ -244,11 +244,11 @@ function setting2(){
   transmission_delay=50
   
   sine_baseline=1500.0        # baseline rate for sine curve
-  sine_amplitude=400.0        # amplitude of sine wave (range: 1100-1900 txn/s)
+  sine_amplitude=350.0        # amplitude of sine wave (range: 1100-1900 txn/s)
   sine_period=240             # period in seconds
   warmup_rate=1500            # warmup rate (should be <= sine_baseline - sine_amplitude)
   spike_probability=0.01 #0.08
-  spike_multiplier=2.0 #4.0
+  spike_multiplier=2 #4.0
   fluctuation_std=0.05 #0.15
   parse_delay=100
   feature_delay=100
@@ -271,11 +271,52 @@ function setting2(){
   ml_fluctuation_std=${fluctuation_std}
   ml_parse_delay=${parse_delay}
   ml_feature_delay=${feature_delay}
-  
+
   for repeat in 1; do # 2 3
     run_one_exp
     printf "${EXP_NAME}\n" >> ml_scoring_result.txt
   done
+
+  printf "Comparison\n" >> ml_scoring_result.txt
+#  for repeat in 1; do #
+#    L=2000
+#    autotune=false
+#    is_treat=false
+#    P2=1
+#    P3=1
+#    P4=28
+#    whether_type="ds2"
+#    how_type="ds2"
+#    scalein_type="ds2"
+#    migration_interval=2500
+#    run_one_exp
+#    printf "${EXP_NAME}\n" >> ml_scoring_result.txt
+#
+#    P2=1
+#    P3=1
+#    P4=16
+#    run_one_exp
+#    printf "${EXP_NAME}\n" >> ml_scoring_result.txt
+#
+#    P2=1
+#    P3=1
+#    P4=16
+#
+#    is_treat=true
+#    whether_type="ds2"
+#    how_type="ds2"
+#    scalein_type="ds2"
+#    migration_interval=2500
+#    run_one_exp
+#    printf "${EXP_NAME}\n" >> ml_scoring_result.txt
+#
+#    whether_type="streamswitch"
+#    how_type="streamswitch"
+#    scalein_type="streamswitch"
+#    migration_interval=2500 #1000
+#    run_one_exp
+#    printf "${EXP_NAME}\n" >> ml_scoring_result.txt
+#  done
 }
 
 function setting3(){
