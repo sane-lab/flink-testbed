@@ -93,7 +93,8 @@ function configFlink() {
     sed 's/^\(\s*mlscore.transaction.spike.multiplier\s*:\s*\).*/\1'"$ml_spike_multiplier"'/' tmp47 > tmp48
     sed 's/^\(\s*mlscore.transaction.fluctuation.std\s*:\s*\).*/\1'"$ml_fluctuation_std"'/' tmp48 > tmp49
     sed 's/^\(\s*mlscore.processing.parse_delay\s*:\s*\).*/\1'"$ml_parse_delay"'/' tmp49 > tmp50
-    sed 's/^\(\s*mlscore.processing.feature_delay\s*:\s*\).*/\1'"$ml_feature_delay"'/' tmp50 > ${FLINK_CONF_DIR}/flink-conf-mlscore.yaml
+    sed 's/^\(\s*model.transmission_delay\s*:\s*\).*/\1'"$transmission_delay"'/' tmp50 > tmp51
+    sed 's/^\(\s*mlscore.processing.feature_delay\s*:\s*\).*/\1'"$ml_feature_delay"'/' tmp51 > ${FLINK_CONF_DIR}/flink-conf-mlscore.yaml
 
     rm tmp*
     echo ${FLINK_CONF_DIR}/flink-conf-mlscore.yaml

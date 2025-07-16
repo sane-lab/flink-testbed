@@ -320,6 +320,7 @@ streamsluice.metrics.snapshot_size: 20
 
 model.coordination_latency_flag: true
 model.conservative_service_rate_flag: true
+model.transmission_delay: 100
 streamsluice.metrics.use_new_retriever: false
 streamsluice.system.is_treat: true
 

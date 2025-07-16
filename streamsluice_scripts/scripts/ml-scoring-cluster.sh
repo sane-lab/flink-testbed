@@ -22,7 +22,7 @@ function analyze() {
 }
 
 run_one_exp() {
-  EXP_NAME=ml-scoring-${setting}-${controller_type}-${whether_type}-${how_type}-${runtime}-${base_rate}-${sine_amplitude}-${sine_period}-${spike_probability}-${spike_multiplier}-${fluctuation_std}-${parse_delay}-${feature_delay}-${P1}-${P2}-${P3}-${P4}-${repeat}
+  EXP_NAME=mlscoring_${setting}-${whether_type}-${how_type}-${autotuner_initial_value_option}-${autotuner_increase_bar_option}-${autotune_interval}-${runtime}-${warmup_time}-${warmup_rate}-${P2}-${parse_delay}-${P3}-${feature_delay}-${P4}-${scorer_base_delay}-${P5}-${scorer_complexity_factor}-${L}-${autotuner_increase_bar_alpha}-${epoch}-${input_rate_factor}-${is_treat}-${migration_interval}-${conservative_factor}-${repeat}
 
   echo "INFO: run exp ${EXP_NAME}"
   configFlink
@@ -41,7 +41,7 @@ run_one_exp() {
   python -c 'import time; time.sleep(5)'
 }
 
-# initialization of the parameters
+  # initialization of the parameters
 init() {
   # exp scenario
   controller_type="StreamSluice"
@@ -71,9 +71,9 @@ init() {
   job="flinkapp.MLmodelscoring.MLScoringJob"
   
   # ML scoring job specific parameters
-  base_rate=500
-  sine_amplitude=0.3
-  sine_period=60.0
+  sine_baseline=1000.0      # baseline rate for sine curve f(t) = amplitude * sin(t) + baseline
+  sine_amplitude=300.0      # amplitude of sine wave (absolute value, not percentage)
+  sine_period=60.0          # period in seconds
   spike_probability=0.05
   spike_multiplier=3.0
   fluctuation_std=0.1
@@ -104,7 +104,7 @@ init() {
   LP_SCORER=30    # max parallelism for scorer operator
   
   # ML-specific configuration parameters passed to Flink config
-  ml_base_rate=${base_rate}
+  ml_sine_baseline=${sine_baseline}
   ml_sine_amplitude=${sine_amplitude}
   ml_sine_period=${sine_period}
   ml_spike_probability=${spike_probability}
@@ -135,6 +135,7 @@ init() {
   coordination_latency_flag=true
   conservative_service_rate_flag=true
   conservative_factor=0.8
+  transmission_delay=100
   smooth_backlog_flag=false
   new_metrics_retriever_flag=true
   scaling_decision_option=1
@@ -148,7 +149,7 @@ init() {
 function runApp() {
     echo "INFO: ${FLINK_DIR}/bin/flink run -c ${job} ${JAR} \
     -run.seconds ${runtime} \
-    -base.rate ${base_rate} \
+    -sine.baseline ${sine_baseline} \
     -sine.amplitude ${sine_amplitude} \
     -sine.period ${sine_period} \
     -spike.probability ${spike_probability} \
@@ -170,7 +171,7 @@ function runApp() {
     
     ${FLINK_DIR}/bin/flink run -c ${job} ${JAR} \
     -run.seconds ${runtime} \
-    -base.rate ${base_rate} \
+    -sine.baseline ${sine_baseline} \
     -sine.amplitude ${sine_amplitude} \
     -sine.period ${sine_period} \
     -spike.probability ${spike_probability} \
@@ -196,10 +197,10 @@ function setting1(){
   printf "ML Scoring Setting 1 - Light Processing\n" >> ml_scoring_result.txt
   runtime=600
   setting="light"
-  base_rate=500
-  warmup_rate=500
-  sine_amplitude=0.2
-  sine_period=60.0
+  sine_baseline=600.0         # baseline rate for sine curve
+  sine_amplitude=100.0        # amplitude of sine wave (range: 500-700 txn/s)
+  sine_period=60.0            # period in seconds
+  warmup_rate=400             # warmup rate (should be <= sine_baseline - sine_amplitude)
   spike_probability=0.02
   spike_multiplier=2.0
   fluctuation_std=0.05
@@ -217,7 +218,7 @@ function setting1(){
   P5=1
 
   # Update ML config parameters
-  ml_base_rate=${base_rate}
+  ml_sine_baseline=${sine_baseline}
   ml_sine_amplitude=${sine_amplitude}
   ml_sine_period=${sine_period}
   ml_spike_probability=${spike_probability}
@@ -237,13 +238,16 @@ function setting2(){
   printf "ML Scoring Setting 2 - Medium Processing\n" >> ml_scoring_result.txt
   runtime=1380
   setting="medium"
-  base_rate=1000
-  warmup_rate=1000
-  sine_amplitude=0.4
-  sine_period=120.0
-  spike_probability=0.08
-  spike_multiplier=4.0
-  fluctuation_std=0.15
+  L=2000
+  transmission_delay=50
+  
+  sine_baseline=1500.0        # baseline rate for sine curve
+  sine_amplitude=400.0        # amplitude of sine wave (range: 1100-1900 txn/s)
+  sine_period=120             # period in seconds
+  warmup_rate=1200            # warmup rate (should be <= sine_baseline - sine_amplitude)
+  spike_probability=0.05 #0.08
+  spike_multiplier=3.0 #4.0
+  fluctuation_std=0.08 #0.15
   parse_delay=100
   feature_delay=100
   
@@ -254,10 +258,10 @@ function setting2(){
   
   P2=1
   P3=1
-  P4=15
+  P4=28
   
   # Update ML config parameters
-  ml_base_rate=${base_rate}
+  ml_sine_baseline=${sine_baseline}
   ml_sine_amplitude=${sine_amplitude}
   ml_sine_period=${sine_period}
   ml_spike_probability=${spike_probability}
@@ -266,7 +270,7 @@ function setting2(){
   ml_parse_delay=${parse_delay}
   ml_feature_delay=${feature_delay}
   
-  for repeat in 1 2 3; do
+  for repeat in 1; do # 2 3
     run_one_exp
     printf "${EXP_NAME}\n" >> ml_scoring_result.txt
   done
@@ -277,10 +281,10 @@ function setting3(){
   printf "ML Scoring Setting 3 - Heavy Processing\n" >> ml_scoring_result.txt
   runtime=1380
   setting="heavy"
-  base_rate=1500
-  warmup_rate=1500
-  sine_amplitude=0.6
-  sine_period=180.0
+  sine_baseline=2000.0        # baseline rate for sine curve
+  sine_amplitude=600.0        # amplitude of sine wave (range: 1400-2600 txn/s)
+  sine_period=180.0           # period in seconds
+  warmup_rate=1500            # warmup rate (should be <= sine_baseline - sine_amplitude)
   spike_probability=0.1
   spike_multiplier=5.0
   fluctuation_std=0.2
@@ -297,7 +301,7 @@ function setting3(){
   P4=15
 
   # Update ML config parameters
-  ml_base_rate=${base_rate}
+  ml_sine_baseline=${sine_baseline}
   ml_sine_amplitude=${sine_amplitude}
   ml_sine_period=${sine_period}
   ml_spike_probability=${spike_probability}
@@ -317,10 +321,10 @@ function setting4(){
   printf "ML Scoring Setting 4 - Variable Complexity\n" >> ml_scoring_result.txt
   runtime=1380
   setting="variable"
-  base_rate=800
-  warmup_rate=800
-  sine_amplitude=0.3
-  sine_period=90.0
+  sine_baseline=1000.0        # baseline rate for sine curve
+  sine_amplitude=200.0        # amplitude of sine wave (range: 800-1200 txn/s)
+  sine_period=90.0            # period in seconds
+  warmup_rate=850             # warmup rate (should be <= sine_baseline - sine_amplitude)
   spike_probability=0.05
   spike_multiplier=3.0
   fluctuation_std=0.1
@@ -334,7 +338,7 @@ function setting4(){
     latency_output_file="/tmp/ml_scoring_complexity_${complexity}_latency.log"
     
     # Update ML config parameters
-    ml_base_rate=${base_rate}
+    ml_sine_baseline=${sine_baseline}
     ml_sine_amplitude=${sine_amplitude}
     ml_sine_period=${sine_period}
     ml_spike_probability=${spike_probability}
@@ -348,7 +352,8 @@ function setting4(){
     P4=15
     
     # Create custom EXP_NAME with complexity factor for setting 4
-    EXP_NAME=ml-scoring-${setting}-${controller_type}-${whether_type}-${how_type}-${runtime}-${base_rate}-${sine_amplitude}-${sine_period}-${spike_probability}-${spike_multiplier}-${fluctuation_std}-${parse_delay}-${feature_delay}-${P1}-${P2}-${P3}-${P4}-complexity_${complexity}-${repeat}
+    setting=complexity_${complexity}
+
     
     run_one_exp
     printf "${EXP_NAME}\n" >> ml_scoring_result.txt
@@ -364,8 +369,8 @@ echo "Results will be stored in: ${EXP_DIR}"
 # Run all settings
 #setting1
 setting2
-setting3
-setting4
+#setting3
+#setting4
 
 echo "All experiments completed. Results summary:"
 cat ml_scoring_result.txt 

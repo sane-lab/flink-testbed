@@ -47,19 +47,23 @@ public final class MLScoringJob {
 
         // parameters - now tunable via command line with robust error handling
         long runSeconds = getLongParameter(p, "run.seconds", 300L);
-        int baseRate = getIntParameter(p, "base.rate", 500);
+        
+        // Sine curve parameters for arrival rate pattern f(t) = amplitude * sin(t) + baseline
+        double sineBaseline = getDoubleParameter(p, "sine.baseline", 1000.0);    // baseline rate (c in f(t)=sin(t)+c)
+        double sineAmplitude = getDoubleParameter(p, "sine.amplitude", 300.0);   // amplitude of sine wave
+        double sinePeriod = getDoubleParameter(p, "sine.period", 60.0);          // period in seconds
         
         // Warmup parameters similar to LinearRoad
         long warmupTime = getLongParameter(p, "warmup_time", 30L) * 1000; // warmup duration in ms
-        long warmupRate = getLongParameter(p, "warmup_rate", 1000L);       // warmup rate txn/s
+        long warmupRate = getLongParameter(p, "warmup_rate", 800L);       // warmup rate txn/s (should be <= sineBaseline)
         double inputRateFactor = getDoubleParameter(p, "input_rate_factor", 1.0); // rate multiplier
         
         DataStream<Tuple2<String, MLScoringRecord>> source = env
                 .addSource(new TxnSource(
                     runSeconds * 1_000L, 
-                    baseRate,
-                    getDoubleParameter(p, "sine.amplitude", 0.3),      // sine wave amplitude (0.3 = ±30% variation)
-                    getDoubleParameter(p, "sine.period", 60.0),        // sine wave period in seconds
+                    sineBaseline,                            // baseline rate for sine curve
+                    sineAmplitude,                           // amplitude of sine wave
+                    sinePeriod,                              // sine wave period in seconds
                     getDoubleParameter(p, "spike.probability", 0.05),  // probability of spike per second
                     getDoubleParameter(p, "spike.multiplier", 3.0),    // spike multiplier (3x normal rate)
                     getDoubleParameter(p, "fluctuation.std", 0.1),     // short-term fluctuation std dev (10%)
@@ -209,7 +213,7 @@ public final class MLScoringJob {
     public static class TxnSource implements SourceFunction<Tuple2<String, MLScoringRecord>> {
 
         private final long runMillis;
-        private final int baseRate;
+        private final double sineBaseline;
         private final double sineAmplitude;
         private final double sinePeriod;
         private final double spikeProbability;
@@ -220,11 +224,11 @@ public final class MLScoringJob {
         private final double inputRateFactor;
         private volatile boolean running = true;
 
-        public TxnSource(long runMillis, int baseRate, double sineAmplitude, double sinePeriod, 
+        public TxnSource(long runMillis, double sineBaseline, double sineAmplitude, double sinePeriod, 
                         double spikeProbability, double spikeMultiplier, double fluctuationStd,
                         long warmupTime, long warmupRate, double inputRateFactor) {
             this.runMillis = runMillis;
-            this.baseRate = baseRate;
+            this.sineBaseline = sineBaseline;
             this.sineAmplitude = sineAmplitude;
             this.sinePeriod = sinePeriod;
             this.spikeProbability = spikeProbability;
@@ -241,17 +245,16 @@ public final class MLScoringJob {
             long start = System.currentTimeMillis();
             long id = 0L;
 
-            // Warmup phase
+            // Warmup phase - gradually ramp up to sine baseline
             if (warmupTime > 0) {
-                System.out.println("Warmup phase for " + warmupTime + "ms at rate " + warmupRate + " txn/s");
+                System.out.println("Warmup phase for " + warmupTime + "ms, ramping from " + warmupRate + " to " + sineBaseline + " txn/s");
                 long warmupStart = System.currentTimeMillis();
                 while (System.currentTimeMillis() - warmupStart < warmupTime) {
-                    double currentRate = warmupRate;
-                    if (warmupRate < baseRate) { // Gradually increase rate
-                        currentRate = warmupRate + (baseRate - warmupRate) * (System.currentTimeMillis() - warmupStart) / warmupTime;
-                    }
+                    double warmupProgress = (double)(System.currentTimeMillis() - warmupStart) / warmupTime;
+                    double currentRate = warmupRate + (sineBaseline - warmupRate) * warmupProgress;
+                    
                     long emitStart = System.currentTimeMillis();
-                    int recordsToEmit = Math.max(1, (int) Math.round(currentRate));
+                    int recordsToEmit = Math.max(1, (int) Math.round(currentRate * inputRateFactor));
                     for (int i = 0; i < recordsToEmit; i++) {
                         long arrivalTime = System.currentTimeMillis();
                         int accountId = rnd.nextInt(10_000);
@@ -273,21 +276,24 @@ public final class MLScoringJob {
                     long elapsed = System.currentTimeMillis() - emitStart;
                     if (elapsed < 1_000) Thread.sleep(1_000 - elapsed);
                 }
-                System.out.println("Warmup phase complete.");
+                System.out.println("Warmup phase complete. Starting main run with sine curve pattern.");
             }
 
             // Main run phase
-            System.out.println("Main run phase for " + runMillis + "ms at rate " + (baseRate * inputRateFactor) + " txn/s");
+            double maxRate = sineBaseline + sineAmplitude;
+            double minRate = sineBaseline - sineAmplitude;
+            System.out.println("Main run phase for " + runMillis + "ms with sine curve: baseline=" + sineBaseline + 
+                             ", amplitude=" + sineAmplitude + ", rate range=[" + minRate + "," + maxRate + "] txn/s");
             long mainRunStart = System.currentTimeMillis();
             while (running && System.currentTimeMillis() - mainRunStart < runMillis) {
                 long currentTime = System.currentTimeMillis() - mainRunStart;
                 double secondsElapsed = currentTime / 1000.0;
                 
-                // Calculate dynamic rate with multiple components
+                // Calculate dynamic rate with sine curve f(t) = amplitude * sin(t) + baseline
                 double currentRate = calculateDynamicRate(secondsElapsed, rnd);
                 
                 long emitStart = System.currentTimeMillis();
-                int recordsToEmit = Math.max(1, (int) Math.round(currentRate));
+                int recordsToEmit = Math.max(1, (int) Math.round(currentRate * inputRateFactor));
                 
                 for (int i = 0; i < recordsToEmit; i++) {
                     // Include arrival timestamp and tuple number for tracking
@@ -315,9 +321,9 @@ public final class MLScoringJob {
         }
 
         private double calculateDynamicRate(double secondsElapsed, Random rnd) {
-            // 1. Long-term sine wave variation
+            // 1. Sine curve: f(t) = amplitude * sin(2πt/period) + baseline
             double sineComponent = Math.sin(2 * Math.PI * secondsElapsed / sinePeriod);
-            double sineVariation = 1.0 + sineAmplitude * sineComponent;
+            double baseSineRate = sineAmplitude * sineComponent + sineBaseline;
             
             // 2. Short-term spikes (random bursts)
             double spikeComponent = 1.0;
@@ -329,10 +335,10 @@ public final class MLScoringJob {
             double fluctuationComponent = 1.0 + rnd.nextGaussian() * fluctuationStd;
             
             // Combine all components
-            double combinedRate = baseRate * inputRateFactor * sineVariation * spikeComponent * fluctuationComponent;
+            double combinedRate = baseSineRate * spikeComponent * fluctuationComponent;
             
-            // Ensure rate stays positive and reasonable
-            return Math.max(1.0, Math.min(combinedRate, baseRate * inputRateFactor * 10.0));
+            // Ensure rate stays positive and reasonable (min 1, max 10x baseline)
+            return Math.max(1.0, Math.min(combinedRate, sineBaseline * 10.0));
         }
 
         @Override
