@@ -272,10 +272,10 @@ function setting2(){
   ml_parse_delay=${parse_delay}
   ml_feature_delay=${feature_delay}
 
-  for repeat in 1 2 3; do #
-    run_one_exp
-    printf "${EXP_NAME}\n" >> ml_scoring_result.txt
-  done
+#  for repeat in 1 2 3; do #
+#    run_one_exp
+#    printf "${EXP_NAME}\n" >> ml_scoring_result.txt
+#  done
 
   printf "Comparison\n" >> ml_scoring_result.txt
   for repeat in 1; do #
@@ -289,33 +289,33 @@ function setting2(){
     how_type="ds2"
     scalein_type="ds2"
     migration_interval=2500
+#    run_one_exp
+#    printf "${EXP_NAME}\n" >> ml_scoring_result.txt
+
+    P2=2
+    P3=3
+    P4=12
     run_one_exp
     printf "${EXP_NAME}\n" >> ml_scoring_result.txt
 
     P2=1
     P3=1
     P4=15
-    run_one_exp
-    printf "${EXP_NAME}\n" >> ml_scoring_result.txt
 
-    P2=1
-    P3=1
-    P4=15
-
-    is_treat=true
-    whether_type="ds2"
-    how_type="ds2"
-    scalein_type="ds2"
-    migration_interval=2500
-    run_one_exp
-    printf "${EXP_NAME}\n" >> ml_scoring_result.txt
-
-    whether_type="streamswitch"
-    how_type="streamswitch"
-    scalein_type="streamswitch"
-    migration_interval=2500 #1000
-    run_one_exp
-    printf "${EXP_NAME}\n" >> ml_scoring_result.txt
+#    is_treat=true
+#    whether_type="ds2"
+#    how_type="ds2"
+#    scalein_type="ds2"
+#    migration_interval=2500
+#    run_one_exp
+#    printf "${EXP_NAME}\n" >> ml_scoring_result.txt
+#
+#    whether_type="streamswitch"
+#    how_type="streamswitch"
+#    scalein_type="streamswitch"
+#    migration_interval=2500 #1000
+#    run_one_exp
+#    printf "${EXP_NAME}\n" >> ml_scoring_result.txt
   done
 }
 
