@@ -143,6 +143,8 @@ init() {
   
   # migration overhead (ms)
   migration_overhead=100
+
+  printf "" > ml_scoring_result.txt
 }
 
 # run applications
