@@ -1,1 +1,1 @@
-mlscoring_medium-streamsluice-streamsluice-5-8-60-1380-120-1000-1-100-1-100-15-3000-1-1.5-2000-0.1-100-1.0-true-1000-0.8-1
+mlscoring_medium-streamsluice-streamsluice-5-8-60-1380-120-1200-1-100-1-100-28-3000-1-1.5-2000-0.1-100-1.0-true-1000-0.8-1

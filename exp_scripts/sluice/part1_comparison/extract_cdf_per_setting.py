@@ -52,7 +52,7 @@ def read_ground_truth_latency(raw_dir, exp_name, window_size):
                 counter += 1
                 if (counter % 5000 == 0):
                     print("Processed to line:" + str(counter))
-                if split[0] == "GT:":
+                if split[0] == "GT:" and len(split) > 3:
                     completed_time = int(split[2].rstrip(","))
                     latency = int(split[3].rstrip(","))
                     arrived_time = completed_time - latency
@@ -1143,8 +1143,8 @@ def main():
         #     "Sluice": "tweet-streamsluice-streamsluice-5-60-1350-90-3400-1-19-3333-9-500-1-50-1-50-1250-2000-100-true-0.2-1",
         # },
         "(d) ML-Scoring-medium1": {
-            "Static": "mlscoring_medium-streamsluice-streamsluice-5-8-60-1380-120-1000-1-100-1-100-15-3000-1-1.5-2000-0.1-100-1.0-true-1000-0.8-1",
-            "Sluice": "mlscoring_medium-streamsluice-streamsluice-5-8-60-1380-120-1000-1-100-1-100-15-3000-1-1.5-2000-0.1-100-1.0-true-1000-0.8-1",
+            "Static": "mlscoring_medium-streamsluice-streamsluice-5-8-60-1380-120-1200-1-100-1-100-28-3000-1-1.5-2000-0.1-100-1.0-true-1000-0.8-1",
+            "Sluice": "mlscoring_medium-streamsluice-streamsluice-5-8-60-1380-120-1200-1-100-1-100-28-3000-1-1.5-2000-0.1-100-1.0-true-1000-0.8-1",
         },
 
     }

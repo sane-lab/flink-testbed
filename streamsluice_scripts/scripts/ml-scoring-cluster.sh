@@ -245,11 +245,11 @@ function setting2(){
   
   sine_baseline=1500.0        # baseline rate for sine curve
   sine_amplitude=400.0        # amplitude of sine wave (range: 1100-1900 txn/s)
-  sine_period=120             # period in seconds
-  warmup_rate=1200            # warmup rate (should be <= sine_baseline - sine_amplitude)
-  spike_probability=0.05 #0.08
-  spike_multiplier=3.0 #4.0
-  fluctuation_std=0.08 #0.15
+  sine_period=240             # period in seconds
+  warmup_rate=1500            # warmup rate (should be <= sine_baseline - sine_amplitude)
+  spike_probability=0.01 #0.08
+  spike_multiplier=2.0 #4.0
+  fluctuation_std=0.05 #0.15
   parse_delay=100
   feature_delay=100
   
