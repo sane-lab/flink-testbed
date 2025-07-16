@@ -1143,10 +1143,9 @@ def main():
         #     "Sluice": "tweet-streamsluice-streamsluice-5-60-1350-90-3400-1-19-3333-9-500-1-50-1-50-1250-2000-100-true-0.2-1",
         # },
         "(d) ML-Scoring": {
-            #"Static": "mlscoring_medium-ds2-ds2-5-8-60-1380-120-1500-1-100-1-100-28-3000-1-1.5-2000-0.1-100-1.0-false-2500-0.8-1",
-            "Static": "mlscoring_medium-ds2-ds2-5-8-60-1380-120-1500-2-100-3-100-12-3000-1-1.5-2000-0.1-100-1.0-false-2500-0.8-1",
-            "DS2": "mlscoring_medium-ds2-ds2-5-8-60-1380-120-1500-1-100-1-100-15-3000-1-1.5-2000-0.1-100-1.0-true-2500-0.8-1",
-            "StreamSwitch": "mlscoring_medium-streamswitch-streamswitch-5-8-60-1380-120-1500-1-100-1-100-15-3000-1-1.5-2000-0.1-100-1.0-true-2500-0.8-1",
+            "Static": "mlscoring_medium-ds2-ds2-5-8-60-1380-120-1500-4-100-5-100-8-3000-1-1.5-2000-0.1-100-1.0-false-2500-0.8-1",
+            #"DS2": "mlscoring_medium-ds2-ds2-5-8-60-1380-120-1500-1-100-1-100-15-3000-1-1.5-2000-0.1-100-1.0-true-2500-0.8-1",
+            #"StreamSwitch": "mlscoring_medium-streamswitch-streamswitch-5-8-60-1380-120-1500-1-100-1-100-15-3000-1-1.5-2000-0.1-100-1.0-true-2500-0.8-1",
             "Sluice": "mlscoring_medium-streamsluice-streamsluice-5-8-60-1380-120-1500-1-100-1-100-28-3000-1-1.5-2000-0.1-100-1.0-true-1000-0.8-1",
         },
 

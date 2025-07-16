@@ -292,9 +292,15 @@ function setting2(){
 #    run_one_exp
 #    printf "${EXP_NAME}\n" >> ml_scoring_result.txt
 
+    P2=3
+    P3=4
+    P4=10
+    run_one_exp
+    printf "${EXP_NAME}\n" >> ml_scoring_result.txt
+
     P2=4
-    P3=5
-    P4=8
+    P3=4
+    P4=9
     run_one_exp
     printf "${EXP_NAME}\n" >> ml_scoring_result.txt
 
