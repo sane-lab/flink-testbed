@@ -232,6 +232,14 @@ run_stock_test(){
 #      printf "${EXP_NAME}\n" >> stock_result.txt
 #    done
 
+    P1=1
+    P2=1
+    P3=6
+    P4=1
+    P5=1
+    P6=1
+    P7=10
+
     whether_type="conttune"
     how_type="conttune"
     scalein_type="conttune"

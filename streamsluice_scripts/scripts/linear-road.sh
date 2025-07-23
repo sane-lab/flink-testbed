@@ -240,12 +240,19 @@ run_stock_test(){
 #    run_one_exp
 #    printf "${EXP_NAME}\n" >> lr_result.txt
 
+    P1=1
+    P2=1
+    P3=3 #27
+    P4=1 #4
+    P5=14
     whether_type="conttune"
     how_type="conttune"
     scalein_type="conttune"
     migration_interval=2500 #1000
-    run_one_exp
-    printf "${EXP_NAME}\n" >> lr_result.txt
+    for repeat in 1 2 3; do
+      run_one_exp
+      printf "${EXP_NAME}\n" >> lr_result.txt
+    done
 
     # Part 3 System sensitivity
     P1=1
