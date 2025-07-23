@@ -318,12 +318,21 @@ function setting2(){
 #    run_one_exp
 #    printf "${EXP_NAME}\n" >> ml_scoring_result.txt
 
+    LP_PARSE=1     # max parallelism for parse_txn operator
+    LP_FEATURE=1   # max parallelism for feature_builder operator
+    LP_SCORER=32    # max parallelism for scorer operator
+    P4=16
     whether_type="conttune"
     how_type="conttune"
     scalein_type="conttune"
     migration_interval=2500 #1000
+
     run_one_exp
     printf "${EXP_NAME}\n" >> ml_scoring_result.txt
+
+    LP_PARSE=4     # max parallelism for parse_txn operator
+    LP_FEATURE=4   # max parallelism for feature_builder operator
+    LP_SCORER=30    # max parallelism for scorer operator
   done
 }
 
