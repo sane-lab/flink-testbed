@@ -303,18 +303,18 @@ function setting2(){
     P3=1
     P4=15
 
-#    is_treat=true
-#    whether_type="ds2"
-#    how_type="ds2"
-#    scalein_type="ds2"
-#    migration_interval=2500
+    is_treat=true
+    whether_type="ds2"
+    how_type="ds2"
+    scalein_type="ds2"
+    migration_interval=2500
 #    run_one_exp
 #    printf "${EXP_NAME}\n" >> ml_scoring_result.txt
-#
-#    whether_type="streamswitch"
-#    how_type="streamswitch"
-#    scalein_type="streamswitch"
-#    migration_interval=2500 #1000
+
+    whether_type="streamswitch"
+    how_type="streamswitch"
+    scalein_type="streamswitch"
+    migration_interval=2500 #1000
 #    run_one_exp
 #    printf "${EXP_NAME}\n" >> ml_scoring_result.txt
 
