@@ -102,6 +102,7 @@ init() {
   LP_PARSE=4     # max parallelism for parse_txn operator
   LP_FEATURE=4   # max parallelism for feature_builder operator
   LP_SCORER=30    # max parallelism for scorer operator
+  LP_SINK=1       # max parallelism for sink operator
   
   # ML-specific configuration parameters passed to Flink config
   ml_sine_baseline=${sine_baseline}
