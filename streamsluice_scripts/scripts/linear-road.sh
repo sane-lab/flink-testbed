@@ -188,8 +188,8 @@ run_stock_test(){
             whether_type="streamsluice"
             how_type="streamsluice"
             scalein_type="streamsluice"
-            run_one_exp
-            printf "${EXP_NAME}\n" >> lr_result.txt
+#            run_one_exp
+#            printf "${EXP_NAME}\n" >> lr_result.txt
           done
         done
       done
@@ -239,6 +239,13 @@ run_stock_test(){
     migration_interval=2500 #1000
 #    run_one_exp
 #    printf "${EXP_NAME}\n" >> lr_result.txt
+
+    whether_type="conttune"
+    how_type="conttune"
+    scalein_type="conttune"
+    migration_interval=2500 #1000
+    run_one_exp
+    printf "${EXP_NAME}\n" >> lr_result.txt
 
     # Part 3 System sensitivity
     P1=1

@@ -295,14 +295,8 @@ function setting2(){
     P2=3
     P3=4
     P4=10
-    run_one_exp
-    printf "${EXP_NAME}\n" >> ml_scoring_result.txt
-
-    P2=4
-    P3=4
-    P4=9
-    run_one_exp
-    printf "${EXP_NAME}\n" >> ml_scoring_result.txt
+#    run_one_exp
+#    printf "${EXP_NAME}\n" >> ml_scoring_result.txt
 
     P2=1
     P3=1
@@ -322,6 +316,13 @@ function setting2(){
 #    migration_interval=2500 #1000
 #    run_one_exp
 #    printf "${EXP_NAME}\n" >> ml_scoring_result.txt
+
+    whether_type="conttune"
+    how_type="conttune"
+    scalein_type="conttune"
+    migration_interval=2500 #1000
+    run_one_exp
+    printf "${EXP_NAME}\n" >> ml_scoring_result.txt
   done
 }
 
