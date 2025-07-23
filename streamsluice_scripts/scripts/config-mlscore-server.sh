@@ -63,7 +63,7 @@ function configFlink() {
     # scorer vertex
     sed 's/^\(\s*model.max_parallelism.d2336f79a0d60b5a4b16c8769ec82e47\s*:\s*\).*/\1'"$LP_SINK"'/' tmp20 > tmp20a
     
-    sed 's/^\(\s*streamsluice.model.decision_interval\s*:\s*\).*/\1'"$decision_interval"'/' tmp20 > tmp21
+    sed 's/^\(\s*streamsluice.model.decision_interval\s*:\s*\).*/\1'"$decision_interval"'/' tmp20a > tmp21
     sed 's/^\(\s*streamsluice.metrics.snapshot_size\s*:\s*\).*/\1'"$snapshot_size"'/' tmp21 > tmp22
     sed 's/^\(\s*controller.how.more_optimizaiton\s*:\s*\).*/\1'"$how_more_optimization_flag"'/' tmp22 > tmp23
     sed 's/^\(\s*controller.how.optimizaiton\s*:\s*\).*/\1'"$how_optimization_flag"'/' tmp23 > tmp24
