@@ -1026,20 +1026,26 @@ def plot_parallelism_curves(parallelism_curve, arrival_curve, output_dir, start_
 
 
     if workload_name.count("Twitter"):
-        ax1.set_ylim(8, 36)
+        # ax1.set_ylim(8, 36)
+        # ax1.set_yticks(np.arange(10, 40, 10))
+        ax1.set_ylim(8, 41)
         ax1.set_yticks(np.arange(10, 40, 10))
         ax2.set_ylim(1500, 6000)
         ax2.set_yticks(np.arange(1000, 7000, 2000))
     elif workload_name.count("Linear-Road"):
-        ax1.set_ylim(15, 31)
+        #ax1.set_ylim(15, 31)
+        #ax1.set_yticks(np.arange(20, 40, 10))
+        ax1.set_ylim(15, 41)
         ax1.set_yticks(np.arange(20, 40, 10))
         ax2.set_ylim(750, 2000)
         ax2.set_yticks(np.arange(1000, 2500, 500))
     elif workload_name.count("ML-Scoring"):
-        ax1.set_ylim(13, 38)
+        # ax1.set_ylim(13, 38)
+        # ax1.set_yticks(np.arange(20, 40, 10))
+        ax1.set_ylim(13, 41)
         ax1.set_yticks(np.arange(20, 40, 10))
-        ax2.set_ylim(1000, 2000)
-        ax2.set_yticks(np.arange(1000, 2500, 500))
+        ax2.set_ylim(1000, 3000)
+        ax2.set_yticks(np.arange(1000, 3500, 1000))
     else:
         ax1.set_ylim(13, 38)
         ax1.set_yticks(np.arange(20, 40, 10))
@@ -1087,18 +1093,18 @@ def plot_parallelism_curves(parallelism_curve, arrival_curve, output_dir, start_
 
 output_pdf_flag = True
 COLOR_MAP = {
-    "Static": "grey",
-    "DS2": "purple",
-    "StreamSwitch": "green",
-    "ContTune": "cyan",
-    "Sluice": "blue",
+    "Static": "#708090",      # Slate Gray - neutral, baseline approach
+    "DS2": "#9932CC",         # Dark Orchid - distinct purple, sophisticated  
+    "StreamSwitch": "#228B22", # Forest Green - stable, reliable green
+    "ContTune": "#FF8C00",    # Dark Orange - warm, standout, doesn't conflict with red limit line
+    "Sluice": "#1E90FF",      # Dodger Blue - professional, trustworthy blue
 }
 MARKER_MAP = {
-    "Static": "x--",
-    "DS2": "^-.",
-    "StreamSwitch": "s:",
-    "ContTune": "d--",
-    "Sluice": "o-",
+    "Static": "x--",          # X marker with dashed line - represents static/fixed
+    "DS2": "^-.",             # Triangle up with dash-dot - upward progress  
+    "StreamSwitch": "s:",     # Square with dotted line - stable/solid approach
+    "ContTune": "D-.",         # Large diamond with solid line - premium/standout
+    "Sluice": "o-",           # Circle with solid line - complete/optimal solution
 }
 
 FONT_SIZE = 25
@@ -1114,26 +1120,26 @@ def main():
         # "(a) Linear-Road": {
         #     "Static": "lr-ds2-ds2-5-8-60-1380-150-1300-10-1-50-3-1000-1-50-14-3333-2000-0.1-100-1-25-0.0-false-2500-0.8-2",
         #     # "Static-Adequate": "lr-ds2-ds2-5-8-60-1380-150-1300-10-1-50-4-1000-1-50-20-3333-2000-0.1-100-1-25-0.0-false-2500-0.8-2",
-        #     # "DS2": "lr-ds2-ds2-5-8-60-1380-150-1300-10-1-50-3-1000-1-50-27-3333-2000-0.1-100-1-25-0.0-true-2500-0.8-2",
-        #     # "StreamSwitch": "lr-streamswitch-streamswitch-5-8-60-1380-150-1300-10-1-50-3-1000-1-50-27-3333-2000-0.1-100-1-25-0.0-true-2500-0.8-2",
+        #     "DS2": "lr-ds2-ds2-5-8-60-1380-150-1300-10-1-50-3-1000-1-50-27-3333-2000-0.1-100-1-25-0.0-true-2500-0.8-2",
+        #     "StreamSwitch": "lr-streamswitch-streamswitch-5-8-60-1380-150-1300-10-1-50-3-1000-1-50-27-3333-2000-0.1-100-1-25-0.0-true-2500-0.8-2",
         #     "ContTune": "lr-conttune-conttune-5-8-60-1380-150-1300-10-1-50-3-1000-1-50-18-3333-2000-0.2-100-1-25-0.0-true-2500-0.8-1",
         #     #"Sluice": "lr-streamsluice-streamsluice-5-8-60-1380-150-1300-10-1-50-3-1000-1-50-27-3333-2000-0.1-100-1-25-0.0-true-1000-0.8-2",
         #     "Sluice": "lr-streamsluice-streamsluice-5-8-60-1380-150-1300-10-1-50-3-1000-1-50-27-3333-2000-0.2-100-1-25-0.0-true-1000-0.8-3",
         # },
-        "(b) Stock": {
-            # "Static": "stock-ds2-ds2-5-8-60-1350-90-1000-20-1-200-4-3333-1-200-1-500-1-7-5000-3000-100-0.1-false-false-1",
-            # # "Static-Adequate": "stock-ds2-ds2-5-8-60-1350-90-1000-20-1-200-11-3333-1-200-2-500-1-15-5000-3000-100-0.1-false-false-1",
-            # "DS2": "stock-ds2-ds2-5-8-60-1350-90-1000-20-1-200-11-3333-1-200-2-500-1-15-5000-3000-100-0.1-true-false-1",
-            # "StreamSwitch": "stock-streamswitch-streamswitch-5-8-60-1350-90-1000-20-1-200-11-3333-1-200-2-500-1-15-5000-3000-100-0.1-true-false-1",
-            # "Sluice": "stock-streamsluice-streamsluice-5-8-60-1350-90-1000-20-1-200-11-3333-1-200-2-500-1-15-5000-3000-100-0.1-true-true-1",
-            # #"Sluice": "stock-streamsluice-streamsluice-5-8-60-1350-90-1000-20-1-200-11-3333-1-200-2-500-1-15-5000-3000-100-0.2-true-true-2",
-
-            "Static": "stock-ds2-ds2-5-8-60-1350-90-1000-20-1-200-6-3333-1-200-1-500-1-10-5000-2000-100-0.2-false-false-3",
-            # "DS2": "stock-ds2-ds2-5-8-60-1350-90-1000-20-1-200-11-3333-1-200-2-500-1-15-5000-2000-100-0.2-true-false-3",
-            # "StreamSwitch": "stock-streamswitch-streamswitch-5-8-60-1350-90-1000-20-1-200-11-3333-1-200-2-500-1-15-5000-2000-100-0.2-true-false-1",
-            "ContTune": "stock-conttune-conttune-5-8-60-1350-90-1000-20-1-200-6-3333-1-200-1-500-1-10-5000-2000-100-0.2-true-false-1",
-            "Sluice": "stock-streamsluice-streamsluice-5-8-60-1350-90-1000-20-1-200-11-3333-1-200-2-500-1-15-5000-2000-100-0.2-true-true-1",
-        },
+        # "(b) Stock": {
+        #     # "Static": "stock-ds2-ds2-5-8-60-1350-90-1000-20-1-200-4-3333-1-200-1-500-1-7-5000-3000-100-0.1-false-false-1",
+        #     # # "Static-Adequate": "stock-ds2-ds2-5-8-60-1350-90-1000-20-1-200-11-3333-1-200-2-500-1-15-5000-3000-100-0.1-false-false-1",
+        #     # "DS2": "stock-ds2-ds2-5-8-60-1350-90-1000-20-1-200-11-3333-1-200-2-500-1-15-5000-3000-100-0.1-true-false-1",
+        #     # "StreamSwitch": "stock-streamswitch-streamswitch-5-8-60-1350-90-1000-20-1-200-11-3333-1-200-2-500-1-15-5000-3000-100-0.1-true-false-1",
+        #     # "Sluice": "stock-streamsluice-streamsluice-5-8-60-1350-90-1000-20-1-200-11-3333-1-200-2-500-1-15-5000-3000-100-0.1-true-true-1",
+        #     # #"Sluice": "stock-streamsluice-streamsluice-5-8-60-1350-90-1000-20-1-200-11-3333-1-200-2-500-1-15-5000-3000-100-0.2-true-true-2",
+        #
+        #     "Static": "stock-ds2-ds2-5-8-60-1350-90-1000-20-1-200-6-3333-1-200-1-500-1-10-5000-2000-100-0.2-false-false-3",
+        #     "DS2": "stock-ds2-ds2-5-8-60-1350-90-1000-20-1-200-11-3333-1-200-2-500-1-15-5000-2000-100-0.2-true-false-3",
+        #     "StreamSwitch": "stock-streamswitch-streamswitch-5-8-60-1350-90-1000-20-1-200-11-3333-1-200-2-500-1-15-5000-2000-100-0.2-true-false-1",
+        #     "ContTune": "stock-conttune-conttune-5-8-60-1350-90-1000-20-1-200-6-3333-1-200-1-500-1-10-5000-2000-100-0.2-true-false-1",
+        #     "Sluice": "stock-streamsluice-streamsluice-5-8-60-1350-90-1000-20-1-200-11-3333-1-200-2-500-1-15-5000-2000-100-0.2-true-true-1",
+        # },
         # "(c) Twitter": {
         #     # # "Static": "tweet-streamsluice-streamsluice-5-60-1950-90-1500-1-14-6666-5-1000-1-50-1-50-2500-100-false-0.1-1",
         #     # # "Static-Adequate": "tweet-streamsluice-streamsluice-5-60-1950-90-1500-1-19-6666-9-1000-1-50-1-50-2500-100-false-0.1-1",
@@ -1142,20 +1148,20 @@ def main():
         #     # #"Sluice": "tweet-streamsluice-streamsluice-5-8-1950-90-1500-1-19-6666-9-1000-1-50-1-50-2500-100-true-0.1-2",
         #     "Static": "tweet-streamsluice-streamsluice-5-60-1350-90-1700-1-14-3333-5-500-1-50-1-50-1250-2000-100-false-0.1-1",
         #     # #"Static-Adequate": "tweet-streamsluice-streamsluice-5-60-1350-90-1700-1-19-3333-9-500-1-50-1-50-1250-2000-100-false-0.1-1",
-        #     # "DS2": "tweet-ds2-ds2-5-60-1350-90-1700-1-19-3333-9-500-1-50-1-50-1250-2000-100-true-0.1-1",
-        #     # "StreamSwitch": "tweet-streamswitch-streamswitch-5-60-1350-90-1700-1-19-3333-9-500-1-50-1-50-1250-2000-100-true-0.1-1",
+        #     "DS2": "tweet-ds2-ds2-5-60-1350-90-1700-1-19-3333-9-500-1-50-1-50-1250-2000-100-true-0.1-1",
+        #     "StreamSwitch": "tweet-streamswitch-streamswitch-5-60-1350-90-1700-1-19-3333-9-500-1-50-1-50-1250-2000-100-true-0.1-1",
         #     "ContTune": "tweet-conttune-conttune-5-60-1350-90-3400-1-14-3333-5-500-1-50-1-50-1250-2000-100-true-0.2-1",
         #     #"Sluice": "tweet-streamsluice-streamsluice-5-60-1350-90-3400-1-19-3333-9-500-1-50-1-50-1250-2000-100-true-0.1-1",
         #     "Sluice": "tweet-streamsluice-streamsluice-5-60-1350-90-3400-1-19-3333-9-500-1-50-1-50-1250-2000-100-true-0.2-1",
         # },
-        # "(d) ML-Scoring": {
-        #     "Static": "mlscoring_medium-ds2-ds2-5-8-60-1380-120-1500-3-100-4-100-10-3000-1-1.5-2000-0.1-100-1.0-false-2500-0.8-1",
-        #     #"Static": "mlscoring_medium-ds2-ds2-5-8-60-1380-120-1500-4-100-4-100-9-3000-1-1.5-2000-0.1-100-1.0-false-2500-0.8-1",
-        #     # "DS2": "mlscoring_medium-ds2-ds2-5-8-60-1380-120-1500-1-100-1-100-15-3000-1-1.5-2000-0.1-100-1.0-true-2500-0.8-1",
-        #     # "StreamSwitch": "mlscoring_medium-streamswitch-streamswitch-5-8-60-1380-120-1500-1-100-1-100-15-3000-1-1.5-2000-0.1-100-1.0-true-2500-0.8-1",
-        #     "ContTune": "mlscoring_medium-conttune-conttune-5-8-60-1380-120-1500-1-100-1-100-8-3000-1-1.5-2000-0.1-100-1.0-true-2500-0.8-1",
-        #     "Sluice": "mlscoring_medium-streamsluice-streamsluice-5-8-60-1380-120-1500-1-100-1-100-28-3000-1-1.5-2000-0.1-100-1.0-true-1000-0.8-1",
-        # },
+        "(d) ML-Scoring": {
+            "Static": "mlscoring_medium-ds2-ds2-5-8-60-1380-120-1500-3-100-4-100-10-3000-1-1.5-2000-0.1-100-1.0-false-2500-0.8-1",
+            #"Static": "mlscoring_medium-ds2-ds2-5-8-60-1380-120-1500-4-100-4-100-9-3000-1-1.5-2000-0.1-100-1.0-false-2500-0.8-1",
+            "DS2": "mlscoring_medium-ds2-ds2-5-8-60-1380-120-1500-1-100-1-100-15-3000-1-1.5-2000-0.1-100-1.0-true-2500-0.8-1",
+            "StreamSwitch": "mlscoring_medium-streamswitch-streamswitch-5-8-60-1380-120-1500-1-100-1-100-15-3000-1-1.5-2000-0.1-100-1.0-true-2500-0.8-1",
+            "ContTune": "mlscoring_medium-conttune-conttune-5-8-60-1380-120-1500-1-100-1-100-8-3000-1-1.5-2000-0.1-100-1.0-true-2500-0.8-1",
+            "Sluice": "mlscoring_medium-streamsluice-streamsluice-5-8-60-1380-120-1500-1-100-1-100-28-3000-1-1.5-2000-0.1-100-1.0-true-1000-0.8-1",
+        },
 
     }
 
@@ -1239,7 +1245,7 @@ def main():
     legend_elements.append(
         Line2D([0], [0], linestyle="--",
                color="r", label="Latency Limit"))
-    fig.legend(handles=legend_elements, loc='upper center', bbox_to_anchor=(0.53, 1.14), ncol=6, markerscale=5)
+    fig.legend(handles=legend_elements, loc='upper center', bbox_to_anchor=(0.53, 1.14), ncol=7, markerscale=5)
 
     if output_pdf_flag:
         plt.savefig(overall_output_dir + "all_in_one.pdf", bbox_inches='tight')
