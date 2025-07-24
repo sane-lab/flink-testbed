@@ -244,7 +244,7 @@ run_stock_test(){
     how_type="conttune"
     scalein_type="conttune"
     migration_interval=1000
-    for repeat in 1 2 3; do
+    for repeat in 1; do  #  2 3
       run_one_exp
       printf "${EXP_NAME}\n" >> stock_result.txt
     done

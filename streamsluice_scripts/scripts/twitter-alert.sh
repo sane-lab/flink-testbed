@@ -178,7 +178,7 @@ run_stock_test(){
     printf "Part_2\n" >> tweet_result.txt
     autotune=false
     L=2000
-    for repeat in 1 2 3; do # 2 3 4 5; do
+    for repeat in 1; do # 2 3 4 5; do
         whether_type="streamsluice"
         how_type="streamsluice"
         scalein_type="streamsluice"

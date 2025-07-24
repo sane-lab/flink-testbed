@@ -279,7 +279,7 @@ function setting2(){
 #  done
 
   printf "Comparison\n" >> ml_scoring_result.txt
-  for repeat in 2 3 4; do #
+  for repeat in 1; do # 2 3
     L=2000
     autotune=false
     is_treat=false

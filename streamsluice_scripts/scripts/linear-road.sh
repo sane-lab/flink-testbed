@@ -244,12 +244,12 @@ run_stock_test(){
     P2=1
     P3=3 #27
     P4=1 #4
-    P5=14
+    P5=18 #14
     whether_type="conttune"
     how_type="conttune"
     scalein_type="conttune"
     migration_interval=2500 #1000
-    for repeat in 1 2 3; do
+    for repeat in 1; do # 2 3
       run_one_exp
       printf "${EXP_NAME}\n" >> lr_result.txt
     done
