@@ -133,19 +133,42 @@ stop_monitoring() {
         if kill -0 $record_pid 2>/dev/null; then
             echo "Sending SIGINT to perf record (PID: $record_pid)..."
             kill -INT $record_pid 2>/dev/null
-            # Wait up to 10 seconds for graceful termination
-            for i in {1..10}; do
+            # Wait up to 30 seconds for graceful termination (increased for large files)
+            for i in {1..30}; do
                 if ! kill -0 $record_pid 2>/dev/null; then
-                    echo "Perf record terminated gracefully."
+                    echo "Perf record terminated gracefully after $i seconds."
                     break
                 fi
-                echo "Waiting for perf record to finalize data file... ($i/10)"
+                if [ $((i % 5)) -eq 0 ]; then
+                    # Show file size progress every 5 seconds
+                    if [ -f "$PERF_DATA_FILE" ]; then
+                        local file_size=$(du -h "$PERF_DATA_FILE" 2>/dev/null | cut -f1 || echo "unknown")
+                        echo "Waiting for perf record to finalize... ($i/30) - Current file size: $file_size"
+                    else
+                        echo "Waiting for perf record to finalize... ($i/30)"
+                    fi
+                else
+                    echo "Finalizing perf data... ($i/30)"
+                fi
                 sleep 1
             done
-            # If still running, force kill
+            # If still running after 30 seconds, try alternative approach
             if kill -0 $record_pid 2>/dev/null; then
-                echo "Force killing perf record..."
-                kill -KILL $record_pid 2>/dev/null
+                echo "Perf record still running after 30 seconds. Checking process status..."
+                ps -p $record_pid -o pid,ppid,stat,cmd 2>/dev/null || echo "Process not found in ps"
+                
+                # Try SIGTERM first
+                echo "Trying SIGTERM..."
+                kill -TERM $record_pid 2>/dev/null
+                sleep 5
+                
+                if kill -0 $record_pid 2>/dev/null; then
+                    echo "Process still running. Force killing perf record..."
+                    kill -KILL $record_pid 2>/dev/null
+                    sleep 2
+                else
+                    echo "Process terminated with SIGTERM."
+                fi
             fi
         fi
         rm "${OUTPUT_DIR}/${EXPERIMENT_NAME}_record.pid"
