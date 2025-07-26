@@ -30,9 +30,34 @@ get_flink_pids() {
     echo "${pids[@]}"
 }
 
-# Function to start monitoring
-start_monitoring() {
-    echo "INFO: Starting monitoring..."
+# Function to start continuous monitoring (100% accurate)
+start_continuous_monitoring() {
+    echo "INFO: Starting continuous monitoring for experiment ${EXP_NAME}..."
+    
+    # Create monitoring directories
+    CONTINUOUS_MONITOR_DIR="${EXP_DIR}/continuous_monitoring"
+    mkdir -p $CONTINUOUS_MONITOR_DIR
+    
+    # Start continuous perf monitoring
+    CONTINUOUS_SCRIPT_DIR="$(dirname "$0")"
+    
+    if [[ -f "${CONTINUOUS_SCRIPT_DIR}/continuous_perf_monitor.sh" ]]; then
+        echo "INFO: Using continuous perf monitoring script..."
+        cd $CONTINUOUS_MONITOR_DIR
+        nohup ${CONTINUOUS_SCRIPT_DIR}/continuous_perf_monitor.sh ${EXP_NAME} 50 > continuous_monitor.log 2>&1 &
+        CONTINUOUS_MONITOR_PID=$!
+        echo $CONTINUOUS_MONITOR_PID > "${CONTINUOUS_MONITOR_DIR}/${EXP_NAME}_continuous.pid"
+        cd - > /dev/null
+        echo "INFO: Continuous monitoring started with PID: $CONTINUOUS_MONITOR_PID"
+    else
+        echo "WARNING: continuous_perf_monitor.sh not found, falling back to standard monitoring"
+        start_standard_monitoring
+    fi
+}
+
+# Function to start standard monitoring (80% coverage fallback)
+start_standard_monitoring() {
+    echo "INFO: Starting standard monitoring..."
     {
         # Start monitoring
         echo "Timestamp, PID, Process Name, CPU%, TOTAL_CPU_TIME, %MEM, RSS (KB), VSZ (KB), Heap Used (MB), GC Time (ms), CPU Cycles/sec, Instructions, IPC, Cache Misses, Cache Miss Rate"
@@ -119,9 +144,32 @@ start_monitoring() {
 # Function to stop monitoring
 stop_monitoring() {
     echo "INFO: Stopping monitoring..."
-    kill $MONITOR_PID
-    wait $MONITOR_PID 2>/dev/null
-    echo "Monitoring stopped. Logs saved to $MONITOR_LOG_FILE."
+    
+    # Stop continuous monitoring if running
+    if [[ -f "${CONTINUOUS_MONITOR_DIR}/${EXP_NAME}_continuous.pid" ]]; then
+        CONTINUOUS_MONITOR_PID=$(cat "${CONTINUOUS_MONITOR_DIR}/${EXP_NAME}_continuous.pid")
+        if kill -0 $CONTINUOUS_MONITOR_PID 2>/dev/null; then
+            echo "INFO: Stopping continuous monitoring (PID: $CONTINUOUS_MONITOR_PID)..."
+            kill -INT $CONTINUOUS_MONITOR_PID 2>/dev/null
+            sleep 3
+            if kill -0 $CONTINUOUS_MONITOR_PID 2>/dev/null; then
+                kill -TERM $CONTINUOUS_MONITOR_PID 2>/dev/null
+                sleep 2
+                if kill -0 $CONTINUOUS_MONITOR_PID 2>/dev/null; then
+                    kill -KILL $CONTINUOUS_MONITOR_PID 2>/dev/null
+                fi
+            fi
+        fi
+        rm -f "${CONTINUOUS_MONITOR_DIR}/${EXP_NAME}_continuous.pid"
+        echo "INFO: Continuous monitoring stopped."
+    fi
+    
+    # Stop standard monitoring if running
+    if [[ ! -z "$MONITOR_PID" ]]; then
+        kill $MONITOR_PID 2>/dev/null
+        wait $MONITOR_PID 2>/dev/null
+        echo "INFO: Standard monitoring stopped. Logs saved to $MONITOR_LOG_FILE."
+    fi
 }
 
 
@@ -135,6 +183,24 @@ function analyze() {
         rm -rf ${EXP_DIR}/raw/${EXP_NAME}
     fi
     mv ${FLINK_DIR}/log/* ${EXP_DIR}/streamsluice/
+    
+    # Collect continuous monitoring data if available
+    if [[ -d "${CONTINUOUS_MONITOR_DIR}" ]]; then
+        echo "INFO: Collecting continuous monitoring data..."
+        mkdir -p ${EXP_DIR}/streamsluice/continuous_monitoring/
+        
+        # Copy continuous monitoring files
+        if [[ -d "${CONTINUOUS_MONITOR_DIR}/perf_logs" ]]; then
+            cp -r ${CONTINUOUS_MONITOR_DIR}/perf_logs/* ${EXP_DIR}/streamsluice/continuous_monitoring/ 2>/dev/null || true
+        fi
+        
+        # Copy log files
+        cp ${CONTINUOUS_MONITOR_DIR}/*.log ${EXP_DIR}/streamsluice/continuous_monitoring/ 2>/dev/null || true
+        cp ${CONTINUOUS_MONITOR_DIR}/*.csv ${EXP_DIR}/streamsluice/continuous_monitoring/ 2>/dev/null || true
+        
+        echo "INFO: Continuous monitoring data collected."
+    fi
+    
     mv ${EXP_DIR}/streamsluice/ ${EXP_DIR}/raw/${EXP_NAME}
     mkdir ${EXP_DIR}/streamsluice/
 }
@@ -148,9 +214,9 @@ run_one_exp() {
 
   python -c 'import time; time.sleep(5)'
 
-  # Start application and monitoring
+  # Start application and continuous monitoring
   runApp
-  start_monitoring
+  start_continuous_monitoring
 
   SCRIPTS_RUNTIME=$((runtime + 10))
   python -c 'import time; time.sleep('"${SCRIPTS_RUNTIME}"')'

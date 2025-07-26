@@ -6,7 +6,7 @@
 # - Cache miss rate for memory efficiency analysis
 # - Configurable timing parameters for fine-tuning accuracy vs overhead
 
-source config-server-local.sh
+source $(dirname "$0")/config-mlscore-local.sh
 
 # Define the process names to monitor
 PROCESS_NAMES=("StandaloneSessionClusterEntrypoint" "TaskManagerRunner")
@@ -127,6 +127,7 @@ start_standard_monitoring() {
                     INSTRUCTIONS="N/A"
                     IPC="N/A"
                     CACHE_MISSES="N/A"
+                    CACHE_MISS_RATE="N/A"
                 fi
 
                 # Get process name
@@ -205,126 +206,296 @@ function analyze() {
 }
 
 run_one_exp() {
-    EXP_NAME=part8-stock-${controller_type}-${autotuner_initial_value_option}-${autotuner_increase_bar_option}-${autotune_interval}-${runtime}-${warmup_time}-${warmup_rate}-${skip_interval}-${P2}-${DELAY2}-${P3}-${DELAY3}-${P4}-${DELAY4}-${P5}-${DELAY5}-${P6}-${P7}-${DELAY7}-${L}-${epoch}-${autotuner_increase_bar_alpha}-${is_treat}-${autotune}-${repeat}
+  EXP_NAME=part8-mlscore-${controller_type}-${autotuner_initial_value_option}-${autotuner_increase_bar_option}-${autotune_interval}-${runtime}-${warmup_time}-${warmup_rate}-${P2}-${parse_delay}-${P3}-${feature_delay}-${P4}-${scorer_base_delay}-${P5}-${scorer_complexity_factor}-${L}-${autotuner_increase_bar_alpha}-${epoch}-${input_rate_factor}-${is_treat}-${migration_interval}-${conservative_factor}-${repeat}
 
-    echo "INFO: run exp ${EXP_NAME}"
-    configFlink
-    runFlink
+  echo "INFO: run exp ${EXP_NAME}"
+  configFlink
+  runFlink
 
-    python -c 'import time; time.sleep(5)'
+  python -c 'import time; time.sleep(5)'
 
-    # Start application and continuous monitoring
-    runApp
-    start_continuous_monitoring
+  # Start application and continuous monitoring
+  runApp
+  start_continuous_monitoring
 
-    SCRIPTS_RUNTIME=$((runtime + 10))
-    python -c 'import time; time.sleep('"${SCRIPTS_RUNTIME}"')'
+  SCRIPTS_RUNTIME=$((runtime + 10))
+  python -c 'import time; time.sleep('"${SCRIPTS_RUNTIME}"')'
 
-    # Stop monitoring and analyze logs
-    stop_monitoring
-    analyze
-    stopFlink
+  # Stop monitoring and analyze logs
+  stop_monitoring
+  analyze
+  stopFlink
 
-    python -c 'import time; time.sleep(5)'
+  python -c 'import time; time.sleep(5)'
 }
 
 # initialization of the parameters
 init() {
   # exp scenario
-  controller_type=StreamSluice
+  controller_type="StreamSluice"
   whether_type="streamsluice"
   how_type="streamsluice"
-  scalein_type="streamsuice"
+  scalein_type="streamsluice"
   is_scalein=true
   L=2000
-  runtime=1350 #1950 #750 #2190 #3990 #
-  skip_interval=20 # skip seconds
-  warmup=10000
-  warmup_time=90 #30
-  warmup_rate=1000
+  runtime=1380    # experiment runtime in seconds
+  warmup_time=120 # warmup duration in seconds
+  warmup_rate=800 # warmup rate txn/s
   repeat=1
   spike_estimation="linear_regression"
-  spike_slope=0.75
+  spike_slope=0.7
   spike_intercept=1000
   errorcase_number=3
-  #calibrate_selectivity=false
   calibrate_selectivity=true
-  vertex_id="a84740bacf923e828852cc4966f2247c,eabd4c11f6c6fbdf011f0f1fc42097b1,d01047f852abd5702a0dabeedac99ff5,d2336f79a0d60b5a4b16c8769ec82e47,36fcfcb61a35d065e60ee34fccb0541a,c395b989724fa728d0a2640c6ccdb8a1"
+  vertex_id="a84740bacf923e828852cc4966f2247c,eabd4c11f6c6fbdf011f0f1fc42097b1,d01047f852abd5702a0dabeedac99ff5,d2336f79a0d60b5a4b16c8769ec82e47"
   is_treat=true
-  migration_interval=500
+  migration_interval=1000
   epoch=100
+  decision_interval=1
+  snapshot_size=20
+  
   # app level
   JAR="${FLINK_APP_DIR}/target/testbed-1.0-SNAPSHOT.jar"
-  job="flinkapp.StreamSluiceTestSet.StockAnalysisApplication"
-  # set in Flink app
-  stock_path="/home/samza/SSE_data/"
-  stock_file_name="sb-4hr-50ms.txt"
-  MP1=1
-  MP2=128
-  MP3=128
-  MP4=128
-  MP5=128
-  MP6=128
-  MP7=128
-
-  LP2=1
-  LP3=14
-  LP4=1
-  LP5=2
-  LP6=1
-  LP7=20
-
+  job="flinkapp.MLmodelscoring.MLScoringJob"
+  
+  # ML scoring job specific parameters
+  sine_baseline=1000.0      # baseline rate for sine curve f(t) = amplitude * sin(t) + baseline
+  sine_amplitude=300.0      # amplitude of sine wave (absolute value, not percentage)
+  sine_period=60.0          # period in seconds
+  spike_probability=0.05
+  spike_multiplier=3.0
+  fluctuation_std=0.1
+  parse_delay=1             # microseconds
+  feature_delay=1           # microseconds
+  input_rate_factor=1.0
+  
+  # Feature-based scorer configuration parameters
+  scorer_base_delay=2000      # Base processing delay in microseconds
+  scorer_complexity_factor=1.0 # Complexity multiplier for feature-based processing
+  
+  # parallelism settings
   P1=1
+  MP1=1
   P2=1
-  P3=11
-  P4=1
-  P5=2
-  P6=1
-  P7=15
-
-  # Original setting
-  DELAY2=200
-  DELAY3=3333 #2500
-  DELAY4=200
-  DELAY5=500
-  DELAY7=5000 #3333
-
-  PAYLOAD=5000
+  MP2=128
+  P3=1
+  MP3=128
+  P4=2
+  MP4=128
+  P5=1
+  MP5=128
+  
+  # ML-specific max parallelism limits for vertex-based scaling
+  LP_PARSE=4     # max parallelism for parse_txn operator
+  LP_FEATURE=4   # max parallelism for feature_builder operator
+  LP_SCORER=30    # max parallelism for scorer operator
+  LP_SINK=1       # max parallelism for sink operator
+  
+  # ML-specific configuration parameters passed to Flink config
+  ml_sine_baseline=${sine_baseline}
+  ml_sine_amplitude=${sine_amplitude}
+  ml_sine_period=${sine_period}
+  ml_spike_probability=${spike_probability}
+  ml_spike_multiplier=${spike_multiplier}
+  ml_fluctuation_std=${fluctuation_std}
+  ml_parse_delay=${parse_delay}
+  ml_feature_delay=${feature_delay}
+  
+  # system settings
+  metrics_output=true
+  autotune=true
+  autotune_interval=60
+  autotuner="UserLimitTuner"
+  autotuner_latency_window=100
+  autotuner_bar_lowerbound=350
+  autotuner_adjustment_option=1
+  autotuner_increase_bar_option=8
+  autotuner_initial_value_alpha=1.2
+  autotuner_adjustment_beta=2.0
+  autotuner_initial_value_option=5
+  autotuner_increase_bar_alpha=0.1
+  
+  # flags
+  how_more_optimization_flag=false
+  how_optimization_flag=false
+  how_intrinsic_bound_flag=true
+  how_conservative_flag=false
+  coordination_latency_flag=true
+  conservative_service_rate_flag=true
+  conservative_factor=0.8
+  transmission_delay=100
+  smooth_backlog_flag=false
+  new_metrics_retriever_flag=true
+  scaling_decision_option=1
+  
+  # migration overhead (ms)
+  migration_overhead=100
+  
+  # Additional variables needed by configFlink
+  warmup=10000
+  metrics_report=true
 }
 
 # run applications
 function runApp() {
     echo "INFO: ${FLINK_DIR}/bin/flink run -c ${job} ${JAR} \
-    -p1 ${P1} -mp1 ${MP1} \
-    -p2 ${P2} -mp2 ${MP2} -op2Delay ${DELAY2} \
-    -p3 ${P3} -mp3 ${MP3} -op3Delay ${DELAY3} \
-    -p4 ${P4} -mp4 ${MP4} -op4Delay ${DELAY4} \
-    -p5 ${P5} -mp5 ${MP5} -op5Delay ${DELAY5} \
-    -p6 ${P6} -mp6 ${MP6} \
-    -p7 ${P7} -mp7 ${MP7} -op7Delay ${DELAY7} -payload ${PAYLOAD}\
-    -file_name ${stock_path}${stock_file_name} -warmup_rate ${warmup_rate} -warmup_time ${warmup_time} -skip_interval ${skip_interval} &"
+    -run.seconds ${runtime} \
+    -sine.baseline ${sine_baseline} \
+    -sine.amplitude ${sine_amplitude} \
+    -sine.period ${sine_period} \
+    -spike.probability ${spike_probability} \
+    -spike.multiplier ${spike_multiplier} \
+    -fluctuation.std ${fluctuation_std} \
+    -parse.delay ${parse_delay} \
+    -feature.delay ${feature_delay} \
+    -scorer.base.delay ${scorer_base_delay} \
+    -scorer.complexity.factor ${scorer_complexity_factor} \
+    -warmup_time ${warmup_time} \
+    -warmup_rate ${warmup_rate} \
+    -input_rate_factor ${input_rate_factor} \
+    -p1 ${P1} \
+    -p2 ${P2} -mp2 ${MP2} \
+    -p3 ${P3} -mp3 ${MP3} \
+    -p4 ${P4} -mp4 ${MP4} \
+    -p5 ${P5} -mp5 ${MP5} &"
+    
     ${FLINK_DIR}/bin/flink run -c ${job} ${JAR} \
-        -p1 ${P1} -mp1 ${MP1} \
-        -p2 ${P2} -mp2 ${MP2} -op2Delay ${DELAY2} \
-        -p3 ${P3} -mp3 ${MP3} -op3Delay ${DELAY3} \
-        -p4 ${P4} -mp4 ${MP4} -op4Delay ${DELAY4} \
-        -p5 ${P5} -mp5 ${MP5} -op5Delay ${DELAY5} \
-        -p6 ${P6} -mp6 ${MP6} \
-        -p7 ${P7} -mp7 ${MP7} -op7Delay ${DELAY7} -payload ${PAYLOAD}\
-        -file_name ${stock_path}${stock_file_name} -warmup_rate ${warmup_rate} -warmup_time ${warmup_time} -skip_interval ${skip_interval} &
+    -run.seconds ${runtime} \
+    -sine.baseline ${sine_baseline} \
+    -sine.amplitude ${sine_amplitude} \
+    -sine.period ${sine_period} \
+    -spike.probability ${spike_probability} \
+    -spike.multiplier ${spike_multiplier} \
+    -fluctuation.std ${fluctuation_std} \
+    -parse.delay ${parse_delay} \
+    -feature.delay ${feature_delay} \
+    -scorer.base.delay ${scorer_base_delay} \
+    -scorer.complexity.factor ${scorer_complexity_factor} \
+    -warmup_time ${warmup_time} \
+    -warmup_rate ${warmup_rate} \
+    -input_rate_factor ${input_rate_factor} \
+    -p1 ${P1} \
+    -p2 ${P2} -mp2 ${MP2} \
+    -p3 ${P3} -mp3 ${MP3} \
+    -p4 ${P4} -mp4 ${MP4} \
+    -p5 ${P5} -mp5 ${MP5} &
 }
 
-run_stock_test(){
-    echo "Run overall test..."
-    init
-    printf "Part_8\n" > part8_result.txt
+function setting1(){
+  # Setting 1: Light processing baseline
+  printf "ML Scoring Setting 1 - Light Processing\n" >> part8_result.txt
+  runtime=600
+  setting="light"
+  sine_baseline=600.0         # baseline rate for sine curve
+  sine_amplitude=100.0        # amplitude of sine wave (range: 500-700 txn/s)
+  sine_period=60.0            # period in seconds
+  warmup_rate=400             # warmup rate (should be <= sine_baseline - sine_amplitude)
+  spike_probability=0.02
+  spike_multiplier=2.0
+  fluctuation_std=0.05
+  parse_delay=100 # microseconds
+  feature_delay=100  # microseconds
+  
+  # Light processing settings
+  scorer_base_delay=1000      # 1ms in microseconds
+  scorer_complexity_factor=0.5  # Reduced complexity
+  
+  P2=1
+  P3=1
+  P4=2
+  P5=1
 
+  # Update ML config parameters
+  ml_sine_baseline=${sine_baseline}
+  ml_sine_amplitude=${sine_amplitude}
+  ml_sine_period=${sine_period}
+  ml_spike_probability=${spike_probability}
+  ml_spike_multiplier=${spike_multiplier}
+  ml_fluctuation_std=${fluctuation_std}
+  ml_parse_delay=${parse_delay}
+  ml_feature_delay=${feature_delay}
+  
+  for repeat in 1; do
+    run_one_exp
+    printf "${EXP_NAME}\n" >> part8_result.txt
+  done
+}
+
+function setting2(){
+  # Setting 2: Medium processing with realistic complexity
+  printf "ML Scoring Setting 2 - Medium Processing\n" >> part8_result.txt
+  runtime=1380
+  setting="medium"
+  L=2000
+  transmission_delay=50
+  
+  sine_baseline=1500.0        # baseline rate for sine curve
+  sine_amplitude=350.0        # amplitude of sine wave (range: 1100-1900 txn/s)
+  sine_period=240             # period in seconds
+  warmup_rate=1200            # warmup rate (should be <= sine_baseline - sine_amplitude)
+  spike_probability=0.05
+  spike_multiplier=3.0
+  fluctuation_std=0.1
+  parse_delay=100
+  feature_delay=100
+  
+  # Medium processing settings - realistic GBDT complexity
+  scorer_base_delay=3000      # 3ms in microseconds
+  scorer_complexity_factor=1.5  # Moderate complexity
+  
+  P2=1
+  P3=1
+  P4=15
+  
+  # Update ML config parameters
+  ml_sine_baseline=${sine_baseline}
+  ml_sine_amplitude=${sine_amplitude}
+  ml_sine_period=${sine_period}
+  ml_spike_probability=${spike_probability}
+  ml_spike_multiplier=${spike_multiplier}
+  ml_fluctuation_std=${fluctuation_std}
+  ml_parse_delay=${parse_delay}
+  ml_feature_delay=${feature_delay}
+
+  printf "Comparison\n" >> part8_result.txt
+  for repeat in 1; do
+    L=2000
+    autotune=false
+    is_treat=false
+    P2=1
+    P3=1
+    P4=15
+    controller_type="StreamSluice"
+    whether_type="streamsluice"
+    how_type="streamsluice"
+    scalein_type="streamsluice"
+    migration_interval=2500
+    run_one_exp
+    printf "${EXP_NAME}\n" >> part8_result.txt
+
+    controller_type="NoControll"
+    is_treat=false
+    autotune=false
+    whether_type="streamsluice"
+    how_type="streamsluice"
+    scalein_type="streamsluice"
+    migration_interval=2500
+    run_one_exp
+    printf "${EXP_NAME}\n" >> part8_result.txt
+  done
+}
+
+run_ml_scoring_test(){
+    echo "Run ML Scoring experiments..."
+    init
+    printf "Part_8_ML_Scoring\n" > part8_result.txt
     how_more_optimization_flag=false
     how_optimization_flag=false
     how_intrinsic_bound_flag=true
-    how_conservative_flag=false # true
+    how_conservative_flag=false
     coordination_latency_flag=true
-    conservative_service_rate_flag=true # false
+    conservative_service_rate_flag=true
+    conservative_factor=0.8
     smooth_backlog_flag=false
     new_metrics_retriever_flag=true
 
@@ -332,28 +503,26 @@ run_stock_test(){
     autotune_interval=60
     autotuner="UserLimitTuner"
     autotuner_latency_window=100
-    autotuner_bar_lowerbound=550 #300
-    autotuner_initial_value_option=4 # 1
+    autotuner_bar_lowerbound=350
     autotuner_adjustment_option=1
-    autotuner_increase_bar_option=1 # 2
+    autotuner_increase_bar_option=8
     autotuner_initial_value_alpha=1.2
     autotuner_adjustment_beta=2.0
     epoch=100
-    decision_interval=1 #10
-    snapshot_size=40 #20
-    L=1000 #2000 #2500
-    migration_interval=1000 #500
+    decision_interval=1
+    snapshot_size=20
+    L=2000
+    migration_interval=1000
     spike_slope=0.7
     autotuner_initial_value_option=5
-    autotuner_increase_bar_option=8
-    autotuner_increase_bar_alpha=0.1 #0.25
+    autotuner_increase_bar_alpha=0.1
+    scaling_decision_option=1
+    repeat=1
 
     is_treat=false
     autotune=true
     metrics_report=true
     repeat=1
-    scaling_decision_option=1
-    autotuner_increase_bar_alpha=0.1
     L=3000
     controller_type="StreamSluice"
     whether_type="streamsluice"
@@ -362,15 +531,18 @@ run_stock_test(){
     run_one_exp
     printf "${EXP_NAME}\n" >> part8_result.txt
 
+    controller_type="NoControll"
     is_treat=false
     autotune=false
     metrics_report=false
+    repeat=1
     L=3000
-    controller_type="NoControll"
     whether_type="streamsluice"
     how_type="streamsluice"
     scalein_type="streamsluice"
     run_one_exp
     printf "${EXP_NAME}\n" >> part8_result.txt
 }
-run_stock_test
+
+# Run the ML scoring test
+run_ml_scoring_test 
