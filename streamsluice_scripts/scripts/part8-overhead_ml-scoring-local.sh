@@ -34,8 +34,8 @@ get_flink_pids() {
 start_continuous_monitoring() {
     echo "INFO: Starting continuous monitoring for experiment ${EXP_NAME}..."
     
-    # Create monitoring directories
-    CONTINUOUS_MONITOR_DIR="${EXP_DIR}/continuous_monitoring"
+    # Create monitoring directories in a temporary location to avoid path conflicts
+    CONTINUOUS_MONITOR_DIR="/tmp/continuous_monitoring_${EXP_NAME}_$$"
     mkdir -p $CONTINUOUS_MONITOR_DIR
     
     # Start continuous perf monitoring
@@ -207,33 +207,25 @@ function analyze() {
     
     # Collect continuous monitoring data if available
     if [[ -d "${CONTINUOUS_MONITOR_DIR}" ]]; then
-        echo "INFO: Collecting continuous monitoring data from ${CONTINUOUS_MONITOR_DIR}..."
+        echo "INFO: Collecting continuous monitoring data (optimized)..."
         mkdir -p ${EXP_DIR}/streamsluice/continuous_monitoring/
         
-        # Show what's actually in the continuous monitoring directory
-        echo "DEBUG: Contents of ${CONTINUOUS_MONITOR_DIR}:"
-        ls -la ${CONTINUOUS_MONITOR_DIR}/ 2>/dev/null || echo "Directory not found"
-        
-        # Copy perf_logs directory contents (where continuous_perf_monitor.sh saves data)
+        # Fast move operation instead of copy (much faster for large files)
         if [[ -d "${CONTINUOUS_MONITOR_DIR}/perf_logs" ]]; then
-            echo "INFO: Found perf_logs directory, copying..."
-            cp -r ${CONTINUOUS_MONITOR_DIR}/perf_logs ${EXP_DIR}/streamsluice/continuous_monitoring/ 2>/dev/null || true
-            ls -la ${CONTINUOUS_MONITOR_DIR}/perf_logs/ 2>/dev/null
-        else
-            echo "INFO: No perf_logs directory found in ${CONTINUOUS_MONITOR_DIR}"
+            echo "INFO: Moving perf data files..."
+            mv "${CONTINUOUS_MONITOR_DIR}/perf_logs" "${EXP_DIR}/streamsluice/continuous_monitoring/" 2>/dev/null || true
         fi
         
-        # Copy all log files and CSV files from continuous monitoring directory
-        cp ${CONTINUOUS_MONITOR_DIR}/*.log ${EXP_DIR}/streamsluice/continuous_monitoring/ 2>/dev/null || echo "No .log files found"
-        cp ${CONTINUOUS_MONITOR_DIR}/*.csv ${EXP_DIR}/streamsluice/continuous_monitoring/ 2>/dev/null || echo "No .csv files found"
-        cp ${CONTINUOUS_MONITOR_DIR}/*.data ${EXP_DIR}/streamsluice/continuous_monitoring/ 2>/dev/null || echo "No .data files found"
-        cp ${CONTINUOUS_MONITOR_DIR}/*.txt ${EXP_DIR}/streamsluice/continuous_monitoring/ 2>/dev/null || echo "No .txt files found"
+        # Move other monitoring files quickly
+        mv ${CONTINUOUS_MONITOR_DIR}/*.log ${EXP_DIR}/streamsluice/continuous_monitoring/ 2>/dev/null || true
+        mv ${CONTINUOUS_MONITOR_DIR}/*.csv ${EXP_DIR}/streamsluice/continuous_monitoring/ 2>/dev/null || true
+        mv ${CONTINUOUS_MONITOR_DIR}/*.data ${EXP_DIR}/streamsluice/continuous_monitoring/ 2>/dev/null || true
+        mv ${CONTINUOUS_MONITOR_DIR}/*.txt ${EXP_DIR}/streamsluice/continuous_monitoring/ 2>/dev/null || true
         
-        echo "INFO: Continuous monitoring data collection completed."
-        echo "INFO: Final monitoring data location: ${EXP_DIR}/streamsluice/continuous_monitoring/"
-        ls -la ${EXP_DIR}/streamsluice/continuous_monitoring/ 2>/dev/null || echo "Final directory not found"
-    else
-        echo "INFO: No continuous monitoring directory found at ${CONTINUOUS_MONITOR_DIR}"
+        # Clean up temporary monitoring directory
+        rm -rf ${CONTINUOUS_MONITOR_DIR} 2>/dev/null || true
+        
+        echo "INFO: Continuous monitoring data collected."
     fi
     
     mv ${EXP_DIR}/streamsluice/ ${EXP_DIR}/raw/${EXP_NAME}

@@ -34,8 +34,8 @@ get_flink_pids() {
 start_continuous_monitoring() {
     echo "INFO: Starting continuous monitoring for experiment ${EXP_NAME}..."
     
-    # Create monitoring directories
-    CONTINUOUS_MONITOR_DIR="${EXP_DIR}/continuous_monitoring"
+    # Create monitoring directories in a temporary location to avoid path conflicts
+    CONTINUOUS_MONITOR_DIR="/tmp/continuous_monitoring_${EXP_NAME}_$$"
     mkdir -p $CONTINUOUS_MONITOR_DIR
     
     # Start continuous perf monitoring
@@ -207,17 +207,22 @@ function analyze() {
     
     # Collect continuous monitoring data if available
     if [[ -d "${CONTINUOUS_MONITOR_DIR}" ]]; then
-        echo "INFO: Collecting continuous monitoring data..."
+        echo "INFO: Collecting continuous monitoring data (optimized)..."
         mkdir -p ${EXP_DIR}/streamsluice/continuous_monitoring/
         
-        # Copy continuous monitoring files
+        # Fast move operation instead of copy (much faster for large files)
         if [[ -d "${CONTINUOUS_MONITOR_DIR}/perf_logs" ]]; then
-            cp -r ${CONTINUOUS_MONITOR_DIR}/perf_logs/* ${EXP_DIR}/streamsluice/continuous_monitoring/ 2>/dev/null || true
+            echo "INFO: Moving perf data files..."
+            mv "${CONTINUOUS_MONITOR_DIR}/perf_logs" "${EXP_DIR}/streamsluice/continuous_monitoring/" 2>/dev/null || true
         fi
         
-        # Copy log files
-        cp ${CONTINUOUS_MONITOR_DIR}/*.log ${EXP_DIR}/streamsluice/continuous_monitoring/ 2>/dev/null || true
-        cp ${CONTINUOUS_MONITOR_DIR}/*.csv ${EXP_DIR}/streamsluice/continuous_monitoring/ 2>/dev/null || true
+        # Move other monitoring files quickly
+        mv ${CONTINUOUS_MONITOR_DIR}/*.log ${EXP_DIR}/streamsluice/continuous_monitoring/ 2>/dev/null || true
+        mv ${CONTINUOUS_MONITOR_DIR}/*.csv ${EXP_DIR}/streamsluice/continuous_monitoring/ 2>/dev/null || true
+        mv ${CONTINUOUS_MONITOR_DIR}/*.txt ${EXP_DIR}/streamsluice/continuous_monitoring/ 2>/dev/null || true
+        
+        # Clean up temporary monitoring directory
+        rm -rf ${CONTINUOUS_MONITOR_DIR} 2>/dev/null || true
         
         echo "INFO: Continuous monitoring data collected."
     fi
@@ -377,13 +382,13 @@ run_stock_test(){
     run_one_exp
     printf "${EXP_NAME}\n" >> part8_result.txt
 
-    controller_type="NoControll"
-    autotune=false
-    metrics_report=false
-    whether_type="streamsluice"
-    how_type="streamsluice"
-    scalein_type="streamsluice"
-    run_one_exp
-    printf "${EXP_NAME}\n" >> part8_result.txt
+    # controller_type="NoControll"
+    # autotune=false
+    # metrics_report=false
+    # whether_type="streamsluice"
+    # how_type="streamsluice"
+    # scalein_type="streamsluice"
+    # run_one_exp
+    # printf "${EXP_NAME}\n" >> part8_result.txt
 }
 run_stock_test
