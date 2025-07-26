@@ -154,18 +154,14 @@ stop_monitoring() {
 trap 'stop_monitoring; exit 0' INT TERM
 
 # Main execution
-case "${1:-start}" in
-    "start"|"")
-        start_continuous_perf
-        echo "Press Ctrl+C to stop monitoring"
-        wait  # Wait for background processes
-        ;;
+case "${1}" in
     "stop")
         stop_monitoring
         ;;
     *)
-        echo "Usage: $0 [experiment_name] [sampling_frequency_ms]"
-        echo "   or: $0 stop"
-        exit 1
+        # Default: start monitoring with experiment name as first argument
+        start_continuous_perf
+        echo "Press Ctrl+C to stop monitoring"
+        wait  # Wait for background processes
         ;;
 esac 
