@@ -382,13 +382,13 @@ run_stock_test(){
     run_one_exp
     printf "${EXP_NAME}\n" >> part8_result.txt
 
-    # controller_type="NoControll"
-    # autotune=false
-    # metrics_report=false
-    # whether_type="streamsluice"
-    # how_type="streamsluice"
-    # scalein_type="streamsluice"
-    # run_one_exp
-    # printf "${EXP_NAME}\n" >> part8_result.txt
+    controller_type="NoControll"
+    autotune=false
+    metrics_report=false
+    whether_type="streamsluice"
+    how_type="streamsluice"
+    scalein_type="streamsluice"
+    run_one_exp
+    printf "${EXP_NAME}\n" >> part8_result.txt
 }
 run_stock_test

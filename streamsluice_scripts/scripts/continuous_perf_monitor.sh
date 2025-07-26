@@ -51,8 +51,7 @@ start_continuous_perf() {
         -e cycles,instructions,cache-misses,cache-references,branch-misses,page-faults \
         -o $PERF_DATA_FILE \
         --mmap-pages=512 \
-        --freq=1000 \
-        sleep 3600 &  # Run for 1 hour max
+        --freq=1000 &  # Run continuously until stopped
     
     PERF_RECORD_PID=$!
     
@@ -128,22 +127,48 @@ start_continuous_perf() {
 stop_monitoring() {
     echo "Stopping perf monitoring..."
     
+    # Stop perf record gracefully with SIGINT to allow proper file finalization
     if [ -f "${OUTPUT_DIR}/${EXPERIMENT_NAME}_record.pid" ]; then
         local record_pid=$(cat "${OUTPUT_DIR}/${EXPERIMENT_NAME}_record.pid")
-        kill $record_pid 2>/dev/null
+        if kill -0 $record_pid 2>/dev/null; then
+            echo "Sending SIGINT to perf record (PID: $record_pid)..."
+            kill -INT $record_pid 2>/dev/null
+            # Wait up to 10 seconds for graceful termination
+            for i in {1..10}; do
+                if ! kill -0 $record_pid 2>/dev/null; then
+                    echo "Perf record terminated gracefully."
+                    break
+                fi
+                echo "Waiting for perf record to finalize data file... ($i/10)"
+                sleep 1
+            done
+            # If still running, force kill
+            if kill -0 $record_pid 2>/dev/null; then
+                echo "Force killing perf record..."
+                kill -KILL $record_pid 2>/dev/null
+            fi
+        fi
         rm "${OUTPUT_DIR}/${EXPERIMENT_NAME}_record.pid"
     fi
     
+    # Stop perf stat
     if [ -f "${OUTPUT_DIR}/${EXPERIMENT_NAME}_stat.pid" ]; then
         local stat_pid=$(cat "${OUTPUT_DIR}/${EXPERIMENT_NAME}_stat.pid")
-        kill $stat_pid 2>/dev/null
+        kill -TERM $stat_pid 2>/dev/null
         rm "${OUTPUT_DIR}/${EXPERIMENT_NAME}_stat.pid"
     fi
     
+    # Brief delay to ensure file is fully written to disk
+    sleep 2
+    
     echo "Generating final report..."
-    if [ -f "$PERF_DATA_FILE" ]; then
-        perf report -i $PERF_DATA_FILE --stdio > "${OUTPUT_DIR}/${EXPERIMENT_NAME}_report.txt"
+    if [ -f "$PERF_DATA_FILE" ] && [ -s "$PERF_DATA_FILE" ]; then
+        echo "Perf data file size: $(du -h $PERF_DATA_FILE | cut -f1)"
+        perf report -i $PERF_DATA_FILE --stdio > "${OUTPUT_DIR}/${EXPERIMENT_NAME}_report.txt" 2>/dev/null
         echo "Perf report saved to: ${OUTPUT_DIR}/${EXPERIMENT_NAME}_report.txt"
+    else
+        echo "WARNING: Perf data file is missing or empty: $PERF_DATA_FILE"
+        echo "This may indicate that perf record was terminated before collecting samples."
     fi
     
     echo "Monitoring stopped. Files saved:"
