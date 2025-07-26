@@ -39,18 +39,22 @@ start_continuous_monitoring() {
     mkdir -p $CONTINUOUS_MONITOR_DIR
     
     # Start continuous perf monitoring
-    CONTINUOUS_SCRIPT_DIR="$(dirname "$0")"
+    CONTINUOUS_SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"  # Get absolute path
+    CONTINUOUS_SCRIPT_PATH="${CONTINUOUS_SCRIPT_DIR}/continuous_perf_monitor.sh"
     
-    if [[ -f "${CONTINUOUS_SCRIPT_DIR}/continuous_perf_monitor.sh" ]]; then
+    echo "DEBUG: Looking for continuous monitoring script at: ${CONTINUOUS_SCRIPT_PATH}"
+    
+    if [[ -f "${CONTINUOUS_SCRIPT_PATH}" ]]; then
         echo "INFO: Using continuous perf monitoring script..."
         cd $CONTINUOUS_MONITOR_DIR
-        nohup ${CONTINUOUS_SCRIPT_DIR}/continuous_perf_monitor.sh ${EXP_NAME} 50 > continuous_monitor.log 2>&1 &
+        nohup "${CONTINUOUS_SCRIPT_PATH}" ${EXP_NAME} 50 > continuous_monitor.log 2>&1 &
         CONTINUOUS_MONITOR_PID=$!
         echo $CONTINUOUS_MONITOR_PID > "${CONTINUOUS_MONITOR_DIR}/${EXP_NAME}_continuous.pid"
         cd - > /dev/null
         echo "INFO: Continuous monitoring started with PID: $CONTINUOUS_MONITOR_PID"
     else
-        echo "WARNING: continuous_perf_monitor.sh not found, falling back to standard monitoring"
+        echo "WARNING: continuous_perf_monitor.sh not found at ${CONTINUOUS_SCRIPT_PATH}, falling back to standard monitoring"
+        ls -la "${CONTINUOUS_SCRIPT_DIR}/" | grep continuous || echo "No continuous scripts found in directory"
         start_standard_monitoring
     fi
 }

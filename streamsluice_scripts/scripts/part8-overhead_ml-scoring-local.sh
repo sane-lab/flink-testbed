@@ -39,18 +39,22 @@ start_continuous_monitoring() {
     mkdir -p $CONTINUOUS_MONITOR_DIR
     
     # Start continuous perf monitoring
-    CONTINUOUS_SCRIPT_DIR="$(dirname "$0")"
+    CONTINUOUS_SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"  # Get absolute path
+    CONTINUOUS_SCRIPT_PATH="${CONTINUOUS_SCRIPT_DIR}/continuous_perf_monitor.sh"
     
-    if [[ -f "${CONTINUOUS_SCRIPT_DIR}/continuous_perf_monitor.sh" ]]; then
+    echo "DEBUG: Looking for continuous monitoring script at: ${CONTINUOUS_SCRIPT_PATH}"
+    
+    if [[ -f "${CONTINUOUS_SCRIPT_PATH}" ]]; then
         echo "INFO: Using continuous perf monitoring script..."
         cd $CONTINUOUS_MONITOR_DIR
-        nohup ${CONTINUOUS_SCRIPT_DIR}/continuous_perf_monitor.sh ${EXP_NAME} 50 > continuous_monitor.log 2>&1 &
+        nohup "${CONTINUOUS_SCRIPT_PATH}" ${EXP_NAME} 50 > continuous_monitor.log 2>&1 &
         CONTINUOUS_MONITOR_PID=$!
         echo $CONTINUOUS_MONITOR_PID > "${CONTINUOUS_MONITOR_DIR}/${EXP_NAME}_continuous.pid"
         cd - > /dev/null
         echo "INFO: Continuous monitoring started with PID: $CONTINUOUS_MONITOR_PID"
     else
-        echo "WARNING: continuous_perf_monitor.sh not found, falling back to standard monitoring"
+        echo "WARNING: continuous_perf_monitor.sh not found at ${CONTINUOUS_SCRIPT_PATH}, falling back to standard monitoring"
+        ls -la "${CONTINUOUS_SCRIPT_DIR}/" | grep continuous || echo "No continuous scripts found in directory"
         start_standard_monitoring
     fi
 }
@@ -186,19 +190,33 @@ function analyze() {
     
     # Collect continuous monitoring data if available
     if [[ -d "${CONTINUOUS_MONITOR_DIR}" ]]; then
-        echo "INFO: Collecting continuous monitoring data..."
+        echo "INFO: Collecting continuous monitoring data from ${CONTINUOUS_MONITOR_DIR}..."
         mkdir -p ${EXP_DIR}/streamsluice/continuous_monitoring/
         
-        # Copy continuous monitoring files
+        # Show what's actually in the continuous monitoring directory
+        echo "DEBUG: Contents of ${CONTINUOUS_MONITOR_DIR}:"
+        ls -la ${CONTINUOUS_MONITOR_DIR}/ 2>/dev/null || echo "Directory not found"
+        
+        # Copy perf_logs directory contents (where continuous_perf_monitor.sh saves data)
         if [[ -d "${CONTINUOUS_MONITOR_DIR}/perf_logs" ]]; then
-            cp -r ${CONTINUOUS_MONITOR_DIR}/perf_logs/* ${EXP_DIR}/streamsluice/continuous_monitoring/ 2>/dev/null || true
+            echo "INFO: Found perf_logs directory, copying..."
+            cp -r ${CONTINUOUS_MONITOR_DIR}/perf_logs ${EXP_DIR}/streamsluice/continuous_monitoring/ 2>/dev/null || true
+            ls -la ${CONTINUOUS_MONITOR_DIR}/perf_logs/ 2>/dev/null
+        else
+            echo "INFO: No perf_logs directory found in ${CONTINUOUS_MONITOR_DIR}"
         fi
         
-        # Copy log files
-        cp ${CONTINUOUS_MONITOR_DIR}/*.log ${EXP_DIR}/streamsluice/continuous_monitoring/ 2>/dev/null || true
-        cp ${CONTINUOUS_MONITOR_DIR}/*.csv ${EXP_DIR}/streamsluice/continuous_monitoring/ 2>/dev/null || true
+        # Copy all log files and CSV files from continuous monitoring directory
+        cp ${CONTINUOUS_MONITOR_DIR}/*.log ${EXP_DIR}/streamsluice/continuous_monitoring/ 2>/dev/null || echo "No .log files found"
+        cp ${CONTINUOUS_MONITOR_DIR}/*.csv ${EXP_DIR}/streamsluice/continuous_monitoring/ 2>/dev/null || echo "No .csv files found"
+        cp ${CONTINUOUS_MONITOR_DIR}/*.data ${EXP_DIR}/streamsluice/continuous_monitoring/ 2>/dev/null || echo "No .data files found"
+        cp ${CONTINUOUS_MONITOR_DIR}/*.txt ${EXP_DIR}/streamsluice/continuous_monitoring/ 2>/dev/null || echo "No .txt files found"
         
-        echo "INFO: Continuous monitoring data collected."
+        echo "INFO: Continuous monitoring data collection completed."
+        echo "INFO: Final monitoring data location: ${EXP_DIR}/streamsluice/continuous_monitoring/"
+        ls -la ${EXP_DIR}/streamsluice/continuous_monitoring/ 2>/dev/null || echo "Final directory not found"
+    else
+        echo "INFO: No continuous monitoring directory found at ${CONTINUOUS_MONITOR_DIR}"
     fi
     
     mv ${EXP_DIR}/streamsluice/ ${EXP_DIR}/raw/${EXP_NAME}
