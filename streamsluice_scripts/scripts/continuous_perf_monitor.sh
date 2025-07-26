@@ -4,7 +4,7 @@
 # Usage: ./continuous_perf_monitor.sh [experiment_name] [sampling_frequency_ms]
 
 EXPERIMENT_NAME=${1:-"perf_experiment_$(date +%Y%m%d_%H%M%S)"}
-SAMPLING_FREQ=${2:-100}  # Default 100ms sampling (10Hz)
+SAMPLING_FREQ=${2:-200}  # Default 200ms sampling (5Hz)
 OUTPUT_DIR="perf_logs"
 PERF_DATA_FILE="${OUTPUT_DIR}/${EXPERIMENT_NAME}_perf.data"
 PERF_LOG_FILE="${OUTPUT_DIR}/${EXPERIMENT_NAME}_cycles.csv"
@@ -45,12 +45,13 @@ start_continuous_perf() {
     
     echo "Monitoring PIDs: $pids"
     
-    # Start perf record for continuous data collection
+    # Start perf record for continuous data collection with optimized settings
     echo "Starting perf record..."
     perf record -p $pids \
         -e cycles,instructions,cache-misses,cache-references,branch-misses,page-faults \
         -o $PERF_DATA_FILE \
-        -g --call-graph dwarf \
+        --mmap-pages=512 \
+        --freq=1000 \
         sleep 3600 &  # Run for 1 hour max
     
     PERF_RECORD_PID=$!
@@ -70,9 +71,10 @@ start_continuous_perf() {
                 if [ ! -z "$pid" ]; then
                     process_name=$(jps | grep "$pid" | awk '{print $2}')
                     
-                    # High-frequency perf stat (more accurate)
+                    # Optimized perf stat with reduced overhead
                     perf_result=$(timeout 0.${SAMPLING_FREQ}s perf stat -p $pid \
                         -e cycles,instructions,cache-misses,cache-references,page-faults \
+                        --interval-print 50 \
                         sleep 0.${SAMPLING_FREQ} 2>&1)
                     
                     # Parse results

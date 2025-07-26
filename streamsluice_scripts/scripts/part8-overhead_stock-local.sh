@@ -64,7 +64,7 @@ start_continuous_monitoring() {
         fi
         
         cd $CONTINUOUS_MONITOR_DIR
-        nohup "${CONTINUOUS_SCRIPT_PATH}" ${EXP_NAME} 50 > continuous_monitor.log 2>&1 &
+        nohup "${CONTINUOUS_SCRIPT_PATH}" ${EXP_NAME} 200 > continuous_monitor.log 2>&1 &
         CONTINUOUS_MONITOR_PID=$!
         echo $CONTINUOUS_MONITOR_PID > "${CONTINUOUS_MONITOR_DIR}/${EXP_NAME}_continuous.pid"
         cd - > /dev/null
