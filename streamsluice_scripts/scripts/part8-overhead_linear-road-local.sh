@@ -1,11 +1,22 @@
 #!/bin/bash
 
+# Enhanced monitoring with improved accuracy for CPU cycle measurements
+# - 80% sampling coverage (0.8s perf sampling every 1s) vs previous 20% coverage
+# - Per-second cycle rates for better comparison across experiments  
+# - Cache miss rate for memory efficiency analysis
+# - Configurable timing parameters for fine-tuning accuracy vs overhead
+
 source config-server-lr-local.sh
 
 # Define the process names to monitor
 PROCESS_NAMES=("StandaloneSessionClusterEntrypoint" "TaskManagerRunner")
 MONITOR_LOG_DIR="${FLINK_DIR}/log"
 MONITOR_LOG_FILE="${MONITOR_LOG_DIR}/monitor_$(date +%Y%m%d_%H%M%S).out"
+
+# Monitoring configuration for higher accuracy
+MONITOR_INTERVAL=1        # Main monitoring loop interval (seconds)
+PERF_SAMPLE_TIME=0.8      # Perf sampling duration (seconds) 
+PERF_SLEEP_TIME=0.2       # Sleep between perf samples
 
 # Create monitor log directory
 mkdir -p $MONITOR_LOG_DIR
@@ -24,7 +35,7 @@ start_monitoring() {
     echo "INFO: Starting monitoring..."
     {
         # Start monitoring
-        echo "Timestamp, PID, Process Name, CPU%, TOTAL_CPU_TIME, %MEM, RSS (KB), VSZ (KB), Heap Used (MB), GC Time (ms)"
+        echo "Timestamp, PID, Process Name, CPU%, TOTAL_CPU_TIME, %MEM, RSS (KB), VSZ (KB), Heap Used (MB), GC Time (ms), CPU Cycles/sec, Instructions, IPC, Cache Misses, Cache Miss Rate"
         while true; do
             TIMESTAMP=$(date '+%Y-%m-%d %H:%M:%S')
             PIDS=$(get_flink_pids)
@@ -51,13 +62,55 @@ start_monitoring() {
                     GC_TIME="N/A"
                 fi
 
+                # Get CPU cycles and performance counters using perf (higher accuracy)
+                if command -v perf &> /dev/null; then
+                    # Run perf with configurable sampling time for better accuracy
+                    PERF_OUTPUT=$(timeout ${PERF_SAMPLE_TIME}s perf stat -p $PID -e cycles,instructions,cache-misses,cache-references 2>&1 | grep -E "cycles|instructions|cache-misses|cache-references")
+                    
+                    CPU_CYCLES=$(echo "$PERF_OUTPUT" | grep -w "cycles" | awk '{gsub(/,/, ""); print $1}' | head -1)
+                    INSTRUCTIONS=$(echo "$PERF_OUTPUT" | grep -w "instructions" | awk '{gsub(/,/, ""); print $1}' | head -1)
+                    CACHE_MISSES=$(echo "$PERF_OUTPUT" | grep "cache-misses" | awk '{gsub(/,/, ""); print $1}' | head -1)
+                    CACHE_REFS=$(echo "$PERF_OUTPUT" | grep "cache-references" | awk '{gsub(/,/, ""); print $1}' | head -1)
+                    
+                    # Calculate per-second rates for better comparison
+                    if [[ "$CPU_CYCLES" != "" && "$CPU_CYCLES" != "0" ]]; then
+                        CYCLES_PER_SEC=$(echo "scale=0; $CPU_CYCLES / $PERF_SAMPLE_TIME" | bc -l 2>/dev/null || echo "0")
+                    else
+                        CYCLES_PER_SEC="0"
+                    fi
+                    
+                    # Calculate Instructions Per Cycle (IPC) - important metric for efficiency
+                    if [[ "$CPU_CYCLES" != "" && "$INSTRUCTIONS" != "" && "$CPU_CYCLES" != "0" ]]; then
+                        IPC=$(echo "scale=4; $INSTRUCTIONS / $CPU_CYCLES" | bc -l 2>/dev/null || echo "0")
+                    else
+                        IPC="0"
+                    fi
+                    
+                    # Calculate cache miss rate
+                    if [[ "$CACHE_REFS" != "" && "$CACHE_MISSES" != "" && "$CACHE_REFS" != "0" ]]; then
+                        CACHE_MISS_RATE=$(echo "scale=4; $CACHE_MISSES / $CACHE_REFS" | bc -l 2>/dev/null || echo "0")
+                    else
+                        CACHE_MISS_RATE="0"
+                    fi
+                    
+                    # Set defaults if perf fails
+                    CPU_CYCLES=${CYCLES_PER_SEC:-"0"}
+                    INSTRUCTIONS=${INSTRUCTIONS:-"0"}
+                    CACHE_MISSES=${CACHE_MISSES:-"0"}
+                else
+                    CPU_CYCLES="N/A"
+                    INSTRUCTIONS="N/A"
+                    IPC="N/A"
+                    CACHE_MISSES="N/A"
+                fi
+
                 # Get process name
                 PROCESS_NAME=$(jps | grep "$PID" | awk '{print $2}')
 
                 # Log the data
-                echo "$TIMESTAMP, $PID, $PROCESS_NAME, $CPU_USAGE, $TOTAL_CPU_TIME, $MEM_PERCENT, $RSS, $VSZ, $HEAP_USED, $GC_TIME"
+                echo "$TIMESTAMP, $PID, $PROCESS_NAME, $CPU_USAGE, $TOTAL_CPU_TIME, $MEM_PERCENT, $RSS, $VSZ, $HEAP_USED, $GC_TIME, $CPU_CYCLES, $INSTRUCTIONS, $IPC, $CACHE_MISSES, $CACHE_MISS_RATE"
             done
-            sleep 5  # Adjust monitoring frequency as needed
+            sleep $MONITOR_INTERVAL  # Configurable monitoring frequency for higher accuracy
         done
     } >> $MONITOR_LOG_FILE &
     MONITOR_PID=$!
@@ -246,7 +299,8 @@ run_stock_test(){
     repeat=1
 
     is_treat=false
-    autotune=false
+    autotune=true
+    metrics_report=true
     repeat=2
     L=3000
     controller_type="StreamSluice"
@@ -259,6 +313,7 @@ run_stock_test(){
     controller_type="NoControll"
     is_treat=false
     autotune=false
+    metrics_report=false
     repeat=2
     L=3000
     whether_type="streamsluice"

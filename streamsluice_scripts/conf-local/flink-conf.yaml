@@ -270,6 +270,8 @@ policy.metrics.topic: flink_metrics
 # number of metrtics to be read for metrics state recovery
 policy.metrics.nrecords: 15
 
+metrics.report.flag: true
+
 #==============================================================================
 # Stream Switch Configuration
 #==============================================================================
