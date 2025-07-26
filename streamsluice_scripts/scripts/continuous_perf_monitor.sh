@@ -24,10 +24,22 @@ get_flink_pids() {
 
 # Function to start continuous perf recording
 start_continuous_perf() {
-    local pids=$(get_flink_pids)
+    echo "Waiting for Flink processes to be available..."
     
+    # Wait for Flink processes with retry (max 60 seconds)
+    for attempt in {1..60}; do
+        local pids=$(get_flink_pids)
+        if [ ! -z "$pids" ]; then
+            echo "Found Flink processes after ${attempt} seconds: $pids"
+            break
+        fi
+        echo "Attempt $attempt/60: Waiting for Flink processes..."
+        sleep 1
+    done
+    
+    local pids=$(get_flink_pids)
     if [ -z "$pids" ]; then
-        echo "ERROR: No Flink processes found. Start Flink first."
+        echo "ERROR: No Flink processes found after 60 seconds. Please check if Flink is running."
         exit 1
     fi
     

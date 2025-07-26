@@ -46,6 +46,23 @@ start_continuous_monitoring() {
     
     if [[ -f "${CONTINUOUS_SCRIPT_PATH}" ]]; then
         echo "INFO: Using continuous perf monitoring script..."
+        echo "INFO: Waiting for Flink processes to be available..."
+        
+        # Wait for Flink processes to be available (max 30 seconds)
+        for i in {1..30}; do
+            FLINK_PIDS=$(jps | grep -E "(StandaloneSessionClusterEntrypoint|TaskManagerRunner)" | awk '{print $1}')
+            if [[ ! -z "$FLINK_PIDS" ]]; then
+                echo "INFO: Flink processes found: $FLINK_PIDS"
+                break
+            fi
+            echo "INFO: Waiting for Flink processes... (attempt $i/30)"
+            sleep 1
+        done
+        
+        if [[ -z "$FLINK_PIDS" ]]; then
+            echo "WARNING: No Flink processes found after 30 seconds, monitoring may not work properly"
+        fi
+        
         cd $CONTINUOUS_MONITOR_DIR
         nohup "${CONTINUOUS_SCRIPT_PATH}" ${EXP_NAME} 50 > continuous_monitor.log 2>&1 &
         CONTINUOUS_MONITOR_PID=$!
