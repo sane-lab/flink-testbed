@@ -71,11 +71,20 @@ start_simple_monitoring() {
                 # Get CPU cycles using perf stat (this is the expensive operation)
                 if command -v perf &> /dev/null; then
                     PERF_OUTPUT=$(timeout 2s perf stat -p $PID -e cycles,instructions,cache-misses 2>&1)
+                    PERF_EXIT_CODE=$?
                     
-                    # Extract metrics with robust parsing (handle commas and whitespace properly)
-                    INTERVAL_CYCLES=$(echo "$PERF_OUTPUT" | grep -E "^\s*[0-9,]+\s+cycles" | sed 's/,//g' | awk '{print $1}')
-                    INSTRUCTIONS=$(echo "$PERF_OUTPUT" | grep -E "^\s*[0-9,]+\s+instructions" | sed 's/,//g' | awk '{print $1}')
-                    CACHE_MISSES=$(echo "$PERF_OUTPUT" | grep -E "^\s*[0-9,]+\s+cache-misses" | sed 's/,//g' | awk '{print $1}')
+                    # DEBUG: Log raw perf output to help diagnose parsing issues
+                    echo "[$TIMESTAMP] PID $PID perf output (exit $PERF_EXIT_CODE):" >> "${MONITOR_LOG_DIR}/perf_debug.log"
+                    echo "$PERF_OUTPUT" >> "${MONITOR_LOG_DIR}/perf_debug.log"
+                    echo "---" >> "${MONITOR_LOG_DIR}/perf_debug.log"
+                    
+                    # Extract metrics with multiple parsing approaches (robust fallback)
+                    INTERVAL_CYCLES=$(echo "$PERF_OUTPUT" | awk '/cycles/ {gsub(/,/, ""); print $1}' | head -1)
+                    INSTRUCTIONS=$(echo "$PERF_OUTPUT" | awk '/instructions/ {gsub(/,/, ""); print $1}' | head -1)
+                    CACHE_MISSES=$(echo "$PERF_OUTPUT" | awk '/cache-misses/ {gsub(/,/, ""); print $1}' | head -1)
+                    
+                    # DEBUG: Log parsed values
+                    echo "[$TIMESTAMP] PID $PID parsed: cycles=$INTERVAL_CYCLES, instructions=$INSTRUCTIONS, cache_misses=$CACHE_MISSES" >> "${MONITOR_LOG_DIR}/perf_debug.log"
                     
                     # Accumulate cycles for total overhead calculation
                     if [[ "$INTERVAL_CYCLES" != "" && "$INTERVAL_CYCLES" != "0" ]]; then
