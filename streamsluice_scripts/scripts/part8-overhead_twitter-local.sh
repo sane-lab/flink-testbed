@@ -86,7 +86,9 @@ start_simple_monitoring() {
 
                 # Get CPU cycles using perf stat (this is the expensive operation)
                 if command -v perf &> /dev/null; then
-                    PERF_OUTPUT=$(perf stat -p $PID -e cycles,instructions,cache-misses sleep 2 2>&1)
+                    # Use shorter sleep (1s) and minimal gap (0.1s) for better coverage
+                    # Coverage: 1s measurement / 1.1s total = 91% (up from 80%)
+                    PERF_OUTPUT=$(perf stat -p $PID -e cycles,instructions,cache-misses sleep 1 2>&1)
                     
                     # Extract metrics with multiple parsing approaches (robust fallback)
                     INTERVAL_CYCLES=$(echo "$PERF_OUTPUT" | awk '/cycles/ {gsub(/,/, ""); print $1}' | head -1)
@@ -157,7 +159,7 @@ start_simple_monitoring() {
             # Write total cycles summary (ALL processes - secondary reference)
             echo "$TIMESTAMP,$TOTAL_CYCLES_ACCUMULATED,$INTERVAL_CYCLES_SUM,$TOTAL_INSTRUCTIONS_ACCUMULATED,$TOTAL_GC_TIME" >> $TOTAL_CYCLES_FILE
             
-            sleep 0.5  # Minimal sleep - total cycle now ~2.5s (2s perf + 0.5s other + 0.5s sleep)
+            sleep 0.05  # Minimal sleep - total cycle now ~1.1s (1s perf + ~0.1s other)
         done
     } >> $MONITOR_LOG_FILE &
     MONITOR_PID=$!
@@ -390,13 +392,13 @@ init() {
   LP5=1
 
   P1=1
-  P2=19
-  P3=9
+  P2=7 #19
+  P3=3 #9
   P4=1
   P5=1
 
-  DELAY2=3333 #3333 #3333 # 6666 #5000
-  DELAY3=500 # 1000 #1000
+  DELAY2=1111 #3333
+  DELAY3=166 #500
   DELAY4=50
   DELAY5=50
   #DELAY6=100

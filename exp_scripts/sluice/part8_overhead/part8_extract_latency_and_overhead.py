@@ -832,17 +832,17 @@ def main():
     draw_lem_latency_flag = True
 
     exps_per_label_per_setting = {
-        "Stock": {
-            "Without_Sluice": "part8-stock-NoControll-5-8-60-1350-90-1000-20-1-200-11-3333-1-200-2-500-1-15-5000-3000-100-0.1-false-false-1",
-            "With_Sluice": "part8-stock-StreamSluice-5-8-60-1350-90-1000-20-1-200-11-3333-1-200-2-500-1-15-5000-3000-100-0.1-false-true-1",
-        },
-        "Twitter": {
-            "Without_Sluice": "part8-tweet-NoControll-5-60-1350-90-1700-1-19-3333-9-500-1-50-1-50-1250-2000-100-false-0.1-1",
-            "With_Sluice": "part8-tweet-StreamSluice-5-60-1350-90-1700-1-19-3333-9-500-1-50-1-50-1250-2000-100-false-0.1-1",
-        },
+        # "Stock": {
+        #     "Without_Sluice": "part8-stock-NoControll-5-8-60-1350-90-1000-20-1-200-11-3333-1-200-2-500-1-15-5000-3000-100-0.1-false-false-1",
+        #     "With_Sluice": "part8-stock-StreamSluice-5-8-60-1350-90-1000-20-1-200-11-3333-1-200-2-500-1-15-5000-3000-100-0.1-false-true-1",
+        # },
+        # "Twitter": {
+        #     "Without_Sluice": "part8-tweet-NoControll-5-60-1350-90-1700-1-19-3333-9-500-1-50-1-50-1250-2000-100-false-0.1-1",
+        #     "With_Sluice": "part8-tweet-StreamSluice-5-60-1350-90-1700-1-19-3333-9-500-1-50-1-50-1250-2000-100-false-0.1-1",
+        # },
         "Linear-road": {
-            "Without_Sluice": "part8-lr-NoControll-5-8-60-1380-150-1300-10-1-50-3-1000-1-50-27-3333-3000-0.1-100-1-25-0.0-false-1000-0.8-2",
-            "With_Sluice": "part8-lr-StreamSluice-5-8-60-1380-150-1300-10-1-50-3-1000-1-50-27-3333-3000-0.1-100-1-25-0.0-false-1000-0.8-2",
+            "Without_Sluice": "part8-lr-NoControll-5-8-60-380-150-1300-10-1-50-1-333-1-50-9-1111-3000-0.1-100-1-25-0.0-false-1000-0.8-2",
+            "With_Sluice": "part8-lr-StreamSluice-5-8-60-380-150-1300-10-1-50-1-333-1-50-9-1111-3000-0.1-100-1-25-0.0-false-1000-0.8-2",
         }
     }
     def getStartTimeAndExpLength(exp_name):
@@ -904,7 +904,7 @@ def main():
         print(success_rate_per_label)
         print(avg_ground_truth_latency_per_label)
         print(avg_parallelism_per_label)
-        calculate_overhead(dir_without_sluice, dir_with_sluice, overall_output_dir + workload_name + "/")
+        calculate_overhead(dir_without_sluice, dir_with_sluice, overall_output_dir + workload_name + "/", 5)
 
 
 import pandas as pd
@@ -1544,6 +1544,3 @@ def analyze_workload_overhead(workload_name, baseline_exp_name, sluice_exp_name,
 if __name__ == "__main__":
     # Run the main analysis (original functionality)
     main()
-    
-    # Uncomment this line to test the enhanced overhead analysis
-    # test_enhanced_overhead_analysis()
