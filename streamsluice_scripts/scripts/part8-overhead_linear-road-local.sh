@@ -34,6 +34,10 @@ get_flink_pids() {
 start_simple_monitoring() {
     echo "INFO: Starting CPU cycle monitoring..."
     
+    # Timeline alignment parameters
+    WARMUP_DELAY=20        # Start monitoring after 20s warmup
+    MONITOR_DURATION=1200  # Monitor for 20 minutes (1200s)
+    
     # Initialize accumulator files for TaskManagerRunner (primary) and total (secondary)
     TASKMANAGER_CYCLES_FILE="${MONITOR_LOG_DIR}/taskmanager_cycles_${EXP_NAME}.txt"
     TOTAL_CYCLES_FILE="${MONITOR_LOG_DIR}/total_cycles_${EXP_NAME}.txt"
@@ -47,69 +51,92 @@ start_simple_monitoring() {
     # Start CPU cycle monitoring
     {
         # Header for monitoring log
-        echo "Timestamp, PID, Process Name, Interval Cycles, Total Cycles"
+        echo "Timestamp, PID, Process Name, Total Cycles, Duration (s)"
         
-        # Initialize running totals
-        TOTAL_CYCLES_ACCUMULATED=0
-        TM_CYCLES_ACCUMULATED=0
+        # Wait for warmup period
+        echo "INFO: Waiting ${WARMUP_DELAY}s for warmup before starting monitoring..."
+        sleep $WARMUP_DELAY
         
-        while true; do
-            TIMESTAMP=$(date '+%Y-%m-%d %H:%M:%S')
-            PIDS=$(get_flink_pids)
-            
-            # Process results
-            INTERVAL_CYCLES_SUM=0
-            TM_INTERVAL_CYCLES_SUM=0
-            
-            for PID in $PIDS; do
-                # Get process name
-                PROCESS_NAME=$(jps | grep "$PID" | awk '{print $2}')
-                
-                # Run perf directly for this PID
-                PERF_OUTPUT=$(perf stat -p $PID -e cycles sleep 5 2>&1)
-                
-                # Extract cycles
-                INTERVAL_CYCLES=$(echo "$PERF_OUTPUT" | awk '/cycles/ {gsub(/,/, ""); print $1}' | head -1)
-                INTERVAL_CYCLES=${INTERVAL_CYCLES:-"0"}
-                
-                echo "DEBUG: PID $PID ($PROCESS_NAME) perf output:" >> "${MONITOR_LOG_DIR}/perf_debug.log"
-                echo "$PERF_OUTPUT" >> "${MONITOR_LOG_DIR}/perf_debug.log"
-                echo "DEBUG: Parsed cycles: $INTERVAL_CYCLES" >> "${MONITOR_LOG_DIR}/perf_debug.log"
-                echo "---" >> "${MONITOR_LOG_DIR}/perf_debug.log"
-                
-                # Accumulate cycles
-                if [[ "$INTERVAL_CYCLES" != "" && "$INTERVAL_CYCLES" != "0" ]]; then
-                    INTERVAL_CYCLES_SUM=$(echo "$INTERVAL_CYCLES_SUM + $INTERVAL_CYCLES" | bc -l 2>/dev/null || echo "$INTERVAL_CYCLES")
-                    if [[ "$PROCESS_NAME" == "TaskManagerRunner" ]]; then
-                        TM_INTERVAL_CYCLES_SUM=$INTERVAL_CYCLES
-                    fi
-                fi
-                
-                # Log data
-                if [[ "$PROCESS_NAME" == "TaskManagerRunner" ]]; then
-                    echo "$TIMESTAMP, $PID, $PROCESS_NAME [PRIMARY], $INTERVAL_CYCLES, $TM_CYCLES_ACCUMULATED"
-                else
-                    echo "$TIMESTAMP, $PID, $PROCESS_NAME [secondary], $INTERVAL_CYCLES, $TOTAL_CYCLES_ACCUMULATED"
-                fi
-            done
-            
-            # Update totals
-            TOTAL_CYCLES_ACCUMULATED=$(echo "$TOTAL_CYCLES_ACCUMULATED + $INTERVAL_CYCLES_SUM" | bc -l 2>/dev/null || echo "$TOTAL_CYCLES_ACCUMULATED")
-            TM_CYCLES_ACCUMULATED=$(echo "$TM_CYCLES_ACCUMULATED + $TM_INTERVAL_CYCLES_SUM" | bc -l 2>/dev/null || echo "$TM_CYCLES_ACCUMULATED")
-            
-            # Write to files
-            echo "$TIMESTAMP,$TM_CYCLES_ACCUMULATED,$TM_INTERVAL_CYCLES_SUM" >> $TASKMANAGER_CYCLES_FILE
-            echo "$TIMESTAMP,$TOTAL_CYCLES_ACCUMULATED,$INTERVAL_CYCLES_SUM" >> $TOTAL_CYCLES_FILE
-            
-            sleep 0.05  # Minimal sleep between cycles
+        # Record start time for alignment
+        MONITOR_START_TIME=$(date '+%Y-%m-%d %H:%M:%S')
+        echo "INFO: Monitoring started at: $MONITOR_START_TIME"
+        echo "INFO: Will monitor for ${MONITOR_DURATION}s"
+        
+        # Get PIDs
+        PIDS=$(get_flink_pids)
+        
+        # Run perf in parallel for all PIDs for the entire duration
+        PERF_OUTPUTS=()
+        PERF_PIDS=()
+        for PID in $PIDS; do
+            # Start perf in background for this PID for entire duration
+            perf stat -p $PID -e cycles sleep $MONITOR_DURATION 2>&1 > /tmp/perf_${PID}.tmp &
+            PERF_PIDS+=($!)
         done
+        
+        # Wait for all perf commands to complete
+        for i in "${!PERF_PIDS[@]}"; do
+            wait ${PERF_PIDS[$i]}
+            PERF_OUTPUTS[$i]=$(cat /tmp/perf_${PIDS[$i]}.tmp)
+            rm -f /tmp/perf_${PIDS[$i]}.tmp
+        done
+        
+        # Process results
+        TOTAL_CYCLES_SUM=0
+        TM_CYCLES_SUM=0
+        
+        for i in "${!PIDS[@]}"; do
+            PID=${PIDS[$i]}
+            PERF_OUTPUT=${PERF_OUTPUTS[$i]}
+            
+            # Get process name
+            PROCESS_NAME=$(jps | grep "$PID" | awk '{print $2}')
+            
+            # Extract cycles
+            INTERVAL_CYCLES=$(echo "$PERF_OUTPUT" | awk '/cycles/ {gsub(/,/, ""); print $1}' | head -1)
+            INTERVAL_CYCLES=${INTERVAL_CYCLES:-"0"}
+            
+            echo "DEBUG: PID $PID ($PROCESS_NAME) perf output:" >> "${MONITOR_LOG_DIR}/perf_debug.log"
+            echo "$PERF_OUTPUT" >> "${MONITOR_LOG_DIR}/perf_debug.log"
+            echo "DEBUG: Parsed cycles: $INTERVAL_CYCLES" >> "${MONITOR_LOG_DIR}/perf_debug.log"
+            echo "---" >> "${MONITOR_LOG_DIR}/perf_debug.log"
+            
+            # Accumulate cycles
+            if [[ "$INTERVAL_CYCLES" != "" && "$INTERVAL_CYCLES" != "0" ]]; then
+                TOTAL_CYCLES_SUM=$(echo "$TOTAL_CYCLES_SUM + $INTERVAL_CYCLES" | bc -l 2>/dev/null || echo "$INTERVAL_CYCLES")
+                if [[ "$PROCESS_NAME" == "TaskManagerRunner" ]]; then
+                    TM_CYCLES_SUM=$INTERVAL_CYCLES
+                fi
+            fi
+            
+            # Log data
+            if [[ "$PROCESS_NAME" == "TaskManagerRunner" ]]; then
+                echo "$MONITOR_START_TIME, $PID, $PROCESS_NAME [PRIMARY], $INTERVAL_CYCLES, $MONITOR_DURATION"
+            else
+                echo "$MONITOR_START_TIME, $PID, $PROCESS_NAME [secondary], $INTERVAL_CYCLES, $MONITOR_DURATION"
+            fi
+        done
+        
+        # Write final results to files
+        TIMESTAMP=$(date '+%Y-%m-%d %H:%M:%S')
+        echo "$TIMESTAMP,$TM_CYCLES_SUM,$TM_CYCLES_SUM" >> $TASKMANAGER_CYCLES_FILE
+        echo "$TIMESTAMP,$TOTAL_CYCLES_SUM,$TOTAL_CYCLES_SUM" >> $TOTAL_CYCLES_FILE
+        
+        # Record end time
+        MONITOR_END_TIME=$(date '+%Y-%m-%d %H:%M:%S')
+        echo "INFO: Monitoring ended at: $MONITOR_END_TIME"
+        echo "INFO: Total monitoring time: ${MONITOR_DURATION}s"
+        echo "INFO: TaskManager cycles: $TM_CYCLES_SUM"
+        echo "INFO: Total cycles: $TOTAL_CYCLES_SUM"
+        
     } >> $MONITOR_LOG_FILE &
     MONITOR_PID=$!
     
     echo "INFO: CPU cycle monitoring started with PID: $MONITOR_PID"
     echo "INFO: TaskManagerRunner cycles (PRIMARY): $TASKMANAGER_CYCLES_FILE"
     echo "INFO: Total cycles accumulator (secondary): $TOTAL_CYCLES_FILE"
-    echo "INFO: Sampling every ~10s (5s per process × 2 processes)"
+    echo "INFO: Single perf run for ${MONITOR_DURATION}s (parallel for all processes)"
+    echo "INFO: Timeline: ${WARMUP_DELAY}s warmup + ${MONITOR_DURATION}s monitoring"
 }
 
 # Function to stop monitoring

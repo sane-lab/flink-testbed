@@ -57,16 +57,32 @@ start_simple_monitoring() {
             TIMESTAMP=$(date '+%Y-%m-%d %H:%M:%S')
             PIDS=$(get_flink_pids)
             
+            # Run perf in parallel for all PIDs
+            PERF_OUTPUTS=()
+            PERF_PIDS=()
+            for PID in $PIDS; do
+                # Start perf in background for this PID
+                perf stat -p $PID -e cycles sleep 5 2>&1 > /tmp/perf_${PID}.tmp &
+                PERF_PIDS+=($!)
+            done
+            
+            # Wait for all perf commands to complete
+            for i in "${!PERF_PIDS[@]}"; do
+                wait ${PERF_PIDS[$i]}
+                PERF_OUTPUTS[$i]=$(cat /tmp/perf_${PIDS[$i]}.tmp)
+                rm -f /tmp/perf_${PIDS[$i]}.tmp
+            done
+            
             # Process results
             INTERVAL_CYCLES_SUM=0
             TM_INTERVAL_CYCLES_SUM=0
             
-            for PID in $PIDS; do
+            for i in "${!PIDS[@]}"; do
+                PID=${PIDS[$i]}
+                PERF_OUTPUT=${PERF_OUTPUTS[$i]}
+                
                 # Get process name
                 PROCESS_NAME=$(jps | grep "$PID" | awk '{print $2}')
-                
-                # Run perf directly for this PID
-                PERF_OUTPUT=$(perf stat -p $PID -e cycles sleep 5 2>&1)
                 
                 # Extract cycles
                 INTERVAL_CYCLES=$(echo "$PERF_OUTPUT" | awk '/cycles/ {gsub(/,/, ""); print $1}' | head -1)
