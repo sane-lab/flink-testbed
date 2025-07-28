@@ -1,7 +1,7 @@
 scp_from_dir(){
-	#name="${host}:${inputdir}/*.out"
+	name="${host}:${inputdir}/*.out"
 	#name="${host}:${inputdir}/*.log"
-	name="${host}:${inputdir}/*.txt"
+	#name="${host}:${inputdir}/*.txt"
 	echo $name
 	expName=$(basename ${inputdir})
 	mkdir "/Users/swrrt/Workplace/BacklogDelayPaper/experiments/raw/${expName}"

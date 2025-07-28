@@ -841,8 +841,8 @@ def main():
         #     "With_Sluice": "part8-tweet-StreamSluice-5-60-1350-90-1700-1-19-3333-9-500-1-50-1-50-1250-2000-100-false-0.1-1",
         # },
         "Linear-road": {
-            "Without_Sluice": "part8-lr-NoControll-5-8-60-380-150-1300-10-1-50-1-333-1-50-9-1111-3000-0.1-100-1-25-0.0-false-1000-0.8-2",
-            "With_Sluice": "part8-lr-StreamSluice-5-8-60-380-150-1300-10-1-50-1-333-1-50-9-1111-3000-0.1-100-1-25-0.0-false-1000-0.8-2",
+            "Without_Sluice": "part8-lr-NoControll-5-8-60-1380-150-1300-10-1-50-1-333-1-50-9-1111-3000-0.1-100-1-25-0.0-false-1000-0.8-2",
+            "With_Sluice": "part8-lr-StreamSluice-5-8-60-1380-150-1300-10-1-50-1-333-1-50-9-1111-3000-0.1-100-1-25-0.0-false-1000-0.8-2",
         }
     }
     def getStartTimeAndExpLength(exp_name):
@@ -1286,37 +1286,78 @@ def read_cpu_cycles_from_monitor(directory):
     
     try:
         with open(monitor_file, 'r') as f:
-            lines = f.readlines()
-            
-        # Skip header line
-        for line in lines[1:]:  # Skip "Timestamp, PID, Process Name, Total Cycles, Duration (s)"
-            if line.strip() and not line.startswith('INFO:'):
-                parts = line.strip().split(', ')
-                if len(parts) >= 5:
-                    try:
-                        process_name = parts[2]
-                        cycles = int(parts[3])
-                        duration = int(parts[4])
-                        
-                        if 'TaskManagerRunner' in process_name:
-                            taskmanager_cycles = cycles
-                            duration_seconds = duration
-                        else:
-                            total_cycles += cycles
-                            
-                    except (ValueError, IndexError) as e:
-                        print(f"Warning: Could not parse line: {line.strip()} - {e}")
-                        continue
+            content = f.read()
         
-        if taskmanager_cycles > 0:
+        # Parse perf output blocks
+        perf_blocks = []
+        lines = content.split('\n')
+        current_block = []
+        in_perf_block = False
+        
+        for line in lines:
+            if line.startswith(' Performance counter stats for process id'):
+                if current_block:
+                    perf_blocks.append('\n'.join(current_block))
+                current_block = [line]
+                in_perf_block = True
+            elif in_perf_block:
+                current_block.append(line)
+                if line.strip() == '' or line.startswith('INFO:'):
+                    perf_blocks.append('\n'.join(current_block))
+                    current_block = []
+                    in_perf_block = False
+        
+        # Add the last block if exists
+        if current_block:
+            perf_blocks.append('\n'.join(current_block))
+        
+        print(f"Found {len(perf_blocks)} perf blocks")
+        
+        # Parse each perf block
+        cycle_counts = []
+        for block in perf_blocks:
+            print(f"Processing perf block:\n{block}")
+            if 'cycles' in block:
+                # Extract cycles from the block
+                for line in block.split('\n'):
+                    line = line.strip()
+                    # Look for lines that contain cycles but not the header
+                    if 'cycles' in line and not line.startswith('Performance') and not line.startswith('INFO:'):
+                        print(f"Found cycle line: '{line}'")
+                        # Parse line like "13,887,626,580,688      cycles"
+                        # Split by whitespace and find the first part that's a number
+                        parts = line.split()
+                        for part in parts:
+                            # Remove commas and try to convert to int
+                            clean_part = part.replace(',', '')
+                            try:
+                                cycles = int(clean_part)
+                                cycle_counts.append(cycles)
+                                print(f"Extracted cycles: {cycles:,}")
+                                break  # Found the cycle count, move to next line
+                            except ValueError:
+                                continue  # Try next part
+        
+        if len(cycle_counts) >= 2:
+            # Sort by cycle count - larger is TaskManager, smaller is Standalone
+            cycle_counts.sort(reverse=True)
+            taskmanager_cycles = cycle_counts[0]  # Larger one
+            total_cycles = sum(cycle_counts)
+            duration_seconds = 1200  # From the format
+            
+            print(f"TaskManager cycles (larger): {taskmanager_cycles:,}")
+            print(f"Standalone cycles (smaller): {cycle_counts[1]:,}")
+            print(f"Total cycles: {total_cycles:,}")
+            
             return {
                 'taskmanager_cycles': taskmanager_cycles,
-                'total_cycles': total_cycles + taskmanager_cycles,
+                'total_cycles': total_cycles,
                 'duration_seconds': duration_seconds,
                 'duration_minutes': duration_seconds / 60.0
             }
         else:
-            print(f"WARNING: No valid TaskManagerRunner cycles found in {monitor_file}")
+            print(f"WARNING: Could not find valid cycle counts in {monitor_file}")
+            print(f"Found {len(cycle_counts)} cycle counts: {cycle_counts}")
             return None
             
     except Exception as e:

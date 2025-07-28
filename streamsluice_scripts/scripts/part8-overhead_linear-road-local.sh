@@ -36,7 +36,7 @@ start_simple_monitoring() {
     
     # Timeline alignment parameters
     WARMUP_DELAY=20        # Start monitoring after 20s warmup
-    MONITOR_DURATION=1200  # Monitor for 20 minutes (1200s)
+    MONITOR_DURATION=240 #1200  # Monitor for 20 minutes (1200s)
     
     # Initialize accumulator files for TaskManagerRunner (primary) and total (secondary)
     TASKMANAGER_CYCLES_FILE="${MONITOR_LOG_DIR}/taskmanager_cycles_${EXP_NAME}.txt"
@@ -206,7 +206,7 @@ init() {
   scalein_type="streamsluice"
   is_scalein=true
   L=2000
-  runtime=1380 #1980 #780 #2190
+  runtime=360 #1380 #1980 #780 #2190
   skip_interval=10 #120 #300 # skip seconds
   warmup=10000
   warmup_time=150 #300
@@ -342,8 +342,10 @@ run_stock_test(){
     whether_type="streamsluice"
     how_type="streamsluice"
     scalein_type="streamsluice"
-    run_one_exp
-    printf "${EXP_NAME}\n" >> part8_result.txt
+    for repeat in 1 2 3; do
+      run_one_exp
+      printf "${EXP_NAME}\n" >> part8_result.txt
+    done
 
     controller_type="NoControll"
     is_treat=false
@@ -354,7 +356,9 @@ run_stock_test(){
     whether_type="streamsluice"
     how_type="streamsluice"
     scalein_type="streamsluice"
-    run_one_exp
-    printf "${EXP_NAME}\n" >> part8_result.txt
+    for repeat in 1 2 3; do
+      run_one_exp
+      printf "${EXP_NAME}\n" >> part8_result.txt
+    done
 }
 run_stock_test
