@@ -84,16 +84,21 @@ start_simple_monitoring() {
             # Run perf in parallel for all PIDs with 5s sampling
             PERF_OUTPUTS=()
             PERF_PIDS=()
+            TEMP_FILES=()
             for PID in $PIDS; do
+                # Create temporary file for perf output
+                TEMP_FILE=$(mktemp)
+                TEMP_FILES+=($TEMP_FILE)
                 # Start perf in background with 5s sampling
-                perf stat -p $PID -e cycles sleep 5 2>&1 &
+                perf stat -p $PID -e cycles sleep 5 2>&1 > $TEMP_FILE &
                 PERF_PIDS+=($!)
             done
             
             # Wait for all perf commands and collect outputs
             for i in "${!PERF_PIDS[@]}"; do
                 wait ${PERF_PIDS[$i]}
-                PERF_OUTPUTS[$i]=$(cat /proc/${PERF_PIDS[$i]}/fd/1 2>/dev/null || echo "0")
+                PERF_OUTPUTS[$i]=$(cat ${TEMP_FILES[$i]})
+                rm -f ${TEMP_FILES[$i]}
             done
             
             # Process results
