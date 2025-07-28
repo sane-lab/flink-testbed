@@ -1302,7 +1302,10 @@ def read_cpu_cycles_from_monitor(directory):
                 in_perf_block = True
             elif in_perf_block:
                 current_block.append(line)
-                if line.strip() == '' or line.startswith('INFO:'):
+                # Only end the block when we hit another INFO line or the end
+                if line.startswith('INFO:') and len(current_block) > 1:
+                    # Remove the INFO line from the block
+                    current_block.pop()
                     perf_blocks.append('\n'.join(current_block))
                     current_block = []
                     in_perf_block = False
@@ -1316,14 +1319,12 @@ def read_cpu_cycles_from_monitor(directory):
         # Parse each perf block
         cycle_counts = []
         for block in perf_blocks:
-            print(f"Processing perf block:\n{block}")
             if 'cycles' in block:
                 # Extract cycles from the block
                 for line in block.split('\n'):
                     line = line.strip()
                     # Look for lines that contain cycles but not the header
                     if 'cycles' in line and not line.startswith('Performance') and not line.startswith('INFO:'):
-                        print(f"Found cycle line: '{line}'")
                         # Parse line like "13,887,626,580,688      cycles"
                         # Split by whitespace and find the first part that's a number
                         parts = line.split()
@@ -1333,7 +1334,6 @@ def read_cpu_cycles_from_monitor(directory):
                             try:
                                 cycles = int(clean_part)
                                 cycle_counts.append(cycles)
-                                print(f"Extracted cycles: {cycles:,}")
                                 break  # Found the cycle count, move to next line
                             except ValueError:
                                 continue  # Try next part

@@ -174,7 +174,7 @@ function analyze() {
 }
 
 run_one_exp() {
-  EXP_NAME=part8-lr-${controller_type}-${autotuner_initial_value_option}-${autotuner_increase_bar_option}-${autotune_interval}-${runtime}-${warmup_time}-${warmup_rate}-${skip_interval}-${P2}-${DELAY2}-${P3}-${DELAY3}-${P4}-${DELAY4}-${P5}-${DELAY5}-${L}-${autotuner_increase_bar_alpha}-${epoch}-${input_rate_factor}-${PAYLOAD}-${SKEWNESS}-${is_treat}-${migration_interval}-${conservative_factor}-${repeat}
+  EXP_NAME=part8-lr-${controller_type}-${metrics_report_interval}-${runtime}-${warmup_time}-${warmup_rate}-${skip_interval}-${P2}-${DELAY2}-${P3}-${DELAY3}-${P4}-${DELAY4}-${P5}-${DELAY5}-${L}-${autotuner_increase_bar_alpha}-${epoch}-${input_rate_factor}-${PAYLOAD}-${SKEWNESS}-${is_treat}-${migration_interval}-${conservative_factor}-${repeat}
 
   echo "INFO: run exp ${EXP_NAME}"
   configFlink
@@ -266,6 +266,7 @@ init() {
   input_rate_factor=1
   PAYLOAD=25 #100 #0 # about (100 + 2 * PAYLOAD) MB in every operator (1000000 keys, every key contains about 100 bytes)
   SKEWNESS=0.0 # ZIPF factor
+  metrics_report_interval=100000000
 }
 
 # run applications
@@ -342,7 +343,8 @@ run_stock_test(){
     whether_type="streamsluice"
     how_type="streamsluice"
     scalein_type="streamsluice"
-    for repeat in 1 2 3; do
+    for metrics_report_interval in 5000000 10000000 25000000 50000000
+    for repeat in 1; do
       run_one_exp
       printf "${EXP_NAME}\n" >> part8_result.txt
     done
@@ -357,8 +359,8 @@ run_stock_test(){
     how_type="streamsluice"
     scalein_type="streamsluice"
     for repeat in 1 2 3; do
-      run_one_exp
-      printf "${EXP_NAME}\n" >> part8_result.txt
+#      run_one_exp
+#      printf "${EXP_NAME}\n" >> part8_result.txt
     done
 }
 run_stock_test
