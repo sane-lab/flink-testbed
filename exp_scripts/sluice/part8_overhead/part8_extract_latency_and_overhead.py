@@ -1118,6 +1118,44 @@ def find_monitor_file(directory):
     except FileNotFoundError:
         print(f"Error: Directory '{directory}' does not exist.")
         return None
+
+def find_system_monitor_file(directory):
+    """
+    Find a file in the specified directory whose filename starts with 'system_monitor_'.
+
+    Args:
+        directory (str): The path to the directory to search in.
+
+    Returns:
+        str: The full path of the first matching file, or None if no match is found.
+    """
+    try:
+        for filename in os.listdir(directory):
+            if filename.startswith("system_monitor_"):
+                return os.path.join(directory, filename)
+        return None  # No matching file found
+    except FileNotFoundError:
+        print(f"Error: Directory '{directory}' does not exist.")
+        return None
+
+def find_kafka_monitor_file(directory):
+    """
+    Find a file in the specified directory whose filename starts with 'kafka_metrics_'.
+
+    Args:
+        directory (str): The path to the directory to search in.
+
+    Returns:
+        str: The full path of the first matching file, or None if no match is found.
+    """
+    try:
+        for filename in os.listdir(directory):
+            if filename.startswith("kafka_metrics_"):
+                return os.path.join(directory, filename)
+        return None  # No matching file found
+    except FileNotFoundError:
+        print(f"Error: Directory '{directory}' does not exist.")
+        return None
     except PermissionError:
         print(f"Error: Permission denied to access '{directory}'.")
         return None

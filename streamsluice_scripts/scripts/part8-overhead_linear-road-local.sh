@@ -4,6 +4,7 @@
 # Generates monitor_*.out files with perf output for CPU cycle measurement
 
 source config-server-lr-local.sh
+source $(dirname "${BASH_SOURCE[0]}")/system_monitor.sh
 
 # Function to configure perf security (run once with sudo)
 configure_perf_security() {
@@ -39,6 +40,8 @@ configure_perf_security
 PROCESS_NAMES=("StandaloneSessionClusterEntrypoint" "TaskManagerRunner")
 MONITOR_LOG_DIR="${FLINK_DIR}/log"
 MONITOR_LOG_FILE="${MONITOR_LOG_DIR}/monitor_$(date +%Y%m%d_%H%M%S).out"
+SYSTEM_MONITOR_LOG_FILE="${MONITOR_LOG_DIR}/system_monitor_$(date +%Y%m%d_%H%M%S).csv"
+KAFKA_MONITOR_LOG_FILE="${MONITOR_LOG_DIR}/kafka_metrics_$(date +%Y%m%d_%H%M%S).log"
 
 # Create monitor log directory
 mkdir -p $MONITOR_LOG_DIR
@@ -166,11 +169,25 @@ start_cpu_monitoring() {
     echo "INFO: Monitor log: $MONITOR_LOG_FILE"
     echo "INFO: Single perf run for ${MONITOR_DURATION}s (parallel for all processes)"
     echo "INFO: Timeline: ${WARMUP_DELAY}s warmup + ${MONITOR_DURATION}s monitoring"
+    
+    # Start system monitoring (memory, I/O, page faults, LLC misses)
+    echo "INFO: Starting comprehensive system monitoring..."
+    start_system_monitoring "$SYSTEM_MONITOR_LOG_FILE" $((MONITOR_DURATION + 30)) 5
+    
+    # Start Kafka metrics monitoring (only if metrics reporting is enabled)
+    if [[ "${metrics_report:-false}" == "true" ]]; then
+        echo "INFO: Starting Kafka metrics topic monitoring..."
+        echo "INFO: Will sample flink_metrics topic 5 times to verify metrics_report_interval=${metrics_report_interval}"
+        start_kafka_monitoring "$KAFKA_MONITOR_LOG_FILE" 5 30 30
+    else
+        echo "INFO: Skipping Kafka monitoring (metrics_report=false)"
+        echo "INFO: Expected 0 messages in flink_metrics topic" > "$KAFKA_MONITOR_LOG_FILE"
+    fi
 }
 
 # Function to stop monitoring
 stop_monitoring() {
-    echo "INFO: Stopping CPU cycle monitoring..."
+    echo "INFO: Stopping all monitoring..."
     
     # Stop CPU cycle monitoring
     if [[ ! -z "$MONITOR_PID" ]]; then
@@ -178,7 +195,13 @@ stop_monitoring() {
         wait $MONITOR_PID 2>/dev/null
     fi
     
-    echo "INFO: Monitoring stopped. Data saved to: $MONITOR_LOG_FILE"
+    # Stop system monitoring
+    stop_system_monitoring
+    
+    echo "INFO: All monitoring stopped."
+    echo "INFO: CPU data saved to: $MONITOR_LOG_FILE"
+    echo "INFO: System data saved to: $SYSTEM_MONITOR_LOG_FILE"
+    echo "INFO: Kafka metrics data saved to: $KAFKA_MONITOR_LOG_FILE"
 }
 
 # dump data
