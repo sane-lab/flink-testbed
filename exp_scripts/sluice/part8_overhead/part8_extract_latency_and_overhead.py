@@ -43,6 +43,9 @@ import matplotlib
 matplotlib.use('Agg')
 import matplotlib.pyplot as plt
 import os
+import glob
+import pandas as pd
+import scipy.stats as stats
 
 # Set up matplotlib font sizes
 SMALL_SIZE = 25
@@ -1318,39 +1321,74 @@ def read_cpu_cycles_from_monitor(directory):
         
         # Parse each perf block
         cycle_counts = []
+        instruction_counts = []
+        cache_miss_counts = []
+        
         for block in perf_blocks:
             if 'cycles' in block:
-                # Extract cycles from the block
+                # Extract cycles, instructions, and cache misses from the block
                 for line in block.split('\n'):
                     line = line.strip()
-                    # Look for lines that contain cycles but not the header
-                    if 'cycles' in line and not line.startswith('Performance') and not line.startswith('INFO:'):
-                        # Parse line like "13,887,626,580,688      cycles"
-                        # Split by whitespace and find the first part that's a number
-                        parts = line.split()
-                        for part in parts:
-                            # Remove commas and try to convert to int
-                            clean_part = part.replace(',', '')
-                            try:
-                                cycles = int(clean_part)
-                                cycle_counts.append(cycles)
-                                break  # Found the cycle count, move to next line
-                            except ValueError:
-                                continue  # Try next part
+                    # Look for lines that contain metrics but not the header
+                    if not line.startswith('Performance') and not line.startswith('INFO:'):
+                        # Parse cycles
+                        if 'cycles' in line and 'instructions' not in line and 'cache-misses' not in line:
+                            parts = line.split()
+                            for part in parts:
+                                clean_part = part.replace(',', '')
+                                try:
+                                    cycles = int(clean_part)
+                                    cycle_counts.append(cycles)
+                                    break
+                                except ValueError:
+                                    continue
+                        
+                        # Parse instructions
+                        elif 'instructions' in line:
+                            parts = line.split()
+                            for part in parts:
+                                clean_part = part.replace(',', '')
+                                try:
+                                    instructions = int(clean_part)
+                                    instruction_counts.append(instructions)
+                                    break
+                                except ValueError:
+                                    continue
+                        
+                        # Parse cache misses
+                        elif 'cache-misses' in line:
+                            parts = line.split()
+                            for part in parts:
+                                clean_part = part.replace(',', '')
+                                try:
+                                    cache_misses = int(clean_part)
+                                    cache_miss_counts.append(cache_misses)
+                                    break
+                                except ValueError:
+                                    continue
         
         if len(cycle_counts) >= 2:
             # Sort by cycle count - larger is TaskManager, smaller is Standalone
             cycle_counts.sort(reverse=True)
             taskmanager_cycles = cycle_counts[0]  # Larger one
             total_cycles = sum(cycle_counts)
+            
+            # Get corresponding instructions and cache misses for TaskManager
+            taskmanager_instructions = instruction_counts[0] if len(instruction_counts) >= 2 else 0
+            taskmanager_cache_misses = cache_miss_counts[0] if len(cache_miss_counts) >= 2 else 0
+            
             duration_seconds = 1200  # From the format
             
             print(f"TaskManager cycles (larger): {taskmanager_cycles:,}")
+            print(f"TaskManager instructions: {taskmanager_instructions:,}")
+            print(f"TaskManager cache misses: {taskmanager_cache_misses:,}")
             print(f"Standalone cycles (smaller): {cycle_counts[1]:,}")
             print(f"Total cycles: {total_cycles:,}")
             
             return {
                 'taskmanager_cycles': taskmanager_cycles,
+                'taskmanager_instructions': taskmanager_instructions,
+                'taskmanager_cache_misses': taskmanager_cache_misses,
                 'total_cycles': total_cycles,
                 'duration_seconds': duration_seconds,
                 'duration_minutes': duration_seconds / 60.0
@@ -1367,7 +1405,7 @@ def read_cpu_cycles_from_monitor(directory):
 
 def calculate_overhead(dir_without_sluice, dir_with_sluice, outputDir, middle_minutes=20):
     """
-    Enhanced overhead calculation using monitor files directly.
+    Enhanced overhead calculation with validation and fine-grained analysis.
     
     Args:
         dir_without_sluice (str): Directory with baseline experiment data (without Sluice).
@@ -1380,7 +1418,21 @@ def calculate_overhead(dir_without_sluice, dir_with_sluice, outputDir, middle_mi
     print(f"With Sluice: {dir_with_sluice}")
     print(f"Output directory: {outputDir}")
 
-    # Read CPU cycles directly from monitor files
+    # Create output directory
+    os.makedirs(outputDir, exist_ok=True)
+
+    # Step 1: Validate baseline comparison
+    print(f"\n🔍 Step 1: Validating baseline comparison...")
+    is_valid = validate_baseline_comparison(dir_without_sluice, dir_with_sluice, outputDir)
+    
+    if not is_valid:
+        print("⚠️  WARNING: Baseline validation failed. Results may not be reliable.")
+        print("   Proceeding with analysis, but interpret results with caution.")
+    else:
+        print("✅ Baseline validation passed. Experiments are comparable.")
+
+    # Step 2: Original coarse-grained analysis
+    print(f"\n📊 Step 2: Coarse-grained overhead analysis...")
     baseline_cycles = read_cpu_cycles_from_monitor(dir_without_sluice)
     sluice_cycles = read_cpu_cycles_from_monitor(dir_with_sluice)
     
@@ -1391,29 +1443,130 @@ def calculate_overhead(dir_without_sluice, dir_with_sluice, outputDir, middle_mi
     # Calculate CPU overhead
     baseline_tm_cycles = baseline_cycles['taskmanager_cycles']
     sluice_tm_cycles = sluice_cycles['taskmanager_cycles']
+    baseline_tm_instructions = baseline_cycles.get('taskmanager_instructions', 0)
+    sluice_tm_instructions = sluice_cycles.get('taskmanager_instructions', 0)
+    baseline_tm_cache_misses = baseline_cycles.get('taskmanager_cache_misses', 0)
+    sluice_tm_cache_misses = sluice_cycles.get('taskmanager_cache_misses', 0)
     
     if baseline_tm_cycles > 0:
         cycle_overhead_pct = ((sluice_tm_cycles - baseline_tm_cycles) / baseline_tm_cycles) * 100
         cycle_overhead_abs = sluice_tm_cycles - baseline_tm_cycles
         
-        print(f"\n🎯 **CPU OVERHEAD ANALYSIS (TaskManagerRunner)**")
+        instruction_overhead_pct = ((sluice_tm_instructions - baseline_tm_instructions) / baseline_tm_instructions) * 100 if baseline_tm_instructions > 0 else 0
+        instruction_overhead_abs = sluice_tm_instructions - baseline_tm_instructions
+        
+        cache_miss_overhead_pct = ((sluice_tm_cache_misses - baseline_tm_cache_misses) / baseline_tm_cache_misses) * 100 if baseline_tm_cache_misses > 0 else 0
+        cache_miss_overhead_abs = sluice_tm_cache_misses - baseline_tm_cache_misses
+        
+        print(f"\n🎯 **COARSE-GRAINED CPU OVERHEAD ANALYSIS (TaskManagerRunner)**")
         print(f"   Baseline CPU Cycles: {baseline_tm_cycles:,} ({baseline_tm_cycles/1e9:.2f}B)")
         print(f"   Sluice CPU Cycles:   {sluice_tm_cycles:,} ({sluice_tm_cycles/1e9:.2f}B)")
         print(f"   **CPU Overhead: {cycle_overhead_pct:.2f}%** ({cycle_overhead_abs:,} cycles)")
+        print(f"   Baseline Instructions: {baseline_tm_instructions:,}")
+        print(f"   Sluice Instructions:   {sluice_tm_instructions:,}")
+        print(f"   **Instruction Overhead: {instruction_overhead_pct:.2f}%** ({instruction_overhead_abs:,} instructions)")
+        print(f"   Baseline Cache Misses: {baseline_tm_cache_misses:,}")
+        print(f"   Sluice Cache Misses:   {sluice_tm_cache_misses:,}")
+        print(f"   **Cache Miss Overhead: {cache_miss_overhead_pct:.2f}%** ({cache_miss_overhead_abs:,} misses)")
         print(f"   Duration: {baseline_cycles['duration_minutes']:.1f} minutes")
         
-        # Save results
-        output_file = os.path.join(outputDir, "cpu_overhead_analysis.csv")
+        # Save coarse-grained results
+        output_file = os.path.join(outputDir, "coarse_grained_overhead.csv")
         with open(output_file, 'w') as f:
             f.write("Metric,Baseline,Sluice,Absolute Overhead,Relative Overhead (%)\n")
             f.write(f"TaskManager CPU Cycles,{baseline_tm_cycles},{sluice_tm_cycles},{cycle_overhead_abs},{cycle_overhead_pct:.2f}\n")
             f.write(f"TaskManager CPU Cycles (Billions),{baseline_tm_cycles/1e9:.2f},{sluice_tm_cycles/1e9:.2f},{cycle_overhead_abs/1e9:.2f},{cycle_overhead_pct:.2f}\n")
+            f.write(f"TaskManager Instructions,{baseline_tm_instructions},{sluice_tm_instructions},{instruction_overhead_abs},{instruction_overhead_pct:.2f}\n")
+            f.write(f"TaskManager Cache Misses,{baseline_tm_cache_misses},{sluice_tm_cache_misses},{cache_miss_overhead_abs},{cache_miss_overhead_pct:.2f}\n")
             f.write(f"Duration (minutes),{baseline_cycles['duration_minutes']:.1f},{sluice_cycles['duration_minutes']:.1f},0,0\n")
         
-        print(f"\nResults saved to: {output_file}")
+        print(f"📄 Coarse-grained results saved to: {output_file}")
         
     else:
         print("ERROR: Invalid baseline CPU cycles")
+        return
+
+    # Step 3: Fine-grained analysis (if fine-grained data available)
+    print(f"\n📈 Step 3: Fine-grained overhead analysis...")
+    try:
+        analyze_fine_grained_overhead(dir_without_sluice, dir_with_sluice, outputDir)
+    except Exception as e:
+        print(f"⚠️  Fine-grained analysis failed: {e}")
+        print("   This may be due to missing fine-grained monitor data.")
+
+    # Step 4: Generate comprehensive report
+    print(f"\n📋 Step 4: Generating comprehensive report...")
+    generate_comprehensive_report(dir_without_sluice, dir_with_sluice, outputDir, 
+                                baseline_cycles, sluice_cycles, is_valid)
+    
+    print(f"\n✅ Overhead analysis completed!")
+    print(f"📁 All results saved to: {outputDir}")
+
+def generate_comprehensive_report(baseline_dir, sluice_dir, output_dir, 
+                                baseline_cycles, sluice_cycles, is_valid):
+    """Generate a comprehensive overhead analysis report."""
+    
+    report_file = os.path.join(output_dir, "overhead_analysis_report.md")
+    
+    with open(report_file, 'w') as f:
+        f.write("# StreamSluice Overhead Analysis Report\n\n")
+        
+        f.write("## Executive Summary\n\n")
+        if baseline_cycles and sluice_cycles:
+            baseline_tm_cycles = baseline_cycles['taskmanager_cycles']
+            sluice_tm_cycles = sluice_cycles['taskmanager_cycles']
+            cycle_overhead_pct = ((sluice_tm_cycles - baseline_tm_cycles) / baseline_tm_cycles) * 100
+            
+            f.write(f"- **Baseline CPU Cycles**: {baseline_tm_cycles:,} ({baseline_tm_cycles/1e9:.2f}B)\n")
+            f.write(f"- **StreamSluice CPU Cycles**: {sluice_tm_cycles:,} ({sluice_tm_cycles/1e9:.2f}B)\n")
+            f.write(f"- **CPU Overhead**: {cycle_overhead_pct:.2f}%\n")
+            f.write(f"- **Experiment Duration**: {baseline_cycles['duration_minutes']:.1f} minutes\n")
+            f.write(f"- **Baseline Validation**: {'✅ PASSED' if is_valid else '❌ FAILED'}\n\n")
+        
+        f.write("## Methodology\n\n")
+        f.write("### Measurement Approach\n")
+        f.write("- **Coarse-grained**: Single `perf stat` measurement over entire experiment duration\n")
+        f.write("- **Fine-grained**: Time series sampling every 1 second (if available)\n")
+        f.write("- **Validation**: System load, memory usage, and configuration comparison\n\n")
+        
+        f.write("### Experimental Setup\n")
+        f.write("- **Baseline**: NoControll with `metrics_report=false`\n")
+        f.write("- **StreamSluice**: StreamSluice with `metrics_report=true` and `is_treat=false`\n")
+        f.write("- **Metrics Interval**: 5ms (5,000,000 nanoseconds)\n\n")
+        
+        f.write("## Key Findings\n\n")
+        if baseline_cycles and sluice_cycles:
+            baseline_tm_cycles = baseline_cycles['taskmanager_cycles']
+            sluice_tm_cycles = sluice_cycles['taskmanager_cycles']
+            cycle_overhead_pct = ((sluice_tm_cycles - baseline_tm_cycles) / baseline_tm_cycles) * 100
+            
+            if cycle_overhead_pct < 0:
+                f.write("### Counterintuitive Result\n")
+                f.write(f"The StreamSluice experiment shows **{abs(cycle_overhead_pct):.2f}% lower CPU cycles** than the baseline.\n\n")
+                f.write("### Possible Explanations\n")
+                f.write("1. **Metrics Collection Efficiency**: StreamSluice's metrics collection is highly optimized\n")
+                f.write("2. **System-Level Effects**: Frequent metrics may improve cache locality and memory management\n")
+                f.write("3. **Flink Internal Optimizations**: Regular metrics collection may prevent certain inefficiencies\n")
+                f.write("4. **Measurement Artifacts**: The measurement period may not capture long-term overhead patterns\n\n")
+            else:
+                f.write(f"### Expected Overhead\n")
+                f.write(f"The StreamSluice experiment shows **{cycle_overhead_pct:.2f}% higher CPU cycles** than the baseline.\n\n")
+        
+        f.write("## Recommendations\n\n")
+        f.write("1. **Extend Measurement Duration**: Run experiments for longer periods to capture long-term overhead\n")
+        f.write("2. **Multiple Repetitions**: Conduct multiple experiment runs to assess variability\n")
+        f.write("3. **Different Workloads**: Test overhead across different workload types and intensities\n")
+        f.write("4. **System-Level Monitoring**: Monitor system-wide metrics (CPU, memory, network) during experiments\n")
+        f.write("5. **Profiling**: Use detailed profiling tools to identify specific overhead sources\n\n")
+        
+        f.write("## Files Generated\n\n")
+        f.write("- `coarse_grained_overhead.csv`: Coarse-grained overhead analysis results\n")
+        f.write("- `baseline_validation.csv`: Baseline comparison validation results\n")
+        f.write("- `overhead_visualizations.png`: Time series and distribution visualizations (if fine-grained data available)\n")
+        f.write("- `detailed_statistics.csv`: Statistical analysis results (if fine-grained data available)\n")
+        f.write("- `overhead_analysis_report.md`: This comprehensive report\n\n")
+    
+    print(f"📄 Comprehensive report saved to: {report_file}")
 
 def test_enhanced_overhead_analysis():
     """
@@ -1479,6 +1632,352 @@ def analyze_workload_overhead(workload_name, baseline_exp_name, sluice_exp_name,
     except Exception as e:
         print(f" ERROR during {workload_name} analysis: {e}")
         return False
+
+def analyze_fine_grained_overhead(baseline_dir, sluice_dir, output_dir):
+    """
+    Analyze fine-grained overhead using time series data.
+    
+    Args:
+        baseline_dir (str): Directory with baseline experiment data
+        sluice_dir (str): Directory with Sluice experiment data  
+        output_dir (str): Output directory for results
+    """
+    print(f"\n=== FINE-GRAINED OVERHEAD ANALYSIS ===")
+    
+    # Read fine-grained monitor files
+    baseline_file = find_monitor_file(baseline_dir)
+    sluice_file = find_monitor_file(sluice_dir)
+    
+    if not baseline_file or not sluice_file:
+        print("ERROR: Could not find monitor files")
+        return
+    
+    try:
+        # Read time series data
+        baseline_df = pd.read_csv(baseline_file, skipinitialspace=True)
+        sluice_df = pd.read_csv(sluice_file, skipinitialspace=True)
+        
+        # Filter TaskManager data
+        baseline_tm = baseline_df[baseline_df['Process Name'].str.contains('TaskManagerRunner.*PRIMARY', na=False, regex=True)]
+        sluice_tm = sluice_df[sluice_df['Process Name'].str.contains('TaskManagerRunner.*PRIMARY', na=False, regex=True)]
+        
+        if baseline_tm.empty or sluice_tm.empty:
+            print("ERROR: No TaskManager data found")
+            return
+        
+        # Calculate overhead metrics
+        baseline_avg_cycles = baseline_tm['CPU Cycles'].mean()
+        sluice_avg_cycles = sluice_tm['CPU Cycles'].mean()
+        cycle_overhead_pct = ((sluice_avg_cycles - baseline_avg_cycles) / baseline_avg_cycles) * 100
+        
+        baseline_avg_instructions = baseline_tm['Instructions'].mean()
+        sluice_avg_instructions = sluice_tm['Instructions'].mean()
+        instruction_overhead_pct = ((sluice_avg_instructions - baseline_avg_instructions) / baseline_avg_instructions) * 100
+        
+        # Calculate IPC (Instructions Per Cycle)
+        baseline_ipc = baseline_avg_instructions / baseline_avg_cycles if baseline_avg_cycles > 0 else 0
+        sluice_ipc = sluice_avg_instructions / sluice_avg_cycles if sluice_avg_cycles > 0 else 0
+        
+        print(f"\n📊 **FINE-GRAINED OVERHEAD ANALYSIS**")
+        print(f"   Baseline Avg Cycles: {baseline_avg_cycles:,.0f}")
+        print(f"   Sluice Avg Cycles:   {sluice_avg_cycles:,.0f}")
+        print(f"   **Cycle Overhead: {cycle_overhead_pct:.2f}%**")
+        print(f"   Baseline Avg Instructions: {baseline_avg_instructions:,.0f}")
+        print(f"   Sluice Avg Instructions:   {sluice_avg_instructions:,.0f}")
+        print(f"   **Instruction Overhead: {instruction_overhead_pct:.2f}%**")
+        print(f"   Baseline IPC: {baseline_ipc:.3f}")
+        print(f"   Sluice IPC:   {sluice_ipc:.3f}")
+        
+        # Create visualizations
+        create_overhead_visualizations(baseline_tm, sluice_tm, output_dir)
+        
+        # Save detailed results
+        save_detailed_results(baseline_tm, sluice_tm, output_dir)
+        
+    except Exception as e:
+        print(f"ERROR during fine-grained analysis: {e}")
+
+def create_overhead_visualizations(baseline_tm, sluice_tm, output_dir):
+    """Create visualizations to illustrate overhead patterns."""
+    import matplotlib.pyplot as plt
+    import numpy as np
+    
+    # Create figure with subplots
+    fig, ((ax1, ax2), (ax3, ax4)) = plt.subplots(2, 2, figsize=(15, 10))
+    
+    # 1. CPU Cycles over time
+    ax1.plot(baseline_tm.index, baseline_tm['CPU Cycles'], label='Baseline (NoControll)', alpha=0.7)
+    ax1.plot(sluice_tm.index, sluice_tm['CPU Cycles'], label='StreamSluice (5ms)', alpha=0.7)
+    ax1.set_title('CPU Cycles Over Time')
+    ax1.set_xlabel('Sample Index')
+    ax1.set_ylabel('CPU Cycles')
+    ax1.legend()
+    ax1.grid(True, alpha=0.3)
+    
+    # 2. Instructions over time
+    ax2.plot(baseline_tm.index, baseline_tm['Instructions'], label='Baseline (NoControll)', alpha=0.7)
+    ax2.plot(sluice_tm.index, sluice_tm['Instructions'], label='StreamSluice (5ms)', alpha=0.7)
+    ax2.set_title('Instructions Over Time')
+    ax2.set_xlabel('Sample Index')
+    ax2.set_ylabel('Instructions')
+    ax2.legend()
+    ax2.grid(True, alpha=0.3)
+    
+    # 3. Distribution comparison
+    ax3.hist(baseline_tm['CPU Cycles'], bins=30, alpha=0.7, label='Baseline (NoControll)', density=True)
+    ax3.hist(sluice_tm['CPU Cycles'], bins=30, alpha=0.7, label='StreamSluice (5ms)', density=True)
+    ax3.set_title('CPU Cycles Distribution')
+    ax3.set_xlabel('CPU Cycles')
+    ax3.set_ylabel('Density')
+    ax3.legend()
+    ax3.grid(True, alpha=0.3)
+    
+    # 4. Overhead percentage over time
+    # Align data by time if possible, otherwise use sample index
+    min_len = min(len(baseline_tm), len(sluice_tm))
+    overhead_pct = ((sluice_tm['CPU Cycles'].iloc[:min_len] - baseline_tm['CPU Cycles'].iloc[:min_len]) / 
+                   baseline_tm['CPU Cycles'].iloc[:min_len]) * 100
+    ax4.plot(range(min_len), overhead_pct, label='CPU Overhead %', color='red')
+    ax4.axhline(y=0, color='black', linestyle='--', alpha=0.5)
+    ax4.set_title('CPU Overhead Percentage Over Time')
+    ax4.set_xlabel('Sample Index')
+    ax4.set_ylabel('Overhead %')
+    ax4.legend()
+    ax4.grid(True, alpha=0.3)
+    
+    plt.tight_layout()
+    plt.savefig(os.path.join(output_dir, 'overhead_visualizations.png'), dpi=300, bbox_inches='tight')
+    plt.close()
+    
+    print(f"📈 Visualizations saved to: {os.path.join(output_dir, 'overhead_visualizations.png')}")
+
+def save_detailed_results(baseline_tm, sluice_tm, output_dir):
+    """Save detailed statistical analysis results."""
+    import scipy.stats as stats
+    
+    # Calculate comprehensive statistics
+    stats_data = {
+        'Metric': [],
+        'Baseline_Mean': [],
+        'Baseline_Std': [],
+        'Sluice_Mean': [],
+        'Sluice_Std': [],
+        'Absolute_Diff': [],
+        'Relative_Diff_Pct': [],
+        'P_Value': []
+    }
+    
+    # Analyze CPU Cycles
+    baseline_cycles = baseline_tm['CPU Cycles'].dropna()
+    sluice_cycles = sluice_tm['CPU Cycles'].dropna()
+    
+    if len(baseline_cycles) > 0 and len(sluice_cycles) > 0:
+        # Statistical test
+        t_stat, p_value = stats.ttest_ind(baseline_cycles, sluice_cycles)
+        
+        stats_data['Metric'].append('CPU_Cycles')
+        stats_data['Baseline_Mean'].append(baseline_cycles.mean())
+        stats_data['Baseline_Std'].append(baseline_cycles.std())
+        stats_data['Sluice_Mean'].append(sluice_cycles.mean())
+        stats_data['Sluice_Std'].append(sluice_cycles.std())
+        stats_data['Absolute_Diff'].append(sluice_cycles.mean() - baseline_cycles.mean())
+        stats_data['Relative_Diff_Pct'].append(((sluice_cycles.mean() - baseline_cycles.mean()) / baseline_cycles.mean()) * 100)
+        stats_data['P_Value'].append(p_value)
+    
+    # Analyze Instructions
+    baseline_instructions = baseline_tm['Instructions'].dropna()
+    sluice_instructions = sluice_tm['Instructions'].dropna()
+    
+    if len(baseline_instructions) > 0 and len(sluice_instructions) > 0:
+        t_stat, p_value = stats.ttest_ind(baseline_instructions, sluice_instructions)
+        
+        stats_data['Metric'].append('Instructions')
+        stats_data['Baseline_Mean'].append(baseline_instructions.mean())
+        stats_data['Baseline_Std'].append(baseline_instructions.std())
+        stats_data['Sluice_Mean'].append(sluice_instructions.mean())
+        stats_data['Sluice_Std'].append(sluice_instructions.std())
+        stats_data['Absolute_Diff'].append(sluice_instructions.mean() - baseline_instructions.mean())
+        stats_data['Relative_Diff_Pct'].append(((sluice_instructions.mean() - baseline_instructions.mean()) / baseline_instructions.mean()) * 100)
+        stats_data['P_Value'].append(p_value)
+    
+    # Save detailed statistics
+    stats_df = pd.DataFrame(stats_data)
+    stats_file = os.path.join(output_dir, 'detailed_statistics.csv')
+    stats_df.to_csv(stats_file, index=False)
+    
+    print(f"📊 Detailed statistics saved to: {stats_file}")
+    
+    # Print significance results
+    print(f"\n🔬 **STATISTICAL SIGNIFICANCE**")
+    for _, row in stats_df.iterrows():
+        significance = "***" if row['P_Value'] < 0.001 else "**" if row['P_Value'] < 0.01 else "*" if row['P_Value'] < 0.05 else "ns"
+        print(f"   {row['Metric']}: p-value = {row['P_Value']:.4f} {significance}")
+        print(f"   Relative difference: {row['Relative_Diff_Pct']:.2f}%")
+
+def validate_baseline_comparison(baseline_dir, sluice_dir, output_dir):
+    """
+    Validate that baseline and Sluice experiments are truly comparable.
+    
+    Args:
+        baseline_dir (str): Directory with baseline experiment data
+        sluice_dir (str): Directory with Sluice experiment data
+        output_dir (str): Output directory for validation results
+    """
+    print(f"\n=== BASELINE VALIDATION ===")
+    
+    validation_results = {
+        'check': [],
+        'baseline_value': [],
+        'sluice_value': [],
+        'difference': [],
+        'status': []
+    }
+    
+    # 1. Check experiment duration
+    baseline_cycles = read_cpu_cycles_from_monitor(baseline_dir)
+    sluice_cycles = read_cpu_cycles_from_monitor(sluice_dir)
+    
+    if baseline_cycles and sluice_cycles:
+        duration_diff = abs(baseline_cycles['duration_minutes'] - sluice_cycles['duration_minutes'])
+        validation_results['check'].append('Experiment Duration (minutes)')
+        validation_results['baseline_value'].append(baseline_cycles['duration_minutes'])
+        validation_results['sluice_value'].append(sluice_cycles['duration_minutes'])
+        validation_results['difference'].append(duration_diff)
+        validation_results['status'].append('PASS' if duration_diff < 1.0 else 'FAIL')
+    
+    # 2. Check system load during experiments
+    baseline_load = get_system_load_info(baseline_dir)
+    sluice_load = get_system_load_info(sluice_dir)
+    
+    if baseline_load and sluice_load:
+        load_diff = abs(baseline_load['avg_load'] - sluice_load['avg_load'])
+        validation_results['check'].append('System Load (1min avg)')
+        validation_results['baseline_value'].append(baseline_load['avg_load'])
+        validation_results['sluice_value'].append(sluice_load['avg_load'])
+        validation_results['difference'].append(load_diff)
+        validation_results['status'].append('PASS' if load_diff < 0.5 else 'FAIL')
+    
+    # 3. Check memory usage
+    baseline_mem = get_memory_usage_info(baseline_dir)
+    sluice_mem = get_memory_usage_info(sluice_dir)
+    
+    if baseline_mem and sluice_mem:
+        mem_diff_pct = abs(baseline_mem['avg_usage_mb'] - sluice_mem['avg_usage_mb']) / baseline_mem['avg_usage_mb'] * 100
+        validation_results['check'].append('Memory Usage (MB)')
+        validation_results['baseline_value'].append(baseline_mem['avg_usage_mb'])
+        validation_results['sluice_value'].append(sluice_mem['avg_usage_mb'])
+        validation_results['difference'].append(mem_diff_pct)
+        validation_results['status'].append('PASS' if mem_diff_pct < 10.0 else 'FAIL')
+    
+    # 4. Check Flink configuration differences
+    config_diff = compare_flink_configs(baseline_dir, sluice_dir)
+    validation_results['check'].append('Flink Config Differences')
+    validation_results['baseline_value'].append('Baseline Config')
+    validation_results['sluice_value'].append('Sluice Config')
+    validation_results['difference'].append(len(config_diff))
+    validation_results['status'].append('PASS' if len(config_diff) <= 2 else 'FAIL')
+    
+    # Save validation results
+    validation_df = pd.DataFrame(validation_results)
+    validation_file = os.path.join(output_dir, 'baseline_validation.csv')
+    validation_df.to_csv(validation_file, index=False)
+    
+    print(f"📋 Validation results saved to: {validation_file}")
+    
+    # Print validation summary
+    print(f"\n🔍 **BASELINE VALIDATION SUMMARY**")
+    for _, row in validation_df.iterrows():
+        status_icon = "✅" if row['status'] == 'PASS' else "❌"
+        print(f"   {status_icon} {row['check']}: {row['status']}")
+        if row['check'] != 'Flink Config Differences':
+            print(f"      Baseline: {row['baseline_value']:.2f}, Sluice: {row['sluice_value']:.2f}")
+    
+    # Overall validation status
+    pass_count = sum(1 for status in validation_results['status'] if status == 'PASS')
+    total_count = len(validation_results['status'])
+    overall_status = "VALID" if pass_count == total_count else "INVALID"
+    
+    print(f"\n🎯 **OVERALL VALIDATION: {overall_status}** ({pass_count}/{total_count} checks passed)")
+    
+    return overall_status == "VALID"
+
+def get_system_load_info(exp_dir):
+    """Extract system load information from experiment logs."""
+    # Look for system load information in logs
+    log_files = glob.glob(os.path.join(exp_dir, "*.log"))
+    
+    for log_file in log_files:
+        try:
+            with open(log_file, 'r') as f:
+                content = f.read()
+                # Look for load average patterns
+                import re
+                load_pattern = r'load average: ([\d.]+), ([\d.]+), ([\d.]+)'
+                matches = re.findall(load_pattern, content)
+                if matches:
+                    # Use the 1-minute average
+                    loads = [float(match[0]) for match in matches]
+                    return {'avg_load': sum(loads) / len(loads)}
+        except:
+            continue
+    
+    return None
+
+def get_memory_usage_info(exp_dir):
+    """Extract memory usage information from experiment logs."""
+    # Look for memory usage in monitor files or logs
+    monitor_file = find_monitor_file(exp_dir)
+    if monitor_file:
+        try:
+            df = pd.read_csv(monitor_file, skipinitialspace=True)
+            if 'Heap Used (MB)' in df.columns:
+                tm_data = df[df['Process Name'].str.contains('TaskManagerRunner.*PRIMARY', na=False, regex=True)]
+                if not tm_data.empty:
+                    return {'avg_usage_mb': tm_data['Heap Used (MB)'].mean()}
+        except:
+            pass
+    
+    return None
+
+def compare_flink_configs(baseline_dir, sluice_dir):
+    """Compare Flink configurations between baseline and Sluice experiments."""
+    config_diffs = []
+    
+    # Look for flink-conf.yaml files
+    baseline_config = os.path.join(baseline_dir, "flink-conf.yaml")
+    sluice_config = os.path.join(sluice_dir, "flink-conf.yaml")
+    
+    if os.path.exists(baseline_config) and os.path.exists(sluice_config):
+        try:
+            with open(baseline_config, 'r') as f:
+                baseline_content = f.read()
+            with open(sluice_config, 'r') as f:
+                sluice_content = f.read()
+            
+            # Compare key configuration parameters
+            key_params = [
+                'policy.windowSize',
+                'metrics.report.flag',
+                'controller.type',
+                'streamsluice.system.is_treat'
+            ]
+            
+            for param in key_params:
+                baseline_match = re.search(f'{param}\\s*:\\s*(.+)', baseline_content)
+                sluice_match = re.search(f'{param}\\s*:\\s*(.+)', sluice_content)
+                
+                if baseline_match and sluice_match:
+                    baseline_val = baseline_match.group(1).strip()
+                    sluice_val = sluice_match.group(1).strip()
+                    if baseline_val != sluice_val:
+                        config_diffs.append(f"{param}: {baseline_val} vs {sluice_val}")
+        
+        except Exception as e:
+            config_diffs.append(f"Error reading configs: {e}")
+    
+    return config_diffs
+
+
 
 if __name__ == "__main__":
     # Run the main analysis (original functionality)

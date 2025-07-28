@@ -30,10 +30,10 @@ start_cpu_monitoring() {
     WARMUP_DELAY=20        # Start monitoring after 20s warmup
     MONITOR_DURATION=240   # Monitor for 4 minutes (240s)
     
-    # Start CPU cycle monitoring
-    {
-        # Header for monitoring log
-        echo "Timestamp, PID, Process Name, Total Cycles, Duration (s)"
+            # Start CPU cycle monitoring
+        {
+            # Header for monitoring log
+            echo "Timestamp, PID, Process Name, Total Cycles, Total Instructions, Total Cache Misses, Duration (s)"
         
         # Wait for warmup period
         echo "INFO: Waiting ${WARMUP_DELAY}s for warmup before starting monitoring..."
@@ -51,8 +51,8 @@ start_cpu_monitoring() {
         PERF_OUTPUTS=()
         PERF_PIDS=()
         for PID in $PIDS; do
-            # Start perf in background for this PID for entire duration
-            perf stat -p $PID -e cycles sleep $MONITOR_DURATION 2>&1 > /tmp/perf_${PID}.tmp &
+            # Start perf in background for this PID for entire duration (with sudo for kernel-level access)
+            sudo perf stat -p $PID -e cycles,instructions,cache-misses sleep $MONITOR_DURATION 2>&1 > /tmp/perf_${PID}.tmp &
             PERF_PIDS+=($!)
         done
         
@@ -60,7 +60,7 @@ start_cpu_monitoring() {
         for i in "${!PERF_PIDS[@]}"; do
             wait ${PERF_PIDS[$i]}
             PERF_OUTPUTS[$i]=$(cat /tmp/perf_${PIDS[$i]}.tmp)
-            rm -f /tmp/perf_${PIDS[$i]}.tmp
+            sudo rm -f /tmp/perf_${PIDS[$i]}.tmp
         done
         
         # Process results
@@ -71,15 +71,21 @@ start_cpu_monitoring() {
             # Get process name
             PROCESS_NAME=$(jps | grep "$PID" | awk '{print $2}')
             
-            # Extract cycles
+            # Extract cycles, instructions, and cache misses
             INTERVAL_CYCLES=$(echo "$PERF_OUTPUT" | awk '/cycles/ {gsub(/,/, ""); print $1}' | head -1)
             INTERVAL_CYCLES=${INTERVAL_CYCLES:-"0"}
             
+            INTERVAL_INSTRUCTIONS=$(echo "$PERF_OUTPUT" | awk '/instructions/ {gsub(/,/, ""); print $1}' | head -1)
+            INTERVAL_INSTRUCTIONS=${INTERVAL_INSTRUCTIONS:-"0"}
+            
+            INTERVAL_CACHE_MISSES=$(echo "$PERF_OUTPUT" | awk '/cache-misses/ {gsub(/,/, ""); print $1}' | head -1)
+            INTERVAL_CACHE_MISSES=${INTERVAL_CACHE_MISSES:-"0"}
+            
             # Log data
             if [[ "$PROCESS_NAME" == "TaskManagerRunner" ]]; then
-                echo "$MONITOR_START_TIME, $PID, $PROCESS_NAME [PRIMARY], $INTERVAL_CYCLES, $MONITOR_DURATION"
+                echo "$MONITOR_START_TIME, $PID, $PROCESS_NAME [PRIMARY], $INTERVAL_CYCLES, $INTERVAL_INSTRUCTIONS, $INTERVAL_CACHE_MISSES, $MONITOR_DURATION"
             else
-                echo "$MONITOR_START_TIME, $PID, $PROCESS_NAME [secondary], $INTERVAL_CYCLES, $MONITOR_DURATION"
+                echo "$MONITOR_START_TIME, $PID, $PROCESS_NAME [secondary], $INTERVAL_CYCLES, $INTERVAL_INSTRUCTIONS, $INTERVAL_CACHE_MISSES, $MONITOR_DURATION"
             fi
         done
         

@@ -27,13 +27,13 @@ start_cpu_monitoring() {
     echo "INFO: Starting CPU cycle monitoring..."
     
     # Timeline alignment parameters
-    WARMUP_DELAY=40        # Start monitoring after 40s warmup
+    WARMUP_DELAY=120        # Start monitoring after 120s warmup
     MONITOR_DURATION=240   # Monitor for 4 minutes (240s)
     
-    # Start CPU cycle monitoring
-    {
-        # Header for monitoring log
-        echo "Timestamp, PID, Process Name, Total Cycles, Duration (s)"
+            # Start CPU cycle monitoring
+        {
+            # Header for monitoring log
+            echo "Timestamp, PID, Process Name, Total Cycles, Total Instructions, Total Cache Misses, Duration (s)"
         
         # Wait for warmup period
         echo "INFO: Waiting ${WARMUP_DELAY}s for warmup before starting monitoring..."
@@ -51,8 +51,8 @@ start_cpu_monitoring() {
         PERF_OUTPUTS=()
         PERF_PIDS=()
         for PID in $PIDS; do
-            # Start perf in background for this PID for entire duration
-            perf stat -p $PID -e cycles sleep $MONITOR_DURATION 2>&1 > /tmp/perf_${PID}.tmp &
+            # Start perf in background for this PID for entire duration (with sudo for kernel-level access)
+            sudo perf stat -p $PID -e cycles,instructions,cache-misses sleep $MONITOR_DURATION 2>&1 > /tmp/perf_${PID}.tmp &
             PERF_PIDS+=($!)
         done
         
@@ -60,7 +60,7 @@ start_cpu_monitoring() {
         for i in "${!PERF_PIDS[@]}"; do
             wait ${PERF_PIDS[$i]}
             PERF_OUTPUTS[$i]=$(cat /tmp/perf_${PIDS[$i]}.tmp)
-            rm -f /tmp/perf_${PIDS[$i]}.tmp
+            sudo rm -f /tmp/perf_${PIDS[$i]}.tmp
         done
         
         # Process results
@@ -71,15 +71,21 @@ start_cpu_monitoring() {
             # Get process name
             PROCESS_NAME=$(jps | grep "$PID" | awk '{print $2}')
             
-            # Extract cycles
+            # Extract cycles, instructions, and cache misses
             INTERVAL_CYCLES=$(echo "$PERF_OUTPUT" | awk '/cycles/ {gsub(/,/, ""); print $1}' | head -1)
             INTERVAL_CYCLES=${INTERVAL_CYCLES:-"0"}
             
+            INTERVAL_INSTRUCTIONS=$(echo "$PERF_OUTPUT" | awk '/instructions/ {gsub(/,/, ""); print $1}' | head -1)
+            INTERVAL_INSTRUCTIONS=${INTERVAL_INSTRUCTIONS:-"0"}
+            
+            INTERVAL_CACHE_MISSES=$(echo "$PERF_OUTPUT" | awk '/cache-misses/ {gsub(/,/, ""); print $1}' | head -1)
+            INTERVAL_CACHE_MISSES=${INTERVAL_CACHE_MISSES:-"0"}
+            
             # Log data
             if [[ "$PROCESS_NAME" == "TaskManagerRunner" ]]; then
-                echo "$MONITOR_START_TIME, $PID, $PROCESS_NAME [PRIMARY], $INTERVAL_CYCLES, $MONITOR_DURATION"
+                echo "$MONITOR_START_TIME, $PID, $PROCESS_NAME [PRIMARY], $INTERVAL_CYCLES, $INTERVAL_INSTRUCTIONS, $INTERVAL_CACHE_MISSES, $MONITOR_DURATION"
             else
-                echo "$MONITOR_START_TIME, $PID, $PROCESS_NAME [secondary], $INTERVAL_CYCLES, $MONITOR_DURATION"
+                echo "$MONITOR_START_TIME, $PID, $PROCESS_NAME [secondary], $INTERVAL_CYCLES, $INTERVAL_INSTRUCTIONS, $INTERVAL_CACHE_MISSES, $MONITOR_DURATION"
             fi
         done
         
@@ -158,20 +164,20 @@ init() {
   whether_type="streamsluice"
   how_type="streamsluice"
   scalein_type="streamsluice"
-  is_scalein=true
-  L=2000
-  runtime=360
-  skip_interval=10
+  L=2000 #4000
+  runtime=390
+  skip_interval=1 # skip seconds
   warmup=10000
-  warmup_time=150
-  warmup_rate=1300
+  warmup_time=90
+  warmup_rate=3400 #1700 #3400 #1500
   repeat=1
   spike_estimation="linear_regression"
   spike_slope=0.75
-  spike_intercept=1000
+  spike_intercept=1000 #2500
   errorcase_number=3
+  #calibrate_selectivity=false
   calibrate_selectivity=true
-  vertex_id="a84740bacf923e828852cc4966f2247c,eabd4c11f6c6fbdf011f0f1fc42097b1,d01047f852abd5702a0dabeedac99ff5,d2336f79a0d60b5a4b16c8769ec82e47"
+  vertex_id="a84740bacf923e828852cc4966f2247c,eabd4c11f6c6fbdf011f0f1fc42097b1,d01047f852abd5702a0dabeedac99ff5,d2336f79a0d60b5a4b16c8769ec82e47" #feccfb8648621345be01b71938abfb72,36fcfcb61a35d065e60ee34fccb0541a" #,c395b989724fa728d0a2640c6ccdb8a1"
   is_treat=true
   migration_interval=500
   epoch=100
@@ -179,31 +185,34 @@ init() {
   JAR="${FLINK_APP_DIR}/target/testbed-1.0-SNAPSHOT.jar"
   job="flinkapp.tweetalert.TweetAlertTrigger"
   # set in Flink app
-  stock_path="/home/samza/tweet_data/"
-  stock_file_name="tweet-4hr-50ms.txt"
+  stock_path="/home/samza/Tweet_data/"
+  stock_file_name="2hr-smooth.txt" #"3hr-50ms.txt"
   MP1=1
   MP2=128
   MP3=128
   MP4=128
   MP5=128
+  MP6=128
+  MP7=128
 
-  LP2=1
-  LP3=5
+  LP2=27
+  LP3=10
   LP4=1
-  LP5=32
+  LP5=1
 
   P1=1
-  P2=1
-  P3=1
+  P2=7
+  P3=3
   P4=1
-  P5=9
+  P5=1
 
-  DELAY2=50
-  DELAY3=333
+  DELAY2=1111
+  DELAY3=166 # 1000 #1000
   DELAY4=50
-  DELAY5=1111
-  input_rate_factor=1
-  PAYLOAD=25
+  DELAY5=50
+  #DELAY6=100
+
+  PAYLOAD=1250
   SKEWNESS=0.0
   metrics_report_interval=100000000
 }
@@ -276,8 +285,7 @@ run_stock_test(){
     is_treat=false
     autotune=true
     metrics_report=true
-    repeat=2
-    L=3000
+    L=2000
     controller_type="StreamSluice"
     whether_type="streamsluice"
     how_type="streamsluice"
@@ -294,8 +302,7 @@ run_stock_test(){
     is_treat=false
     autotune=false
     metrics_report=false
-    repeat=2
-    L=3000
+    L=2000
     whether_type="streamsluice"
     how_type="streamsluice"
     scalein_type="streamsluice"
