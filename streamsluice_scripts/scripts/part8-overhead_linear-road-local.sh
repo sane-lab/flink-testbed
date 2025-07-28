@@ -70,11 +70,12 @@ start_simple_monitoring() {
 
                 # Get CPU cycles using perf stat (this is the expensive operation)
                 if command -v perf &> /dev/null; then
-                    PERF_OUTPUT=$(timeout 2s perf stat -p $PID -e cycles,instructions,cache-misses 2>&1 | grep -E "cycles|instructions|cache-misses")
+                    PERF_OUTPUT=$(timeout 2s perf stat -p $PID -e cycles,instructions,cache-misses 2>&1)
                     
-                    INTERVAL_CYCLES=$(echo "$PERF_OUTPUT" | grep -w "cycles" | awk '{gsub(/,/, ""); print $1}' | head -1)
-                    INSTRUCTIONS=$(echo "$PERF_OUTPUT" | grep -w "instructions" | awk '{gsub(/,/, ""); print $1}' | head -1)
-                    CACHE_MISSES=$(echo "$PERF_OUTPUT" | grep "cache-misses" | awk '{gsub(/,/, ""); print $1}' | head -1)
+                    # Extract metrics with robust parsing (handle commas and whitespace properly)
+                    INTERVAL_CYCLES=$(echo "$PERF_OUTPUT" | grep -E "^\s*[0-9,]+\s+cycles" | sed 's/,//g' | awk '{print $1}')
+                    INSTRUCTIONS=$(echo "$PERF_OUTPUT" | grep -E "^\s*[0-9,]+\s+instructions" | sed 's/,//g' | awk '{print $1}')
+                    CACHE_MISSES=$(echo "$PERF_OUTPUT" | grep -E "^\s*[0-9,]+\s+cache-misses" | sed 's/,//g' | awk '{print $1}')
                     
                     # Accumulate cycles for total overhead calculation
                     if [[ "$INTERVAL_CYCLES" != "" && "$INTERVAL_CYCLES" != "0" ]]; then
