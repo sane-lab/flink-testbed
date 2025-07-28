@@ -360,9 +360,9 @@ run_stock_test(){
     whether_type="streamsluice"
     how_type="streamsluice"
     scalein_type="streamsluice"
-    for repeat in 1 2 3; do
+#    for repeat in 1 2 3; do
 #      run_one_exp
 #      printf "${EXP_NAME}\n" >> part8_result.txt
-    done
+#    done
 }
 run_stock_test
