@@ -45,8 +45,8 @@ start_simple_monitoring() {
     echo "# Format: timestamp,all_total_cycles,all_interval_cycles,all_instructions,all_gc_time" >> $TOTAL_CYCLES_FILE
     
     {
-        # Header for monitoring log (streamlined for CPU cycles and GC time only)
-        echo "Timestamp, PID, Process Name, Heap Used (MB), GC Time (ms), Interval Cycles, Total Cycles, Instructions, IPC, Cache Misses"
+        # Header for monitoring log (TaskManagerRunner = PRIMARY, others = secondary)
+        echo "Timestamp, PID, Process Name, Heap Used (MB), GC Time (ms), Interval Cycles, Total Cycles (per process), Instructions, IPC, Cache Misses"
         
         # Initialize running totals (separate TaskManagerRunner from total)
         TOTAL_CYCLES_ACCUMULATED=0
@@ -119,16 +119,42 @@ start_simple_monitoring() {
                 # Get process name (only system call needed)
                 PROCESS_NAME=$(jps | grep "$PID" | awk '{print $2}')
 
-                # Update running totals
-                TOTAL_CYCLES_ACCUMULATED=$(echo "$TOTAL_CYCLES_ACCUMULATED + $INTERVAL_CYCLES_SUM" | bc -l 2>/dev/null || echo "$TOTAL_CYCLES_ACCUMULATED")
-                TOTAL_INSTRUCTIONS_ACCUMULATED=$(echo "$TOTAL_INSTRUCTIONS_ACCUMULATED + $INTERVAL_INSTRUCTIONS_SUM" | bc -l 2>/dev/null || echo "$TOTAL_INSTRUCTIONS_ACCUMULATED")
-                TOTAL_GC_TIME=$INTERVAL_GC_SUM
+                # Accumulate cycles for total overhead calculation (ALL processes)
+                if [[ "$INTERVAL_CYCLES" != "" && "$INTERVAL_CYCLES" != "0" ]]; then
+                    INTERVAL_CYCLES_SUM=$(echo "$INTERVAL_CYCLES_SUM + $INTERVAL_CYCLES" | bc -l 2>/dev/null || echo "$INTERVAL_CYCLES")
+                    INTERVAL_INSTRUCTIONS_SUM=$(echo "$INTERVAL_INSTRUCTIONS_SUM + $INSTRUCTIONS" | bc -l 2>/dev/null || echo "$INSTRUCTIONS")
+                fi
+                INTERVAL_GC_SUM=$(echo "$INTERVAL_GC_SUM + $GC_TIME" | bc -l 2>/dev/null || echo "$GC_TIME")
+                
+                # Accumulate SEPARATELY for TaskManagerRunner (PRIMARY for overhead calculation)
+                if [[ "$PROCESS_NAME" == "TaskManagerRunner" && "$INTERVAL_CYCLES" != "" && "$INTERVAL_CYCLES" != "0" ]]; then
+                    TM_INTERVAL_CYCLES_SUM=$(echo "$TM_INTERVAL_CYCLES_SUM + $INTERVAL_CYCLES" | bc -l 2>/dev/null || echo "$INTERVAL_CYCLES")
+                    TM_INTERVAL_INSTRUCTIONS_SUM=$(echo "$TM_INTERVAL_INSTRUCTIONS_SUM + $INSTRUCTIONS" | bc -l 2>/dev/null || echo "$INSTRUCTIONS")
+                    TM_INTERVAL_GC_SUM=$(echo "$TM_INTERVAL_GC_SUM + $GC_TIME" | bc -l 2>/dev/null || echo "$GC_TIME")
+                fi
 
-                # Log the streamlined data (CPU cycles + GC time focus)
-                echo "$TIMESTAMP, $PID, $PROCESS_NAME, $HEAP_USED, $GC_TIME, $INTERVAL_CYCLES, $TOTAL_CYCLES_ACCUMULATED, $INSTRUCTIONS, $IPC, $CACHE_MISSES"
+                # Log the streamlined data with process-specific info
+                if [[ "$PROCESS_NAME" == "TaskManagerRunner" ]]; then
+                    echo "$TIMESTAMP, $PID, $PROCESS_NAME [PRIMARY], $HEAP_USED, $GC_TIME, $INTERVAL_CYCLES, $TM_CYCLES_ACCUMULATED, $INSTRUCTIONS, $IPC, $CACHE_MISSES"
+                else
+                    echo "$TIMESTAMP, $PID, $PROCESS_NAME [secondary], $HEAP_USED, $GC_TIME, $INTERVAL_CYCLES, $TOTAL_CYCLES_ACCUMULATED, $INSTRUCTIONS, $IPC, $CACHE_MISSES"
+                fi
             done
             
-            # Write total cycles summary for overhead calculation
+            # Update running totals after processing all PIDs
+            TOTAL_CYCLES_ACCUMULATED=$(echo "$TOTAL_CYCLES_ACCUMULATED + $INTERVAL_CYCLES_SUM" | bc -l 2>/dev/null || echo "$TOTAL_CYCLES_ACCUMULATED")
+            TOTAL_INSTRUCTIONS_ACCUMULATED=$(echo "$TOTAL_INSTRUCTIONS_ACCUMULATED + $INTERVAL_INSTRUCTIONS_SUM" | bc -l 2>/dev/null || echo "$TOTAL_INSTRUCTIONS_ACCUMULATED")
+            TOTAL_GC_TIME=$INTERVAL_GC_SUM
+            
+            # Update TaskManagerRunner totals
+            TM_CYCLES_ACCUMULATED=$(echo "$TM_CYCLES_ACCUMULATED + $TM_INTERVAL_CYCLES_SUM" | bc -l 2>/dev/null || echo "$TM_CYCLES_ACCUMULATED")
+            TM_INSTRUCTIONS_ACCUMULATED=$(echo "$TM_INSTRUCTIONS_ACCUMULATED + $TM_INTERVAL_INSTRUCTIONS_SUM" | bc -l 2>/dev/null || echo "$TM_INSTRUCTIONS_ACCUMULATED")
+            TM_GC_TIME=$TM_INTERVAL_GC_SUM
+            
+            # Write TaskManagerRunner cycles (PRIMARY for overhead calculation)
+            echo "$TIMESTAMP,$TM_CYCLES_ACCUMULATED,$TM_INTERVAL_CYCLES_SUM,$TM_INSTRUCTIONS_ACCUMULATED,$TM_GC_TIME" >> $TASKMANAGER_CYCLES_FILE
+            
+            # Write total cycles summary (ALL processes - secondary reference)
             echo "$TIMESTAMP,$TOTAL_CYCLES_ACCUMULATED,$INTERVAL_CYCLES_SUM,$TOTAL_INSTRUCTIONS_ACCUMULATED,$TOTAL_GC_TIME" >> $TOTAL_CYCLES_FILE
             
             sleep 0.5  # Minimal sleep - total cycle now ~2.5s (2s perf + 0.5s other + 0.5s sleep)
@@ -136,7 +162,8 @@ start_simple_monitoring() {
     } >> $MONITOR_LOG_FILE &
     MONITOR_PID=$!
     echo "INFO: Simple monitoring started with PID: $MONITOR_PID"
-    echo "INFO: Total cycles accumulator: $TOTAL_CYCLES_FILE"
+    echo "INFO: TaskManagerRunner cycles (PRIMARY): $TASKMANAGER_CYCLES_FILE"
+    echo "INFO: Total cycles accumulator (secondary): $TOTAL_CYCLES_FILE"
 }
 
 # Function to start standard monitoring (80% coverage fallback)
