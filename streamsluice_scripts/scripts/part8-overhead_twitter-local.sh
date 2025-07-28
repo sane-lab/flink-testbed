@@ -58,11 +58,11 @@ run_perf() {
     local duration=$2
     
     # Try without sudo first
-    if perf stat -p $pid -e cycles,instructions,cache-misses sleep $duration 2>&1 > /tmp/perf_${pid}.tmp 2>/dev/null; then
+    if perf stat -p $pid -e cycles,instructions,cache-misses sleep $duration > /tmp/perf_${pid}.tmp 2>&1; then
         echo "perf_${pid}.tmp"
     else
         # Fall back to sudo if needed
-        sudo perf stat -p $pid -e cycles,instructions,cache-misses sleep $duration 2>&1 > /tmp/perf_${pid}.tmp
+        sudo perf stat -p $pid -e cycles,instructions,cache-misses sleep $duration > /tmp/perf_${pid}.tmp 2>&1
         echo "perf_${pid}.tmp"
     fi
 }
@@ -92,10 +92,22 @@ start_cpu_monitoring() {
         # Get PIDs
         PIDS=$(get_flink_pids)
         
+        # Check if we got valid PIDs
+        if [[ -z "$PIDS" ]]; then
+            echo "ERROR: No Flink processes found!" >&2
+            echo "Available processes:" >&2
+            jps >&2
+            return 1
+        fi
+        
+        echo "INFO: Found PIDs: $PIDS"
+        
         # Run perf in parallel for all PIDs for the entire duration
         PERF_OUTPUTS=()
         PERF_PIDS=()
-        for PID in $PIDS; do
+        PID_ARRAY=($PIDS)
+        for i in "${!PID_ARRAY[@]}"; do
+            PID=${PID_ARRAY[$i]}
             # Start perf in background for this PID for entire duration
             run_perf $PID $MONITOR_DURATION &
             PERF_PIDS+=($!)
@@ -104,13 +116,14 @@ start_cpu_monitoring() {
         # Wait for all perf commands to complete
         for i in "${!PERF_PIDS[@]}"; do
             wait ${PERF_PIDS[$i]}
-            PERF_OUTPUTS[$i]=$(cat /tmp/perf_${PIDS[$i]}.tmp)
-            rm -f /tmp/perf_${PIDS[$i]}.tmp
+            PID=${PID_ARRAY[$i]}
+            PERF_OUTPUTS[$i]=$(cat /tmp/perf_${PID}.tmp)
+            rm -f /tmp/perf_${PID}.tmp
         done
         
         # Process results
-        for i in "${!PIDS[@]}"; do
-            PID=${PIDS[$i]}
+        for i in "${!PID_ARRAY[@]}"; do
+            PID=${PID_ARRAY[$i]}
             PERF_OUTPUT=${PERF_OUTPUTS[$i]}
             
             # Get process name
@@ -125,6 +138,13 @@ start_cpu_monitoring() {
             
             INTERVAL_CACHE_MISSES=$(echo "$PERF_OUTPUT" | awk '/cache-misses/ {gsub(/,/, ""); print $1}' | head -1)
             INTERVAL_CACHE_MISSES=${INTERVAL_CACHE_MISSES:-"0"}
+            
+            # Debug: Check if we got valid data
+            if [[ "$INTERVAL_CYCLES" == "0" ]] || [[ "$INTERVAL_CYCLES" -lt 1000 ]]; then
+                echo "WARNING: Invalid or very low cycle count for PID $PID: $INTERVAL_CYCLES" >&2
+                echo "DEBUG: Perf output for PID $PID:" >&2
+                echo "$PERF_OUTPUT" >&2
+            fi
             
             # Log data
             if [[ "$PROCESS_NAME" == "TaskManagerRunner" ]]; then
