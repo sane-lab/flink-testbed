@@ -70,7 +70,7 @@ start_simple_monitoring() {
 
                 # Get CPU cycles using perf stat (this is the expensive operation)
                 if command -v perf &> /dev/null; then
-                    PERF_OUTPUT=$(timeout 2s perf stat -p $PID -e cycles,instructions,cache-misses 2>&1)
+                    PERF_OUTPUT=$(perf stat -p $PID -e cycles,instructions,cache-misses sleep 2 2>&1)
                     PERF_EXIT_CODE=$?
                     
                     # DEBUG: Log raw perf output to help diagnose parsing issues
