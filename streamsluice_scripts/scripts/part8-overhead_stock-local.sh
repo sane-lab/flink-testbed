@@ -34,71 +34,92 @@ get_flink_pids() {
 start_simple_monitoring() {
     echo "INFO: Starting simple monitoring for CPU cycles and GC time..."
     
+    # Initialize accumulator file for total cycles calculation
+    TOTAL_CYCLES_FILE="${MONITOR_LOG_DIR}/total_cycles_${EXP_NAME}.txt"
+    echo "# Total CPU cycles accumulator for overhead calculation" > $TOTAL_CYCLES_FILE
+    echo "# Format: timestamp,total_cycles_so_far,interval_cycles,total_instructions,gc_time_total" >> $TOTAL_CYCLES_FILE
+    
     {
-        # Header for monitoring log
-        echo "Timestamp, PID, Process Name, CPU%, %MEM, RSS (KB), Heap Used (MB), GC Time (ms), CPU Cycles/sec, Instructions, IPC, Cache Misses"
+        # Header for monitoring log (streamlined for CPU cycles and GC time only)
+        echo "Timestamp, PID, Process Name, Heap Used (MB), GC Time (ms), Interval Cycles, Total Cycles, Instructions, IPC, Cache Misses"
+        
+        # Initialize running totals
+        TOTAL_CYCLES_ACCUMULATED=0
+        TOTAL_INSTRUCTIONS_ACCUMULATED=0
+        TOTAL_GC_TIME=0
         
         while true; do
             TIMESTAMP=$(date '+%Y-%m-%d %H:%M:%S')
             PIDS=$(get_flink_pids)
+            
+            INTERVAL_CYCLES_SUM=0
+            INTERVAL_INSTRUCTIONS_SUM=0
+            INTERVAL_GC_SUM=0
 
             for PID in $PIDS; do
-                # Get CPU and memory usage
-                TOP_OUTPUT=$(top -b -n 1 -p $PID | tail -1)
-                CPU_USAGE=$(echo $TOP_OUTPUT | awk '{print $9}')
-                MEM_PERCENT=$(echo $TOP_OUTPUT | awk '{print $10}')
-                
-                # Get memory usage using ps
-                RSS=$(ps -p $PID -o rss --no-headers 2>/dev/null || echo "0")
-
-                # Get JVM GC time using jstat
+                # Get JVM GC time using jstat (faster, get this first)
                 if command -v jstat &> /dev/null; then
                     JVM_STATS=$(jstat -gc $PID 2>/dev/null | tail -1 | awk '{print ($3+$4)/1024, ($9+$10)}' || echo "0 0")
                     HEAP_USED=$(echo $JVM_STATS | awk '{print $1}') # Heap Used in MB
                     GC_TIME=$(echo $JVM_STATS | awk '{print $2}')   # GC Time in ms
+                    INTERVAL_GC_SUM=$(echo "$INTERVAL_GC_SUM + $GC_TIME" | bc -l 2>/dev/null || echo "$GC_TIME")
                 else
                     HEAP_USED="N/A"
-                    GC_TIME="N/A"
+                    GC_TIME="0"
                 fi
 
-                # Get CPU cycles using perf stat (simplified)
+                # Get CPU cycles using perf stat (this is the expensive operation)
                 if command -v perf &> /dev/null; then
-                    PERF_OUTPUT=$(timeout 1s perf stat -p $PID -e cycles,instructions,cache-misses 2>&1 | grep -E "cycles|instructions|cache-misses")
+                    PERF_OUTPUT=$(timeout 2s perf stat -p $PID -e cycles,instructions,cache-misses 2>&1 | grep -E "cycles|instructions|cache-misses")
                     
-                    CPU_CYCLES=$(echo "$PERF_OUTPUT" | grep -w "cycles" | awk '{gsub(/,/, ""); print $1}' | head -1)
+                    INTERVAL_CYCLES=$(echo "$PERF_OUTPUT" | grep -w "cycles" | awk '{gsub(/,/, ""); print $1}' | head -1)
                     INSTRUCTIONS=$(echo "$PERF_OUTPUT" | grep -w "instructions" | awk '{gsub(/,/, ""); print $1}' | head -1)
                     CACHE_MISSES=$(echo "$PERF_OUTPUT" | grep "cache-misses" | awk '{gsub(/,/, ""); print $1}' | head -1)
                     
-                    # Calculate IPC and cycles per second
-                    if [[ "$CPU_CYCLES" != "" && "$INSTRUCTIONS" != "" && "$CPU_CYCLES" != "0" ]]; then
-                        IPC=$(echo "scale=4; $INSTRUCTIONS / $CPU_CYCLES" | bc -l 2>/dev/null || echo "0")
-                        CYCLES_PER_SEC=$(echo "scale=0; $CPU_CYCLES / 1" | bc -l 2>/dev/null || echo "0")
-                    else
-                        IPC="0"
-                        CYCLES_PER_SEC="0"
+                    # Accumulate cycles for total overhead calculation
+                    if [[ "$INTERVAL_CYCLES" != "" && "$INTERVAL_CYCLES" != "0" ]]; then
+                        INTERVAL_CYCLES_SUM=$(echo "$INTERVAL_CYCLES_SUM + $INTERVAL_CYCLES" | bc -l 2>/dev/null || echo "$INTERVAL_CYCLES")
+                        INTERVAL_INSTRUCTIONS_SUM=$(echo "$INTERVAL_INSTRUCTIONS_SUM + $INSTRUCTIONS" | bc -l 2>/dev/null || echo "$INSTRUCTIONS")
                     fi
                     
-                    CPU_CYCLES=${CYCLES_PER_SEC:-"0"}
+                    # Calculate IPC for this interval
+                    if [[ "$INTERVAL_CYCLES" != "" && "$INSTRUCTIONS" != "" && "$INTERVAL_CYCLES" != "0" ]]; then
+                        IPC=$(echo "scale=4; $INSTRUCTIONS / $INTERVAL_CYCLES" | bc -l 2>/dev/null || echo "0")
+                    else
+                        IPC="0"
+                    fi
+                    
+                    INTERVAL_CYCLES=${INTERVAL_CYCLES:-"0"}
                     INSTRUCTIONS=${INSTRUCTIONS:-"0"}
                     CACHE_MISSES=${CACHE_MISSES:-"0"}
                 else
-                    CPU_CYCLES="N/A"
+                    INTERVAL_CYCLES="N/A"
                     INSTRUCTIONS="N/A"
                     IPC="N/A"
                     CACHE_MISSES="N/A"
                 fi
 
-                # Get process name
+                # Get process name (only system call needed)
                 PROCESS_NAME=$(jps | grep "$PID" | awk '{print $2}')
 
-                # Log the data
-                echo "$TIMESTAMP, $PID, $PROCESS_NAME, $CPU_USAGE, $MEM_PERCENT, $RSS, $HEAP_USED, $GC_TIME, $CPU_CYCLES, $INSTRUCTIONS, $IPC, $CACHE_MISSES"
+                # Update running totals
+                TOTAL_CYCLES_ACCUMULATED=$(echo "$TOTAL_CYCLES_ACCUMULATED + $INTERVAL_CYCLES_SUM" | bc -l 2>/dev/null || echo "$TOTAL_CYCLES_ACCUMULATED")
+                TOTAL_INSTRUCTIONS_ACCUMULATED=$(echo "$TOTAL_INSTRUCTIONS_ACCUMULATED + $INTERVAL_INSTRUCTIONS_SUM" | bc -l 2>/dev/null || echo "$TOTAL_INSTRUCTIONS_ACCUMULATED")
+                TOTAL_GC_TIME=$INTERVAL_GC_SUM
+
+                # Log the streamlined data (CPU cycles + GC time focus)
+                echo "$TIMESTAMP, $PID, $PROCESS_NAME, $HEAP_USED, $GC_TIME, $INTERVAL_CYCLES, $TOTAL_CYCLES_ACCUMULATED, $INSTRUCTIONS, $IPC, $CACHE_MISSES"
             done
-            sleep 2  # Sample every 2 seconds (simple and efficient)
+            
+            # Write total cycles summary for overhead calculation
+            echo "$TIMESTAMP,$TOTAL_CYCLES_ACCUMULATED,$INTERVAL_CYCLES_SUM,$TOTAL_INSTRUCTIONS_ACCUMULATED,$TOTAL_GC_TIME" >> $TOTAL_CYCLES_FILE
+            
+            sleep 0.5  # Minimal sleep - total cycle now ~2.5s (2s perf + 0.5s other + 0.5s sleep)
         done
     } >> $MONITOR_LOG_FILE &
     MONITOR_PID=$!
     echo "INFO: Simple monitoring started with PID: $MONITOR_PID"
+    echo "INFO: Total cycles accumulator: $TOTAL_CYCLES_FILE"
 }
 
 # Function to start standard monitoring (80% coverage fallback)
