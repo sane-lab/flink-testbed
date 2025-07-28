@@ -30,45 +30,21 @@ get_flink_pids() {
     echo "${pids[@]}"
 }
 
-# Simple monitoring function for CPU cycles and GC time
+# Simple monitoring function for CPU cycles only
 start_simple_monitoring() {
-    echo "INFO: Starting simple monitoring for CPU cycles and GC time..."
+    echo "INFO: Starting CPU cycle monitoring..."
     
     # Initialize accumulator files for TaskManagerRunner (primary) and total (secondary)
     TASKMANAGER_CYCLES_FILE="${MONITOR_LOG_DIR}/taskmanager_cycles_${EXP_NAME}.txt"
     TOTAL_CYCLES_FILE="${MONITOR_LOG_DIR}/total_cycles_${EXP_NAME}.txt"
-    GC_DATA_FILE="${MONITOR_LOG_DIR}/gc_data_${EXP_NAME}.txt"
     
     echo "# TaskManagerRunner CPU cycles accumulator (PRIMARY for overhead calculation)" > $TASKMANAGER_CYCLES_FILE
-    echo "# Format: timestamp,tm_total_cycles,tm_interval_cycles,gc_time" >> $TASKMANAGER_CYCLES_FILE
+    echo "# Format: timestamp,tm_total_cycles,tm_interval_cycles" >> $TASKMANAGER_CYCLES_FILE
     
     echo "# Total CPU cycles accumulator (ALL processes - secondary reference)" > $TOTAL_CYCLES_FILE
-    echo "# Format: timestamp,all_total_cycles,all_interval_cycles,gc_time" >> $TOTAL_CYCLES_FILE
+    echo "# Format: timestamp,all_total_cycles,all_interval_cycles" >> $TOTAL_CYCLES_FILE
     
-    echo "# GC monitoring data" > $GC_DATA_FILE
-    echo "# Format: timestamp,pid,process_name,heap_used_mb,gc_time_ms" >> $GC_DATA_FILE
-    
-    # Start GC monitoring in a separate background process
-    {
-        while true; do
-            TIMESTAMP=$(date '+%Y-%m-%d %H:%M:%S')
-            PIDS=$(get_flink_pids)
-            
-            for PID in $PIDS; do
-                PROCESS_NAME=$(jps | grep "$PID" | awk '{print $2}')
-                if command -v jstat &> /dev/null; then
-                    JVM_STATS=$(jstat -gc $PID 2>/dev/null | tail -1 | awk '{print ($3+$4)/1024, ($9+$10)}' || echo "0 0")
-                    HEAP_USED=$(echo $JVM_STATS | awk '{print $1}')
-                    GC_TIME=$(echo $JVM_STATS | awk '{print $2}')
-                    echo "$TIMESTAMP,$PID,$PROCESS_NAME,$HEAP_USED,$GC_TIME" >> $GC_DATA_FILE
-                fi
-            done
-            sleep 10  # Sample GC every 10 seconds
-        done
-    } &
-    GC_MONITOR_PID=$!
-    
-    # Start CPU cycle monitoring in the main background process
+    # Start CPU cycle monitoring
     {
         # Header for monitoring log
         echo "Timestamp, PID, Process Name, Interval Cycles, Total Cycles"
@@ -81,52 +57,20 @@ start_simple_monitoring() {
             TIMESTAMP=$(date '+%Y-%m-%d %H:%M:%S')
             PIDS=$(get_flink_pids)
             
-            # Run perf in parallel for all PIDs with 5s sampling
-            PERF_OUTPUTS=()
-            PERF_PIDS=()
-            TEMP_FILES=()
-            for PID in $PIDS; do
-                # Create temporary file for perf output
-                TEMP_FILE=$(mktemp)
-                TEMP_FILES+=($TEMP_FILE)
-                # Start perf in background with 5s sampling
-                perf stat -p $PID -e cycles sleep 5 2>&1 > $TEMP_FILE &
-                PERF_PIDS+=($!)
-            done
-            
-            # Wait for all perf commands and collect outputs
-            for i in "${!PERF_PIDS[@]}"; do
-                wait ${PERF_PIDS[$i]}
-                PERF_OUTPUTS[$i]=$(cat ${TEMP_FILES[$i]})
-                rm -f ${TEMP_FILES[$i]}
-            done
-            
             # Process results
             INTERVAL_CYCLES_SUM=0
             TM_INTERVAL_CYCLES_SUM=0
             
-            # Read latest GC data
-            if [[ -f $GC_DATA_FILE ]]; then
-                LATEST_GC_DATA=$(tail -n 2 $GC_DATA_FILE)
-                declare -A GC_TIME_MAP
-                while IFS=',' read -r ts pid name heap gc; do
-                    GC_TIME_MAP[$pid]=$gc
-                done <<< "$LATEST_GC_DATA"
-            fi
-            
-            for i in "${!PIDS[@]}"; do
-                PID=${PIDS[$i]}
-                PERF_OUTPUT=${PERF_OUTPUTS[$i]}
-                
+            for PID in $PIDS; do
                 # Get process name
                 PROCESS_NAME=$(jps | grep "$PID" | awk '{print $2}')
+                
+                # Run perf directly for this PID
+                PERF_OUTPUT=$(perf stat -p $PID -e cycles sleep 5 2>&1)
                 
                 # Extract cycles
                 INTERVAL_CYCLES=$(echo "$PERF_OUTPUT" | awk '/cycles/ {gsub(/,/, ""); print $1}' | head -1)
                 INTERVAL_CYCLES=${INTERVAL_CYCLES:-"0"}
-                
-                # Get GC time from map
-                GC_TIME=${GC_TIME_MAP[$PID]:-"0"}
                 
                 # Accumulate cycles
                 if [[ "$INTERVAL_CYCLES" != "" && "$INTERVAL_CYCLES" != "0" ]]; then
@@ -148,33 +92,19 @@ start_simple_monitoring() {
             TOTAL_CYCLES_ACCUMULATED=$(echo "$TOTAL_CYCLES_ACCUMULATED + $INTERVAL_CYCLES_SUM" | bc -l 2>/dev/null || echo "$TOTAL_CYCLES_ACCUMULATED")
             TM_CYCLES_ACCUMULATED=$(echo "$TM_CYCLES_ACCUMULATED + $TM_INTERVAL_CYCLES_SUM" | bc -l 2>/dev/null || echo "$TM_CYCLES_ACCUMULATED")
             
-            # Get latest GC time for TaskManager
-            TM_GC_TIME=0
-            for PID in $PIDS; do
-                PROCESS_NAME=$(jps | grep "$PID" | awk '{print $2}')
-                if [[ "$PROCESS_NAME" == "TaskManagerRunner" ]]; then
-                    TM_GC_TIME=${GC_TIME_MAP[$PID]:-"0"}
-                    break
-                fi
-            done
-            
             # Write to files
-            echo "$TIMESTAMP,$TM_CYCLES_ACCUMULATED,$TM_INTERVAL_CYCLES_SUM,$TM_GC_TIME" >> $TASKMANAGER_CYCLES_FILE
-            echo "$TIMESTAMP,$TOTAL_CYCLES_ACCUMULATED,$INTERVAL_CYCLES_SUM,$TM_GC_TIME" >> $TOTAL_CYCLES_FILE
+            echo "$TIMESTAMP,$TM_CYCLES_ACCUMULATED,$TM_INTERVAL_CYCLES_SUM" >> $TASKMANAGER_CYCLES_FILE
+            echo "$TIMESTAMP,$TOTAL_CYCLES_ACCUMULATED,$INTERVAL_CYCLES_SUM" >> $TOTAL_CYCLES_FILE
             
-            sleep 0.05  # Minimal sleep - total cycle now ~5.1s (5s perf + 0.1s gap) = 98% coverage
+            sleep 0.05  # Minimal sleep between cycles
         done
     } >> $MONITOR_LOG_FILE &
     MONITOR_PID=$!
     
-    echo "INFO: Simple monitoring started with PIDs:"
-    echo "- CPU Monitor: $MONITOR_PID"
-    echo "- GC Monitor: $GC_MONITOR_PID"
+    echo "INFO: CPU cycle monitoring started with PID: $MONITOR_PID"
     echo "INFO: TaskManagerRunner cycles (PRIMARY): $TASKMANAGER_CYCLES_FILE"
     echo "INFO: Total cycles accumulator (secondary): $TOTAL_CYCLES_FILE"
-    echo "INFO: GC data: $GC_DATA_FILE"
-    echo "INFO: Sampling cycles every 5.1s with 98% coverage"
-    echo "INFO: Sampling GC every 10s"
+    echo "INFO: Sampling every ~10s (5s per process × 2 processes)"
 }
 
 # Function to start standard monitoring (80% coverage fallback)
@@ -265,33 +195,7 @@ start_standard_monitoring() {
 
 # Function to stop monitoring
 stop_monitoring() {
-    echo "INFO: Stopping monitoring..."
-    
-    # Stop continuous monitoring if running
-    if [[ -f "${CONTINUOUS_MONITOR_DIR}/${EXP_NAME}_continuous.pid" ]]; then
-        CONTINUOUS_MONITOR_PID=$(cat "${CONTINUOUS_MONITOR_DIR}/${EXP_NAME}_continuous.pid")
-        if kill -0 $CONTINUOUS_MONITOR_PID 2>/dev/null; then
-            echo "INFO: Stopping continuous monitoring (PID: $CONTINUOUS_MONITOR_PID)..."
-            kill -INT $CONTINUOUS_MONITOR_PID 2>/dev/null
-            sleep 3
-            if kill -0 $CONTINUOUS_MONITOR_PID 2>/dev/null; then
-                kill -TERM $CONTINUOUS_MONITOR_PID 2>/dev/null
-                sleep 2
-                if kill -0 $CONTINUOUS_MONITOR_PID 2>/dev/null; then
-                    kill -KILL $CONTINUOUS_MONITOR_PID 2>/dev/null
-                fi
-            fi
-        fi
-        rm -f "${CONTINUOUS_MONITOR_DIR}/${EXP_NAME}_continuous.pid"
-        echo "INFO: Continuous monitoring stopped."
-    fi
-    
-    # Stop standard monitoring if running
-    if [[ ! -z "$MONITOR_PID" ]]; then
-        kill $MONITOR_PID 2>/dev/null
-        wait $MONITOR_PID 2>/dev/null
-        echo "INFO: Standard monitoring stopped. Logs saved to $MONITOR_LOG_FILE."
-    fi
+    echo "INFO: Stopping CPU cycle monitoring..."
     
     # Stop CPU cycle monitoring
     if [[ ! -z "$MONITOR_PID" ]]; then
@@ -299,17 +203,10 @@ stop_monitoring() {
         wait $MONITOR_PID 2>/dev/null
     fi
     
-    # Stop GC monitoring
-    if [[ ! -z "$GC_MONITOR_PID" ]]; then
-        kill $GC_MONITOR_PID 2>/dev/null
-        wait $GC_MONITOR_PID 2>/dev/null
-    fi
-    
     echo "INFO: Monitoring stopped. Data saved to:"
     echo "- Main log: $MONITOR_LOG_FILE"
     echo "- TaskManager cycles: $TASKMANAGER_CYCLES_FILE"
     echo "- Total cycles: $TOTAL_CYCLES_FILE"
-    echo "- GC data: $GC_DATA_FILE"
 }
 
 # dump data
