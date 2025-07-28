@@ -343,13 +343,15 @@ run_stock_test(){
     whether_type="streamsluice"
     how_type="streamsluice"
     scalein_type="streamsluice"
-    for metrics_report_interval in 5000000 10000000 25000000 50000000
-    for repeat in 1; do
-      run_one_exp
-      printf "${EXP_NAME}\n" >> part8_result.txt
+    for metrics_report_interval in 5000000 10000000 25000000 50000000; do
+      for repeat in 1; do
+        run_one_exp
+        printf "${EXP_NAME}\n" >> part8_result.txt
+      done
     done
 
     controller_type="NoControll"
+    metrics_report_interval=100000000
     is_treat=false
     autotune=false
     metrics_report=false
