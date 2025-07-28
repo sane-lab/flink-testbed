@@ -1306,13 +1306,13 @@ def read_taskmanager_cycles(file_path, middle_minutes=20):
 
 def read_cpu_cycles_from_monitor(directory):
     """
-    Read CPU cycles directly from monitor_*.txt files.
+    Read CPU cycles directly from monitor_*.out files (new CSV format).
     
     Args:
         directory (str): Directory containing the monitor file
         
     Returns:
-        dict: Dictionary with TaskManagerRunner and total CPU cycles
+        dict: Dictionary with CPU metrics for all processes
     """
     monitor_file = find_monitor_file(directory)
     if not monitor_file:
@@ -1321,119 +1321,83 @@ def read_cpu_cycles_from_monitor(directory):
     
     print(f"Reading CPU cycles from: {monitor_file}")
     
-    taskmanager_cycles = 0
-    total_cycles = 0
-    duration_seconds = 0
+    # Initialize results for all process types
+    result = {
+        'taskmanager_cycles': 0,
+        'taskmanager_instructions': 0,
+        'taskmanager_cache_misses': 0,
+        'jobmanager_cycles': 0,
+        'jobmanager_instructions': 0,
+        'jobmanager_cache_misses': 0,
+        'kafka_cycles': 0,
+        'kafka_instructions': 0,
+        'kafka_cache_misses': 0,
+        'zookeeper_cycles': 0,
+        'zookeeper_instructions': 0,
+        'zookeeper_cache_misses': 0,
+        'total_cycles': 0,
+        'duration_seconds': 240
+    }
     
     try:
         with open(monitor_file, 'r') as f:
-            content = f.read()
+            lines = f.readlines()
         
-        # Parse perf output blocks
-        perf_blocks = []
-        lines = content.split('\n')
-        current_block = []
-        in_perf_block = False
-        
+        # Parse the new CSV format
+        # Format: Timestamp, PID, Process Name, Total Cycles, Total Instructions, Total Cache Misses, Duration (s)
         for line in lines:
-            if line.startswith(' Performance counter stats for process id'):
-                if current_block:
-                    perf_blocks.append('\n'.join(current_block))
-                current_block = [line]
-                in_perf_block = True
-            elif in_perf_block:
-                current_block.append(line)
-                # Only end the block when we hit another INFO line or the end
-                if line.startswith('INFO:') and len(current_block) > 1:
-                    # Remove the INFO line from the block
-                    current_block.pop()
-                    perf_blocks.append('\n'.join(current_block))
-                    current_block = []
-                    in_perf_block = False
-        
-        # Add the last block if exists
-        if current_block:
-            perf_blocks.append('\n'.join(current_block))
-        
-        print(f"Found {len(perf_blocks)} perf blocks")
-        
-        # Parse each perf block
-        cycle_counts = []
-        instruction_counts = []
-        cache_miss_counts = []
-        
-        for block in perf_blocks:
-            if 'cycles' in block:
-                # Extract cycles, instructions, and cache misses from the block
-                for line in block.split('\n'):
-                    line = line.strip()
-                    # Look for lines that contain metrics but not the header
-                    if not line.startswith('Performance') and not line.startswith('INFO:'):
-                        # Parse cycles
-                        if 'cycles' in line and 'instructions' not in line and 'cache-misses' not in line:
-                            parts = line.split()
-                            for part in parts:
-                                clean_part = part.replace(',', '')
-                                try:
-                                    cycles = int(clean_part)
-                                    cycle_counts.append(cycles)
-                                    break
-                                except ValueError:
-                                    continue
-                        
-                        # Parse instructions
-                        elif 'instructions' in line:
-                            parts = line.split()
-                            for part in parts:
-                                clean_part = part.replace(',', '')
-                                try:
-                                    instructions = int(clean_part)
-                                    instruction_counts.append(instructions)
-                                    break
-                                except ValueError:
-                                    continue
-                        
-                        # Parse cache misses
-                        elif 'cache-misses' in line:
-                            parts = line.split()
-                            for part in parts:
-                                clean_part = part.replace(',', '')
-                                try:
-                                    cache_misses = int(clean_part)
-                                    cache_miss_counts.append(cache_misses)
-                                    break
-                                except ValueError:
-                                    continue
-        
-        if len(cycle_counts) >= 2:
-            # Sort by cycle count - larger is TaskManager, smaller is Standalone
-            cycle_counts.sort(reverse=True)
-            taskmanager_cycles = cycle_counts[0]  # Larger one
-            total_cycles = sum(cycle_counts)
+            line = line.strip()
+            if not line or line.startswith('Timestamp') or line.startswith('INFO:'):
+                continue
             
-            # Get corresponding instructions and cache misses for TaskManager
-            taskmanager_instructions = instruction_counts[0] if len(instruction_counts) >= 2 else 0
-            taskmanager_cache_misses = cache_miss_counts[0] if len(cache_miss_counts) >= 2 else 0
-            
-            duration_seconds = 1200  # From the format
-            
-            print(f"TaskManager cycles (larger): {taskmanager_cycles:,}")
-            print(f"TaskManager instructions: {taskmanager_instructions:,}")
-            print(f"TaskManager cache misses: {taskmanager_cache_misses:,}")
-            print(f"Standalone cycles (smaller): {cycle_counts[1]:,}")
-            print(f"Total cycles: {total_cycles:,}")
-            
-            return {
-                'taskmanager_cycles': taskmanager_cycles,
-                'taskmanager_instructions': taskmanager_instructions,
-                'taskmanager_cache_misses': taskmanager_cache_misses,
-                'total_cycles': total_cycles,
-                'duration_seconds': duration_seconds,
-                'duration_minutes': duration_seconds / 60.0
-            }
+            try:
+                parts = [p.strip() for p in line.split(',')]
+                if len(parts) >= 6:
+                    timestamp = parts[0]
+                    pid = parts[1]
+                    process_info = parts[2]
+                    cycles = int(parts[3]) if parts[3].isdigit() else 0
+                    instructions = int(parts[4]) if parts[4].isdigit() else 0
+                    cache_misses = int(parts[5]) if parts[5].isdigit() else 0
+                    
+                    # Classify process by type
+                    if '[FLINK-PRIMARY]' in process_info or 'TaskManagerRunner' in process_info:
+                        result['taskmanager_cycles'] = cycles
+                        result['taskmanager_instructions'] = instructions
+                        result['taskmanager_cache_misses'] = cache_misses
+                        print(f"TaskManager: {cycles:,} cycles, {instructions:,} instructions, {cache_misses:,} cache misses")
+                    
+                    elif '[FLINK-MASTER]' in process_info or 'StandaloneSessionClusterEntrypoint' in process_info:
+                        result['jobmanager_cycles'] = cycles
+                        result['jobmanager_instructions'] = instructions
+                        result['jobmanager_cache_misses'] = cache_misses
+                        print(f"JobManager: {cycles:,} cycles, {instructions:,} instructions, {cache_misses:,} cache misses")
+                    
+                    elif '[KAFKA]' in process_info or 'Kafka' in process_info:
+                        result['kafka_cycles'] = cycles
+                        result['kafka_instructions'] = instructions
+                        result['kafka_cache_misses'] = cache_misses
+                        print(f"Kafka: {cycles:,} cycles, {instructions:,} instructions, {cache_misses:,} cache misses")
+                    
+                    elif '[ZOOKEEPER]' in process_info or 'QuorumPeerMain' in process_info:
+                        result['zookeeper_cycles'] = cycles
+                        result['zookeeper_instructions'] = instructions
+                        result['zookeeper_cache_misses'] = cache_misses
+                        print(f"ZooKeeper: {cycles:,} cycles, {instructions:,} instructions, {cache_misses:,} cache misses")
+                    
+                    # Add to total
+                    result['total_cycles'] += cycles
+                    
+            except (ValueError, IndexError) as e:
+                print(f"Warning: Could not parse line: {line} - {e}")
+                continue
+        
+        if result['total_cycles'] > 0:
+            print(f"Total cycles across all processes: {result['total_cycles']:,}")
+            result['duration_minutes'] = result['duration_seconds'] / 60.0
+            return result
         else:
-            print(f"WARNING: Could not find valid cycle counts in {monitor_file}")
-            print(f"Found {len(cycle_counts)} cycle counts: {cycle_counts}")
+            print(f"WARNING: No valid CPU data found in {monitor_file}")
             return None
             
     except Exception as e:
@@ -1519,6 +1483,49 @@ def calculate_overhead(dir_without_sluice, dir_with_sluice, outputDir, middle_mi
             f.write(f"Duration (minutes),{baseline_cycles['duration_minutes']:.1f},{sluice_cycles['duration_minutes']:.1f},0,0\n")
         
         print(f"📄 Coarse-grained results saved to: {output_file}")
+        
+        # Additional analysis for Kafka and ZooKeeper overhead
+        print(f"\n🔍 **ADDITIONAL PROCESS OVERHEAD ANALYSIS**")
+        
+        # Kafka overhead
+        baseline_kafka_cycles = baseline_cycles.get('kafka_cycles', 0)
+        sluice_kafka_cycles = sluice_cycles.get('kafka_cycles', 0)
+        if baseline_kafka_cycles > 0 and sluice_kafka_cycles > 0:
+            kafka_overhead_pct = ((sluice_kafka_cycles - baseline_kafka_cycles) / baseline_kafka_cycles) * 100
+            kafka_overhead_abs = sluice_kafka_cycles - baseline_kafka_cycles
+            print(f"   **Kafka CPU Overhead: {kafka_overhead_pct:.2f}%** ({kafka_overhead_abs:,} cycles)")
+        elif sluice_kafka_cycles > 0:
+            print(f"   **Kafka CPU Usage (Sluice only): {sluice_kafka_cycles:,} cycles** (baseline: 0)")
+        else:
+            print(f"   Kafka: No CPU data available")
+        
+        # ZooKeeper overhead
+        baseline_zk_cycles = baseline_cycles.get('zookeeper_cycles', 0)
+        sluice_zk_cycles = sluice_cycles.get('zookeeper_cycles', 0)
+        if baseline_zk_cycles > 0 and sluice_zk_cycles > 0:
+            zk_overhead_pct = ((sluice_zk_cycles - baseline_zk_cycles) / baseline_zk_cycles) * 100
+            zk_overhead_abs = sluice_zk_cycles - baseline_zk_cycles
+            print(f"   **ZooKeeper CPU Overhead: {zk_overhead_pct:.2f}%** ({zk_overhead_abs:,} cycles)")
+        elif sluice_zk_cycles > 0:
+            print(f"   **ZooKeeper CPU Usage (Sluice only): {sluice_zk_cycles:,} cycles** (baseline: 0)")
+        else:
+            print(f"   ZooKeeper: No CPU data available")
+        
+        # JobManager overhead
+        baseline_jm_cycles = baseline_cycles.get('jobmanager_cycles', 0)
+        sluice_jm_cycles = sluice_cycles.get('jobmanager_cycles', 0)
+        if baseline_jm_cycles > 0 and sluice_jm_cycles > 0:
+            jm_overhead_pct = ((sluice_jm_cycles - baseline_jm_cycles) / baseline_jm_cycles) * 100
+            jm_overhead_abs = sluice_jm_cycles - baseline_jm_cycles
+            print(f"   **JobManager CPU Overhead: {jm_overhead_pct:.2f}%** ({jm_overhead_abs:,} cycles)")
+        
+        # Total system overhead
+        baseline_total = baseline_cycles.get('total_cycles', 0)
+        sluice_total = sluice_cycles.get('total_cycles', 0)
+        if baseline_total > 0 and sluice_total > 0:
+            total_overhead_pct = ((sluice_total - baseline_total) / baseline_total) * 100
+            total_overhead_abs = sluice_total - baseline_total
+            print(f"   **Total System CPU Overhead: {total_overhead_pct:.2f}%** ({total_overhead_abs:,} cycles)")
         
     else:
         print("ERROR: Invalid baseline CPU cycles")

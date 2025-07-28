@@ -37,7 +37,7 @@ configure_perf_security() {
 configure_perf_security
 
 # Define the process names to monitor
-PROCESS_NAMES=("StandaloneSessionClusterEntrypoint" "TaskManagerRunner")
+PROCESS_NAMES=("StandaloneSessionClusterEntrypoint" "TaskManagerRunner" "Kafka" "QuorumPeerMain")
 MONITOR_LOG_DIR="${FLINK_DIR}/log"
 MONITOR_LOG_FILE="${MONITOR_LOG_DIR}/monitor_$(date +%Y%m%d_%H%M%S).out"
 SYSTEM_MONITOR_LOG_FILE="${MONITOR_LOG_DIR}/system_monitor_$(date +%Y%m%d_%H%M%S).csv"
@@ -76,7 +76,7 @@ start_cpu_monitoring() {
     
     # Timeline alignment parameters
     WARMUP_DELAY=60        # Start monitoring after 120s warmup
-    MONITOR_DURATION=240   # Monitor for 4 minutes (240s)
+    MONITOR_DURATION=1200 #240   # Monitor for 4 minutes (240s)
     
             # Start CPU cycle monitoring
         {
@@ -149,11 +149,17 @@ start_cpu_monitoring() {
                 echo "$PERF_OUTPUT" >&2
             fi
             
-            # Log data
+            # Log data with appropriate classification
             if [[ "$PROCESS_NAME" == "TaskManagerRunner" ]]; then
-                echo "$MONITOR_START_TIME, $PID, $PROCESS_NAME [PRIMARY], $INTERVAL_CYCLES, $INTERVAL_INSTRUCTIONS, $INTERVAL_CACHE_MISSES, $MONITOR_DURATION"
+                echo "$MONITOR_START_TIME, $PID, $PROCESS_NAME [FLINK-PRIMARY], $INTERVAL_CYCLES, $INTERVAL_INSTRUCTIONS, $INTERVAL_CACHE_MISSES, $MONITOR_DURATION"
+            elif [[ "$PROCESS_NAME" == "StandaloneSessionClusterEntrypoint" ]]; then
+                echo "$MONITOR_START_TIME, $PID, $PROCESS_NAME [FLINK-MASTER], $INTERVAL_CYCLES, $INTERVAL_INSTRUCTIONS, $INTERVAL_CACHE_MISSES, $MONITOR_DURATION"
+            elif [[ "$PROCESS_NAME" == "Kafka" ]]; then
+                echo "$MONITOR_START_TIME, $PID, $PROCESS_NAME [KAFKA], $INTERVAL_CYCLES, $INTERVAL_INSTRUCTIONS, $INTERVAL_CACHE_MISSES, $MONITOR_DURATION"
+            elif [[ "$PROCESS_NAME" == "QuorumPeerMain" ]]; then
+                echo "$MONITOR_START_TIME, $PID, $PROCESS_NAME [ZOOKEEPER], $INTERVAL_CYCLES, $INTERVAL_INSTRUCTIONS, $INTERVAL_CACHE_MISSES, $MONITOR_DURATION"
             else
-                echo "$MONITOR_START_TIME, $PID, $PROCESS_NAME [secondary], $INTERVAL_CYCLES, $INTERVAL_INSTRUCTIONS, $INTERVAL_CACHE_MISSES, $MONITOR_DURATION"
+                echo "$MONITOR_START_TIME, $PID, $PROCESS_NAME [OTHER], $INTERVAL_CYCLES, $INTERVAL_INSTRUCTIONS, $INTERVAL_CACHE_MISSES, $MONITOR_DURATION"
             fi
         done
         
@@ -253,7 +259,7 @@ init() {
   how_type="streamsluice"
   scalein_type="streamsluice"
   L=2000 #4000
-  runtime=390
+  runtime=1360 #390
   skip_interval=1 # skip seconds
   warmup=10000
   warmup_time=90
@@ -378,7 +384,7 @@ run_stock_test(){
     whether_type="streamsluice"
     how_type="streamsluice"
     scalein_type="streamsluice"
-    for metrics_report_interval in 100000000; do # 5000000 25000000 
+    for metrics_report_interval in  5000000 25000000 100000000; do #
       for repeat in 1; do
         run_one_exp
         printf "${EXP_NAME}\n" >> part8_result.txt

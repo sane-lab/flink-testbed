@@ -6,7 +6,7 @@
 MONITOR_LOG_FILE=""
 MONITOR_PID=""
 MONITOR_INTERVAL=5  # seconds between measurements
-MONITOR_DURATION=240  # total monitoring duration in seconds
+MONITOR_DURATION=1200 #240  # total monitoring duration in seconds
 
 # Kafka monitoring variables
 KAFKA_MONITOR_LOG_FILE=""
