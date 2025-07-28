@@ -5,6 +5,36 @@
 
 source config-server-twitter-local.sh
 
+# Function to configure perf security (run once with sudo)
+configure_perf_security() {
+    echo "INFO: Configuring perf security settings..."
+    
+    # Check if we can run perf without sudo
+    if perf stat -e cycles sleep 1 >/dev/null 2>&1; then
+        echo "INFO: Perf already configured for non-root access"
+        return 0
+    fi
+    
+    # Try to configure perf security
+    if command -v sudo >/dev/null 2>&1; then
+        echo "INFO: Attempting to configure perf security (requires sudo once)..."
+        if sudo sh -c 'echo -1 > /proc/sys/kernel/perf_event_paranoid'; then
+            echo "INFO: Perf security configured successfully"
+            return 0
+        else
+            echo "WARNING: Failed to configure perf security automatically"
+            echo "WARNING: You may need to run: sudo sh -c 'echo -1 > /proc/sys/kernel/perf_event_paranoid'"
+            return 1
+        fi
+    else
+        echo "WARNING: sudo not available, perf may require root access"
+        return 1
+    fi
+}
+
+# Configure perf security at script start
+configure_perf_security
+
 # Define the process names to monitor
 PROCESS_NAMES=("StandaloneSessionClusterEntrypoint" "TaskManagerRunner")
 MONITOR_LOG_DIR="${FLINK_DIR}/log"
@@ -20,6 +50,21 @@ get_flink_pids() {
         pids+=($(jps | grep "$process_name" | awk '{print $1}'))
     done
     echo "${pids[@]}"
+}
+
+# Function to run perf with appropriate privileges
+run_perf() {
+    local pid=$1
+    local duration=$2
+    
+    # Try without sudo first
+    if perf stat -p $pid -e cycles,instructions,cache-misses sleep $duration 2>&1 > /tmp/perf_${pid}.tmp 2>/dev/null; then
+        echo "perf_${pid}.tmp"
+    else
+        # Fall back to sudo if needed
+        sudo perf stat -p $pid -e cycles,instructions,cache-misses sleep $duration 2>&1 > /tmp/perf_${pid}.tmp
+        echo "perf_${pid}.tmp"
+    fi
 }
 
 # CPU cycle monitoring function using perf
@@ -51,8 +96,8 @@ start_cpu_monitoring() {
         PERF_OUTPUTS=()
         PERF_PIDS=()
         for PID in $PIDS; do
-            # Start perf in background for this PID for entire duration (with sudo for kernel-level access)
-            sudo perf stat -p $PID -e cycles,instructions,cache-misses sleep $MONITOR_DURATION 2>&1 > /tmp/perf_${PID}.tmp &
+            # Start perf in background for this PID for entire duration
+            run_perf $PID $MONITOR_DURATION &
             PERF_PIDS+=($!)
         done
         
@@ -60,7 +105,7 @@ start_cpu_monitoring() {
         for i in "${!PERF_PIDS[@]}"; do
             wait ${PERF_PIDS[$i]}
             PERF_OUTPUTS[$i]=$(cat /tmp/perf_${PIDS[$i]}.tmp)
-            sudo rm -f /tmp/perf_${PIDS[$i]}.tmp
+            rm -f /tmp/perf_${PIDS[$i]}.tmp
         done
         
         # Process results
