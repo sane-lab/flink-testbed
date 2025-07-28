@@ -30,50 +30,75 @@ get_flink_pids() {
     echo "${pids[@]}"
 }
 
-# Function to start continuous monitoring (100% accurate)
-start_continuous_monitoring() {
-    echo "INFO: Starting continuous monitoring for experiment ${EXP_NAME}..."
+# Simple monitoring function for CPU cycles and GC time
+start_simple_monitoring() {
+    echo "INFO: Starting simple monitoring for CPU cycles and GC time..."
     
-    # Create monitoring directories in a temporary location to avoid path conflicts
-    CONTINUOUS_MONITOR_DIR="/tmp/continuous_monitoring_${EXP_NAME}_$$"
-    mkdir -p $CONTINUOUS_MONITOR_DIR
-    
-    # Start continuous perf monitoring
-    CONTINUOUS_SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"  # Get absolute path
-    CONTINUOUS_SCRIPT_PATH="${CONTINUOUS_SCRIPT_DIR}/continuous_perf_monitor.sh"
-    
-    echo "DEBUG: Looking for continuous monitoring script at: ${CONTINUOUS_SCRIPT_PATH}"
-    
-    if [[ -f "${CONTINUOUS_SCRIPT_PATH}" ]]; then
-        echo "INFO: Using continuous perf monitoring script..."
-        echo "INFO: Waiting for Flink processes to be available..."
+    {
+        # Header for monitoring log
+        echo "Timestamp, PID, Process Name, CPU%, %MEM, RSS (KB), Heap Used (MB), GC Time (ms), CPU Cycles/sec, Instructions, IPC, Cache Misses"
         
-        # Wait for Flink processes to be available (max 30 seconds)
-        for i in {1..30}; do
-            FLINK_PIDS=$(jps | grep -E "(StandaloneSessionClusterEntrypoint|TaskManagerRunner)" | awk '{print $1}')
-            if [[ ! -z "$FLINK_PIDS" ]]; then
-                echo "INFO: Flink processes found: $FLINK_PIDS"
-                break
-            fi
-            echo "INFO: Waiting for Flink processes... (attempt $i/30)"
-            sleep 1
+        while true; do
+            TIMESTAMP=$(date '+%Y-%m-%d %H:%M:%S')
+            PIDS=$(get_flink_pids)
+
+            for PID in $PIDS; do
+                # Get CPU and memory usage
+                TOP_OUTPUT=$(top -b -n 1 -p $PID | tail -1)
+                CPU_USAGE=$(echo $TOP_OUTPUT | awk '{print $9}')
+                MEM_PERCENT=$(echo $TOP_OUTPUT | awk '{print $10}')
+                
+                # Get memory usage using ps
+                RSS=$(ps -p $PID -o rss --no-headers 2>/dev/null || echo "0")
+
+                # Get JVM GC time using jstat
+                if command -v jstat &> /dev/null; then
+                    JVM_STATS=$(jstat -gc $PID 2>/dev/null | tail -1 | awk '{print ($3+$4)/1024, ($9+$10)}' || echo "0 0")
+                    HEAP_USED=$(echo $JVM_STATS | awk '{print $1}') # Heap Used in MB
+                    GC_TIME=$(echo $JVM_STATS | awk '{print $2}')   # GC Time in ms
+                else
+                    HEAP_USED="N/A"
+                    GC_TIME="N/A"
+                fi
+
+                # Get CPU cycles using perf stat (simplified)
+                if command -v perf &> /dev/null; then
+                    PERF_OUTPUT=$(timeout 1s perf stat -p $PID -e cycles,instructions,cache-misses 2>&1 | grep -E "cycles|instructions|cache-misses")
+                    
+                    CPU_CYCLES=$(echo "$PERF_OUTPUT" | grep -w "cycles" | awk '{gsub(/,/, ""); print $1}' | head -1)
+                    INSTRUCTIONS=$(echo "$PERF_OUTPUT" | grep -w "instructions" | awk '{gsub(/,/, ""); print $1}' | head -1)
+                    CACHE_MISSES=$(echo "$PERF_OUTPUT" | grep "cache-misses" | awk '{gsub(/,/, ""); print $1}' | head -1)
+                    
+                    # Calculate IPC and cycles per second
+                    if [[ "$CPU_CYCLES" != "" && "$INSTRUCTIONS" != "" && "$CPU_CYCLES" != "0" ]]; then
+                        IPC=$(echo "scale=4; $INSTRUCTIONS / $CPU_CYCLES" | bc -l 2>/dev/null || echo "0")
+                        CYCLES_PER_SEC=$(echo "scale=0; $CPU_CYCLES / 1" | bc -l 2>/dev/null || echo "0")
+                    else
+                        IPC="0"
+                        CYCLES_PER_SEC="0"
+                    fi
+                    
+                    CPU_CYCLES=${CYCLES_PER_SEC:-"0"}
+                    INSTRUCTIONS=${INSTRUCTIONS:-"0"}
+                    CACHE_MISSES=${CACHE_MISSES:-"0"}
+                else
+                    CPU_CYCLES="N/A"
+                    INSTRUCTIONS="N/A"
+                    IPC="N/A"
+                    CACHE_MISSES="N/A"
+                fi
+
+                # Get process name
+                PROCESS_NAME=$(jps | grep "$PID" | awk '{print $2}')
+
+                # Log the data
+                echo "$TIMESTAMP, $PID, $PROCESS_NAME, $CPU_USAGE, $MEM_PERCENT, $RSS, $HEAP_USED, $GC_TIME, $CPU_CYCLES, $INSTRUCTIONS, $IPC, $CACHE_MISSES"
+            done
+            sleep 2  # Sample every 2 seconds (simple and efficient)
         done
-        
-        if [[ -z "$FLINK_PIDS" ]]; then
-            echo "WARNING: No Flink processes found after 30 seconds, monitoring may not work properly"
-        fi
-        
-        cd $CONTINUOUS_MONITOR_DIR
-        nohup "${CONTINUOUS_SCRIPT_PATH}" ${EXP_NAME} 200 > continuous_monitor.log 2>&1 &
-        CONTINUOUS_MONITOR_PID=$!
-        echo $CONTINUOUS_MONITOR_PID > "${CONTINUOUS_MONITOR_DIR}/${EXP_NAME}_continuous.pid"
-        cd - > /dev/null
-        echo "INFO: Continuous monitoring started with PID: $CONTINUOUS_MONITOR_PID"
-    else
-        echo "WARNING: continuous_perf_monitor.sh not found at ${CONTINUOUS_SCRIPT_PATH}, falling back to standard monitoring"
-        ls -la "${CONTINUOUS_SCRIPT_DIR}/" | grep continuous || echo "No continuous scripts found in directory"
-        start_standard_monitoring
-    fi
+    } >> $MONITOR_LOG_FILE &
+    MONITOR_PID=$!
+    echo "INFO: Simple monitoring started with PID: $MONITOR_PID"
 }
 
 # Function to start standard monitoring (80% coverage fallback)
@@ -243,7 +268,7 @@ run_one_exp() {
 
   # Start application and continuous monitoring
   runApp
-  start_continuous_monitoring
+  start_simple_monitoring
 
   SCRIPTS_RUNTIME=$((runtime + 10))
   python -c 'import time; time.sleep('"${SCRIPTS_RUNTIME}"')'
