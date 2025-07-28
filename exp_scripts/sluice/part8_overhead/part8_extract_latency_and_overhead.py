@@ -1,3 +1,40 @@
+"""
+Enhanced Flink Part8 Overhead Analysis Script
+
+This script analyzes CPU overhead using TaskManagerRunner-focused monitoring data.
+It supports both the new enhanced monitoring format and legacy format for backward compatibility.
+
+NEW FEATURES (TaskManagerRunner-focused):
+- Reads taskmanager_cycles_*.txt files for PRIMARY CPU overhead analysis
+- Parses enhanced monitor logs with [PRIMARY] and [secondary] process labels
+- Calculates CPU cycle-based overhead (most accurate for research)
+- Provides IPC (Instructions Per Cycle) analysis
+- Comprehensive CSV output with detailed metrics
+
+QUICK USAGE:
+    # For a single workload analysis:
+    from part8_extract_latency_and_overhead import calculate_overhead
+    
+    baseline_dir = "/path/to/experiment-without-sluice/"
+    sluice_dir = "/path/to/experiment-with-sluice/"
+    output_dir = "/path/to/results/"
+    
+    calculate_overhead(baseline_dir, sluice_dir, output_dir)
+
+FILES ANALYZED:
+- taskmanager_cycles_*.txt (PRIMARY CPU cycle data - middle 20 minutes only)
+- monitor_*.out (Enhanced monitoring logs)
+- total_cycles_*.txt (Secondary reference data)
+
+KEY FEATURE:
+- Analyzes only the MIDDLE 20 MINUTES of each experiment for stable comparison
+- Avoids startup/warmup and shutdown effects
+- Ensures better alignment between baseline and Sluice experiments
+
+OUTPUT:
+- enhanced_overhead_analysis.csv (Comprehensive results)
+"""
+
 import math
 import sys
 import numpy as np
@@ -876,6 +913,48 @@ def read_log(file_path):
     """Read the log file and return a DataFrame."""
     return pd.read_csv(file_path, skipinitialspace=True)
 
+def read_enhanced_log(file_path):
+    """
+    Read the enhanced monitoring log with TaskManagerRunner [PRIMARY] and [secondary] labels.
+    
+    Args:
+        file_path (str): Path to the monitor log file.
+        
+    Returns:
+        tuple: (taskmanager_df, secondary_df, combined_df) DataFrames for different process types.
+    """
+    if not file_path or not os.path.exists(file_path):
+        print(f"Enhanced log file not found: {file_path}")
+        return None, None, None
+        
+    print(f"Reading enhanced monitoring log from: {file_path}")
+    
+    try:
+        # Read the full log
+        df = pd.read_csv(file_path, skipinitialspace=True)
+        
+        # Filter TaskManagerRunner (PRIMARY) data
+        taskmanager_df = df[df['Process Name'].str.contains('TaskManagerRunner.*PRIMARY', na=False, regex=True)].copy()
+        
+        # Filter secondary process data
+        secondary_df = df[df['Process Name'].str.contains('secondary', na=False, regex=True)].copy()
+        
+        # Clean up process names for easier analysis
+        if not taskmanager_df.empty:
+            taskmanager_df['Process Name'] = 'TaskManagerRunner'
+        
+        if not secondary_df.empty:
+            secondary_df['Process Name'] = secondary_df['Process Name'].str.replace(r'\s*\[secondary\]', '', regex=True)
+        
+        print(f"TaskManagerRunner records: {len(taskmanager_df)}")
+        print(f"Secondary process records: {len(secondary_df)}")
+        
+        return taskmanager_df, secondary_df, df
+        
+    except Exception as e:
+        print(f"Error reading enhanced log file: {e}")
+        return None, None, None
+
 
 def convert_time_to_seconds(time_str):
     """
@@ -901,19 +980,96 @@ def calculate_metrics(df):
     Returns:
         pd.DataFrame: Aggregated metrics.
     """
-    df['TOTAL_CPU_TIME (s)'] = df['TOTAL_CPU_TIME'].apply(convert_time_to_seconds)
+    if 'TOTAL_CPU_TIME' in df.columns:
+        df['TOTAL_CPU_TIME (s)'] = df['TOTAL_CPU_TIME'].apply(convert_time_to_seconds)
+        
+        metrics = df.groupby("Process Name").agg({
+            "CPU%": "mean",
+            "TOTAL_CPU_TIME (s)": "max",  # Use the maximum accumulated value
+            "RSS (KB)": "mean",
+            "GC Time (ms)": "max"  # Sum GC time since it's a cumulative metric
+        }).rename(columns={
+            "CPU%": "Avg CPU%",
+            "RSS (KB)": "Avg RSS (KB)",
+            "GC Time (ms)": "Total GC Time (ms)",
+            "TOTAL_CPU_TIME (s)": "Total CPU Time (s)"
+        })
+    else:
+        # Handle new monitoring format with CPU cycles
+        agg_dict = {
+            "Heap Used (MB)": "mean",
+            "GC Time (ms)": "max",  # Maximum accumulated GC time
+            "Interval Cycles": "sum",  # Sum all interval cycles
+            "Instructions": "sum",  # Sum all instructions
+            "Cache Misses": "sum"  # Sum all cache misses
+        }
+        
+        # Check if Total Cycles column exists (it shows per-process accumulated cycles)
+        if 'Total Cycles (per process)' in df.columns:
+            agg_dict["Total Cycles (per process)"] = "max"
+        
+        metrics = df.groupby("Process Name").agg(agg_dict)
+        
+        # Calculate IPC (Instructions Per Cycle) for each process
+        if "Instructions" in metrics.columns and "Interval Cycles" in metrics.columns:
+            metrics["IPC"] = metrics["Instructions"] / metrics["Interval Cycles"].replace(0, 1)  # Avoid division by zero
+        
+        metrics = metrics.rename(columns={
+            "Heap Used (MB)": "Avg Heap Used (MB)",
+            "GC Time (ms)": "Total GC Time (ms)",
+            "Interval Cycles": "Total Interval Cycles",
+            "Instructions": "Total Instructions",
+            "Cache Misses": "Total Cache Misses",
+            "Total Cycles (per process)": "Max Accumulated Cycles"
+        })
+    
+    return metrics
 
-    metrics = df.groupby("Process Name").agg({
-        "CPU%": "mean",
-        "TOTAL_CPU_TIME (s)": "max",  # Use the maximum accumulated value
-        "RSS (KB)": "mean",
-        "GC Time (ms)": "max"  # Sum GC time since it's a cumulative metric
-    }).rename(columns={
-        "CPU%": "Avg CPU%",
-        "RSS (KB)": "Avg RSS (KB)",
-        "GC Time (ms)": "Total GC Time (ms)",
-        "TOTAL_CPU_TIME (s)": "Total CPU Time (s)"
-    })
+def calculate_enhanced_metrics(taskmanager_df, secondary_df, tm_cycles_data):
+    """
+    Calculate comprehensive metrics using both monitoring logs and TaskManagerRunner cycles data.
+    
+    Args:
+        taskmanager_df (pd.DataFrame): TaskManagerRunner monitoring data.
+        secondary_df (pd.DataFrame): Secondary processes monitoring data.
+        tm_cycles_data (dict): TaskManagerRunner cycles accumulator data.
+        
+    Returns:
+        dict: Comprehensive metrics including CPU cycles, GC time, and traditional metrics.
+    """
+    metrics = {}
+    
+    # TaskManagerRunner metrics from cycles file (most accurate)
+    if tm_cycles_data:
+        metrics['TaskManagerRunner'] = {
+            'Total CPU Cycles': tm_cycles_data['total_cycles'],
+            'Total Instructions': tm_cycles_data['total_instructions'],
+            'Total GC Time (ms)': tm_cycles_data['total_gc_time_ms'],
+            'IPC (Instructions Per Cycle)': tm_cycles_data['ipc'],
+            'CPU Cycles (Billions)': tm_cycles_data['total_cycles'] / 1e9,  # For easier reading
+            'Source': 'TaskManager Cycles File (PRIMARY)'
+        }
+    
+    # Add monitoring log metrics for TaskManagerRunner
+    if taskmanager_df is not None and not taskmanager_df.empty:
+        tm_monitor_metrics = calculate_metrics(taskmanager_df)
+        if 'TaskManagerRunner' in tm_monitor_metrics.index:
+            tm_data = tm_monitor_metrics.loc['TaskManagerRunner']
+            if 'TaskManagerRunner' not in metrics:
+                metrics['TaskManagerRunner'] = {}
+            
+            # Add monitoring data (may have additional info like heap usage)
+            for col in tm_data.index:
+                if col not in metrics['TaskManagerRunner']:
+                    metrics['TaskManagerRunner'][col] = tm_data[col]
+    
+    # Secondary processes metrics
+    if secondary_df is not None and not secondary_df.empty:
+        secondary_metrics = calculate_metrics(secondary_df)
+        for process_name in secondary_metrics.index:
+            metrics[f'{process_name} (Secondary)'] = secondary_metrics.loc[process_name].to_dict()
+            metrics[f'{process_name} (Secondary)']['Source'] = 'Monitor Log (SECONDARY)'
+    
     return metrics
 
 def calculate_overall_metrics(metrics):
@@ -963,60 +1119,431 @@ def find_monitor_file(directory):
         print(f"Error: Permission denied to access '{directory}'.")
         return None
 
-def calculate_overhead(dir_without_sluice, dir_with_sluice, outputDir):
+def find_taskmanager_cycles_file(directory):
+    """
+    Find TaskManagerRunner cycles file (PRIMARY CPU overhead data).
 
-    # Input log files
-    log_file1 = find_monitor_file(dir_without_sluice)  # Baseline (without Sluice)
-    log_file2 = find_monitor_file(dir_with_sluice)    # With Sluice
+    Args:
+        directory (str): The path to the directory to search in.
 
-    # Read logs
-    df1 = read_log(log_file1)
-    df2 = read_log(log_file2)
+    Returns:
+        str: The full path of the taskmanager_cycles_*.txt file, or None if no match is found.
+    """
+    try:
+        for filename in os.listdir(directory):
+            if filename.startswith("taskmanager_cycles_") and filename.endswith(".txt"):
+                return os.path.join(directory, filename)
+        return None  # No matching file found
+    except FileNotFoundError:
+        print(f"Error: Directory '{directory}' does not exist.")
+        return None
+    except PermissionError:
+        print(f"Error: Permission denied to access '{directory}'.")
+        return None
 
-    # Calculate metrics
-    metrics1 = calculate_metrics(df1)
-    metrics2 = calculate_metrics(df2)
+def read_taskmanager_cycles(file_path, middle_minutes=20):
+    """
+    Read TaskManagerRunner CPU cycles file and extract metrics from the middle portion of the experiment.
 
-    # Calculate overall metrics
-    overall_metrics1 = calculate_overall_metrics(metrics1)
-    overall_metrics2 = calculate_overall_metrics(metrics2)
+    Args:
+        file_path (str): Path to the taskmanager_cycles_*.txt file.
+        middle_minutes (int): Number of minutes from the middle of the experiment to analyze (default: 20).
 
-    # Compare metrics
-    overhead = compare_metrics(metrics1, metrics2)
-    # Calculate overall overhead
-    overall_overhead = overall_metrics2 - overall_metrics1
-    overall_overhead["CPU Overhead%"] = (overall_metrics2["Avg CPU%"] / overall_metrics1["Avg CPU%"] - 1.0) * 100
-    overall_overhead["RSS Overhead%"] = (overall_metrics2["Avg RSS (KB)"] / overall_metrics1["Avg RSS (KB)"] - 1.0) * 100
-    overall_overhead["GC Time Overhead%"] = (overall_metrics2["Total GC Time (ms)"] / overall_metrics1[
-        "Total GC Time (ms)"] - 1.0) * 100
-    overall_overhead["CPU Time Overhead%"] = (overall_metrics2["Total CPU Time (s)"] / overall_metrics1[
-        "Total CPU Time (s)"] - 1.0) * 100
+    Returns:
+        dict: TaskManagerRunner metrics including total cycles, instructions, and GC time for the middle period.
+    """
+    if not file_path or not os.path.exists(file_path):
+        print(f"TaskManagerRunner cycles file not found: {file_path}")
+        return None
+    
+    print(f"Reading TaskManagerRunner cycles from: {file_path}")
+    print(f"Filtering to middle {middle_minutes} minutes for stable comparison")
+    
+    try:
+        import datetime
+        
+        with open(file_path, 'r') as f:
+            lines = f.readlines()
+        
+        # Skip header lines and get all valid data lines
+        data_lines = [line.strip() for line in lines if not line.startswith('#') and line.strip()]
+        
+        if len(data_lines) < 2:
+            print("Insufficient data in TaskManagerRunner cycles file")
+            return None
+        
+        # Parse all data points
+        # Format: timestamp,tm_total_cycles,tm_interval_cycles,tm_instructions,tm_gc_time
+        data_points = []
+        for line in data_lines:
+            parts = line.split(',')
+            if len(parts) >= 5:
+                try:
+                    # Parse timestamp (format: "YYYY-MM-DD HH:MM:SS")
+                    timestamp_str = parts[0].strip()
+                    timestamp = datetime.datetime.strptime(timestamp_str, '%Y-%m-%d %H:%M:%S')
+                    
+                    data_point = {
+                        'timestamp': timestamp,
+                        'interval_cycles': int(float(parts[2])) if parts[2] != '0' else 0,
+                        'interval_instructions': int(float(parts[3])) if parts[3] != '0' else 0,
+                        'interval_gc_time': float(parts[4]) if parts[4] != '0' else 0.0
+                    }
+                    data_points.append(data_point)
+                except (ValueError, IndexError) as e:
+                    print(f"Skipping invalid line: {line} (Error: {e})")
+                    continue
+        
+        if len(data_points) < 2:
+            print("No valid data points found")
+            return None
+        
+        # Calculate experiment duration and middle period
+        start_time = data_points[0]['timestamp']
+        end_time = data_points[-1]['timestamp']
+        total_duration = end_time - start_time
+        total_minutes = total_duration.total_seconds() / 60
+        
+        print(f"Experiment duration: {total_minutes:.1f} minutes ({start_time} to {end_time})")
+        
+        if total_minutes < middle_minutes:
+            print(f"WARNING: Experiment duration ({total_minutes:.1f} min) is shorter than requested middle period ({middle_minutes} min)")
+            print("Using entire experiment duration")
+            middle_start = start_time
+            middle_end = end_time
+        else:
+            # Calculate middle period bounds
+            skip_minutes = (total_minutes - middle_minutes) / 2
+            middle_start = start_time + datetime.timedelta(minutes=skip_minutes)
+            middle_end = end_time - datetime.timedelta(minutes=skip_minutes)
+        
+        print(f"Analyzing middle period: {middle_start} to {middle_end} ({middle_minutes} minutes)")
+        
+        # Filter data points to middle period and sum interval values
+        middle_cycles = 0
+        middle_instructions = 0
+        middle_gc_time = 0.0
+        middle_points_count = 0
+        
+        for point in data_points:
+            if middle_start <= point['timestamp'] <= middle_end:
+                middle_cycles += point['interval_cycles']
+                middle_instructions += point['interval_instructions']
+                middle_gc_time += point['interval_gc_time']
+                middle_points_count += 1
+        
+        if middle_points_count == 0:
+            print("No data points found in the middle period")
+            return None
+        
+        # Calculate metrics for the middle period
+        metrics = {
+            'timestamp_start': middle_start.strftime('%Y-%m-%d %H:%M:%S'),
+            'timestamp_end': middle_end.strftime('%Y-%m-%d %H:%M:%S'),
+            'analysis_period_minutes': middle_minutes,
+            'data_points_used': middle_points_count,
+            'total_cycles': middle_cycles,
+            'total_instructions': middle_instructions,
+            'total_gc_time_ms': middle_gc_time,
+            'experiment_duration_minutes': total_minutes
+        }
+        
+        # Calculate Instructions Per Cycle (IPC) - efficiency metric
+        if metrics['total_cycles'] > 0:
+            metrics['ipc'] = metrics['total_instructions'] / metrics['total_cycles']
+        else:
+            metrics['ipc'] = 0.0
+        
+        print(f"Middle {middle_minutes}min metrics: {middle_cycles:,} cycles, {middle_instructions:,} instructions, IPC: {metrics['ipc']:.4f}")
+        print(f"Used {middle_points_count} data points from middle period")
+        
+        return metrics
+        
+    except Exception as e:
+        print(f"Error reading TaskManagerRunner cycles file: {e}")
+        return None
 
-    # Display results
-    print("Overhead Analysis (Sluice vs Baseline):")
-    print(overhead)
+def calculate_overhead(dir_without_sluice, dir_with_sluice, outputDir, middle_minutes=20):
+    """
+    Enhanced overhead calculation supporting both legacy and new TaskManagerRunner-focused monitoring.
+    
+    Args:
+        dir_without_sluice (str): Directory with baseline experiment data (without Sluice).
+        dir_with_sluice (str): Directory with Sluice experiment data.
+        outputDir (str): Output directory for results.
+        middle_minutes (int): Number of minutes from the middle of each experiment to analyze (default: 20).
+    """
+    print(f"\n=== ENHANCED OVERHEAD ANALYSIS ===")
+    print(f"Baseline (without Sluice): {dir_without_sluice}")
+    print(f"With Sluice: {dir_with_sluice}")
+    print(f"Output directory: {outputDir}")
 
-    def save_to_csv(metrics1, metrics2, overhead, overall_metrics1, overall_metrics2, overall_overhead, output_file):
-        """Save metrics1, metrics2, overhead, and overall metrics to a single CSV file."""
+    # Find all relevant files
+    log_file1 = find_monitor_file(dir_without_sluice)  # Baseline monitor log
+    log_file2 = find_monitor_file(dir_with_sluice)     # Sluice monitor log
+    
+    tm_cycles_file1 = find_taskmanager_cycles_file(dir_without_sluice)  # Baseline TaskManager cycles
+    tm_cycles_file2 = find_taskmanager_cycles_file(dir_with_sluice)     # Sluice TaskManager cycles
+
+    # Read TaskManagerRunner cycles data (PRIMARY for CPU overhead analysis)
+    tm_cycles_baseline = read_taskmanager_cycles(tm_cycles_file1, middle_minutes)
+    tm_cycles_sluice = read_taskmanager_cycles(tm_cycles_file2, middle_minutes)
+
+    # Try to read enhanced monitoring logs first, fallback to legacy format
+    enhanced_baseline = read_enhanced_log(log_file1)
+    enhanced_sluice = read_enhanced_log(log_file2)
+    
+    # Initialize variables for different data sources
+    baseline_metrics = {}
+    sluice_metrics = {}
+    
+    # === ENHANCED ANALYSIS (New Format) ===
+    if enhanced_baseline[0] is not None and enhanced_sluice[0] is not None:
+        print("\n--- Using Enhanced Monitoring Format ---")
+        
+        # Calculate comprehensive metrics using new format
+        baseline_metrics = calculate_enhanced_metrics(
+            enhanced_baseline[0], enhanced_baseline[1], tm_cycles_baseline
+        )
+        sluice_metrics = calculate_enhanced_metrics(
+            enhanced_sluice[0], enhanced_sluice[1], tm_cycles_sluice
+        )
+        
+        # Calculate TaskManagerRunner CPU cycle overhead (MOST IMPORTANT)
+        cpu_cycle_overhead = {}
+        if tm_cycles_baseline and tm_cycles_sluice:
+            baseline_cycles = tm_cycles_baseline['total_cycles']
+            sluice_cycles = tm_cycles_sluice['total_cycles']
+            
+            if baseline_cycles > 0:
+                cycle_overhead_pct = ((sluice_cycles - baseline_cycles) / baseline_cycles) * 100
+                cycle_overhead_abs = sluice_cycles - baseline_cycles
+                
+                cpu_cycle_overhead = {
+                    'Baseline CPU Cycles': baseline_cycles,
+                    'Sluice CPU Cycles': sluice_cycles,
+                    'Absolute Overhead (cycles)': cycle_overhead_abs,
+                    'Relative Overhead (%)': cycle_overhead_pct,
+                    'Baseline CPU Cycles (Billions)': baseline_cycles / 1e9,
+                    'Sluice CPU Cycles (Billions)': sluice_cycles / 1e9
+                }
+                
+                print(f"\n🎯 **PRIMARY CPU OVERHEAD ANALYSIS (TaskManagerRunner - Middle 20 Minutes)**")
+                print(f"   Baseline CPU Cycles: {baseline_cycles:,} ({baseline_cycles/1e9:.2f}B)")
+                print(f"   Sluice CPU Cycles:   {sluice_cycles:,} ({sluice_cycles/1e9:.2f}B)")
+                print(f"   **CPU Overhead: {cycle_overhead_pct:.2f}%** ({cycle_overhead_abs:,} cycles)")
+                
+                # Show analysis period details
+                if 'analysis_period_minutes' in tm_cycles_baseline:
+                    baseline_period = tm_cycles_baseline['analysis_period_minutes']
+                    sluice_period = tm_cycles_sluice['analysis_period_minutes']
+                    print(f"   Analysis Period: {baseline_period} min (baseline), {sluice_period} min (sluice)")
+                    print(f"   Data Points: {tm_cycles_baseline.get('data_points_used', 'N/A')} (baseline), {tm_cycles_sluice.get('data_points_used', 'N/A')} (sluice)")
+                
+                # Additional insights
+                if tm_cycles_baseline['total_instructions'] > 0 and tm_cycles_sluice['total_instructions'] > 0:
+                    ipc_baseline = tm_cycles_baseline['ipc']
+                    ipc_sluice = tm_cycles_sluice['ipc']
+                    ipc_change = ((ipc_sluice - ipc_baseline) / ipc_baseline) * 100 if ipc_baseline > 0 else 0
+                    print(f"   Baseline IPC: {ipc_baseline:.4f}")
+                    print(f"   Sluice IPC:   {ipc_sluice:.4f}")
+                    print(f"   IPC Change:   {ipc_change:.2f}%")
+                    
+                    cpu_cycle_overhead.update({
+                        'Baseline IPC': ipc_baseline,
+                        'Sluice IPC': ipc_sluice,
+                        'IPC Change (%)': ipc_change
+                    })
+    
+    # === LEGACY ANALYSIS (Backward Compatibility) ===
+    else:
+        print("\n--- Using Legacy Monitoring Format ---")
+        
+        # Read logs using legacy format
+        try:
+            df1 = read_log(log_file1)
+            df2 = read_log(log_file2)
+            
+            # Calculate metrics using legacy method
+            legacy_metrics1 = calculate_metrics(df1)
+            legacy_metrics2 = calculate_metrics(df2)
+            
+            # Convert to dictionary format for consistency
+            baseline_metrics = {'Legacy Format': legacy_metrics1.to_dict()}
+            sluice_metrics = {'Legacy Format': legacy_metrics2.to_dict()}
+            
+            # Calculate overall overhead using legacy method
+            overall_metrics1 = calculate_overall_metrics(legacy_metrics1)
+            overall_metrics2 = calculate_overall_metrics(legacy_metrics2)
+            overhead = compare_metrics(legacy_metrics1, legacy_metrics2)
+            
+            print(f"Legacy overhead analysis completed.")
+            
+        except Exception as e:
+            print(f"Error in legacy analysis: {e}")
+            baseline_metrics = {}
+            sluice_metrics = {}
+
+    # === SAVE COMPREHENSIVE RESULTS ===
+    def save_enhanced_results(baseline_metrics, sluice_metrics, cpu_cycle_overhead, output_file):
+        """Save comprehensive analysis results to CSV."""
+        
         with open(output_file, 'w') as f:
-            f.write("Baseline Metrics (Without Sluice)\n")
-            metrics1.to_csv(f)
-            f.write("\nSluice Metrics (With Sluice)\n")
-            metrics2.to_csv(f)
-            f.write("\nOverhead Analysis (Sluice vs Baseline)\n")
-            overhead.to_csv(f)
-            f.write("\nOverall Metrics (Baseline)\n")
-            overall_metrics1.to_frame().T.to_csv(f, index=False)
-            f.write("\nOverall Metrics (Sluice)\n")
-            overall_metrics2.to_frame().T.to_csv(f, index=False)
-            f.write("\nOverall Overhead Analysis\n")
-            overall_overhead.to_frame().T.to_csv(f, index=False)
-        print(f"Results saved to {output_file}")
+            f.write("=== ENHANCED FLINK OVERHEAD ANALYSIS ===\n")
+            f.write(f"Analysis Type: TaskManagerRunner-Focused CPU Cycle Monitoring (Middle 20 Minutes)\n")
+            f.write(f"Generated: {pd.Timestamp.now()}\n")
+            f.write(f"Note: CPU cycles analyzed from middle 20 minutes of each experiment for stable comparison\n\n")
+            
+            # PRIMARY ANALYSIS: CPU Cycle Overhead
+            if cpu_cycle_overhead:
+                f.write("🎯 PRIMARY ANALYSIS: TaskManagerRunner CPU Cycle Overhead (Middle 20 Minutes)\n")
+                f.write("Metric,Value,Unit\n")
+                for key, value in cpu_cycle_overhead.items():
+                    if isinstance(value, float):
+                        f.write(f"{key},{value:.6f},\n")
+                    else:
+                        f.write(f"{key},{value:,},\n")
+                f.write("\n")
+            
+            # BASELINE METRICS
+            f.write("BASELINE METRICS (Without Sluice)\n")
+            for process_name, metrics in baseline_metrics.items():
+                f.write(f"\n--- {process_name} ---\n")
+                f.write("Metric,Value,Unit\n")
+                for metric_name, metric_value in metrics.items():
+                    if isinstance(metric_value, (int, float)):
+                        f.write(f"{metric_name},{metric_value:.6f},\n")
+                    else:
+                        f.write(f"{metric_name},{metric_value},\n")
+            f.write("\n")
+            
+            # SLUICE METRICS
+            f.write("SLUICE METRICS (With Sluice)\n")
+            for process_name, metrics in sluice_metrics.items():
+                f.write(f"\n--- {process_name} ---\n")
+                f.write("Metric,Value,Unit\n")
+                for metric_name, metric_value in metrics.items():
+                    if isinstance(metric_value, (int, float)):
+                        f.write(f"{metric_name},{metric_value:.6f},\n")
+                    else:
+                        f.write(f"{metric_name},{metric_value},\n")
+            f.write("\n")
+            
+            # OVERHEAD COMPARISON
+            f.write("OVERHEAD COMPARISON SUMMARY\n")
+            f.write("Process,Metric,Baseline,Sluice,Absolute Overhead,Relative Overhead (%)\n")
+            
+            # Compare matching processes
+            for process_name in baseline_metrics.keys():
+                if process_name in sluice_metrics:
+                    baseline_proc = baseline_metrics[process_name]
+                    sluice_proc = sluice_metrics[process_name]
+                    
+                    # Compare matching metrics
+                    for metric_name in baseline_proc.keys():
+                        if metric_name in sluice_proc and isinstance(baseline_proc[metric_name], (int, float)) and isinstance(sluice_proc[metric_name], (int, float)):
+                            baseline_val = baseline_proc[metric_name]
+                            sluice_val = sluice_proc[metric_name]
+                            
+                            if baseline_val != 0:
+                                abs_overhead = sluice_val - baseline_val
+                                rel_overhead = (abs_overhead / baseline_val) * 100
+                                f.write(f"{process_name},{metric_name},{baseline_val:.6f},{sluice_val:.6f},{abs_overhead:.6f},{rel_overhead:.2f}\n")
+        
+        print(f"Enhanced results saved to {output_file}")
 
+    # Create output directory
     if not os.path.exists(outputDir):
         os.makedirs(outputDir)
-    # Save all results to a single CSV
-    save_to_csv(metrics1, metrics2, overhead, overall_metrics1, overall_metrics2, overall_overhead, outputDir + "overhead_analysis.csv")
+    
+    # Save comprehensive analysis
+    save_enhanced_results(
+        baseline_metrics, 
+        sluice_metrics, 
+        cpu_cycle_overhead if 'cpu_cycle_overhead' in locals() else {}, 
+        outputDir + "enhanced_overhead_analysis.csv"
+    )
+
+    # Print summary
+    print(f"\n=== ANALYSIS SUMMARY ===")
+    if 'cpu_cycle_overhead' in locals() and cpu_cycle_overhead:
+        print(f"✅ TaskManagerRunner CPU Overhead: {cpu_cycle_overhead.get('Relative Overhead (%)', 'N/A')}%")
+    print(f"📁 Results saved to: {outputDir}enhanced_overhead_analysis.csv")
+    print(f"🔍 Files analyzed:")
+    print(f"   Baseline monitor: {log_file1}")
+    print(f"   Sluice monitor: {log_file2}")
+    print(f"   Baseline TM cycles: {tm_cycles_file1}")
+    print(f"   Sluice TM cycles: {tm_cycles_file2}")
+    print("=" * 50)
+
+def test_enhanced_overhead_analysis():
+    """
+    Test function to demonstrate enhanced overhead analysis usage.
+    Update these paths to match your actual experiment directories.
+    """
+    # Example paths - UPDATE THESE TO YOUR ACTUAL EXPERIMENT DIRECTORIES
+    baseline_dir = "/path/to/part8-lr-NoControll-experiment-directory/"
+    sluice_dir = "/path/to/part8-lr-StreamSluice-experiment-directory/"
+    output_dir = "/path/to/output/linear-road/"
+    
+    print("=== ENHANCED OVERHEAD ANALYSIS TEST ===")
+    print("Update the paths in test_enhanced_overhead_analysis() function to run this test.")
+    print("\nExample usage:")
+    print("baseline_dir = '/data/streamsluice/raw/part8-lr-NoControll-5-8-60-1380-150-1300-10-1-50-3-1000-1-50-27-3333-3000-0.1-100-1-25-0.0-false-1000-0.8-2/'")
+    print("sluice_dir = '/data/streamsluice/raw/part8-lr-StreamSluice-5-8-60-1380-150-1300-10-1-50-3-1000-1-50-27-3333-3000-0.1-100-1-25-0.0-false-1000-0.8-2/'")
+    print("output_dir = '/data/streamsluice/results/part8_overhead/linear-road/'")
+    print("\n# Default: middle 20 minutes")
+    print("calculate_overhead(baseline_dir, sluice_dir, output_dir)")
+    print("\n# Custom: middle 15 minutes")
+    print("calculate_overhead(baseline_dir, sluice_dir, output_dir, middle_minutes=15)")
+    
+    # Uncomment and update these lines when you have real experiment directories:
+    # calculate_overhead(baseline_dir, sluice_dir, output_dir)
+    # calculate_overhead(baseline_dir, sluice_dir, output_dir, middle_minutes=15)  # Custom period
+
+def analyze_workload_overhead(workload_name, baseline_exp_name, sluice_exp_name, 
+                             raw_data_dir="/data/streamsluice/raw/", 
+                             output_base_dir="/data/streamsluice/results/part8_overhead/",
+                             middle_minutes=20):
+    """
+    Convenience function for analyzing overhead for a specific workload.
+    
+    Args:
+        workload_name (str): Name of the workload (e.g., "linear-road", "stock", "twitter", "ml-scoring").
+        baseline_exp_name (str): Full experiment name for baseline (without Sluice).
+        sluice_exp_name (str): Full experiment name with Sluice.
+        raw_data_dir (str): Base directory containing raw experiment data.
+        output_base_dir (str): Base directory for output results.
+        middle_minutes (int): Number of minutes from the middle of each experiment to analyze (default: 20).
+    """
+    baseline_dir = os.path.join(raw_data_dir, baseline_exp_name)
+    sluice_dir = os.path.join(raw_data_dir, sluice_exp_name)
+    output_dir = os.path.join(output_base_dir, workload_name, "")
+    
+    print(f"\n🔧 Analyzing {workload_name} workload overhead (middle {middle_minutes} minutes)...")
+    print(f"   Baseline: {baseline_exp_name}")
+    print(f"   Sluice:   {sluice_exp_name}")
+    
+    # Verify directories exist
+    if not os.path.exists(baseline_dir):
+        print(f" ERROR: Baseline directory not found: {baseline_dir}")
+        return False
+    
+    if not os.path.exists(sluice_dir):
+        print(f" ERROR: Sluice directory not found: {sluice_dir}")
+        return False
+    
+    try:
+        calculate_overhead(baseline_dir, sluice_dir, output_dir, middle_minutes)
+        print(f" {workload_name} overhead analysis completed successfully!")
+        return True
+    except Exception as e:
+        print(f" ERROR during {workload_name} analysis: {e}")
+        return False
 
 if __name__ == "__main__":
+    # Run the main analysis (original functionality)
     main()
+    
+    # Uncomment this line to test the enhanced overhead analysis
+    # test_enhanced_overhead_analysis()
