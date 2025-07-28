@@ -1,10 +1,7 @@
 #!/bin/bash
 
-# Enhanced monitoring with improved accuracy for CPU cycle measurements
-# - 80% sampling coverage (0.8s perf sampling every 1s) vs previous 20% coverage
-# - Per-second cycle rates for better comparison across experiments  
-# - Cache miss rate for memory efficiency analysis
-# - Configurable timing parameters for fine-tuning accuracy vs overhead
+# CPU cycle monitoring using perf for overhead analysis
+# Generates monitor_*.out files with perf output for CPU cycle measurement
 
 source config-server-twitter-local.sh
 
@@ -12,11 +9,6 @@ source config-server-twitter-local.sh
 PROCESS_NAMES=("StandaloneSessionClusterEntrypoint" "TaskManagerRunner")
 MONITOR_LOG_DIR="${FLINK_DIR}/log"
 MONITOR_LOG_FILE="${MONITOR_LOG_DIR}/monitor_$(date +%Y%m%d_%H%M%S).out"
-
-# Monitoring configuration for higher accuracy
-MONITOR_INTERVAL=1        # Main monitoring loop interval (seconds)
-PERF_SAMPLE_TIME=0.8      # Perf sampling duration (seconds) 
-PERF_SLEEP_TIME=0.2       # Sleep between perf samples
 
 # Create monitor log directory
 mkdir -p $MONITOR_LOG_DIR
@@ -30,23 +22,13 @@ get_flink_pids() {
     echo "${pids[@]}"
 }
 
-# Simple monitoring function for CPU cycles only
-start_simple_monitoring() {
+# CPU cycle monitoring function using perf
+start_cpu_monitoring() {
     echo "INFO: Starting CPU cycle monitoring..."
     
     # Timeline alignment parameters
-    WARMUP_DELAY=20        # Start monitoring after 20s warmup
-    MONITOR_DURATION=1200  # Monitor for 20 minutes (1200s)
-    
-    # Initialize accumulator files for TaskManagerRunner (primary) and total (secondary)
-    TASKMANAGER_CYCLES_FILE="${MONITOR_LOG_DIR}/taskmanager_cycles_${EXP_NAME}.txt"
-    TOTAL_CYCLES_FILE="${MONITOR_LOG_DIR}/total_cycles_${EXP_NAME}.txt"
-    
-    echo "# TaskManagerRunner CPU cycles accumulator (PRIMARY for overhead calculation)" > $TASKMANAGER_CYCLES_FILE
-    echo "# Format: timestamp,tm_total_cycles,tm_interval_cycles" >> $TASKMANAGER_CYCLES_FILE
-    
-    echo "# Total CPU cycles accumulator (ALL processes - secondary reference)" > $TOTAL_CYCLES_FILE
-    echo "# Format: timestamp,all_total_cycles,all_interval_cycles" >> $TOTAL_CYCLES_FILE
+    WARMUP_DELAY=40        # Start monitoring after 40s warmup
+    MONITOR_DURATION=240   # Monitor for 4 minutes (240s)
     
     # Start CPU cycle monitoring
     {
@@ -82,9 +64,6 @@ start_simple_monitoring() {
         done
         
         # Process results
-        TOTAL_CYCLES_SUM=0
-        TM_CYCLES_SUM=0
-        
         for i in "${!PIDS[@]}"; do
             PID=${PIDS[$i]}
             PERF_OUTPUT=${PERF_OUTPUTS[$i]}
@@ -96,14 +75,6 @@ start_simple_monitoring() {
             INTERVAL_CYCLES=$(echo "$PERF_OUTPUT" | awk '/cycles/ {gsub(/,/, ""); print $1}' | head -1)
             INTERVAL_CYCLES=${INTERVAL_CYCLES:-"0"}
             
-            # Accumulate cycles
-            if [[ "$INTERVAL_CYCLES" != "" && "$INTERVAL_CYCLES" != "0" ]]; then
-                TOTAL_CYCLES_SUM=$(echo "$TOTAL_CYCLES_SUM + $INTERVAL_CYCLES" | bc -l 2>/dev/null || echo "$INTERVAL_CYCLES")
-                if [[ "$PROCESS_NAME" == "TaskManagerRunner" ]]; then
-                    TM_CYCLES_SUM=$INTERVAL_CYCLES
-                fi
-            fi
-            
             # Log data
             if [[ "$PROCESS_NAME" == "TaskManagerRunner" ]]; then
                 echo "$MONITOR_START_TIME, $PID, $PROCESS_NAME [PRIMARY], $INTERVAL_CYCLES, $MONITOR_DURATION"
@@ -112,112 +83,18 @@ start_simple_monitoring() {
             fi
         done
         
-        # Write final results to files
-        TIMESTAMP=$(date '+%Y-%m-%d %H:%M:%S')
-        echo "$TIMESTAMP,$TM_CYCLES_SUM,$TM_CYCLES_SUM" >> $TASKMANAGER_CYCLES_FILE
-        echo "$TIMESTAMP,$TOTAL_CYCLES_SUM,$TOTAL_CYCLES_SUM" >> $TOTAL_CYCLES_FILE
-        
         # Record end time
         MONITOR_END_TIME=$(date '+%Y-%m-%d %H:%M:%S')
         echo "INFO: Monitoring ended at: $MONITOR_END_TIME"
         echo "INFO: Total monitoring time: ${MONITOR_DURATION}s"
-        echo "INFO: TaskManager cycles: $TM_CYCLES_SUM"
-        echo "INFO: Total cycles: $TOTAL_CYCLES_SUM"
         
     } >> $MONITOR_LOG_FILE &
     MONITOR_PID=$!
     
     echo "INFO: CPU cycle monitoring started with PID: $MONITOR_PID"
-    echo "INFO: TaskManagerRunner cycles (PRIMARY): $TASKMANAGER_CYCLES_FILE"
-    echo "INFO: Total cycles accumulator (secondary): $TOTAL_CYCLES_FILE"
+    echo "INFO: Monitor log: $MONITOR_LOG_FILE"
     echo "INFO: Single perf run for ${MONITOR_DURATION}s (parallel for all processes)"
     echo "INFO: Timeline: ${WARMUP_DELAY}s warmup + ${MONITOR_DURATION}s monitoring"
-}
-
-# Function to start standard monitoring (80% coverage fallback)
-start_standard_monitoring() {
-    echo "INFO: Starting standard monitoring..."
-    {
-        # Start monitoring
-        echo "Timestamp, PID, Process Name, CPU%, TOTAL_CPU_TIME, %MEM, RSS (KB), VSZ (KB), Heap Used (MB), GC Time (ms), CPU Cycles/sec, Instructions, IPC, Cache Misses, Cache Miss Rate"
-        while true; do
-            TIMESTAMP=$(date '+%Y-%m-%d %H:%M:%S')
-            PIDS=$(get_flink_pids)
-
-            for PID in $PIDS; do
-                # Get CPU usage using pidstat
-                TOP_OUTPUT=$(top -b -n 1 -p $PID | tail -1)
-                CPU_USAGE=$(echo $TOP_OUTPUT | awk '{print $9}')
-                TOTAL_CPU_TIME=$(echo $TOP_OUTPUT | awk '{print $11}')
-
-                # Get memory usage using ps
-                MEM_STATS=$(ps -p $PID -o %mem,rss,vsz --no-headers)
-                MEM_PERCENT=$(echo $MEM_STATS | awk '{print $1}')
-                RSS=$(echo $MEM_STATS | awk '{print $2}')
-                VSZ=$(echo $MEM_STATS | awk '{print $3}')
-
-                # Get JVM memory usage using jstat
-                if command -v jstat &> /dev/null; then
-                    JVM_STATS=$(jstat -gc $PID 1 1 | tail -1 | awk '{print ($3+$4), $9+$10}')
-                    HEAP_USED=$(echo $JVM_STATS | awk '{print $1}') # Heap Used in KB
-                    GC_TIME=$(echo $JVM_STATS | awk '{print $2}')   # GC Time in ms
-                else
-                    HEAP_USED="N/A"
-                    GC_TIME="N/A"
-                fi
-
-                # Get CPU cycles and performance counters using perf (higher accuracy)
-                if command -v perf &> /dev/null; then
-                    # Run perf with configurable sampling time for better accuracy
-                    PERF_OUTPUT=$(timeout ${PERF_SAMPLE_TIME}s perf stat -p $PID -e cycles,instructions,cache-misses,cache-references 2>&1 | grep -E "cycles|instructions|cache-misses|cache-references")
-                    
-                    CPU_CYCLES=$(echo "$PERF_OUTPUT" | grep -w "cycles" | awk '{gsub(/,/, ""); print $1}' | head -1)
-                    INSTRUCTIONS=$(echo "$PERF_OUTPUT" | grep -w "instructions" | awk '{gsub(/,/, ""); print $1}' | head -1)
-                    CACHE_MISSES=$(echo "$PERF_OUTPUT" | grep "cache-misses" | awk '{gsub(/,/, ""); print $1}' | head -1)
-                    CACHE_REFS=$(echo "$PERF_OUTPUT" | grep "cache-references" | awk '{gsub(/,/, ""); print $1}' | head -1)
-                    
-                    # Calculate per-second rates for better comparison
-                    if [[ "$CPU_CYCLES" != "" && "$CPU_CYCLES" != "0" ]]; then
-                        CYCLES_PER_SEC=$(echo "scale=0; $CPU_CYCLES / $PERF_SAMPLE_TIME" | bc -l 2>/dev/null || echo "0")
-                    else
-                        CYCLES_PER_SEC="0"
-                    fi
-                    
-                    # Calculate Instructions Per Cycle (IPC) - important metric for efficiency
-                    if [[ "$CPU_CYCLES" != "" && "$INSTRUCTIONS" != "" && "$CPU_CYCLES" != "0" ]]; then
-                        IPC=$(echo "scale=4; $INSTRUCTIONS / $CPU_CYCLES" | bc -l 2>/dev/null || echo "0")
-                    else
-                        IPC="0"
-                    fi
-                    
-                    # Calculate cache miss rate
-                    if [[ "$CACHE_REFS" != "" && "$CACHE_MISSES" != "" && "$CACHE_REFS" != "0" ]]; then
-                        CACHE_MISS_RATE=$(echo "scale=4; $CACHE_MISSES / $CACHE_REFS" | bc -l 2>/dev/null || echo "0")
-                    else
-                        CACHE_MISS_RATE="0"
-                    fi
-                    
-                    # Set defaults if perf fails
-                    CPU_CYCLES=${CYCLES_PER_SEC:-"0"}
-                    INSTRUCTIONS=${INSTRUCTIONS:-"0"}
-                    CACHE_MISSES=${CACHE_MISSES:-"0"}
-                else
-                    CPU_CYCLES="N/A"
-                    INSTRUCTIONS="N/A"
-                    IPC="N/A"
-                    CACHE_MISSES="N/A"
-                fi
-
-                # Get process name
-                PROCESS_NAME=$(jps | grep "$PID" | awk '{print $2}')
-
-                # Log the data
-                echo "$TIMESTAMP, $PID, $PROCESS_NAME, $CPU_USAGE, $TOTAL_CPU_TIME, $MEM_PERCENT, $RSS, $VSZ, $HEAP_USED, $GC_TIME, $CPU_CYCLES, $INSTRUCTIONS, $IPC, $CACHE_MISSES, $CACHE_MISS_RATE"
-            done
-            sleep $MONITOR_INTERVAL  # Configurable monitoring frequency for higher accuracy
-        done
-    } >> $MONITOR_LOG_FILE &
-    MONITOR_PID=$!
 }
 
 # Function to stop monitoring
@@ -230,12 +107,8 @@ stop_monitoring() {
         wait $MONITOR_PID 2>/dev/null
     fi
     
-    echo "INFO: Monitoring stopped. Data saved to:"
-    echo "- Main log: $MONITOR_LOG_FILE"
-    echo "- TaskManager cycles: $TASKMANAGER_CYCLES_FILE"
-    echo "- Total cycles: $TOTAL_CYCLES_FILE"
+    echo "INFO: Monitoring stopped. Data saved to: $MONITOR_LOG_FILE"
 }
-
 
 # dump data
 function analyze() {
@@ -248,54 +121,34 @@ function analyze() {
     fi
     mv ${FLINK_DIR}/log/* ${EXP_DIR}/streamsluice/
     
-    # Collect continuous monitoring data if available
-    if [[ -d "${CONTINUOUS_MONITOR_DIR}" ]]; then
-        echo "INFO: Collecting continuous monitoring data (optimized)..."
-        mkdir -p ${EXP_DIR}/streamsluice/continuous_monitoring/
-        
-        # Fast move operation instead of copy (much faster for large files)
-        if [[ -d "${CONTINUOUS_MONITOR_DIR}/perf_logs" ]]; then
-            echo "INFO: Moving perf data files..."
-            mv "${CONTINUOUS_MONITOR_DIR}/perf_logs" "${EXP_DIR}/streamsluice/continuous_monitoring/" 2>/dev/null || true
-        fi
-        
-        # Move other monitoring files quickly
-        mv ${CONTINUOUS_MONITOR_DIR}/*.log ${EXP_DIR}/streamsluice/continuous_monitoring/ 2>/dev/null || true
-        mv ${CONTINUOUS_MONITOR_DIR}/*.csv ${EXP_DIR}/streamsluice/continuous_monitoring/ 2>/dev/null || true
-        mv ${CONTINUOUS_MONITOR_DIR}/*.txt ${EXP_DIR}/streamsluice/continuous_monitoring/ 2>/dev/null || true
-        
-        # Clean up temporary monitoring directory
-        rm -rf ${CONTINUOUS_MONITOR_DIR} 2>/dev/null || true
-        
-        echo "INFO: Continuous monitoring data collected."
-    fi
+    echo "INFO: Monitoring data saved to $MONITOR_LOG_FILE"
     
     mv ${EXP_DIR}/streamsluice/ ${EXP_DIR}/raw/${EXP_NAME}
     mkdir ${EXP_DIR}/streamsluice/
 }
 
 run_one_exp() {
-  EXP_NAME=part8-tweet-${controller_type}-${autotuner_initial_value_option}-${autotune_interval}-${runtime}-${warmup_time}-${warmup_rate}-${skip_interval}-${P2}-${DELAY2}-${P3}-${DELAY3}-${P4}-${DELAY4}-${P5}-${DELAY5}-${PAYLOAD}-${L}-${epoch}-${is_treat}-${autotuner_increase_bar_alpha}-${repeat}
+    EXP_NAME=part8-twitter-${controller_type}-${metrics_report_interval}-${runtime}-${warmup_time}-${warmup_rate}-${skip_interval}-${P2}-${DELAY2}-${P3}-${DELAY3}-${P4}-${DELAY4}-${P5}-${DELAY5}-${L}-${autotuner_increase_bar_alpha}-${epoch}-${input_rate_factor}-${PAYLOAD}-${SKEWNESS}-${is_treat}-${migration_interval}-${conservative_factor}-${repeat}
 
-  echo "INFO: run exp ${EXP_NAME}"
-  configFlink
-  runFlink
+    echo "INFO: run exp ${EXP_NAME}"
+    configFlink
+    runFlink
 
-  python -c 'import time; time.sleep(5)'
+    python -c 'import time; time.sleep(5)'
 
-  # Start application and continuous monitoring
-  runApp
-  start_simple_monitoring
+    # Start application and monitoring
+    runApp
+    start_cpu_monitoring
 
-  SCRIPTS_RUNTIME=$((runtime + 10))
-  python -c 'import time; time.sleep('"${SCRIPTS_RUNTIME}"')'
+    SCRIPTS_RUNTIME=$((runtime + 10))
+    python -c 'import time; time.sleep('"${SCRIPTS_RUNTIME}"')'
 
-  # Stop monitoring and analyze logs
-  stop_monitoring
-  analyze
-  stopFlink
+    # Stop monitoring and analyze logs
+    stop_monitoring
+    analyze
+    stopFlink
 
-  python -c 'import time; time.sleep(5)'
+    python -c 'import time; time.sleep(5)'
 }
 
 # initialization of the parameters
@@ -306,20 +159,19 @@ init() {
   how_type="streamsluice"
   scalein_type="streamsluice"
   is_scalein=true
-  L=2000 #4000
-  runtime=1350 #1950 #750
-  skip_interval=1 # skip seconds
+  L=2000
+  runtime=360
+  skip_interval=10
   warmup=10000
-  warmup_time=90
-  warmup_rate=1700 #3400 #1500
+  warmup_time=150
+  warmup_rate=1300
   repeat=1
   spike_estimation="linear_regression"
   spike_slope=0.75
-  spike_intercept=1000 #2500
+  spike_intercept=1000
   errorcase_number=3
-  #calibrate_selectivity=false
   calibrate_selectivity=true
-  vertex_id="a84740bacf923e828852cc4966f2247c,eabd4c11f6c6fbdf011f0f1fc42097b1,d01047f852abd5702a0dabeedac99ff5,d2336f79a0d60b5a4b16c8769ec82e47" #feccfb8648621345be01b71938abfb72,36fcfcb61a35d065e60ee34fccb0541a" #,c395b989724fa728d0a2640c6ccdb8a1"
+  vertex_id="a84740bacf923e828852cc4966f2247c,eabd4c11f6c6fbdf011f0f1fc42097b1,d01047f852abd5702a0dabeedac99ff5,d2336f79a0d60b5a4b16c8769ec82e47"
   is_treat=true
   migration_interval=500
   epoch=100
@@ -327,34 +179,33 @@ init() {
   JAR="${FLINK_APP_DIR}/target/testbed-1.0-SNAPSHOT.jar"
   job="flinkapp.tweetalert.TweetAlertTrigger"
   # set in Flink app
-  stock_path="/home/samza/Tweet_data/"
-  stock_file_name="2hr-smooth.txt" #"3hr-50ms.txt"
+  stock_path="/home/samza/tweet_data/"
+  stock_file_name="tweet-4hr-50ms.txt"
   MP1=1
   MP2=128
   MP3=128
   MP4=128
   MP5=128
-  MP6=128
-  MP7=128
 
-  LP2=27
-  LP3=10
+  LP2=1
+  LP3=5
   LP4=1
-  LP5=1
+  LP5=32
 
   P1=1
-  P2=7 #19
-  P3=3 #9
+  P2=1
+  P3=1
   P4=1
-  P5=1
+  P5=9
 
-  DELAY2=1111 #3333
-  DELAY3=166 #500
+  DELAY2=50
+  DELAY3=333
   DELAY4=50
-  DELAY5=50
-  #DELAY6=100
-
-  PAYLOAD=1250
+  DELAY5=1111
+  input_rate_factor=1
+  PAYLOAD=25
+  SKEWNESS=0.0
+  metrics_report_interval=100000000
 }
 
 # run applications
@@ -365,25 +216,39 @@ function runApp() {
     -p3 ${P3} -mp3 ${MP3} -op3Delay ${DELAY3} \
     -p4 ${P4} -mp4 ${MP4} -op4Delay ${DELAY4} \
     -p5 ${P5} -mp5 ${MP5} -op5Delay ${DELAY5} \
-    -file_name ${stock_path}${stock_file_name} -warmup_rate ${warmup_rate} -warmup_time ${warmup_time} -skip_interval ${skip_interval} \
-    -payload ${PAYLOAD} &"
+    -p6 ${P6} -mp6 ${MP6} -op6Delay ${DELAY6} \
+    -p7 ${P7} -mp7 ${MP7} -op7Delay ${DELAY7} \
+    -p8 ${P8} -mp8 ${MP8} -op8Delay ${DELAY8} \
+    -p9 ${P9} -mp9 ${MP9} -op9Delay ${DELAY9} \
+    -input_rate_factor ${input_rate_factor} \
+    -payload ${PAYLOAD} -skew_factor ${SKEWNESS} \
+    -file_name ${stock_path}${stock_file_name} -warmup_rate ${warmup_rate} -warmup_time ${warmup_time} -skip_interval ${skip_interval} &"
     ${FLINK_DIR}/bin/flink run -c ${job} ${JAR} \
         -p1 ${P1} -mp1 ${MP1} \
         -p2 ${P2} -mp2 ${MP2} -op2Delay ${DELAY2} \
         -p3 ${P3} -mp3 ${MP3} -op3Delay ${DELAY3} \
         -p4 ${P4} -mp4 ${MP4} -op4Delay ${DELAY4} \
         -p5 ${P5} -mp5 ${MP5} -op5Delay ${DELAY5} \
-        -file_name ${stock_path}${stock_file_name} -warmup_rate ${warmup_rate} -warmup_time ${warmup_time} -skip_interval ${skip_interval} \
-        -payload ${PAYLOAD} &
+        -p6 ${P6} -mp6 ${MP6} -op6Delay ${DELAY6} \
+        -p7 ${P7} -mp7 ${MP7} -op7Delay ${DELAY7} \
+        -p8 ${P8} -mp8 ${MP8} -op8Delay ${DELAY8} \
+        -p9 ${P9} -mp9 ${MP9} -op9Delay ${DELAY9} \
+        -input_rate_factor ${input_rate_factor} \
+        -payload ${PAYLOAD} -skew_factor ${SKEWNESS} \
+        -file_name ${stock_path}${stock_file_name} -warmup_rate ${warmup_rate} -warmup_time ${warmup_time} -skip_interval ${skip_interval} &
 }
 
 run_stock_test(){
+    echo "Run Twitter experiments..."
+    init
+    printf "Part_8\n" > part8_result.txt
     how_more_optimization_flag=false
     how_optimization_flag=false
     how_intrinsic_bound_flag=true
-    how_conservative_flag=false # true
+    how_conservative_flag=false
     coordination_latency_flag=true
-    conservative_service_rate_flag=true # false
+    conservative_service_rate_flag=true
+    conservative_factor=0.8
     smooth_backlog_flag=false
     new_metrics_retriever_flag=true
 
@@ -391,47 +256,52 @@ run_stock_test(){
     autotune_interval=60
     autotuner="UserLimitTuner"
     autotuner_latency_window=100
-    autotuner_bar_lowerbound=350 #350
-    # Old setting, no limitation on maximum bound value, binary incrase.
-#    autotuner_initial_value_option=4
-#    autotuner_increase_bar_option=7
-    # New setting, limitation on maximum bound value, constant decrease (0.05 * limit)
-    autotuner_initial_value_option=5
-    autotuner_increase_bar_option=8
-
+    autotuner_bar_lowerbound=350
     autotuner_adjustment_option=1
+    autotuner_increase_bar_option=1
     autotuner_initial_value_alpha=1.2
     autotuner_adjustment_beta=2.0
-
-    echo "Run twitter alert experiments..."
-    init
-    printf "Part_8\n" > part8_result.txt
-
     epoch=100
-    decision_interval=1 #10
+    decision_interval=1
     snapshot_size=20
-    L=2000
-    migration_interval=1000 #500
+    L=1000
+    migration_interval=1000
     spike_slope=0.7
-    autotuner_increase_bar_alpha=0.1 #0.25
+    autotuner_initial_value_option=5
+    autotuner_increase_bar_option=8
+    autotuner_increase_bar_alpha=0.1
+    scaling_decision_option=1
+    repeat=1
 
     is_treat=false
     autotune=true
     metrics_report=true
+    repeat=2
+    L=3000
     controller_type="StreamSluice"
     whether_type="streamsluice"
     how_type="streamsluice"
     scalein_type="streamsluice"
-    run_one_exp
-    printf "${EXP_NAME}\n" >> part8_result.txt
+    for metrics_report_interval in 5000000 25000000 100000000; do
+      for repeat in 1; do
+        run_one_exp
+        printf "${EXP_NAME}\n" >> part8_result.txt
+      done
+    done
 
     controller_type="NoControll"
+    metrics_report_interval=100000000
+    is_treat=false
     autotune=false
     metrics_report=false
+    repeat=2
+    L=3000
     whether_type="streamsluice"
     how_type="streamsluice"
     scalein_type="streamsluice"
-    run_one_exp
-    printf "${EXP_NAME}\n" >> part8_result.txt
+    for repeat in 1; do
+      run_one_exp
+      printf "${EXP_NAME}\n" >> part8_result.txt
+    done
 }
 run_stock_test
