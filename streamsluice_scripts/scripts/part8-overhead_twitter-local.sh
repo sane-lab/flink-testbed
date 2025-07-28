@@ -72,7 +72,7 @@ start_cpu_monitoring() {
     echo "INFO: Starting CPU cycle monitoring..."
     
     # Timeline alignment parameters
-    WARMUP_DELAY=120        # Start monitoring after 120s warmup
+    WARMUP_DELAY=60        # Start monitoring after 120s warmup
     MONITOR_DURATION=240   # Monitor for 4 minutes (240s)
     
             # Start CPU cycle monitoring
