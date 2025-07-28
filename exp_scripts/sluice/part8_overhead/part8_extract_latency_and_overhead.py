@@ -1263,9 +1263,70 @@ def read_taskmanager_cycles(file_path, middle_minutes=20):
         print(f"Error reading TaskManagerRunner cycles file: {e}")
         return None
 
+def read_cpu_cycles_from_monitor(directory):
+    """
+    Read CPU cycles directly from monitor_*.txt files.
+    
+    Args:
+        directory (str): Directory containing the monitor file
+        
+    Returns:
+        dict: Dictionary with TaskManagerRunner and total CPU cycles
+    """
+    monitor_file = find_monitor_file(directory)
+    if not monitor_file:
+        print(f"WARNING: No monitor file found in {directory}")
+        return None
+    
+    print(f"Reading CPU cycles from: {monitor_file}")
+    
+    taskmanager_cycles = 0
+    total_cycles = 0
+    duration_seconds = 0
+    
+    try:
+        with open(monitor_file, 'r') as f:
+            lines = f.readlines()
+            
+        # Skip header line
+        for line in lines[1:]:  # Skip "Timestamp, PID, Process Name, Total Cycles, Duration (s)"
+            if line.strip() and not line.startswith('INFO:'):
+                parts = line.strip().split(', ')
+                if len(parts) >= 5:
+                    try:
+                        process_name = parts[2]
+                        cycles = int(parts[3])
+                        duration = int(parts[4])
+                        
+                        if 'TaskManagerRunner' in process_name:
+                            taskmanager_cycles = cycles
+                            duration_seconds = duration
+                        else:
+                            total_cycles += cycles
+                            
+                    except (ValueError, IndexError) as e:
+                        print(f"Warning: Could not parse line: {line.strip()} - {e}")
+                        continue
+        
+        if taskmanager_cycles > 0:
+            return {
+                'taskmanager_cycles': taskmanager_cycles,
+                'total_cycles': total_cycles + taskmanager_cycles,
+                'duration_seconds': duration_seconds,
+                'duration_minutes': duration_seconds / 60.0
+            }
+        else:
+            print(f"WARNING: No valid TaskManagerRunner cycles found in {monitor_file}")
+            return None
+            
+    except Exception as e:
+        print(f"ERROR reading monitor file {monitor_file}: {e}")
+        return None
+
+
 def calculate_overhead(dir_without_sluice, dir_with_sluice, outputDir, middle_minutes=20):
     """
-    Enhanced overhead calculation supporting both legacy and new TaskManagerRunner-focused monitoring.
+    Enhanced overhead calculation using monitor files directly.
     
     Args:
         dir_without_sluice (str): Directory with baseline experiment data (without Sluice).
@@ -1278,203 +1339,40 @@ def calculate_overhead(dir_without_sluice, dir_with_sluice, outputDir, middle_mi
     print(f"With Sluice: {dir_with_sluice}")
     print(f"Output directory: {outputDir}")
 
-    # Find all relevant files
-    log_file1 = find_monitor_file(dir_without_sluice)  # Baseline monitor log
-    log_file2 = find_monitor_file(dir_with_sluice)     # Sluice monitor log
+    # Read CPU cycles directly from monitor files
+    baseline_cycles = read_cpu_cycles_from_monitor(dir_without_sluice)
+    sluice_cycles = read_cpu_cycles_from_monitor(dir_with_sluice)
     
-    tm_cycles_file1 = find_taskmanager_cycles_file(dir_without_sluice)  # Baseline TaskManager cycles
-    tm_cycles_file2 = find_taskmanager_cycles_file(dir_with_sluice)     # Sluice TaskManager cycles
-
-    # Read TaskManagerRunner cycles data (PRIMARY for CPU overhead analysis)
-    tm_cycles_baseline = read_taskmanager_cycles(tm_cycles_file1, middle_minutes)
-    tm_cycles_sluice = read_taskmanager_cycles(tm_cycles_file2, middle_minutes)
-
-    # Try to read enhanced monitoring logs first, fallback to legacy format
-    enhanced_baseline = read_enhanced_log(log_file1)
-    enhanced_sluice = read_enhanced_log(log_file2)
+    if not baseline_cycles or not sluice_cycles:
+        print("ERROR: Could not read CPU cycles from monitor files")
+        return
     
-    # Initialize variables for different data sources
-    baseline_metrics = {}
-    sluice_metrics = {}
+    # Calculate CPU overhead
+    baseline_tm_cycles = baseline_cycles['taskmanager_cycles']
+    sluice_tm_cycles = sluice_cycles['taskmanager_cycles']
     
-    # === ENHANCED ANALYSIS (New Format) ===
-    if enhanced_baseline[0] is not None and enhanced_sluice[0] is not None:
-        print("\n--- Using Enhanced Monitoring Format ---")
+    if baseline_tm_cycles > 0:
+        cycle_overhead_pct = ((sluice_tm_cycles - baseline_tm_cycles) / baseline_tm_cycles) * 100
+        cycle_overhead_abs = sluice_tm_cycles - baseline_tm_cycles
         
-        # Calculate comprehensive metrics using new format
-        baseline_metrics = calculate_enhanced_metrics(
-            enhanced_baseline[0], enhanced_baseline[1], tm_cycles_baseline
-        )
-        sluice_metrics = calculate_enhanced_metrics(
-            enhanced_sluice[0], enhanced_sluice[1], tm_cycles_sluice
-        )
+        print(f"\n🎯 **CPU OVERHEAD ANALYSIS (TaskManagerRunner)**")
+        print(f"   Baseline CPU Cycles: {baseline_tm_cycles:,} ({baseline_tm_cycles/1e9:.2f}B)")
+        print(f"   Sluice CPU Cycles:   {sluice_tm_cycles:,} ({sluice_tm_cycles/1e9:.2f}B)")
+        print(f"   **CPU Overhead: {cycle_overhead_pct:.2f}%** ({cycle_overhead_abs:,} cycles)")
+        print(f"   Duration: {baseline_cycles['duration_minutes']:.1f} minutes")
         
-        # Calculate TaskManagerRunner CPU cycle overhead (MOST IMPORTANT)
-        cpu_cycle_overhead = {}
-        if tm_cycles_baseline and tm_cycles_sluice:
-            baseline_cycles = tm_cycles_baseline['total_cycles']
-            sluice_cycles = tm_cycles_sluice['total_cycles']
-            
-            if baseline_cycles > 0:
-                cycle_overhead_pct = ((sluice_cycles - baseline_cycles) / baseline_cycles) * 100
-                cycle_overhead_abs = sluice_cycles - baseline_cycles
-                
-                cpu_cycle_overhead = {
-                    'Baseline CPU Cycles': baseline_cycles,
-                    'Sluice CPU Cycles': sluice_cycles,
-                    'Absolute Overhead (cycles)': cycle_overhead_abs,
-                    'Relative Overhead (%)': cycle_overhead_pct,
-                    'Baseline CPU Cycles (Billions)': baseline_cycles / 1e9,
-                    'Sluice CPU Cycles (Billions)': sluice_cycles / 1e9
-                }
-                
-                print(f"\n🎯 **PRIMARY CPU OVERHEAD ANALYSIS (TaskManagerRunner - Middle 20 Minutes)**")
-                print(f"   Baseline CPU Cycles: {baseline_cycles:,} ({baseline_cycles/1e9:.2f}B)")
-                print(f"   Sluice CPU Cycles:   {sluice_cycles:,} ({sluice_cycles/1e9:.2f}B)")
-                print(f"   **CPU Overhead: {cycle_overhead_pct:.2f}%** ({cycle_overhead_abs:,} cycles)")
-                
-                # Show analysis period details
-                if 'analysis_period_minutes' in tm_cycles_baseline:
-                    baseline_period = tm_cycles_baseline['analysis_period_minutes']
-                    sluice_period = tm_cycles_sluice['analysis_period_minutes']
-                    print(f"   Analysis Period: {baseline_period} min (baseline), {sluice_period} min (sluice)")
-                    print(f"   Data Points: {tm_cycles_baseline.get('data_points_used', 'N/A')} (baseline), {tm_cycles_sluice.get('data_points_used', 'N/A')} (sluice)")
-                
-                # Additional insights
-                if tm_cycles_baseline['total_instructions'] > 0 and tm_cycles_sluice['total_instructions'] > 0:
-                    ipc_baseline = tm_cycles_baseline['ipc']
-                    ipc_sluice = tm_cycles_sluice['ipc']
-                    ipc_change = ((ipc_sluice - ipc_baseline) / ipc_baseline) * 100 if ipc_baseline > 0 else 0
-                    print(f"   Baseline IPC: {ipc_baseline:.4f}")
-                    print(f"   Sluice IPC:   {ipc_sluice:.4f}")
-                    print(f"   IPC Change:   {ipc_change:.2f}%")
-                    
-                    cpu_cycle_overhead.update({
-                        'Baseline IPC': ipc_baseline,
-                        'Sluice IPC': ipc_sluice,
-                        'IPC Change (%)': ipc_change
-                    })
-    
-    # === LEGACY ANALYSIS (Backward Compatibility) ===
-    else:
-        print("\n--- Using Legacy Monitoring Format ---")
-        
-        # Read logs using legacy format
-        try:
-            df1 = read_log(log_file1)
-            df2 = read_log(log_file2)
-            
-            # Calculate metrics using legacy method
-            legacy_metrics1 = calculate_metrics(df1)
-            legacy_metrics2 = calculate_metrics(df2)
-            
-            # Convert to dictionary format for consistency
-            baseline_metrics = {'Legacy Format': legacy_metrics1.to_dict()}
-            sluice_metrics = {'Legacy Format': legacy_metrics2.to_dict()}
-            
-            # Calculate overall overhead using legacy method
-            overall_metrics1 = calculate_overall_metrics(legacy_metrics1)
-            overall_metrics2 = calculate_overall_metrics(legacy_metrics2)
-            overhead = compare_metrics(legacy_metrics1, legacy_metrics2)
-            
-            print(f"Legacy overhead analysis completed.")
-            
-        except Exception as e:
-            print(f"Error in legacy analysis: {e}")
-            baseline_metrics = {}
-            sluice_metrics = {}
-
-    # === SAVE COMPREHENSIVE RESULTS ===
-    def save_enhanced_results(baseline_metrics, sluice_metrics, cpu_cycle_overhead, output_file):
-        """Save comprehensive analysis results to CSV."""
-        
+        # Save results
+        output_file = os.path.join(outputDir, "cpu_overhead_analysis.csv")
         with open(output_file, 'w') as f:
-            f.write("=== ENHANCED FLINK OVERHEAD ANALYSIS ===\n")
-            f.write(f"Analysis Type: TaskManagerRunner-Focused CPU Cycle Monitoring (Middle 20 Minutes)\n")
-            f.write(f"Generated: {pd.Timestamp.now()}\n")
-            f.write(f"Note: CPU cycles analyzed from middle 20 minutes of each experiment for stable comparison\n\n")
-            
-            # PRIMARY ANALYSIS: CPU Cycle Overhead
-            if cpu_cycle_overhead:
-                f.write("🎯 PRIMARY ANALYSIS: TaskManagerRunner CPU Cycle Overhead (Middle 20 Minutes)\n")
-                f.write("Metric,Value,Unit\n")
-                for key, value in cpu_cycle_overhead.items():
-                    if isinstance(value, float):
-                        f.write(f"{key},{value:.6f},\n")
-                    else:
-                        f.write(f"{key},{value:,},\n")
-                f.write("\n")
-            
-            # BASELINE METRICS
-            f.write("BASELINE METRICS (Without Sluice)\n")
-            for process_name, metrics in baseline_metrics.items():
-                f.write(f"\n--- {process_name} ---\n")
-                f.write("Metric,Value,Unit\n")
-                for metric_name, metric_value in metrics.items():
-                    if isinstance(metric_value, (int, float)):
-                        f.write(f"{metric_name},{metric_value:.6f},\n")
-                    else:
-                        f.write(f"{metric_name},{metric_value},\n")
-            f.write("\n")
-            
-            # SLUICE METRICS
-            f.write("SLUICE METRICS (With Sluice)\n")
-            for process_name, metrics in sluice_metrics.items():
-                f.write(f"\n--- {process_name} ---\n")
-                f.write("Metric,Value,Unit\n")
-                for metric_name, metric_value in metrics.items():
-                    if isinstance(metric_value, (int, float)):
-                        f.write(f"{metric_name},{metric_value:.6f},\n")
-                    else:
-                        f.write(f"{metric_name},{metric_value},\n")
-            f.write("\n")
-            
-            # OVERHEAD COMPARISON
-            f.write("OVERHEAD COMPARISON SUMMARY\n")
-            f.write("Process,Metric,Baseline,Sluice,Absolute Overhead,Relative Overhead (%)\n")
-            
-            # Compare matching processes
-            for process_name in baseline_metrics.keys():
-                if process_name in sluice_metrics:
-                    baseline_proc = baseline_metrics[process_name]
-                    sluice_proc = sluice_metrics[process_name]
-                    
-                    # Compare matching metrics
-                    for metric_name in baseline_proc.keys():
-                        if metric_name in sluice_proc and isinstance(baseline_proc[metric_name], (int, float)) and isinstance(sluice_proc[metric_name], (int, float)):
-                            baseline_val = baseline_proc[metric_name]
-                            sluice_val = sluice_proc[metric_name]
-                            
-                            if baseline_val != 0:
-                                abs_overhead = sluice_val - baseline_val
-                                rel_overhead = (abs_overhead / baseline_val) * 100
-                                f.write(f"{process_name},{metric_name},{baseline_val:.6f},{sluice_val:.6f},{abs_overhead:.6f},{rel_overhead:.2f}\n")
+            f.write("Metric,Baseline,Sluice,Absolute Overhead,Relative Overhead (%)\n")
+            f.write(f"TaskManager CPU Cycles,{baseline_tm_cycles},{sluice_tm_cycles},{cycle_overhead_abs},{cycle_overhead_pct:.2f}\n")
+            f.write(f"TaskManager CPU Cycles (Billions),{baseline_tm_cycles/1e9:.2f},{sluice_tm_cycles/1e9:.2f},{cycle_overhead_abs/1e9:.2f},{cycle_overhead_pct:.2f}\n")
+            f.write(f"Duration (minutes),{baseline_cycles['duration_minutes']:.1f},{sluice_cycles['duration_minutes']:.1f},0,0\n")
         
-        print(f"Enhanced results saved to {output_file}")
-
-    # Create output directory
-    if not os.path.exists(outputDir):
-        os.makedirs(outputDir)
-    
-    # Save comprehensive analysis
-    save_enhanced_results(
-        baseline_metrics, 
-        sluice_metrics, 
-        cpu_cycle_overhead if 'cpu_cycle_overhead' in locals() else {}, 
-        outputDir + "enhanced_overhead_analysis.csv"
-    )
-
-    # Print summary
-    print(f"\n=== ANALYSIS SUMMARY ===")
-    if 'cpu_cycle_overhead' in locals() and cpu_cycle_overhead:
-        print(f"✅ TaskManagerRunner CPU Overhead: {cpu_cycle_overhead.get('Relative Overhead (%)', 'N/A')}%")
-    print(f"📁 Results saved to: {outputDir}enhanced_overhead_analysis.csv")
-    print(f"🔍 Files analyzed:")
-    print(f"   Baseline monitor: {log_file1}")
-    print(f"   Sluice monitor: {log_file2}")
-    print(f"   Baseline TM cycles: {tm_cycles_file1}")
-    print(f"   Sluice TM cycles: {tm_cycles_file2}")
-    print("=" * 50)
+        print(f"\nResults saved to: {output_file}")
+        
+    else:
+        print("ERROR: Invalid baseline CPU cycles")
 
 def test_enhanced_overhead_analysis():
     """
