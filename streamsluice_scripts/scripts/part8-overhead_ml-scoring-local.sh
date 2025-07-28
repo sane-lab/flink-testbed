@@ -34,27 +34,43 @@ get_flink_pids() {
 start_simple_monitoring() {
     echo "INFO: Starting simple monitoring for CPU cycles and GC time..."
     
-    # Initialize accumulator file for total cycles calculation
+    # Initialize accumulator files for TaskManagerRunner (primary) and total (secondary)
+    TASKMANAGER_CYCLES_FILE="${MONITOR_LOG_DIR}/taskmanager_cycles_${EXP_NAME}.txt"
     TOTAL_CYCLES_FILE="${MONITOR_LOG_DIR}/total_cycles_${EXP_NAME}.txt"
-    echo "# Total CPU cycles accumulator for overhead calculation" > $TOTAL_CYCLES_FILE
-    echo "# Format: timestamp,total_cycles_so_far,interval_cycles,total_instructions,gc_time_total" >> $TOTAL_CYCLES_FILE
+    
+    echo "# TaskManagerRunner CPU cycles accumulator (PRIMARY for overhead calculation)" > $TASKMANAGER_CYCLES_FILE
+    echo "# Format: timestamp,tm_total_cycles,tm_interval_cycles,tm_instructions,tm_gc_time" >> $TASKMANAGER_CYCLES_FILE
+    
+    echo "# Total CPU cycles accumulator (ALL processes - secondary reference)" > $TOTAL_CYCLES_FILE
+    echo "# Format: timestamp,all_total_cycles,all_interval_cycles,all_instructions,all_gc_time" >> $TOTAL_CYCLES_FILE
     
     {
         # Header for monitoring log (streamlined for CPU cycles and GC time only)
         echo "Timestamp, PID, Process Name, Heap Used (MB), GC Time (ms), Interval Cycles, Total Cycles, Instructions, IPC, Cache Misses"
         
-        # Initialize running totals
+        # Initialize running totals (separate TaskManagerRunner from total)
         TOTAL_CYCLES_ACCUMULATED=0
         TOTAL_INSTRUCTIONS_ACCUMULATED=0
         TOTAL_GC_TIME=0
+        
+        # TaskManagerRunner-specific accumulators (PRIMARY for overhead calculation)
+        TM_CYCLES_ACCUMULATED=0
+        TM_INSTRUCTIONS_ACCUMULATED=0
+        TM_GC_TIME=0
         
         while true; do
             TIMESTAMP=$(date '+%Y-%m-%d %H:%M:%S')
             PIDS=$(get_flink_pids)
             
+            # All processes interval sums
             INTERVAL_CYCLES_SUM=0
             INTERVAL_INSTRUCTIONS_SUM=0
             INTERVAL_GC_SUM=0
+            
+            # TaskManagerRunner-only interval sums
+            TM_INTERVAL_CYCLES_SUM=0
+            TM_INTERVAL_INSTRUCTIONS_SUM=0
+            TM_INTERVAL_GC_SUM=0
 
             for PID in $PIDS; do
                 # Get JVM GC time using jstat (faster, get this first)
