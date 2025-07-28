@@ -37,136 +37,139 @@ start_simple_monitoring() {
     # Initialize accumulator files for TaskManagerRunner (primary) and total (secondary)
     TASKMANAGER_CYCLES_FILE="${MONITOR_LOG_DIR}/taskmanager_cycles_${EXP_NAME}.txt"
     TOTAL_CYCLES_FILE="${MONITOR_LOG_DIR}/total_cycles_${EXP_NAME}.txt"
+    GC_DATA_FILE="${MONITOR_LOG_DIR}/gc_data_${EXP_NAME}.txt"
     
     echo "# TaskManagerRunner CPU cycles accumulator (PRIMARY for overhead calculation)" > $TASKMANAGER_CYCLES_FILE
-    echo "# Format: timestamp,tm_total_cycles,tm_interval_cycles,tm_instructions,tm_gc_time" >> $TASKMANAGER_CYCLES_FILE
+    echo "# Format: timestamp,tm_total_cycles,tm_interval_cycles,gc_time" >> $TASKMANAGER_CYCLES_FILE
     
     echo "# Total CPU cycles accumulator (ALL processes - secondary reference)" > $TOTAL_CYCLES_FILE
-    echo "# Format: timestamp,all_total_cycles,all_interval_cycles,all_instructions,all_gc_time" >> $TOTAL_CYCLES_FILE
+    echo "# Format: timestamp,all_total_cycles,all_interval_cycles,gc_time" >> $TOTAL_CYCLES_FILE
     
+    echo "# GC monitoring data" > $GC_DATA_FILE
+    echo "# Format: timestamp,pid,process_name,heap_used_mb,gc_time_ms" >> $GC_DATA_FILE
+    
+    # Start GC monitoring in a separate background process
     {
-        # Header for monitoring log (TaskManagerRunner = PRIMARY, others = secondary)
-        echo "Timestamp, PID, Process Name, Heap Used (MB), GC Time (ms), Interval Cycles, Total Cycles (per process), Instructions, IPC, Cache Misses"
+        while true; do
+            TIMESTAMP=$(date '+%Y-%m-%d %H:%M:%S')
+            PIDS=$(get_flink_pids)
+            
+            for PID in $PIDS; do
+                PROCESS_NAME=$(jps | grep "$PID" | awk '{print $2}')
+                if command -v jstat &> /dev/null; then
+                    JVM_STATS=$(jstat -gc $PID 2>/dev/null | tail -1 | awk '{print ($3+$4)/1024, ($9+$10)}' || echo "0 0")
+                    HEAP_USED=$(echo $JVM_STATS | awk '{print $1}')
+                    GC_TIME=$(echo $JVM_STATS | awk '{print $2}')
+                    echo "$TIMESTAMP,$PID,$PROCESS_NAME,$HEAP_USED,$GC_TIME" >> $GC_DATA_FILE
+                fi
+            done
+            sleep 10  # Sample GC every 10 seconds
+        done
+    } &
+    GC_MONITOR_PID=$!
+    
+    # Start CPU cycle monitoring in the main background process
+    {
+        # Header for monitoring log
+        echo "Timestamp, PID, Process Name, Interval Cycles, Total Cycles"
         
-        # Initialize running totals (separate TaskManagerRunner from total)
+        # Initialize running totals
         TOTAL_CYCLES_ACCUMULATED=0
-        TOTAL_GC_TIME=0
-        
-        # TaskManagerRunner-specific accumulators (PRIMARY for overhead calculation)
         TM_CYCLES_ACCUMULATED=0
-        TM_GC_TIME=0
-        
-        # Initialize sample counter for GC timing
-        SAMPLE_COUNT=0
         
         while true; do
             TIMESTAMP=$(date '+%Y-%m-%d %H:%M:%S')
             PIDS=$(get_flink_pids)
             
-            # All processes interval sums
-            INTERVAL_CYCLES_SUM=0
-            INTERVAL_INSTRUCTIONS_SUM=0
-            INTERVAL_GC_SUM=0
-            
-            # TaskManagerRunner-only interval sums
-            TM_INTERVAL_CYCLES_SUM=0
-            TM_INTERVAL_INSTRUCTIONS_SUM=0
-            TM_INTERVAL_GC_SUM=0
-
+            # Run perf in parallel for all PIDs with 5s sampling
+            PERF_OUTPUTS=()
+            PERF_PIDS=()
             for PID in $PIDS; do
-                # Get CPU cycles using perf stat (focus on cycle accuracy)
-                if command -v perf &> /dev/null; then
-                    # Use shorter sleep (1s) and minimal gap (0.05s) for better coverage
-                    # Coverage: 1s measurement / 1.05s total = 95% (up from 80%)
-                    PERF_OUTPUT=$(perf stat -p $PID -e cycles sleep 1 2>&1)
-
-                # Sample GC time less frequently (every 10 cycles = ~10 seconds)
-                if (( SAMPLE_COUNT % 10 == 0 )) && command -v jstat &> /dev/null; then
-                    JVM_STATS=$(jstat -gc $PID 2>/dev/null | tail -1 | awk '{print ($3+$4)/1024, ($9+$10)}' || echo "0 0")
-                    HEAP_USED=$(echo $JVM_STATS | awk '{print $1}') # Heap Used in MB
-                    GC_TIME=$(echo $JVM_STATS | awk '{print $2}')   # GC Time in ms
-                    INTERVAL_GC_SUM=$(echo "$INTERVAL_GC_SUM + $GC_TIME" | bc -l 2>/dev/null || echo "$GC_TIME")
-                else
-                    # Use previous values for non-sampling cycles
-                    HEAP_USED=${LAST_HEAP_USED:-"N/A"}
-                    GC_TIME=${LAST_GC_TIME:-"0"}
-                fi
-                # Save current values for next cycle
-                LAST_HEAP_USED=$HEAP_USED
-                LAST_GC_TIME=$GC_TIME
-                    PERF_EXIT_CODE=$?
-                    
-                    # DEBUG: Log raw perf output with timing info
-                    echo "[$TIMESTAMP] PID $PID perf output (exit $PERF_EXIT_CODE, 1s sample):" >> "${MONITOR_LOG_DIR}/perf_debug.log"
-                    echo "$PERF_OUTPUT" >> "${MONITOR_LOG_DIR}/perf_debug.log"
-                    echo "Coverage: ~95% (1s measurement, 0.05s gap)" >> "${MONITOR_LOG_DIR}/perf_debug.log"
-                    echo "---" >> "${MONITOR_LOG_DIR}/perf_debug.log"
-                    
-                    # Extract cycles only (simplified for better performance)
-                    INTERVAL_CYCLES=$(echo "$PERF_OUTPUT" | awk '/cycles/ {gsub(/,/, ""); print $1}' | head -1)
-                    
-                    # DEBUG: Log parsed values
-                    echo "[$TIMESTAMP] PID $PID parsed: cycles=$INTERVAL_CYCLES" >> "${MONITOR_LOG_DIR}/perf_debug.log"
-                    
-                    # Accumulate cycles for total overhead calculation
-                    if [[ "$INTERVAL_CYCLES" != "" && "$INTERVAL_CYCLES" != "0" ]]; then
-                        INTERVAL_CYCLES_SUM=$(echo "$INTERVAL_CYCLES_SUM + $INTERVAL_CYCLES" | bc -l 2>/dev/null || echo "$INTERVAL_CYCLES")
-                    fi
-                    
-                    INTERVAL_CYCLES=${INTERVAL_CYCLES:-"0"}
-                else
-                    INTERVAL_CYCLES="N/A"
-                fi
-
-                # Get process name (only system call needed)
+                # Start perf in background with 5s sampling
+                perf stat -p $PID -e cycles sleep 5 2>&1 &
+                PERF_PIDS+=($!)
+            done
+            
+            # Wait for all perf commands and collect outputs
+            for i in "${!PERF_PIDS[@]}"; do
+                wait ${PERF_PIDS[$i]}
+                PERF_OUTPUTS[$i]=$(cat /proc/${PERF_PIDS[$i]}/fd/1 2>/dev/null || echo "0")
+            done
+            
+            # Process results
+            INTERVAL_CYCLES_SUM=0
+            TM_INTERVAL_CYCLES_SUM=0
+            
+            # Read latest GC data
+            if [[ -f $GC_DATA_FILE ]]; then
+                LATEST_GC_DATA=$(tail -n 2 $GC_DATA_FILE)
+                declare -A GC_TIME_MAP
+                while IFS=',' read -r ts pid name heap gc; do
+                    GC_TIME_MAP[$pid]=$gc
+                done <<< "$LATEST_GC_DATA"
+            fi
+            
+            for i in "${!PIDS[@]}"; do
+                PID=${PIDS[$i]}
+                PERF_OUTPUT=${PERF_OUTPUTS[$i]}
+                
+                # Get process name
                 PROCESS_NAME=$(jps | grep "$PID" | awk '{print $2}')
-
-                # Accumulate cycles for total overhead calculation (ALL processes)
+                
+                # Extract cycles
+                INTERVAL_CYCLES=$(echo "$PERF_OUTPUT" | awk '/cycles/ {gsub(/,/, ""); print $1}' | head -1)
+                INTERVAL_CYCLES=${INTERVAL_CYCLES:-"0"}
+                
+                # Get GC time from map
+                GC_TIME=${GC_TIME_MAP[$PID]:-"0"}
+                
+                # Accumulate cycles
                 if [[ "$INTERVAL_CYCLES" != "" && "$INTERVAL_CYCLES" != "0" ]]; then
                     INTERVAL_CYCLES_SUM=$(echo "$INTERVAL_CYCLES_SUM + $INTERVAL_CYCLES" | bc -l 2>/dev/null || echo "$INTERVAL_CYCLES")
-                    INTERVAL_INSTRUCTIONS_SUM=$(echo "$INTERVAL_INSTRUCTIONS_SUM + $INSTRUCTIONS" | bc -l 2>/dev/null || echo "$INSTRUCTIONS")
+                    if [[ "$PROCESS_NAME" == "TaskManagerRunner" ]]; then
+                        TM_INTERVAL_CYCLES_SUM=$INTERVAL_CYCLES
+                    fi
                 fi
-                INTERVAL_GC_SUM=$(echo "$INTERVAL_GC_SUM + $GC_TIME" | bc -l 2>/dev/null || echo "$GC_TIME")
                 
-                # Accumulate SEPARATELY for TaskManagerRunner (PRIMARY for overhead calculation)
-                if [[ "$PROCESS_NAME" == "TaskManagerRunner" && "$INTERVAL_CYCLES" != "" && "$INTERVAL_CYCLES" != "0" ]]; then
-                    TM_INTERVAL_CYCLES_SUM=$(echo "$TM_INTERVAL_CYCLES_SUM + $INTERVAL_CYCLES" | bc -l 2>/dev/null || echo "$INTERVAL_CYCLES")
-                    TM_INTERVAL_INSTRUCTIONS_SUM=$(echo "$TM_INTERVAL_INSTRUCTIONS_SUM + $INSTRUCTIONS" | bc -l 2>/dev/null || echo "$INSTRUCTIONS")
-                    TM_INTERVAL_GC_SUM=$(echo "$TM_INTERVAL_GC_SUM + $GC_TIME" | bc -l 2>/dev/null || echo "$GC_TIME")
-                fi
-
-                # Log the streamlined data with process-specific info
+                # Log data
                 if [[ "$PROCESS_NAME" == "TaskManagerRunner" ]]; then
-                    echo "$TIMESTAMP, $PID, $PROCESS_NAME [PRIMARY], $HEAP_USED, $GC_TIME, $INTERVAL_CYCLES, $TM_CYCLES_ACCUMULATED"
+                    echo "$TIMESTAMP, $PID, $PROCESS_NAME [PRIMARY], $INTERVAL_CYCLES, $TM_CYCLES_ACCUMULATED"
                 else
-                    echo "$TIMESTAMP, $PID, $PROCESS_NAME [secondary], $HEAP_USED, $GC_TIME, $INTERVAL_CYCLES, $TOTAL_CYCLES_ACCUMULATED"
+                    echo "$TIMESTAMP, $PID, $PROCESS_NAME [secondary], $INTERVAL_CYCLES, $TOTAL_CYCLES_ACCUMULATED"
                 fi
             done
             
-            # Update running totals after processing all PIDs
+            # Update totals
             TOTAL_CYCLES_ACCUMULATED=$(echo "$TOTAL_CYCLES_ACCUMULATED + $INTERVAL_CYCLES_SUM" | bc -l 2>/dev/null || echo "$TOTAL_CYCLES_ACCUMULATED")
-            TOTAL_GC_TIME=$INTERVAL_GC_SUM
-            
-            # Update TaskManagerRunner totals
             TM_CYCLES_ACCUMULATED=$(echo "$TM_CYCLES_ACCUMULATED + $TM_INTERVAL_CYCLES_SUM" | bc -l 2>/dev/null || echo "$TM_CYCLES_ACCUMULATED")
-            TM_GC_TIME=$TM_INTERVAL_GC_SUM
             
-            # Write TaskManagerRunner cycles (PRIMARY for overhead calculation)
+            # Get latest GC time for TaskManager
+            TM_GC_TIME=0
+            for PID in $PIDS; do
+                PROCESS_NAME=$(jps | grep "$PID" | awk '{print $2}')
+                if [[ "$PROCESS_NAME" == "TaskManagerRunner" ]]; then
+                    TM_GC_TIME=${GC_TIME_MAP[$PID]:-"0"}
+                    break
+                fi
+            done
+            
+            # Write to files
             echo "$TIMESTAMP,$TM_CYCLES_ACCUMULATED,$TM_INTERVAL_CYCLES_SUM,$TM_GC_TIME" >> $TASKMANAGER_CYCLES_FILE
+            echo "$TIMESTAMP,$TOTAL_CYCLES_ACCUMULATED,$INTERVAL_CYCLES_SUM,$TM_GC_TIME" >> $TOTAL_CYCLES_FILE
             
-            # Write total cycles summary (ALL processes - secondary reference)
-            echo "$TIMESTAMP,$TOTAL_CYCLES_ACCUMULATED,$INTERVAL_CYCLES_SUM,$TOTAL_GC_TIME" >> $TOTAL_CYCLES_FILE
-            
-            # Increment sample counter for GC timing
-            SAMPLE_COUNT=$((SAMPLE_COUNT + 1))
-            
-            sleep 0.05  # Minimal sleep - total cycle now ~1.1s (1s perf + ~0.1s other)
+            sleep 0.05  # Minimal sleep - total cycle now ~5.1s (5s perf + 0.1s gap) = 98% coverage
         done
     } >> $MONITOR_LOG_FILE &
     MONITOR_PID=$!
-    echo "INFO: Simple monitoring started with PID: $MONITOR_PID"
+    
+    echo "INFO: Simple monitoring started with PIDs:"
+    echo "- CPU Monitor: $MONITOR_PID"
+    echo "- GC Monitor: $GC_MONITOR_PID"
     echo "INFO: TaskManagerRunner cycles (PRIMARY): $TASKMANAGER_CYCLES_FILE"
     echo "INFO: Total cycles accumulator (secondary): $TOTAL_CYCLES_FILE"
+    echo "INFO: GC data: $GC_DATA_FILE"
+    echo "INFO: Sampling cycles every 5.1s with 98% coverage"
+    echo "INFO: Sampling GC every 10s"
 }
 
 # Function to start standard monitoring (80% coverage fallback)
@@ -257,14 +260,25 @@ start_standard_monitoring() {
 
 # Function to stop monitoring
 stop_monitoring() {
-    echo "INFO: Stopping simple monitoring..."
+    echo "INFO: Stopping monitoring..."
     
-    # Stop simple monitoring if running
+    # Stop CPU cycle monitoring
     if [[ ! -z "$MONITOR_PID" ]]; then
         kill $MONITOR_PID 2>/dev/null
         wait $MONITOR_PID 2>/dev/null
-        echo "INFO: Simple monitoring stopped. Data saved to $MONITOR_LOG_FILE."
     fi
+    
+    # Stop GC monitoring
+    if [[ ! -z "$GC_MONITOR_PID" ]]; then
+        kill $GC_MONITOR_PID 2>/dev/null
+        wait $GC_MONITOR_PID 2>/dev/null
+    fi
+    
+    echo "INFO: Monitoring stopped. Data saved to:"
+    echo "- Main log: $MONITOR_LOG_FILE"
+    echo "- TaskManager cycles: $TASKMANAGER_CYCLES_FILE"
+    echo "- Total cycles: $TOTAL_CYCLES_FILE"
+    echo "- GC data: $GC_DATA_FILE"
 }
 
 # dump data
