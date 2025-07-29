@@ -48,7 +48,7 @@ def read_cpu_cycles_from_monitor_file(monitor_file):
             if not line or line.startswith('INFO:') or line.startswith('Timestamp') or line.startswith('perf_'):
                 continue
             
-            if ',' in line and '[FLINK-' in line or '[KAFKA]' in line or '[ZOOKEEPER]' in line:
+            if ',' in line and ('[FLINK-' in line or '[KAFKA]' in line or '[ZOOKEEPER]' in line):
                 parts = [p.strip() for p in line.split(',')]
                 if len(parts) >= 7:
                     try:
@@ -232,8 +232,8 @@ def extract_comprehensive_metrics(exp_path):
             if not line or line.startswith('INFO:') or line.startswith('perf_'):
                 continue
             
-            # Look for CPU cycles data lines
-            if line.startswith('2025-07-28') and ',' in line:
+            # Look for CPU cycles data lines - use flexible date pattern instead of hardcoded date
+            if line.startswith('202') and ',' in line and ('[FLINK-' in line or '[KAFKA]' in line or '[ZOOKEEPER]' in line):
                 parts = [p.strip() for p in line.split(',')]
                 if len(parts) >= 7:
                     try:
@@ -351,6 +351,13 @@ def main():
             # "With_Sluice_5ms": "part8-stock-StreamSluice-5000000-1360-90-1000-20-1-200-4-1111-1-200-1-166-1-5-1666-3000-100-0.1-false-true-1",
             # "With_Sluice_25ms": "part8-stock-StreamSluice-25000000-1360-90-1000-20-1-200-4-1111-1-200-1-166-1-5-1666-3000-100-0.1-false-true-1",
             # "With_Sluice_100ms": "part8-stock-StreamSluice-100000000-1360-90-1000-20-1-200-4-1111-1-200-1-166-1-5-1666-3000-100-0.1-false-true-1",
+            "P7_Sluice": "part8-stock-StreamSluice-100000000-360-90-1000-20-1-200-1-200-1-200-1-166-1-1-200-3000-100-0.1-false-true-1",
+            "P11_Sluice": "part8-stock-StreamSluice-100000000-360-90-1000-20-1-200-1-200-1-200-1-166-1-5-200-3000-100-0.1-false-true-1",
+            "P16_Sluice": "part8-stock-StreamSluice-100000000-360-90-1000-20-1-200-1-200-1-200-1-166-1-10-200-3000-100-0.1-false-true-1",
+            "P26_Sluice": "part8-stock-StreamSluice-100000000-360-90-1000-20-1-200-1-200-1-200-1-166-1-20-200-3000-100-0.1-false-true-1",
+            "P7_No": "part8-stock-NoControll-100000000-360-90-1000-20-1-200-1-200-1-200-1-166-1-1-200-3000-100-0.1-false-false-1",
+            "P11_No": "part8-stock-NoControll-100000000-360-90-1000-20-1-200-1-200-1-200-1-166-1-5-200-3000-100-0.1-false-false-1",
+            "P16_No": "part8-stock-NoControll-100000000-360-90-1000-20-1-200-1-200-1-200-1-166-1-10-200-3000-100-0.1-false-false-1",
         },
         # "Twitter": {
         #     "Without_Sluice": "part8-twitter-NoControll-100000000-1360-90-3400-1-7-1111-3-166-1-50-1-50-2000-0.1-100--1250-0.0-false-1000-0.8-1",
