@@ -293,10 +293,10 @@ init() {
   LP5=32
 
   P1=1
-  P2=1
+  P2=1 # 1
   P3=1
   P4=1
-  P5=9
+  P5=3 # 9
 
   DELAY2=50
   DELAY3=333
@@ -382,7 +382,7 @@ run_stock_test(){
     whether_type="streamsluice"
     how_type="streamsluice"
     scalein_type="streamsluice"
-    for metrics_report_interval in 5000000 25000000 100000000; do
+    for metrics_report_interval in 100000000; do #5000000 25000000 
       for repeat in 1; do
         run_one_exp
         printf "${EXP_NAME}\n" >> part8_result.txt

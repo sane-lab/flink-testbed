@@ -120,6 +120,13 @@ def extract_comprehensive_metrics(exp_path):
             }
         }
         
+        # Store first and last values for rate calculation
+        process_data = {
+            'taskmanager': {'first': None, 'last': None, 'rss_samples': []},
+            'jobmanager': {'first': None, 'last': None, 'rss_samples': []},
+            'kafka_zookeeper': {'first': None, 'last': None, 'rss_samples': []}
+        }
+        
         # Parse CSV data (system monitoring metrics)
         csv_started = False
         for line in lines:
@@ -149,29 +156,74 @@ def extract_comprehensive_metrics(exp_path):
                         major_faults = int(parts[9]) if parts[9].isdigit() else 0
                         llc_misses = int(parts[10]) if parts[10].isdigit() else 0
                         
-                        # Classify process and accumulate metrics
+                        # Parse timestamp for duration calculation
+                        try:
+                            from datetime import datetime
+                            ts = datetime.strptime(timestamp, '%Y-%m-%d %H:%M:%S')
+                        except:
+                            continue
+                        
+                        # Classify process and store data for rate calculation
+                        target_key = None
                         if 'TaskManager' in process_name:
-                            target = result['taskmanager']
+                            target_key = 'taskmanager'
                         elif 'StandaloneSessionClusterEntrypoint' in process_name:
-                            target = result['jobmanager']
+                            target_key = 'jobmanager'
                         elif 'Kafka' in process_name or 'QuorumPeerMain' in process_name:
-                            target = result['kafka_zookeeper']
+                            target_key = 'kafka_zookeeper'
                         else:
                             continue
                         
-                        # Accumulate values for averaging
-                        target['avg_rss_kb'] += rss_kb
-                        target['avg_read_bytes'] += read_bytes
-                        target['avg_write_bytes'] += write_bytes
-                        target['avg_rchar'] += rchar
-                        target['avg_wchar'] += wchar
-                        target['avg_minor_faults'] += minor_faults
-                        target['avg_major_faults'] += major_faults
-                        target['avg_llc_misses'] += llc_misses
-                        target['count'] += 1
+                        data_point = {
+                            'timestamp': ts,
+                            'rss_kb': rss_kb,
+                            'read_bytes': read_bytes,
+                            'write_bytes': write_bytes,
+                            'rchar': rchar,
+                            'wchar': wchar,
+                            'minor_faults': minor_faults,
+                            'major_faults': major_faults,
+                            'llc_misses': llc_misses
+                        }
+                        
+                        # Store first and last data points for rate calculation
+                        if process_data[target_key]['first'] is None:
+                            process_data[target_key]['first'] = data_point
+                        process_data[target_key]['last'] = data_point
+                        
+                        # Collect RSS samples for averaging (non-cumulative metric)
+                        process_data[target_key]['rss_samples'].append(rss_kb)
                         
                     except (ValueError, IndexError):
                         continue
+        
+        # Calculate rates and averages for each process group
+        for target_key in ['taskmanager', 'jobmanager', 'kafka_zookeeper']:
+            if process_data[target_key]['first'] and process_data[target_key]['last']:
+                first = process_data[target_key]['first']
+                last = process_data[target_key]['last']
+                
+                # Calculate duration in minutes
+                duration_seconds = (last['timestamp'] - first['timestamp']).total_seconds()
+                duration_minutes = max(duration_seconds / 60.0, 1.0)  # Avoid division by zero
+                
+                target = result[target_key]
+                
+                # Calculate per-minute rates from cumulative values
+                target['avg_read_bytes'] = max(0, int((last['read_bytes'] - first['read_bytes']) / duration_minutes))
+                target['avg_write_bytes'] = max(0, int((last['write_bytes'] - first['write_bytes']) / duration_minutes))
+                target['avg_rchar'] = max(0, int((last['rchar'] - first['rchar']) / duration_minutes))
+                target['avg_wchar'] = max(0, int((last['wchar'] - first['wchar']) / duration_minutes))
+                target['avg_minor_faults'] = max(0, int((last['minor_faults'] - first['minor_faults']) / duration_minutes))
+                target['avg_major_faults'] = max(0, int((last['major_faults'] - first['major_faults']) / duration_minutes))
+                target['avg_llc_misses'] = max(0, int((last['llc_misses'] - first['llc_misses']) / duration_minutes))
+                
+                # Calculate average RSS (non-cumulative metric)
+                rss_samples = process_data[target_key]['rss_samples']
+                if rss_samples:
+                    target['avg_rss_kb'] = sum(rss_samples) // len(rss_samples)
+                
+                target['count'] = len(rss_samples)
         
         # Parse CPU cycles data from system_monitor.csv first
         cpu_cycles_found = False
@@ -227,18 +279,6 @@ def extract_comprehensive_metrics(exp_path):
                     result['kafka_zookeeper']['instructions'] = cycles_data['kafka_zookeeper']['instructions']
                     result['kafka_zookeeper']['cache_misses'] = cycles_data['kafka_zookeeper']['cache_misses']
         
-        # Calculate averages for system metrics
-        for group_name, group_data in result.items():
-            if group_data['count'] > 0:
-                group_data['avg_rss_kb'] = group_data['avg_rss_kb'] // group_data['count']
-                group_data['avg_read_bytes'] = group_data['avg_read_bytes'] // group_data['count']
-                group_data['avg_write_bytes'] = group_data['avg_write_bytes'] // group_data['count']
-                group_data['avg_rchar'] = group_data['avg_rchar'] // group_data['count']
-                group_data['avg_wchar'] = group_data['avg_wchar'] // group_data['count']
-                group_data['avg_minor_faults'] = group_data['avg_minor_faults'] // group_data['count']
-                group_data['avg_major_faults'] = group_data['avg_major_faults'] // group_data['count']
-                group_data['avg_llc_misses'] = group_data['avg_llc_misses'] // group_data['count']
-        
         # Calculate totals
         result['total']['total_cycles'] = (result['taskmanager']['total_cycles'] + 
                                          result['jobmanager']['total_cycles'] + 
@@ -250,36 +290,41 @@ def extract_comprehensive_metrics(exp_path):
                                          result['jobmanager']['cache_misses'] + 
                                          result['kafka_zookeeper']['cache_misses'])
         
-        # For total system metrics, average across all processes
+        # For total system metrics, calculate weighted averages based on process count
         total_count = (result['taskmanager']['count'] + 
                       result['jobmanager']['count'] + 
                       result['kafka_zookeeper']['count'])
         
         if total_count > 0:
+            # Average RSS (non-cumulative)
             result['total']['avg_rss_kb'] = ((result['taskmanager']['avg_rss_kb'] * result['taskmanager']['count'] +
                                             result['jobmanager']['avg_rss_kb'] * result['jobmanager']['count'] +
                                             result['kafka_zookeeper']['avg_rss_kb'] * result['kafka_zookeeper']['count']) // total_count)
-            result['total']['avg_read_bytes'] = ((result['taskmanager']['avg_read_bytes'] * result['taskmanager']['count'] +
-                                                result['jobmanager']['avg_read_bytes'] * result['jobmanager']['count'] +
-                                                result['kafka_zookeeper']['avg_read_bytes'] * result['kafka_zookeeper']['count']) // total_count)
-            result['total']['avg_write_bytes'] = ((result['taskmanager']['avg_write_bytes'] * result['taskmanager']['count'] +
-                                                 result['jobmanager']['avg_write_bytes'] * result['jobmanager']['count'] +
-                                                 result['kafka_zookeeper']['avg_write_bytes'] * result['kafka_zookeeper']['count']) // total_count)
-            result['total']['avg_rchar'] = ((result['taskmanager']['avg_rchar'] * result['taskmanager']['count'] +
-                                           result['jobmanager']['avg_rchar'] * result['jobmanager']['count'] +
-                                           result['kafka_zookeeper']['avg_rchar'] * result['kafka_zookeeper']['count']) // total_count)
-            result['total']['avg_wchar'] = ((result['taskmanager']['avg_wchar'] * result['taskmanager']['count'] +
-                                           result['jobmanager']['avg_wchar'] * result['jobmanager']['count'] +
-                                           result['kafka_zookeeper']['avg_wchar'] * result['kafka_zookeeper']['count']) // total_count)
-            result['total']['avg_minor_faults'] = ((result['taskmanager']['avg_minor_faults'] * result['taskmanager']['count'] +
-                                                   result['jobmanager']['avg_minor_faults'] * result['jobmanager']['count'] +
-                                                   result['kafka_zookeeper']['avg_minor_faults'] * result['kafka_zookeeper']['count']) // total_count)
-            result['total']['avg_major_faults'] = ((result['taskmanager']['avg_major_faults'] * result['taskmanager']['count'] +
-                                                   result['jobmanager']['avg_major_faults'] * result['jobmanager']['count'] +
-                                                   result['kafka_zookeeper']['avg_major_faults'] * result['kafka_zookeeper']['count']) // total_count)
-            result['total']['avg_llc_misses'] = ((result['taskmanager']['avg_llc_misses'] * result['taskmanager']['count'] +
-                                                result['jobmanager']['avg_llc_misses'] * result['jobmanager']['count'] +
-                                                result['kafka_zookeeper']['avg_llc_misses'] * result['kafka_zookeeper']['count']) // total_count)
+            
+            # Sum per-minute rates for total system throughput
+            result['total']['avg_read_bytes'] = (result['taskmanager']['avg_read_bytes'] + 
+                                               result['jobmanager']['avg_read_bytes'] + 
+                                               result['kafka_zookeeper']['avg_read_bytes'])
+            result['total']['avg_write_bytes'] = (result['taskmanager']['avg_write_bytes'] + 
+                                                result['jobmanager']['avg_write_bytes'] + 
+                                                result['kafka_zookeeper']['avg_write_bytes'])
+            result['total']['avg_rchar'] = (result['taskmanager']['avg_rchar'] + 
+                                          result['jobmanager']['avg_rchar'] + 
+                                          result['kafka_zookeeper']['avg_rchar'])
+            result['total']['avg_wchar'] = (result['taskmanager']['avg_wchar'] + 
+                                          result['jobmanager']['avg_wchar'] + 
+                                          result['kafka_zookeeper']['avg_wchar'])
+            result['total']['avg_minor_faults'] = (result['taskmanager']['avg_minor_faults'] + 
+                                                  result['jobmanager']['avg_minor_faults'] + 
+                                                  result['kafka_zookeeper']['avg_minor_faults'])
+            result['total']['avg_major_faults'] = (result['taskmanager']['avg_major_faults'] + 
+                                                  result['jobmanager']['avg_major_faults'] + 
+                                                  result['kafka_zookeeper']['avg_major_faults'])
+            result['total']['avg_llc_misses'] = (result['taskmanager']['avg_llc_misses'] + 
+                                               result['jobmanager']['avg_llc_misses'] + 
+                                               result['kafka_zookeeper']['avg_llc_misses'])
+            
+            result['total']['count'] = total_count
         
         return result if result['total']['total_cycles'] > 0 else None
         
@@ -359,13 +404,13 @@ def main():
                     'Total_Cycles': group_data['total_cycles'],
                     'Instructions': group_data['instructions'],
                     'avg_RSS_KB': group_data['avg_rss_kb'],
-                    'avg_ReadBytes': group_data['avg_read_bytes'],
-                    'avg_WriteBytes': group_data['avg_write_bytes'],
-                    'avg_RChar': group_data['avg_rchar'],
-                    'avg_WChar': group_data['avg_wchar'],
-                    'avg_MinorFaults': group_data['avg_minor_faults'],
-                    'avg_MajorFaults': group_data['avg_major_faults'],
-                    'avg_LLC_Misses': group_data['avg_llc_misses']
+                    'ReadBytes_per_min': group_data['avg_read_bytes'],
+                    'WriteBytes_per_min': group_data['avg_write_bytes'],
+                    'RChar_per_min': group_data['avg_rchar'],
+                    'WChar_per_min': group_data['avg_wchar'],
+                    'MinorFaults_per_min': group_data['avg_minor_faults'],
+                    'MajorFaults_per_min': group_data['avg_major_faults'],
+                    'LLC_Misses_per_min': group_data['avg_llc_misses']
                 }
                 results.append(result)
             
@@ -384,8 +429,8 @@ def main():
     # Save to CSV
     output_file = os.path.join(output_dir, "part8_overhead_results.csv")
     fieldnames = ['Workload', 'Configuration', 'Process_Group', 'Total_Cycles', 'Instructions',
-                  'avg_RSS_KB', 'avg_ReadBytes', 'avg_WriteBytes', 'avg_RChar', 'avg_WChar',
-                  'avg_MinorFaults', 'avg_MajorFaults', 'avg_LLC_Misses']
+                  'avg_RSS_KB', 'ReadBytes_per_min', 'WriteBytes_per_min', 'RChar_per_min', 'WChar_per_min',
+                  'MinorFaults_per_min', 'MajorFaults_per_min', 'LLC_Misses_per_min']
     
     with open(output_file, 'w', newline='') as csvfile:
         writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
@@ -399,13 +444,13 @@ def main():
     print("=" * 180)
     
     # Print header
-    header = f"{'Workload':<10} {'Config':<18} {'Process':<15} {'Cycles':<15} {'Instructions':<15} {'RSS_KB':<12} {'ReadBytes':<12} {'WriteBytes':<12} {'RChar':<12} {'WChar':<12} {'MinorFaults':<12} {'MajorFaults':<12} {'LLC_Misses':<12}"
+    header = f"{'Workload':<10} {'Config':<18} {'Process':<15} {'Cycles':<15} {'Instructions':<15} {'RSS_KB':<12} {'ReadB/min':<12} {'WriteB/min':<12} {'RChar/min':<12} {'WChar/min':<12} {'MinorF/min':<12} {'MajorF/min':<12} {'LLCMiss/min':<12}"
     print(header)
     print("-" * 180)
     
     # Print data rows
     for result in results:
-        row = f"{result['Workload']:<10} {result['Configuration']:<18} {result['Process_Group']:<15} {result['Total_Cycles']:>14,} {result['Instructions']:>14,} {result['avg_RSS_KB']:>11,} {result['avg_ReadBytes']:>11,} {result['avg_WriteBytes']:>11,} {result['avg_RChar']:>11,} {result['avg_WChar']:>11,} {result['avg_MinorFaults']:>11,} {result['avg_MajorFaults']:>11,} {result['avg_LLC_Misses']:>11,}"
+        row = f"{result['Workload']:<10} {result['Configuration']:<18} {result['Process_Group']:<15} {result['Total_Cycles']:>14,} {result['Instructions']:>14,} {result['avg_RSS_KB']:>11,} {result['ReadBytes_per_min']:>11,} {result['WriteBytes_per_min']:>11,} {result['RChar_per_min']:>11,} {result['WChar_per_min']:>11,} {result['MinorFaults_per_min']:>11,} {result['MajorFaults_per_min']:>11,} {result['LLC_Misses_per_min']:>11,}"
         print(row)
 
 if __name__ == "__main__":
