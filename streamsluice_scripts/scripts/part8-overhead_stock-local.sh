@@ -76,7 +76,7 @@ start_cpu_monitoring() {
     
     # Timeline alignment parameters
     WARMUP_DELAY=60        # Start monitoring after 20s warmup
-    MONITOR_DURATION=1200 #240   # Monitor for 4 minutes (240s)
+    MONITOR_DURATION=240   # Monitor for 4 minutes (240s)
     # Start CPU cycle monitoring
     {
         # Header for monitoring log
@@ -259,7 +259,7 @@ init() {
   scalein_type="streamsuice"
   is_scalein=true
   L=2000
-  runtime=1360 #360
+  runtime=360 #1360
   skip_interval=20
   warmup=10000
   warmup_time=90
@@ -297,17 +297,17 @@ init() {
 
   P1=1
   P2=1
-  P3=4
+  P3=1 #4
   P4=1
   P5=1
   P6=1
-  P7=5
+  P7=1 #5
 
   DELAY2=200
-  DELAY3=1111
+  DELAY3=200 #1111
   DELAY4=200
   DELAY5=166
-  DELAY7=1666
+  DELAY7=200 #1666
 
   PAYLOAD=5000
   metrics_report_interval=100000000
@@ -380,9 +380,11 @@ run_stock_test(){
     how_type="streamsluice"
     scalein_type="streamsluice"
     for metrics_report_interval in 100000000; do  # 5000000 25000000
-      for repeat in 2 3; do
-        run_one_exp
-        printf "${EXP_NAME}\n" >> part8_result.txt
+      for p7 in 1 5 10; do
+        for repeat in 1; do
+          run_one_exp
+          printf "${EXP_NAME}\n" >> part8_result.txt
+        done
       done
     done
 
@@ -395,9 +397,11 @@ run_stock_test(){
     whether_type="streamsluice"
     how_type="streamsluice"
     scalein_type="streamsluice"
-    for repeat in 2 3; do
-      run_one_exp
-      printf "${EXP_NAME}\n" >> part8_result.txt
+    for p7 in 1 5 10; do
+        for repeat in 1; do
+        run_one_exp
+        printf "${EXP_NAME}\n" >> part8_result.txt
+        done
     done
 }
 run_stock_test

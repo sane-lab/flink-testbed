@@ -382,7 +382,7 @@ run_stock_test(){
     whether_type="streamsluice"
     how_type="streamsluice"
     scalein_type="streamsluice"
-    for metrics_report_interval in 100000000; do #5000000 25000000 
+    for metrics_report_interval in 100000000; do #5000000 25000000
       for repeat in 1; do
         run_one_exp
         printf "${EXP_NAME}\n" >> part8_result.txt
