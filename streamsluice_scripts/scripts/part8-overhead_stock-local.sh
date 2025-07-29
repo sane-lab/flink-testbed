@@ -338,7 +338,7 @@ function runApp() {
 run_stock_test(){
     echo "Run stock experiments..."
     init
-    printf "Part_8\n" > part8_result.txt
+    printf "Part_8_Stock\n" >> part8_result.txt
     how_more_optimization_flag=false
     how_optimization_flag=false
     how_intrinsic_bound_flag=true
