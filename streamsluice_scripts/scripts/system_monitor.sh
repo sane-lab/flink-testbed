@@ -121,7 +121,7 @@ sample_kafka_metrics() {
     echo "INFO: Starting Kafka metrics sampling #$sample_num (${sample_duration}s)..."
     
     # Define Kafka consumer command
-    local kafka_consumer_cmd="~/samza-hello-samza/deploy/bin/kafka-console-consumer.sh --bootstrap-server localhost:9092 --topic flink_metrics"
+    local kafka_consumer_cmd="~/samza-hello-samza/deploy/kafka/bin/kafka-console-consumer.sh --bootstrap-server localhost:9092 --topic flink_metrics"
     
     # Create temporary file for this sample
     local temp_file="/tmp/kafka_sample_${sample_num}_$(date +%s).tmp"
