@@ -39,9 +39,12 @@ configure_perf_security
 # Define the process names to monitor
 PROCESS_NAMES=("StandaloneSessionClusterEntrypoint" "TaskManagerRunner" "Kafka" "QuorumPeerMain")
 MONITOR_LOG_DIR="${FLINK_DIR}/log"
-MONITOR_LOG_FILE="${MONITOR_LOG_DIR}/monitor_$(date +%Y%m%d_%H%M%S).out"
-SYSTEM_MONITOR_LOG_FILE="${MONITOR_LOG_DIR}/system_monitor_$(date +%Y%m%d_%H%M%S).csv"
-KAFKA_MONITOR_LOG_FILE="${MONITOR_LOG_DIR}/kafka_metrics_$(date +%Y%m%d_%H%M%S).log"
+MONITOR_LOG_FILE="${MONITOR_LOG_DIR}/monitor.out"
+SYSTEM_MONITOR_LOG_FILE="${MONITOR_LOG_DIR}/system_monitor.csv"
+KAFKA_MONITOR_LOG_FILE="${MONITOR_LOG_DIR}/kafka_metrics.log"
+JVM_MONITOR_LOG_FILE="${MONITOR_LOG_DIR}/jvm_metrics.csv"
+
+
 
 # Create monitor log directory
 mkdir -p $MONITOR_LOG_DIR
@@ -180,6 +183,10 @@ start_cpu_monitoring() {
     echo "INFO: Starting comprehensive system monitoring..."
     start_system_monitoring "$SYSTEM_MONITOR_LOG_FILE" $((MONITOR_DURATION + 30)) 5
     
+    # Start JVM monitoring (heap, GC, threads)
+    echo "INFO: Starting comprehensive JVM monitoring..."
+    start_jvm_monitoring "$JVM_MONITOR_LOG_FILE" $((MONITOR_DURATION + 30)) 5
+    
     # Start Kafka metrics monitoring (only if metrics reporting is enabled)
     if [[ "${metrics_report:-false}" == "true" ]]; then
         echo "INFO: Starting Kafka metrics topic monitoring..."
@@ -204,10 +211,14 @@ stop_monitoring() {
     # Stop system monitoring
     stop_system_monitoring
     
+    # Stop JVM monitoring
+    stop_jvm_monitoring
+
     echo "INFO: All monitoring stopped."
     echo "INFO: CPU data saved to: $MONITOR_LOG_FILE"
     echo "INFO: System data saved to: $SYSTEM_MONITOR_LOG_FILE"
     echo "INFO: Kafka metrics data saved to: $KAFKA_MONITOR_LOG_FILE"
+    echo "INFO: JVM metrics data saved to: $JVM_MONITOR_LOG_FILE"
 }
 
 # dump data
@@ -337,6 +348,8 @@ function runApp() {
         -payload ${PAYLOAD} -skew_factor ${SKEWNESS} \
         -file_name ${stock_path}${stock_file_name} -warmup_rate ${warmup_rate} -warmup_time ${warmup_time} -skip_interval ${skip_interval} &
 }
+
+
 
 run_stock_test(){
     echo "Run linear road experiments..."

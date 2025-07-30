@@ -14,6 +14,12 @@ KAFKA_SAMPLING_INTERVAL=30  # seconds between each kafka sample
 KAFKA_SAMPLE_DURATION=30   # duration for each kafka sample
 KAFKA_SAMPLE_COUNT=5       # number of samples to take
 
+# JVM monitoring variables
+JVM_MONITOR_LOG_FILE=""
+JVM_MONITOR_PID=""
+JVM_MONITOR_INTERVAL=5  # seconds between measurements
+JVM_MONITOR_DURATION=1200  # total monitoring duration in seconds
+
 # Function to get PIDs of target processes
 get_target_pids() {
     local pids=()
@@ -212,6 +218,165 @@ start_kafka_monitoring() {
     
     echo "INFO: Kafka metrics monitoring started"
     echo "INFO: Kafka monitoring log: $log_file"
+}
+
+# Function to get PIDs of Flink JVM processes
+get_flink_jvm_pids() {
+    local pids=()
+    local jvm_processes=("TaskManagerRunner" "StandaloneSessionClusterEntrypoint")
+    
+    for process_name in "${jvm_processes[@]}"; do
+        local found_pids=$(jps | grep "$process_name" | awk '{print $1}')
+        if [[ -n "$found_pids" ]]; then
+            pids+=($found_pids)
+        fi
+    done
+    
+    echo "${pids[@]}"
+}
+
+# Function to get process name from PID for JVM monitoring
+get_jvm_process_name() {
+    local pid=$1
+    jps | grep "$pid" | awk '{print $2}' | head -1
+}
+
+# Function to collect JVM metrics for a specific PID
+collect_jvm_metrics() {
+    local pid=$1
+    local timestamp=$2
+    local process_name=$3
+    
+    # Initialize default values
+    local heap_used=0 heap_committed=0 heap_max=0
+    local nonheap_used=0 nonheap_committed=0 nonheap_max=0
+    local eden_used=0 eden_committed=0 eden_max=0
+    local survivor_used=0 survivor_committed=0 survivor_max=0
+    local old_used=0 old_committed=0 old_max=0
+    local metaspace_used=0 metaspace_committed=0 metaspace_max=0
+    local gc_young_count=0 gc_young_time=0 gc_old_count=0 gc_old_time=0
+    local thread_count=0 thread_peak=0
+    
+    # Check if process still exists
+    if ! kill -0 $pid 2>/dev/null; then
+        echo "$timestamp,$pid,$process_name,PROCESS_DEAD,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0"
+        return
+    fi
+    
+    # Get GC statistics using jstat
+    if command -v jstat >/dev/null 2>&1; then
+        # Get GC capacity and utilization
+        local gc_data=$(jstat -gc $pid 2>/dev/null | tail -1)
+        if [[ -n "$gc_data" && "$gc_data" != *"Error"* ]]; then
+            # Parse jstat -gc output: S0C S1C S0U S1U EC EU OC OU MC MU CCSC CCSU YGC YGCT FGC FGCT GCT
+            read -r s0c s1c s0u s1u ec eu oc ou mc mu ccsc ccsu ygc ygct fgc fgct gct <<< "$gc_data"
+            
+            # Convert KB to bytes and calculate values
+            eden_committed=$((${ec:-0} * 1024))
+            eden_used=$((${eu:-0} * 1024))
+            survivor_committed=$(((${s0c:-0} + ${s1c:-0}) * 1024))
+            survivor_used=$(((${s0u:-0} + ${s1u:-0}) * 1024))
+            old_committed=$((${oc:-0} * 1024))
+            old_used=$((${ou:-0} * 1024))
+            metaspace_committed=$((${mc:-0} * 1024))
+            metaspace_used=$((${mu:-0} * 1024))
+            
+            # Calculate heap totals
+            heap_committed=$((eden_committed + survivor_committed + old_committed))
+            heap_used=$((eden_used + survivor_used + old_used))
+            
+            # Non-heap is primarily metaspace
+            nonheap_committed=$metaspace_committed
+            nonheap_used=$metaspace_used
+            
+            # GC statistics
+            gc_young_count=${ygc:-0}
+            gc_young_time=$(echo "${ygct:-0} * 1000" | bc -l 2>/dev/null | cut -d. -f1) # Convert to ms
+            gc_old_count=${fgc:-0}
+            gc_old_time=$(echo "${fgct:-0} * 1000" | bc -l 2>/dev/null | cut -d. -f1) # Convert to ms
+        fi
+        
+        # Get heap capacity information
+        local heap_capacity=$(jstat -gccapacity $pid 2>/dev/null | tail -1)
+        if [[ -n "$heap_capacity" && "$heap_capacity" != *"Error"* ]]; then
+            # Parse jstat -gccapacity output for maximum values
+            read -r ngcmn ngcmx ngc s0cmx s0c s1cmx s1c ecmx ec ogcmn ogcmx ogc oc mcmn mcmx mc ccsmn ccsmx ccsc ygc fgc <<< "$heap_capacity"
+            
+            # Calculate maximum heap size (KB to bytes)
+            local young_max=$(((${s0cmx:-0} + ${s1cmx:-0} + ${ecmx:-0}) * 1024))
+            local old_max_capacity=$((${ogcmx:-0} * 1024))
+            heap_max=$((young_max + old_max_capacity))
+            eden_max=$((${ecmx:-0} * 1024))
+            old_max=$old_max_capacity
+            metaspace_max=$((${mcmx:-0} * 1024))
+            nonheap_max=$metaspace_max
+        fi
+    fi
+    
+    # Get thread information using jstack (count only, to avoid overhead)
+    if command -v jstack >/dev/null 2>&1; then
+        local thread_info=$(jstack $pid 2>/dev/null | grep "java.lang.Thread.State" | wc -l)
+        thread_count=${thread_info:-0}
+        thread_peak=$thread_count  # Simplified, real peak would need tracking
+    fi
+    
+    # Output CSV line with comprehensive JVM metrics
+    echo "$timestamp,$pid,$process_name,ALIVE,$heap_used,$heap_committed,$heap_max,$nonheap_used,$nonheap_committed,$nonheap_max,$eden_used,$eden_committed,$eden_max,$survivor_used,$survivor_committed,$survivor_max,$old_used,$old_committed,$old_max,$metaspace_used,$metaspace_committed,$metaspace_max,$gc_young_count,$gc_young_time,$gc_old_count,$gc_old_time,$thread_count,$thread_peak"
+}
+
+# Function to start JVM monitoring
+start_jvm_monitoring() {
+    local log_file=$1
+    local duration=${2:-$JVM_MONITOR_DURATION}
+    local interval=${3:-$JVM_MONITOR_INTERVAL}
+    
+    JVM_MONITOR_LOG_FILE="$log_file"
+    
+    {
+        # CSV Header
+        echo "Timestamp,PID,ProcessName,Status,HeapUsed_Bytes,HeapCommitted_Bytes,HeapMax_Bytes,NonHeapUsed_Bytes,NonHeapCommitted_Bytes,NonHeapMax_Bytes,EdenUsed_Bytes,EdenCommitted_Bytes,EdenMax_Bytes,SurvivorUsed_Bytes,SurvivorCommitted_Bytes,SurvivorMax_Bytes,OldGenUsed_Bytes,OldGenCommitted_Bytes,OldGenMax_Bytes,MetaspaceUsed_Bytes,MetaspaceCommitted_Bytes,MetaspaceMax_Bytes,YoungGC_Count,YoungGC_Time_ms,OldGC_Count,OldGC_Time_ms,ThreadCount,ThreadPeak"
+        
+        local start_time=$(date +%s)
+        local end_time=$((start_time + duration))
+        
+        echo "INFO: JVM monitoring started at $(date '+%Y-%m-%d %H:%M:%S')"
+        echo "INFO: Will monitor JVM metrics for ${duration}s with ${interval}s intervals"
+        
+        while [[ $(date +%s) -lt $end_time ]]; do
+            local current_time=$(date '+%Y-%m-%d %H:%M:%S')
+            local pids=$(get_flink_jvm_pids)
+            
+            if [[ -z "$pids" ]]; then
+                echo "WARNING: No Flink JVM processes found at $current_time"
+                sleep $interval
+                continue
+            fi
+            
+            for pid in $pids; do
+                local process_name=$(get_jvm_process_name $pid)
+                collect_jvm_metrics $pid "$current_time" "$process_name"
+            done
+            
+            sleep $interval
+        done
+        
+        echo "INFO: JVM monitoring completed at $(date '+%Y-%m-%d %H:%M:%S')"
+        
+    } >> "$JVM_MONITOR_LOG_FILE" &
+    
+    JVM_MONITOR_PID=$!
+    echo "INFO: JVM monitoring started with PID: $JVM_MONITOR_PID"
+    echo "INFO: JVM monitoring log: $JVM_MONITOR_LOG_FILE"
+}
+
+# Function to stop JVM monitoring
+stop_jvm_monitoring() {
+    if [[ ! -z "$JVM_MONITOR_PID" ]]; then
+        echo "INFO: Stopping JVM monitoring (PID: $JVM_MONITOR_PID)..."
+        kill $JVM_MONITOR_PID 2>/dev/null
+        wait $JVM_MONITOR_PID 2>/dev/null
+        echo "INFO: JVM monitoring stopped. Data saved to: $JVM_MONITOR_LOG_FILE"
+    fi
 }
 
 # Main monitoring function

@@ -9,23 +9,39 @@ import os
 import csv
 
 def find_system_monitor_file(directory):
-    """Find system monitor file."""
+    """Find system monitor file. Prefers new timestamp-free format, falls back to old timestamped format."""
     try:
         files = os.listdir(directory)
+        
+        # First, try to find the new timestamp-free format
         for filename in files:
-            if filename.startswith("system_monitor_"):
+            if filename == "system_monitor.csv":
                 return os.path.join(directory, filename)
+        
+        # Fall back to old timestamped format
+        for filename in files:
+            if filename.startswith("system_monitor_") and filename.endswith(".csv"):
+                return os.path.join(directory, filename)
+        
         return None
     except:
         return None
 
 def find_monitor_file(directory):
-    """Find separate monitor file for CPU cycles."""
+    """Find separate monitor file for CPU cycles. Prefers new timestamp-free format, falls back to old timestamped format."""
     try:
         files = os.listdir(directory)
+        
+        # First, try to find the new timestamp-free format
+        for filename in files:
+            if filename == "monitor.out":
+                return os.path.join(directory, filename)
+        
+        # Fall back to old timestamped format
         for filename in files:
             if filename.startswith("monitor_") and filename.endswith(".out"):
                 return os.path.join(directory, filename)
+        
         return None
     except:
         return None
@@ -74,6 +90,142 @@ def read_cpu_cycles_from_monitor_file(monitor_file):
                         continue
         
         return cycles_data
+        
+    except Exception:
+        return None
+
+def find_jvm_metrics_file(directory):
+    """Find JVM metrics file. Prefers new timestamp-free format, falls back to old timestamped format."""
+    try:
+        files = os.listdir(directory)
+        
+        # First, try to find the new timestamp-free format
+        for filename in files:
+            if filename == "jvm_metrics.csv":
+                return os.path.join(directory, filename)
+        
+        # Fall back to old timestamped format
+        for filename in files:
+            if filename.startswith("jvm_metrics_") and filename.endswith(".csv"):
+                return os.path.join(directory, filename)
+        
+        return None
+    except:
+        return None
+
+def read_jvm_metrics_from_file(jvm_file):
+    """Read JVM metrics data from JVM metrics file."""
+    try:
+        with open(jvm_file, 'r') as f:
+            content = f.read()
+        
+        jvm_data = {
+            'taskmanager': {
+                'avg_heap_used': 0, 'max_heap_used': 0, 'avg_heap_committed': 0,
+                'avg_old_gen_used': 0, 'max_old_gen_used': 0, 'avg_old_gen_committed': 0,
+                'avg_eden_used': 0, 'max_eden_used': 0, 'avg_eden_committed': 0,
+                'avg_metaspace_used': 0, 'max_metaspace_used': 0,
+                'total_young_gc_count': 0, 'total_young_gc_time': 0,
+                'total_old_gc_count': 0, 'total_old_gc_time': 0,
+                'avg_thread_count': 0, 'max_thread_count': 0,
+                'count': 0
+            },
+            'jobmanager': {
+                'avg_heap_used': 0, 'max_heap_used': 0, 'avg_heap_committed': 0,
+                'avg_old_gen_used': 0, 'max_old_gen_used': 0, 'avg_old_gen_committed': 0,
+                'avg_eden_used': 0, 'max_eden_used': 0, 'avg_eden_committed': 0,
+                'avg_metaspace_used': 0, 'max_metaspace_used': 0,
+                'total_young_gc_count': 0, 'total_young_gc_time': 0,
+                'total_old_gc_count': 0, 'total_old_gc_time': 0,
+                'avg_thread_count': 0, 'max_thread_count': 0,
+                'count': 0
+            }
+        }
+        
+        lines = content.split('\n')
+        for line in lines[1:]:  # Skip header
+            line = line.strip()
+            if not line or line.startswith('INFO:') or line.startswith('WARNING:'):
+                continue
+            
+            parts = [p.strip() for p in line.split(',')]
+            if len(parts) >= 28:  # Ensure we have all required fields
+                try:
+                    process_name = parts[2]
+                    status = parts[3]
+                    
+                    if status != 'ALIVE':
+                        continue
+                    
+                    # Parse numeric values (handle potential empty values)
+                    heap_used = int(parts[4]) if parts[4].isdigit() else 0
+                    heap_committed = int(parts[6]) if parts[6].isdigit() else 0
+                    eden_used = int(parts[10]) if parts[10].isdigit() else 0
+                    eden_committed = int(parts[11]) if parts[11].isdigit() else 0
+                    old_used = int(parts[16]) if parts[16].isdigit() else 0
+                    old_committed = int(parts[17]) if parts[17].isdigit() else 0
+                    metaspace_used = int(parts[19]) if parts[19].isdigit() else 0
+                    young_gc_count = int(parts[22]) if parts[22].isdigit() else 0
+                    young_gc_time = int(parts[23]) if parts[23].isdigit() else 0
+                    old_gc_count = int(parts[24]) if parts[24].isdigit() else 0
+                    old_gc_time = int(parts[25]) if parts[25].isdigit() else 0
+                    thread_count = int(parts[26]) if parts[26].isdigit() else 0
+                    
+                    # Determine target based on process name
+                    target_key = None
+                    if 'TaskManagerRunner' in process_name:
+                        target_key = 'taskmanager'
+                    elif 'StandaloneSessionClusterEntrypoint' in process_name:
+                        target_key = 'jobmanager'
+                    else:
+                        continue
+                    
+                    target = jvm_data[target_key]
+                    
+                    # Accumulate values for averaging
+                    target['avg_heap_used'] += heap_used
+                    target['max_heap_used'] = max(target['max_heap_used'], heap_used)
+                    target['avg_heap_committed'] += heap_committed
+                    
+                    target['avg_old_gen_used'] += old_used
+                    target['max_old_gen_used'] = max(target['max_old_gen_used'], old_used)
+                    target['avg_old_gen_committed'] += old_committed
+                    
+                    target['avg_eden_used'] += eden_used
+                    target['max_eden_used'] = max(target['max_eden_used'], eden_used)
+                    target['avg_eden_committed'] += eden_committed
+                    
+                    target['avg_metaspace_used'] += metaspace_used
+                    target['max_metaspace_used'] = max(target['max_metaspace_used'], metaspace_used)
+                    
+                    # For GC counts, keep the maximum (cumulative counters)
+                    target['total_young_gc_count'] = max(target['total_young_gc_count'], young_gc_count)
+                    target['total_young_gc_time'] = max(target['total_young_gc_time'], young_gc_time)
+                    target['total_old_gc_count'] = max(target['total_old_gc_count'], old_gc_count)
+                    target['total_old_gc_time'] = max(target['total_old_gc_time'], old_gc_time)
+                    
+                    target['avg_thread_count'] += thread_count
+                    target['max_thread_count'] = max(target['max_thread_count'], thread_count)
+                    
+                    target['count'] += 1
+                    
+                except (ValueError, IndexError):
+                    continue
+        
+        # Calculate averages
+        for process_type in ['taskmanager', 'jobmanager']:
+            target = jvm_data[process_type]
+            if target['count'] > 0:
+                target['avg_heap_used'] = target['avg_heap_used'] // target['count']
+                target['avg_heap_committed'] = target['avg_heap_committed'] // target['count']
+                target['avg_old_gen_used'] = target['avg_old_gen_used'] // target['count']
+                target['avg_old_gen_committed'] = target['avg_old_gen_committed'] // target['count']
+                target['avg_eden_used'] = target['avg_eden_used'] // target['count']
+                target['avg_eden_committed'] = target['avg_eden_committed'] // target['count']
+                target['avg_metaspace_used'] = target['avg_metaspace_used'] // target['count']
+                target['avg_thread_count'] = target['avg_thread_count'] // target['count']
+        
+        return jvm_data
         
     except Exception:
         return None
@@ -326,6 +478,57 @@ def extract_comprehensive_metrics(exp_path):
             
             result['total']['count'] = total_count
         
+        # Read JVM metrics if available
+        jvm_file = find_jvm_metrics_file(exp_path)
+        if jvm_file and os.path.exists(jvm_file):
+            jvm_data = read_jvm_metrics_from_file(jvm_file)
+            if jvm_data:
+                # Add JVM metrics to taskmanager and jobmanager
+                for process_type in ['taskmanager', 'jobmanager']:
+                    if process_type in jvm_data and jvm_data[process_type]['count'] > 0:
+                        result[process_type].update({
+                            'jvm_avg_heap_used': jvm_data[process_type]['avg_heap_used'],
+                            'jvm_max_heap_used': jvm_data[process_type]['max_heap_used'],
+                            'jvm_avg_heap_committed': jvm_data[process_type]['avg_heap_committed'],
+                            'jvm_avg_old_gen_used': jvm_data[process_type]['avg_old_gen_used'],
+                            'jvm_max_old_gen_used': jvm_data[process_type]['max_old_gen_used'],
+                            'jvm_avg_old_gen_committed': jvm_data[process_type]['avg_old_gen_committed'],
+                            'jvm_avg_eden_used': jvm_data[process_type]['avg_eden_used'],
+                            'jvm_max_eden_used': jvm_data[process_type]['max_eden_used'],
+                            'jvm_avg_eden_committed': jvm_data[process_type]['avg_eden_committed'],
+                            'jvm_avg_metaspace_used': jvm_data[process_type]['avg_metaspace_used'],
+                            'jvm_max_metaspace_used': jvm_data[process_type]['max_metaspace_used'],
+                            'jvm_total_young_gc_count': jvm_data[process_type]['total_young_gc_count'],
+                            'jvm_total_young_gc_time': jvm_data[process_type]['total_young_gc_time'],
+                            'jvm_total_old_gc_count': jvm_data[process_type]['total_old_gc_count'],
+                            'jvm_total_old_gc_time': jvm_data[process_type]['total_old_gc_time'],
+                            'jvm_avg_thread_count': jvm_data[process_type]['avg_thread_count'],
+                            'jvm_max_thread_count': jvm_data[process_type]['max_thread_count']
+                        })
+                    else:
+                        # Add default values if no JVM data found
+                        result[process_type].update({
+                            'jvm_avg_heap_used': 0, 'jvm_max_heap_used': 0, 'jvm_avg_heap_committed': 0,
+                            'jvm_avg_old_gen_used': 0, 'jvm_max_old_gen_used': 0, 'jvm_avg_old_gen_committed': 0,
+                            'jvm_avg_eden_used': 0, 'jvm_max_eden_used': 0, 'jvm_avg_eden_committed': 0,
+                            'jvm_avg_metaspace_used': 0, 'jvm_max_metaspace_used': 0,
+                            'jvm_total_young_gc_count': 0, 'jvm_total_young_gc_time': 0,
+                            'jvm_total_old_gc_count': 0, 'jvm_total_old_gc_time': 0,
+                            'jvm_avg_thread_count': 0, 'jvm_max_thread_count': 0
+                        })
+        else:
+            # Add default JVM values if no JVM file found
+            for process_type in ['taskmanager', 'jobmanager']:
+                result[process_type].update({
+                    'jvm_avg_heap_used': 0, 'jvm_max_heap_used': 0, 'jvm_avg_heap_committed': 0,
+                    'jvm_avg_old_gen_used': 0, 'jvm_max_old_gen_used': 0, 'jvm_avg_old_gen_committed': 0,
+                    'jvm_avg_eden_used': 0, 'jvm_max_eden_used': 0, 'jvm_avg_eden_committed': 0,
+                    'jvm_avg_metaspace_used': 0, 'jvm_max_metaspace_used': 0,
+                    'jvm_total_young_gc_count': 0, 'jvm_total_young_gc_time': 0,
+                    'jvm_total_old_gc_count': 0, 'jvm_total_old_gc_time': 0,
+                    'jvm_avg_thread_count': 0, 'jvm_max_thread_count': 0
+                })
+        
         return result if result['total']['total_cycles'] > 0 else None
         
     except Exception:
@@ -340,17 +543,21 @@ def main():
     
     # Experiment configurations from the original script
     experiments = {
-        # "Linear-Road": {
-        #     "Without_Sluice": "part8-lr-NoControll-100000000-1360-150-1300-10-1-50-1-333-1-50-9-1111-3000-0.1-100-1-25-0.0-false-1000-0.8-1",
-        #     "With_Sluice_5ms": "part8-lr-StreamSluice-5000000-1360-150-1300-10-1-50-1-333-1-50-9-1111-3000-0.1-100-1-25-0.0-false-1000-0.8-1",
-        #     "With_Sluice_25ms": "part8-lr-StreamSluice-25000000-1360-150-1300-10-1-50-1-333-1-50-9-1111-3000-0.1-100-1-25-0.0-false-1000-0.8-1",
-        #     "With_Sluice_100ms": "part8-lr-StreamSluice-100000000-1360-150-1300-10-1-50-1-333-1-50-9-1111-3000-0.1-100-1-25-0.0-false-1000-0.8-1",
-        # },
+        "Linear-Road": {
+            "P4_Sluice": "part8-lr-StreamSluice-100000000-1360-150-1300-10-1-50-1-333-1-50-1-300-3000-0.1-100-1-25-0.0-false-1000-0.8-1",
+            "P8_Sluice": "part8-lr-StreamSluice-100000000-1360-150-1300-10-1-50-1-333-1-50-5-300-3000-0.1-100-1-25-0.0-false-1000-0.8-1",
+            "P13_Sluice": "part8-lr-StreamSluice-100000000-1360-150-1300-10-1-50-1-333-1-50-10-300-3000-0.1-100-1-25-0.0-false-1000-0.8-1",
+            "P23_Sluice": "part8-lr-StreamSluice-100000000-1360-150-1300-10-1-50-1-333-1-50-20-300-3000-0.1-100-1-25-0.0-false-1000-0.8-1",
+            "P4_No": "part8-lr-NoControll-100000000-1360-150-1300-10-1-50-1-333-1-50-1-300-3000-0.1-100-1-25-0.0-false-1000-0.8-1",
+            "P8_No": "part8-lr-NoControll-100000000-1360-150-1300-10-1-50-1-333-1-50-5-300-3000-0.1-100-1-25-0.0-false-1000-0.8-1",
+            "P13_No": "part8-lr-NoControll-100000000-1360-150-1300-10-1-50-1-333-1-50-10-300-3000-0.1-100-1-25-0.0-false-1000-0.8-1",
+            "P23_No": "part8-lr-NoControll-100000000-1360-150-1300-10-1-50-1-333-1-50-20-300-3000-0.1-100-1-25-0.0-false-1000-0.8-1",
+        },
         "Stock": {
-            # "Without_Sluice": "part8-stock-NoControll-100000000-1360-90-1000-20-1-200-4-1111-1-200-1-166-1-5-1666-3000-100-0.1-false-false-1",
-            # "With_Sluice_5ms": "part8-stock-StreamSluice-5000000-1360-90-1000-20-1-200-4-1111-1-200-1-166-1-5-1666-3000-100-0.1-false-true-1",
-            # "With_Sluice_25ms": "part8-stock-StreamSluice-25000000-1360-90-1000-20-1-200-4-1111-1-200-1-166-1-5-1666-3000-100-0.1-false-true-1",
-            # "With_Sluice_100ms": "part8-stock-StreamSluice-100000000-1360-90-1000-20-1-200-4-1111-1-200-1-166-1-5-1666-3000-100-0.1-false-true-1",
+        #     # "Without_Sluice": "part8-stock-NoControll-100000000-1360-90-1000-20-1-200-4-1111-1-200-1-166-1-5-1666-3000-100-0.1-false-false-1",
+        #     # "With_Sluice_5ms": "part8-stock-StreamSluice-5000000-1360-90-1000-20-1-200-4-1111-1-200-1-166-1-5-1666-3000-100-0.1-false-true-1",
+        #     # "With_Sluice_25ms": "part8-stock-StreamSluice-25000000-1360-90-1000-20-1-200-4-1111-1-200-1-166-1-5-1666-3000-100-0.1-false-true-1",
+        #     # "With_Sluice_100ms": "part8-stock-StreamSluice-100000000-1360-90-1000-20-1-200-4-1111-1-200-1-166-1-5-1666-3000-100-0.1-false-true-1",
             "P7_Sluice": "part8-stock-StreamSluice-100000000-360-90-1000-20-1-200-1-200-1-200-1-166-1-1-200-3000-100-0.1-false-true-1",
             "P11_Sluice": "part8-stock-StreamSluice-100000000-360-90-1000-20-1-200-1-200-1-200-1-166-1-5-200-3000-100-0.1-false-true-1",
             "P16_Sluice": "part8-stock-StreamSluice-100000000-360-90-1000-20-1-200-1-200-1-200-1-166-1-10-200-3000-100-0.1-false-true-1",
@@ -358,6 +565,14 @@ def main():
             "P7_No": "part8-stock-NoControll-100000000-360-90-1000-20-1-200-1-200-1-200-1-166-1-1-200-3000-100-0.1-false-false-1",
             "P11_No": "part8-stock-NoControll-100000000-360-90-1000-20-1-200-1-200-1-200-1-166-1-5-200-3000-100-0.1-false-false-1",
             "P16_No": "part8-stock-NoControll-100000000-360-90-1000-20-1-200-1-200-1-200-1-166-1-10-200-3000-100-0.1-false-false-1",
+        #     "P7_Sluice": "part8-stock-StreamSluice-100000000-1360-90-1000-20-1-200-1-200-1-200-1-166-1-1-200-3000-100-0.1-false-true-1",
+        #     "P11_Sluice": "part8-stock-StreamSluice-100000000-1360-90-1000-20-1-200-1-200-1-200-1-166-1-5-200-3000-100-0.1-false-true-1",
+        #     "P16_Sluice": "part8-stock-StreamSluice-100000000-1360-90-1000-20-1-200-1-200-1-200-1-166-1-10-200-3000-100-0.1-false-true-1",
+        #     "P26_Sluice": "part8-stock-StreamSluice-100000000-1360-90-1000-20-1-200-1-200-1-200-1-166-1-20-200-3000-100-0.1-false-true-1",
+        #     "P7_No": "part8-stock-NoControll-100000000-1360-90-1000-20-1-200-1-200-1-200-1-166-1-1-200-3000-100-0.1-false-false-1",
+        #     "P11_No": "part8-stock-NoControll-100000000-1360-90-1000-20-1-200-1-200-1-200-1-166-1-5-200-3000-100-0.1-false-false-1",
+        #     "P16_No": "part8-stock-NoControll-100000000-1360-90-1000-20-1-200-1-200-1-200-1-166-1-10-200-3000-100-0.1-false-false-1",
+        #     "P26_No": "part8-stock-NoControll-100000000-1360-90-1000-20-1-200-1-200-1-200-1-166-1-20-200-3000-100-0.1-false-false-1",
         },
         # "Twitter": {
         #     "Without_Sluice": "part8-twitter-NoControll-100000000-1360-90-3400-1-7-1111-3-166-1-50-1-50-2000-0.1-100--1250-0.0-false-1000-0.8-1",
@@ -417,7 +632,23 @@ def main():
                     'WChar_per_min': group_data['avg_wchar'],
                     'MinorFaults_per_min': group_data['avg_minor_faults'],
                     'MajorFaults_per_min': group_data['avg_major_faults'],
-                    'LLC_Misses_per_min': group_data['avg_llc_misses']
+                    'LLC_Misses_per_min': group_data['avg_llc_misses'],
+                    # JVM metrics (only for TaskManager and JobManager)
+                    'JVM_Avg_Heap_Used_Bytes': group_data.get('jvm_avg_heap_used', 0),
+                    'JVM_Max_Heap_Used_Bytes': group_data.get('jvm_max_heap_used', 0),
+                    'JVM_Avg_Heap_Committed_Bytes': group_data.get('jvm_avg_heap_committed', 0),
+                    'JVM_Avg_OldGen_Used_Bytes': group_data.get('jvm_avg_old_gen_used', 0),
+                    'JVM_Max_OldGen_Used_Bytes': group_data.get('jvm_max_old_gen_used', 0),
+                    'JVM_Avg_Eden_Used_Bytes': group_data.get('jvm_avg_eden_used', 0),
+                    'JVM_Max_Eden_Used_Bytes': group_data.get('jvm_max_eden_used', 0),
+                    'JVM_Avg_Metaspace_Used_Bytes': group_data.get('jvm_avg_metaspace_used', 0),
+                    'JVM_Max_Metaspace_Used_Bytes': group_data.get('jvm_max_metaspace_used', 0),
+                    'JVM_Total_YoungGC_Count': group_data.get('jvm_total_young_gc_count', 0),
+                    'JVM_Total_YoungGC_Time_ms': group_data.get('jvm_total_young_gc_time', 0),
+                    'JVM_Total_OldGC_Count': group_data.get('jvm_total_old_gc_count', 0),
+                    'JVM_Total_OldGC_Time_ms': group_data.get('jvm_total_old_gc_time', 0),
+                    'JVM_Avg_Thread_Count': group_data.get('jvm_avg_thread_count', 0),
+                    'JVM_Max_Thread_Count': group_data.get('jvm_max_thread_count', 0)
                 }
                 results.append(result)
             
@@ -437,7 +668,12 @@ def main():
     output_file = os.path.join(output_dir, "part8_overhead_results.csv")
     fieldnames = ['Workload', 'Configuration', 'Process_Group', 'Total_Cycles', 'Instructions',
                   'avg_RSS_KB', 'ReadBytes_per_min', 'WriteBytes_per_min', 'RChar_per_min', 'WChar_per_min',
-                  'MinorFaults_per_min', 'MajorFaults_per_min', 'LLC_Misses_per_min']
+                  'MinorFaults_per_min', 'MajorFaults_per_min', 'LLC_Misses_per_min',
+                  'JVM_Avg_Heap_Used_Bytes', 'JVM_Max_Heap_Used_Bytes', 'JVM_Avg_Heap_Committed_Bytes',
+                  'JVM_Avg_OldGen_Used_Bytes', 'JVM_Max_OldGen_Used_Bytes', 'JVM_Avg_Eden_Used_Bytes',
+                  'JVM_Max_Eden_Used_Bytes', 'JVM_Avg_Metaspace_Used_Bytes', 'JVM_Max_Metaspace_Used_Bytes',
+                  'JVM_Total_YoungGC_Count', 'JVM_Total_YoungGC_Time_ms', 'JVM_Total_OldGC_Count',
+                  'JVM_Total_OldGC_Time_ms', 'JVM_Avg_Thread_Count', 'JVM_Max_Thread_Count']
     
     with open(output_file, 'w', newline='') as csvfile:
         writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
@@ -447,17 +683,22 @@ def main():
     print(f"\nResults saved to: {output_file}")
     
     # Display summary table
-    print(f"\nPart 8 Overhead Analysis Results:")
-    print("=" * 180)
+    print(f"\nPart 8 Overhead Analysis Results with JVM Metrics:")
+    print("=" * 220)
     
     # Print header
-    header = f"{'Workload':<10} {'Config':<18} {'Process':<15} {'Cycles':<15} {'Instructions':<15} {'RSS_KB':<12} {'ReadB/min':<12} {'WriteB/min':<12} {'RChar/min':<12} {'WChar/min':<12} {'MinorF/min':<12} {'MajorF/min':<12} {'LLCMiss/min':<12}"
+    header = f"{'Workload':<10} {'Config':<18} {'Process':<15} {'Cycles':<15} {'Instructions':<15} {'RSS_KB':<12} {'ReadB/min':<12} {'WriteB/min':<12} {'JVM_HeapUsed_MB':<16} {'JVM_YoungGC':<12} {'JVM_OldGC':<10} {'JVM_Threads':<12}"
     print(header)
-    print("-" * 180)
+    print("-" * 220)
     
     # Print data rows
     for result in results:
-        row = f"{result['Workload']:<10} {result['Configuration']:<18} {result['Process_Group']:<15} {result['Total_Cycles']:>14,} {result['Instructions']:>14,} {result['avg_RSS_KB']:>11,} {result['ReadBytes_per_min']:>11,} {result['WriteBytes_per_min']:>11,} {result['RChar_per_min']:>11,} {result['WChar_per_min']:>11,} {result['MinorFaults_per_min']:>11,} {result['MajorFaults_per_min']:>11,} {result['LLC_Misses_per_min']:>11,}"
+        heap_used_mb = result['JVM_Avg_Heap_Used_Bytes'] // (1024 * 1024) if result['JVM_Avg_Heap_Used_Bytes'] > 0 else 0
+        young_gc_info = f"{result['JVM_Total_YoungGC_Count']}/{result['JVM_Total_YoungGC_Time_ms']}ms"
+        old_gc_info = f"{result['JVM_Total_OldGC_Count']}/{result['JVM_Total_OldGC_Time_ms']}ms"
+        thread_info = f"{result['JVM_Avg_Thread_Count']}/{result['JVM_Max_Thread_Count']}"
+        
+        row = f"{result['Workload']:<10} {result['Configuration']:<18} {result['Process_Group']:<15} {result['Total_Cycles']:>14,} {result['Instructions']:>14,} {result['avg_RSS_KB']:>11,} {result['ReadBytes_per_min']:>11,} {result['WriteBytes_per_min']:>11,} {heap_used_mb:>15,} {young_gc_info:>11} {old_gc_info:>9} {thread_info:>11}"
         print(row)
 
 if __name__ == "__main__":
