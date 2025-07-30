@@ -77,7 +77,7 @@ start_cpu_monitoring() {
     
     # Timeline alignment parameters
     WARMUP_DELAY=60        # Start monitoring after 120s warmup
-    MONITOR_DURATION=300 #1200 #240   # Monitor for 4 minutes (240s)
+    MONITOR_DURATION=1200 #300 #1200 #240   # Monitor for 4 minutes (240s)
     
             # Start CPU cycle monitoring
         {
@@ -268,7 +268,7 @@ init() {
   how_type="streamsluice"
   scalein_type="streamsluice"
   L=2000 #4000
-  runtime=390 #1360 #390
+  runtime=1360 #390
   skip_interval=1 # skip seconds
   warmup=10000
   warmup_time=90
