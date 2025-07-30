@@ -354,9 +354,9 @@ output_pdf_flag=True
 boxplot_flag=False # False for barchart of mean
 
 title_list = [
-    "(a)User Latency Limit (ms)",
+    "(a)User Latency Limit (s)",
     "(b)Epoch Length (ms)",
-    "(c)Bound Increase Sensitivity",
+    "(c)Bound Safety Margin",
     "(d)Tuning Frequency (s)",
 ]
 
@@ -410,7 +410,7 @@ def main():
                 label = splits[3]
                 x = splits[2]
 
-                if (dimension == "User Limit(ms)"):
+                if (dimension == "User Limit(s)"):
                     label = ""
 
                 success_rate = float(splits[4])

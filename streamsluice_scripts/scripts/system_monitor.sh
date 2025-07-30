@@ -17,7 +17,7 @@ KAFKA_SAMPLE_COUNT=5       # number of samples to take
 # JVM monitoring variables
 JVM_MONITOR_LOG_FILE=""
 JVM_MONITOR_PID=""
-JVM_MONITOR_INTERVAL=5  # seconds between measurements
+JVM_MONITOR_INTERVAL=1  # seconds between measurements (changed from 5 to 1 for better accuracy)
 JVM_MONITOR_DURATION=1200  # total monitoring duration in seconds
 
 # Function to get PIDs of target processes

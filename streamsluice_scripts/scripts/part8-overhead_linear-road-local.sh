@@ -181,11 +181,11 @@ start_cpu_monitoring() {
     
     # Start system monitoring (memory, I/O, page faults, LLC misses)
     echo "INFO: Starting comprehensive system monitoring..."
-    start_system_monitoring "$SYSTEM_MONITOR_LOG_FILE" $((MONITOR_DURATION + 30)) 5
+    start_system_monitoring "$SYSTEM_MONITOR_LOG_FILE" $((MONITOR_DURATION + 30)) 1
     
     # Start JVM monitoring (heap, GC, threads)
     echo "INFO: Starting comprehensive JVM monitoring..."
-    start_jvm_monitoring "$JVM_MONITOR_LOG_FILE" $((MONITOR_DURATION + 30)) 5
+    start_jvm_monitoring "$JVM_MONITOR_LOG_FILE" $((MONITOR_DURATION + 30)) 1
     
     # Start Kafka metrics monitoring (only if metrics reporting is enabled)
     if [[ "${metrics_report:-false}" == "true" ]]; then

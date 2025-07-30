@@ -274,9 +274,9 @@ def extract_comprehensive_metrics(exp_path):
         
         # Store first and last values for rate calculation
         process_data = {
-            'taskmanager': {'first': None, 'last': None, 'rss_samples': []},
-            'jobmanager': {'first': None, 'last': None, 'rss_samples': []},
-            'kafka_zookeeper': {'first': None, 'last': None, 'rss_samples': []}
+            'taskmanager': {'first': None, 'last': None, 'baseline': None, 'rss_samples': []},
+            'jobmanager': {'first': None, 'last': None, 'baseline': None, 'rss_samples': []},
+            'kafka_zookeeper': {'first': None, 'last': None, 'baseline': None, 'rss_samples': []}
         }
         
         # Parse CSV data (system monitoring metrics)
@@ -343,6 +343,10 @@ def extract_comprehensive_metrics(exp_path):
                             process_data[target_key]['first'] = data_point
                         process_data[target_key]['last'] = data_point
                         
+                        # Store second measurement as baseline (to avoid anomalous first measurement)
+                        if process_data[target_key]['baseline'] is None and len(process_data[target_key]['rss_samples']) == 1:
+                            process_data[target_key]['baseline'] = data_point
+                        
                         # Collect RSS samples for averaging (non-cumulative metric)
                         process_data[target_key]['rss_samples'].append(rss_kb)
                         
@@ -361,17 +365,42 @@ def extract_comprehensive_metrics(exp_path):
                 
                 target = result[target_key]
                 
-                # Calculate per-minute rates from cumulative values
-                target['avg_read_bytes'] = max(0, int((last['read_bytes'] - first['read_bytes']) / duration_minutes))
-                target['avg_write_bytes'] = max(0, int((last['write_bytes'] - first['write_bytes']) / duration_minutes))
-                target['avg_rchar'] = max(0, int((last['rchar'] - first['rchar']) / duration_minutes))
-                target['avg_wchar'] = max(0, int((last['wchar'] - first['wchar']) / duration_minutes))
-                target['avg_minor_faults'] = max(0, int((last['minor_faults'] - first['minor_faults']) / duration_minutes))
-                target['avg_major_faults'] = max(0, int((last['major_faults'] - first['major_faults']) / duration_minutes))
-                target['avg_llc_misses'] = max(0, int((last['llc_misses'] - first['llc_misses']) / duration_minutes))
+                # For cumulative metrics (I/O, faults, etc.), use the second measurement as baseline
+                # to avoid anomalous startup values in the first measurement
+                rss_samples = process_data[target_key]['rss_samples']
+                if len(rss_samples) >= 2:
+                    # Use second measurement as baseline for rate calculation
+                    # This avoids the anomalous first measurement that often contains startup I/O
+                    baseline_data = process_data[target_key]['baseline']
+                    if baseline_data:
+                        # Calculate per-minute rates from cumulative values using baseline
+                        target['avg_read_bytes'] = max(0, int((last['read_bytes'] - baseline_data['read_bytes']) / duration_minutes))
+                        target['avg_write_bytes'] = max(0, int((last['write_bytes'] - baseline_data['write_bytes']) / duration_seconds))  # Changed to per-second
+                        target['avg_rchar'] = max(0, int((last['rchar'] - baseline_data['rchar']) / duration_minutes))
+                        target['avg_wchar'] = max(0, int((last['wchar'] - baseline_data['wchar']) / duration_minutes))
+                        target['avg_minor_faults'] = max(0, int((last['minor_faults'] - baseline_data['minor_faults']) / duration_minutes))
+                        target['avg_major_faults'] = max(0, int((last['major_faults'] - baseline_data['major_faults']) / duration_minutes))
+                        target['avg_llc_misses'] = max(0, int((last['llc_misses'] - baseline_data['llc_misses']) / duration_minutes))
+                    else:
+                        # Fallback to first measurement if no baseline available
+                        target['avg_read_bytes'] = max(0, int((last['read_bytes'] - first['read_bytes']) / duration_minutes))
+                        target['avg_write_bytes'] = max(0, int((last['write_bytes'] - first['write_bytes']) / duration_seconds)) # Changed to per-second
+                        target['avg_rchar'] = max(0, int((last['rchar'] - first['rchar']) / duration_minutes))
+                        target['avg_wchar'] = max(0, int((last['wchar'] - first['wchar']) / duration_minutes))
+                        target['avg_minor_faults'] = max(0, int((last['minor_faults'] - first['minor_faults']) / duration_minutes))
+                        target['avg_major_faults'] = max(0, int((last['major_faults'] - first['major_faults']) / duration_minutes))
+                        target['avg_llc_misses'] = max(0, int((last['llc_misses'] - first['llc_misses']) / duration_minutes))
+                else:
+                    # Fallback to first measurement if not enough samples
+                    target['avg_read_bytes'] = max(0, int((last['read_bytes'] - first['read_bytes']) / duration_minutes))
+                    target['avg_write_bytes'] = max(0, int((last['write_bytes'] - first['write_bytes']) / duration_seconds)) # Changed to per-second
+                    target['avg_rchar'] = max(0, int((last['rchar'] - first['rchar']) / duration_minutes))
+                    target['avg_wchar'] = max(0, int((last['wchar'] - first['wchar']) / duration_minutes))
+                    target['avg_minor_faults'] = max(0, int((last['minor_faults'] - first['minor_faults']) / duration_minutes))
+                    target['avg_major_faults'] = max(0, int((last['major_faults'] - first['major_faults']) / duration_minutes))
+                    target['avg_llc_misses'] = max(0, int((last['llc_misses'] - first['llc_misses']) / duration_minutes))
                 
                 # Calculate average RSS (non-cumulative metric)
-                rss_samples = process_data[target_key]['rss_samples']
                 if rss_samples:
                     target['avg_rss_kb'] = sum(rss_samples) // len(rss_samples)
                 
@@ -546,8 +575,12 @@ def main():
         "Linear-Road": {
             #"with_Sluice": "part8-lr-StreamSluice-100000000-1360-150-1300-10-1-50-1-333-1-50-1-300-3000-0.1-100-1-25-0.0-false-1000-0.8-1",
             #"without_Sluice": "part8-lr-NoControll-100000000-1360-150-1300-10-1-50-1-333-1-50-1-300-3000-0.1-100-1-25-0.0-false-1000-0.8-1",
-             "with_Sluice": "part8-lr-StreamSluice-100000000-390-150-1300-10-1-50-1-333-1-50-1-300-3000-0.1-100-1-25-0.0-false-1000-0.8-1",
-             "without_Sluice": "part8-lr-NoControll-100000000-390-150-1300-10-1-50-1-333-1-50-1-300-3000-0.1-100-1-25-0.0-false-1000-0.8-1",
+              "With_Sluice": "part8-lr-StreamSluice-100000000-390-150-1300-10-1-50-1-50-1-50-1-50-3000-0.1-100-1-25-0.0-false-1000-0.8-4",
+            # "With_Sluice2": "part8-lr-StreamSluice-100000000-390-150-1300-10-1-50-1-50-1-50-1-50-3000-0.1-100-1-25-0.0-false-1000-0.8-5",
+             "Without_Sluice": "part8-lr-NoControll-100000000-390-150-1300-10-1-50-1-50-1-50-1-50-3000-0.1-100-1-25-0.0-false-1000-0.8-4",
+            # "Without_Sluice2": "part8-lr-NoControll-100000000-390-150-1300-10-1-50-1-50-1-50-1-50-3000-0.1-100-1-25-0.0-false-1000-0.8-5",
+            # "with_Sluice": "part8-lr-StreamSluice-100000000-390-150-1300-10-1-50-1-333-1-50-1-300-3000-0.1-100-1-25-0.0-false-1000-0.8-2",
+            # "without_Sluice": "part8-lr-NoControll-100000000-390-150-1300-10-1-50-1-333-1-50-1-300-3000-0.1-100-1-25-0.0-false-1000-0.8-2",
             # "P4_Sluice": "part8-lr-StreamSluice-100000000-1360-150-1300-10-1-50-1-333-1-50-1-300-3000-0.1-100-1-25-0.0-false-1000-0.8-1",
             # "P8_Sluice": "part8-lr-StreamSluice-100000000-1360-150-1300-10-1-50-1-333-1-50-5-300-3000-0.1-100-1-25-0.0-false-1000-0.8-1",
             # "P13_Sluice": "part8-lr-StreamSluice-100000000-1360-150-1300-10-1-50-1-333-1-50-10-300-3000-0.1-100-1-25-0.0-false-1000-0.8-1",
@@ -560,8 +593,10 @@ def main():
         "Stock": {
         #    "with_Sluice": "part8-stock-StreamSluice-100000000-1360-90-1000-20-1-200-1-50-1-200-1-166-1-1-50-3000-100-0.1-false-true-1",
         #    "without_Sluice": "part8-stock-NoControll-100000000-1360-90-1000-20-1-200-1-50-1-200-1-166-1-1-50-3000-100-0.1-false-false-1",
-            "with_Sluice": "part8-stock-StreamSluice-100000000-390-90-1000-20-1-200-1-50-1-200-1-166-1-1-50-3000-100-0.1-false-true-1",
-            "without_Sluice": "part8-stock-NoControll-100000000-390-90-1000-20-1-200-1-50-1-200-1-166-1-1-50-3000-100-0.1-false-false-1",
+            "with_Sluice": "part8-stock-StreamSluice-100000000-390-90-1000-20-1-200-1-50-1-200-1-50-1-1-50-3000-100-0.1-false-true-4",
+            "without_Sluice": "part8-stock-NoControll-100000000-390-90-1000-20-1-200-1-50-1-200-1-50-1-1-50-3000-100-0.1-false-false-4",
+           #  "with_Sluice": "part8-stock-StreamSluice-100000000-390-90-1000-20-1-200-1-50-1-200-1-166-1-1-50-3000-100-0.1-false-true-2",
+           #  "without_Sluice": "part8-stock-NoControll-100000000-390-90-1000-20-1-200-1-50-1-200-1-166-1-1-50-3000-100-0.1-false-false-2",
         #     # "Without_Sluice": "part8-stock-NoControll-100000000-1360-90-1000-20-1-200-4-1111-1-200-1-166-1-5-1666-3000-100-0.1-false-false-1",
         #     # "With_Sluice_5ms": "part8-stock-StreamSluice-5000000-1360-90-1000-20-1-200-4-1111-1-200-1-166-1-5-1666-3000-100-0.1-false-true-1",
         #     # "With_Sluice_25ms": "part8-stock-StreamSluice-25000000-1360-90-1000-20-1-200-4-1111-1-200-1-166-1-5-1666-3000-100-0.1-false-true-1",
@@ -585,17 +620,18 @@ def main():
         "Twitter": {
             #"with_Sluice": "part8-twitter-StreamSluice-100000000-1360-90-3400-1-1-100-1-50-1-50-1-50-2000-0.1-100--1250-0.0-false-1000-0.8-1",
             #"without_Sluice": "part8-twitter-NoControll-100000000-1360-90-3400-1-1-100-1-50-1-50-1-50-2000-0.1-100--1250-0.0-false-1000-0.8-1",
-            "With_Sluice": "part8-twitter-StreamSluice-100000000-390-90-3400-1-1-100-1-50-1-50-1-50-2000-0.1-100--1250-0.0-false-1000-0.8-1",
-            "Without_Sluice": "part8-twitter-NoControll-100000000-390-90-3400-1-1-100-1-50-1-50-1-50-2000-0.1-100--1250-0.0-false-1000-0.8-1",
+            "With_Sluice": "part8-twitter-StreamSluice-100000000-390-90-3400-1-1-50-1-50-1-50-1-50-2000-0.1-100--1250-0.0-false-1000-0.8-4",
+            "Without_Sluice": "part8-twitter-NoControll-100000000-390-90-3400-1-1-50-1-50-1-50-1-50-2000-0.1-100--1250-0.0-false-1000-0.8-4",
+            # "With_Sluice": "part8-twitter-StreamSluice-100000000-390-90-3400-1-1-100-1-50-1-50-1-50-2000-0.1-100--1250-0.0-false-1000-0.8-2",
+            # "Without_Sluice": "part8-twitter-NoControll-100000000-390-90-3400-1-1-100-1-50-1-50-1-50-2000-0.1-100--1250-0.0-false-1000-0.8-2",
             # "Without_Sluice": "part8-twitter-NoControll-100000000-1360-90-3400-1-7-1111-3-166-1-50-1-50-2000-0.1-100--1250-0.0-false-1000-0.8-1",
             # "With_Sluice_5ms": "part8-twitter-StreamSluice-5000000-1360-90-3400-1-7-1111-3-166-1-50-1-50-2000-0.1-100--1250-0.0-false-1000-0.8-1",
             # "With_Sluice_25ms": "part8-twitter-StreamSluice-25000000-1360-90-3400-1-7-1111-3-166-1-50-1-50-2000-0.1-100--1250-0.0-false-1000-0.8-1",
             # "With_Sluice_100ms": "part8-twitter-StreamSluice-100000000-1360-90-3400-1-7-1111-3-166-1-50-1-50-2000-0.1-100--1250-0.0-false-1000-0.8-1",
         },
         "ML-Scoring": {
-
-            "With_Sluice": "part8-ml-StreamSluice-100000000-390-150-1300-10-1-50-1-50-1-50-1-50-3000-0.1-100-1-25-0.0-false-1000-0.8-1",
-            "Without_Sluice": "part8-ml-NoControll-100000000-390-150-1300-10-1-50-1-50-1-50-1-50-3000-0.1-100-1-25-0.0-false-1000-0.8-1",
+            "With_Sluice": "part8-ml-StreamSluice-100000000-390-150-1300-10-1-50-1-50-1-50-1-50-3000-0.1-100-1-25-0.0-false-1000-0.8-2",
+            "Without_Sluice": "part8-ml-NoControll-100000000-390-150-1300-10-1-50-1-50-1-50-1-50-3000-0.1-100-1-25-0.0-false-1000-0.8-2",
             # "Without_Sluice": "part8-ml-NoControll-100000000-1360-150-1300-10-1-50-1-333-1-50-9-1111-3000-0.1-100-1-25-0.0-false-1000-0.8-1",
             # "With_Sluice_5ms": "part8-ml-StreamSluice-5000000-1360-150-1300-10-1-50-1-333-1-50-9-1111-3000-0.1-100-1-25-0.0-false-1000-0.8-1",
             # "With_Sluice_25ms": "part8-ml-StreamSluice-25000000-1360-150-1300-10-1-50-1-333-1-50-9-1111-3000-0.1-100-1-25-0.0-false-1000-0.8-1",
@@ -642,7 +678,7 @@ def main():
                     'Instructions': group_data['instructions'],
                     'avg_RSS_KB': group_data['avg_rss_kb'],
                     'ReadBytes_per_min': group_data['avg_read_bytes'],
-                    'WriteBytes_per_min': group_data['avg_write_bytes'],
+                    'WriteBytes_per_sec': group_data['avg_write_bytes'],  # Changed from per_min to per_sec
                     'RChar_per_min': group_data['avg_rchar'],
                     'WChar_per_min': group_data['avg_wchar'],
                     'MinorFaults_per_min': group_data['avg_minor_faults'],
@@ -682,7 +718,7 @@ def main():
     # Save to CSV
     output_file = os.path.join(output_dir, "part8_overhead_results.csv")
     fieldnames = ['Workload', 'Configuration', 'Process_Group', 'Total_Cycles', 'Instructions',
-                  'avg_RSS_KB', 'ReadBytes_per_min', 'WriteBytes_per_min', 'RChar_per_min', 'WChar_per_min',
+                  'avg_RSS_KB', 'ReadBytes_per_min', 'WriteBytes_per_sec', 'RChar_per_min', 'WChar_per_min',
                   'MinorFaults_per_min', 'MajorFaults_per_min', 'LLC_Misses_per_min',
                   'JVM_Avg_Heap_Used_Bytes', 'JVM_Max_Heap_Used_Bytes', 'JVM_Avg_Heap_Committed_Bytes',
                   'JVM_Avg_OldGen_Used_Bytes', 'JVM_Max_OldGen_Used_Bytes', 'JVM_Avg_Eden_Used_Bytes',
@@ -702,7 +738,7 @@ def main():
     print("=" * 220)
     
     # Print header
-    header = f"{'Workload':<10} {'Config':<18} {'Process':<15} {'Cycles':<15} {'Instructions':<15} {'RSS_KB':<12} {'ReadB/min':<12} {'WriteB/min':<12} {'JVM_HeapUsed_MB':<16} {'JVM_YoungGC':<12} {'JVM_OldGC':<10} {'JVM_Threads':<12}"
+    header = f"{'Workload':<10} {'Config':<18} {'Process':<15} {'Cycles':<15} {'Instructions':<15} {'RSS_KB':<12} {'ReadB/min':<12} {'WriteB/sec':<12} {'JVM_HeapUsed_MB':<16} {'JVM_YoungGC':<12} {'JVM_OldGC':<10} {'JVM_Threads':<12}"
     print(header)
     print("-" * 220)
     
@@ -713,7 +749,7 @@ def main():
         old_gc_info = f"{result['JVM_Total_OldGC_Count']}/{result['JVM_Total_OldGC_Time_ms']}ms"
         thread_info = f"{result['JVM_Avg_Thread_Count']}/{result['JVM_Max_Thread_Count']}"
         
-        row = f"{result['Workload']:<10} {result['Configuration']:<18} {result['Process_Group']:<15} {result['Total_Cycles']:>14,} {result['Instructions']:>14,} {result['avg_RSS_KB']:>11,} {result['ReadBytes_per_min']:>11,} {result['WriteBytes_per_min']:>11,} {heap_used_mb:>15,} {young_gc_info:>11} {old_gc_info:>9} {thread_info:>11}"
+        row = f"{result['Workload']:<10} {result['Configuration']:<18} {result['Process_Group']:<15} {result['Total_Cycles']:>14,} {result['Instructions']:>14,} {result['avg_RSS_KB']:>11,} {result['ReadBytes_per_min']:>11,} {result['WriteBytes_per_sec']:>11,} {heap_used_mb:>15,} {young_gc_info:>11} {old_gc_info:>9} {thread_info:>11}"
         print(row)
 
 if __name__ == "__main__":
