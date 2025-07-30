@@ -271,15 +271,15 @@ collect_jvm_metrics() {
             # Parse jstat -gc output: S0C S1C S0U S1U EC EU OC OU MC MU CCSC CCSU YGC YGCT FGC FGCT GCT
             read -r s0c s1c s0u s1u ec eu oc ou mc mu ccsc ccsu ygc ygct fgc fgct gct <<< "$gc_data"
             
-            # Convert KB to bytes and calculate values
-            eden_committed=$((${ec:-0} * 1024))
-            eden_used=$((${eu:-0} * 1024))
-            survivor_committed=$(((${s0c:-0} + ${s1c:-0}) * 1024))
-            survivor_used=$(((${s0u:-0} + ${s1u:-0}) * 1024))
-            old_committed=$((${oc:-0} * 1024))
-            old_used=$((${ou:-0} * 1024))
-            metaspace_committed=$((${mc:-0} * 1024))
-            metaspace_used=$((${mu:-0} * 1024))
+            # Convert KB to bytes and calculate values (handle floating-point by converting to int)
+            eden_committed=$(($(echo "${ec:-0}" | cut -d. -f1) * 1024))
+            eden_used=$(($(echo "${eu:-0}" | cut -d. -f1) * 1024))
+            survivor_committed=$((($(echo "${s0c:-0}" | cut -d. -f1) + $(echo "${s1c:-0}" | cut -d. -f1)) * 1024))
+            survivor_used=$((($(echo "${s0u:-0}" | cut -d. -f1) + $(echo "${s1u:-0}" | cut -d. -f1)) * 1024))
+            old_committed=$(($(echo "${oc:-0}" | cut -d. -f1) * 1024))
+            old_used=$(($(echo "${ou:-0}" | cut -d. -f1) * 1024))
+            metaspace_committed=$(($(echo "${mc:-0}" | cut -d. -f1) * 1024))
+            metaspace_used=$(($(echo "${mu:-0}" | cut -d. -f1) * 1024))
             
             # Calculate heap totals
             heap_committed=$((eden_committed + survivor_committed + old_committed))
@@ -302,13 +302,13 @@ collect_jvm_metrics() {
             # Parse jstat -gccapacity output for maximum values
             read -r ngcmn ngcmx ngc s0cmx s0c s1cmx s1c ecmx ec ogcmn ogcmx ogc oc mcmn mcmx mc ccsmn ccsmx ccsc ygc fgc <<< "$heap_capacity"
             
-            # Calculate maximum heap size (KB to bytes)
-            local young_max=$(((${s0cmx:-0} + ${s1cmx:-0} + ${ecmx:-0}) * 1024))
-            local old_max_capacity=$((${ogcmx:-0} * 1024))
+            # Calculate maximum heap size (KB to bytes) - handle floating-point
+            local young_max=$((($(echo "${s0cmx:-0}" | cut -d. -f1) + $(echo "${s1cmx:-0}" | cut -d. -f1) + $(echo "${ecmx:-0}" | cut -d. -f1)) * 1024))
+            local old_max_capacity=$(($(echo "${ogcmx:-0}" | cut -d. -f1) * 1024))
             heap_max=$((young_max + old_max_capacity))
-            eden_max=$((${ecmx:-0} * 1024))
+            eden_max=$(($(echo "${ecmx:-0}" | cut -d. -f1) * 1024))
             old_max=$old_max_capacity
-            metaspace_max=$((${mcmx:-0} * 1024))
+            metaspace_max=$(($(echo "${mcmx:-0}" | cut -d. -f1) * 1024))
             nonheap_max=$metaspace_max
         fi
     fi
