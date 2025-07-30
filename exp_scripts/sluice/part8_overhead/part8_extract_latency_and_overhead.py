@@ -159,11 +159,11 @@ def read_jvm_metrics_from_file(jvm_file):
                     
                     # Parse numeric values (handle potential empty values)
                     heap_used = int(parts[4]) if parts[4].isdigit() else 0
-                    heap_committed = int(parts[6]) if parts[6].isdigit() else 0
+                    heap_committed = int(parts[5]) if parts[5].isdigit() else 0  # Fixed: was parts[6]
                     eden_used = int(parts[10]) if parts[10].isdigit() else 0
-                    eden_committed = int(parts[11]) if parts[11].isdigit() else 0
+                    eden_committed = int(parts[11]) if parts[11].isdigit() else 0  # Fixed: was parts[12]
                     old_used = int(parts[16]) if parts[16].isdigit() else 0
-                    old_committed = int(parts[17]) if parts[17].isdigit() else 0
+                    old_committed = int(parts[17]) if parts[17].isdigit() else 0  # Fixed: was parts[18]
                     metaspace_used = int(parts[19]) if parts[19].isdigit() else 0
                     young_gc_count = int(parts[22]) if parts[22].isdigit() else 0
                     young_gc_time = int(parts[23]) if parts[23].isdigit() else 0
@@ -544,8 +544,10 @@ def main():
     # Experiment configurations from the original script
     experiments = {
         "Linear-Road": {
-            "with_Sluice": "part8-lr-StreamSluice-100000000-390-150-1300-10-1-50-1-333-1-50-1-300-3000-0.1-100-1-25-0.0-false-1000-0.8-1",
-            "without_Sluice": "part8-lr-NoControll-100000000-390-150-1300-10-1-50-1-333-1-50-1-300-3000-0.1-100-1-25-0.0-false-1000-0.8-1",
+            #"with_Sluice": "part8-lr-StreamSluice-100000000-1360-150-1300-10-1-50-1-333-1-50-1-300-3000-0.1-100-1-25-0.0-false-1000-0.8-1",
+            #"without_Sluice": "part8-lr-NoControll-100000000-1360-150-1300-10-1-50-1-333-1-50-1-300-3000-0.1-100-1-25-0.0-false-1000-0.8-1",
+             "with_Sluice": "part8-lr-StreamSluice-100000000-390-150-1300-10-1-50-1-333-1-50-1-300-3000-0.1-100-1-25-0.0-false-1000-0.8-1",
+             "without_Sluice": "part8-lr-NoControll-100000000-390-150-1300-10-1-50-1-333-1-50-1-300-3000-0.1-100-1-25-0.0-false-1000-0.8-1",
             # "P4_Sluice": "part8-lr-StreamSluice-100000000-1360-150-1300-10-1-50-1-333-1-50-1-300-3000-0.1-100-1-25-0.0-false-1000-0.8-1",
             # "P8_Sluice": "part8-lr-StreamSluice-100000000-1360-150-1300-10-1-50-1-333-1-50-5-300-3000-0.1-100-1-25-0.0-false-1000-0.8-1",
             # "P13_Sluice": "part8-lr-StreamSluice-100000000-1360-150-1300-10-1-50-1-333-1-50-10-300-3000-0.1-100-1-25-0.0-false-1000-0.8-1",
@@ -556,6 +558,8 @@ def main():
             # "P23_No": "part8-lr-NoControll-100000000-1360-150-1300-10-1-50-1-333-1-50-20-300-3000-0.1-100-1-25-0.0-false-1000-0.8-1",
         },
         "Stock": {
+        #    "with_Sluice": "part8-stock-StreamSluice-100000000-1360-90-1000-20-1-200-1-50-1-200-1-166-1-1-50-3000-100-0.1-false-true-1",
+        #    "without_Sluice": "part8-stock-NoControll-100000000-1360-90-1000-20-1-200-1-50-1-200-1-166-1-1-50-3000-100-0.1-false-false-1",
             "with_Sluice": "part8-stock-StreamSluice-100000000-390-90-1000-20-1-200-1-50-1-200-1-166-1-1-50-3000-100-0.1-false-true-1",
             "without_Sluice": "part8-stock-NoControll-100000000-390-90-1000-20-1-200-1-50-1-200-1-166-1-1-50-3000-100-0.1-false-false-1",
         #     # "Without_Sluice": "part8-stock-NoControll-100000000-1360-90-1000-20-1-200-4-1111-1-200-1-166-1-5-1666-3000-100-0.1-false-false-1",
@@ -579,6 +583,8 @@ def main():
         #     "P26_No": "part8-stock-NoControll-100000000-1360-90-1000-20-1-200-1-200-1-200-1-166-1-20-200-3000-100-0.1-false-false-1",
         },
         "Twitter": {
+            #"with_Sluice": "part8-twitter-StreamSluice-100000000-1360-90-3400-1-1-100-1-50-1-50-1-50-2000-0.1-100--1250-0.0-false-1000-0.8-1",
+            #"without_Sluice": "part8-twitter-NoControll-100000000-1360-90-3400-1-1-100-1-50-1-50-1-50-2000-0.1-100--1250-0.0-false-1000-0.8-1",
             "With_Sluice": "part8-twitter-StreamSluice-100000000-390-90-3400-1-1-100-1-50-1-50-1-50-2000-0.1-100--1250-0.0-false-1000-0.8-1",
             "Without_Sluice": "part8-twitter-NoControll-100000000-390-90-3400-1-1-100-1-50-1-50-1-50-2000-0.1-100--1250-0.0-false-1000-0.8-1",
             # "Without_Sluice": "part8-twitter-NoControll-100000000-1360-90-3400-1-7-1111-3-166-1-50-1-50-2000-0.1-100--1250-0.0-false-1000-0.8-1",
@@ -587,6 +593,7 @@ def main():
             # "With_Sluice_100ms": "part8-twitter-StreamSluice-100000000-1360-90-3400-1-7-1111-3-166-1-50-1-50-2000-0.1-100--1250-0.0-false-1000-0.8-1",
         },
         "ML-Scoring": {
+
             "With_Sluice": "part8-ml-StreamSluice-100000000-390-150-1300-10-1-50-1-50-1-50-1-50-3000-0.1-100-1-25-0.0-false-1000-0.8-1",
             "Without_Sluice": "part8-ml-NoControll-100000000-390-150-1300-10-1-50-1-50-1-50-1-50-3000-0.1-100-1-25-0.0-false-1000-0.8-1",
             # "Without_Sluice": "part8-ml-NoControll-100000000-1360-150-1300-10-1-50-1-333-1-50-9-1111-3000-0.1-100-1-25-0.0-false-1000-0.8-1",

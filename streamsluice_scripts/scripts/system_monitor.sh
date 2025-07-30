@@ -474,23 +474,24 @@ stop_system_monitoring() {
 }
 
 # If script is run directly (not sourced)
-if [[ "${BASH_SOURCE[0]}" == "${0}" ]]; then
-    # Parse command line arguments
-    LOG_FILE="${1:-/tmp/system_monitor_$(date +%Y%m%d_%H%M%S).csv}"
-    DURATION="${2:-240}"
-    INTERVAL="${3:-5}"
-    
-    echo "Starting system monitoring..."
-    echo "Log file: $LOG_FILE"
-    echo "Duration: ${DURATION}s"
-    echo "Interval: ${INTERVAL}s"
-    
-    start_system_monitoring "$LOG_FILE" "$DURATION" "$INTERVAL"
-    
-    # Wait for monitoring to complete
-    if [[ ! -z "$MONITOR_PID" ]]; then
-        wait $MONITOR_PID
-    fi
-    
-    echo "System monitoring completed!"
-fi 
+# Commented out to prevent duplicate monitoring when sourced by experiment scripts
+# if [[ "${BASH_SOURCE[0]}" == "${0}" ]]; then
+#     # Parse command line arguments
+#     LOG_FILE="${1:-/tmp/system_monitor_$(date +%Y%m%d_%H%M%S).csv}"
+#     DURATION="${2:-240}"
+#     INTERVAL="${3:-5}"
+#     
+#     echo "Starting system monitoring..."
+#     echo "Log file: $LOG_FILE"
+#     echo "Duration: ${DURATION}s"
+#     echo "Interval: ${INTERVAL}s"
+#     
+#     start_system_monitoring "$LOG_FILE" "$DURATION" "$INTERVAL"
+#     
+#     # Wait for monitoring to complete
+#     if [[ ! -z "$MONITOR_PID" ]]; then
+#         wait $MONITOR_PID
+#     fi
+#     
+#     echo "System monitoring completed!"
+# fi 
