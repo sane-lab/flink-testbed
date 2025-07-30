@@ -338,23 +338,43 @@ start_jvm_monitoring() {
         
         local start_time=$(date +%s)
         local end_time=$((start_time + duration))
+        local consecutive_empty_cycles=0
+        local max_empty_cycles=10  # Stop if no processes found for 10 consecutive cycles
         
         echo "INFO: JVM monitoring started at $(date '+%Y-%m-%d %H:%M:%S')"
         echo "INFO: Will monitor JVM metrics for ${duration}s with ${interval}s intervals"
+        
+        # Wait a bit for Flink processes to start up
+        echo "INFO: Waiting 10 seconds for Flink processes to start up..."
+        sleep 10
         
         while [[ $(date +%s) -lt $end_time ]]; do
             local current_time=$(date '+%Y-%m-%d %H:%M:%S')
             local pids=$(get_flink_jvm_pids)
             
             if [[ -z "$pids" ]]; then
-                echo "WARNING: No Flink JVM processes found at $current_time"
+                consecutive_empty_cycles=$((consecutive_empty_cycles + 1))
+                echo "WARNING: No Flink JVM processes found at $current_time (cycle $consecutive_empty_cycles/$max_empty_cycles)"
+                
+                if [[ $consecutive_empty_cycles -ge $max_empty_cycles ]]; then
+                    echo "WARNING: Stopping JVM monitoring - no Flink processes found for $max_empty_cycles consecutive cycles"
+                    break
+                fi
+                
                 sleep $interval
                 continue
+            else
+                consecutive_empty_cycles=0  # Reset counter when processes are found
+                echo "INFO: Found Flink JVM processes: $pids at $current_time"
             fi
             
             for pid in $pids; do
                 local process_name=$(get_jvm_process_name $pid)
-                collect_jvm_metrics $pid "$current_time" "$process_name"
+                if [[ -n "$process_name" ]]; then
+                    collect_jvm_metrics $pid "$current_time" "$process_name"
+                else
+                    echo "WARNING: Could not get process name for PID $pid"
+                fi
             done
             
             sleep $interval
