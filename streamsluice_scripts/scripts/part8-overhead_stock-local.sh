@@ -314,7 +314,7 @@ init() {
   DELAY2=200
   DELAY3=50 #1111
   DELAY4=200
-  DELAY5=166
+  DELAY5=50 #166
   DELAY7=50 #1666
 
   PAYLOAD=5000
@@ -389,7 +389,7 @@ run_stock_test(){
     scalein_type="streamsluice"
     for metrics_report_interval in 100000000; do  # 5000000 25000000
       #for P7 in 1 5 10 20; do
-        for repeat in 2; do
+        for repeat in 10 11 12; do
           run_one_exp
           printf "${EXP_NAME}\n" >> part8_result.txt
         done
@@ -406,7 +406,7 @@ run_stock_test(){
     how_type="streamsluice"
     scalein_type="streamsluice"
     #for P7 in 1 5 10 20; do
-        for repeat in 2; do
+        for repeat in 10 11 12; do
             run_one_exp
             printf "${EXP_NAME}\n" >> part8_result.txt
         done

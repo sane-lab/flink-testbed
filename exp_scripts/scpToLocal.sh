@@ -1,6 +1,6 @@
 scp_from_dir(){
-	#name="${host}:${inputdir}/*.csv"
-	name="${host}:${inputdir}/monitor*.out"
+	name="${host}:${inputdir}/*.csv"
+	#name="${host}:${inputdir}/monitor*.out"
 	#name="${host}:${inputdir}/*.out"
 	#name="${host}:${inputdir}/*.log"
 	echo $name
